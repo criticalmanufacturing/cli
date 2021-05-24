@@ -11,28 +11,6 @@ const path = require('path'),
     { parsePackageJson, PLATFORM_MAPPING, ARCH_MAPPING } = require('./utils');
 
 async function getInstallationPath() {
-
-    // `npm bin` will output the path where binary files should be installed
-
-    // const value = await execShellCommand("npm bin -g");
-
-
-    //     var dir = null;
-    //     if (!value || value.length === 0) {
-
-    //         // We couldn't infer path from `npm bin`. Let's try to get it from
-    //         // Environment variables set by NPM when it runs.
-    //         // npm_config_prefix points to NPM's installation directory where `bin` folder is available
-    //         // Ex: /Users/foo/.nvm/versions/node/v4.3.0
-    //         var env = process.env;
-    //         if (env && env.npm_config_prefix) {
-    //             dir = path.join(env.npm_config_prefix, "bin");
-    //         }
-    //     } else {
-    //         dir = value.trim();
-    //     }
-
-    //     await mkdirp(dir);
     if (!!process.env.npm_config_global) {
         // install into home:
         // win: /AppData/Local/CMF/cmf-cli
