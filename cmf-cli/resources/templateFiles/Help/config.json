@@ -1,0 +1,13 @@
+{
+  "@jdt.remove": {
+    "@jdt.path": "$.packages.available[?($(packagesToRemove))]"
+  },
+  "@jdt.merge": [
+    {
+      "@jdt.path": "$.packages.available",
+      "@jdt.value": [ $(packagesToAdd) ]
+    }
+  ],
+  "cacheId": "$(Product.Presentation.CacheToken)",
+  "customizationVersion": "$(version)"
+}
