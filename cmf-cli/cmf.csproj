@@ -1,0 +1,81 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+    <TargetName>cmf</TargetName>
+    <RootNamespace>Cmf.Common.Cli</RootNamespace>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>cmf</ToolCommandName>
+    <PackageOutputPath>./nupkg</PackageOutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AssemblyName>cmf</AssemblyName>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <DocumentationFile>../docs/cmf/cmf.xml</DocumentationFile>
+    <DefaultDocumentationFileNameMode>Name</DefaultDocumentationFileNameMode>
+    <DefaultDocumentationNestedTypeVisibility>Namespace</DefaultDocumentationNestedTypeVisibility>
+    <DefaultDocumentationGeneratedPages>Namespaces</DefaultDocumentationGeneratedPages>
+    <Version>1.0.4-5</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DefaultDocumentation" Version="0.7.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.1.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20574.7" />
+    <PackageReference Include="System.Management.Automation" Version="7.1.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="nupkg\**" />
+    <EmbeddedResource Remove="nupkg\**" />
+    <None Remove="nupkg\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Commands\pipelines\HelpCommand.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="resources\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="CliMessages.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CliMessages.resx</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="installDependencies\**">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="CliMessages.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CliMessages.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="CliMessages.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>CliMessages.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+</Project>

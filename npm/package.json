@@ -1,0 +1,40 @@
+{
+  "name": "@criticalmanufacturing/cli",
+  "version": "1.0.4-5",
+  "description": "Critical Manufacturing command line client",
+  "bin": {
+    "cmf": "./run.js"
+  },
+  "scripts": {
+    "postinstall": "node postinstall.js install",
+    "preuninstall": "node postinstall.js uninstall"
+  },
+  "author": "Critical Manufacturing, SA",
+  "license": "BSD-3-Clause",
+  "goBinary": {
+    "name": "cmf",
+    "path": "./bin",
+    "url": "https://github.com/criticalmanufacturing/cli/releases/download/{{version}}/cmf-cli.{{platform}}-{{arch}}.zip"
+  },
+  "homepage": "https://github.com/criticalmanufacturing/cli#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/criticalmanufacturing/cli.git"
+  },
+  "files": [
+    "dist",
+    "postinstall.js",
+    "run.js",
+    "utils.js"
+  ],
+  "dependencies": {
+    "adm-zip": "^0.5.5",
+    "axios": "^0.21.1",
+    "env-paths": "^2.2.1",
+    "is-installed-globally": "^0.4.0",
+    "mkdirp": "^1.0.4",
+    "node_modules-path": "^2.0.5",
+    "rimraf": "^3.0.2",
+    "tmp": "^0.2.1"
+  }
+}

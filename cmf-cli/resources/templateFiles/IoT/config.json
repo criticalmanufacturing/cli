@@ -1,0 +1,13 @@
+{
+  "@jdt.remove": {
+    "@jdt.path": "$.connectiot.packages[?($(packagesToRemove))]"
+  },
+  "@jdt.merge": [
+    {
+      "@jdt.path": "$.connectiot.packages",
+      "@jdt.value": [ $(packagesToAdd) ]
+    }
+  ],
+  "cacheId": "$(Product.Presentation.CacheToken)",
+  "customizationVersion": "$(version)"
+}

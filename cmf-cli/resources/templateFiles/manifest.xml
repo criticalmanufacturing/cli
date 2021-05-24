@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<deploymentPackage>
+  <packageId>$(packageId)</packageId>
+  <name>$(name)</name>
+  <targetDirectory>$(targetDirectory)</targetDirectory>
+  <packageType>$(packageType)</packageType>
+  <description>$(description)</description>
+  <version>$(version)</version>
+  <isInstallable>$(isInstallable)</isInstallable>
+  <isUniqueInstall>$(isUniqueInstall)</isUniqueInstall>
+  <keywords>$(keywords)</keywords>
+  <dependencies>
+    $(dependencies)
+  </dependencies>
+  <steps>
+    $(steps)
+  </steps>
+  <xmlInjection>
+    $(xmlInjection)
+  </xmlInjection>
+</deploymentPackage>
