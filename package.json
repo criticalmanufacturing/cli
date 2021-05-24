@@ -1,0 +1,37 @@
+{
+  "name": "cmf-cli-builder",
+  "version": "1.0.0",
+  "description": "Builder package for cmf-cli",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "build:clean": "rimraf npm/dist/**",
+    "bump:pre": "npm run bump:npm:pre && npm run bump:dotnet:pre",
+    "bump:patch": "npm run bump:npm:patch && npm run bump:dotnet:patch",
+    "bump:feature": "npm run bump:npm:feature && npm run bump:dotnet:feature",
+    "bump:breaking": "npm run bump:npm:breaking && npm run bump:dotnet:breaking",
+    "build:prod": "npm run build:clean && npm run build:prod:win && npm run build:prod:linux && npm run build:prod:osx",
+    "build:prod:win": "dotnet publish ./cmf-cli/cmf.csproj -c Release -r win10-x64 -o npm/dist/win-x64",
+    "build:prod:linux": "dotnet publish ./cmf-cli/cmf.csproj -c Release -r linux-x64 -o npm/dist/linux-x64",
+    "build:prod:osx": "dotnet publish ./cmf-cli/cmf.csproj -c Release -r osx-x64 -o npm/dist/osx-x64",
+    "build:prod:selfcontained:win": "dotnet publish ./cmf-cli/cmf.csproj -c Release -r win10-x64 -o npm/dist/win-x64 --self-contained=false /p:PublishSingleFile=true",
+    "build:prod:selfcontained:linux": "dotnet publish ./cmf-cli/cmf.csproj -c Release -r linux-x64 -o npm/dist/linux-x64 --self-contained=false /p:PublishSingleFile=true",
+    "build:prod:selfcontained:osx": "dotnet publish ./cmf-cli/cmf.csproj -c Release -r osx-x64 -o npm/dist/osx-x64 --self-contained=false /p:PublishSingleFile=true",
+    "publish": "cd npm && npm publish --tag next && cd ..",
+    "publish:live": "cd npm && npm publish --tag latest && cd ..",
+    "bump:npm:pre": "cd npm && npm version prerelease --no-git-tag-version && cd ..",
+    "bump:npm:patch": "cd npm && npm version patch --no-git-tag-version && cd ..",
+    "bump:npm:feature": "cd npm && npm version minor --no-git-tag-version && cd ..",
+    "bump:npm:breaking": "cd npm && npm version major --no-git-tag-version && cd ..",
+    "bump:dotnet:pre": "cd cmf-cli && dotnet-bump prerelease --force --no-commit && cd ..",
+    "bump:dotnet:patch": "cd cmf-cli && dotnet-bump patch --force --no-commit && cd ..",
+    "bump:dotnet:feature": "cd cmf-cli && dotnet-bump minor --force --no-commit && cd ..",
+    "bump:dotnet:breaking": "cd cmf-cli && dotnet-bump major --force --no-commit && cd .."
+  },
+  "author": "Marco Silva",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "dotnet-bump": "^1.3.2",
+    "rimraf": "^3.0.2"
+  }
+}

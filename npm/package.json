@@ -1,0 +1,32 @@
+{
+  "name": "@criticalmanufacturing/cli",
+  "version": "1.0.4-5",
+  "description": "Critical Manufacturing command line client",
+  "bin": {
+    "cmf": "./run.js"
+  },
+  "scripts": {
+    "postinstall": "node postinstall.js install",
+    "preuninstall": "node postinstall.js uninstall"
+  },
+  "author": "Critical Manufacturing, SA",
+  "license": "UNLICENSED",
+  "goBinary": {
+    "name": "cmf",
+    "path": "./bin"
+  },
+  "homepage": "https://github.com/xendit/xendit-cli#readme",
+  "files": [
+    "dist",
+    "postinstall.js",
+    "run.js",
+    "utils.js"
+  ],
+  "dependencies": {
+    "env-paths": "^2.2.1",
+    "is-installed-globally": "^0.4.0",
+    "mkdirp": "^1.0.4",
+    "node_modules-path": "^2.0.5",
+    "rimraf": "^3.0.2"
+  }
+}
