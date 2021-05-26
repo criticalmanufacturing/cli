@@ -72,9 +72,10 @@ async function install(callback) {
 
     const installPath = await getInstallationPath();
     if (process.platform === "win32") {
-        await execShellCommand(`robocopy ${src.replace(/\//g, "\\")} ${installPath} /e /is /it`, [1]);
+        await execShellCommand(`robocopy ${src.replace(/\//g, "\\")} "${installPath}" /e /is /it`, [1]);
     } else {
-        await execShellCommand(`cp -r ${src}/** ${installPath}`);
+        await execShellCommand(`cp -r ${src}/** "${installPath}"`);
+        await execShellCommand(`chmod +x "${installPath}/cmf"`);
     }
     
     await verifyAndPlaceBinary(opts.binName, installPath, callback);
