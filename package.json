@@ -33,7 +33,7 @@
     "bump:dotnet:breaking": "cd cmf-cli && dotnet-bump major --force --no-commit && cd .."
   },
   "author": "Marco Silva",
-  "license": "GPL-3.0-only",
+  "license": "BSD-3-Clause",
   "dependencies": {
     "dotnet-bump": "^1.3.2",
     "rimraf": "^3.0.2"

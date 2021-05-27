@@ -10,7 +10,7 @@
     "preuninstall": "node postinstall.js uninstall"
   },
   "author": "Critical Manufacturing, SA",
-  "license": "GPL-3.0-only",
+  "license": "BSD-3-Clause",
   "goBinary": {
     "name": "cmf",
     "path": "./bin",
