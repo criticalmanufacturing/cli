@@ -1,4 +1,6 @@
 using System;
+using System.ComponentModel;
+using System.Linq;
 
 namespace Cmf.Common.Cli
 {
@@ -65,6 +67,62 @@ namespace Cmf.Common.Cli
             Console.ForegroundColor = ConsoleColor.Red;
             Write(msg);
             Console.ResetColor();
+        }
+
+        /// <summary>
+        /// Logs the progress of an operation, single line with a spinner
+        /// TODO: this needs a better API and implementation, it's a mess
+        /// </summary>
+        /// <param name="msg">message to print</param>
+        /// <param name="end">should stop the spinner and clear the console line</param>
+        private static BackgroundWorker worker = null;
+        private static string curMsg = string.Empty;
+        public static void Progress(string msg, bool end = false)
+        {
+            curMsg = msg;
+            var spinnerPosition = Console.CursorLeft;
+            if (worker == null)
+            {
+                worker = new BackgroundWorker();
+                worker.DoWork += delegate (object _, DoWorkEventArgs e)
+                {
+                    Console.CursorVisible = false;
+                    while (!worker.CancellationPending)
+                    {
+
+                        char[] spinChars = new char[] { '|', '/', '-', '\\' };
+                        foreach (char spinChar in spinChars)
+                        {
+                            Console.CursorLeft = spinnerPosition;
+                            Console.Write(spinChar);
+                            Console.ForegroundColor = ConsoleColor.DarkGray;
+                            Console.Write($" {curMsg}{string.Join("",Enumerable.Repeat<char>(' ', Console.BufferWidth - curMsg.Length - 3).ToArray())}");
+                            Console.ResetColor();
+                            System.Threading.Thread.Sleep(50);
+                        }
+                    }
+                    e.Cancel = true;
+                    e.Result = "done";
+                };
+                worker.WorkerSupportsCancellation = true;
+                worker.RunWorkerAsync();
+            }
+            if (end)
+            {
+                worker.CancelAsync();
+                // according to docs, Cancel should trigger RunWorkerCompleted, but in .NET 5 I could not do anything complex there
+                // such as wiping the last line. This needs more debugging.
+                // So the thread sleep here allows for the worker to finish printing
+                System.Threading.Thread.Sleep(100);
+                // this clears the last line
+                Console.CursorVisible = true;
+                int currentLineCursor = Console.CursorTop;
+                Console.SetCursorPosition(0, Console.CursorTop);
+                Console.Write(new string(' ', Console.BufferWidth));
+                Console.SetCursorPosition(0, currentLineCursor);
+                // this allows the console to reset before we actually continue printing stuff
+                System.Threading.Thread.Sleep(100);
+            }
         }
 
         /// <summary>
