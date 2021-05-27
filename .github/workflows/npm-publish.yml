@@ -33,9 +33,9 @@ jobs:
       - name: Create artifact linux-x64
         run: zip -X -r ../cmf-cli.linux-x64.zip .
         working-directory: dist/linux-x64
-      # - name: Create artifact osx-x64
-      #   run: zip -X -r ../cmf-cli.osx-x64.zip .
-      #   working-directory: dist/osx-64
+      - name: Create artifact osx-x64
+        run: zip -X -r ../cmf-cli.osx-x64.zip .
+        working-directory: dist/osx-x64
       - name: Publish win-x64 to release
         uses: JasonEtco/upload-to-release@master
         with:
@@ -48,12 +48,12 @@ jobs:
           args: dist/cmf-cli.linux-x64.zip application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      # - name: Publish osx-x64 to release
-      #   uses: JasonEtco/upload-to-release@master
-      #   with:
-      #     args: dist/cmf-cli.osx-x64.zip application/zip
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish osx-x64 to release
+        uses: JasonEtco/upload-to-release@master
+        with:
+          args: dist/cmf-cli.osx-x64.zip application/zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       # - run: npm run publish
       #   if: "github.event.release.prerelease"
       #   env:
