@@ -10,22 +10,34 @@ const path = require('path'),
     axios = require('axios'),
     AdmZip = require("adm-zip"),
     tmp = require('tmp'),
+    dbg= require('debug'),
     node_modules = require('node_modules-path'),
     { parsePackageJson, PLATFORM_MAPPING, ARCH_MAPPING } = require('./utils');
 
+
+const debug = dbg("cmf:debug");
+const error = dbg("cmf:debug:error");
+
 async function getInstallationPath() {
+    debug("Getting installation path...");
     if (!!process.env.npm_config_global) {
+        debug("Install is global, so targeting home directory for binaries");
         // install into home:
         // win: /AppData/Local/CMF/cmf-cli
         // linux: ~/.local/share/cmf-cli
         // osx: ~/Library/Application Support/cmf-cli
         const paths = envPaths("cmf-cli", {suffix: ""});
+        debug(`Install at ${paths.data}. Making sure path exists...`);
         await mkdirp(paths.data);
+        debug(`Install path exists!`);
         return paths.data;
     } else {
+        debug("Install is local, so targeting node_modules/.bin/cmf-cli. Making sure path exists...");
         // install into node_modules/.bin/cmf-cli
         const value = path.join(node_modules(), ".bin");
         const dir = path.join(value, "cmf-cli");
+        await mkdirp(dir);
+        debug(`Install path exists!`);
         return dir;
     }
 }
@@ -62,18 +74,22 @@ async function install(callback) {
                 responseType: 'arraybuffer', // to do this with streaming we must deal with chunking
             });
             const zip = tmp.tmpNameSync();
-            console.log(zip);
+            debug(`Writing temporary zip file to ${zip}`);
             fs.writeFileSync(zip, response.data);
+            debug(`Extracting zip file ${zip} to ${src}`);
             (new AdmZip(zip)).extractAllTo(src);
-        } catch {
-            callback(`Could not find release for version ${opts.version} on your platform ${process.platform}/${process.arch}`);
+        } catch (e) {
+            error(e);
+            callback(`Could not install version ${opts.version} on your platform ${process.platform}/${process.arch}: ${e.message}`);
         }
     }
 
     const installPath = await getInstallationPath();
     if (process.platform === "win32") {
+        debug("Installing for windows");
         await execShellCommand(`robocopy ${src.replace(/\//g, "\\")} "${installPath}" /e /is /it`, [1]);
     } else {
+        debug("Installing for *NIX: " + process.platform);
         await execShellCommand(`cp -r ${src}/** "${installPath}"`);
         await execShellCommand(`chmod +x "${installPath}/cmf"`);
     }
@@ -85,6 +101,7 @@ async function uninstall(callback) {
     var opts = parsePackageJson(".");
     try {
         const installationPath = await getInstallationPath();
+        debug("Deleting binaries from " + installationPath);
         rimraf.sync(installationPath);
     } catch (ex) {
         console.log(ex);
