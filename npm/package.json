@@ -1,6 +1,6 @@
 {
   "name": "@criticalmanufacturing/cli",
-  "version": "1.0.4-6",
+  "version": "1.0.4-7",
   "description": "Critical Manufacturing command line client",
   "bin": {
     "cmf": "./run.js"
