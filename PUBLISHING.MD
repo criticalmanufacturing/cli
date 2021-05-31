@@ -1,4 +1,17 @@
-# NPM
+# Publish to NPM from GitHub
+Publishing from GitHub is done using releases. As a guideline creating:
+
+- a release publishes a new version of the cli to the **@latest** tag
+    - these releases should only be created from branch _main_
+
+- a pre-release publishes a new version of the cli to the **@next** tag
+    - these releases may be created from branch _development_
+
+
+Go to [Releases](https://github.com/criticalmanufacturing/cli/releases) and click "Draft a new release"
+
+
+# Publish to NPM locally
 At root, run:
 
 - If needed
