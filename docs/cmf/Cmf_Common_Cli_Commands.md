@@ -18,6 +18,7 @@ Derived
 &#8627; [PackCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_PackCommand 'Cmf.Common.Cli.Commands.PackCommand')  
 &#8627; [PluginCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_PluginCommand 'Cmf.Common.Cli.Commands.PluginCommand')  
 &#8627; [PowershellCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_PowershellCommand 'Cmf.Common.Cli.Commands.PowershellCommand')  
+&#8627; [PublishCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_PublishCommand 'Cmf.Common.Cli.Commands.PublishCommand')  
 ### Methods
 <a name='Cmf_Common_Cli_Commands_BaseCommand_AddChildCommands(System_CommandLine_Command)'></a>
 ## BaseCommand.AddChildCommands(Command) Method
@@ -628,46 +629,6 @@ if set to `true` [force].
 `skipDependencies` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
   
   
-<a name='Cmf_Common_Cli_Commands_PackCommand_GetOutputDir(Cmf_Common_Cli_Objects_CmfPackage_System_IO_DirectoryInfo_bool)'></a>
-## PackCommand.GetOutputDir(CmfPackage, DirectoryInfo, bool) Method
-Gets the output dir.  
-```csharp
-private static System.IO.DirectoryInfo GetOutputDir(Cmf.Common.Cli.Objects.CmfPackage cmfPackage, System.IO.DirectoryInfo outputDir, bool force);
-```
-#### Parameters
-<a name='Cmf_Common_Cli_Commands_PackCommand_GetOutputDir(Cmf_Common_Cli_Objects_CmfPackage_System_IO_DirectoryInfo_bool)_cmfPackage'></a>
-`cmfPackage` [CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')  
-The CMF package.
-  
-<a name='Cmf_Common_Cli_Commands_PackCommand_GetOutputDir(Cmf_Common_Cli_Objects_CmfPackage_System_IO_DirectoryInfo_bool)_outputDir'></a>
-`outputDir` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
-The output dir.
-  
-<a name='Cmf_Common_Cli_Commands_PackCommand_GetOutputDir(Cmf_Common_Cli_Objects_CmfPackage_System_IO_DirectoryInfo_bool)_force'></a>
-`force` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
-if set to `true` [force].
-  
-#### Returns
-[System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
-  
-<a name='Cmf_Common_Cli_Commands_PackCommand_GetPackageOutputDir(Cmf_Common_Cli_Objects_CmfPackage_System_IO_DirectoryInfo)'></a>
-## PackCommand.GetPackageOutputDir(CmfPackage, DirectoryInfo) Method
-Gets the package output dir.  
-```csharp
-private static System.IO.DirectoryInfo GetPackageOutputDir(Cmf.Common.Cli.Objects.CmfPackage cmfPackage, System.IO.DirectoryInfo packageDirectory);
-```
-#### Parameters
-<a name='Cmf_Common_Cli_Commands_PackCommand_GetPackageOutputDir(Cmf_Common_Cli_Objects_CmfPackage_System_IO_DirectoryInfo)_cmfPackage'></a>
-`cmfPackage` [CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')  
-The CMF package.
-  
-<a name='Cmf_Common_Cli_Commands_PackCommand_GetPackageOutputDir(Cmf_Common_Cli_Objects_CmfPackage_System_IO_DirectoryInfo)_packageDirectory'></a>
-`packageDirectory` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
-The package directory.
-  
-#### Returns
-[System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
-  
 #### See Also
 - [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand')
   
@@ -759,7 +720,7 @@ Derived
 ## PowershellCommand.ExecutePwshScriptAsync(IDictionary, string, string) Method
 Executes the PWSH script asynchronously.  
 ```csharp
-protected System.Threading.Tasks.Task<System.Management.Automation.PSDataCollection<System.Management.Automation.PSObject>> ExecutePwshScriptAsync(System.Collections.IDictionary parameters=null, string script=null, string hostname=null);
+protected System.Threading.Tasks.Task<PSDataCollection<PSObject>> ExecutePwshScriptAsync(System.Collections.IDictionary parameters=null, string script=null, string hostname=null);
 ```
 #### Parameters
 <a name='Cmf_Common_Cli_Commands_PowershellCommand_ExecutePwshScriptAsync(System_Collections_IDictionary_string_string)_parameters'></a>
@@ -775,13 +736,13 @@ The script.
 The hostname.
   
 #### Returns
-[System.Threading.Tasks.Task&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Threading.Tasks.Task-1 'System.Threading.Tasks.Task`1')[System.Management.Automation.PSDataCollection&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Management.Automation.PSDataCollection-1 'System.Management.Automation.PSDataCollection`1')[System.Management.Automation.PSObject](https://docs.microsoft.com/en-us/dotnet/api/System.Management.Automation.PSObject 'System.Management.Automation.PSObject')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Management.Automation.PSDataCollection-1 'System.Management.Automation.PSDataCollection`1')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Threading.Tasks.Task-1 'System.Threading.Tasks.Task`1')  
+[System.Threading.Tasks.Task&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Threading.Tasks.Task-1 'System.Threading.Tasks.Task`1')[System.Management.Automation.PSDataCollection](https://docs.microsoft.com/en-us/dotnet/api/System.Management.Automation.PSDataCollection 'System.Management.Automation.PSDataCollection')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Threading.Tasks.Task-1 'System.Threading.Tasks.Task`1')  
   
 <a name='Cmf_Common_Cli_Commands_PowershellCommand_ExecutePwshScriptSync(System_Collections_IDictionary_string_string)'></a>
 ## PowershellCommand.ExecutePwshScriptSync(IDictionary, string, string) Method
 Executes the PWSH script synchronously.  
 ```csharp
-protected System.Management.Automation.PSDataCollection<System.Management.Automation.PSObject> ExecutePwshScriptSync(System.Collections.IDictionary parameters=null, string script=null, string hostname=null);
+protected PSDataCollection<PSObject> ExecutePwshScriptSync(System.Collections.IDictionary parameters=null, string script=null, string hostname=null);
 ```
 #### Parameters
 <a name='Cmf_Common_Cli_Commands_PowershellCommand_ExecutePwshScriptSync(System_Collections_IDictionary_string_string)_parameters'></a>
@@ -797,7 +758,7 @@ The script.
 The hostname.
   
 #### Returns
-[System.Management.Automation.PSDataCollection&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Management.Automation.PSDataCollection-1 'System.Management.Automation.PSDataCollection`1')[System.Management.Automation.PSObject](https://docs.microsoft.com/en-us/dotnet/api/System.Management.Automation.PSObject 'System.Management.Automation.PSObject')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Management.Automation.PSDataCollection-1 'System.Management.Automation.PSDataCollection`1')  
+[System.Management.Automation.PSDataCollection](https://docs.microsoft.com/en-us/dotnet/api/System.Management.Automation.PSDataCollection 'System.Management.Automation.PSDataCollection')  
   
 <a name='Cmf_Common_Cli_Commands_PowershellCommand_GetPowershellScript()'></a>
 ## PowershellCommand.GetPowershellScript() Method
@@ -812,7 +773,7 @@ protected abstract string GetPowershellScript();
 ## PowershellCommand.GetRunspace(string) Method
 Gets the a remote pwsh runspace.  
 ```csharp
-protected static System.Management.Automation.Runspaces.Runspace GetRunspace(string hostname);
+protected static Runspace GetRunspace(string hostname);
 ```
 #### Parameters
 <a name='Cmf_Common_Cli_Commands_PowershellCommand_GetRunspace(string)_hostname'></a>
@@ -821,6 +782,122 @@ The hostname.
   
 #### Returns
 [System.Management.Automation.Runspaces.Runspace](https://docs.microsoft.com/en-us/dotnet/api/System.Management.Automation.Runspaces.Runspace 'System.Management.Automation.Runspaces.Runspace')  
+  
+#### See Also
+- [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand')
+  
+<a name='Cmf_Common_Cli_Commands_PublishCommand'></a>
+## PublishCommand Class
+```csharp
+public class PublishCommand : Cmf.Common.Cli.Commands.BaseCommand
+```
+
+Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand') &#129106; PublishCommand  
+### Methods
+<a name='Cmf_Common_Cli_Commands_PublishCommand_Configure(System_CommandLine_Command)'></a>
+## PublishCommand.Configure(Command) Method
+Configure command  
+```csharp
+public override void Configure(System.CommandLine.Command cmd);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Commands_PublishCommand_Configure(System_CommandLine_Command)_cmd'></a>
+`cmd` [System.CommandLine.Command](https://docs.microsoft.com/en-us/dotnet/api/System.CommandLine.Command 'System.CommandLine.Command')  
+  
+  
+<a name='Cmf_Common_Cli_Commands_PublishCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_System_IO_DirectoryInfo_System_Uri)'></a>
+## PublishCommand.Execute(CmfPackage, DirectoryInfo, Uri) Method
+Executes the specified CMF package.  
+```csharp
+public void Execute(Cmf.Common.Cli.Objects.CmfPackage cmfPackage, System.IO.DirectoryInfo outputDir, System.Uri repoUri);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Commands_PublishCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_System_IO_DirectoryInfo_System_Uri)_cmfPackage'></a>
+`cmfPackage` [CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')  
+The CMF package.
+  
+<a name='Cmf_Common_Cli_Commands_PublishCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_System_IO_DirectoryInfo_System_Uri)_outputDir'></a>
+`outputDir` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+The output dir.
+  
+<a name='Cmf_Common_Cli_Commands_PublishCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_System_IO_DirectoryInfo_System_Uri)_repoUri'></a>
+`repoUri` [System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')  
+The repo URI.
+  
+#### Exceptions
+[CmfPackageCollection](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackageCollection 'Cmf.Common.Cli.Objects.CmfPackageCollection')  
+  
+<a name='Cmf_Common_Cli_Commands_PublishCommand_Execute(System_IO_DirectoryInfo_System_IO_DirectoryInfo_string)'></a>
+## PublishCommand.Execute(DirectoryInfo, DirectoryInfo, string) Method
+Executes the specified working dir.  
+```csharp
+public void Execute(System.IO.DirectoryInfo workingDir, System.IO.DirectoryInfo outputDir, string repo);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Commands_PublishCommand_Execute(System_IO_DirectoryInfo_System_IO_DirectoryInfo_string)_workingDir'></a>
+`workingDir` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+The working dir.
+  
+<a name='Cmf_Common_Cli_Commands_PublishCommand_Execute(System_IO_DirectoryInfo_System_IO_DirectoryInfo_string)_outputDir'></a>
+`outputDir` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+The output dir.
+  
+<a name='Cmf_Common_Cli_Commands_PublishCommand_Execute(System_IO_DirectoryInfo_System_IO_DirectoryInfo_string)_repo'></a>
+`repo` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+The repo.
+  
+  
+<a name='Cmf_Common_Cli_Commands_PublishCommand_PublishDependenciesFromPackage(System_IO_DirectoryInfo_System_Uri_string_string_System_Collections_Generic_List_string_)'></a>
+## PublishCommand.PublishDependenciesFromPackage(DirectoryInfo, Uri, string, string, List&lt;string&gt;) Method
+Publish Dependencies from one package. recursive operation  
+```csharp
+private void PublishDependenciesFromPackage(System.IO.DirectoryInfo outputDir, System.Uri repoUri, string packageId, string packageVersion, System.Collections.Generic.List<string> loadedPackages);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Commands_PublishCommand_PublishDependenciesFromPackage(System_IO_DirectoryInfo_System_Uri_string_string_System_Collections_Generic_List_string_)_outputDir'></a>
+`outputDir` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+Destination for the dependencies package and also used for the current package
+  
+<a name='Cmf_Common_Cli_Commands_PublishCommand_PublishDependenciesFromPackage(System_IO_DirectoryInfo_System_Uri_string_string_System_Collections_Generic_List_string_)_repoUri'></a>
+`repoUri` [System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')  
+Source Location where the package dependencies should be downloaded
+  
+<a name='Cmf_Common_Cli_Commands_PublishCommand_PublishDependenciesFromPackage(System_IO_DirectoryInfo_System_Uri_string_string_System_Collections_Generic_List_string_)_packageId'></a>
+`packageId` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+Source Package ID
+  
+<a name='Cmf_Common_Cli_Commands_PublishCommand_PublishDependenciesFromPackage(System_IO_DirectoryInfo_System_Uri_string_string_System_Collections_Generic_List_string_)_packageVersion'></a>
+`packageVersion` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+Source Package Version
+  
+<a name='Cmf_Common_Cli_Commands_PublishCommand_PublishDependenciesFromPackage(System_IO_DirectoryInfo_System_Uri_string_string_System_Collections_Generic_List_string_)_loadedPackages'></a>
+`loadedPackages` [System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')  
+List of packages already processed.
+  
+  
+<a name='Cmf_Common_Cli_Commands_PublishCommand_PublishPackageToOutput(System_IO_DirectoryInfo_System_Uri_string_string)'></a>
+## PublishCommand.PublishPackageToOutput(DirectoryInfo, Uri, string, string) Method
+Publish a package to the output directory  
+```csharp
+private void PublishPackageToOutput(System.IO.DirectoryInfo outputDir, System.Uri repoUri, string packageId, string packageVersion);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Commands_PublishCommand_PublishPackageToOutput(System_IO_DirectoryInfo_System_Uri_string_string)_outputDir'></a>
+`outputDir` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+Destiny for the package
+  
+<a name='Cmf_Common_Cli_Commands_PublishCommand_PublishPackageToOutput(System_IO_DirectoryInfo_System_Uri_string_string)_repoUri'></a>
+`repoUri` [System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')  
+Source Location where the package should be downloaded
+  
+<a name='Cmf_Common_Cli_Commands_PublishCommand_PublishPackageToOutput(System_IO_DirectoryInfo_System_Uri_string_string)_packageId'></a>
+`packageId` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+Package Id to publish
+  
+<a name='Cmf_Common_Cli_Commands_PublishCommand_PublishPackageToOutput(System_IO_DirectoryInfo_System_Uri_string_string)_packageVersion'></a>
+`packageVersion` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+Package version to publish
+  
   
 #### See Also
 - [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand')

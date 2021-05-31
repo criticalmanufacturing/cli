@@ -4,7 +4,10 @@ using Cmf.Common.Cli.Objects;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Text.Json;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace Cmf.Common.Cli.Utilities
 {
@@ -334,6 +337,84 @@ namespace Cmf.Common.Cli.Utilities
         {
             string sourceDirectory = Path.Join(AppDomain.CurrentDomain.BaseDirectory, CliConstants.FolderInstallDependencies, packageType.ToString());
             CopyDirectory(sourceDirectory, packageOutputDir.FullName, isCopyDependencies: true);
+        }
+
+        /// <summary>
+        /// Gets the output dir.
+        /// </summary>
+        /// <param name="cmfPackage">The CMF package.</param>
+        /// <param name="outputDir">The output dir.</param>
+        /// <param name="force">if set to <c>true</c> [force].</param>
+        /// <returns></returns>
+        public static DirectoryInfo GetOutputDir(CmfPackage cmfPackage, DirectoryInfo outputDir, bool force)
+        {
+            // Create OutputDir
+            if (!outputDir.Exists)
+            {
+                Log.Information($"Creating {outputDir.Name} folder");
+                outputDir.Create();
+            }
+            else
+            {
+                if (outputDir.GetFiles(cmfPackage.ZipPackageName).HasAny())
+                {
+                    if (force)
+                    {
+                        outputDir.GetFiles(cmfPackage.ZipPackageName)[0].Delete();
+                    }
+                    else
+                    {
+                        Log.Information($"Skipping {cmfPackage.ZipPackageName}. Already packed in Output Directory.");
+                        return null;
+                    }
+                }
+            }
+
+            return outputDir;
+        }
+
+        /// <summary>
+        /// Gets the package output dir.
+        /// </summary>
+        /// <param name="cmfPackage">The CMF package.</param>
+        /// <param name="packageDirectory">The package directory.</param>
+        /// <returns></returns>
+        public static DirectoryInfo GetPackageOutputDir(CmfPackage cmfPackage, DirectoryInfo packageDirectory)
+        {
+            // Clear and Create packageOutputDir
+            DirectoryInfo packageOutputDir = new($"{packageDirectory}/{cmfPackage.PackageName}");
+            if (packageOutputDir.Exists)
+            {
+                packageOutputDir.Delete(true);
+                packageOutputDir.Refresh();
+            }
+
+            Log.Information($"Generating {cmfPackage.PackageName}");
+            packageOutputDir.Create();
+
+            return packageOutputDir;
+        }
+
+        /// <summary>
+        /// Get Manifest File From package
+        /// </summary>
+        /// <param name="packageFile"></param>
+        /// <returns></returns>
+        public static XDocument GetManifestFromPackage(string packageFile)
+        {
+            XDocument dFManifest = null;
+
+            var zip = ZipFile.Open(packageFile, ZipArchiveMode.Read);
+            var manifest = zip.GetEntry(CliConstants.DeploymentFrameworkManifestFileName);
+            if (manifest != null)
+            {
+                using var stream = manifest.Open();
+                using var reader = new StreamReader(stream);
+                XmlDocument contentXml = new XmlDocument();
+                contentXml.Load(reader);
+                dFManifest = XDocument.Parse(contentXml.OuterXml);
+            }
+            return dFManifest;
         }
 
         #endregion

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Reflection;
 
 namespace Cmf.Common.Cli.Utilities
@@ -101,6 +102,60 @@ namespace Cmf.Common.Cli.Utilities
             }
         }
 
+        /// <summary>
+        /// Get Package from Repository
+        /// </summary>
+        /// <param name="outputDir">Target directory for the package</param>
+        /// <param name="repoUri">Repository Uri</param>
+        /// <param name="force"></param>
+        /// <param name="packageId">Package Identifier</param>
+        /// <param name="packageVersion">Package Version</param>
+        /// <returns></returns>
+        public static bool GetPackageFromRepository(DirectoryInfo outputDir, Uri repoUri, bool force, string packageId, string packageVersion)
+        {
+            bool packageFound = false;
+
+            // TODO: Support for nexus repository
+
+            if (repoUri != null)
+            {
+                // If other repository types are supported they will be added here.
+
+                if (repoUri.IsDirectory())
+                {
+                    // Create expected file name for the package to get
+                    string _packageFileName = $"{packageId}.{packageVersion}.zip";
+                    DirectoryInfo repoDirectory = new(repoUri.OriginalString);
+
+                    if (repoDirectory.Exists)
+                    {
+                        // Search by Packages already Packed
+                        FileInfo[] dependencyFiles = repoDirectory.GetFiles(_packageFileName);
+                        packageFound = dependencyFiles.HasAny();
+
+                        if (packageFound)
+                        {
+                            foreach (FileInfo dependencyFile in dependencyFiles)
+                            {
+                                string destDependencyFile = $"{outputDir.FullName}/{dependencyFile.Name}";
+                                if (force && File.Exists(destDependencyFile))
+                                {
+                                    File.Delete(destDependencyFile);
+                                }
+
+                                dependencyFile.CopyTo(destDependencyFile);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    throw new CliException(CliMessages.UrlsNotSupported);
+                }
+            }
+
+            return packageFound;
+        }
         #endregion Public Methods
     }
 }

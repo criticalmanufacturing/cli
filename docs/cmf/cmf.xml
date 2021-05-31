@@ -675,23 +675,6 @@
              </summary>
              <seealso cref="T:Cmf.Common.Cli.Commands.BaseCommand" />
         </member>
-        <member name="M:Cmf.Common.Cli.Commands.PackCommand.GetOutputDir(Cmf.Common.Cli.Objects.CmfPackage,System.IO.DirectoryInfo,System.Boolean)">
-            <summary>
-            Gets the output dir.
-            </summary>
-            <param name="cmfPackage">The CMF package.</param>
-            <param name="outputDir">The output dir.</param>
-            <param name="force">if set to <c>true</c> [force].</param>
-            <returns></returns>
-        </member>
-        <member name="M:Cmf.Common.Cli.Commands.PackCommand.GetPackageOutputDir(Cmf.Common.Cli.Objects.CmfPackage,System.IO.DirectoryInfo)">
-            <summary>
-            Gets the package output dir.
-            </summary>
-            <param name="cmfPackage">The CMF package.</param>
-            <param name="packageDirectory">The package directory.</param>
-            <returns></returns>
-        </member>
         <member name="M:Cmf.Common.Cli.Commands.PackCommand.Configure(System.CommandLine.Command)">
             <summary>
             Configure command
@@ -794,6 +777,58 @@
             Gets the powershell script.
             </summary>
             <returns></returns>
+        </member>
+        <member name="T:Cmf.Common.Cli.Commands.PublishCommand">
+             <summary>
+            
+             </summary>
+             <seealso cref="T:Cmf.Common.Cli.Commands.BaseCommand" />
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.PublishCommand.PublishDependenciesFromPackage(System.IO.DirectoryInfo,System.Uri,System.String,System.String,System.Collections.Generic.List{System.String})">
+            <summary>
+            Publish Dependencies from one package. recursive operation
+            </summary>
+            <param name="outputDir">Destination for the dependencies package and also used for the current package</param>
+            <param name="repoUri">Source Location where the package dependencies should be downloaded</param>
+            <param name="packageId">Source Package ID</param>
+            <param name="packageVersion">Source Package Version</param>
+            <param name="loadedPackages">List of packages already processed.</param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.PublishCommand.PublishPackageToOutput(System.IO.DirectoryInfo,System.Uri,System.String,System.String)">
+            <summary>
+            Publish a package to the output directory
+            </summary>
+            <param name="outputDir">Destiny for the package</param>
+            <param name="repoUri">Source Location where the package should be downloaded</param>
+            <param name="packageId">Package Id to publish</param>
+            <param name="packageVersion">Package version to publish</param>
+            <returns>True if package was coppied </returns>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.PublishCommand.Configure(System.CommandLine.Command)">
+            <summary>
+            Configure command
+            </summary>
+            <param name="cmd"></param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.PublishCommand.Execute(System.IO.DirectoryInfo,System.IO.DirectoryInfo,System.String)">
+            <summary>
+            Executes the specified working dir.
+            </summary>
+            <param name="workingDir">The working dir.</param>
+            <param name="outputDir">The output dir.</param>
+            <param name="repo">The repo.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.PublishCommand.Execute(Cmf.Common.Cli.Objects.CmfPackage,System.IO.DirectoryInfo,System.Uri)">
+            <summary>
+            Executes the specified CMF package.
+            </summary>
+            <param name="cmfPackage">The CMF package.</param>
+            <param name="outputDir">The output dir.</param>
+            <param name="repoUri">The repo URI.</param>
+            <returns></returns>
+            <exception cref="T:Cmf.Common.Cli.Objects.CmfPackageCollection">
+            </exception>
         </member>
         <member name="T:Cmf.Common.Cli.Constants.CliConstants">
              <summary>
@@ -2318,6 +2353,30 @@
             <param name="packageOutputDir">The package output dir.</param>
             <param name="packageType">Type of the package.</param>
         </member>
+        <member name="M:Cmf.Common.Cli.Utilities.FileSystemUtilities.GetOutputDir(Cmf.Common.Cli.Objects.CmfPackage,System.IO.DirectoryInfo,System.Boolean)">
+            <summary>
+            Gets the output dir.
+            </summary>
+            <param name="cmfPackage">The CMF package.</param>
+            <param name="outputDir">The output dir.</param>
+            <param name="force">if set to <c>true</c> [force].</param>
+            <returns></returns>
+        </member>
+        <member name="M:Cmf.Common.Cli.Utilities.FileSystemUtilities.GetPackageOutputDir(Cmf.Common.Cli.Objects.CmfPackage,System.IO.DirectoryInfo)">
+            <summary>
+            Gets the package output dir.
+            </summary>
+            <param name="cmfPackage">The CMF package.</param>
+            <param name="packageDirectory">The package directory.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Cmf.Common.Cli.Utilities.FileSystemUtilities.GetManifestFromPackage(System.String)">
+            <summary>
+            Get Manifest File From package
+            </summary>
+            <param name="packageFile"></param>
+            <returns></returns>
+        </member>
         <member name="T:Cmf.Common.Cli.Utilities.GenericUtilities">
              <summary>
             
@@ -2366,6 +2425,17 @@
             <param name="source">Source information to be parsed</param>
             <param name="version">Version Number</param>
             <param name="buildNr">Build Number</param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Utilities.GenericUtilities.GetPackageFromRepository(System.IO.DirectoryInfo,System.Uri,System.Boolean,System.String,System.String)">
+            <summary>
+            Get Package from Repository
+            </summary>
+            <param name="outputDir">Target directory for the package</param>
+            <param name="repoUri">Repository Uri</param>
+            <param name="force"></param>
+            <param name="packageId">Package Identifier</param>
+            <param name="packageVersion">Package Version</param>
+            <returns></returns>
         </member>
         <member name="T:Cmf.Common.Cli.Utilities.IoTUtilities">
              <summary>
