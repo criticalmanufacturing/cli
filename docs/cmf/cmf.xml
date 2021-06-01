@@ -1087,6 +1087,11 @@
             The database
             </summary>
         </member>
+        <member name="F:Cmf.Common.Cli.Enums.PackageType.Test">
+            <summary>
+            The test
+            </summary>
+        </member>
         <member name="T:Cmf.Common.Cli.Enums.StepType">
              <summary>
             
@@ -1375,6 +1380,21 @@
             <param name="defaultContentToIgnore">The default content to ignore.</param>
             <returns></returns>
         </member>
+        <member name="M:Cmf.Common.Cli.Handlers.PackageTypeHandler.FinalArchive(System.IO.DirectoryInfo,System.IO.DirectoryInfo)">
+            <summary>
+            Final Archive the package
+            </summary>
+            <param name="packageOutputDir">The pack directory.</param>
+            <param name="outputDir">The Output directory.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Cmf.Common.Cli.Handlers.PackageTypeHandler.GetContentToPack(System.IO.DirectoryInfo)">
+            <summary>
+            Get Content To pack
+            </summary>
+            <param name="packageOutputDir">The pack directory.</param>
+            <returns></returns>
+        </member>
         <member name="M:Cmf.Common.Cli.Handlers.PackageTypeHandler.CopyInstallDependencies(System.IO.DirectoryInfo)">
             <summary>
             Copies the install dependencies.
@@ -1457,6 +1477,33 @@
             Initializes a new instance of the <see cref="T:Cmf.Common.Cli.Handlers.RootPackageTypeHandler" /> class.
             </summary>
             <param name="cmfPackage">The CMF package.</param>
+        </member>
+        <member name="T:Cmf.Common.Cli.Handlers.TestPackageTypeHandler">
+             <summary>
+            
+             </summary>
+             <seealso cref="T:Cmf.Common.Cli.Handlers.PackageTypeHandler" />
+        </member>
+        <member name="M:Cmf.Common.Cli.Handlers.TestPackageTypeHandler.GenerateDeploymentFrameworkManifest(System.IO.DirectoryInfo)">
+            <summary>
+            Generates the deployment framework manifest.
+            </summary>
+            <param name="packageOutputDir">The package output dir.</param>
+            <exception cref="T:Cmf.Common.Cli.Utilities.CliException"></exception>
+        </member>
+        <member name="M:Cmf.Common.Cli.Handlers.TestPackageTypeHandler.#ctor(Cmf.Common.Cli.Objects.CmfPackage)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Cmf.Common.Cli.Handlers.TestPackageTypeHandler" /> class.
+            </summary>
+            <param name="cmfPackage">The CMF package.</param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Handlers.TestPackageTypeHandler.Bump(System.String,System.String,System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            Bumps the specified CMF package.
+            </summary>
+            <param name="version">The version.</param>
+            <param name="buildNr">The version for build Nr.</param>
+            <param name="bumpInformation">The bump information.</param>
         </member>
         <member name="T:Cmf.Common.Cli.Interfaces.IPackageTypeHandler">
              <summary>

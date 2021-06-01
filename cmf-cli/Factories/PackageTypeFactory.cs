@@ -50,6 +50,7 @@ namespace Cmf.Common.Cli.Factories
                 PackageType.Reporting => new ReportingPackageTypeHandler(cmfPackage),
                 PackageType.ExportedObjects => new ExportedObjectsPackageTypeHandler(cmfPackage),
                 PackageType.Database => new DatabasePackageTypeHandler(cmfPackage),
+                PackageType.Test => new TestPackageTypeHandler(cmfPackage),
                 _ => throw new NotImplementedException()
             };
 

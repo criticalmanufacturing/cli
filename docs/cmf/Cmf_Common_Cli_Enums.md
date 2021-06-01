@@ -147,6 +147,10 @@ The reporting
 `Root` 2  
 The root  
   
+<a name='Cmf_Common_Cli_Enums_PackageType_Test'></a>
+`Test` 13  
+The test  
+  
   
 <a name='Cmf_Common_Cli_Enums_StepType'></a>
 ## StepType Enum

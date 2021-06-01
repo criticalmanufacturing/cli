@@ -68,6 +68,10 @@
         /// <summary>
         /// The database
         /// </summary>
-        IoTData = 12
+        IoTData = 12,
+        /// <summary>
+        /// The test
+        /// </summary>
+        Test = 13
     }
 }
