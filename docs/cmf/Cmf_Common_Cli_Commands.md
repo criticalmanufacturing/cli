@@ -759,7 +759,7 @@ Derived
 ## PowershellCommand.ExecutePwshScriptAsync(IDictionary, string, string) Method
 Executes the PWSH script asynchronously.  
 ```csharp
-protected System.Threading.Tasks.Task<System.Management.Automation.PSDataCollection<System.Management.Automation.PSObject>> ExecutePwshScriptAsync(System.Collections.IDictionary parameters=null, string script=null, string hostname=null);
+protected System.Threading.Tasks.Task<PSDataCollection<PSObject>> ExecutePwshScriptAsync(System.Collections.IDictionary parameters=null, string script=null, string hostname=null);
 ```
 #### Parameters
 <a name='Cmf_Common_Cli_Commands_PowershellCommand_ExecutePwshScriptAsync(System_Collections_IDictionary_string_string)_parameters'></a>
@@ -775,13 +775,13 @@ The script.
 The hostname.
   
 #### Returns
-[System.Threading.Tasks.Task&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Threading.Tasks.Task-1 'System.Threading.Tasks.Task`1')[System.Management.Automation.PSDataCollection&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Management.Automation.PSDataCollection-1 'System.Management.Automation.PSDataCollection`1')[System.Management.Automation.PSObject](https://docs.microsoft.com/en-us/dotnet/api/System.Management.Automation.PSObject 'System.Management.Automation.PSObject')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Management.Automation.PSDataCollection-1 'System.Management.Automation.PSDataCollection`1')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Threading.Tasks.Task-1 'System.Threading.Tasks.Task`1')  
+[System.Threading.Tasks.Task&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Threading.Tasks.Task-1 'System.Threading.Tasks.Task`1')[System.Management.Automation.PSDataCollection](https://docs.microsoft.com/en-us/dotnet/api/System.Management.Automation.PSDataCollection 'System.Management.Automation.PSDataCollection')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Threading.Tasks.Task-1 'System.Threading.Tasks.Task`1')  
   
 <a name='Cmf_Common_Cli_Commands_PowershellCommand_ExecutePwshScriptSync(System_Collections_IDictionary_string_string)'></a>
 ## PowershellCommand.ExecutePwshScriptSync(IDictionary, string, string) Method
 Executes the PWSH script synchronously.  
 ```csharp
-protected System.Management.Automation.PSDataCollection<System.Management.Automation.PSObject> ExecutePwshScriptSync(System.Collections.IDictionary parameters=null, string script=null, string hostname=null);
+protected PSDataCollection<PSObject> ExecutePwshScriptSync(System.Collections.IDictionary parameters=null, string script=null, string hostname=null);
 ```
 #### Parameters
 <a name='Cmf_Common_Cli_Commands_PowershellCommand_ExecutePwshScriptSync(System_Collections_IDictionary_string_string)_parameters'></a>
@@ -797,7 +797,7 @@ The script.
 The hostname.
   
 #### Returns
-[System.Management.Automation.PSDataCollection&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Management.Automation.PSDataCollection-1 'System.Management.Automation.PSDataCollection`1')[System.Management.Automation.PSObject](https://docs.microsoft.com/en-us/dotnet/api/System.Management.Automation.PSObject 'System.Management.Automation.PSObject')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Management.Automation.PSDataCollection-1 'System.Management.Automation.PSDataCollection`1')  
+[System.Management.Automation.PSDataCollection](https://docs.microsoft.com/en-us/dotnet/api/System.Management.Automation.PSDataCollection 'System.Management.Automation.PSDataCollection')  
   
 <a name='Cmf_Common_Cli_Commands_PowershellCommand_GetPowershellScript()'></a>
 ## PowershellCommand.GetPowershellScript() Method
@@ -812,7 +812,7 @@ protected abstract string GetPowershellScript();
 ## PowershellCommand.GetRunspace(string) Method
 Gets the a remote pwsh runspace.  
 ```csharp
-protected static System.Management.Automation.Runspaces.Runspace GetRunspace(string hostname);
+protected static Runspace GetRunspace(string hostname);
 ```
 #### Parameters
 <a name='Cmf_Common_Cli_Commands_PowershellCommand_GetRunspace(string)_hostname'></a>
