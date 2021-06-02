@@ -25,5 +25,5 @@ to get more information. Feature sets also have help menus, e.g.:
 cmf -h
 ```
 
-Full documentation in [docs](https://tfs-projects.cmf.criticalmanufacturing.com/ImplementationProjects/COMMON/_git/Tools?path=%2Fcmf-cli%2Fdocs&version=GBmaster&_a=contents)
+Full documentation in [docs](https://github.com/criticalmanufacturing/cli/tree/main/docs)
 

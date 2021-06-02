@@ -1,6 +1,7 @@
 ﻿using Cmf.Common.Cli.Builders;
 using Cmf.Common.Cli.Enums;
 using Cmf.Common.Cli.Objects;
+using System.Collections.Generic;
 
 namespace Cmf.Common.Cli.Handlers
 {
@@ -19,7 +20,15 @@ namespace Cmf.Common.Cli.Handlers
             cmfPackage.SetDefaultValues
             (
                 targetDirectory:
-                    "UI/Html"
+                    "UI/Html",
+                steps:
+                    new List<Step>
+                    {
+                        new Step(StepType.DeployFiles)
+                        {
+                            ContentPath = "bundles/**"
+                        }
+                    }
             );
 
             BuildSteps = new IBuildCommand[]

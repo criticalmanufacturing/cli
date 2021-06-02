@@ -54,11 +54,11 @@ jobs:
           args: dist/cmf-cli.osx-x64.zip application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      # - run: npm run publish
-      #   if: "github.event.release.prerelease"
-      #   env:
-      #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      # - run: npm run publish:live
-      #   if: "!github.event.release.prerelease"
-      #   env:
-      #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: npm run publish
+        if: "github.event.release.prerelease"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: npm run publish:live
+        if: "!github.event.release.prerelease"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
