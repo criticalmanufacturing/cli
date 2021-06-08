@@ -840,6 +840,11 @@
             The lb os file location
             </summary>
         </member>
+        <member name="F:Cmf.Common.Cli.Constants.CliConstants.Driver">
+            <summary>
+            Driver keyword for IoT Packages
+            </summary>
+        </member>
         <member name="F:Cmf.Common.Cli.Constants.CliConstants.RootPackageDefaultKeyword">
             <summary>
             The root package default keyword
