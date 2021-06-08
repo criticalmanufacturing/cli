@@ -46,10 +46,12 @@ namespace Cmf.Common.Cli.Handlers
                             string packageName = packageJson.name;
 
                             // For IoT Packages we should ignore the driver packages
-                            if (CmfPackage.PackageType == PackageType.IoT && !packageName.Contains(CliConstants.Driver, System.StringComparison.InvariantCultureIgnoreCase))
+                            if (CmfPackage.PackageType == PackageType.IoT && packageName.Contains(CliConstants.Driver, System.StringComparison.InvariantCultureIgnoreCase))
                             {
-                                packageList.Add($"'{packageName}'");
+                                continue;
                             }
+
+                            packageList.Add($"'{packageName}'");
                         }
                     }
                 }
