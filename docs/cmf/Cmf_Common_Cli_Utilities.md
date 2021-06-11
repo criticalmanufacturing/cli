@@ -16,6 +16,18 @@ Initializes a new instance of the [CliException](Cmf_Common_Cli_Utilities.md#Cmf
 public CliException();
 ```
   
+<a name='Cmf_Common_Cli_Utilities_CliException_CliException(string)'></a>
+## CliException.CliException(string) Constructor
+Initializes a new instance of the [CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException') class.  
+```csharp
+public CliException(string message);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_CliException_CliException(string)_message'></a>
+`message` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+The message that describes the error.
+  
+  
 <a name='Cmf_Common_Cli_Utilities_CliException_CliException(string_System_Exception)'></a>
 ## CliException.CliException(string, Exception) Constructor
 Initializes a new instance of the [CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException') class.  
@@ -30,18 +42,6 @@ The error message that explains the reason for the exception.
 <a name='Cmf_Common_Cli_Utilities_CliException_CliException(string_System_Exception)_innerException'></a>
 `innerException` [System.Exception](https://docs.microsoft.com/en-us/dotnet/api/System.Exception 'System.Exception')  
 The exception that is the cause of the current exception, or a null reference ([Nothing](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/Nothing 'https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/Nothing') in Visual Basic) if no inner exception is specified.
-  
-  
-<a name='Cmf_Common_Cli_Utilities_CliException_CliException(string)'></a>
-## CliException.CliException(string) Constructor
-Initializes a new instance of the [CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException') class.  
-```csharp
-public CliException(string message);
-```
-#### Parameters
-<a name='Cmf_Common_Cli_Utilities_CliException_CliException(string)_message'></a>
-`message` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
-The message that describes the error.
   
   
 <a name='Cmf_Common_Cli_Utilities_CliException_CliException(System_Runtime_Serialization_SerializationInfo_System_Runtime_Serialization_StreamingContext)'></a>
