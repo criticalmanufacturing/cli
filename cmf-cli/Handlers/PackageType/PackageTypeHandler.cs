@@ -176,6 +176,14 @@ namespace Cmf.Common.Cli.Handlers
                         // Each Property in the list will be handled as an xml element with attributes
                         foreach (object property in listProperty)
                         {
+                            // if is Dependency and package type is Test, then skip the dependency on Manifest
+                            // This needs to be changed to get the Type from the dependency list.
+                            // if (property is Dependency &&
+                            //     ((Dependency)property).Type = PackageType.Test)
+                            // {
+                            //     continue;
+                            // }
+
                             List<XAttribute> xAttributes = new();
                             foreach (PropertyInfo propertyinfo in property.GetType().GetProperties())
                             {

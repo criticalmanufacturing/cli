@@ -805,74 +805,86 @@ public override void Configure(System.CommandLine.Command cmd);
 `cmd` [System.CommandLine.Command](https://docs.microsoft.com/en-us/dotnet/api/System.CommandLine.Command 'System.CommandLine.Command')  
   
   
-<a name='Cmf_Common_Cli_Commands_PublishCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_System_IO_DirectoryInfo_System_Uri)'></a>
-## PublishCommand.Execute(CmfPackage, DirectoryInfo, Uri) Method
+<a name='Cmf_Common_Cli_Commands_PublishCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_System_IO_DirectoryInfo_System_Uri_bool)'></a>
+## PublishCommand.Execute(CmfPackage, DirectoryInfo, Uri, bool) Method
 Executes the specified CMF package.  
 ```csharp
-public void Execute(Cmf.Common.Cli.Objects.CmfPackage cmfPackage, System.IO.DirectoryInfo outputDir, System.Uri repoUri);
+public void Execute(Cmf.Common.Cli.Objects.CmfPackage cmfPackage, System.IO.DirectoryInfo outputDir, System.Uri repoUri, bool publishTests);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Commands_PublishCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_System_IO_DirectoryInfo_System_Uri)_cmfPackage'></a>
+<a name='Cmf_Common_Cli_Commands_PublishCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_System_IO_DirectoryInfo_System_Uri_bool)_cmfPackage'></a>
 `cmfPackage` [CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')  
 The CMF package.
   
-<a name='Cmf_Common_Cli_Commands_PublishCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_System_IO_DirectoryInfo_System_Uri)_outputDir'></a>
+<a name='Cmf_Common_Cli_Commands_PublishCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_System_IO_DirectoryInfo_System_Uri_bool)_outputDir'></a>
 `outputDir` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
 The output dir.
   
-<a name='Cmf_Common_Cli_Commands_PublishCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_System_IO_DirectoryInfo_System_Uri)_repoUri'></a>
+<a name='Cmf_Common_Cli_Commands_PublishCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_System_IO_DirectoryInfo_System_Uri_bool)_repoUri'></a>
 `repoUri` [System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')  
 The repo URI.
+  
+<a name='Cmf_Common_Cli_Commands_PublishCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_System_IO_DirectoryInfo_System_Uri_bool)_publishTests'></a>
+`publishTests` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
+True to publish test packages
   
 #### Exceptions
 [CmfPackageCollection](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackageCollection 'Cmf.Common.Cli.Objects.CmfPackageCollection')  
   
-<a name='Cmf_Common_Cli_Commands_PublishCommand_Execute(System_IO_DirectoryInfo_System_IO_DirectoryInfo_string)'></a>
-## PublishCommand.Execute(DirectoryInfo, DirectoryInfo, string) Method
+<a name='Cmf_Common_Cli_Commands_PublishCommand_Execute(System_IO_DirectoryInfo_System_IO_DirectoryInfo_string_bool)'></a>
+## PublishCommand.Execute(DirectoryInfo, DirectoryInfo, string, bool) Method
 Executes the specified working dir.  
 ```csharp
-public void Execute(System.IO.DirectoryInfo workingDir, System.IO.DirectoryInfo outputDir, string repo);
+public void Execute(System.IO.DirectoryInfo workingDir, System.IO.DirectoryInfo outputDir, string repo, bool publishTests);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Commands_PublishCommand_Execute(System_IO_DirectoryInfo_System_IO_DirectoryInfo_string)_workingDir'></a>
+<a name='Cmf_Common_Cli_Commands_PublishCommand_Execute(System_IO_DirectoryInfo_System_IO_DirectoryInfo_string_bool)_workingDir'></a>
 `workingDir` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
 The working dir.
   
-<a name='Cmf_Common_Cli_Commands_PublishCommand_Execute(System_IO_DirectoryInfo_System_IO_DirectoryInfo_string)_outputDir'></a>
+<a name='Cmf_Common_Cli_Commands_PublishCommand_Execute(System_IO_DirectoryInfo_System_IO_DirectoryInfo_string_bool)_outputDir'></a>
 `outputDir` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
 The output dir.
   
-<a name='Cmf_Common_Cli_Commands_PublishCommand_Execute(System_IO_DirectoryInfo_System_IO_DirectoryInfo_string)_repo'></a>
+<a name='Cmf_Common_Cli_Commands_PublishCommand_Execute(System_IO_DirectoryInfo_System_IO_DirectoryInfo_string_bool)_repo'></a>
 `repo` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The repo.
   
+<a name='Cmf_Common_Cli_Commands_PublishCommand_Execute(System_IO_DirectoryInfo_System_IO_DirectoryInfo_string_bool)_publishTests'></a>
+`publishTests` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
+True to publish test packages
   
-<a name='Cmf_Common_Cli_Commands_PublishCommand_PublishDependenciesFromPackage(System_IO_DirectoryInfo_System_Uri_string_string_System_Collections_Generic_List_string_)'></a>
-## PublishCommand.PublishDependenciesFromPackage(DirectoryInfo, Uri, string, string, List&lt;string&gt;) Method
+  
+<a name='Cmf_Common_Cli_Commands_PublishCommand_PublishDependenciesFromPackage(System_IO_DirectoryInfo_System_Uri_string_string_System_Collections_Generic_List_string__bool)'></a>
+## PublishCommand.PublishDependenciesFromPackage(DirectoryInfo, Uri, string, string, List&lt;string&gt;, bool) Method
 Publish Dependencies from one package. recursive operation  
 ```csharp
-private void PublishDependenciesFromPackage(System.IO.DirectoryInfo outputDir, System.Uri repoUri, string packageId, string packageVersion, System.Collections.Generic.List<string> loadedPackages);
+private void PublishDependenciesFromPackage(System.IO.DirectoryInfo outputDir, System.Uri repoUri, string packageId, string packageVersion, System.Collections.Generic.List<string> loadedPackages, bool publishTests);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Commands_PublishCommand_PublishDependenciesFromPackage(System_IO_DirectoryInfo_System_Uri_string_string_System_Collections_Generic_List_string_)_outputDir'></a>
+<a name='Cmf_Common_Cli_Commands_PublishCommand_PublishDependenciesFromPackage(System_IO_DirectoryInfo_System_Uri_string_string_System_Collections_Generic_List_string__bool)_outputDir'></a>
 `outputDir` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
 Destination for the dependencies package and also used for the current package
   
-<a name='Cmf_Common_Cli_Commands_PublishCommand_PublishDependenciesFromPackage(System_IO_DirectoryInfo_System_Uri_string_string_System_Collections_Generic_List_string_)_repoUri'></a>
+<a name='Cmf_Common_Cli_Commands_PublishCommand_PublishDependenciesFromPackage(System_IO_DirectoryInfo_System_Uri_string_string_System_Collections_Generic_List_string__bool)_repoUri'></a>
 `repoUri` [System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')  
 Source Location where the package dependencies should be downloaded
   
-<a name='Cmf_Common_Cli_Commands_PublishCommand_PublishDependenciesFromPackage(System_IO_DirectoryInfo_System_Uri_string_string_System_Collections_Generic_List_string_)_packageId'></a>
+<a name='Cmf_Common_Cli_Commands_PublishCommand_PublishDependenciesFromPackage(System_IO_DirectoryInfo_System_Uri_string_string_System_Collections_Generic_List_string__bool)_packageId'></a>
 `packageId` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 Source Package ID
   
-<a name='Cmf_Common_Cli_Commands_PublishCommand_PublishDependenciesFromPackage(System_IO_DirectoryInfo_System_Uri_string_string_System_Collections_Generic_List_string_)_packageVersion'></a>
+<a name='Cmf_Common_Cli_Commands_PublishCommand_PublishDependenciesFromPackage(System_IO_DirectoryInfo_System_Uri_string_string_System_Collections_Generic_List_string__bool)_packageVersion'></a>
 `packageVersion` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 Source Package Version
   
-<a name='Cmf_Common_Cli_Commands_PublishCommand_PublishDependenciesFromPackage(System_IO_DirectoryInfo_System_Uri_string_string_System_Collections_Generic_List_string_)_loadedPackages'></a>
+<a name='Cmf_Common_Cli_Commands_PublishCommand_PublishDependenciesFromPackage(System_IO_DirectoryInfo_System_Uri_string_string_System_Collections_Generic_List_string__bool)_loadedPackages'></a>
 `loadedPackages` [System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')  
 List of packages already processed.
+  
+<a name='Cmf_Common_Cli_Commands_PublishCommand_PublishDependenciesFromPackage(System_IO_DirectoryInfo_System_Uri_string_string_System_Collections_Generic_List_string__bool)_publishTests'></a>
+`publishTests` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
+True to publish test packages
   
   
 <a name='Cmf_Common_Cli_Commands_PublishCommand_PublishPackageToOutput(System_IO_DirectoryInfo_System_Uri_string_string)'></a>

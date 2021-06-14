@@ -784,7 +784,7 @@
              </summary>
              <seealso cref="T:Cmf.Common.Cli.Commands.BaseCommand" />
         </member>
-        <member name="M:Cmf.Common.Cli.Commands.PublishCommand.PublishDependenciesFromPackage(System.IO.DirectoryInfo,System.Uri,System.String,System.String,System.Collections.Generic.List{System.String})">
+        <member name="M:Cmf.Common.Cli.Commands.PublishCommand.PublishDependenciesFromPackage(System.IO.DirectoryInfo,System.Uri,System.String,System.String,System.Collections.Generic.List{System.String},System.Boolean)">
             <summary>
             Publish Dependencies from one package. recursive operation
             </summary>
@@ -793,6 +793,7 @@
             <param name="packageId">Source Package ID</param>
             <param name="packageVersion">Source Package Version</param>
             <param name="loadedPackages">List of packages already processed.</param>
+            <param name="publishTests">True to publish test packages</param>
         </member>
         <member name="M:Cmf.Common.Cli.Commands.PublishCommand.PublishPackageToOutput(System.IO.DirectoryInfo,System.Uri,System.String,System.String)">
             <summary>
@@ -810,22 +811,24 @@
             </summary>
             <param name="cmd"></param>
         </member>
-        <member name="M:Cmf.Common.Cli.Commands.PublishCommand.Execute(System.IO.DirectoryInfo,System.IO.DirectoryInfo,System.String)">
+        <member name="M:Cmf.Common.Cli.Commands.PublishCommand.Execute(System.IO.DirectoryInfo,System.IO.DirectoryInfo,System.String,System.Boolean)">
             <summary>
             Executes the specified working dir.
             </summary>
             <param name="workingDir">The working dir.</param>
             <param name="outputDir">The output dir.</param>
             <param name="repo">The repo.</param>
+            <param name="publishTests">True to publish test packages</param>
             <returns></returns>
         </member>
-        <member name="M:Cmf.Common.Cli.Commands.PublishCommand.Execute(Cmf.Common.Cli.Objects.CmfPackage,System.IO.DirectoryInfo,System.Uri)">
+        <member name="M:Cmf.Common.Cli.Commands.PublishCommand.Execute(Cmf.Common.Cli.Objects.CmfPackage,System.IO.DirectoryInfo,System.Uri,System.Boolean)">
             <summary>
             Executes the specified CMF package.
             </summary>
             <param name="cmfPackage">The CMF package.</param>
             <param name="outputDir">The output dir.</param>
             <param name="repoUri">The repo URI.</param>
+            <param name="publishTests">True to publish test packages</param>
             <returns></returns>
             <exception cref="T:Cmf.Common.Cli.Objects.CmfPackageCollection">
             </exception>
@@ -1758,12 +1761,20 @@
             The deployment framework UI file.
             </value>
         </member>
+        <member name="P:Cmf.Common.Cli.Objects.CmfPackage.TestPackages">
+            <summary>
+            Gets or sets the Test Package Id.
+            </summary>
+            <value>
+            The Test Package Id.
+            </value>
+        </member>
         <member name="M:Cmf.Common.Cli.Objects.CmfPackage.ValidatePackage">
             <summary>
             Validates the package.
             </summary>
         </member>
-        <member name="M:Cmf.Common.Cli.Objects.CmfPackage.#ctor(System.String,System.String,System.String,System.String,Cmf.Common.Cli.Enums.PackageType,System.String,System.Nullable{System.Boolean},System.Nullable{System.Boolean},System.String,System.Nullable{System.Boolean},Cmf.Common.Cli.Objects.DependencyCollection,System.Collections.Generic.List{Cmf.Common.Cli.Objects.Step},System.Collections.Generic.List{Cmf.Common.Cli.Objects.ContentToPack},System.Collections.Generic.List{System.String})">
+        <member name="M:Cmf.Common.Cli.Objects.CmfPackage.#ctor(System.String,System.String,System.String,System.String,Cmf.Common.Cli.Enums.PackageType,System.String,System.Nullable{System.Boolean},System.Nullable{System.Boolean},System.String,System.Nullable{System.Boolean},Cmf.Common.Cli.Objects.DependencyCollection,System.Collections.Generic.List{Cmf.Common.Cli.Objects.Step},System.Collections.Generic.List{Cmf.Common.Cli.Objects.ContentToPack},System.Collections.Generic.List{System.String},Cmf.Common.Cli.Objects.DependencyCollection)">
             <summary>
             Initializes a new instance of the <see cref="T:Cmf.Common.Cli.Objects.CmfPackage"/> class.
             </summary>
@@ -1781,6 +1792,7 @@
             <param name="steps">The steps.</param>
             <param name="contentToPack">The content to pack.</param>
             <param name="xmlInjection">The XML injection.</param>
+            <param name="testPackages">The test Packages.</param>
         </member>
         <member name="M:Cmf.Common.Cli.Objects.CmfPackage.Equals(Cmf.Common.Cli.Objects.CmfPackage)">
             <summary>

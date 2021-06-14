@@ -32,7 +32,8 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="packageId">Source Package ID</param>
         /// <param name="packageVersion">Source Package Version</param>
         /// <param name="loadedPackages">List of packages already processed.</param>
-        private void PublishDependenciesFromPackage(DirectoryInfo outputDir, Uri repoUri, string packageId, string packageVersion, List<string> loadedPackages)
+        /// <param name="publishTests">True to publish test packages</param>
+        private void PublishDependenciesFromPackage(DirectoryInfo outputDir, Uri repoUri, string packageId, string packageVersion, List<string> loadedPackages, bool publishTests)
         {
             loadedPackages ??= new List<string>();
             string dependencyFileName = $"{packageId}.{packageVersion}.zip";
@@ -57,10 +58,36 @@ namespace Cmf.Common.Cli.Commands
                     Log.Information($"Get Dependency Package {packageId}.{packageVersion}...");
                     loadedPackages.Add($"{dependencyId}.{dependencyVersion}");
                     PublishPackageToOutput(outputDir, repoUri, dependencyId, dependencyVersion);
-                    PublishDependenciesFromPackage(outputDir, repoUri, dependencyId, dependencyVersion, loadedPackages);
+                    PublishDependenciesFromPackage(outputDir, repoUri, dependencyId, dependencyVersion, loadedPackages, publishTests);
                 }
             }
 
+            if (publishTests)
+            {
+                DirectoryInfo testOutputDir = new(outputDir + "/Tests");
+                // If test packages exists
+                rootNode = dFManifest.Descendants("testPackages").FirstOrDefault();
+                if (rootNode == null)
+                {
+                    // No dependencies found for package
+                    Log.Information($"Package {packageId}.{packageVersion} has no test packages");
+                    return;
+                }
+
+                foreach (XElement element in rootNode.Elements())
+                {
+                    // Get Dependency for package
+                    string dependencyId = element.Attribute("id").Value;
+                    string dependencyVersion = element.Attribute("version").Value;
+                    if (!loadedPackages.Contains($"{dependencyId}.{dependencyVersion}"))
+                    {
+                        Log.Information($"Get Dependency Package {packageId}.{packageVersion}...");
+                        loadedPackages.Add($"{dependencyId}.{dependencyVersion}");
+
+                        PublishPackageToOutput(testOutputDir, repoUri, dependencyId, dependencyVersion);
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -111,8 +138,12 @@ namespace Cmf.Common.Cli.Commands
                 aliases: new string[] { "-r", "--repo" },
                 description: "Repository where dependencies are located (url or folder)"));
 
+            cmd.AddOption(new Option<bool>(
+                aliases: new string[] { "-t", "--publishTests" },
+                description: "to include and publish test packages"));
+
             // Add the handler
-            cmd.Handler = CommandHandler.Create<DirectoryInfo, DirectoryInfo, string>(Execute);
+            cmd.Handler = CommandHandler.Create<DirectoryInfo, DirectoryInfo, string, bool>(Execute);
         }
 
         /// <summary>
@@ -121,8 +152,9 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="workingDir">The working dir.</param>
         /// <param name="outputDir">The output dir.</param>
         /// <param name="repo">The repo.</param>
+        /// <param name="publishTests">True to publish test packages</param>
         /// <returns></returns>
-        public void Execute(DirectoryInfo workingDir, DirectoryInfo outputDir, string repo)
+        public void Execute(DirectoryInfo workingDir, DirectoryInfo outputDir, string repo, bool publishTests)
         {
             FileInfo cmfpackageFile = new($"{workingDir}/{CliConstants.CmfPackageFileName}");
 
@@ -131,7 +163,7 @@ namespace Cmf.Common.Cli.Commands
             // Reading cmfPackage
             CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true);
 
-            Execute(cmfPackage, outputDir, repoUri);
+            Execute(cmfPackage, outputDir, repoUri, publishTests);
         }
 
         /// <summary>
@@ -140,10 +172,11 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="cmfPackage">The CMF package.</param>
         /// <param name="outputDir">The output dir.</param>
         /// <param name="repoUri">The repo URI.</param>
+        /// <param name="publishTests">True to publish test packages</param>
         /// <returns></returns>
         /// <exception cref="CmfPackageCollection">
         /// </exception>
-        public void Execute(CmfPackage cmfPackage, DirectoryInfo outputDir, Uri repoUri)
+        public void Execute(CmfPackage cmfPackage, DirectoryInfo outputDir, Uri repoUri, bool publishTests)
         {
             #region Output Directories Handling
 
@@ -155,14 +188,25 @@ namespace Cmf.Common.Cli.Commands
             }
 
             DirectoryInfo packageOutputDir = FileSystemUtilities.GetPackageOutputDir(cmfPackage, packageDirectory);
+            if (publishTests)
+            {
+                DirectoryInfo outputTestDir = new(outputDir + "/Tests");
+                if (!outputTestDir.Exists)
+                {
+                    outputTestDir.Create();
+                }
+            }
 
             #endregion
 
             try
             {
-                PublishPackageToOutput(outputDir, repoUri, cmfPackage.PackageId, cmfPackage.Version);
 
-                PublishDependenciesFromPackage(outputDir, repoUri, cmfPackage.PackageId, cmfPackage.Version, null);
+                List<string> loadedPackages = new List<string>();
+
+                // Get Local Package.
+                PublishPackageToOutput(outputDir, repoUri, cmfPackage.PackageId, cmfPackage.Version);
+                PublishDependenciesFromPackage(outputDir, repoUri, cmfPackage.PackageId, cmfPackage.Version, loadedPackages, publishTests);
             }
             catch (Exception e)
             {
