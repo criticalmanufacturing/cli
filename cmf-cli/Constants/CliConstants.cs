@@ -51,6 +51,11 @@
         /// </summary>
         public const string LBOsFileLocation = "Libs/LBOs/NetStandard/Cmf.LightBusinessObjects.dll";
 
+        /// <summary>
+        /// Driver keyword for IoT Packages
+        /// </summary>
+        public const string Driver = "driver";
+
         #endregion
 
         #region Generic

@@ -45,6 +45,15 @@ public const string DeploymentMetadataDependency = Cmf.Custom.DeploymentMetadata
 #### Field Value
 [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
   
+<a name='Cmf_Common_Cli_Constants_CliConstants_Driver'></a>
+## CliConstants.Driver Field
+Driver keyword for IoT Packages  
+```csharp
+public const string Driver = driver;
+```
+#### Field Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
+  
 <a name='Cmf_Common_Cli_Constants_CliConstants_FolderInstallDependencies'></a>
 ## CliConstants.FolderInstallDependencies Field
 The folder install dependencies  
