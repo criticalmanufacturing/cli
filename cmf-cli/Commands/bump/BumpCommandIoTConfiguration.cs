@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 
 namespace Cmf.Common.Cli.Commands
@@ -23,9 +24,9 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="cmd"></param>
         public override void Configure(Command cmd)
         {
-            cmd.AddArgument(new Argument<DirectoryInfo>(
+            cmd.AddArgument(new Argument<IDirectoryInfo>(
                 name: "path",
-                getDefaultValue: () => { return new("."); },
+                getDefaultValue: () => { return this.fileSystem.DirectoryInfo.FromDirectoryName("."); },
                 description: "path"));
 
             cmd.AddOption(new Option<string>(
@@ -73,7 +74,7 @@ namespace Cmf.Common.Cli.Commands
                 description: "Instead of replacing the version will add -$version"));
 
             // Add the handler
-            cmd.Handler = CommandHandler.Create<DirectoryInfo, string, string, bool, bool, string, string, string, string, bool, bool>(Execute);
+            cmd.Handler = CommandHandler.Create<IDirectoryInfo, string, string, bool, bool, string, string, string, string, bool, bool>(Execute);
         }
 
         /// <summary>
@@ -91,7 +92,7 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="isToTag">if set to <c>true</c> [is to tag].</param>
         /// <param name="onlyMdCustomization">if set to <c>true</c> [only md customization].</param>
         /// <returns></returns>
-        public static void Execute(DirectoryInfo packageDirectory, string version, string buildNr, bool isToBumpMasterdata, bool isToBumpIoT, string packageNames, string root, string group, string workflowName, bool isToTag, bool onlyMdCustomization)
+        public void Execute(IDirectoryInfo packageDirectory, string version, string buildNr, bool isToBumpMasterdata, bool isToBumpIoT, string packageNames, string root, string group, string workflowName, bool isToTag, bool onlyMdCustomization)
         {
             // Get All AutomationWorkflowFiles Folders
             List<string> automationWorkflowDirectories = Directory.GetDirectories(packageDirectory.FullName, "AutomationWorkflowFiles").ToList();
@@ -113,7 +114,7 @@ namespace Cmf.Common.Cli.Commands
                 if (isToBumpIoT)
                 {
                     // Get All Group Folders
-                    List<string> groups = Directory.GetDirectories(automationWorkflowDirectory, "*").ToList();
+                    List<string> groups = this.fileSystem.Directory.GetDirectories(automationWorkflowDirectory, "*").ToList();
                     if (!String.IsNullOrEmpty(group) && groups.Any(gr => gr.Contains(group)))
                     {
                         // Get All Group Folders that are called group

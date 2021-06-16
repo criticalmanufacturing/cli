@@ -8,6 +8,7 @@ using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
+using System.IO.Abstractions;
 
 namespace Cmf.Common.Cli.Commands
 {
@@ -24,14 +25,14 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="cmd"></param>
         public override void Configure(Command cmd)
         {
-            cmd.AddArgument(new Argument<DirectoryInfo>(
+            cmd.AddArgument(new Argument<IDirectoryInfo>(
                 name: "workingDir",
-                getDefaultValue: () => { return new("."); },
+                getDefaultValue: () => { return this.fileSystem.DirectoryInfo.FromDirectoryName("."); },
                 description: "Working Directory"));
 
-            cmd.AddOption(new Option<DirectoryInfo>(
+            cmd.AddOption(new Option<IDirectoryInfo>(
                 aliases: new string[] { "-o", "--outputDir" },
-                getDefaultValue: () => { return new("Package"); },
+                getDefaultValue: () => { return this.fileSystem.DirectoryInfo.FromDirectoryName("Package"); },
                 description: "Output directory for created package"));
 
             cmd.AddOption(new Option<string>(
@@ -47,7 +48,7 @@ namespace Cmf.Common.Cli.Commands
                 description: "Do not get all dependencies recursively"));
 
             // Add the handler
-            cmd.Handler = CommandHandler.Create<DirectoryInfo, DirectoryInfo, string, bool, bool>(Execute);
+            cmd.Handler = CommandHandler.Create<IDirectoryInfo, IDirectoryInfo, string, bool, bool>(Execute);
         }
 
         /// <summary>
@@ -59,9 +60,9 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="force">if set to <c>true</c> [force].</param>
         /// <param name="skipDependencies"></param>
         /// <returns></returns>
-        public void Execute(DirectoryInfo workingDir, DirectoryInfo outputDir, string repo, bool force, bool skipDependencies)
+        public void Execute(IDirectoryInfo workingDir, IDirectoryInfo outputDir, string repo, bool force, bool skipDependencies)
         {
-            FileInfo cmfpackageFile = new($"{workingDir}/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = this.fileSystem.FileInfo.FromFileName($"{workingDir}/{CliConstants.CmfPackageFileName}");
 
             Uri repoUri = repo != null ? new Uri(repo) : null;
 
@@ -83,14 +84,14 @@ namespace Cmf.Common.Cli.Commands
         /// <returns></returns>
         /// <exception cref="CmfPackageCollection">
         /// </exception>
-        public void Execute(CmfPackage cmfPackage, DirectoryInfo outputDir, Uri repoUri, CmfPackageCollection loadedPackages, bool force, bool skipDependencies)
+        public void Execute(CmfPackage cmfPackage, IDirectoryInfo outputDir, Uri repoUri, CmfPackageCollection loadedPackages, bool force, bool skipDependencies)
         {
             // TODO: Need to review file patterns in contentToPack and contentToIgnore
             IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfPackage);
 
             loadedPackages ??= new CmfPackageCollection();
 
-            DirectoryInfo packageDirectory = cmfPackage.GetFileInfo().Directory;
+            IDirectoryInfo packageDirectory = cmfPackage.GetFileInfo().Directory;
 
             #region Output Directories Handling
 

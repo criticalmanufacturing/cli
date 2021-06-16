@@ -29,8 +29,8 @@ namespace Cmf.Common.Cli.Commands
         /// </summary>
         public void Execute()
         {
-            var helpRoot = Path.Join(FileSystemUtilities.GetProjectRoot().FullName, "UI", "Help");
-            var project = FileSystemUtilities.ReadProjectConfig().RootElement.GetProperty("Tenant").GetString();
+            var helpRoot = Path.Join(FileSystemUtilities.GetProjectRoot(this.fileSystem).FullName, "UI", "Help");
+            var project = FileSystemUtilities.ReadProjectConfig(this.fileSystem).RootElement.GetProperty("Tenant").GetString();
             var pars = new Dictionary<string, string>
             {
                 {"basePath", helpRoot},

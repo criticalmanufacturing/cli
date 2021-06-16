@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
+using System.IO.Abstractions;
 
 namespace Cmf.Common.Cli.Commands
 {
@@ -61,7 +62,7 @@ namespace Cmf.Common.Cli.Commands
         /// <exception cref="CliException"></exception>
         public void Execute(DirectoryInfo packagePath, string version, string buildNr, string root, bool all)
         {
-            FileInfo cmfpackageFile = new($"{packagePath}/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = this.fileSystem.FileInfo.FromFileName($"{packagePath}/{CliConstants.CmfPackageFileName}");
 
             if (string.IsNullOrEmpty(version) && string.IsNullOrEmpty(buildNr))
             {
@@ -85,7 +86,7 @@ namespace Cmf.Common.Cli.Commands
         /// <exception cref="CliException"></exception>
         public void Execute(CmfPackage cmfPackage, string version, string buildNr, string root, bool all)
         {
-            DirectoryInfo packageDirectory = cmfPackage.GetFileInfo().Directory;
+            IDirectoryInfo packageDirectory = cmfPackage.GetFileInfo().Directory;
             IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfPackage);
 
             // Will execute specific bump code per Package Type

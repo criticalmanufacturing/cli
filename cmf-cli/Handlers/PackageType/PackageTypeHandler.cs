@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
@@ -21,6 +22,7 @@ namespace Cmf.Common.Cli.Handlers
     public abstract class PackageTypeHandler : IPackageTypeHandler
     {
         #region Protected Properties
+        protected IFileSystem fileSystem;
 
         /// <summary>
         /// The CMF package
@@ -65,7 +67,8 @@ namespace Cmf.Common.Cli.Handlers
         /// Initializes a new instance of the <see cref="PackageTypeHandler" /> class.
         /// </summary>
         /// <exception cref="CliException"></exception>
-        public PackageTypeHandler(CmfPackage cmfPackage)
+        public PackageTypeHandler(CmfPackage cmfPackage) : this(cmfPackage, new FileSystem()) { }
+        public PackageTypeHandler(CmfPackage cmfPackage, IFileSystem fileSystem)
         {
             CmfPackage = cmfPackage;
             DefaultContentToIgnore = new List<string>()
@@ -79,6 +82,8 @@ namespace Cmf.Common.Cli.Handlers
             BuildSteps = Array.Empty<IBuildCommand>();
 
             DFPackageType = cmfPackage.PackageType;
+
+            this.fileSystem = fileSystem;
         }
 
         #endregion
@@ -90,7 +95,7 @@ namespace Cmf.Common.Cli.Handlers
         /// </summary>
         /// <param name="packageOutputDir">The package output dir.</param>
         /// <exception cref="Cmf.Common.Cli.Utilities.CliException"></exception>
-        internal virtual void GenerateDeploymentFrameworkManifest(DirectoryInfo packageOutputDir)
+        internal virtual void GenerateDeploymentFrameworkManifest(IDirectoryInfo packageOutputDir)
         {
             Log.Information("Generating DeploymentFramework manifest");
             string path = $"{packageOutputDir.FullName}/{CliConstants.DeploymentFrameworkManifestFileName}";
@@ -126,7 +131,7 @@ namespace Cmf.Common.Cli.Handlers
                 {
                     foreach (string xmlInjectionFile in CmfPackage.XmlInjection)
                     {
-                        FileInfo xmlFile = new($"{CmfPackage.GetFileInfo().Directory}/{xmlInjectionFile}");
+                        IFileInfo xmlFile = this.fileSystem.FileInfo.FromFileName($"{CmfPackage.GetFileInfo().Directory}/{xmlInjectionFile}");
                         string xmlFileContent = xmlFile.ReadToString();
 
                         if (!xmlFile.Exists || string.IsNullOrEmpty(xmlFileContent))
@@ -208,7 +213,7 @@ namespace Cmf.Common.Cli.Handlers
         /// <param name="packDirectory">The pack directory.</param>
         /// <param name="defaultContentToIgnore">The default content to ignore.</param>
         /// <returns></returns>
-        private static List<string> GetContentToIgnore(ContentToPack contentToPack, DirectoryInfo packDirectory, List<string> defaultContentToIgnore)
+        private List<string> GetContentToIgnore(ContentToPack contentToPack, IDirectoryInfo packDirectory, List<string> defaultContentToIgnore)
         {
             List<string> contentToIgnore = new();
 
@@ -223,10 +228,10 @@ namespace Cmf.Common.Cli.Handlers
                 {
                     contentToIgnore.Add($"{ignoreFileName}");
 
-                    FileInfo ignoreFile = packDirectory.GetFiles(ignoreFileName).FirstOrDefault();
+                    IFileInfo ignoreFile = packDirectory.GetFiles(ignoreFileName).FirstOrDefault();
                     if (ignoreFile == null)
                     {
-                        string filePath = Path.Join(packDirectory.FullName, ignoreFileName);
+                        string filePath = this.fileSystem.Path.Join(packDirectory.FullName, ignoreFileName);
                         throw new CliException(string.Format(CliMessages.NotFound, filePath));
                     }
 
@@ -253,29 +258,29 @@ namespace Cmf.Common.Cli.Handlers
 
             return contentToIgnore;
         }
-        
+
         /// <summary>
         /// Final Archive the package
         /// </summary>
         /// <param name="packageOutputDir">The pack directory.</param>
         /// <param name="outputDir">The Output directory.</param>
         /// <returns></returns>
-        internal virtual void FinalArchive(DirectoryInfo packageOutputDir, DirectoryInfo outputDir)
+        internal virtual void FinalArchive(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir)
         {
             foreach (FileToPack fileToPack in FilesToPack)
-            {
+        {
                 // If the destination directory doesn't exist, create it.
                 if (!fileToPack.Target.Directory.Exists)
-                {
+            {
                     fileToPack.Target.Directory.Create();
                 }
 
                 fileToPack.Source.CopyTo(fileToPack.Target.FullName, true);
-            }
+        }
 
             string tempzipPath = $"{CmfPackage.GetFileInfo().Directory.FullName}/{CmfPackage.PackageName}.zip";
             if (File.Exists(tempzipPath))
-            {
+        {
                 File.Delete(tempzipPath);
             }
             ZipFile.CreateFromDirectory(packageOutputDir.FullName, tempzipPath);
@@ -291,7 +296,7 @@ namespace Cmf.Common.Cli.Handlers
         /// </summary>
         /// <param name="packageOutputDir">The pack directory.</param>
         /// <returns></returns>
-        internal virtual bool GetContentToPack(DirectoryInfo packageOutputDir)
+        internal virtual bool GetContentToPack(IDirectoryInfo packageOutputDir)
         {
             bool foundContentToPack = false;
 
@@ -299,7 +304,7 @@ namespace Cmf.Common.Cli.Handlers
 
             if (CmfPackage.ContentToPack.HasAny())
             {
-                DirectoryInfo packageDirectory = CmfPackage.GetFileInfo().Directory;
+                IDirectoryInfo packageDirectory = CmfPackage.GetFileInfo().Directory;
 
                 // TODO: Bulk Copy
                 foreach (ContentToPack contentToPack in CmfPackage.ContentToPack)
@@ -334,13 +339,13 @@ namespace Cmf.Common.Cli.Handlers
                     {
                         // TODO: To be reviewed, files/directory search should be done with globs
 
-                        DirectoryInfo[] _directoriesToPack = packageDirectory.GetDirectories(_source);
+                        IDirectoryInfo[] _directoriesToPack = packageDirectory.GetDirectories(_source);
 
                         if (_directoriesToPack.HasAny())
                         {
                             #region Directory Packing
 
-                            foreach (DirectoryInfo packDirectory in _directoriesToPack)
+                            foreach (IDirectoryInfo packDirectory in _directoriesToPack)
                             {
                                 // If a package.json exists the packDirectoryName needs to change to the name in the package.json
                                 dynamic _packageJson = packDirectory.GetPackageJsonFile();
@@ -349,7 +354,7 @@ namespace Cmf.Common.Cli.Handlers
 
                                 string destPackDir = $"{packageOutputDir.FullName}/{_target}/{_packDirectoryName}";
                                 List<string> contentToIgnore = GetContentToIgnore(contentToPack, packDirectory, DefaultContentToIgnore);
-                                FilesToPack.AddRange(FileSystemUtilities.GetFilesToPack(contentToPack, packDirectory.FullName, destPackDir, contentToIgnore));
+                                FilesToPack.AddRange(FileSystemUtilities.GetFilesToPack(contentToPack, packDirectory.FullName, destPackDir, this.fileSystem, contentToIgnore));
 
                                 // If the FilesToPack is empty we assume that we don't have nothing to pack
                                 if (FilesToPack.HasAny())
@@ -361,7 +366,7 @@ namespace Cmf.Common.Cli.Handlers
                             #endregion
                         }
 
-                        FileInfo[] _filesToPack = packageDirectory.GetFiles(_source);
+                        IFileInfo[] _filesToPack = packageDirectory.GetFiles(_source);
 
                         if (_filesToPack.HasAny())
                         {
@@ -369,7 +374,7 @@ namespace Cmf.Common.Cli.Handlers
 
                             List<string> contentToIgnore = GetContentToIgnore(contentToPack, packageDirectory, DefaultContentToIgnore);
 
-                            foreach (FileInfo packFile in _filesToPack)
+                            foreach (IFileInfo packFile in _filesToPack)
                             {
                                 // Skip files to ignore
                                 if (contentToIgnore.Contains(packFile.Name))
@@ -377,7 +382,7 @@ namespace Cmf.Common.Cli.Handlers
                                     continue;
                                 }
 
-                                DirectoryInfo _targetFolder = new($"{packageOutputDir.FullName}/{_target}");
+                                IDirectoryInfo _targetFolder = this.fileSystem.DirectoryInfo.FromDirectoryName($"{packageOutputDir.FullName}/{_target}");
                                 if (!_targetFolder.Exists)
                                 {
                                     _targetFolder.Create();
@@ -387,7 +392,7 @@ namespace Cmf.Common.Cli.Handlers
                                 {
                                     ContentToPack = contentToPack,
                                     Source = packFile,
-                                    Target = new FileInfo(destPackFile)
+                                    Target = this.fileSystem.FileInfo.FromFileName(destPackFile)
                                 });
 
                                 foundContentToPack = true;
@@ -421,7 +426,7 @@ namespace Cmf.Common.Cli.Handlers
         /// Copies the install dependencies.
         /// </summary>
         /// <param name="packageOutputDir">The package output dir.</param>
-        protected virtual void CopyInstallDependencies(DirectoryInfo packageOutputDir)
+        protected virtual void CopyInstallDependencies(IDirectoryInfo packageOutputDir)
         {
         }
 
@@ -436,14 +441,14 @@ namespace Cmf.Common.Cli.Handlers
         /// <param name="buildNr">The version for build Nr.</param>
         /// <param name="bumpInformation">The bump information.</param>
         public virtual void Bump(string version, string buildNr, Dictionary<string, object> bumpInformation = null)
-        {
+            {
             // TODO: create "transaction" to rollback if anything fails
             // NOTE: Check pack strategy. Collect all packages to bump before bump.
 
             var currentVersion = CmfPackage.Version.Split("-")[0];
             var currentBuildNr = CmfPackage.Version.Split("-").Length > 1 ? CmfPackage.Version.Split("-")[1] : null;
             if (!currentVersion.IgnoreCaseEquals(version))
-            {
+                {
                 // TODO :: Uncomment if the cmfpackage.json support build number
                 // cmfPackage.SetVersion(GenericUtilities.RetrieveNewVersion(currentVersion, version, buildNr));
 
@@ -454,7 +459,7 @@ namespace Cmf.Common.Cli.Handlers
                 // will save with new version
                 CmfPackage.SaveCmfPackage();
             }
-        }
+                }
 
         /// <summary>
         /// Builds this instance.
@@ -466,15 +471,15 @@ namespace Cmf.Common.Cli.Handlers
                 Log.Information($"Executing '{step.DisplayName}'");
                 step.Exec();
             }
-        }
+            }
 
         /// <summary>
         /// Packs the specified package output dir.
         /// </summary>
         /// <param name="packageOutputDir">The package output dir.</param>
         /// <param name="outputDir">The output dir.</param>
-        public virtual void Pack(DirectoryInfo packageOutputDir, DirectoryInfo outputDir)
-        {
+        public virtual void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir)
+            {
             GetContentToPack(packageOutputDir);
 
             // TODO: To be removed? Install dependencies
@@ -483,7 +488,7 @@ namespace Cmf.Common.Cli.Handlers
             GenerateDeploymentFrameworkManifest(packageOutputDir);
 
             FinalArchive(packageOutputDir, outputDir);
-            
+
             Log.Information($"{CmfPackage.PackageName} created");
         }
 

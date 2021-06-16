@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.IO.Abstractions;
 using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
@@ -30,7 +31,7 @@ namespace Cmf.Common.Cli.Utilities
         /// <param name="filesToPack">The files to pack.</param>
         /// <returns></returns>
         /// <exception cref="DirectoryNotFoundException">$"Source directory does not exist or could not be found: {sourceDirName}</exception>
-        public static List<FileToPack> GetFilesToPack(ContentToPack contentToPack, string sourceDirName, string destDirName, List<string> contentToIgnore = null, bool copySubDirs = true, bool isCopyDependencies = false, List<FileToPack> filesToPack = null)
+        public static List<FileToPack> GetFilesToPack(ContentToPack contentToPack, string sourceDirName, string destDirName, IFileSystem fileSystem, List<string> contentToIgnore = null, bool copySubDirs = true, bool isCopyDependencies = false, List<FileToPack> filesToPack = null)
         {
             if (filesToPack == null)
             {
@@ -38,7 +39,7 @@ namespace Cmf.Common.Cli.Utilities
             }
 
             // Get the subdirectories for the specified directory.
-            DirectoryInfo dir = new(sourceDirName);
+            IDirectoryInfo dir = fileSystem.DirectoryInfo.FromDirectoryName(sourceDirName);
 
             if (!dir.Exists)
             {
@@ -58,31 +59,31 @@ namespace Cmf.Common.Cli.Utilities
                 return new();
             }
 
-            DirectoryInfo[] dirs = dir.GetDirectories();
+            IDirectoryInfo[] dirs = dir.GetDirectories();
 
             // Get the files in the directory and copy them to the new location.
-            FileInfo[] files = dir.GetFiles();
-            foreach (FileInfo file in files)
+            IFileInfo[] files = dir.GetFiles();
+            foreach (IFileInfo file in files)
             {
                 if (contentToIgnore.Has(file.Name))
                 {
                     continue;
                 }
 
-                string tempPath = Path.Combine(destDirName, file.Name);
+                string tempPath = fileSystem.Path.Combine(destDirName, file.Name);
 
                 filesToPack.Add(new()
                 {
                     ContentToPack = contentToPack,
                     Source = file,
-                    Target = new FileInfo(tempPath)
+                    Target = fileSystem.FileInfo.FromFileName(tempPath)
                 });
             }
 
             // If copying subdirectories, copy them and their contents to new location.
             if (copySubDirs)
             {
-                foreach (DirectoryInfo subdir in dirs)
+                foreach (IDirectoryInfo subdir in dirs)
                 {
                     if (contentToIgnore.Has(subdir.Name))
                     {
@@ -90,7 +91,7 @@ namespace Cmf.Common.Cli.Utilities
                     }
 
                     string tempPath = Path.Combine(destDirName, subdir.Name);
-                    GetFilesToPack(contentToPack, subdir.FullName, tempPath, contentToIgnore, copySubDirs, isCopyDependencies, filesToPack);
+                    GetFilesToPack(contentToPack, subdir.FullName, tempPath, fileSystem, contentToIgnore, copySubDirs, isCopyDependencies, filesToPack);
                 }
             }
 
@@ -107,10 +108,10 @@ namespace Cmf.Common.Cli.Utilities
         /// <param name="isCopyDependencies">if set to <c>true</c> [is copy dependencies].</param>
         /// <exception cref="DirectoryNotFoundException">Source directory does not exist or could not be found: "
         /// + sourceDirName</exception>
-        public static void CopyDirectory(string sourceDirName, string destDirName, List<string> contentToIgnore = null, bool copySubDirs = true, bool isCopyDependencies = false)
+        public static void CopyDirectory(string sourceDirName, string destDirName, IFileSystem fileSystem, List<string> contentToIgnore = null, bool copySubDirs = true, bool isCopyDependencies = false)
         {
             // Get the subdirectories for the specified directory.
-            DirectoryInfo dir = new(sourceDirName);
+            IDirectoryInfo dir = fileSystem.DirectoryInfo.FromDirectoryName(sourceDirName);
 
             if (!dir.Exists)
             {
@@ -127,32 +128,32 @@ namespace Cmf.Common.Cli.Utilities
             // skip if is to ignore folder
             if (contentToIgnore.Has(dir.Name)) return;
 
-            DirectoryInfo[] dirs = dir.GetDirectories();
+            IDirectoryInfo[] dirs = dir.GetDirectories();
 
             // If the destination directory doesn't exist, create it.
-            Directory.CreateDirectory(destDirName);
+            fileSystem.Directory.CreateDirectory(destDirName);
 
             // Get the files in the directory and copy them to the new location.
-            FileInfo[] files = dir.GetFiles();
-            foreach (FileInfo file in files)
+            IFileInfo[] files = dir.GetFiles();
+            foreach (IFileInfo file in files)
             {
                 string _fileName = isCopyDependencies && file.Extension.Equals(".dep") ? file.Name.Replace(".dep", "") : file.Name;
 
                 if (contentToIgnore.Has(_fileName)) continue;
 
-                string tempPath = Path.Combine(destDirName, _fileName);
+                string tempPath = fileSystem.Path.Combine(destDirName, _fileName);
                 file.CopyTo(tempPath, true);
             }
 
             // If copying subdirectories, copy them and their contents to new location.
             if (copySubDirs)
             {
-                foreach (DirectoryInfo subdir in dirs)
+                foreach (IDirectoryInfo subdir in dirs)
                 {
                     if (contentToIgnore.Has(subdir.Name)) continue;
 
-                    string tempPath = Path.Combine(destDirName, subdir.Name);
-                    CopyDirectory(subdir.FullName, tempPath, contentToIgnore, copySubDirs, isCopyDependencies);
+                    string tempPath = fileSystem.Path.Combine(destDirName, subdir.Name);
+                    CopyDirectory(subdir.FullName, tempPath, fileSystem, contentToIgnore, copySubDirs, isCopyDependencies);
                 }
             }
         }
@@ -162,10 +163,10 @@ namespace Cmf.Common.Cli.Utilities
         /// </summary>
         /// <param name="fi">The fi.</param>
         /// <returns></returns>
-        public static string ReadToString(this FileInfo fi)
+        public static string ReadToString(this IFileInfo fi)
         {
             //open for read operation
-            FileStream fsToRead = fi.Open(FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+            Stream fsToRead = fi.Open(FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
 
             //get the StreamReader
             StreamReader sr = new(fsToRead);
@@ -184,14 +185,14 @@ namespace Cmf.Common.Cli.Utilities
         /// </summary>
         /// <param name="fi">The fi.</param>
         /// <returns></returns>
-        public static List<string> ReadToStringList(this FileInfo fi)
+        public static List<string> ReadToStringList(this IFileInfo fi)
         {
             List<string> result = new();
 
             if (fi != null)
             {
                 //open for read operation
-                FileStream fsToRead = fi.Open(FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+                FileStream fsToRead = (FileStream)fi.Open(FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
 
                 //get the StreamReader
                 StreamReader sr = new(fsToRead);
@@ -217,11 +218,11 @@ namespace Cmf.Common.Cli.Utilities
         /// </summary>
         /// <returns></returns>
         /// <exception cref="CliException">Cannot find package root. Are you in a valid package directory?</exception>
-        public static DirectoryInfo GetPackageRoot()
+        public static IDirectoryInfo GetPackageRoot(IFileSystem fileSystem)
         {
-            var cwd = new DirectoryInfo(Directory.GetCurrentDirectory());
+            var cwd = fileSystem.DirectoryInfo.FromDirectoryName(fileSystem.Directory.GetCurrentDirectory());
             var cur = cwd;
-            while (cur != null && !File.Exists(Path.Join(cur.FullName, CliConstants.CmfPackageFileName)))
+            while (cur != null && !fileSystem.File.Exists(fileSystem.Path.Join(cur.FullName, CliConstants.CmfPackageFileName)))
             {
                 cur = cur.Parent;
             }
@@ -235,11 +236,11 @@ namespace Cmf.Common.Cli.Utilities
         /// <returns></returns>
         /// <exception cref="Cmf.Common.Cli.Utilities.CliException">Cannot find project root. Are you in a valid project directory?</exception>
         /// <exception cref="CliException">Cannot find project root. Are you in a valid project directory?</exception>
-        public static DirectoryInfo GetProjectRoot(bool throwException = false)
+        public static IDirectoryInfo GetProjectRoot(IFileSystem fileSystem, bool throwException = false)
         {
-            var cwd = new DirectoryInfo(Directory.GetCurrentDirectory());
+            var cwd = fileSystem.DirectoryInfo.FromDirectoryName(Directory.GetCurrentDirectory());
             var cur = cwd;
-            while (cur != null && !File.Exists(Path.Join(cur.FullName, CliConstants.ProjectConfigFileName)))
+            while (cur != null && !fileSystem.File.Exists(fileSystem.Path.Join(cur.FullName, CliConstants.ProjectConfigFileName)))
             {
                 cur = cur.Parent;
             }
@@ -259,15 +260,15 @@ namespace Cmf.Common.Cli.Utilities
         /// <param name="packageType">Type of the package.</param>
         /// <returns></returns>
         /// <exception cref="CliException">Cannot find project root. Are you in a valid project directory?</exception>
-        public static DirectoryInfo GetPackageRootByType(string directoryName, PackageType packageType)
+        public static IDirectoryInfo GetPackageRootByType(string directoryName, PackageType packageType, IFileSystem fileSystem)
         {
-            var cwd = new DirectoryInfo(directoryName);
+            var cwd = fileSystem.DirectoryInfo.FromDirectoryName(directoryName);
             var cur = cwd;
             while (cur != null)
             {
-                if (File.Exists(Path.Join(cur.FullName, CliConstants.CmfPackageFileName)))
+                if (fileSystem.File.Exists(fileSystem.Path.Join(cur.FullName, CliConstants.CmfPackageFileName)))
                 {
-                    FileInfo cmfpackageFile = new(Path.Join(cur.FullName, CliConstants.CmfPackageFileName));
+                    IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName(Path.Join(cur.FullName, CliConstants.CmfPackageFileName));
                     CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile);
 
                     if (cmfPackage.PackageType == packageType)
@@ -286,18 +287,18 @@ namespace Cmf.Common.Cli.Utilities
         /// </summary>
         /// <param name="envConfigName">Name of the env configuration.</param>
         /// <returns></returns>
-        public static JsonDocument ReadEnvironmentConfig(string envConfigName)
+        public static JsonDocument ReadEnvironmentConfig(string envConfigName, IFileSystem fileSystem)
         {
             if (!envConfigName.EndsWith(".json"))
             {
                 envConfigName += ".json";
             }
 
-            envConfigName = envConfigName.Contains(Path.PathSeparator)
+            envConfigName = envConfigName.Contains(fileSystem.Path.PathSeparator)
                 ? envConfigName
-                : Path.Join(GetProjectRoot().FullName, "EnvironmentConfigs", envConfigName);
+                : fileSystem.Path.Join(GetProjectRoot(fileSystem).FullName, "EnvironmentConfigs", envConfigName);
 
-            var json = File.ReadAllText(envConfigName);
+            var json = fileSystem.File.ReadAllText(envConfigName);
 
             return JsonDocument.Parse(json);
         }
@@ -306,10 +307,10 @@ namespace Cmf.Common.Cli.Utilities
         /// Reads the project configuration.
         /// </summary>
         /// <returns></returns>
-        public static JsonDocument ReadProjectConfig()
+        public static JsonDocument ReadProjectConfig(IFileSystem fileSystem)
         {
-            var projectCfg = Path.Join(GetProjectRoot().FullName, CliConstants.ProjectConfigFileName);
-            var json = File.ReadAllText(projectCfg);
+            var projectCfg = fileSystem.Path.Join(GetProjectRoot(fileSystem).FullName, CliConstants.ProjectConfigFileName);
+            var json = fileSystem.File.ReadAllText(projectCfg);
             return JsonDocument.Parse(json);
         }
 
@@ -333,10 +334,10 @@ namespace Cmf.Common.Cli.Utilities
         /// </summary>
         /// <param name="packageOutputDir">The package output dir.</param>
         /// <param name="packageType">Type of the package.</param>
-        public static void CopyInstallDependenciesFiles(DirectoryInfo packageOutputDir, PackageType packageType)
+        public static void CopyInstallDependenciesFiles(IDirectoryInfo packageOutputDir, PackageType packageType, IFileSystem fileSystem)
         {
-            string sourceDirectory = Path.Join(AppDomain.CurrentDomain.BaseDirectory, CliConstants.FolderInstallDependencies, packageType.ToString());
-            CopyDirectory(sourceDirectory, packageOutputDir.FullName, isCopyDependencies: true);
+            string sourceDirectory = fileSystem.Path.Join(AppDomain.CurrentDomain.BaseDirectory, CliConstants.FolderInstallDependencies, packageType.ToString());
+            CopyDirectory(sourceDirectory, packageOutputDir.FullName, fileSystem, isCopyDependencies: true);
         }
 
         /// <summary>

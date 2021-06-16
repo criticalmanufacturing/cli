@@ -6,6 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Reflection;
 using System.Xml.Linq;
@@ -88,16 +89,16 @@ namespace Cmf.Common.Cli.Utilities
         /// <param name="packageType">Type of the package.</param>
         /// <param name="setDefaultValues"></param>
         /// <returns></returns>
-        public static CmfPackageCollection LoadCmfPackagesFromSubDirectories(this DirectoryInfo directory, PackageType packageType = PackageType.None, bool setDefaultValues = false)
+        public static CmfPackageCollection LoadCmfPackagesFromSubDirectories(this IDirectoryInfo directory, PackageType packageType = PackageType.None, bool setDefaultValues = false)
         {
             CmfPackageCollection cmfPackages = new();
 
-            DirectoryInfo[] subDirectories = directory.GetDirectories();
+            IDirectoryInfo[] subDirectories = directory.GetDirectories();
 
-            foreach (DirectoryInfo subDirectory in subDirectories)
+            foreach (IDirectoryInfo subDirectory in subDirectories)
             {
-                FileInfo[] cmfPackageFiles = subDirectory.GetFiles(CliConstants.CmfPackageFileName, SearchOption.AllDirectories);
-                foreach (FileInfo cmfPackageFile in cmfPackageFiles)
+                IFileInfo[] cmfPackageFiles = subDirectory.GetFiles(CliConstants.CmfPackageFileName, SearchOption.AllDirectories);
+                foreach (IFileInfo cmfPackageFile in cmfPackageFiles)
                 {
                     CmfPackage cmfPackage = CmfPackage.Load(cmfPackageFile, setDefaultValues);
 
@@ -170,11 +171,11 @@ namespace Cmf.Common.Cli.Utilities
         /// </summary>
         /// <param name="packDirectory">The pack directory.</param>
         /// <returns></returns>
-        public static object GetPackageJsonFile(this DirectoryInfo packDirectory)
+        public static object GetPackageJsonFile(this IDirectoryInfo packDirectory)
         {
             dynamic obj = null;
 
-            FileInfo packageJsonFile = packDirectory.GetFiles(CliConstants.PackageJson).FirstOrDefault();
+            IFileInfo packageJsonFile = packDirectory.GetFiles(CliConstants.PackageJson).FirstOrDefault();
 
             if (packageJsonFile != null)
             {

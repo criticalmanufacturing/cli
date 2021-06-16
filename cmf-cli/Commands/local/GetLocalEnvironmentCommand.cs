@@ -23,7 +23,7 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="cmd"></param>
         public override void Configure(Command cmd)
         {
-            var root = Utils.GetProjectRoot();
+            var root = Utils.GetProjectRoot(this.fileSystem);
             var arg = new Argument<DirectoryInfo>(
                 name: "target",
                 description: "Where to place to fetched environment");
@@ -44,7 +44,7 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="target">The target.</param>
         public void Execute(DirectoryInfo target)
         {
-            var config = Utils.ReadProjectConfig();
+            var config = Utils.ReadProjectConfig(this.fileSystem);
             var x = config.RootElement.EnumerateObject();
             var hostname = x.FirstOrDefault(y => y.NameEquals("vmHostname"));
             var installationPath = x.FirstOrDefault(y => y.NameEquals("InstallationPath"));

@@ -10,6 +10,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Xml.Linq;
+using System.IO.Abstractions;
 
 namespace Cmf.Common.Cli.Objects
 {
@@ -25,12 +26,14 @@ namespace Cmf.Common.Cli.Objects
         /// <summary>
         /// The file information
         /// </summary>
-        private FileInfo FileInfo;
+        private IFileInfo FileInfo;
 
         /// <summary>
         /// The skip set default values
         /// </summary>
         private bool IsToSetDefaultValues;
+
+        private IFileSystem fileSystem;
 
         #endregion
 
@@ -260,7 +263,7 @@ namespace Cmf.Common.Cli.Objects
         public CmfPackage(string name, string packageId, string version, string description, PackageType packageType,
                           string targetDirectory, bool? isInstallable, bool? isUniqueInstall, string keywords,
                           bool? isToSetDefaultSteps, DependencyCollection dependencies, List<Step> steps,
-                          List<ContentToPack> contentToPack, List<string> xmlInjection, DependencyCollection testPackages = null)
+                          List<ContentToPack> contentToPack, List<string> xmlInjection, DependencyCollection testPackages = null) : this()
         {
             Name = name;
             PackageId = packageId ?? throw new ArgumentNullException(nameof(packageId));
@@ -280,6 +283,22 @@ namespace Cmf.Common.Cli.Objects
 
             PackageName = $"{PackageId}.{Version}";
             ZipPackageName = $"{PackageName}.zip";
+        }
+
+        /// <summary>
+        /// initialize an empty CmfPackage
+        /// </summary>
+        public CmfPackage() : this(fileSystem: new FileSystem()) 
+        {    
+        }
+
+        /// <summary>
+        /// Initialize an empty CmfPackage with a specific file system
+        /// </summary>
+        /// <param name="fileSystem"></param>
+        public CmfPackage(IFileSystem fileSystem) 
+        {
+            this.fileSystem = fileSystem;
         }
 
         #endregion
@@ -308,7 +327,7 @@ namespace Cmf.Common.Cli.Objects
                    EqualityComparer<DependencyCollection>.Default.Equals(Dependencies, other.Dependencies) &&
                    EqualityComparer<List<Step>>.Default.Equals(Steps, other.Steps) &&
                    EqualityComparer<List<ContentToPack>>.Default.Equals(ContentToPack, other.ContentToPack) &&
-                   EqualityComparer<FileInfo>.Default.Equals(GetFileInfo(), other.GetFileInfo());
+                   EqualityComparer<IFileInfo>.Default.Equals(GetFileInfo(), other.GetFileInfo());
         }
 
         /// <summary>
@@ -317,7 +336,7 @@ namespace Cmf.Common.Cli.Objects
         /// <returns>
         /// The file information.
         /// </returns>
-        public FileInfo GetFileInfo()
+        public IFileInfo GetFileInfo()
         {
             return FileInfo;
         }
@@ -326,7 +345,7 @@ namespace Cmf.Common.Cli.Objects
         /// Gets or sets the file information.
         /// </summary>
         /// <param name="value">The file information.</param>
-        public void SetFileInfo(FileInfo value)
+        public void SetFileInfo(IFileInfo value)
         {
             FileInfo = value;
         }
@@ -409,12 +428,13 @@ namespace Cmf.Common.Cli.Objects
 
             if (this.Dependencies.HasAny())
             {
-                DirectoryInfo repoDirectory = null;
+                IDirectoryInfo repoDirectory = null;
                 if (repoUri != null)
                 {
                     if (repoUri.IsDirectory())
                     {
-                        repoDirectory = new(repoUri.OriginalString);
+                        repoDirectory = this.fileSystem.DirectoryInfo.FromDirectoryName(repoUri.OriginalString);
+                        // repoDirectory = new(repoUri.OriginalString);
                     }
                     else
                     {
@@ -434,7 +454,7 @@ namespace Cmf.Common.Cli.Objects
                     // 2) check if package is in repository
                     if (dependencyPackage == null && (repoDirectory?.Exists ?? false))
                     {
-                        FileInfo dependencyFile = repoDirectory.GetFiles(_dependencyFileName).FirstOrDefault();
+                        IFileInfo dependencyFile = repoDirectory.GetFiles(_dependencyFileName).FirstOrDefault();
                         if (dependencyFile != null)
                         {
                             var zip = ZipFile.Open(dependencyFile.FullName, ZipArchiveMode.Read);
@@ -483,8 +503,9 @@ namespace Cmf.Common.Cli.Objects
         /// <exception cref="Cmf.Common.Cli.Utilities.CliException">
         /// </exception>
         /// <exception cref="CliException"></exception>
-        public static CmfPackage Load(FileInfo file, bool setDefaultValues = false)
+        public static CmfPackage Load(IFileInfo file, bool setDefaultValues = false, IFileSystem fileSystem = null)
         {
+            fileSystem ??= new FileSystem();
             if (!file.Exists)
             {
                 throw new CliException(string.Format(CliMessages.NotFound, file.FullName));
@@ -496,6 +517,7 @@ namespace Cmf.Common.Cli.Objects
             cmfPackage.FileInfo = file;
             cmfPackage.Location = PackageLocation.Local;
             cmfPackage.ValidatePackage();
+            cmfPackage.fileSystem = fileSystem;
 
             return cmfPackage;
         }
@@ -506,8 +528,9 @@ namespace Cmf.Common.Cli.Objects
         /// <param name="manifest">the manifest content</param>
         /// <param name="setDefaultValues">should set default values</param>
         /// <returns>a CmfPackage</returns>
-        public static CmfPackage FromManifest(string manifest, bool setDefaultValues = false)
+        public static CmfPackage FromManifest(string manifest, bool setDefaultValues = false, IFileSystem fileSystem = null)
         {
+            fileSystem ??= new FileSystem();
             StringReader dFManifestReader = new(manifest);
             XDocument dFManifestTemplate = XDocument.Load(dFManifestReader);
             var tokens = new Dictionary<string, string>();
@@ -556,6 +579,7 @@ namespace Cmf.Common.Cli.Objects
                 );
 
             cmfPackage.Location = PackageLocation.Repository;
+            cmfPackage.fileSystem = fileSystem;
 
             return cmfPackage;
         }
@@ -594,7 +618,7 @@ namespace Cmf.Common.Cli.Objects
 
             string cmfPackageJson = JsonConvert.SerializeObject(this, jsonSerializerSettings);
 
-            FileInfo file = GetFileInfo();
+            IFileInfo file = GetFileInfo();
             File.WriteAllText(file.FullName, cmfPackageJson);
         }
 

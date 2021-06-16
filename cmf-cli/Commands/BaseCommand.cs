@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Reflection;
 
@@ -13,6 +14,17 @@ namespace Cmf.Common.Cli.Commands
     /// </summary>
     public abstract class BaseCommand
     {
+        protected IFileSystem fileSystem;
+
+        public BaseCommand() : this(new FileSystem())
+        {
+        }
+
+        public BaseCommand(IFileSystem fileSystem)
+        {
+            this.fileSystem = fileSystem;
+        }
+
         /// <summary>
         /// Configure command
         /// </summary>
@@ -34,7 +46,7 @@ namespace Cmf.Common.Cli.Commands
                 }
             }
 
-            // Commands that depend on root (have not defined parent)
+            // Commands that depend on root (have no defined parent)
             var topmostCommands = commandTypes.Where(
                 t => string.IsNullOrWhiteSpace(t.GetCustomAttributes<CmfCommandAttribute>(false)
                     .First().Parent));

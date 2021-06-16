@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,13 +15,21 @@ using System.Threading.Tasks;
 namespace Cmf.Common.Cli.Commands
 {
     [CmfCommand("ls")]
-    class ListDependencies : BaseCommand
+    public class ListDependenciesCommand : BaseCommand
     {
+        public ListDependenciesCommand() : base()
+        {
+        }
+
+        public ListDependenciesCommand(IFileSystem fileSystem) : base(fileSystem)
+        {
+        }
+
         public override void Configure(Command cmd)
         {
-            cmd.AddArgument(new Argument<DirectoryInfo>(
+            cmd.AddArgument(new Argument<IDirectoryInfo>(
                 name: "workingDir",
-                getDefaultValue: () => { return new("."); },
+                getDefaultValue: () => { return this.fileSystem.DirectoryInfo.FromDirectoryName("."); },
                 description: "Working Directory"));
 
             cmd.AddOption(new Option<string>(
@@ -28,13 +37,13 @@ namespace Cmf.Common.Cli.Commands
                 description: "Repository where dependencies are located (url or folder)"));
 
             // Add the handler
-            cmd.Handler = CommandHandler.Create<DirectoryInfo, string>(Execute);
+            cmd.Handler = CommandHandler.Create<IDirectoryInfo, string>(Execute);
         }
 
 
-        public void Execute(DirectoryInfo workingDir, string repo)
+        public void Execute(IDirectoryInfo workingDir, string repo)
         {
-            FileInfo cmfpackageFile = new($"{workingDir}/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = this.fileSystem.FileInfo.FromFileName($"{workingDir}/{CliConstants.CmfPackageFileName}");
 
             // Reading cmfPackage
             CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true);

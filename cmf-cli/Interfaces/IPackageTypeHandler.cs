@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 
 namespace Cmf.Common.Cli.Interfaces
 {
@@ -34,6 +35,6 @@ namespace Cmf.Common.Cli.Interfaces
         /// </summary>
         /// <param name="packageOutputDir">The package output dir.</param>
         /// <param name="outputDir">The output dir.</param>
-        public void Pack(DirectoryInfo packageOutputDir, DirectoryInfo outputDir);
+        public void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir);
     }
 }

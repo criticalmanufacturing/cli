@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Threading.Tasks;
 using Cmf.Common.Cli.Utilities;
@@ -34,7 +35,7 @@ namespace Cmf.Common.Cli.Builders
         /// <value>
         /// The working directory.
         /// </value>
-        public DirectoryInfo WorkingDirectory { get; set; }
+        public IDirectoryInfo WorkingDirectory { get; set; }
     }
 
     /// <summary>
@@ -48,7 +49,7 @@ namespace Cmf.Common.Cli.Builders
         /// <value>
         /// The working directory.
         /// </value>
-        public DirectoryInfo WorkingDirectory { get; set; }
+        public IDirectoryInfo WorkingDirectory { get; set; }
 
         /// <summary>
         /// Executes this instance.
