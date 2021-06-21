@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
@@ -58,7 +59,7 @@ namespace Cmf.Common.Cli.Commands
         {
             ProcessStartInfo ps = new();
             ps.FileName = this.commandPath;
-            ps.Arguments = String.Join(' ', args);
+            args.ToList().ForEach(arg => ps.ArgumentList.Add(arg));
             ps.UseShellExecute = false;
             ps.RedirectStandardOutput = true;
 
