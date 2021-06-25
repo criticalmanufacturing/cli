@@ -123,6 +123,30 @@ namespace Cmf.Common.Cli.Commands
                 }
             }
 
+            if (all && cmfPackage.TestPackages.HasAny())
+            {
+                // Read all local manifests
+                CmfPackageCollection packagePathCmfPackages = packageDirectory.LoadCmfPackagesFromSubDirectories();
+
+                foreach (var dependency in cmfPackage.TestPackages)
+                {
+                    CmfPackage subCmfPackageWithDependency = packagePathCmfPackages.GetDependency(dependency);
+
+                    // TODO :: Uncomment if the cmfpackage.json support build number
+                    // dependency.Version = GenericUtilities.RetrieveNewVersion(dependency.Version, version, buildNr);
+
+                    dependency.Version = !string.IsNullOrWhiteSpace(version) ? version : dependency.Version;
+
+                    if (subCmfPackageWithDependency != null)
+                    {
+                        Execute(subCmfPackageWithDependency, version, buildNr, root, all);
+                    }
+                    else
+                    {
+                        Log.Warning($"Dependency {dependency.Id}.{dependency.Version} not found");
+                    }
+                }
+            }
             #endregion
         }
     }

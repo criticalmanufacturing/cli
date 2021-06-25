@@ -395,44 +395,11 @@ function Use-LightBusinessObjects()
     )
 
     $config_path = (Resolve-Path $ModulePath'\References\MasterData.Exe.config').Path
-    $appSettings_path = (Resolve-Path $ModulePath'\References\appSettings').Path
 
     sp $config_path IsReadOnly $false
 
     # Adjust endpoints
     Add-Type -AssemblyName ('System.configuration, version=4.0.0.0, '+ 'Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a')#System.Configuration
-
-    # Update AppSettings
-    $config = (Get-Content $config_path) -as [Xml]
-    $appSettings = Get-Content $appSettings_path -Raw
-
-    # AppSettings config keys update
-    $obj = $config.configuration.appSettings
-
-    $obj.InnerXml = $appSettings
-
-    # AppSettings config keys update
-    $obj = $config.configuration.appSettings.add | where {$_.Key -eq 'HostAddress'}
-    $obj.value = $env.NLBAddress+":"+$env.ServicePort
-    $obj = $config.configuration.appSettings.add | where {$_.Key -eq 'HostPort'}
-    $obj.value = ""+$env.ServicePort
-    $obj = $config.configuration.appSettings.add | where {$_.Key -eq 'SecurityToken'}
-    $obj.value = $env.SystemName
-    $obj = $config.configuration.appSettings.add | where {$_.Key -eq 'UserName'}
-    $obj.value = $env.AdminUser
-    $obj = $config.configuration.appSettings.add | where {$_.Key -eq 'Password'}
-    $obj.value = Get-ClearTextFromEncryptedString $env.AdminPass
-    $obj = $config.configuration.appSettings.add | where {$_.Key -eq 'ClientTenantName'}
-    $obj.value = $env.ClientTenantName
-	# Enable SSL
-    $obj = $config.configuration.appSettings.add | where {$_.Key -eq 'UseSSL'}
-    $obj.value = if ($env.UseSSL) { "true" } else { "false" }
-
-    # Document Management
-    $obj = $config.configuration.DocumentManagement.add | where {$_.Key -eq 'TemporaryFileShare'}
-    $obj.value = $env.TemporaryFileShare
-
-    $config.Save($config_path)
 
     [Configuration.ConfigurationManager].GetField("s_initState", "NonPublic, Static").SetValue($null, 0)
     [Configuration.ConfigurationManager].GetField("s_configSystem", "NonPublic, Static").SetValue($null, $null)
