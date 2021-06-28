@@ -14,10 +14,10 @@
             "args": [
                 "publish",
                 "-r",
-                "\\\\vm-cree\\Shares\\DeliverablesPackageRepository\\development",
+                "",
                 "-t"
             ],
-            "cwd": "C:/TFS/CREE/Tests",
+            "cwd": "",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
             "console": "internalConsole",
             "stopAtEntry": false

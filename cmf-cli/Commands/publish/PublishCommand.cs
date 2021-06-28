@@ -36,8 +36,8 @@ namespace Cmf.Common.Cli.Commands
         private void PublishDependenciesFromPackage(DirectoryInfo outputDir, Uri repoUri, string packageId, string packageVersion, List<string> loadedPackages, bool publishTests)
         {
             loadedPackages ??= new List<string>();
-            string dependencyFileName = $"{packageId}.{packageVersion}.zip";
-            string packageLocation = $"{outputDir.FullName}/{dependencyFileName}";
+            string packageFileName = $"{packageId}.{packageVersion}.zip";
+            string packageLocation = $"{outputDir.FullName}/{packageFileName}";
 
             XDocument dFManifest = FileSystemUtilities.GetManifestFromPackage(packageLocation);
             XElement rootNode = dFManifest.Descendants("dependencies").FirstOrDefault();
@@ -100,8 +100,8 @@ namespace Cmf.Common.Cli.Commands
         /// <returns>True if package was coppied </returns>
         private void PublishPackageToOutput(DirectoryInfo outputDir, Uri repoUri, string packageId, string packageVersion)
         {
-            string _dependencyFileName = $"{packageId}.{packageVersion}.zip";
-            string destDependencyFile = $"{outputDir.FullName}/{_dependencyFileName}";
+            string _packageFileName = $"{packageId}.{packageVersion}.zip";
+            string destDependencyFile = $"{outputDir.FullName}/{_packageFileName}";
 
             if (File.Exists(destDependencyFile))
             {
@@ -186,8 +186,7 @@ namespace Cmf.Common.Cli.Commands
             {
                 return;
             }
-
-            DirectoryInfo packageOutputDir = FileSystemUtilities.GetPackageOutputDir(cmfPackage, packageDirectory);
+            
             if (publishTests)
             {
                 DirectoryInfo outputTestDir = new(outputDir + "/Tests");
@@ -211,11 +210,6 @@ namespace Cmf.Common.Cli.Commands
             catch (Exception e)
             {
                 throw new CliException(e.Message);
-            }
-            finally
-            {
-                // Clean-Up
-                packageOutputDir.Delete(true);
             }
         }
     }
