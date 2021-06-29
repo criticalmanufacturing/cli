@@ -412,6 +412,59 @@ The files to pack.
 [System.IO.DirectoryNotFoundException](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryNotFoundException 'System.IO.DirectoryNotFoundException')  
 $"Source directory does not exist or could not be found: {sourceDirName}
   
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetManifestFromPackage(string)'></a>
+## FileSystemUtilities.GetManifestFromPackage(string) Method
+Get Manifest File From package  
+```csharp
+public static System.Xml.Linq.XDocument GetManifestFromPackage(string packageFile);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetManifestFromPackage(string)_packageFile'></a>
+`packageFile` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+  
+#### Returns
+[System.Xml.Linq.XDocument](https://docs.microsoft.com/en-us/dotnet/api/System.Xml.Linq.XDocument 'System.Xml.Linq.XDocument')  
+  
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetOutputDir(Cmf_Common_Cli_Objects_CmfPackage_System_IO_DirectoryInfo_bool)'></a>
+## FileSystemUtilities.GetOutputDir(CmfPackage, DirectoryInfo, bool) Method
+Gets the output dir.  
+```csharp
+public static System.IO.DirectoryInfo GetOutputDir(Cmf.Common.Cli.Objects.CmfPackage cmfPackage, System.IO.DirectoryInfo outputDir, bool force);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetOutputDir(Cmf_Common_Cli_Objects_CmfPackage_System_IO_DirectoryInfo_bool)_cmfPackage'></a>
+`cmfPackage` [CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')  
+The CMF package.
+  
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetOutputDir(Cmf_Common_Cli_Objects_CmfPackage_System_IO_DirectoryInfo_bool)_outputDir'></a>
+`outputDir` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+The output dir.
+  
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetOutputDir(Cmf_Common_Cli_Objects_CmfPackage_System_IO_DirectoryInfo_bool)_force'></a>
+`force` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
+if set to `true` [force].
+  
+#### Returns
+[System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+  
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageOutputDir(Cmf_Common_Cli_Objects_CmfPackage_System_IO_DirectoryInfo)'></a>
+## FileSystemUtilities.GetPackageOutputDir(CmfPackage, DirectoryInfo) Method
+Gets the package output dir.  
+```csharp
+public static System.IO.DirectoryInfo GetPackageOutputDir(Cmf.Common.Cli.Objects.CmfPackage cmfPackage, System.IO.DirectoryInfo packageDirectory);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageOutputDir(Cmf_Common_Cli_Objects_CmfPackage_System_IO_DirectoryInfo)_cmfPackage'></a>
+`cmfPackage` [CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')  
+The CMF package.
+  
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageOutputDir(Cmf_Common_Cli_Objects_CmfPackage_System_IO_DirectoryInfo)_packageDirectory'></a>
+`packageDirectory` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+The package directory.
+  
+#### Returns
+[System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+  
 <a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageRoot()'></a>
 ## FileSystemUtilities.GetPackageRoot() Method
 Gets the package root.  
@@ -562,6 +615,35 @@ the path of the embedded resource inside the [root}/resources folder
 #### Returns
 [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 the resource content  
+  
+<a name='Cmf_Common_Cli_Utilities_GenericUtilities_GetPackageFromRepository(System_IO_DirectoryInfo_System_Uri_bool_string_string)'></a>
+## GenericUtilities.GetPackageFromRepository(DirectoryInfo, Uri, bool, string, string) Method
+Get Package from Repository  
+```csharp
+public static bool GetPackageFromRepository(System.IO.DirectoryInfo outputDir, System.Uri repoUri, bool force, string packageId, string packageVersion);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_GenericUtilities_GetPackageFromRepository(System_IO_DirectoryInfo_System_Uri_bool_string_string)_outputDir'></a>
+`outputDir` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+Target directory for the package
+  
+<a name='Cmf_Common_Cli_Utilities_GenericUtilities_GetPackageFromRepository(System_IO_DirectoryInfo_System_Uri_bool_string_string)_repoUri'></a>
+`repoUri` [System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')  
+Repository Uri
+  
+<a name='Cmf_Common_Cli_Utilities_GenericUtilities_GetPackageFromRepository(System_IO_DirectoryInfo_System_Uri_bool_string_string)_force'></a>
+`force` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
+  
+<a name='Cmf_Common_Cli_Utilities_GenericUtilities_GetPackageFromRepository(System_IO_DirectoryInfo_System_Uri_bool_string_string)_packageId'></a>
+`packageId` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+Package Identifier
+  
+<a name='Cmf_Common_Cli_Utilities_GenericUtilities_GetPackageFromRepository(System_IO_DirectoryInfo_System_Uri_bool_string_string)_packageVersion'></a>
+`packageVersion` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+Package Version
+  
+#### Returns
+[System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
   
 <a name='Cmf_Common_Cli_Utilities_GenericUtilities_RetrieveNewPresentationVersion(string_string_string)'></a>
 ## GenericUtilities.RetrieveNewPresentationVersion(string, string, string) Method

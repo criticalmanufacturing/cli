@@ -18,66 +18,6 @@ namespace Cmf.Common.Cli.Commands
     [CmfCommand("pack")]
     public class PackCommand : BaseCommand
     {
-        #region Private Methods
-
-        /// <summary>
-        /// Gets the output dir.
-        /// </summary>
-        /// <param name="cmfPackage">The CMF package.</param>
-        /// <param name="outputDir">The output dir.</param>
-        /// <param name="force">if set to <c>true</c> [force].</param>
-        /// <returns></returns>
-        private static DirectoryInfo GetOutputDir(CmfPackage cmfPackage, DirectoryInfo outputDir, bool force)
-        {
-            // Create OutputDir
-            if (!outputDir.Exists)
-            {
-                Log.Information($"Creating {outputDir.Name} folder");
-                outputDir.Create();
-            }
-            else
-            {
-                if (outputDir.GetFiles(cmfPackage.ZipPackageName).HasAny())
-                {
-                    if (force)
-                    {
-                        outputDir.GetFiles(cmfPackage.ZipPackageName)[0].Delete();
-                    }
-                    else
-                    {
-                        Log.Information($"Skipping {cmfPackage.ZipPackageName}. Already packed in Output Directory.");
-                        return null;
-                    }
-                }
-            }
-
-            return outputDir;
-        }
-
-        /// <summary>
-        /// Gets the package output dir.
-        /// </summary>
-        /// <param name="cmfPackage">The CMF package.</param>
-        /// <param name="packageDirectory">The package directory.</param>
-        /// <returns></returns>
-        private static DirectoryInfo GetPackageOutputDir(CmfPackage cmfPackage, DirectoryInfo packageDirectory)
-        {
-            // Clear and Create packageOutputDir
-            DirectoryInfo packageOutputDir = new($"{packageDirectory}/{cmfPackage.PackageName}");
-            if (packageOutputDir.Exists)
-            {
-                packageOutputDir.Delete(true);
-                packageOutputDir.Refresh();
-            }
-
-            Log.Information($"Generating {cmfPackage.PackageName}");
-            packageOutputDir.Create();
-
-            return packageOutputDir;
-        }
-
-        #endregion
-
         /// <summary>
         /// Configure command
         /// </summary>
@@ -154,13 +94,13 @@ namespace Cmf.Common.Cli.Commands
 
             #region Output Directories Handling
 
-            outputDir = GetOutputDir(cmfPackage, outputDir, force);
+            outputDir = FileSystemUtilities.GetOutputDir(cmfPackage, outputDir, force);
             if (outputDir == null)
             {
                 return;
             }
 
-            DirectoryInfo packageOutputDir = GetPackageOutputDir(cmfPackage, packageDirectory);
+            DirectoryInfo packageOutputDir = FileSystemUtilities.GetPackageOutputDir(cmfPackage, packageDirectory);
 
             #endregion
 
@@ -198,51 +138,8 @@ namespace Cmf.Common.Cli.Commands
                             }
                         }
 
-                        #region Get Dependencies from Dependencies Directory
-
-                        // TODO: Support for nexus repository
-
-                        if (repoUri != null)
-                        {
-                            if (repoUri.IsDirectory())
-                            {
-                                DirectoryInfo repoDirectory = new(repoUri.OriginalString);
-
-                                if (repoDirectory.Exists)
-                                {
-                                    // Search by Packages already Packed
-                                    FileInfo[] dependencyFiles = repoDirectory.GetFiles(_dependencyFileName);
-                                    dependencyFound = dependencyFiles.HasAny();
-
-                                    if (!dependencyFound)
-                                    {
-                                        // Search by Packages to Pack
-                                        CmfPackage dependencyPackage = repoDirectory.LoadCmfPackagesFromSubDirectories(setDefaultValues: true).GetDependency(dependency);
-
-                                        // cmfpackage.json found, need to pack
-                                        if (dependencyPackage != null)
-                                        {
-                                            dependencyFound = true;
-                                            Execute(dependencyPackage, outputDir, repoUri, _loadedPackages, force, skipDependencies);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        foreach (FileInfo dependencyFile in dependencyFiles)
-                                        {
-                                            string destDependencyFile = $"{outputDir.FullName}/{dependencyFile.Name}";
-                                            dependencyFile.CopyTo(destDependencyFile);
-                                        }
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                throw new CliException(CliMessages.UrlsNotSupported);
-                            }
-                        }
-
-                        #endregion
+                        // Some logic removed is trying to load CmfPackage.json on output repository and generate package again
+                        dependencyFound = GenericUtilities.GetPackageFromRepository(outputDir, repoUri, force, dependency.Id, dependency.Version);
 
                         #region Get Loaded Dependencies
 

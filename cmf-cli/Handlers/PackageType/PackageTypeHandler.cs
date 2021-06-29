@@ -90,7 +90,7 @@ namespace Cmf.Common.Cli.Handlers
         /// </summary>
         /// <param name="packageOutputDir">The package output dir.</param>
         /// <exception cref="Cmf.Common.Cli.Utilities.CliException"></exception>
-        private void GenerateDeploymentFrameworkManifest(DirectoryInfo packageOutputDir)
+        internal virtual void GenerateDeploymentFrameworkManifest(DirectoryInfo packageOutputDir)
         {
             Log.Information("Generating DeploymentFramework manifest");
             string path = $"{packageOutputDir.FullName}/{CliConstants.DeploymentFrameworkManifestFileName}";
@@ -253,75 +253,53 @@ namespace Cmf.Common.Cli.Handlers
 
             return contentToIgnore;
         }
-
-        #endregion
-
-        #region Protected Methods
-
+        
         /// <summary>
-        /// Copies the install dependencies.
+        /// Final Archive the package
         /// </summary>
-        /// <param name="packageOutputDir">The package output dir.</param>
-        protected virtual void CopyInstallDependencies(DirectoryInfo packageOutputDir)
+        /// <param name="packageOutputDir">The pack directory.</param>
+        /// <param name="outputDir">The Output directory.</param>
+        /// <returns></returns>
+        internal virtual void FinalArchive(DirectoryInfo packageOutputDir, DirectoryInfo outputDir)
         {
-        }
-
-        #endregion
-
-        #region Public Methods
-
-        /// <summary>
-        /// Bumps the specified version.
-        /// </summary>
-        /// <param name="version">The version.</param>
-        /// <param name="buildNr">The version for build Nr.</param>
-        /// <param name="bumpInformation">The bump information.</param>
-        public virtual void Bump(string version, string buildNr, Dictionary<string, object> bumpInformation = null)
-        {
-            // TODO: create "transaction" to rollback if anything fails
-            // NOTE: Check pack strategy. Collect all packages to bump before bump.
-
-            var currentVersion = CmfPackage.Version.Split("-")[0];
-            var currentBuildNr = CmfPackage.Version.Split("-").Length > 1 ? CmfPackage.Version.Split("-")[1] : null;
-            if (!currentVersion.IgnoreCaseEquals(version))
+            foreach (FileToPack fileToPack in FilesToPack)
             {
-                // TODO :: Uncomment if the cmfpackage.json support build number
-                // cmfPackage.SetVersion(GenericUtilities.RetrieveNewVersion(currentVersion, version, buildNr));
+                // If the destination directory doesn't exist, create it.
+                if (!fileToPack.Target.Directory.Exists)
+                {
+                    fileToPack.Target.Directory.Create();
+                }
 
-                CmfPackage.SetVersion(!string.IsNullOrWhiteSpace(version) ? version : CmfPackage.Version);
-
-                Log.Information($"Will bump {CmfPackage.PackageId} from version {currentVersion} to version {CmfPackage.Version}");
-
-                // will save with new version
-                CmfPackage.SaveCmfPackage();
+                fileToPack.Source.CopyTo(fileToPack.Target.FullName, true);
             }
-        }
 
-        /// <summary>
-        /// Builds this instance.
-        /// </summary>
-        public virtual void Build()
-        {
-            foreach (var step in BuildSteps)
+            string tempzipPath = $"{CmfPackage.GetFileInfo().Directory.FullName}/{CmfPackage.PackageName}.zip";
+            if (File.Exists(tempzipPath))
             {
-                Log.Information($"Executing '{step.DisplayName}'");
-                step.Exec();
+                File.Delete(tempzipPath);
             }
+            ZipFile.CreateFromDirectory(packageOutputDir.FullName, tempzipPath);
+
+            // move to final destination
+            string destZipPath = $"{outputDir.FullName}/{CmfPackage.ZipPackageName}";
+            File.Move(tempzipPath, destZipPath, true);
         }
 
+
         /// <summary>
-        /// Packs the specified package output dir.
+        /// Get Content To pack
         /// </summary>
-        /// <param name="packageOutputDir">The package output dir.</param>
-        /// <param name="outputDir">The output dir.</param>
-        public virtual void Pack(DirectoryInfo packageOutputDir, DirectoryInfo outputDir)
+        /// <param name="packageOutputDir">The pack directory.</param>
+        /// <returns></returns>
+        internal virtual bool GetContentToPack(DirectoryInfo packageOutputDir)
         {
+            bool foundContentToPack = false;
+
             #region Get Content to Pack
 
             if (CmfPackage.ContentToPack.HasAny())
             {
                 DirectoryInfo packageDirectory = CmfPackage.GetFileInfo().Directory;
-                bool foundContentToPack = false;
 
                 // TODO: Bulk Copy
                 foreach (ContentToPack contentToPack in CmfPackage.ContentToPack)
@@ -427,46 +405,89 @@ namespace Cmf.Common.Cli.Handlers
                 if (!foundContentToPack)
                 {
                     Log.Warning(string.Format(CliMessages.ContentToPackNotFound, CmfPackage.PackageId, CmfPackage.Version));
-                    return;
                 }
             }
 
             #endregion
+
+            return foundContentToPack;
+        }
+
+        #endregion
+
+        #region Protected Methods
+
+        /// <summary>
+        /// Copies the install dependencies.
+        /// </summary>
+        /// <param name="packageOutputDir">The package output dir.</param>
+        protected virtual void CopyInstallDependencies(DirectoryInfo packageOutputDir)
+        {
+        }
+
+        #endregion
+
+        #region Public Methods
+
+        /// <summary>
+        /// Bumps the specified version.
+        /// </summary>
+        /// <param name="version">The version.</param>
+        /// <param name="buildNr">The version for build Nr.</param>
+        /// <param name="bumpInformation">The bump information.</param>
+        public virtual void Bump(string version, string buildNr, Dictionary<string, object> bumpInformation = null)
+        {
+            // TODO: create "transaction" to rollback if anything fails
+            // NOTE: Check pack strategy. Collect all packages to bump before bump.
+
+            var currentVersion = CmfPackage.Version.Split("-")[0];
+            var currentBuildNr = CmfPackage.Version.Split("-").Length > 1 ? CmfPackage.Version.Split("-")[1] : null;
+            if (!currentVersion.IgnoreCaseEquals(version))
+            {
+                // TODO :: Uncomment if the cmfpackage.json support build number
+                // cmfPackage.SetVersion(GenericUtilities.RetrieveNewVersion(currentVersion, version, buildNr));
+
+                CmfPackage.SetVersion(!string.IsNullOrWhiteSpace(version) ? version : CmfPackage.Version);
+
+                Log.Information($"Will bump {CmfPackage.PackageId} from version {currentVersion} to version {CmfPackage.Version}");
+
+                // will save with new version
+                CmfPackage.SaveCmfPackage();
+            }
+        }
+
+        /// <summary>
+        /// Builds this instance.
+        /// </summary>
+        public virtual void Build()
+        {
+            foreach (var step in BuildSteps)
+            {
+                Log.Information($"Executing '{step.DisplayName}'");
+                step.Exec();
+            }
+        }
+
+        /// <summary>
+        /// Packs the specified package output dir.
+        /// </summary>
+        /// <param name="packageOutputDir">The package output dir.</param>
+        /// <param name="outputDir">The output dir.</param>
+        public virtual void Pack(DirectoryInfo packageOutputDir, DirectoryInfo outputDir)
+        {
+            GetContentToPack(packageOutputDir);
 
             // TODO: To be removed? Install dependencies
             CopyInstallDependencies(packageOutputDir);
 
             GenerateDeploymentFrameworkManifest(packageOutputDir);
 
-            #region Final Archive
-
-            foreach (FileToPack fileToPack in FilesToPack)
-            {
-                // If the destination directory doesn't exist, create it.
-                if (!fileToPack.Target.Directory.Exists)
-                {
-                    fileToPack.Target.Directory.Create();
-                }
-
-                fileToPack.Source.CopyTo(fileToPack.Target.FullName, true);
-            }
-
-            string tempzipPath = $"{CmfPackage.GetFileInfo().Directory.FullName}/{CmfPackage.PackageName}.zip";
-            if (File.Exists(tempzipPath))
-            {
-                File.Delete(tempzipPath);
-            }
-            ZipFile.CreateFromDirectory(packageOutputDir.FullName, tempzipPath);
-
-            // move to final destination
-            string destZipPath = $"{outputDir.FullName}/{CmfPackage.ZipPackageName}";
-            File.Move(tempzipPath, destZipPath, true);
-
-            #endregion
-
+            FinalArchive(packageOutputDir, outputDir);
+            
             Log.Information($"{CmfPackage.PackageName} created");
         }
 
         #endregion
+
     }
 }

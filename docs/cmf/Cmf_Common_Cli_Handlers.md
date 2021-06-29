@@ -341,6 +341,7 @@ Derived
 &#8627; [PresentationPackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_PresentationPackageTypeHandler 'Cmf.Common.Cli.Handlers.PresentationPackageTypeHandler')  
 &#8627; [ReportingPackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_ReportingPackageTypeHandler 'Cmf.Common.Cli.Handlers.ReportingPackageTypeHandler')  
 &#8627; [RootPackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_RootPackageTypeHandler 'Cmf.Common.Cli.Handlers.RootPackageTypeHandler')  
+&#8627; [TestPackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_TestPackageTypeHandler 'Cmf.Common.Cli.Handlers.TestPackageTypeHandler')  
 
 Implements [IPackageTypeHandler](Cmf_Common_Cli_Interfaces.md#Cmf_Common_Cli_Interfaces_IPackageTypeHandler 'Cmf.Common.Cli.Interfaces.IPackageTypeHandler')  
 ### Constructors
@@ -451,11 +452,27 @@ protected virtual void CopyInstallDependencies(System.IO.DirectoryInfo packageOu
 The package output dir.
   
   
+<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_FinalArchive(System_IO_DirectoryInfo_System_IO_DirectoryInfo)'></a>
+## PackageTypeHandler.FinalArchive(DirectoryInfo, DirectoryInfo) Method
+Final Archive the package  
+```csharp
+internal virtual void FinalArchive(System.IO.DirectoryInfo packageOutputDir, System.IO.DirectoryInfo outputDir);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_FinalArchive(System_IO_DirectoryInfo_System_IO_DirectoryInfo)_packageOutputDir'></a>
+`packageOutputDir` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+The pack directory.
+  
+<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_FinalArchive(System_IO_DirectoryInfo_System_IO_DirectoryInfo)_outputDir'></a>
+`outputDir` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+The Output directory.
+  
+  
 <a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_GenerateDeploymentFrameworkManifest(System_IO_DirectoryInfo)'></a>
 ## PackageTypeHandler.GenerateDeploymentFrameworkManifest(DirectoryInfo) Method
 Generates the deployment framework manifest.  
 ```csharp
-private void GenerateDeploymentFrameworkManifest(System.IO.DirectoryInfo packageOutputDir);
+internal virtual void GenerateDeploymentFrameworkManifest(System.IO.DirectoryInfo packageOutputDir);
 ```
 #### Parameters
 <a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_GenerateDeploymentFrameworkManifest(System_IO_DirectoryInfo)_packageOutputDir'></a>
@@ -486,6 +503,20 @@ The default content to ignore.
   
 #### Returns
 [System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')  
+  
+<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_GetContentToPack(System_IO_DirectoryInfo)'></a>
+## PackageTypeHandler.GetContentToPack(DirectoryInfo) Method
+Get Content To pack  
+```csharp
+internal virtual bool GetContentToPack(System.IO.DirectoryInfo packageOutputDir);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_GetContentToPack(System_IO_DirectoryInfo)_packageOutputDir'></a>
+`packageOutputDir` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+The pack directory.
+  
+#### Returns
+[System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
   
 <a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_Pack(System_IO_DirectoryInfo_System_IO_DirectoryInfo)'></a>
 ## PackageTypeHandler.Pack(DirectoryInfo, DirectoryInfo) Method
@@ -629,6 +660,66 @@ public RootPackageTypeHandler(Cmf.Common.Cli.Objects.CmfPackage cmfPackage);
 `cmfPackage` [CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')  
 The CMF package.
   
+  
+#### See Also
+- [PackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_PackageTypeHandler 'Cmf.Common.Cli.Handlers.PackageTypeHandler')
+  
+<a name='Cmf_Common_Cli_Handlers_TestPackageTypeHandler'></a>
+## TestPackageTypeHandler Class
+```csharp
+public class TestPackageTypeHandler : Cmf.Common.Cli.Handlers.PackageTypeHandler
+```
+
+Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [PackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_PackageTypeHandler 'Cmf.Common.Cli.Handlers.PackageTypeHandler') &#129106; TestPackageTypeHandler  
+### Constructors
+<a name='Cmf_Common_Cli_Handlers_TestPackageTypeHandler_TestPackageTypeHandler(Cmf_Common_Cli_Objects_CmfPackage)'></a>
+## TestPackageTypeHandler.TestPackageTypeHandler(CmfPackage) Constructor
+Initializes a new instance of the [TestPackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_TestPackageTypeHandler 'Cmf.Common.Cli.Handlers.TestPackageTypeHandler') class.  
+```csharp
+public TestPackageTypeHandler(Cmf.Common.Cli.Objects.CmfPackage cmfPackage);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Handlers_TestPackageTypeHandler_TestPackageTypeHandler(Cmf_Common_Cli_Objects_CmfPackage)_cmfPackage'></a>
+`cmfPackage` [CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')  
+The CMF package.
+  
+  
+### Methods
+<a name='Cmf_Common_Cli_Handlers_TestPackageTypeHandler_Bump(string_string_System_Collections_Generic_Dictionary_string_object_)'></a>
+## TestPackageTypeHandler.Bump(string, string, Dictionary&lt;string,object&gt;) Method
+Bumps the specified CMF package.  
+```csharp
+public override void Bump(string version, string buildNr, System.Collections.Generic.Dictionary<string,object> bumpInformation=null);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Handlers_TestPackageTypeHandler_Bump(string_string_System_Collections_Generic_Dictionary_string_object_)_version'></a>
+`version` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+The version.
+  
+<a name='Cmf_Common_Cli_Handlers_TestPackageTypeHandler_Bump(string_string_System_Collections_Generic_Dictionary_string_object_)_buildNr'></a>
+`buildNr` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+The version for build Nr.
+  
+<a name='Cmf_Common_Cli_Handlers_TestPackageTypeHandler_Bump(string_string_System_Collections_Generic_Dictionary_string_object_)_bumpInformation'></a>
+`bumpInformation` [System.Collections.Generic.Dictionary&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.Dictionary-2 'System.Collections.Generic.Dictionary`2')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[,](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.Dictionary-2 'System.Collections.Generic.Dictionary`2')[System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.Dictionary-2 'System.Collections.Generic.Dictionary`2')  
+The bump information.
+  
+
+Implements [Bump(string, string, Dictionary<string,object>)](Cmf_Common_Cli_Interfaces.md#Cmf_Common_Cli_Interfaces_IPackageTypeHandler_Bump(string_string_System_Collections_Generic_Dictionary_string_object_) 'Cmf.Common.Cli.Interfaces.IPackageTypeHandler.Bump(string, string, System.Collections.Generic.Dictionary&lt;string,object&gt;)')  
+  
+<a name='Cmf_Common_Cli_Handlers_TestPackageTypeHandler_GenerateDeploymentFrameworkManifest(System_IO_DirectoryInfo)'></a>
+## TestPackageTypeHandler.GenerateDeploymentFrameworkManifest(DirectoryInfo) Method
+Generates the deployment framework manifest.  
+```csharp
+internal override void GenerateDeploymentFrameworkManifest(System.IO.DirectoryInfo packageOutputDir);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Handlers_TestPackageTypeHandler_GenerateDeploymentFrameworkManifest(System_IO_DirectoryInfo)_packageOutputDir'></a>
+`packageOutputDir` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+The package output dir.
+  
+#### Exceptions
+[CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException')  
   
 #### See Also
 - [PackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_PackageTypeHandler 'Cmf.Common.Cli.Handlers.PackageTypeHandler')

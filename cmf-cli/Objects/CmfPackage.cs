@@ -188,9 +188,18 @@ namespace Cmf.Common.Cli.Objects
         public List<string> XmlInjection { get; private set; }
 
         /// <summary>
+        /// Gets or sets the Test Package Id.
+        /// </summary>
+        /// <value>
+        /// The Test Package Id.
+        /// </value>
+        [JsonProperty(Order = 14)]
+        public DependencyCollection TestPackages { get; private set; }
+
+        /// <summary>
         /// The location of the package
         /// </summary>
-        [JsonProperty(Order = 13)]
+        [JsonProperty(Order = 15)]
         [JsonIgnore]
         public PackageLocation Location { get; private set; }
 
@@ -246,11 +255,12 @@ namespace Cmf.Common.Cli.Objects
         /// <param name="steps">The steps.</param>
         /// <param name="contentToPack">The content to pack.</param>
         /// <param name="xmlInjection">The XML injection.</param>
+        /// <param name="testPackages">The test Packages.</param>
         [JsonConstructor]
         public CmfPackage(string name, string packageId, string version, string description, PackageType packageType,
                           string targetDirectory, bool? isInstallable, bool? isUniqueInstall, string keywords,
                           bool? isToSetDefaultSteps, DependencyCollection dependencies, List<Step> steps,
-                          List<ContentToPack> contentToPack, List<string> xmlInjection)
+                          List<ContentToPack> contentToPack, List<string> xmlInjection, DependencyCollection testPackages = null)
         {
             Name = name;
             PackageId = packageId ?? throw new ArgumentNullException(nameof(packageId));
@@ -266,6 +276,7 @@ namespace Cmf.Common.Cli.Objects
             Steps = steps;
             ContentToPack = contentToPack;
             XmlInjection = xmlInjection;
+            TestPackages = testPackages;
 
             PackageName = $"{PackageId}.{Version}";
             ZipPackageName = $"{PackageName}.zip";

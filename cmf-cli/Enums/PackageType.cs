@@ -61,13 +61,17 @@
         Database = 10,
 
         /// <summary>
-        /// The database
+        /// None
         /// </summary>
         None = 11,
 
         /// <summary>
-        /// The database
+        /// The IoT Data
         /// </summary>
-        IoTData = 12
+        IoTData = 12,
+        /// <summary>
+        /// The test
+        /// </summary>
+        Test = 13
     }
 }

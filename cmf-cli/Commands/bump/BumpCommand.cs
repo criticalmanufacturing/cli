@@ -98,11 +98,15 @@ namespace Cmf.Common.Cli.Commands
 
             #region Get Dependencies
 
-            if (all && cmfPackage.Dependencies.HasAny())
+            CmfPackageCollection packagePathCmfPackages = new CmfPackageCollection();
+            if (all && (cmfPackage.Dependencies.HasAny() || cmfPackage.TestPackages.HasAny()))
             {
                 // Read all local manifests
-                CmfPackageCollection packagePathCmfPackages = packageDirectory.LoadCmfPackagesFromSubDirectories();
+                packagePathCmfPackages = packageDirectory.LoadCmfPackagesFromSubDirectories();
+            }
 
+            if (all && cmfPackage.Dependencies.HasAny())
+            {
                 foreach (var dependency in cmfPackage.Dependencies)
                 {
                     CmfPackage subCmfPackageWithDependency = packagePathCmfPackages.GetDependency(dependency);
@@ -123,6 +127,27 @@ namespace Cmf.Common.Cli.Commands
                 }
             }
 
+            if (all && cmfPackage.TestPackages.HasAny())
+            {
+                foreach (var dependency in cmfPackage.TestPackages)
+                {
+                    CmfPackage subCmfPackageWithDependency = packagePathCmfPackages.GetDependency(dependency);
+
+                    // TODO :: Uncomment if the cmfpackage.json support build number
+                    // dependency.Version = GenericUtilities.RetrieveNewVersion(dependency.Version, version, buildNr);
+
+                    dependency.Version = !string.IsNullOrWhiteSpace(version) ? version : dependency.Version;
+
+                    if (subCmfPackageWithDependency != null)
+                    {
+                        Execute(subCmfPackageWithDependency, version, buildNr, root, all);
+                    }
+                    else
+                    {
+                        Log.Warning($"Dependency {dependency.Id}.{dependency.Version} not found");
+                    }
+                }
+            }
             #endregion
         }
     }
