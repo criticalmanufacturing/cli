@@ -142,7 +142,7 @@ namespace Cmf.Common.Cli.Handlers
             #endregion GetCustomPackages
 
             // IoT -> src -> Package XPTO
-            IoTUtilities.BumpIoTCustomPackages(CmfPackage.GetFileInfo().DirectoryName, version, buildNr, packageNames);
+            IoTUtilities.BumpIoTCustomPackages(CmfPackage.GetFileInfo().DirectoryName, version, buildNr, packageNames, this.fileSystem);
         }
 
         /// <summary>

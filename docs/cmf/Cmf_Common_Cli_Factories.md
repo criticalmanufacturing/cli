@@ -29,18 +29,18 @@ if set to `true` [set default values].
 #### Exceptions
 [CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException')  
   
-<a name='Cmf_Common_Cli_Factories_PackageTypeFactory_GetPackageTypeHandler(System_IO_FileInfo_bool)'></a>
-## PackageTypeFactory.GetPackageTypeHandler(FileInfo, bool) Method
+<a name='Cmf_Common_Cli_Factories_PackageTypeFactory_GetPackageTypeHandler(System_IO_Abstractions_IFileInfo_bool)'></a>
+## PackageTypeFactory.GetPackageTypeHandler(IFileInfo, bool) Method
 Gets the package type handler.  
 ```csharp
-public static Cmf.Common.Cli.Interfaces.IPackageTypeHandler GetPackageTypeHandler(System.IO.FileInfo file, bool setDefaultValues=false);
+public static Cmf.Common.Cli.Interfaces.IPackageTypeHandler GetPackageTypeHandler(System.IO.Abstractions.IFileInfo file, bool setDefaultValues=false);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Factories_PackageTypeFactory_GetPackageTypeHandler(System_IO_FileInfo_bool)_file'></a>
-`file` [System.IO.FileInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.FileInfo 'System.IO.FileInfo')  
+<a name='Cmf_Common_Cli_Factories_PackageTypeFactory_GetPackageTypeHandler(System_IO_Abstractions_IFileInfo_bool)_file'></a>
+`file` [System.IO.Abstractions.IFileInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileInfo 'System.IO.Abstractions.IFileInfo')  
 The file.
   
-<a name='Cmf_Common_Cli_Factories_PackageTypeFactory_GetPackageTypeHandler(System_IO_FileInfo_bool)_setDefaultValues'></a>
+<a name='Cmf_Common_Cli_Factories_PackageTypeFactory_GetPackageTypeHandler(System_IO_Abstractions_IFileInfo_bool)_setDefaultValues'></a>
 `setDefaultValues` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
   
 #### Returns

@@ -101,7 +101,7 @@ namespace Cmf.Common.Cli.Commands
                 return;
             }
 
-            DirectoryInfo packageOutputDir = FileSystemUtilities.GetPackageOutputDir(cmfPackage, packageDirectory);
+            IDirectoryInfo packageOutputDir = FileSystemUtilities.GetPackageOutputDir(cmfPackage, packageDirectory, this.fileSystem);
 
             #endregion
 
@@ -140,7 +140,7 @@ namespace Cmf.Common.Cli.Commands
                         }
 
                         // Some logic removed is trying to load CmfPackage.json on output repository and generate package again
-                        dependencyFound = GenericUtilities.GetPackageFromRepository(outputDir, repoUri, force, dependency.Id, dependency.Version);
+                        dependencyFound = GenericUtilities.GetPackageFromRepository(outputDir, repoUri, force, dependency.Id, dependency.Version, this.fileSystem);
 
                         #region Get Loaded Dependencies
 

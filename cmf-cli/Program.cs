@@ -6,8 +6,16 @@ using System.Reflection;
 
 namespace Cmf.Common.Cli
 {
+    /// <summary>
+    /// program entry point
+    /// </summary>
     public static class Program
     {
+        /// <summary>
+        /// program entry point
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
         public static int Main(string[] args)
         {
             try

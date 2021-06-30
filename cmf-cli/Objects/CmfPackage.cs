@@ -499,6 +499,7 @@ namespace Cmf.Common.Cli.Objects
         /// </summary>
         /// <param name="file">The file.</param>
         /// <param name="setDefaultValues"></param>
+        /// <param name="fileSystem">the underlying file system</param>
         /// <returns></returns>
         /// <exception cref="Cmf.Common.Cli.Utilities.CliException">
         /// </exception>
@@ -527,6 +528,7 @@ namespace Cmf.Common.Cli.Objects
         /// </summary>
         /// <param name="manifest">the manifest content</param>
         /// <param name="setDefaultValues">should set default values</param>
+        /// <param name="fileSystem">the underlying file system</param>
         /// <returns>a CmfPackage</returns>
         public static CmfPackage FromManifest(string manifest, bool setDefaultValues = false, IFileSystem fileSystem = null)
         {

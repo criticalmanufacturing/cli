@@ -95,7 +95,7 @@ namespace Cmf.Common.Cli.Commands
         public void Execute(IDirectoryInfo packageDirectory, string version, string buildNr, bool isToBumpMasterdata, bool isToBumpIoT, string packageNames, string root, string group, string workflowName, bool isToTag, bool onlyMdCustomization)
         {
             // Get All AutomationWorkflowFiles Folders
-            List<string> automationWorkflowDirectories = Directory.GetDirectories(packageDirectory.FullName, "AutomationWorkflowFiles").ToList();
+            List<string> automationWorkflowDirectories = this.fileSystem.Directory.GetDirectories(packageDirectory.FullName, "AutomationWorkflowFiles").ToList();
 
             if (!String.IsNullOrEmpty(root))
             {
@@ -121,7 +121,7 @@ namespace Cmf.Common.Cli.Commands
                         groups = groups.Where(gr => gr.Contains(group)).ToList();
                     }
 
-                    groups.ForEach(group => IoTUtilities.BumpWorkflowFiles(group, version, buildNr, workflowName, packageNames));
+                    groups.ForEach(group => IoTUtilities.BumpWorkflowFiles(group, version, buildNr, workflowName, packageNames, this.fileSystem));
                 }
 
                 #endregion Bump AutomationWorkflow
@@ -130,7 +130,7 @@ namespace Cmf.Common.Cli.Commands
 
                 if (isToBumpMasterdata)
                 {
-                    IoTUtilities.BumpIoTMasterData(automationWorkflowDirectory, version, buildNr, onlyCustomization: onlyMdCustomization);
+                    IoTUtilities.BumpIoTMasterData(automationWorkflowDirectory, version, buildNr, this.fileSystem, onlyCustomization: onlyMdCustomization);
                 }
 
                 #endregion Bump IoT Masterdata

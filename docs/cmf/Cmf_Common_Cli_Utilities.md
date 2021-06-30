@@ -94,15 +94,15 @@ If set to `true` case will be ignored whilst searching for the [System.Xml.Linq.
 [System.Xml.Linq.XElement](https://docs.microsoft.com/en-us/dotnet/api/System.Xml.Linq.XElement 'System.Xml.Linq.XElement')  
 A [System.Xml.Linq.XElement](https://docs.microsoft.com/en-us/dotnet/api/System.Xml.Linq.XElement 'System.Xml.Linq.XElement') that matches the specified [System.Xml.Linq.XName](https://docs.microsoft.com/en-us/dotnet/api/System.Xml.Linq.XName 'System.Xml.Linq.XName'), or null.  
   
-<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_GetPackageJsonFile(System_IO_DirectoryInfo)'></a>
-## ExtensionMethods.GetPackageJsonFile(DirectoryInfo) Method
+<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_GetPackageJsonFile(System_IO_Abstractions_IDirectoryInfo)'></a>
+## ExtensionMethods.GetPackageJsonFile(IDirectoryInfo) Method
 Gets the package json file.  
 ```csharp
-public static object GetPackageJsonFile(this System.IO.DirectoryInfo packDirectory);
+public static object GetPackageJsonFile(this System.IO.Abstractions.IDirectoryInfo packDirectory);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_GetPackageJsonFile(System_IO_DirectoryInfo)_packDirectory'></a>
-`packDirectory` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_GetPackageJsonFile(System_IO_Abstractions_IDirectoryInfo)_packDirectory'></a>
+`packDirectory` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
 The pack directory.
   
 #### Returns
@@ -263,22 +263,22 @@ The value.
 `true` if the specified value is token; otherwise, `false`.  
             
   
-<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_LoadCmfPackagesFromSubDirectories(System_IO_DirectoryInfo_Cmf_Common_Cli_Enums_PackageType_bool)'></a>
-## ExtensionMethods.LoadCmfPackagesFromSubDirectories(DirectoryInfo, PackageType, bool) Method
+<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_LoadCmfPackagesFromSubDirectories(System_IO_Abstractions_IDirectoryInfo_Cmf_Common_Cli_Enums_PackageType_bool)'></a>
+## ExtensionMethods.LoadCmfPackagesFromSubDirectories(IDirectoryInfo, PackageType, bool) Method
 Gets the CMF package files from sub directories.  
 ```csharp
-public static Cmf.Common.Cli.Objects.CmfPackageCollection LoadCmfPackagesFromSubDirectories(this System.IO.DirectoryInfo directory, Cmf.Common.Cli.Enums.PackageType packageType=Cmf.Common.Cli.Enums.PackageType.None, bool setDefaultValues=false);
+public static Cmf.Common.Cli.Objects.CmfPackageCollection LoadCmfPackagesFromSubDirectories(this System.IO.Abstractions.IDirectoryInfo directory, Cmf.Common.Cli.Enums.PackageType packageType=Cmf.Common.Cli.Enums.PackageType.None, bool setDefaultValues=false);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_LoadCmfPackagesFromSubDirectories(System_IO_DirectoryInfo_Cmf_Common_Cli_Enums_PackageType_bool)_directory'></a>
-`directory` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_LoadCmfPackagesFromSubDirectories(System_IO_Abstractions_IDirectoryInfo_Cmf_Common_Cli_Enums_PackageType_bool)_directory'></a>
+`directory` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
 The directory.
   
-<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_LoadCmfPackagesFromSubDirectories(System_IO_DirectoryInfo_Cmf_Common_Cli_Enums_PackageType_bool)_packageType'></a>
+<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_LoadCmfPackagesFromSubDirectories(System_IO_Abstractions_IDirectoryInfo_Cmf_Common_Cli_Enums_PackageType_bool)_packageType'></a>
 `packageType` [PackageType](Cmf_Common_Cli_Enums.md#Cmf_Common_Cli_Enums_PackageType 'Cmf.Common.Cli.Enums.PackageType')  
 Type of the package.
   
-<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_LoadCmfPackagesFromSubDirectories(System_IO_DirectoryInfo_Cmf_Common_Cli_Enums_PackageType_bool)_setDefaultValues'></a>
+<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_LoadCmfPackagesFromSubDirectories(System_IO_Abstractions_IDirectoryInfo_Cmf_Common_Cli_Enums_PackageType_bool)_setDefaultValues'></a>
 `setDefaultValues` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
   
 #### Returns
@@ -307,30 +307,34 @@ public static class FileSystemUtilities
 
 Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; FileSystemUtilities  
 ### Methods
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_CopyDirectory(string_string_System_Collections_Generic_List_string__bool_bool)'></a>
-## FileSystemUtilities.CopyDirectory(string, string, List&lt;string&gt;, bool, bool) Method
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_CopyDirectory(string_string_System_IO_Abstractions_IFileSystem_System_Collections_Generic_List_string__bool_bool)'></a>
+## FileSystemUtilities.CopyDirectory(string, string, IFileSystem, List&lt;string&gt;, bool, bool) Method
 Directories copy.  
 ```csharp
-public static void CopyDirectory(string sourceDirName, string destDirName, System.Collections.Generic.List<string> contentToIgnore=null, bool copySubDirs=true, bool isCopyDependencies=false);
+public static void CopyDirectory(string sourceDirName, string destDirName, System.IO.Abstractions.IFileSystem fileSystem, System.Collections.Generic.List<string> contentToIgnore=null, bool copySubDirs=true, bool isCopyDependencies=false);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_CopyDirectory(string_string_System_Collections_Generic_List_string__bool_bool)_sourceDirName'></a>
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_CopyDirectory(string_string_System_IO_Abstractions_IFileSystem_System_Collections_Generic_List_string__bool_bool)_sourceDirName'></a>
 `sourceDirName` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 Name of the source dir.
   
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_CopyDirectory(string_string_System_Collections_Generic_List_string__bool_bool)_destDirName'></a>
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_CopyDirectory(string_string_System_IO_Abstractions_IFileSystem_System_Collections_Generic_List_string__bool_bool)_destDirName'></a>
 `destDirName` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 Name of the dest dir.
   
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_CopyDirectory(string_string_System_Collections_Generic_List_string__bool_bool)_contentToIgnore'></a>
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_CopyDirectory(string_string_System_IO_Abstractions_IFileSystem_System_Collections_Generic_List_string__bool_bool)_fileSystem'></a>
+`fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
+the underlying file system
+  
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_CopyDirectory(string_string_System_IO_Abstractions_IFileSystem_System_Collections_Generic_List_string__bool_bool)_contentToIgnore'></a>
 `contentToIgnore` [System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')  
 The exclusions.
   
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_CopyDirectory(string_string_System_Collections_Generic_List_string__bool_bool)_copySubDirs'></a>
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_CopyDirectory(string_string_System_IO_Abstractions_IFileSystem_System_Collections_Generic_List_string__bool_bool)_copySubDirs'></a>
 `copySubDirs` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
 if set to `true` [copy sub dirs].
   
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_CopyDirectory(string_string_System_Collections_Generic_List_string__bool_bool)_isCopyDependencies'></a>
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_CopyDirectory(string_string_System_IO_Abstractions_IFileSystem_System_Collections_Generic_List_string__bool_bool)_isCopyDependencies'></a>
 `isCopyDependencies` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
 if set to `true` [is copy dependencies].
   
@@ -339,20 +343,24 @@ if set to `true` [is copy dependencies].
 Source directory does not exist or could not be found: "  
             + sourceDirName
   
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_CopyInstallDependenciesFiles(System_IO_DirectoryInfo_Cmf_Common_Cli_Enums_PackageType)'></a>
-## FileSystemUtilities.CopyInstallDependenciesFiles(DirectoryInfo, PackageType) Method
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_CopyInstallDependenciesFiles(System_IO_Abstractions_IDirectoryInfo_Cmf_Common_Cli_Enums_PackageType_System_IO_Abstractions_IFileSystem)'></a>
+## FileSystemUtilities.CopyInstallDependenciesFiles(IDirectoryInfo, PackageType, IFileSystem) Method
 Copies the install dependencies.  
 ```csharp
-public static void CopyInstallDependenciesFiles(System.IO.DirectoryInfo packageOutputDir, Cmf.Common.Cli.Enums.PackageType packageType);
+public static void CopyInstallDependenciesFiles(System.IO.Abstractions.IDirectoryInfo packageOutputDir, Cmf.Common.Cli.Enums.PackageType packageType, System.IO.Abstractions.IFileSystem fileSystem);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_CopyInstallDependenciesFiles(System_IO_DirectoryInfo_Cmf_Common_Cli_Enums_PackageType)_packageOutputDir'></a>
-`packageOutputDir` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_CopyInstallDependenciesFiles(System_IO_Abstractions_IDirectoryInfo_Cmf_Common_Cli_Enums_PackageType_System_IO_Abstractions_IFileSystem)_packageOutputDir'></a>
+`packageOutputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
 The package output dir.
   
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_CopyInstallDependenciesFiles(System_IO_DirectoryInfo_Cmf_Common_Cli_Enums_PackageType)_packageType'></a>
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_CopyInstallDependenciesFiles(System_IO_Abstractions_IDirectoryInfo_Cmf_Common_Cli_Enums_PackageType_System_IO_Abstractions_IFileSystem)_packageType'></a>
 `packageType` [PackageType](Cmf_Common_Cli_Enums.md#Cmf_Common_Cli_Enums_PackageType 'Cmf.Common.Cli.Enums.PackageType')  
 Type of the package.
+  
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_CopyInstallDependenciesFiles(System_IO_Abstractions_IDirectoryInfo_Cmf_Common_Cli_Enums_PackageType_System_IO_Abstractions_IFileSystem)_fileSystem'></a>
+`fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
+the underlying file system
   
   
 <a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_CopyStream(System_IO_Stream_System_IO_Stream)'></a>
@@ -371,38 +379,42 @@ The input.
 The output.
   
   
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFilesToPack(Cmf_Common_Cli_Objects_ContentToPack_string_string_System_Collections_Generic_List_string__bool_bool_System_Collections_Generic_List_Cmf_Common_Cli_Objects_FileToPack_)'></a>
-## FileSystemUtilities.GetFilesToPack(ContentToPack, string, string, List&lt;string&gt;, bool, bool, List&lt;FileToPack&gt;) Method
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFilesToPack(Cmf_Common_Cli_Objects_ContentToPack_string_string_System_IO_Abstractions_IFileSystem_System_Collections_Generic_List_string__bool_bool_System_Collections_Generic_List_Cmf_Common_Cli_Objects_FileToPack_)'></a>
+## FileSystemUtilities.GetFilesToPack(ContentToPack, string, string, IFileSystem, List&lt;string&gt;, bool, bool, List&lt;FileToPack&gt;) Method
 Gets the files to pack.  
 ```csharp
-public static System.Collections.Generic.List<Cmf.Common.Cli.Objects.FileToPack> GetFilesToPack(Cmf.Common.Cli.Objects.ContentToPack contentToPack, string sourceDirName, string destDirName, System.Collections.Generic.List<string> contentToIgnore=null, bool copySubDirs=true, bool isCopyDependencies=false, System.Collections.Generic.List<Cmf.Common.Cli.Objects.FileToPack> filesToPack=null);
+public static System.Collections.Generic.List<Cmf.Common.Cli.Objects.FileToPack> GetFilesToPack(Cmf.Common.Cli.Objects.ContentToPack contentToPack, string sourceDirName, string destDirName, System.IO.Abstractions.IFileSystem fileSystem, System.Collections.Generic.List<string> contentToIgnore=null, bool copySubDirs=true, bool isCopyDependencies=false, System.Collections.Generic.List<Cmf.Common.Cli.Objects.FileToPack> filesToPack=null);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFilesToPack(Cmf_Common_Cli_Objects_ContentToPack_string_string_System_Collections_Generic_List_string__bool_bool_System_Collections_Generic_List_Cmf_Common_Cli_Objects_FileToPack_)_contentToPack'></a>
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFilesToPack(Cmf_Common_Cli_Objects_ContentToPack_string_string_System_IO_Abstractions_IFileSystem_System_Collections_Generic_List_string__bool_bool_System_Collections_Generic_List_Cmf_Common_Cli_Objects_FileToPack_)_contentToPack'></a>
 `contentToPack` [ContentToPack](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_ContentToPack 'Cmf.Common.Cli.Objects.ContentToPack')  
 The content to pack.
   
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFilesToPack(Cmf_Common_Cli_Objects_ContentToPack_string_string_System_Collections_Generic_List_string__bool_bool_System_Collections_Generic_List_Cmf_Common_Cli_Objects_FileToPack_)_sourceDirName'></a>
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFilesToPack(Cmf_Common_Cli_Objects_ContentToPack_string_string_System_IO_Abstractions_IFileSystem_System_Collections_Generic_List_string__bool_bool_System_Collections_Generic_List_Cmf_Common_Cli_Objects_FileToPack_)_sourceDirName'></a>
 `sourceDirName` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 Name of the source dir.
   
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFilesToPack(Cmf_Common_Cli_Objects_ContentToPack_string_string_System_Collections_Generic_List_string__bool_bool_System_Collections_Generic_List_Cmf_Common_Cli_Objects_FileToPack_)_destDirName'></a>
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFilesToPack(Cmf_Common_Cli_Objects_ContentToPack_string_string_System_IO_Abstractions_IFileSystem_System_Collections_Generic_List_string__bool_bool_System_Collections_Generic_List_Cmf_Common_Cli_Objects_FileToPack_)_destDirName'></a>
 `destDirName` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 Name of the dest dir.
   
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFilesToPack(Cmf_Common_Cli_Objects_ContentToPack_string_string_System_Collections_Generic_List_string__bool_bool_System_Collections_Generic_List_Cmf_Common_Cli_Objects_FileToPack_)_contentToIgnore'></a>
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFilesToPack(Cmf_Common_Cli_Objects_ContentToPack_string_string_System_IO_Abstractions_IFileSystem_System_Collections_Generic_List_string__bool_bool_System_Collections_Generic_List_Cmf_Common_Cli_Objects_FileToPack_)_fileSystem'></a>
+`fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
+the underlying file system
+  
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFilesToPack(Cmf_Common_Cli_Objects_ContentToPack_string_string_System_IO_Abstractions_IFileSystem_System_Collections_Generic_List_string__bool_bool_System_Collections_Generic_List_Cmf_Common_Cli_Objects_FileToPack_)_contentToIgnore'></a>
 `contentToIgnore` [System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')  
 The content to ignore.
   
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFilesToPack(Cmf_Common_Cli_Objects_ContentToPack_string_string_System_Collections_Generic_List_string__bool_bool_System_Collections_Generic_List_Cmf_Common_Cli_Objects_FileToPack_)_copySubDirs'></a>
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFilesToPack(Cmf_Common_Cli_Objects_ContentToPack_string_string_System_IO_Abstractions_IFileSystem_System_Collections_Generic_List_string__bool_bool_System_Collections_Generic_List_Cmf_Common_Cli_Objects_FileToPack_)_copySubDirs'></a>
 `copySubDirs` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
 if set to `true` [copy sub dirs].
   
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFilesToPack(Cmf_Common_Cli_Objects_ContentToPack_string_string_System_Collections_Generic_List_string__bool_bool_System_Collections_Generic_List_Cmf_Common_Cli_Objects_FileToPack_)_isCopyDependencies'></a>
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFilesToPack(Cmf_Common_Cli_Objects_ContentToPack_string_string_System_IO_Abstractions_IFileSystem_System_Collections_Generic_List_string__bool_bool_System_Collections_Generic_List_Cmf_Common_Cli_Objects_FileToPack_)_isCopyDependencies'></a>
 `isCopyDependencies` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
 if set to `true` [is copy dependencies].
   
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFilesToPack(Cmf_Common_Cli_Objects_ContentToPack_string_string_System_Collections_Generic_List_string__bool_bool_System_Collections_Generic_List_Cmf_Common_Cli_Objects_FileToPack_)_filesToPack'></a>
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFilesToPack(Cmf_Common_Cli_Objects_ContentToPack_string_string_System_IO_Abstractions_IFileSystem_System_Collections_Generic_List_string__bool_bool_System_Collections_Generic_List_Cmf_Common_Cli_Objects_FileToPack_)_filesToPack'></a>
 `filesToPack` [System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[FileToPack](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_FileToPack 'Cmf.Common.Cli.Objects.FileToPack')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')  
 The files to pack.
   
@@ -425,143 +437,166 @@ public static System.Xml.Linq.XDocument GetManifestFromPackage(string packageFil
 #### Returns
 [System.Xml.Linq.XDocument](https://docs.microsoft.com/en-us/dotnet/api/System.Xml.Linq.XDocument 'System.Xml.Linq.XDocument')  
   
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetOutputDir(Cmf_Common_Cli_Objects_CmfPackage_System_IO_DirectoryInfo_bool)'></a>
-## FileSystemUtilities.GetOutputDir(CmfPackage, DirectoryInfo, bool) Method
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetOutputDir(Cmf_Common_Cli_Objects_CmfPackage_System_IO_Abstractions_IDirectoryInfo_bool)'></a>
+## FileSystemUtilities.GetOutputDir(CmfPackage, IDirectoryInfo, bool) Method
 Gets the output dir.  
 ```csharp
-public static System.IO.DirectoryInfo GetOutputDir(Cmf.Common.Cli.Objects.CmfPackage cmfPackage, System.IO.DirectoryInfo outputDir, bool force);
+public static System.IO.Abstractions.IDirectoryInfo GetOutputDir(Cmf.Common.Cli.Objects.CmfPackage cmfPackage, System.IO.Abstractions.IDirectoryInfo outputDir, bool force);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetOutputDir(Cmf_Common_Cli_Objects_CmfPackage_System_IO_DirectoryInfo_bool)_cmfPackage'></a>
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetOutputDir(Cmf_Common_Cli_Objects_CmfPackage_System_IO_Abstractions_IDirectoryInfo_bool)_cmfPackage'></a>
 `cmfPackage` [CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')  
 The CMF package.
   
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetOutputDir(Cmf_Common_Cli_Objects_CmfPackage_System_IO_DirectoryInfo_bool)_outputDir'></a>
-`outputDir` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetOutputDir(Cmf_Common_Cli_Objects_CmfPackage_System_IO_Abstractions_IDirectoryInfo_bool)_outputDir'></a>
+`outputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
 The output dir.
   
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetOutputDir(Cmf_Common_Cli_Objects_CmfPackage_System_IO_DirectoryInfo_bool)_force'></a>
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetOutputDir(Cmf_Common_Cli_Objects_CmfPackage_System_IO_Abstractions_IDirectoryInfo_bool)_force'></a>
 `force` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
 if set to `true` [force].
   
 #### Returns
-[System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+[System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
   
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageOutputDir(Cmf_Common_Cli_Objects_CmfPackage_System_IO_DirectoryInfo)'></a>
-## FileSystemUtilities.GetPackageOutputDir(CmfPackage, DirectoryInfo) Method
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageOutputDir(Cmf_Common_Cli_Objects_CmfPackage_System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IFileSystem)'></a>
+## FileSystemUtilities.GetPackageOutputDir(CmfPackage, IDirectoryInfo, IFileSystem) Method
 Gets the package output dir.  
 ```csharp
-public static System.IO.DirectoryInfo GetPackageOutputDir(Cmf.Common.Cli.Objects.CmfPackage cmfPackage, System.IO.DirectoryInfo packageDirectory);
+public static System.IO.Abstractions.IDirectoryInfo GetPackageOutputDir(Cmf.Common.Cli.Objects.CmfPackage cmfPackage, System.IO.Abstractions.IDirectoryInfo packageDirectory, System.IO.Abstractions.IFileSystem fileSystem);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageOutputDir(Cmf_Common_Cli_Objects_CmfPackage_System_IO_DirectoryInfo)_cmfPackage'></a>
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageOutputDir(Cmf_Common_Cli_Objects_CmfPackage_System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IFileSystem)_cmfPackage'></a>
 `cmfPackage` [CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')  
 The CMF package.
   
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageOutputDir(Cmf_Common_Cli_Objects_CmfPackage_System_IO_DirectoryInfo)_packageDirectory'></a>
-`packageDirectory` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageOutputDir(Cmf_Common_Cli_Objects_CmfPackage_System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IFileSystem)_packageDirectory'></a>
+`packageDirectory` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
 The package directory.
   
-#### Returns
-[System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageOutputDir(Cmf_Common_Cli_Objects_CmfPackage_System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IFileSystem)_fileSystem'></a>
+`fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
+the underlying file system
   
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageRoot()'></a>
-## FileSystemUtilities.GetPackageRoot() Method
+#### Returns
+[System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
+  
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageRoot(System_IO_Abstractions_IFileSystem)'></a>
+## FileSystemUtilities.GetPackageRoot(IFileSystem) Method
 Gets the package root.  
 ```csharp
-public static System.IO.DirectoryInfo GetPackageRoot();
+public static System.IO.Abstractions.IDirectoryInfo GetPackageRoot(System.IO.Abstractions.IFileSystem fileSystem);
 ```
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageRoot(System_IO_Abstractions_IFileSystem)_fileSystem'></a>
+`fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
+  
 #### Returns
-[System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+[System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
 #### Exceptions
 [CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException')  
 Cannot find package root. Are you in a valid package directory?
   
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageRootByType(string_Cmf_Common_Cli_Enums_PackageType)'></a>
-## FileSystemUtilities.GetPackageRootByType(string, PackageType) Method
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageRootByType(string_Cmf_Common_Cli_Enums_PackageType_System_IO_Abstractions_IFileSystem)'></a>
+## FileSystemUtilities.GetPackageRootByType(string, PackageType, IFileSystem) Method
 Gets the package root of type package root.  
 ```csharp
-public static System.IO.DirectoryInfo GetPackageRootByType(string directoryName, Cmf.Common.Cli.Enums.PackageType packageType);
+public static System.IO.Abstractions.IDirectoryInfo GetPackageRootByType(string directoryName, Cmf.Common.Cli.Enums.PackageType packageType, System.IO.Abstractions.IFileSystem fileSystem);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageRootByType(string_Cmf_Common_Cli_Enums_PackageType)_directoryName'></a>
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageRootByType(string_Cmf_Common_Cli_Enums_PackageType_System_IO_Abstractions_IFileSystem)_directoryName'></a>
 `directoryName` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 Name of the directory.
   
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageRootByType(string_Cmf_Common_Cli_Enums_PackageType)_packageType'></a>
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageRootByType(string_Cmf_Common_Cli_Enums_PackageType_System_IO_Abstractions_IFileSystem)_packageType'></a>
 `packageType` [PackageType](Cmf_Common_Cli_Enums.md#Cmf_Common_Cli_Enums_PackageType 'Cmf.Common.Cli.Enums.PackageType')  
 Type of the package.
   
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageRootByType(string_Cmf_Common_Cli_Enums_PackageType_System_IO_Abstractions_IFileSystem)_fileSystem'></a>
+`fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
+the underlying file system
+  
 #### Returns
-[System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+[System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
 #### Exceptions
 [CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException')  
 Cannot find project root. Are you in a valid project directory?
   
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetProjectRoot(bool)'></a>
-## FileSystemUtilities.GetProjectRoot(bool) Method
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetProjectRoot(System_IO_Abstractions_IFileSystem_bool)'></a>
+## FileSystemUtilities.GetProjectRoot(IFileSystem, bool) Method
 Gets the project root.  
 ```csharp
-public static System.IO.DirectoryInfo GetProjectRoot(bool throwException=false);
+public static System.IO.Abstractions.IDirectoryInfo GetProjectRoot(System.IO.Abstractions.IFileSystem fileSystem, bool throwException=false);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetProjectRoot(bool)_throwException'></a>
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetProjectRoot(System_IO_Abstractions_IFileSystem_bool)_fileSystem'></a>
+`fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
+  
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetProjectRoot(System_IO_Abstractions_IFileSystem_bool)_throwException'></a>
 `throwException` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
   
 #### Returns
-[System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+[System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
 #### Exceptions
 [CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException')  
 Cannot find project root. Are you in a valid project directory?
 [CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException')  
 Cannot find project root. Are you in a valid project directory?
   
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_ReadEnvironmentConfig(string)'></a>
-## FileSystemUtilities.ReadEnvironmentConfig(string) Method
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_ReadEnvironmentConfig(string_System_IO_Abstractions_IFileSystem)'></a>
+## FileSystemUtilities.ReadEnvironmentConfig(string, IFileSystem) Method
 Reads the environment configuration.  
 ```csharp
-public static System.Text.Json.JsonDocument ReadEnvironmentConfig(string envConfigName);
+public static System.Text.Json.JsonDocument ReadEnvironmentConfig(string envConfigName, System.IO.Abstractions.IFileSystem fileSystem);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_ReadEnvironmentConfig(string)_envConfigName'></a>
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_ReadEnvironmentConfig(string_System_IO_Abstractions_IFileSystem)_envConfigName'></a>
 `envConfigName` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 Name of the env configuration.
   
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_ReadEnvironmentConfig(string_System_IO_Abstractions_IFileSystem)_fileSystem'></a>
+`fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
+the underlying file system
+  
 #### Returns
 [System.Text.Json.JsonDocument](https://docs.microsoft.com/en-us/dotnet/api/System.Text.Json.JsonDocument 'System.Text.Json.JsonDocument')  
   
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_ReadProjectConfig()'></a>
-## FileSystemUtilities.ReadProjectConfig() Method
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_ReadProjectConfig(System_IO_Abstractions_IFileSystem)'></a>
+## FileSystemUtilities.ReadProjectConfig(IFileSystem) Method
 Reads the project configuration.  
 ```csharp
-public static System.Text.Json.JsonDocument ReadProjectConfig();
+public static System.Text.Json.JsonDocument ReadProjectConfig(System.IO.Abstractions.IFileSystem fileSystem);
 ```
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_ReadProjectConfig(System_IO_Abstractions_IFileSystem)_fileSystem'></a>
+`fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
+  
 #### Returns
 [System.Text.Json.JsonDocument](https://docs.microsoft.com/en-us/dotnet/api/System.Text.Json.JsonDocument 'System.Text.Json.JsonDocument')  
   
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_ReadToString(System_IO_FileInfo)'></a>
-## FileSystemUtilities.ReadToString(FileInfo) Method
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_ReadToString(System_IO_Abstractions_IFileInfo)'></a>
+## FileSystemUtilities.ReadToString(IFileInfo) Method
 Reads to string.  
 ```csharp
-public static string ReadToString(this System.IO.FileInfo fi);
+public static string ReadToString(this System.IO.Abstractions.IFileInfo fi);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_ReadToString(System_IO_FileInfo)_fi'></a>
-`fi` [System.IO.FileInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.FileInfo 'System.IO.FileInfo')  
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_ReadToString(System_IO_Abstractions_IFileInfo)_fi'></a>
+`fi` [System.IO.Abstractions.IFileInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileInfo 'System.IO.Abstractions.IFileInfo')  
 The fi.
   
 #### Returns
 [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
   
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_ReadToStringList(System_IO_FileInfo)'></a>
-## FileSystemUtilities.ReadToStringList(FileInfo) Method
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_ReadToStringList(System_IO_Abstractions_IFileInfo)'></a>
+## FileSystemUtilities.ReadToStringList(IFileInfo) Method
 Reads to string list.  
 ```csharp
-public static System.Collections.Generic.List<string> ReadToStringList(this System.IO.FileInfo fi);
+public static System.Collections.Generic.List<string> ReadToStringList(this System.IO.Abstractions.IFileInfo fi);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_ReadToStringList(System_IO_FileInfo)_fi'></a>
-`fi` [System.IO.FileInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.FileInfo 'System.IO.FileInfo')  
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_ReadToStringList(System_IO_Abstractions_IFileInfo)_fi'></a>
+`fi` [System.IO.Abstractions.IFileInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileInfo 'System.IO.Abstractions.IFileInfo')  
 The fi.
   
 #### Returns
@@ -616,31 +651,35 @@ the path of the embedded resource inside the [root}/resources folder
 [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 the resource content  
   
-<a name='Cmf_Common_Cli_Utilities_GenericUtilities_GetPackageFromRepository(System_IO_DirectoryInfo_System_Uri_bool_string_string)'></a>
-## GenericUtilities.GetPackageFromRepository(DirectoryInfo, Uri, bool, string, string) Method
+<a name='Cmf_Common_Cli_Utilities_GenericUtilities_GetPackageFromRepository(System_IO_Abstractions_IDirectoryInfo_System_Uri_bool_string_string_System_IO_Abstractions_IFileSystem)'></a>
+## GenericUtilities.GetPackageFromRepository(IDirectoryInfo, Uri, bool, string, string, IFileSystem) Method
 Get Package from Repository  
 ```csharp
-public static bool GetPackageFromRepository(System.IO.DirectoryInfo outputDir, System.Uri repoUri, bool force, string packageId, string packageVersion);
+public static bool GetPackageFromRepository(System.IO.Abstractions.IDirectoryInfo outputDir, System.Uri repoUri, bool force, string packageId, string packageVersion, System.IO.Abstractions.IFileSystem fileSystem);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Utilities_GenericUtilities_GetPackageFromRepository(System_IO_DirectoryInfo_System_Uri_bool_string_string)_outputDir'></a>
-`outputDir` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+<a name='Cmf_Common_Cli_Utilities_GenericUtilities_GetPackageFromRepository(System_IO_Abstractions_IDirectoryInfo_System_Uri_bool_string_string_System_IO_Abstractions_IFileSystem)_outputDir'></a>
+`outputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
 Target directory for the package
   
-<a name='Cmf_Common_Cli_Utilities_GenericUtilities_GetPackageFromRepository(System_IO_DirectoryInfo_System_Uri_bool_string_string)_repoUri'></a>
+<a name='Cmf_Common_Cli_Utilities_GenericUtilities_GetPackageFromRepository(System_IO_Abstractions_IDirectoryInfo_System_Uri_bool_string_string_System_IO_Abstractions_IFileSystem)_repoUri'></a>
 `repoUri` [System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')  
 Repository Uri
   
-<a name='Cmf_Common_Cli_Utilities_GenericUtilities_GetPackageFromRepository(System_IO_DirectoryInfo_System_Uri_bool_string_string)_force'></a>
+<a name='Cmf_Common_Cli_Utilities_GenericUtilities_GetPackageFromRepository(System_IO_Abstractions_IDirectoryInfo_System_Uri_bool_string_string_System_IO_Abstractions_IFileSystem)_force'></a>
 `force` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
   
-<a name='Cmf_Common_Cli_Utilities_GenericUtilities_GetPackageFromRepository(System_IO_DirectoryInfo_System_Uri_bool_string_string)_packageId'></a>
+<a name='Cmf_Common_Cli_Utilities_GenericUtilities_GetPackageFromRepository(System_IO_Abstractions_IDirectoryInfo_System_Uri_bool_string_string_System_IO_Abstractions_IFileSystem)_packageId'></a>
 `packageId` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 Package Identifier
   
-<a name='Cmf_Common_Cli_Utilities_GenericUtilities_GetPackageFromRepository(System_IO_DirectoryInfo_System_Uri_bool_string_string)_packageVersion'></a>
+<a name='Cmf_Common_Cli_Utilities_GenericUtilities_GetPackageFromRepository(System_IO_Abstractions_IDirectoryInfo_System_Uri_bool_string_string_System_IO_Abstractions_IFileSystem)_packageVersion'></a>
 `packageVersion` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 Package Version
+  
+<a name='Cmf_Common_Cli_Utilities_GenericUtilities_GetPackageFromRepository(System_IO_Abstractions_IDirectoryInfo_System_Uri_bool_string_string_System_IO_Abstractions_IFileSystem)_fileSystem'></a>
+`fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
+the underlying file system
   
 #### Returns
 [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
@@ -694,84 +733,96 @@ public static class IoTUtilities
 
 Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; IoTUtilities  
 ### Methods
-<a name='Cmf_Common_Cli_Utilities_IoTUtilities_BumpIoTCustomPackages(string_string_string_string)'></a>
-## IoTUtilities.BumpIoTCustomPackages(string, string, string, string) Method
+<a name='Cmf_Common_Cli_Utilities_IoTUtilities_BumpIoTCustomPackages(string_string_string_string_System_IO_Abstractions_IFileSystem)'></a>
+## IoTUtilities.BumpIoTCustomPackages(string, string, string, string, IFileSystem) Method
 Bumps the iot custom packages.  
 ```csharp
-public static void BumpIoTCustomPackages(string packagePath, string version, string buildNr, string packageNames);
+public static void BumpIoTCustomPackages(string packagePath, string version, string buildNr, string packageNames, System.IO.Abstractions.IFileSystem fileSystem);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Utilities_IoTUtilities_BumpIoTCustomPackages(string_string_string_string)_packagePath'></a>
+<a name='Cmf_Common_Cli_Utilities_IoTUtilities_BumpIoTCustomPackages(string_string_string_string_System_IO_Abstractions_IFileSystem)_packagePath'></a>
 `packagePath` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The package path.
   
-<a name='Cmf_Common_Cli_Utilities_IoTUtilities_BumpIoTCustomPackages(string_string_string_string)_version'></a>
+<a name='Cmf_Common_Cli_Utilities_IoTUtilities_BumpIoTCustomPackages(string_string_string_string_System_IO_Abstractions_IFileSystem)_version'></a>
 `version` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The version.
   
-<a name='Cmf_Common_Cli_Utilities_IoTUtilities_BumpIoTCustomPackages(string_string_string_string)_buildNr'></a>
+<a name='Cmf_Common_Cli_Utilities_IoTUtilities_BumpIoTCustomPackages(string_string_string_string_System_IO_Abstractions_IFileSystem)_buildNr'></a>
 `buildNr` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The version of the build (v-b).
   
-<a name='Cmf_Common_Cli_Utilities_IoTUtilities_BumpIoTCustomPackages(string_string_string_string)_packageNames'></a>
+<a name='Cmf_Common_Cli_Utilities_IoTUtilities_BumpIoTCustomPackages(string_string_string_string_System_IO_Abstractions_IFileSystem)_packageNames'></a>
 `packageNames` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The package names.
   
+<a name='Cmf_Common_Cli_Utilities_IoTUtilities_BumpIoTCustomPackages(string_string_string_string_System_IO_Abstractions_IFileSystem)_fileSystem'></a>
+`fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
+the underlying file system
   
-<a name='Cmf_Common_Cli_Utilities_IoTUtilities_BumpIoTMasterData(string_string_string_string_bool)'></a>
-## IoTUtilities.BumpIoTMasterData(string, string, string, string, bool) Method
+  
+<a name='Cmf_Common_Cli_Utilities_IoTUtilities_BumpIoTMasterData(string_string_string_System_IO_Abstractions_IFileSystem_string_bool)'></a>
+## IoTUtilities.BumpIoTMasterData(string, string, string, IFileSystem, string, bool) Method
 Bumps the io t master data.  
 ```csharp
-public static void BumpIoTMasterData(string automationWorkflowFileGroup, string version, string buildNr, string packageNames=null, bool onlyCustomization=true);
+public static void BumpIoTMasterData(string automationWorkflowFileGroup, string version, string buildNr, System.IO.Abstractions.IFileSystem fileSystem, string packageNames=null, bool onlyCustomization=true);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Utilities_IoTUtilities_BumpIoTMasterData(string_string_string_string_bool)_automationWorkflowFileGroup'></a>
+<a name='Cmf_Common_Cli_Utilities_IoTUtilities_BumpIoTMasterData(string_string_string_System_IO_Abstractions_IFileSystem_string_bool)_automationWorkflowFileGroup'></a>
 `automationWorkflowFileGroup` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The automation workflow file group.
   
-<a name='Cmf_Common_Cli_Utilities_IoTUtilities_BumpIoTMasterData(string_string_string_string_bool)_version'></a>
+<a name='Cmf_Common_Cli_Utilities_IoTUtilities_BumpIoTMasterData(string_string_string_System_IO_Abstractions_IFileSystem_string_bool)_version'></a>
 `version` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The version.
   
-<a name='Cmf_Common_Cli_Utilities_IoTUtilities_BumpIoTMasterData(string_string_string_string_bool)_buildNr'></a>
+<a name='Cmf_Common_Cli_Utilities_IoTUtilities_BumpIoTMasterData(string_string_string_System_IO_Abstractions_IFileSystem_string_bool)_buildNr'></a>
 `buildNr` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The version of the build (v-b).
   
-<a name='Cmf_Common_Cli_Utilities_IoTUtilities_BumpIoTMasterData(string_string_string_string_bool)_packageNames'></a>
+<a name='Cmf_Common_Cli_Utilities_IoTUtilities_BumpIoTMasterData(string_string_string_System_IO_Abstractions_IFileSystem_string_bool)_fileSystem'></a>
+`fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
+the underlying file system
+  
+<a name='Cmf_Common_Cli_Utilities_IoTUtilities_BumpIoTMasterData(string_string_string_System_IO_Abstractions_IFileSystem_string_bool)_packageNames'></a>
 `packageNames` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The package names.
   
-<a name='Cmf_Common_Cli_Utilities_IoTUtilities_BumpIoTMasterData(string_string_string_string_bool)_onlyCustomization'></a>
+<a name='Cmf_Common_Cli_Utilities_IoTUtilities_BumpIoTMasterData(string_string_string_System_IO_Abstractions_IFileSystem_string_bool)_onlyCustomization'></a>
 `onlyCustomization` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
 if set to `true` [only customization].
   
   
-<a name='Cmf_Common_Cli_Utilities_IoTUtilities_BumpWorkflowFiles(string_string_string_string_string)'></a>
-## IoTUtilities.BumpWorkflowFiles(string, string, string, string, string) Method
+<a name='Cmf_Common_Cli_Utilities_IoTUtilities_BumpWorkflowFiles(string_string_string_string_string_System_IO_Abstractions_IFileSystem)'></a>
+## IoTUtilities.BumpWorkflowFiles(string, string, string, string, string, IFileSystem) Method
 Bumps the workflow files.  
 ```csharp
-public static void BumpWorkflowFiles(string group, string version, string buildNr, string workflowName, string packageNames);
+public static void BumpWorkflowFiles(string group, string version, string buildNr, string workflowName, string packageNames, System.IO.Abstractions.IFileSystem fileSystem);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Utilities_IoTUtilities_BumpWorkflowFiles(string_string_string_string_string)_group'></a>
+<a name='Cmf_Common_Cli_Utilities_IoTUtilities_BumpWorkflowFiles(string_string_string_string_string_System_IO_Abstractions_IFileSystem)_group'></a>
 `group` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The group.
   
-<a name='Cmf_Common_Cli_Utilities_IoTUtilities_BumpWorkflowFiles(string_string_string_string_string)_version'></a>
+<a name='Cmf_Common_Cli_Utilities_IoTUtilities_BumpWorkflowFiles(string_string_string_string_string_System_IO_Abstractions_IFileSystem)_version'></a>
 `version` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The version.
   
-<a name='Cmf_Common_Cli_Utilities_IoTUtilities_BumpWorkflowFiles(string_string_string_string_string)_buildNr'></a>
+<a name='Cmf_Common_Cli_Utilities_IoTUtilities_BumpWorkflowFiles(string_string_string_string_string_System_IO_Abstractions_IFileSystem)_buildNr'></a>
 `buildNr` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The version of the build (v-b).
   
-<a name='Cmf_Common_Cli_Utilities_IoTUtilities_BumpWorkflowFiles(string_string_string_string_string)_workflowName'></a>
+<a name='Cmf_Common_Cli_Utilities_IoTUtilities_BumpWorkflowFiles(string_string_string_string_string_System_IO_Abstractions_IFileSystem)_workflowName'></a>
 `workflowName` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 Name of the workflow.
   
-<a name='Cmf_Common_Cli_Utilities_IoTUtilities_BumpWorkflowFiles(string_string_string_string_string)_packageNames'></a>
+<a name='Cmf_Common_Cli_Utilities_IoTUtilities_BumpWorkflowFiles(string_string_string_string_string_System_IO_Abstractions_IFileSystem)_packageNames'></a>
 `packageNames` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The package names.
+  
+<a name='Cmf_Common_Cli_Utilities_IoTUtilities_BumpWorkflowFiles(string_string_string_string_string_System_IO_Abstractions_IFileSystem)_fileSystem'></a>
+`fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
+the underlying file system
   
   
   

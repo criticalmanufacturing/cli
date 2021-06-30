@@ -14,12 +14,22 @@ namespace Cmf.Common.Cli.Commands
     /// </summary>
     public abstract class BaseCommand
     {
+        /// <summary>
+        /// The underlying filesystem
+        /// </summary>
         protected IFileSystem fileSystem;
 
+        /// <summary>
+        /// constructor for System.IO filesystem
+        /// </summary>
         public BaseCommand() : this(new FileSystem())
         {
         }
 
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="fileSystem"></param>
         public BaseCommand(IFileSystem fileSystem)
         {
             this.fileSystem = fileSystem;

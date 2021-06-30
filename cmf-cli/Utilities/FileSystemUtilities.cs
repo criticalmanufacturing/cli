@@ -29,6 +29,7 @@ namespace Cmf.Common.Cli.Utilities
         /// <param name="copySubDirs">if set to <c>true</c> [copy sub dirs].</param>
         /// <param name="isCopyDependencies">if set to <c>true</c> [is copy dependencies].</param>
         /// <param name="filesToPack">The files to pack.</param>
+        /// <param name="fileSystem">the underlying file system</param>
         /// <returns></returns>
         /// <exception cref="DirectoryNotFoundException">$"Source directory does not exist or could not be found: {sourceDirName}</exception>
         public static List<FileToPack> GetFilesToPack(ContentToPack contentToPack, string sourceDirName, string destDirName, IFileSystem fileSystem, List<string> contentToIgnore = null, bool copySubDirs = true, bool isCopyDependencies = false, List<FileToPack> filesToPack = null)
@@ -106,6 +107,7 @@ namespace Cmf.Common.Cli.Utilities
         /// <param name="contentToIgnore">The exclusions.</param>
         /// <param name="copySubDirs">if set to <c>true</c> [copy sub dirs].</param>
         /// <param name="isCopyDependencies">if set to <c>true</c> [is copy dependencies].</param>
+        /// <param name="fileSystem">the underlying file system</param>
         /// <exception cref="DirectoryNotFoundException">Source directory does not exist or could not be found: "
         /// + sourceDirName</exception>
         public static void CopyDirectory(string sourceDirName, string destDirName, IFileSystem fileSystem, List<string> contentToIgnore = null, bool copySubDirs = true, bool isCopyDependencies = false)
@@ -258,6 +260,7 @@ namespace Cmf.Common.Cli.Utilities
         /// </summary>
         /// <param name="directoryName">Name of the directory.</param>
         /// <param name="packageType">Type of the package.</param>
+        /// <param name="fileSystem">the underlying file system</param>
         /// <returns></returns>
         /// <exception cref="CliException">Cannot find project root. Are you in a valid project directory?</exception>
         public static IDirectoryInfo GetPackageRootByType(string directoryName, PackageType packageType, IFileSystem fileSystem)
@@ -286,6 +289,7 @@ namespace Cmf.Common.Cli.Utilities
         /// Reads the environment configuration.
         /// </summary>
         /// <param name="envConfigName">Name of the env configuration.</param>
+        /// <param name="fileSystem">the underlying file system</param>
         /// <returns></returns>
         public static JsonDocument ReadEnvironmentConfig(string envConfigName, IFileSystem fileSystem)
         {
@@ -334,6 +338,7 @@ namespace Cmf.Common.Cli.Utilities
         /// </summary>
         /// <param name="packageOutputDir">The package output dir.</param>
         /// <param name="packageType">Type of the package.</param>
+        /// <param name="fileSystem">the underlying file system</param>
         public static void CopyInstallDependenciesFiles(IDirectoryInfo packageOutputDir, PackageType packageType, IFileSystem fileSystem)
         {
             string sourceDirectory = fileSystem.Path.Join(AppDomain.CurrentDomain.BaseDirectory, CliConstants.FolderInstallDependencies, packageType.ToString());
@@ -347,7 +352,7 @@ namespace Cmf.Common.Cli.Utilities
         /// <param name="outputDir">The output dir.</param>
         /// <param name="force">if set to <c>true</c> [force].</param>
         /// <returns></returns>
-        public static DirectoryInfo GetOutputDir(CmfPackage cmfPackage, DirectoryInfo outputDir, bool force)
+        public static IDirectoryInfo GetOutputDir(CmfPackage cmfPackage, IDirectoryInfo outputDir, bool force)
         {
             // Create OutputDir
             if (!outputDir.Exists)
@@ -379,11 +384,12 @@ namespace Cmf.Common.Cli.Utilities
         /// </summary>
         /// <param name="cmfPackage">The CMF package.</param>
         /// <param name="packageDirectory">The package directory.</param>
+        /// <param name="fileSystem">the underlying file system</param>
         /// <returns></returns>
-        public static DirectoryInfo GetPackageOutputDir(CmfPackage cmfPackage, DirectoryInfo packageDirectory)
+        public static IDirectoryInfo GetPackageOutputDir(CmfPackage cmfPackage, IDirectoryInfo packageDirectory, IFileSystem fileSystem)
         {
             // Clear and Create packageOutputDir
-            DirectoryInfo packageOutputDir = new($"{packageDirectory}/{cmfPackage.PackageName}");
+            IDirectoryInfo packageOutputDir = fileSystem.DirectoryInfo.FromDirectoryName($"{packageDirectory}/{cmfPackage.PackageName}");
             if (packageOutputDir.Exists)
             {
                 packageOutputDir.Delete(true);

@@ -14,17 +14,31 @@ using System.Threading.Tasks;
 
 namespace Cmf.Common.Cli.Commands
 {
+    /// <summary>
+    /// List dependencies command
+    /// </summary>
     [CmfCommand("ls")]
     public class ListDependenciesCommand : BaseCommand
     {
+        /// <summary>
+        /// constructor
+        /// </summary>
         public ListDependenciesCommand() : base()
         {
         }
 
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="fileSystem"></param>
         public ListDependenciesCommand(IFileSystem fileSystem) : base(fileSystem)
         {
         }
 
+        /// <summary>
+        /// configure command signature
+        /// </summary>
+        /// <param name="cmd"></param>
         public override void Configure(Command cmd)
         {
             cmd.AddArgument(new Argument<IDirectoryInfo>(
@@ -40,7 +54,11 @@ namespace Cmf.Common.Cli.Commands
             cmd.Handler = CommandHandler.Create<IDirectoryInfo, string>(Execute);
         }
 
-
+        /// <summary>
+        /// Execute the command
+        /// </summary>
+        /// <param name="workingDir"></param>
+        /// <param name="repo"></param>
         public void Execute(IDirectoryInfo workingDir, string repo)
         {
             IFileInfo cmfpackageFile = this.fileSystem.FileInfo.FromFileName($"{workingDir}/{CliConstants.CmfPackageFileName}");

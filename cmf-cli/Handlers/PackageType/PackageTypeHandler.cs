@@ -22,6 +22,9 @@ namespace Cmf.Common.Cli.Handlers
     public abstract class PackageTypeHandler : IPackageTypeHandler
     {
         #region Protected Properties
+        /// <summary>
+        /// the underlying file system
+        /// </summary>
         protected IFileSystem fileSystem;
 
         /// <summary>
@@ -68,6 +71,11 @@ namespace Cmf.Common.Cli.Handlers
         /// </summary>
         /// <exception cref="CliException"></exception>
         public PackageTypeHandler(CmfPackage cmfPackage) : this(cmfPackage, new FileSystem()) { }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PackageTypeHandler" /> class.
+        /// </summary>
+        /// <param name="cmfPackage"></param>
+        /// <param name="fileSystem"></param>
         public PackageTypeHandler(CmfPackage cmfPackage, IFileSystem fileSystem)
         {
             CmfPackage = cmfPackage;
@@ -268,26 +276,26 @@ namespace Cmf.Common.Cli.Handlers
         internal virtual void FinalArchive(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir)
         {
             foreach (FileToPack fileToPack in FilesToPack)
-        {
+            {
                 // If the destination directory doesn't exist, create it.
                 if (!fileToPack.Target.Directory.Exists)
-            {
+                {
                     fileToPack.Target.Directory.Create();
                 }
 
                 fileToPack.Source.CopyTo(fileToPack.Target.FullName, true);
-        }
+            }
 
             string tempzipPath = $"{CmfPackage.GetFileInfo().Directory.FullName}/{CmfPackage.PackageName}.zip";
-            if (File.Exists(tempzipPath))
-        {
-                File.Delete(tempzipPath);
+            if (this.fileSystem.File.Exists(tempzipPath))
+            {
+                this.fileSystem.File.Delete(tempzipPath);
             }
             ZipFile.CreateFromDirectory(packageOutputDir.FullName, tempzipPath);
 
             // move to final destination
             string destZipPath = $"{outputDir.FullName}/{CmfPackage.ZipPackageName}";
-            File.Move(tempzipPath, destZipPath, true);
+            this.fileSystem.File.Move(tempzipPath, destZipPath, true);
         }
 
 

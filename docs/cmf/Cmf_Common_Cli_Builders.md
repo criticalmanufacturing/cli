@@ -115,30 +115,30 @@ Implements [DisplayName](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_IBui
 ## DotnetCommand.NuGetConfig Property
 Gets or sets the nu get configuration.  
 ```csharp
-public System.IO.FileInfo NuGetConfig { get; set; }
+public System.IO.Abstractions.IFileInfo NuGetConfig { get; set; }
 ```
 #### Property Value
-[System.IO.FileInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.FileInfo 'System.IO.FileInfo')
+[System.IO.Abstractions.IFileInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileInfo 'System.IO.Abstractions.IFileInfo')
 The nu get configuration.  
   
 <a name='Cmf_Common_Cli_Builders_DotnetCommand_OutputDirectory'></a>
 ## DotnetCommand.OutputDirectory Property
 Gets or sets the output directory.  
 ```csharp
-public System.IO.DirectoryInfo OutputDirectory { get; set; }
+public System.IO.Abstractions.IDirectoryInfo OutputDirectory { get; set; }
 ```
 #### Property Value
-[System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')
+[System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')
 The output directory.  
   
 <a name='Cmf_Common_Cli_Builders_DotnetCommand_Solution'></a>
 ## DotnetCommand.Solution Property
 Gets or sets the solution.  
 ```csharp
-public System.IO.FileInfo Solution { get; set; }
+public System.IO.Abstractions.IFileInfo Solution { get; set; }
 ```
 #### Property Value
-[System.IO.FileInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.FileInfo 'System.IO.FileInfo')
+[System.IO.Abstractions.IFileInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileInfo 'System.IO.Abstractions.IFileInfo')
 The solution.  
   
 ### Methods
@@ -384,10 +384,10 @@ The command.
 ## ProcessBuildStep.WorkingDirectory Property
 Gets or sets the working directory.  
 ```csharp
-public System.IO.DirectoryInfo WorkingDirectory { get; set; }
+public System.IO.Abstractions.IDirectoryInfo WorkingDirectory { get; set; }
 ```
 #### Property Value
-[System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')
+[System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')
 The working directory.  
   
   
@@ -404,15 +404,25 @@ Derived
 &#8627; [DotnetCommand](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_DotnetCommand 'Cmf.Common.Cli.Builders.DotnetCommand')  
 &#8627; [GulpCommand](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_GulpCommand 'Cmf.Common.Cli.Builders.GulpCommand')  
 &#8627; [NPMCommand](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_NPMCommand 'Cmf.Common.Cli.Builders.NPMCommand')  
+### Fields
+<a name='Cmf_Common_Cli_Builders_ProcessCommand_fileSystem'></a>
+## ProcessCommand.fileSystem Field
+the undrlying file system  
+```csharp
+protected IFileSystem fileSystem;
+```
+#### Field Value
+[System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')
+  
 ### Properties
 <a name='Cmf_Common_Cli_Builders_ProcessCommand_WorkingDirectory'></a>
 ## ProcessCommand.WorkingDirectory Property
 Gets or sets the working directory.  
 ```csharp
-public System.IO.DirectoryInfo WorkingDirectory { get; set; }
+public System.IO.Abstractions.IDirectoryInfo WorkingDirectory { get; set; }
 ```
 #### Property Value
-[System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')
+[System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')
 The working directory.  
   
 ### Methods

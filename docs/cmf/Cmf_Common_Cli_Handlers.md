@@ -94,15 +94,15 @@ The CMF package.
   
   
 ### Methods
-<a name='Cmf_Common_Cli_Handlers_DataPackageTypeHandler_CopyInstallDependencies(System_IO_DirectoryInfo)'></a>
-## DataPackageTypeHandler.CopyInstallDependencies(DirectoryInfo) Method
+<a name='Cmf_Common_Cli_Handlers_DataPackageTypeHandler_CopyInstallDependencies(System_IO_Abstractions_IDirectoryInfo)'></a>
+## DataPackageTypeHandler.CopyInstallDependencies(IDirectoryInfo) Method
 Copies the install dependencies.  
 ```csharp
-protected override void CopyInstallDependencies(System.IO.DirectoryInfo packageOutputDir);
+protected override void CopyInstallDependencies(System.IO.Abstractions.IDirectoryInfo packageOutputDir);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Handlers_DataPackageTypeHandler_CopyInstallDependencies(System_IO_DirectoryInfo)_packageOutputDir'></a>
-`packageOutputDir` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+<a name='Cmf_Common_Cli_Handlers_DataPackageTypeHandler_CopyInstallDependencies(System_IO_Abstractions_IDirectoryInfo)_packageOutputDir'></a>
+`packageOutputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
 The package output dir.
   
   
@@ -290,35 +290,35 @@ The bump information.
 
 Implements [Bump(string, string, Dictionary<string,object>)](Cmf_Common_Cli_Interfaces.md#Cmf_Common_Cli_Interfaces_IPackageTypeHandler_Bump(string_string_System_Collections_Generic_Dictionary_string_object_) 'Cmf.Common.Cli.Interfaces.IPackageTypeHandler.Bump(string, string, System.Collections.Generic.Dictionary&lt;string,object&gt;)')  
   
-<a name='Cmf_Common_Cli_Handlers_IoTPackageTypeHandler_CopyInstallDependencies(System_IO_DirectoryInfo)'></a>
-## IoTPackageTypeHandler.CopyInstallDependencies(DirectoryInfo) Method
+<a name='Cmf_Common_Cli_Handlers_IoTPackageTypeHandler_CopyInstallDependencies(System_IO_Abstractions_IDirectoryInfo)'></a>
+## IoTPackageTypeHandler.CopyInstallDependencies(IDirectoryInfo) Method
 Copies the install dependencies.  
 ```csharp
-protected override void CopyInstallDependencies(System.IO.DirectoryInfo packageOutputDir);
+protected override void CopyInstallDependencies(System.IO.Abstractions.IDirectoryInfo packageOutputDir);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Handlers_IoTPackageTypeHandler_CopyInstallDependencies(System_IO_DirectoryInfo)_packageOutputDir'></a>
-`packageOutputDir` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+<a name='Cmf_Common_Cli_Handlers_IoTPackageTypeHandler_CopyInstallDependencies(System_IO_Abstractions_IDirectoryInfo)_packageOutputDir'></a>
+`packageOutputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
 The package output dir.
   
   
-<a name='Cmf_Common_Cli_Handlers_IoTPackageTypeHandler_Pack(System_IO_DirectoryInfo_System_IO_DirectoryInfo)'></a>
-## IoTPackageTypeHandler.Pack(DirectoryInfo, DirectoryInfo) Method
+<a name='Cmf_Common_Cli_Handlers_IoTPackageTypeHandler_Pack(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo)'></a>
+## IoTPackageTypeHandler.Pack(IDirectoryInfo, IDirectoryInfo) Method
 Packs the specified package output dir.  
 ```csharp
-public override void Pack(System.IO.DirectoryInfo packageOutputDir, System.IO.DirectoryInfo outputDir);
+public override void Pack(System.IO.Abstractions.IDirectoryInfo packageOutputDir, System.IO.Abstractions.IDirectoryInfo outputDir);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Handlers_IoTPackageTypeHandler_Pack(System_IO_DirectoryInfo_System_IO_DirectoryInfo)_packageOutputDir'></a>
-`packageOutputDir` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+<a name='Cmf_Common_Cli_Handlers_IoTPackageTypeHandler_Pack(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo)_packageOutputDir'></a>
+`packageOutputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
 The package output dir.
   
-<a name='Cmf_Common_Cli_Handlers_IoTPackageTypeHandler_Pack(System_IO_DirectoryInfo_System_IO_DirectoryInfo)_outputDir'></a>
-`outputDir` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+<a name='Cmf_Common_Cli_Handlers_IoTPackageTypeHandler_Pack(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo)_outputDir'></a>
+`outputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
 The output dir.
   
 
-Implements [Pack(DirectoryInfo, DirectoryInfo)](Cmf_Common_Cli_Interfaces.md#Cmf_Common_Cli_Interfaces_IPackageTypeHandler_Pack(System_IO_DirectoryInfo_System_IO_DirectoryInfo) 'Cmf.Common.Cli.Interfaces.IPackageTypeHandler.Pack(System.IO.DirectoryInfo, System.IO.DirectoryInfo)')  
+Implements [Pack(IDirectoryInfo, IDirectoryInfo)](Cmf_Common_Cli_Interfaces.md#Cmf_Common_Cli_Interfaces_IPackageTypeHandler_Pack(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo) 'Cmf.Common.Cli.Interfaces.IPackageTypeHandler.Pack(System.IO.Abstractions.IDirectoryInfo, System.IO.Abstractions.IDirectoryInfo)')  
   
 #### See Also
 - [PresentationPackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_PresentationPackageTypeHandler 'Cmf.Common.Cli.Handlers.PresentationPackageTypeHandler')
@@ -358,6 +358,20 @@ public PackageTypeHandler(Cmf.Common.Cli.Objects.CmfPackage cmfPackage);
 #### Exceptions
 [CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException')  
   
+<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_PackageTypeHandler(Cmf_Common_Cli_Objects_CmfPackage_System_IO_Abstractions_IFileSystem)'></a>
+## PackageTypeHandler.PackageTypeHandler(CmfPackage, IFileSystem) Constructor
+Initializes a new instance of the [PackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_PackageTypeHandler 'Cmf.Common.Cli.Handlers.PackageTypeHandler') class.  
+```csharp
+public PackageTypeHandler(Cmf.Common.Cli.Objects.CmfPackage cmfPackage, System.IO.Abstractions.IFileSystem fileSystem);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_PackageTypeHandler(Cmf_Common_Cli_Objects_CmfPackage_System_IO_Abstractions_IFileSystem)_cmfPackage'></a>
+`cmfPackage` [CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')  
+  
+<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_PackageTypeHandler(Cmf_Common_Cli_Objects_CmfPackage_System_IO_Abstractions_IFileSystem)_fileSystem'></a>
+`fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
+  
+  
 ### Fields
 <a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_BuildSteps'></a>
 ## PackageTypeHandler.BuildSteps Field
@@ -394,6 +408,15 @@ protected List<FileToPack> FilesToPack;
 ```
 #### Field Value
 [System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[FileToPack](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_FileToPack 'Cmf.Common.Cli.Objects.FileToPack')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')
+  
+<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_fileSystem'></a>
+## PackageTypeHandler.fileSystem Field
+the underlying file system  
+```csharp
+protected IFileSystem fileSystem;
+```
+#### Field Value
+[System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')
   
 ### Properties
 <a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_DefaultContentToIgnore'></a>
@@ -440,101 +463,101 @@ The bump information.
 
 Implements [Bump(string, string, Dictionary<string,object>)](Cmf_Common_Cli_Interfaces.md#Cmf_Common_Cli_Interfaces_IPackageTypeHandler_Bump(string_string_System_Collections_Generic_Dictionary_string_object_) 'Cmf.Common.Cli.Interfaces.IPackageTypeHandler.Bump(string, string, System.Collections.Generic.Dictionary&lt;string,object&gt;)')  
   
-<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_CopyInstallDependencies(System_IO_DirectoryInfo)'></a>
-## PackageTypeHandler.CopyInstallDependencies(DirectoryInfo) Method
+<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_CopyInstallDependencies(System_IO_Abstractions_IDirectoryInfo)'></a>
+## PackageTypeHandler.CopyInstallDependencies(IDirectoryInfo) Method
 Copies the install dependencies.  
 ```csharp
-protected virtual void CopyInstallDependencies(System.IO.DirectoryInfo packageOutputDir);
+protected virtual void CopyInstallDependencies(System.IO.Abstractions.IDirectoryInfo packageOutputDir);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_CopyInstallDependencies(System_IO_DirectoryInfo)_packageOutputDir'></a>
-`packageOutputDir` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_CopyInstallDependencies(System_IO_Abstractions_IDirectoryInfo)_packageOutputDir'></a>
+`packageOutputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
 The package output dir.
   
   
-<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_FinalArchive(System_IO_DirectoryInfo_System_IO_DirectoryInfo)'></a>
-## PackageTypeHandler.FinalArchive(DirectoryInfo, DirectoryInfo) Method
+<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_FinalArchive(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo)'></a>
+## PackageTypeHandler.FinalArchive(IDirectoryInfo, IDirectoryInfo) Method
 Final Archive the package  
 ```csharp
-internal virtual void FinalArchive(System.IO.DirectoryInfo packageOutputDir, System.IO.DirectoryInfo outputDir);
+internal virtual void FinalArchive(System.IO.Abstractions.IDirectoryInfo packageOutputDir, System.IO.Abstractions.IDirectoryInfo outputDir);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_FinalArchive(System_IO_DirectoryInfo_System_IO_DirectoryInfo)_packageOutputDir'></a>
-`packageOutputDir` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_FinalArchive(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo)_packageOutputDir'></a>
+`packageOutputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
 The pack directory.
   
-<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_FinalArchive(System_IO_DirectoryInfo_System_IO_DirectoryInfo)_outputDir'></a>
-`outputDir` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_FinalArchive(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo)_outputDir'></a>
+`outputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
 The Output directory.
   
   
-<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_GenerateDeploymentFrameworkManifest(System_IO_DirectoryInfo)'></a>
-## PackageTypeHandler.GenerateDeploymentFrameworkManifest(DirectoryInfo) Method
+<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_GenerateDeploymentFrameworkManifest(System_IO_Abstractions_IDirectoryInfo)'></a>
+## PackageTypeHandler.GenerateDeploymentFrameworkManifest(IDirectoryInfo) Method
 Generates the deployment framework manifest.  
 ```csharp
-internal virtual void GenerateDeploymentFrameworkManifest(System.IO.DirectoryInfo packageOutputDir);
+internal virtual void GenerateDeploymentFrameworkManifest(System.IO.Abstractions.IDirectoryInfo packageOutputDir);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_GenerateDeploymentFrameworkManifest(System_IO_DirectoryInfo)_packageOutputDir'></a>
-`packageOutputDir` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_GenerateDeploymentFrameworkManifest(System_IO_Abstractions_IDirectoryInfo)_packageOutputDir'></a>
+`packageOutputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
 The package output dir.
   
 #### Exceptions
 [CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException')  
   
-<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_GetContentToIgnore(Cmf_Common_Cli_Objects_ContentToPack_System_IO_DirectoryInfo_System_Collections_Generic_List_string_)'></a>
-## PackageTypeHandler.GetContentToIgnore(ContentToPack, DirectoryInfo, List&lt;string&gt;) Method
+<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_GetContentToIgnore(Cmf_Common_Cli_Objects_ContentToPack_System_IO_Abstractions_IDirectoryInfo_System_Collections_Generic_List_string_)'></a>
+## PackageTypeHandler.GetContentToIgnore(ContentToPack, IDirectoryInfo, List&lt;string&gt;) Method
 Gets the content to ignore.  
 ```csharp
-private static System.Collections.Generic.List<string> GetContentToIgnore(Cmf.Common.Cli.Objects.ContentToPack contentToPack, System.IO.DirectoryInfo packDirectory, System.Collections.Generic.List<string> defaultContentToIgnore);
+private System.Collections.Generic.List<string> GetContentToIgnore(Cmf.Common.Cli.Objects.ContentToPack contentToPack, System.IO.Abstractions.IDirectoryInfo packDirectory, System.Collections.Generic.List<string> defaultContentToIgnore);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_GetContentToIgnore(Cmf_Common_Cli_Objects_ContentToPack_System_IO_DirectoryInfo_System_Collections_Generic_List_string_)_contentToPack'></a>
+<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_GetContentToIgnore(Cmf_Common_Cli_Objects_ContentToPack_System_IO_Abstractions_IDirectoryInfo_System_Collections_Generic_List_string_)_contentToPack'></a>
 `contentToPack` [ContentToPack](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_ContentToPack 'Cmf.Common.Cli.Objects.ContentToPack')  
 The content to pack.
   
-<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_GetContentToIgnore(Cmf_Common_Cli_Objects_ContentToPack_System_IO_DirectoryInfo_System_Collections_Generic_List_string_)_packDirectory'></a>
-`packDirectory` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_GetContentToIgnore(Cmf_Common_Cli_Objects_ContentToPack_System_IO_Abstractions_IDirectoryInfo_System_Collections_Generic_List_string_)_packDirectory'></a>
+`packDirectory` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
 The pack directory.
   
-<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_GetContentToIgnore(Cmf_Common_Cli_Objects_ContentToPack_System_IO_DirectoryInfo_System_Collections_Generic_List_string_)_defaultContentToIgnore'></a>
+<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_GetContentToIgnore(Cmf_Common_Cli_Objects_ContentToPack_System_IO_Abstractions_IDirectoryInfo_System_Collections_Generic_List_string_)_defaultContentToIgnore'></a>
 `defaultContentToIgnore` [System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')  
 The default content to ignore.
   
 #### Returns
 [System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')  
   
-<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_GetContentToPack(System_IO_DirectoryInfo)'></a>
-## PackageTypeHandler.GetContentToPack(DirectoryInfo) Method
+<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_GetContentToPack(System_IO_Abstractions_IDirectoryInfo)'></a>
+## PackageTypeHandler.GetContentToPack(IDirectoryInfo) Method
 Get Content To pack  
 ```csharp
-internal virtual bool GetContentToPack(System.IO.DirectoryInfo packageOutputDir);
+internal virtual bool GetContentToPack(System.IO.Abstractions.IDirectoryInfo packageOutputDir);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_GetContentToPack(System_IO_DirectoryInfo)_packageOutputDir'></a>
-`packageOutputDir` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_GetContentToPack(System_IO_Abstractions_IDirectoryInfo)_packageOutputDir'></a>
+`packageOutputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
 The pack directory.
   
 #### Returns
 [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
   
-<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_Pack(System_IO_DirectoryInfo_System_IO_DirectoryInfo)'></a>
-## PackageTypeHandler.Pack(DirectoryInfo, DirectoryInfo) Method
+<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_Pack(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo)'></a>
+## PackageTypeHandler.Pack(IDirectoryInfo, IDirectoryInfo) Method
 Packs the specified package output dir.  
 ```csharp
-public virtual void Pack(System.IO.DirectoryInfo packageOutputDir, System.IO.DirectoryInfo outputDir);
+public virtual void Pack(System.IO.Abstractions.IDirectoryInfo packageOutputDir, System.IO.Abstractions.IDirectoryInfo outputDir);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_Pack(System_IO_DirectoryInfo_System_IO_DirectoryInfo)_packageOutputDir'></a>
-`packageOutputDir` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_Pack(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo)_packageOutputDir'></a>
+`packageOutputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
 The package output dir.
   
-<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_Pack(System_IO_DirectoryInfo_System_IO_DirectoryInfo)_outputDir'></a>
-`outputDir` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_Pack(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo)_outputDir'></a>
+`outputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
 The output dir.
   
 
-Implements [Pack(DirectoryInfo, DirectoryInfo)](Cmf_Common_Cli_Interfaces.md#Cmf_Common_Cli_Interfaces_IPackageTypeHandler_Pack(System_IO_DirectoryInfo_System_IO_DirectoryInfo) 'Cmf.Common.Cli.Interfaces.IPackageTypeHandler.Pack(System.IO.DirectoryInfo, System.IO.DirectoryInfo)')  
+Implements [Pack(IDirectoryInfo, IDirectoryInfo)](Cmf_Common_Cli_Interfaces.md#Cmf_Common_Cli_Interfaces_IPackageTypeHandler_Pack(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo) 'Cmf.Common.Cli.Interfaces.IPackageTypeHandler.Pack(System.IO.Abstractions.IDirectoryInfo, System.IO.Abstractions.IDirectoryInfo)')  
   
   
 <a name='Cmf_Common_Cli_Handlers_PresentationPackageTypeHandler'></a>
@@ -585,35 +608,35 @@ The bump information.
 
 Implements [Bump(string, string, Dictionary<string,object>)](Cmf_Common_Cli_Interfaces.md#Cmf_Common_Cli_Interfaces_IPackageTypeHandler_Bump(string_string_System_Collections_Generic_Dictionary_string_object_) 'Cmf.Common.Cli.Interfaces.IPackageTypeHandler.Bump(string, string, System.Collections.Generic.Dictionary&lt;string,object&gt;)')  
   
-<a name='Cmf_Common_Cli_Handlers_PresentationPackageTypeHandler_GeneratePresentationConfigFile(System_IO_DirectoryInfo)'></a>
-## PresentationPackageTypeHandler.GeneratePresentationConfigFile(DirectoryInfo) Method
+<a name='Cmf_Common_Cli_Handlers_PresentationPackageTypeHandler_GeneratePresentationConfigFile(System_IO_Abstractions_IDirectoryInfo)'></a>
+## PresentationPackageTypeHandler.GeneratePresentationConfigFile(IDirectoryInfo) Method
 Generates the presentation configuration file.  
 ```csharp
-private void GeneratePresentationConfigFile(System.IO.DirectoryInfo packageOutputDir);
+private void GeneratePresentationConfigFile(System.IO.Abstractions.IDirectoryInfo packageOutputDir);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Handlers_PresentationPackageTypeHandler_GeneratePresentationConfigFile(System_IO_DirectoryInfo)_packageOutputDir'></a>
-`packageOutputDir` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+<a name='Cmf_Common_Cli_Handlers_PresentationPackageTypeHandler_GeneratePresentationConfigFile(System_IO_Abstractions_IDirectoryInfo)_packageOutputDir'></a>
+`packageOutputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
 The package output dir.
   
   
-<a name='Cmf_Common_Cli_Handlers_PresentationPackageTypeHandler_Pack(System_IO_DirectoryInfo_System_IO_DirectoryInfo)'></a>
-## PresentationPackageTypeHandler.Pack(DirectoryInfo, DirectoryInfo) Method
+<a name='Cmf_Common_Cli_Handlers_PresentationPackageTypeHandler_Pack(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo)'></a>
+## PresentationPackageTypeHandler.Pack(IDirectoryInfo, IDirectoryInfo) Method
 Packs the specified package output dir.  
 ```csharp
-public override void Pack(System.IO.DirectoryInfo packageOutputDir, System.IO.DirectoryInfo outputDir);
+public override void Pack(System.IO.Abstractions.IDirectoryInfo packageOutputDir, System.IO.Abstractions.IDirectoryInfo outputDir);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Handlers_PresentationPackageTypeHandler_Pack(System_IO_DirectoryInfo_System_IO_DirectoryInfo)_packageOutputDir'></a>
-`packageOutputDir` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+<a name='Cmf_Common_Cli_Handlers_PresentationPackageTypeHandler_Pack(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo)_packageOutputDir'></a>
+`packageOutputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
 The package output dir.
   
-<a name='Cmf_Common_Cli_Handlers_PresentationPackageTypeHandler_Pack(System_IO_DirectoryInfo_System_IO_DirectoryInfo)_outputDir'></a>
-`outputDir` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+<a name='Cmf_Common_Cli_Handlers_PresentationPackageTypeHandler_Pack(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo)_outputDir'></a>
+`outputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
 The output dir.
   
 
-Implements [Pack(DirectoryInfo, DirectoryInfo)](Cmf_Common_Cli_Interfaces.md#Cmf_Common_Cli_Interfaces_IPackageTypeHandler_Pack(System_IO_DirectoryInfo_System_IO_DirectoryInfo) 'Cmf.Common.Cli.Interfaces.IPackageTypeHandler.Pack(System.IO.DirectoryInfo, System.IO.DirectoryInfo)')  
+Implements [Pack(IDirectoryInfo, IDirectoryInfo)](Cmf_Common_Cli_Interfaces.md#Cmf_Common_Cli_Interfaces_IPackageTypeHandler_Pack(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo) 'Cmf.Common.Cli.Interfaces.IPackageTypeHandler.Pack(System.IO.Abstractions.IDirectoryInfo, System.IO.Abstractions.IDirectoryInfo)')  
   
 #### See Also
 - [PackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_PackageTypeHandler 'Cmf.Common.Cli.Handlers.PackageTypeHandler')
@@ -707,15 +730,15 @@ The bump information.
 
 Implements [Bump(string, string, Dictionary<string,object>)](Cmf_Common_Cli_Interfaces.md#Cmf_Common_Cli_Interfaces_IPackageTypeHandler_Bump(string_string_System_Collections_Generic_Dictionary_string_object_) 'Cmf.Common.Cli.Interfaces.IPackageTypeHandler.Bump(string, string, System.Collections.Generic.Dictionary&lt;string,object&gt;)')  
   
-<a name='Cmf_Common_Cli_Handlers_TestPackageTypeHandler_GenerateDeploymentFrameworkManifest(System_IO_DirectoryInfo)'></a>
-## TestPackageTypeHandler.GenerateDeploymentFrameworkManifest(DirectoryInfo) Method
+<a name='Cmf_Common_Cli_Handlers_TestPackageTypeHandler_GenerateDeploymentFrameworkManifest(System_IO_Abstractions_IDirectoryInfo)'></a>
+## TestPackageTypeHandler.GenerateDeploymentFrameworkManifest(IDirectoryInfo) Method
 Generates the deployment framework manifest.  
 ```csharp
-internal override void GenerateDeploymentFrameworkManifest(System.IO.DirectoryInfo packageOutputDir);
+internal override void GenerateDeploymentFrameworkManifest(System.IO.Abstractions.IDirectoryInfo packageOutputDir);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Handlers_TestPackageTypeHandler_GenerateDeploymentFrameworkManifest(System_IO_DirectoryInfo)_packageOutputDir'></a>
-`packageOutputDir` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+<a name='Cmf_Common_Cli_Handlers_TestPackageTypeHandler_GenerateDeploymentFrameworkManifest(System_IO_Abstractions_IDirectoryInfo)_packageOutputDir'></a>
+`packageOutputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
 The package output dir.
   
 #### Exceptions

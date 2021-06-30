@@ -87,13 +87,13 @@ namespace Cmf.Common.Cli.Handlers
                 // Get All Group Folders
                 List<string> groups = this.fileSystem.Directory.GetDirectories(automationWorkflowFileGroup, "*").ToList();
 
-                groups.ForEach(group => IoTUtilities.BumpWorkflowFiles(group, version, buildNr, null, packageNames));
+                groups.ForEach(group => IoTUtilities.BumpWorkflowFiles(group, version, buildNr, null, packageNames, this.fileSystem));
 
                 #endregion Bump AutomationWorkflow
 
                 #region Bump IoT Masterdata
 
-                IoTUtilities.BumpIoTMasterData(automationWorkflowFileGroup, version, buildNr, packageNames, onlyCustomization: true);
+                IoTUtilities.BumpIoTMasterData(automationWorkflowFileGroup, version, buildNr, this.fileSystem, packageNames, onlyCustomization: true);
 
                 #endregion Bump IoT Masterdata
             }
