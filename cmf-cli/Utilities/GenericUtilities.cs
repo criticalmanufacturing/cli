@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.IO.Abstractions;
 using System.Reflection;
 
 namespace Cmf.Common.Cli.Utilities
@@ -110,8 +111,9 @@ namespace Cmf.Common.Cli.Utilities
         /// <param name="force"></param>
         /// <param name="packageId">Package Identifier</param>
         /// <param name="packageVersion">Package Version</param>
+        /// <param name="fileSystem">the underlying file system</param>
         /// <returns></returns>
-        public static bool GetPackageFromRepository(DirectoryInfo outputDir, Uri repoUri, bool force, string packageId, string packageVersion)
+        public static bool GetPackageFromRepository(IDirectoryInfo outputDir, Uri repoUri, bool force, string packageId, string packageVersion, IFileSystem fileSystem)
         {
             bool packageFound = false;
 
@@ -125,22 +127,22 @@ namespace Cmf.Common.Cli.Utilities
                 {
                     // Create expected file name for the package to get
                     string _packageFileName = $"{packageId}.{packageVersion}.zip";
-                    DirectoryInfo repoDirectory = new(repoUri.OriginalString);
+                    IDirectoryInfo repoDirectory = fileSystem.DirectoryInfo.FromDirectoryName(repoUri.OriginalString);
 
                     if (repoDirectory.Exists)
                     {
                         // Search by Packages already Packed
-                        FileInfo[] dependencyFiles = repoDirectory.GetFiles(_packageFileName);
+                        IFileInfo[] dependencyFiles = repoDirectory.GetFiles(_packageFileName);
                         packageFound = dependencyFiles.HasAny();
 
                         if (packageFound)
                         {
-                            foreach (FileInfo dependencyFile in dependencyFiles)
+                            foreach (IFileInfo dependencyFile in dependencyFiles)
                             {
                                 string destDependencyFile = $"{outputDir.FullName}/{dependencyFile.Name}";
-                                if (force && File.Exists(destDependencyFile))
+                                if (force && fileSystem.File.Exists(destDependencyFile))
                                 {
-                                    File.Delete(destDependencyFile);
+                                    fileSystem.File.Delete(destDependencyFile);
                                 }
 
                                 dependencyFile.CopyTo(destDependencyFile);

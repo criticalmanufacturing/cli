@@ -6,6 +6,7 @@ using Cmf.Common.Cli.Utilities;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
+using System.IO.Abstractions;
 
 namespace Cmf.Common.Cli.Commands
 {
@@ -22,9 +23,9 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="cmd"></param>
         public override void Configure(Command cmd)
         {
-            cmd.AddArgument(new Argument<DirectoryInfo>(
+            cmd.AddArgument(new Argument<IDirectoryInfo>(
                 name: "packagePath",
-                getDefaultValue: () => { return new("."); },
+                getDefaultValue: () => { return this.fileSystem.DirectoryInfo.FromDirectoryName("."); },
                 description: "Package path"));
 
             cmd.AddOption(new Option<string>(
@@ -44,7 +45,7 @@ namespace Cmf.Common.Cli.Commands
                 getDefaultValue: () => { return false; },
                 description: "Instead of replacing the version will add -$version"));
 
-            cmd.Handler = CommandHandler.Create<DirectoryInfo, string, string, string, bool>(Execute);
+            cmd.Handler = CommandHandler.Create<IDirectoryInfo, string, string, string, bool>(Execute);
         }
 
         /// <summary>
@@ -57,9 +58,9 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="isToTag">if set to <c>true</c> [is to tag].</param>
         /// <exception cref="Cmf.Common.Cli.Utilities.CliException"></exception>
         /// <exception cref="CliException"></exception>
-        public static void Execute(DirectoryInfo packagePath, string version, string buildNr, string packageNames, bool isToTag)
+        public void Execute(IDirectoryInfo packagePath, string version, string buildNr, string packageNames, bool isToTag)
         {
-            FileInfo cmfpackageFile = new($"{packagePath}/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = this.fileSystem.FileInfo.FromFileName($"{packagePath}/{CliConstants.CmfPackageFileName}");
 
             if (string.IsNullOrEmpty(version))
             {
@@ -81,21 +82,21 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="packageNames">The package names.</param>
         /// <param name="isToTag">if set to <c>true</c> [is to tag].</param>
         /// <exception cref="CliException"></exception>
-        public static void Execute(CmfPackage cmfPackage, string version, string buildNr, string packageNames, bool isToTag)
+        public void Execute(CmfPackage cmfPackage, string version, string buildNr, string packageNames, bool isToTag)
         {
             if (cmfPackage.PackageType != PackageType.IoT)
             {
-                DirectoryInfo packageDirectory = cmfPackage.GetFileInfo().Directory;
+                IDirectoryInfo packageDirectory = cmfPackage.GetFileInfo().Directory;
                 CmfPackageCollection iotPackages = packageDirectory.LoadCmfPackagesFromSubDirectories(packageType: PackageType.IoT);
                 foreach (var iotPackage in iotPackages)
                 {
                     // IoT -> src -> Package XPTO
-                    IoTUtilities.BumpIoTCustomPackages(iotPackage.GetFileInfo().DirectoryName, version, buildNr, packageNames);
+                    IoTUtilities.BumpIoTCustomPackages(iotPackage.GetFileInfo().DirectoryName, version, buildNr, packageNames, this.fileSystem);
                 }
             }
             else
             {
-                IoTUtilities.BumpIoTCustomPackages(cmfPackage.GetFileInfo().DirectoryName, version, buildNr, packageNames);
+                IoTUtilities.BumpIoTCustomPackages(cmfPackage.GetFileInfo().DirectoryName, version, buildNr, packageNames, this.fileSystem);
             }
         }
     }

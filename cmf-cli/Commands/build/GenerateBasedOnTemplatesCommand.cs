@@ -29,10 +29,10 @@ namespace Cmf.Common.Cli.Commands
         /// </summary>
         public void Execute()
         {
-            var helpRoot = Path.Join(FileSystemUtilities.GetProjectRoot().FullName, "UI", "Help");
-            var project = FileSystemUtilities.ReadProjectConfig().RootElement.GetProperty("Tenant").GetString();
-            var helpPackagesRoot = Path.Join(helpRoot, "src", "packages");
-            var helpPackages = Directory.GetDirectories(helpPackagesRoot);
+            var helpRoot = this.fileSystem.Path.Join(FileSystemUtilities.GetProjectRoot(this.fileSystem).FullName, "UI", "Help");
+            var project = FileSystemUtilities.ReadProjectConfig(this.fileSystem).RootElement.GetProperty("Tenant").GetString();
+            var helpPackagesRoot = this.fileSystem.Path.Join(helpRoot, "src", "packages");
+            var helpPackages = this.fileSystem.Directory.GetDirectories(helpPackagesRoot);
             foreach (var helpPackagePath in helpPackages)
             {
                 var pars = new Dictionary<string, string>

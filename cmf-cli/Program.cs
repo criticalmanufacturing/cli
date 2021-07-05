@@ -6,23 +6,29 @@ using System.Reflection;
 
 namespace Cmf.Common.Cli
 {
-    internal static class Program
+    /// <summary>
+    /// program entry point
+    /// </summary>
+    public static class Program
     {
-        private static int Main(string[] args)
+        /// <summary>
+        /// program entry point
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public static int Main(string[] args)
         {
             try
             {
-                if (args.Length == 1 && args.Has("-v"))
-                {
-                    Version version = Assembly.GetEntryAssembly().GetName().Version;
-                    Log.Verbose($"{version.Major}.{version.Minor}.{version.Build}");
-                    return 0;
-                }
-
                 var rootCommand = new RootCommand
                 {
                     Description = "Critical Manufacturing CLI"
                 };
+
+                if (args.Length == 1 && args.Has("-v"))
+                {
+                    return rootCommand.Invoke(new[] { "--version" });
+                }
 
                 BaseCommand.AddChildCommands(rootCommand);
                 BaseCommand.AddPluginCommands(rootCommand);
@@ -32,9 +38,8 @@ namespace Cmf.Common.Cli
             catch (Exception e)
             {
                 Log.Error(e.Message);
+                return -1; // TODO: set exception error codes
             }
-
-            return 0;
         }
     }
 }

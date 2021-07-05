@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -20,9 +21,10 @@ namespace Cmf.Common.Cli.Utilities
         /// <param name="buildNr">The version of the build (v-b).</param>
         /// <param name="workflowName">Name of the workflow.</param>
         /// <param name="packageNames">The package names.</param>
-        public static void BumpWorkflowFiles(string group, string version, string buildNr, string workflowName, string packageNames)
+        /// <param name="fileSystem">the underlying file system</param>
+        public static void BumpWorkflowFiles(string group, string version, string buildNr, string workflowName, string packageNames, IFileSystem fileSystem)
         {
-            List<string> workflowFiles = Directory.GetFiles(group, "*.json").ToList();
+            List<string> workflowFiles = fileSystem.Directory.GetFiles(group, "*.json").ToList();
 
             if (!string.IsNullOrEmpty(workflowName) && workflowFiles.Any(wf => wf.Contains(workflowName)))
             {
@@ -31,7 +33,7 @@ namespace Cmf.Common.Cli.Utilities
 
             foreach (var workflowFile in workflowFiles)
             {
-                string packageJson = File.ReadAllText(workflowFile);
+                string packageJson = fileSystem.File.ReadAllText(workflowFile);
                 dynamic packageJsonObject = JsonConvert.DeserializeObject(packageJson);
 
                 foreach (var tasks in packageJsonObject?["tasks"])
@@ -56,7 +58,7 @@ namespace Cmf.Common.Cli.Utilities
                     }
                 }
 
-                File.WriteAllText(workflowFile, JsonConvert.SerializeObject(packageJsonObject, Formatting.Indented));
+                fileSystem.File.WriteAllText(workflowFile, JsonConvert.SerializeObject(packageJsonObject, Formatting.Indented));
             }
         }
 
@@ -68,14 +70,15 @@ namespace Cmf.Common.Cli.Utilities
         /// <param name="buildNr">The version of the build (v-b).</param>
         /// <param name="packageNames">The package names.</param>
         /// <param name="onlyCustomization">if set to <c>true</c> [only customization].</param>
-        public static void BumpIoTMasterData(string automationWorkflowFileGroup, string version, string buildNr, string packageNames = null, bool onlyCustomization = true)
+        /// <param name="fileSystem">the underlying file system</param>
+        public static void BumpIoTMasterData(string automationWorkflowFileGroup, string version, string buildNr, IFileSystem fileSystem, string packageNames = null, bool onlyCustomization = true)
         {
-            DirectoryInfo parentDirectory = Directory.GetParent(automationWorkflowFileGroup);
-            List<string> jsonMasterDatas = Directory.GetFiles(parentDirectory.FullName, "*.json").ToList();
+            IDirectoryInfo parentDirectory = fileSystem.Directory.GetParent(automationWorkflowFileGroup);
+            List<string> jsonMasterDatas = fileSystem.Directory.GetFiles(parentDirectory.FullName, "*.json").ToList();
 
             foreach (var jsonMasterData in jsonMasterDatas)
             {
-                string jsonFile = File.ReadAllText(jsonMasterData);
+                string jsonFile = fileSystem.File.ReadAllText(jsonMasterData);
                 dynamic jsonObject = JsonConvert.DeserializeObject(jsonFile);
 
                 if (onlyCustomization && !String.IsNullOrEmpty(packageNames))
@@ -137,8 +140,8 @@ namespace Cmf.Common.Cli.Utilities
                 }
             }
 
-            string[] xmlMasterDatas = Directory.GetFiles(parentDirectory.FullName, "*.xml");
-            string[] xlsxMasterDatas = Directory.GetFiles(parentDirectory.FullName, "*.xml");
+            string[] xmlMasterDatas = fileSystem.Directory.GetFiles(parentDirectory.FullName, "*.xml");
+            string[] xlsxMasterDatas = fileSystem.Directory.GetFiles(parentDirectory.FullName, "*.xml");
 
             if (xmlMasterDatas == null || xmlMasterDatas.Length == 0)
             {
@@ -157,9 +160,10 @@ namespace Cmf.Common.Cli.Utilities
         /// <param name="version">The version.</param>
         /// <param name="buildNr">The version of the build (v-b).</param>
         /// <param name="packageNames">The package names.</param>
-        public static void BumpIoTCustomPackages(string packagePath, string version, string buildNr, string packageNames)
+        /// <param name="fileSystem">the underlying file system</param>
+        public static void BumpIoTCustomPackages(string packagePath, string version, string buildNr, string packageNames, IFileSystem fileSystem)
         {
-            string[] iotPackages = Directory.GetDirectories(packagePath + "/src/", "*");
+            string[] iotPackages = fileSystem.Directory.GetDirectories(packagePath + "/src/", "*");
 
             foreach (string iotPackage in iotPackages)
             {
@@ -167,27 +171,27 @@ namespace Cmf.Common.Cli.Utilities
                 if (String.IsNullOrEmpty(packageNames) || packageNames.Contains(packageName))
                 {
                     // Change Package Json
-                    if (File.Exists(iotPackage + "/package.json"))
+                    if (fileSystem.File.Exists(iotPackage + "/package.json"))
                     {
-                        string packageJson = File.ReadAllText(iotPackage + "/package.json");
+                        string packageJson = fileSystem.File.ReadAllText(iotPackage + "/package.json");
                         dynamic packageJsonObject = JsonConvert.DeserializeObject(packageJson);
 
                         packageJsonObject["version"] = GenericUtilities.RetrieveNewVersion(packageJsonObject["version"].ToString(), version, buildNr);
 
                         packageJson = JsonConvert.SerializeObject(packageJsonObject, Formatting.Indented);
-                        File.WriteAllText(iotPackage + "/package.json", packageJson);
+                        fileSystem.File.WriteAllText(iotPackage + "/package.json", packageJson);
                     }
 
                     // Change Metadata.ts
-                    if (File.Exists(iotPackage + "/src/metadata.ts"))
+                    if (fileSystem.File.Exists(iotPackage + "/src/metadata.ts"))
                     {
-                        string metadata = File.ReadAllText(iotPackage + "\\src\\metadata.ts");
+                        string metadata = fileSystem.File.ReadAllText(iotPackage + "\\src\\metadata.ts");
 
                         var metadataVersion = Regex.Match(metadata, "version: \\\"(.*?)\\\",", RegexOptions.Singleline)?.Value?.Split("version: \"")[1]?.Split("\",")[0];
                             
                         metadata = Regex.Replace(metadata, "version: \\\"(.*?)\\\",", $"version: \"{GenericUtilities.RetrieveNewVersion(metadataVersion, version, buildNr)}\",");
 
-                        File.WriteAllText(iotPackage + "/src/metadata.ts", metadata);
+                        fileSystem.File.WriteAllText(iotPackage + "/src/metadata.ts", metadata);
                     }
                 }
             }

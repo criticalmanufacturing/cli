@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
+using System.IO.Abstractions;
 using System.IO.Compression;
 using System.Linq;
 using System.Xml.Linq;
@@ -33,7 +34,7 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="packageVersion">Source Package Version</param>
         /// <param name="loadedPackages">List of packages already processed.</param>
         /// <param name="publishTests">True to publish test packages</param>
-        private void PublishDependenciesFromPackage(DirectoryInfo outputDir, Uri repoUri, string packageId, string packageVersion, List<string> loadedPackages, bool publishTests)
+        private void PublishDependenciesFromPackage(IDirectoryInfo outputDir, Uri repoUri, string packageId, string packageVersion, List<string> loadedPackages, bool publishTests)
         {
             loadedPackages ??= new List<string>();
             string packageFileName = $"{packageId}.{packageVersion}.zip";
@@ -64,7 +65,7 @@ namespace Cmf.Common.Cli.Commands
 
             if (publishTests)
             {
-                DirectoryInfo testOutputDir = new(outputDir + "/Tests");
+                IDirectoryInfo testOutputDir = this.fileSystem.DirectoryInfo.FromDirectoryName(outputDir + "/Tests");
                 // If test packages exists
                 rootNode = dFManifest.Descendants("testPackages").FirstOrDefault();
                 if (rootNode == null)
@@ -98,18 +99,18 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="packageId">Package Id to publish</param>
         /// <param name="packageVersion">Package version to publish</param>
         /// <returns>True if package was coppied </returns>
-        private void PublishPackageToOutput(DirectoryInfo outputDir, Uri repoUri, string packageId, string packageVersion)
+        private void PublishPackageToOutput(IDirectoryInfo outputDir, Uri repoUri, string packageId, string packageVersion)
         {
             string _packageFileName = $"{packageId}.{packageVersion}.zip";
             string destDependencyFile = $"{outputDir.FullName}/{_packageFileName}";
 
-            if (File.Exists(destDependencyFile))
+            if (this.fileSystem.File.Exists(destDependencyFile))
             {
                 Log.Information($"Package {packageId}.{packageVersion} already in output directory");
                 return;
             }
 
-            bool packageFound = GenericUtilities.GetPackageFromRepository(outputDir, repoUri, true, packageId, packageVersion);
+            bool packageFound = GenericUtilities.GetPackageFromRepository(outputDir, repoUri, true, packageId, packageVersion, this.fileSystem);
 
             if (!packageFound)
             {
@@ -124,14 +125,14 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="cmd"></param>
         public override void Configure(Command cmd)
         {
-            cmd.AddArgument(new Argument<DirectoryInfo>(
+            cmd.AddArgument(new Argument<IDirectoryInfo>(
                 name: "workingDir",
-                getDefaultValue: () => { return new("."); },
+                getDefaultValue: () => { return this.fileSystem.DirectoryInfo.FromDirectoryName("."); },
                 description: "Working Directory"));
 
-            cmd.AddOption(new Option<DirectoryInfo>(
+            cmd.AddOption(new Option<IDirectoryInfo>(
                 aliases: new string[] { "-o", "--outputDir" },
-                getDefaultValue: () => { return new("Package"); },
+                getDefaultValue: () => { return this.fileSystem.DirectoryInfo.FromDirectoryName("Package"); },
                 description: "Output directory for created package"));
 
             cmd.AddOption(new Option<string>(
@@ -143,7 +144,7 @@ namespace Cmf.Common.Cli.Commands
                 description: "to include and publish test packages"));
 
             // Add the handler
-            cmd.Handler = CommandHandler.Create<DirectoryInfo, DirectoryInfo, string, bool>(Execute);
+            cmd.Handler = CommandHandler.Create<IDirectoryInfo, IDirectoryInfo, string, bool>(Execute);
         }
 
         /// <summary>
@@ -154,9 +155,9 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="repo">The repo.</param>
         /// <param name="publishTests">True to publish test packages</param>
         /// <returns></returns>
-        public void Execute(DirectoryInfo workingDir, DirectoryInfo outputDir, string repo, bool publishTests)
+        public void Execute(IDirectoryInfo workingDir, IDirectoryInfo outputDir, string repo, bool publishTests)
         {
-            FileInfo cmfpackageFile = new($"{workingDir}/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = this.fileSystem.FileInfo.FromFileName($"{workingDir}/{CliConstants.CmfPackageFileName}");
 
             Uri repoUri = repo != null ? new Uri(repo) : null;
 
@@ -176,11 +177,11 @@ namespace Cmf.Common.Cli.Commands
         /// <returns></returns>
         /// <exception cref="CmfPackageCollection">
         /// </exception>
-        public void Execute(CmfPackage cmfPackage, DirectoryInfo outputDir, Uri repoUri, bool publishTests)
+        public void Execute(CmfPackage cmfPackage, IDirectoryInfo outputDir, Uri repoUri, bool publishTests)
         {
             #region Output Directories Handling
 
-            DirectoryInfo packageDirectory = cmfPackage.GetFileInfo().Directory;
+            IDirectoryInfo packageDirectory = cmfPackage.GetFileInfo().Directory;
             outputDir = FileSystemUtilities.GetOutputDir(cmfPackage, outputDir, true);
             if (outputDir == null)
             {
@@ -189,7 +190,7 @@ namespace Cmf.Common.Cli.Commands
             
             if (publishTests)
             {
-                DirectoryInfo outputTestDir = new(outputDir + "/Tests");
+                IDirectoryInfo outputTestDir = this.fileSystem.DirectoryInfo.FromDirectoryName(outputDir + "/Tests");
                 if (!outputTestDir.Exists)
                 {
                     outputTestDir.Create();

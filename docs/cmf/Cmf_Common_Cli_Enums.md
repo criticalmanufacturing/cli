@@ -88,6 +88,23 @@ Use the source content to apply untar the file to a target destination
 This currently handler dependent (IoT Package)  
   
   
+<a name='Cmf_Common_Cli_Enums_PackageLocation'></a>
+## PackageLocation Enum
+Possible source for a CmfPackage  
+```csharp
+public enum PackageLocation
+
+```
+#### Fields
+<a name='Cmf_Common_Cli_Enums_PackageLocation_Local'></a>
+`Local` 0  
+Local filesystem  
+  
+<a name='Cmf_Common_Cli_Enums_PackageLocation_Repository'></a>
+`Repository` 1  
+a specified repository  
+  
+  
 <a name='Cmf_Common_Cli_Enums_PackageType'></a>
 ## PackageType Enum
 ```csharp
@@ -129,11 +146,11 @@ The iot
   
 <a name='Cmf_Common_Cli_Enums_PackageType_IoTData'></a>
 `IoTData` 12  
-The database  
+The IoT Data  
   
 <a name='Cmf_Common_Cli_Enums_PackageType_None'></a>
 `None` 11  
-The database  
+None  
   
 <a name='Cmf_Common_Cli_Enums_PackageType_Presentation'></a>
 `Presentation` 4  

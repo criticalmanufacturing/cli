@@ -6,6 +6,7 @@ using Cmf.Common.Cli.Utilities;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
+using System.IO.Abstractions;
 
 namespace Cmf.Common.Cli.Commands
 {
@@ -22,7 +23,7 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="cmd"></param>
         public override void Configure(Command cmd)
         {
-            var packageRoot = FileSystemUtilities.GetPackageRoot();
+            var packageRoot = FileSystemUtilities.GetPackageRoot(this.fileSystem);
             var arg = new Argument<DirectoryInfo>(
                 name: "packagePath",
                 description: "Package path");
@@ -39,9 +40,9 @@ namespace Cmf.Common.Cli.Commands
         /// Executes the specified package path.
         /// </summary>
         /// <param name="packagePath">The package path.</param>
-        public static void Execute(DirectoryInfo packagePath)
+        public void Execute(DirectoryInfo packagePath)
         {
-            FileInfo cmfpackageFile = new($"{packagePath}/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = this.fileSystem.FileInfo.FromFileName($"{packagePath}/{CliConstants.CmfPackageFileName}");
 
             IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile, setDefaultValues: false);
 

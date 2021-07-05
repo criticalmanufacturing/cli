@@ -7,20 +7,43 @@ using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Cmf.Common.Cli.Commands
 {
+    /// <summary>
+    /// List dependencies command
+    /// </summary>
     [CmfCommand("ls")]
-    class ListDependencies : BaseCommand
+    public class ListDependenciesCommand : BaseCommand
     {
+        /// <summary>
+        /// constructor
+        /// </summary>
+        public ListDependenciesCommand() : base()
+        {
+        }
+
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="fileSystem"></param>
+        public ListDependenciesCommand(IFileSystem fileSystem) : base(fileSystem)
+        {
+        }
+
+        /// <summary>
+        /// configure command signature
+        /// </summary>
+        /// <param name="cmd"></param>
         public override void Configure(Command cmd)
         {
-            cmd.AddArgument(new Argument<DirectoryInfo>(
+            cmd.AddArgument(new Argument<IDirectoryInfo>(
                 name: "workingDir",
-                getDefaultValue: () => { return new("."); },
+                getDefaultValue: () => { return this.fileSystem.DirectoryInfo.FromDirectoryName("."); },
                 description: "Working Directory"));
 
             cmd.AddOption(new Option<string>(
@@ -28,13 +51,17 @@ namespace Cmf.Common.Cli.Commands
                 description: "Repository where dependencies are located (url or folder)"));
 
             // Add the handler
-            cmd.Handler = CommandHandler.Create<DirectoryInfo, string>(Execute);
+            cmd.Handler = CommandHandler.Create<IDirectoryInfo, string>(Execute);
         }
 
-
-        public void Execute(DirectoryInfo workingDir, string repo)
+        /// <summary>
+        /// Execute the command
+        /// </summary>
+        /// <param name="workingDir"></param>
+        /// <param name="repo"></param>
+        public void Execute(IDirectoryInfo workingDir, string repo)
         {
-            FileInfo cmfpackageFile = new($"{workingDir}/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = this.fileSystem.FileInfo.FromFileName($"{workingDir}/{CliConstants.CmfPackageFileName}");
 
             // Reading cmfPackage
             CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true);

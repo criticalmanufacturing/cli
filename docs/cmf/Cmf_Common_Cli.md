@@ -174,6 +174,23 @@ public static void Information(string msg);
 The MSG.
   
   
+<a name='Cmf_Common_Cli_Log_Progress(string_bool)'></a>
+## Log.Progress(string, bool) Method
+Logs the progress of an operation, single line with a spinner  
+TODO: this needs a better API and implementation, it's a mess  
+```csharp
+public static void Progress(string msg, bool end=false);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Log_Progress(string_bool)_msg'></a>
+`msg` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+message to print
+  
+<a name='Cmf_Common_Cli_Log_Progress(string_bool)_end'></a>
+`end` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
+should stop the spinner and clear the console line
+  
+  
 <a name='Cmf_Common_Cli_Log_Verbose(string)'></a>
 ## Log.Verbose(string) Method
 Verboses the specified MSG.  
@@ -209,6 +226,29 @@ private static void Write(string msg);
 `msg` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The MSG.
   
+  
+  
+<a name='Cmf_Common_Cli_Program'></a>
+## Program Class
+program entry point  
+```csharp
+public static class Program
+```
+
+Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; Program  
+### Methods
+<a name='Cmf_Common_Cli_Program_Main(string__)'></a>
+## Program.Main(string[]) Method
+program entry point  
+```csharp
+public static int Main(string[] args);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Program_Main(string__)_args'></a>
+`args` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[[]](https://docs.microsoft.com/en-us/dotnet/api/System.Array 'System.Array')  
+  
+#### Returns
+[System.Int32](https://docs.microsoft.com/en-us/dotnet/api/System.Int32 'System.Int32')  
   
   
 ### Enums

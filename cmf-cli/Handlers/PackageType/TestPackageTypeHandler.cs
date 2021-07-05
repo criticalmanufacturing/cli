@@ -4,6 +4,7 @@ using Cmf.Common.Cli.Objects;
 using Cmf.Common.Cli.Utilities;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 using System.Text.RegularExpressions;
 
 namespace Cmf.Common.Cli.Handlers
@@ -21,7 +22,7 @@ namespace Cmf.Common.Cli.Handlers
         /// </summary>
         /// <param name="packageOutputDir">The package output dir.</param>
         /// <exception cref="Cmf.Common.Cli.Utilities.CliException"></exception>
-        internal override void GenerateDeploymentFrameworkManifest(DirectoryInfo packageOutputDir)
+        internal override void GenerateDeploymentFrameworkManifest(IDirectoryInfo packageOutputDir)
         {
             // This package cannot create the DF Manifest
         }
@@ -42,15 +43,15 @@ namespace Cmf.Common.Cli.Handlers
                 {
                     Command = "restore",
                     DisplayName = "NuGet restore",
-                    Solution = new FileInfo(Path.Join(cmfPackage.GetFileInfo().Directory.FullName, "Tests.sln")),
-                    NuGetConfig = new FileInfo(Path.Join(FileSystemUtilities.GetProjectRoot(throwException: true).FullName, "NuGet.Config")),
+                    Solution = this.fileSystem.FileInfo.FromFileName(this.fileSystem.Path.Join(cmfPackage.GetFileInfo().Directory.FullName, "Tests.sln")),
+                    NuGetConfig = this.fileSystem.FileInfo.FromFileName(this.fileSystem.Path.Join(FileSystemUtilities.GetProjectRoot(this.fileSystem, throwException: true).FullName, "NuGet.Config")),
                     WorkingDirectory = cmfPackage.GetFileInfo().Directory
                 },
                 new DotnetCommand()
                 {
                     Command = "build",
                     DisplayName = "Build Tests Solution",
-                    Solution = new FileInfo(Path.Join(cmfPackage.GetFileInfo().Directory.FullName, "Tests.sln")),
+                    Solution = this.fileSystem.FileInfo.FromFileName(this.fileSystem.Path.Join(cmfPackage.GetFileInfo().Directory.FullName, "Tests.sln")),
                     Configuration = "Release",
                     WorkingDirectory = cmfPackage.GetFileInfo().Directory
                 }

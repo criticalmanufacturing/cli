@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.IO.Abstractions;
 
 namespace Cmf.Common.Cli.Objects
 {
@@ -15,7 +16,7 @@ namespace Cmf.Common.Cli.Objects
         /// <value>
         /// The source.
         /// </value>
-        public FileInfo Source { get; set; }
+        public IFileInfo Source { get; set; }
 
         /// <summary>
         /// Gets or sets the target.
@@ -23,7 +24,7 @@ namespace Cmf.Common.Cli.Objects
         /// <value>
         /// The target.
         /// </value>
-        public FileInfo Target { get; set; }
+        public IFileInfo Target { get; set; }
 
         /// <summary>
         /// Gets or sets the content to pack.
@@ -47,7 +48,7 @@ namespace Cmf.Common.Cli.Objects
         /// <param name="source">The source.</param>
         /// <param name="target">The target.</param>
         /// <param name="contentToPack">The content to pack.</param>
-        public FileToPack(FileInfo source, FileInfo target, ContentToPack contentToPack)
+        public FileToPack(IFileInfo source, IFileInfo target, ContentToPack contentToPack)
         {
             Source = source;
             Target = target;

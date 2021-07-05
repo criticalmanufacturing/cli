@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 
 namespace Cmf.Common.Cli.Builders
 {
@@ -49,7 +50,7 @@ namespace Cmf.Common.Cli.Builders
         /// <value>
         /// The nu get configuration.
         /// </value>
-        public FileInfo NuGetConfig { get; set; }
+        public IFileInfo NuGetConfig { get; set; }
 
         /// <summary>
         /// Gets or sets the solution.
@@ -57,7 +58,7 @@ namespace Cmf.Common.Cli.Builders
         /// <value>
         /// The solution.
         /// </value>
-        public FileInfo Solution { get; set; }
+        public IFileInfo Solution { get; set; }
 
         /// <summary>
         /// Gets or sets the output directory.
@@ -65,7 +66,7 @@ namespace Cmf.Common.Cli.Builders
         /// <value>
         /// The output directory.
         /// </value>
-        public DirectoryInfo OutputDirectory { get; set; }
+        public IDirectoryInfo OutputDirectory { get; set; }
 
         /// <summary>
         /// Gets or sets the configuration.
