@@ -25,8 +25,12 @@ namespace Cmf.Common.Cli.Commands
         {
             cmd.AddArgument(new Argument<IDirectoryInfo>(
                 name: "packagePath",
-                getDefaultValue: () => { return this.fileSystem.DirectoryInfo.FromDirectoryName("."); },
-                description: "Package path"));
+                parse: (argResult) => Parse<IDirectoryInfo>(argResult, "."),
+                isDefault: true
+            )
+            {
+                Description = "Package Path"
+            });
 
             cmd.AddOption(new Option<string>(
                 aliases: new string[] { "-v", "--version" },
