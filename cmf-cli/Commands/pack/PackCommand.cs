@@ -39,7 +39,7 @@ namespace Cmf.Common.Cli.Commands
                 aliases: new string[] { "-o", "--outputDir" },
                 parseArgument: argResult => Parse<IDirectoryInfo>(argResult, "Package"),
                 isDefault: true,
-                description: "Output directory for created package"));;
+                description: "Output directory for created package"));
 
             cmd.AddOption(new Option<string>(
                 aliases: new string[] { "-r", "--repo" },
