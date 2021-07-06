@@ -2,6 +2,7 @@ using Cmf.Common.Cli.Attributes;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
+using System.CommandLine.Parsing;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
@@ -172,6 +173,23 @@ namespace Cmf.Common.Cli.Commands
                 cmdInstance.AddCommand(childCmd);
             }
             return cmdInstance;
+        }
+
+        /// <summary>
+        /// parse argument/option
+        /// </summary>
+        /// <typeparam name="T">the (target) type of the argument/parameter</typeparam>
+        /// <param name="argResult">the arguments to parse</param>
+        /// <param name="default">the default value if no value is passed for the argument</param>
+        /// <returns></returns>
+        protected T Parse<T>(ArgumentResult argResult, string @default) where T: IDirectoryInfo
+        {
+            var path = @default;
+            if (argResult.Tokens.Any())
+            {
+                path = argResult.Tokens.First().Value;
+            }
+            return (T)this.fileSystem.DirectoryInfo.FromDirectoryName(path);
         }
     }
 }

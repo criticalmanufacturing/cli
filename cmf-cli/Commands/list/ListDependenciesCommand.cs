@@ -43,8 +43,12 @@ namespace Cmf.Common.Cli.Commands
         {
             cmd.AddArgument(new Argument<IDirectoryInfo>(
                 name: "workingDir",
-                getDefaultValue: () => { return this.fileSystem.DirectoryInfo.FromDirectoryName("."); },
-                description: "Working Directory"));
+                parse: (argResult) => Parse<IDirectoryInfo>(argResult, "."),
+                isDefault: true
+            )
+            {
+                Description = "Working Directory"
+            });
 
             cmd.AddOption(new Option<string>(
                 aliases: new string[] { "-r", "--repo" },

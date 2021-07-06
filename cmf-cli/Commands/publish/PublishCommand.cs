@@ -127,12 +127,17 @@ namespace Cmf.Common.Cli.Commands
         {
             cmd.AddArgument(new Argument<IDirectoryInfo>(
                 name: "workingDir",
-                getDefaultValue: () => { return this.fileSystem.DirectoryInfo.FromDirectoryName("."); },
-                description: "Working Directory"));
+                parse: (argResult) => Parse<IDirectoryInfo>(argResult, "."),
+                isDefault: true
+            )
+            {
+                Description = "Working Directory"
+            });
 
             cmd.AddOption(new Option<IDirectoryInfo>(
                 aliases: new string[] { "-o", "--outputDir" },
-                getDefaultValue: () => { return this.fileSystem.DirectoryInfo.FromDirectoryName("Package"); },
+                parseArgument: argResult => Parse<IDirectoryInfo>(argResult, "Package"),
+                isDefault: true,
                 description: "Output directory for created package"));
 
             cmd.AddOption(new Option<string>(
