@@ -15,6 +15,7 @@ Derived
 &#8627; [BumpIoTCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BumpIoTCommand 'Cmf.Common.Cli.Commands.BumpIoTCommand')  
 &#8627; [BumpIoTCustomizationCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BumpIoTCustomizationCommand 'Cmf.Common.Cli.Commands.BumpIoTCustomizationCommand')  
 &#8627; [HelpCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_HelpCommand 'Cmf.Common.Cli.Commands.HelpCommand')  
+&#8627; [InitCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_InitCommand 'Cmf.Common.Cli.Commands.InitCommand')  
 &#8627; [ListDependenciesCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_ListDependenciesCommand 'Cmf.Common.Cli.Commands.ListDependenciesCommand')  
 &#8627; [LocalCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_LocalCommand 'Cmf.Common.Cli.Commands.LocalCommand')  
 &#8627; [PackCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_PackCommand 'Cmf.Common.Cli.Commands.PackCommand')  
@@ -623,6 +624,57 @@ public override void Configure(System.CommandLine.Command cmd);
   
 #### See Also
 - [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand')
+  
+<a name='Cmf_Common_Cli_Commands_InitCommand'></a>
+## InitCommand Class
+Init command  
+```csharp
+public class InitCommand : Cmf.Common.Cli.Commands.BaseCommand
+```
+
+Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand') &#129106; InitCommand  
+### Constructors
+<a name='Cmf_Common_Cli_Commands_InitCommand_InitCommand()'></a>
+## InitCommand.InitCommand() Constructor
+constructor  
+```csharp
+public InitCommand();
+```
+  
+<a name='Cmf_Common_Cli_Commands_InitCommand_InitCommand(System_IO_Abstractions_IFileSystem)'></a>
+## InitCommand.InitCommand(IFileSystem) Constructor
+constructor  
+```csharp
+public InitCommand(System.IO.Abstractions.IFileSystem fileSystem);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Commands_InitCommand_InitCommand(System_IO_Abstractions_IFileSystem)_fileSystem'></a>
+`fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
+  
+  
+### Methods
+<a name='Cmf_Common_Cli_Commands_InitCommand_Configure(System_CommandLine_Command)'></a>
+## InitCommand.Configure(Command) Method
+configure command signature  
+```csharp
+public override void Configure(System.CommandLine.Command cmd);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Commands_InitCommand_Configure(System_CommandLine_Command)_cmd'></a>
+`cmd` [System.CommandLine.Command](https://docs.microsoft.com/en-us/dotnet/api/System.CommandLine.Command 'System.CommandLine.Command')  
+  
+  
+<a name='Cmf_Common_Cli_Commands_InitCommand_Execute(System_Collections_Generic_IReadOnlyCollection_string_)'></a>
+## InitCommand.Execute(IReadOnlyCollection&lt;string&gt;) Method
+Execute the command  
+```csharp
+public void Execute(System.Collections.Generic.IReadOnlyCollection<string> args);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Commands_InitCommand_Execute(System_Collections_Generic_IReadOnlyCollection_string_)_args'></a>
+`args` [System.Collections.Generic.IReadOnlyCollection&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IReadOnlyCollection-1 'System.Collections.Generic.IReadOnlyCollection`1')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IReadOnlyCollection-1 'System.Collections.Generic.IReadOnlyCollection`1')  
+  
+  
   
 <a name='Cmf_Common_Cli_Commands_ListDependenciesCommand'></a>
 ## ListDependenciesCommand Class

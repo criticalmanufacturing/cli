@@ -24,6 +24,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.1.3" />
+    <PackageReference Include="Microsoft.TemplateEngine.Cli" Version="5.0.0-rtm.20509.1" />
     <PackageReference Include="Microsoft.TemplateEngine.Core" Version="5.0.204" />
     <PackageReference Include="Microsoft.TemplateEngine.Edge" Version="5.0.204" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
@@ -43,6 +44,16 @@
 
   <ItemGroup>
     <EmbeddedResource Include="resources\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="resources\template_feed\**" />
+    <None Include="resources\template_feed\**\.template-config\template.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="resources\template_feed\**">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -80,5 +91,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>CliMessages.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    
   </ItemGroup>
 </Project>

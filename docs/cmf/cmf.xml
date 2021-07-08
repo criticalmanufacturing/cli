@@ -692,6 +692,35 @@
             <param name="isToTag">if set to <c>true</c> [is to tag].</param>
             <exception cref="T:Cmf.Common.Cli.Utilities.CliException"></exception>
         </member>
+        <member name="T:Cmf.Common.Cli.Commands.InitCommand">
+            <summary>
+            Init command
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.InitCommand.#ctor">
+            <summary>
+            constructor
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.InitCommand.#ctor(System.IO.Abstractions.IFileSystem)">
+            <summary>
+            constructor
+            </summary>
+            <param name="fileSystem"></param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.InitCommand.Configure(System.CommandLine.Command)">
+            <summary>
+            configure command signature
+            </summary>
+            <param name="cmd"></param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.InitCommand.Execute(System.Collections.Generic.IReadOnlyCollection{System.String})">
+            <summary>
+            Execute the command
+            </summary>
+            <param name="workingDir"></param>
+            <param name="repo"></param>
+        </member>
         <member name="T:Cmf.Common.Cli.Commands.ListDependenciesCommand">
             <summary>
             List dependencies command
