@@ -1,5 +1,4 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Cmf.Common.Cli.Commands;
 using System.IO.Abstractions.TestingHelpers;
 using System.Collections.Generic;
 using Cmf.Common.Cli.Objects;
