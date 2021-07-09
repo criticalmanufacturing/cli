@@ -5,6 +5,7 @@
   "main": "index.js",
   "private": true,
   "scripts": {
+    "prepare": "husky install",
     "build:clean": "rimraf dist/** && rimraf npm/dist/**",
     "bump:pre": "npm run bump:npm:pre && npm run bump:dotnet:pre",
     "bump:patch": "npm run bump:npm:patch && npm run bump:dotnet:patch",
@@ -30,12 +31,19 @@
     "bump:dotnet:pre": "cd cmf-cli && dotnet-bump prerelease --force --no-commit && cd ..",
     "bump:dotnet:patch": "cd cmf-cli && dotnet-bump patch --force --no-commit && cd ..",
     "bump:dotnet:feature": "cd cmf-cli && dotnet-bump minor --force --no-commit && cd ..",
-    "bump:dotnet:breaking": "cd cmf-cli && dotnet-bump major --force --no-commit && cd .."
+    "bump:dotnet:breaking": "cd cmf-cli && dotnet-bump major --force --no-commit && cd ..",
+    "gen:changelog": "cd npm && standard-version && cd .."
   },
   "author": "Marco Silva",
   "license": "BSD-3-Clause",
   "dependencies": {
     "dotnet-bump": "^1.3.2",
     "rimraf": "^3.0.2"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^12.1.4",
+    "@commitlint/config-conventional": "^12.1.4",
+    "husky": "^7.0.0",
+    "standard-version": "^9.3.0"
   }
 }
