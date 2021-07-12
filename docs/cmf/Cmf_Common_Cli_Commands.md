@@ -12,7 +12,8 @@ Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.O
 Derived  
 &#8627; [BuildCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BuildCommand 'Cmf.Common.Cli.Commands.BuildCommand')  
 &#8627; [BumpCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BumpCommand 'Cmf.Common.Cli.Commands.BumpCommand')  
-&#8627; [BumpCommandIoTCustomization](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BumpCommandIoTCustomization 'Cmf.Common.Cli.Commands.BumpCommandIoTCustomization')  
+&#8627; [BumpIoTCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BumpIoTCommand 'Cmf.Common.Cli.Commands.BumpIoTCommand')  
+&#8627; [BumpIoTCustomizationCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BumpIoTCustomizationCommand 'Cmf.Common.Cli.Commands.BumpIoTCustomizationCommand')  
 &#8627; [HelpCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_HelpCommand 'Cmf.Common.Cli.Commands.HelpCommand')  
 &#8627; [ListDependenciesCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_ListDependenciesCommand 'Cmf.Common.Cli.Commands.ListDependenciesCommand')  
 &#8627; [LocalCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_LocalCommand 'Cmf.Common.Cli.Commands.LocalCommand')  
@@ -103,6 +104,30 @@ The command types.
 #### Returns
 [System.CommandLine.Command](https://docs.microsoft.com/en-us/dotnet/api/System.CommandLine.Command 'System.CommandLine.Command')  
   
+<a name='Cmf_Common_Cli_Commands_BaseCommand_Parse_T_(System_CommandLine_Parsing_ArgumentResult_string)'></a>
+## BaseCommand.Parse&lt;T&gt;(ArgumentResult, string) Method
+parse argument/option  
+```csharp
+protected T Parse<T>(System.CommandLine.Parsing.ArgumentResult argResult, string @default)
+    where T : System.IO.Abstractions.IDirectoryInfo;
+```
+#### Type parameters
+<a name='Cmf_Common_Cli_Commands_BaseCommand_Parse_T_(System_CommandLine_Parsing_ArgumentResult_string)_T'></a>
+`T`  
+the (target) type of the argument/parameter
+  
+#### Parameters
+<a name='Cmf_Common_Cli_Commands_BaseCommand_Parse_T_(System_CommandLine_Parsing_ArgumentResult_string)_argResult'></a>
+`argResult` [System.CommandLine.Parsing.ArgumentResult](https://docs.microsoft.com/en-us/dotnet/api/System.CommandLine.Parsing.ArgumentResult 'System.CommandLine.Parsing.ArgumentResult')  
+the arguments to parse
+  
+<a name='Cmf_Common_Cli_Commands_BaseCommand_Parse_T_(System_CommandLine_Parsing_ArgumentResult_string)_default'></a>
+`default` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+the default value if no value is passed for the argument
+  
+#### Returns
+[T](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand_Parse_T_(System_CommandLine_Parsing_ArgumentResult_string)_T 'Cmf.Common.Cli.Commands.BaseCommand.Parse&lt;T&gt;(System.CommandLine.Parsing.ArgumentResult, string).T')  
+  
   
 <a name='Cmf_Common_Cli_Commands_BuildCommand'></a>
 ## BuildCommand Class
@@ -147,7 +172,7 @@ public class BumpCommand : Cmf.Common.Cli.Commands.BaseCommand
 Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand') &#129106; BumpCommand  
 
 Derived  
-&#8627; [BumpCommandIoTConfiguration](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BumpCommandIoTConfiguration 'Cmf.Common.Cli.Commands.BumpCommandIoTConfiguration')  
+&#8627; [BumpIoTConfigurationCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BumpIoTConfigurationCommand 'Cmf.Common.Cli.Commands.BumpIoTConfigurationCommand')  
 ### Methods
 <a name='Cmf_Common_Cli_Commands_BumpCommand_Configure(System_CommandLine_Command)'></a>
 ## BumpCommand.Configure(Command) Method
@@ -224,72 +249,93 @@ if set to `true` [all].
 #### See Also
 - [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand')
   
-<a name='Cmf_Common_Cli_Commands_BumpCommandIoTConfiguration'></a>
-## BumpCommandIoTConfiguration Class
+<a name='Cmf_Common_Cli_Commands_BumpIoTCommand'></a>
+## BumpIoTCommand Class
+iot command group  
 ```csharp
-public class BumpCommandIoTConfiguration : Cmf.Common.Cli.Commands.BumpCommand
+public class BumpIoTCommand : Cmf.Common.Cli.Commands.BaseCommand
 ```
 
-Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand') &#129106; [BumpCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BumpCommand 'Cmf.Common.Cli.Commands.BumpCommand') &#129106; BumpCommandIoTConfiguration  
+Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand') &#129106; BumpIoTCommand  
 ### Methods
-<a name='Cmf_Common_Cli_Commands_BumpCommandIoTConfiguration_Configure(System_CommandLine_Command)'></a>
-## BumpCommandIoTConfiguration.Configure(Command) Method
+<a name='Cmf_Common_Cli_Commands_BumpIoTCommand_Configure(System_CommandLine_Command)'></a>
+## BumpIoTCommand.Configure(Command) Method
+Configure command (no-op, command is a group only)  
+```csharp
+public override void Configure(System.CommandLine.Command cmd);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Commands_BumpIoTCommand_Configure(System_CommandLine_Command)_cmd'></a>
+`cmd` [System.CommandLine.Command](https://docs.microsoft.com/en-us/dotnet/api/System.CommandLine.Command 'System.CommandLine.Command')  
+  
+  
+  
+<a name='Cmf_Common_Cli_Commands_BumpIoTConfigurationCommand'></a>
+## BumpIoTConfigurationCommand Class
+```csharp
+public class BumpIoTConfigurationCommand : Cmf.Common.Cli.Commands.BumpCommand
+```
+
+Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand') &#129106; [BumpCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BumpCommand 'Cmf.Common.Cli.Commands.BumpCommand') &#129106; BumpIoTConfigurationCommand  
+### Methods
+<a name='Cmf_Common_Cli_Commands_BumpIoTConfigurationCommand_Configure(System_CommandLine_Command)'></a>
+## BumpIoTConfigurationCommand.Configure(Command) Method
 Configure command  
 ```csharp
 public override void Configure(System.CommandLine.Command cmd);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Commands_BumpCommandIoTConfiguration_Configure(System_CommandLine_Command)_cmd'></a>
+<a name='Cmf_Common_Cli_Commands_BumpIoTConfigurationCommand_Configure(System_CommandLine_Command)_cmd'></a>
 `cmd` [System.CommandLine.Command](https://docs.microsoft.com/en-us/dotnet/api/System.CommandLine.Command 'System.CommandLine.Command')  
   
   
-<a name='Cmf_Common_Cli_Commands_BumpCommandIoTConfiguration_Execute(System_IO_Abstractions_IDirectoryInfo_string_string_bool_bool_string_string_string_string_bool_bool)'></a>
-## BumpCommandIoTConfiguration.Execute(IDirectoryInfo, string, string, bool, bool, string, string, string, string, bool, bool) Method
+<a name='Cmf_Common_Cli_Commands_BumpIoTConfigurationCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string_string_bool_bool_string_string_string_string_bool_bool)'></a>
+## BumpIoTConfigurationCommand.Execute(IDirectoryInfo, string, string, bool, bool, string, string, string, string, bool, bool) Method
 Executes the specified package directory.  
 ```csharp
-public void Execute(System.IO.Abstractions.IDirectoryInfo packageDirectory, string version, string buildNr, bool isToBumpMasterdata, bool isToBumpIoT, string packageNames, string root, string group, string workflowName, bool isToTag, bool onlyMdCustomization);
+public void Execute(System.IO.Abstractions.IDirectoryInfo path, string version, string buildNr, bool isToBumpMasterdata, bool isToBumpIoT, string packageNames, string root, string group, string workflowName, bool isToTag, bool onlyMdCustomization);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Commands_BumpCommandIoTConfiguration_Execute(System_IO_Abstractions_IDirectoryInfo_string_string_bool_bool_string_string_string_string_bool_bool)_packageDirectory'></a>
-`packageDirectory` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
+<a name='Cmf_Common_Cli_Commands_BumpIoTConfigurationCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string_string_bool_bool_string_string_string_string_bool_bool)_path'></a>
+`path` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
 The package directory.
   
-<a name='Cmf_Common_Cli_Commands_BumpCommandIoTConfiguration_Execute(System_IO_Abstractions_IDirectoryInfo_string_string_bool_bool_string_string_string_string_bool_bool)_version'></a>
+<a name='Cmf_Common_Cli_Commands_BumpIoTConfigurationCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string_string_bool_bool_string_string_string_string_bool_bool)_version'></a>
 `version` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The version.
   
-<a name='Cmf_Common_Cli_Commands_BumpCommandIoTConfiguration_Execute(System_IO_Abstractions_IDirectoryInfo_string_string_bool_bool_string_string_string_string_bool_bool)_buildNr'></a>
+<a name='Cmf_Common_Cli_Commands_BumpIoTConfigurationCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string_string_bool_bool_string_string_string_string_bool_bool)_buildNr'></a>
 `buildNr` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
   
-<a name='Cmf_Common_Cli_Commands_BumpCommandIoTConfiguration_Execute(System_IO_Abstractions_IDirectoryInfo_string_string_bool_bool_string_string_string_string_bool_bool)_isToBumpMasterdata'></a>
+<a name='Cmf_Common_Cli_Commands_BumpIoTConfigurationCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string_string_bool_bool_string_string_string_string_bool_bool)_isToBumpMasterdata'></a>
 `isToBumpMasterdata` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
 if set to `true` [is to bump masterdata].
   
-<a name='Cmf_Common_Cli_Commands_BumpCommandIoTConfiguration_Execute(System_IO_Abstractions_IDirectoryInfo_string_string_bool_bool_string_string_string_string_bool_bool)_isToBumpIoT'></a>
+<a name='Cmf_Common_Cli_Commands_BumpIoTConfigurationCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string_string_bool_bool_string_string_string_string_bool_bool)_isToBumpIoT'></a>
 `isToBumpIoT` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
 if set to `true` [is to bump io t].
   
-<a name='Cmf_Common_Cli_Commands_BumpCommandIoTConfiguration_Execute(System_IO_Abstractions_IDirectoryInfo_string_string_bool_bool_string_string_string_string_bool_bool)_packageNames'></a>
+<a name='Cmf_Common_Cli_Commands_BumpIoTConfigurationCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string_string_bool_bool_string_string_string_string_bool_bool)_packageNames'></a>
 `packageNames` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The package names.
   
-<a name='Cmf_Common_Cli_Commands_BumpCommandIoTConfiguration_Execute(System_IO_Abstractions_IDirectoryInfo_string_string_bool_bool_string_string_string_string_bool_bool)_root'></a>
+<a name='Cmf_Common_Cli_Commands_BumpIoTConfigurationCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string_string_bool_bool_string_string_string_string_bool_bool)_root'></a>
 `root` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The root.
   
-<a name='Cmf_Common_Cli_Commands_BumpCommandIoTConfiguration_Execute(System_IO_Abstractions_IDirectoryInfo_string_string_bool_bool_string_string_string_string_bool_bool)_group'></a>
+<a name='Cmf_Common_Cli_Commands_BumpIoTConfigurationCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string_string_bool_bool_string_string_string_string_bool_bool)_group'></a>
 `group` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The group.
   
-<a name='Cmf_Common_Cli_Commands_BumpCommandIoTConfiguration_Execute(System_IO_Abstractions_IDirectoryInfo_string_string_bool_bool_string_string_string_string_bool_bool)_workflowName'></a>
+<a name='Cmf_Common_Cli_Commands_BumpIoTConfigurationCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string_string_bool_bool_string_string_string_string_bool_bool)_workflowName'></a>
 `workflowName` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 Name of the workflow.
   
-<a name='Cmf_Common_Cli_Commands_BumpCommandIoTConfiguration_Execute(System_IO_Abstractions_IDirectoryInfo_string_string_bool_bool_string_string_string_string_bool_bool)_isToTag'></a>
+<a name='Cmf_Common_Cli_Commands_BumpIoTConfigurationCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string_string_bool_bool_string_string_string_string_bool_bool)_isToTag'></a>
 `isToTag` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
 if set to `true` [is to tag].
   
-<a name='Cmf_Common_Cli_Commands_BumpCommandIoTConfiguration_Execute(System_IO_Abstractions_IDirectoryInfo_string_string_bool_bool_string_string_string_string_bool_bool)_onlyMdCustomization'></a>
+<a name='Cmf_Common_Cli_Commands_BumpIoTConfigurationCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string_string_bool_bool_string_string_string_string_bool_bool)_onlyMdCustomization'></a>
 `onlyMdCustomization` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
 if set to `true` [only md customization].
   
@@ -298,77 +344,77 @@ if set to `true` [only md customization].
 - [BumpCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BumpCommand 'Cmf.Common.Cli.Commands.BumpCommand')
 - [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand')
   
-<a name='Cmf_Common_Cli_Commands_BumpCommandIoTCustomization'></a>
-## BumpCommandIoTCustomization Class
+<a name='Cmf_Common_Cli_Commands_BumpIoTCustomizationCommand'></a>
+## BumpIoTCustomizationCommand Class
 ```csharp
-public class BumpCommandIoTCustomization : Cmf.Common.Cli.Commands.BaseCommand
+public class BumpIoTCustomizationCommand : Cmf.Common.Cli.Commands.BaseCommand
 ```
 
-Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand') &#129106; BumpCommandIoTCustomization  
+Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand') &#129106; BumpIoTCustomizationCommand  
 ### Methods
-<a name='Cmf_Common_Cli_Commands_BumpCommandIoTCustomization_Configure(System_CommandLine_Command)'></a>
-## BumpCommandIoTCustomization.Configure(Command) Method
+<a name='Cmf_Common_Cli_Commands_BumpIoTCustomizationCommand_Configure(System_CommandLine_Command)'></a>
+## BumpIoTCustomizationCommand.Configure(Command) Method
 Configure command  
 ```csharp
 public override void Configure(System.CommandLine.Command cmd);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Commands_BumpCommandIoTCustomization_Configure(System_CommandLine_Command)_cmd'></a>
+<a name='Cmf_Common_Cli_Commands_BumpIoTCustomizationCommand_Configure(System_CommandLine_Command)_cmd'></a>
 `cmd` [System.CommandLine.Command](https://docs.microsoft.com/en-us/dotnet/api/System.CommandLine.Command 'System.CommandLine.Command')  
   
   
-<a name='Cmf_Common_Cli_Commands_BumpCommandIoTCustomization_Execute(Cmf_Common_Cli_Objects_CmfPackage_string_string_string_bool)'></a>
-## BumpCommandIoTCustomization.Execute(CmfPackage, string, string, string, bool) Method
+<a name='Cmf_Common_Cli_Commands_BumpIoTCustomizationCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_string_string_string_bool)'></a>
+## BumpIoTCustomizationCommand.Execute(CmfPackage, string, string, string, bool) Method
 Executes the BumpIoTCustomPackages for specified CMF package.  
 ```csharp
 public void Execute(Cmf.Common.Cli.Objects.CmfPackage cmfPackage, string version, string buildNr, string packageNames, bool isToTag);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Commands_BumpCommandIoTCustomization_Execute(Cmf_Common_Cli_Objects_CmfPackage_string_string_string_bool)_cmfPackage'></a>
+<a name='Cmf_Common_Cli_Commands_BumpIoTCustomizationCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_string_string_string_bool)_cmfPackage'></a>
 `cmfPackage` [CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')  
 The CMF package.
   
-<a name='Cmf_Common_Cli_Commands_BumpCommandIoTCustomization_Execute(Cmf_Common_Cli_Objects_CmfPackage_string_string_string_bool)_version'></a>
+<a name='Cmf_Common_Cli_Commands_BumpIoTCustomizationCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_string_string_string_bool)_version'></a>
 `version` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The version.
   
-<a name='Cmf_Common_Cli_Commands_BumpCommandIoTCustomization_Execute(Cmf_Common_Cli_Objects_CmfPackage_string_string_string_bool)_buildNr'></a>
+<a name='Cmf_Common_Cli_Commands_BumpIoTCustomizationCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_string_string_string_bool)_buildNr'></a>
 `buildNr` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
   
-<a name='Cmf_Common_Cli_Commands_BumpCommandIoTCustomization_Execute(Cmf_Common_Cli_Objects_CmfPackage_string_string_string_bool)_packageNames'></a>
+<a name='Cmf_Common_Cli_Commands_BumpIoTCustomizationCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_string_string_string_bool)_packageNames'></a>
 `packageNames` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The package names.
   
-<a name='Cmf_Common_Cli_Commands_BumpCommandIoTCustomization_Execute(Cmf_Common_Cli_Objects_CmfPackage_string_string_string_bool)_isToTag'></a>
+<a name='Cmf_Common_Cli_Commands_BumpIoTCustomizationCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_string_string_string_bool)_isToTag'></a>
 `isToTag` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
 if set to `true` [is to tag].
   
 #### Exceptions
 [CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException')  
   
-<a name='Cmf_Common_Cli_Commands_BumpCommandIoTCustomization_Execute(System_IO_Abstractions_IDirectoryInfo_string_string_string_bool)'></a>
-## BumpCommandIoTCustomization.Execute(IDirectoryInfo, string, string, string, bool) Method
+<a name='Cmf_Common_Cli_Commands_BumpIoTCustomizationCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string_string_string_bool)'></a>
+## BumpIoTCustomizationCommand.Execute(IDirectoryInfo, string, string, string, bool) Method
 Executes the specified package path.  
 ```csharp
 public void Execute(System.IO.Abstractions.IDirectoryInfo packagePath, string version, string buildNr, string packageNames, bool isToTag);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Commands_BumpCommandIoTCustomization_Execute(System_IO_Abstractions_IDirectoryInfo_string_string_string_bool)_packagePath'></a>
+<a name='Cmf_Common_Cli_Commands_BumpIoTCustomizationCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string_string_string_bool)_packagePath'></a>
 `packagePath` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
 The package path.
   
-<a name='Cmf_Common_Cli_Commands_BumpCommandIoTCustomization_Execute(System_IO_Abstractions_IDirectoryInfo_string_string_string_bool)_version'></a>
+<a name='Cmf_Common_Cli_Commands_BumpIoTCustomizationCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string_string_string_bool)_version'></a>
 `version` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The version.
   
-<a name='Cmf_Common_Cli_Commands_BumpCommandIoTCustomization_Execute(System_IO_Abstractions_IDirectoryInfo_string_string_string_bool)_buildNr'></a>
+<a name='Cmf_Common_Cli_Commands_BumpIoTCustomizationCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string_string_string_bool)_buildNr'></a>
 `buildNr` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
   
-<a name='Cmf_Common_Cli_Commands_BumpCommandIoTCustomization_Execute(System_IO_Abstractions_IDirectoryInfo_string_string_string_bool)_packageNames'></a>
+<a name='Cmf_Common_Cli_Commands_BumpIoTCustomizationCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string_string_string_bool)_packageNames'></a>
 `packageNames` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The package names.
   
-<a name='Cmf_Common_Cli_Commands_BumpCommandIoTCustomization_Execute(System_IO_Abstractions_IDirectoryInfo_string_string_string_bool)_isToTag'></a>
+<a name='Cmf_Common_Cli_Commands_BumpIoTCustomizationCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string_string_string_bool)_isToTag'></a>
 `isToTag` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
 if set to `true` [is to tag].
   
