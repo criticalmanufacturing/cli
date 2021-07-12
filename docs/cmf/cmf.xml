@@ -455,6 +455,15 @@
             <param name="commandTypes">The command types.</param>
             <returns></returns>
         </member>
+        <member name="M:Cmf.Common.Cli.Commands.BaseCommand.Parse``1(System.CommandLine.Parsing.ArgumentResult,System.String)">
+            <summary>
+            parse argument/option
+            </summary>
+            <typeparam name="T">the (target) type of the argument/parameter</typeparam>
+            <param name="argResult">the arguments to parse</param>
+            <param name="default">the default value if no value is passed for the argument</param>
+            <returns></returns>
+        </member>
         <member name="T:Cmf.Common.Cli.Commands.BuildCommand">
              <summary>
             
@@ -566,24 +575,35 @@
             <param name="all">if set to <c>true</c> [all].</param>
             <exception cref="T:Cmf.Common.Cli.Utilities.CliException"></exception>
         </member>
-        <member name="T:Cmf.Common.Cli.Commands.BumpCommandIoTConfiguration">
+        <member name="T:Cmf.Common.Cli.Commands.BumpIoTCommand">
+            <summary>
+            iot command group
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.BumpIoTCommand.Configure(System.CommandLine.Command)">
+            <summary>
+            Configure command (no-op, command is a group only)
+            </summary>
+            <param name="cmd"></param>
+        </member>
+        <member name="T:Cmf.Common.Cli.Commands.BumpIoTConfigurationCommand">
              <summary>
             
              </summary>
              <seealso cref="T:Cmf.Common.Cli.Commands.BumpCommand" />
              <seealso cref="T:Cmf.Common.Cli.Commands.BaseCommand" />
         </member>
-        <member name="M:Cmf.Common.Cli.Commands.BumpCommandIoTConfiguration.Configure(System.CommandLine.Command)">
+        <member name="M:Cmf.Common.Cli.Commands.BumpIoTConfigurationCommand.Configure(System.CommandLine.Command)">
             <summary>
             Configure command
             </summary>
             <param name="cmd"></param>
         </member>
-        <member name="M:Cmf.Common.Cli.Commands.BumpCommandIoTConfiguration.Execute(System.IO.Abstractions.IDirectoryInfo,System.String,System.String,System.Boolean,System.Boolean,System.String,System.String,System.String,System.String,System.Boolean,System.Boolean)">
+        <member name="M:Cmf.Common.Cli.Commands.BumpIoTConfigurationCommand.Execute(System.IO.Abstractions.IDirectoryInfo,System.String,System.String,System.Boolean,System.Boolean,System.String,System.String,System.String,System.String,System.Boolean,System.Boolean)">
             <summary>
             Executes the specified package directory.
             </summary>
-            <param name="packageDirectory">The package directory.</param>
+            <param name="path">The package directory.</param>
             <param name="version">The version.</param>
             <param name="buildNr"></param>
             <param name="isToBumpMasterdata">if set to <c>true</c> [is to bump masterdata].</param>
@@ -596,19 +616,19 @@
             <param name="onlyMdCustomization">if set to <c>true</c> [only md customization].</param>
             <returns></returns>
         </member>
-        <member name="T:Cmf.Common.Cli.Commands.BumpCommandIoTCustomization">
+        <member name="T:Cmf.Common.Cli.Commands.BumpIoTCustomizationCommand">
              <summary>
             
              </summary>
              <seealso cref="T:Cmf.Common.Cli.Commands.BaseCommand" />
         </member>
-        <member name="M:Cmf.Common.Cli.Commands.BumpCommandIoTCustomization.Configure(System.CommandLine.Command)">
+        <member name="M:Cmf.Common.Cli.Commands.BumpIoTCustomizationCommand.Configure(System.CommandLine.Command)">
             <summary>
             Configure command
             </summary>
             <param name="cmd"></param>
         </member>
-        <member name="M:Cmf.Common.Cli.Commands.BumpCommandIoTCustomization.Execute(System.IO.Abstractions.IDirectoryInfo,System.String,System.String,System.String,System.Boolean)">
+        <member name="M:Cmf.Common.Cli.Commands.BumpIoTCustomizationCommand.Execute(System.IO.Abstractions.IDirectoryInfo,System.String,System.String,System.String,System.Boolean)">
             <summary>
             Executes the specified package path.
             </summary>
@@ -620,7 +640,7 @@
             <exception cref="T:Cmf.Common.Cli.Utilities.CliException"></exception>
             <exception cref="T:Cmf.Common.Cli.Utilities.CliException"></exception>
         </member>
-        <member name="M:Cmf.Common.Cli.Commands.BumpCommandIoTCustomization.Execute(Cmf.Common.Cli.Objects.CmfPackage,System.String,System.String,System.String,System.Boolean)">
+        <member name="M:Cmf.Common.Cli.Commands.BumpIoTCustomizationCommand.Execute(Cmf.Common.Cli.Objects.CmfPackage,System.String,System.String,System.String,System.Boolean)">
             <summary>
             Executes the BumpIoTCustomPackages for specified CMF package.
             </summary>
