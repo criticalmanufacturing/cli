@@ -170,7 +170,7 @@ namespace Cmf.Common.Cli.Objects
         /// The steps.
         /// </value>
         [JsonProperty(Order = 11)]
-        public List<Step> Steps { get; private set; }
+        public List<Step> Steps { get; internal set; }
 
         /// <summary>
         /// Gets or sets the content to pack.

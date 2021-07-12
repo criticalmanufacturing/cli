@@ -13,6 +13,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using System.Xml.Linq;
+using System.Xml.Serialization;
 
 namespace Cmf.Common.Cli.Handlers
 {
@@ -192,6 +193,10 @@ namespace Cmf.Common.Cli.Handlers
                             List<XAttribute> xAttributes = new();
                             foreach (PropertyInfo propertyinfo in property.GetType().GetProperties())
                             {
+                                if (propertyinfo.CustomAttributes.Any(attr => attr.AttributeType == typeof(XmlIgnoreAttribute)))
+                                {
+                                    continue;
+                                }
                                 var obj = propertyinfo.GetValue(property);
                                 if (obj != null)
                                 {
@@ -362,7 +367,11 @@ namespace Cmf.Common.Cli.Handlers
 
                                 string destPackDir = $"{packageOutputDir.FullName}/{_target}/{_packDirectoryName}";
                                 List<string> contentToIgnore = GetContentToIgnore(contentToPack, packDirectory, DefaultContentToIgnore);
-                                FilesToPack.AddRange(FileSystemUtilities.GetFilesToPack(contentToPack, packDirectory.FullName, destPackDir, this.fileSystem, contentToIgnore));
+                                var filesInFolder = FileSystemUtilities.GetFilesToPack(contentToPack, packDirectory.FullName, destPackDir, this.fileSystem, contentToIgnore);
+                                if (filesInFolder != null)
+                                {
+                                    FilesToPack.AddRange(filesInFolder);
+                                }
 
                                 // If the FilesToPack is empty we assume that we don't have nothing to pack
                                 if (FilesToPack.HasAny())

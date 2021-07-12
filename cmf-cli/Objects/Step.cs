@@ -1,6 +1,7 @@
 ﻿using Cmf.Common.Cli.Enums;
 using Cmf.Common.Cli.Utilities;
 using System;
+using System.Xml.Serialization;
 
 namespace Cmf.Common.Cli.Objects
 {
@@ -75,6 +76,52 @@ namespace Cmf.Common.Cli.Objects
         /// The type of the message.
         /// </value>
         public MessageType? MessageType { get; set; }
+
+        /// <summary>
+        /// the path of the file to load via masterdata
+        /// </summary>
+        public string FilePath { get; set; }
+
+        /// <summary>
+        /// create master data in collection
+        /// </summary>
+        public bool? CreateInCollection { get; set; }
+
+        /// <summary>
+        /// the base path of the checklist images
+        /// </summary>
+        public string ChecklistImagePath { get; set; }
+
+        /// <summary>
+        /// the base path of the DEEs
+        /// </summary>
+        public string DeeBasePath { get; set; }
+
+        /// <summary>
+        /// the base path of the documents
+        /// </summary>
+        public string DocumentFileBasePath { get; set; }
+
+        /// <summary>
+        /// the base path for the maps
+        /// </summary>
+        public string MappingFileBasePath { get; set; }
+
+        /// <summary>
+        /// the base path for the automation workflows
+        /// </summary>
+        public string AutomationWorkflowFileBasePath { get; set; }
+
+        /// <summary>
+        /// the base path for the exported objects
+        /// </summary>
+        public string ImportXMLObjectPath { get; set; }
+
+        /// <summary>
+        /// the order of the steps
+        /// </summary>
+        [XmlIgnore]
+        public int Order { get; set; }
 
         #endregion
 

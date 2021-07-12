@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
+using System.Linq;
 
 namespace Cmf.Common.Cli.Handlers
 {
@@ -34,10 +35,6 @@ namespace Cmf.Common.Cli.Handlers
                         new Step(StepType.DeployFiles)
                         {
                             ContentPath = "**/**"
-                        },
-                        new Step(StepType.Generic)
-                        {
-                            OnExecute = $"$(Package[{cmfPackage.PackageId}].TargetDirectory)/RunCustomizationInstallDF.ps1"
                         }
                     }
             );
@@ -46,26 +43,55 @@ namespace Cmf.Common.Cli.Handlers
         }
 
         /// <summary>
-        /// Copies the install dependencies.
+        /// Generates the deployment framework manifest.
         /// </summary>
         /// <param name="packageOutputDir">The package output dir.</param>
-        protected override void CopyInstallDependencies(IDirectoryInfo packageOutputDir)
+        /// <exception cref="Cmf.Common.Cli.Utilities.CliException"></exception>
+        internal override void GenerateDeploymentFrameworkManifest(IDirectoryInfo packageOutputDir)
         {
-            FileSystemUtilities.CopyInstallDependenciesFiles(packageOutputDir, PackageType.Data, this.fileSystem);
+            if (this.FilesToPack?.HasAny() ?? false)
+            {
+                // TOKEN replacement
+                foreach (ContentToPack contentToPack in this.CmfPackage.ContentToPack)
+                {
+                    contentToPack.Target = contentToPack.Target.Contains(CliConstants.TokenVersion) ? contentToPack.Target.Replace(CliConstants.TokenVersion, CmfPackage.GetPropertyValueFromTokenName(CliConstants.TokenVersion).ToString()) : contentToPack.Target;
+                }
 
-            string globalVariablesPath = this.fileSystem.Path.Join(packageOutputDir.FullName, "EnvironmentConfigs", "GlobalVariables.yml");
+                var steps = this.FilesToPack.Select(ftp =>
+                {
+                    var target = this.fileSystem.Path.GetRelativePath(packageOutputDir.FullName, ftp.Target.FullName).Replace('\\', '/');
+                    return ftp.ContentToPack.ContentType switch
+                    {
+                        ContentType.MasterData => new Step(StepType.MasterData)
+                        {
+                            Order = 30,
+                            FilePath = $"../{CmfPackage.TargetDirectory}/{target}",
+                            CreateInCollection = false,
+                            DeeBasePath = this.FilesToPack.Find(f => f.ContentToPack.ContentType == ContentType.DEE)?.ContentToPack.Target,
+                            ChecklistImagePath = this.FilesToPack.Find(f => f.ContentToPack.ContentType == ContentType.ChecklistImages)?.ContentToPack.Target,
+                            DocumentFileBasePath = this.FilesToPack.Find(f => f.ContentToPack.ContentType == ContentType.Documents)?.ContentToPack.Target,
+                            AutomationWorkflowFileBasePath = this.FilesToPack.Find(f => f.ContentToPack.ContentType == ContentType.AutomationWorkFlows)?.ContentToPack.Target,
+                            MappingFileBasePath = this.FilesToPack.Find(f => f.ContentToPack.ContentType == ContentType.Maps)?.ContentToPack.Target,
+                            ImportXMLObjectPath = this.FilesToPack.Find(f => f.ContentToPack.ContentType == ContentType.ExportedObjects)?.ContentToPack.Target,
+                            Title = "Master Data"
+                        },
+                        ContentType.EntityTypes => new Step(StepType.ProcessRules) { Order = 10, ContentPath = target, Title = "Process Rules - Entity Types" },
+                        ContentType.ProcessRulesPre => new Step(StepType.ProcessRules) { Order = 20, ContentPath = target, Title = "Process Rules - Before" },
+                        ContentType.ProcessRulesPost => new Step(StepType.ProcessRules) { Order = 40, ContentPath = target, Title = "Process Rules - After" },
+                        _ => null,
+                    };
+                }).Where(step => step != null).OrderBy(step => step.Order);
 
-            string globalVariablesFile = this.fileSystem.File.ReadAllText(globalVariablesPath);
-            globalVariablesFile = globalVariablesFile.Replace(CliConstants.TokenVersion, CmfPackage.Version);
-            this.fileSystem.File.WriteAllText(globalVariablesPath, globalVariablesFile);
-
-            IFileInfo runCustomizationInstallDF = this.fileSystem.FileInfo.FromFileName(this.fileSystem.Path.Join(packageOutputDir.FullName, "RunCustomizationInstallDF.ps1"));
-
-            string fileContent = runCustomizationInstallDF.ReadToString();
-
-            fileContent = fileContent.Replace(CliConstants.TokenPackageId, CmfPackage.PackageId);
-
-            this.fileSystem.File.WriteAllText(runCustomizationInstallDF.FullName, fileContent);
+                if (this.CmfPackage.Steps != null)
+                {
+                    this.CmfPackage.Steps.AddRange(steps);
+                }
+                else
+                {
+                    this.CmfPackage.Steps = steps.ToList();
+                }
+            }
+            base.GenerateDeploymentFrameworkManifest(packageOutputDir);
         }
     }
 }
