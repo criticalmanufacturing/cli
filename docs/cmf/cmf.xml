@@ -1307,11 +1307,12 @@
             </summary>
             <param name="cmfPackage">The CMF package.</param>
         </member>
-        <member name="M:Cmf.Common.Cli.Handlers.DataPackageTypeHandler.CopyInstallDependencies(System.IO.Abstractions.IDirectoryInfo)">
+        <member name="M:Cmf.Common.Cli.Handlers.DataPackageTypeHandler.GenerateDeploymentFrameworkManifest(System.IO.Abstractions.IDirectoryInfo)">
             <summary>
-            Copies the install dependencies.
+            Generates the deployment framework manifest.
             </summary>
             <param name="packageOutputDir">The package output dir.</param>
+            <exception cref="T:Cmf.Common.Cli.Utilities.CliException"></exception>
         </member>
         <member name="T:Cmf.Common.Cli.Handlers.ExportedObjectsPackageTypeHandler">
              <summary>
@@ -2287,6 +2288,51 @@
             <value>
             The type of the message.
             </value>
+        </member>
+        <member name="P:Cmf.Common.Cli.Objects.Step.FilePath">
+            <summary>
+            the path of the file to load via masterdata
+            </summary>
+        </member>
+        <member name="P:Cmf.Common.Cli.Objects.Step.CreateInCollection">
+            <summary>
+            create master data in collection
+            </summary>
+        </member>
+        <member name="P:Cmf.Common.Cli.Objects.Step.ChecklistImagePath">
+            <summary>
+            the base path of the checklist images
+            </summary>
+        </member>
+        <member name="P:Cmf.Common.Cli.Objects.Step.DeeBasePath">
+            <summary>
+            the base path of the DEEs
+            </summary>
+        </member>
+        <member name="P:Cmf.Common.Cli.Objects.Step.DocumentFileBasePath">
+            <summary>
+            the base path of the documents
+            </summary>
+        </member>
+        <member name="P:Cmf.Common.Cli.Objects.Step.MappingFileBasePath">
+            <summary>
+            the base path for the maps
+            </summary>
+        </member>
+        <member name="P:Cmf.Common.Cli.Objects.Step.AutomationWorkflowFileBasePath">
+            <summary>
+            the base path for the automation workflows
+            </summary>
+        </member>
+        <member name="P:Cmf.Common.Cli.Objects.Step.ImportXMLObjectPath">
+            <summary>
+            the base path for the exported objects
+            </summary>
+        </member>
+        <member name="P:Cmf.Common.Cli.Objects.Step.Order">
+            <summary>
+            the order of the steps
+            </summary>
         </member>
         <member name="M:Cmf.Common.Cli.Objects.Step.#ctor(System.Nullable{Cmf.Common.Cli.Enums.StepType},System.String,System.String,System.String,System.String,System.Nullable{System.Boolean},System.String,System.Nullable{Cmf.Common.Cli.Enums.MessageType})">
             <summary>

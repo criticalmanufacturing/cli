@@ -730,22 +730,6 @@ public class DependencyCollection : System.Collections.Generic.List<Cmf.Common.C
 
 Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[Dependency](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_Dependency 'Cmf.Common.Cli.Objects.Dependency')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1') &#129106; DependencyCollection  
 ### Methods
-<a name='Cmf_Common_Cli_Objects_DependencyCollection_Contains(Cmf_Common_Cli_Objects_Dependency)'></a>
-## DependencyCollection.Contains(Dependency) Method
-Gets the dependency.  
-```csharp
-public bool Contains(Cmf.Common.Cli.Objects.Dependency dependency);
-```
-#### Parameters
-<a name='Cmf_Common_Cli_Objects_DependencyCollection_Contains(Cmf_Common_Cli_Objects_Dependency)_dependency'></a>
-`dependency` [Dependency](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_Dependency 'Cmf.Common.Cli.Objects.Dependency')  
-The dependency.
-  
-#### Returns
-[System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
-`true` if [contains] [the specified dependency]; otherwise, `false`.  
-            
-  
 <a name='Cmf_Common_Cli_Objects_DependencyCollection_Contains(Cmf_Common_Cli_Objects_Dependency_bool)'></a>
 ## DependencyCollection.Contains(Dependency, bool) Method
 Determines whether this instance contains the object.  
@@ -760,6 +744,22 @@ The dependency.
 <a name='Cmf_Common_Cli_Objects_DependencyCollection_Contains(Cmf_Common_Cli_Objects_Dependency_bool)_ignoreVersion'></a>
 `ignoreVersion` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
 if set to `true` [ignore version].
+  
+#### Returns
+[System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
+`true` if [contains] [the specified dependency]; otherwise, `false`.  
+            
+  
+<a name='Cmf_Common_Cli_Objects_DependencyCollection_Contains(Cmf_Common_Cli_Objects_Dependency)'></a>
+## DependencyCollection.Contains(Dependency) Method
+Gets the dependency.  
+```csharp
+public bool Contains(Cmf.Common.Cli.Objects.Dependency dependency);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Objects_DependencyCollection_Contains(Cmf_Common_Cli_Objects_Dependency)_dependency'></a>
+`dependency` [Dependency](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_Dependency 'Cmf.Common.Cli.Objects.Dependency')  
+The dependency.
   
 #### Returns
 [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
@@ -854,21 +854,6 @@ Initializes a new instance of the [Step](Cmf_Common_Cli_Objects.md#Cmf_Common_Cl
 public Step();
 ```
   
-<a name='Cmf_Common_Cli_Objects_Step_Step(System_Nullable_Cmf_Common_Cli_Enums_StepType_)'></a>
-## Step.Step(Nullable&lt;StepType&gt;) Constructor
-Initializes a new instance of the [Step](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_Step 'Cmf.Common.Cli.Objects.Step') class.  
-```csharp
-public Step(System.Nullable<Cmf.Common.Cli.Enums.StepType> type);
-```
-#### Parameters
-<a name='Cmf_Common_Cli_Objects_Step_Step(System_Nullable_Cmf_Common_Cli_Enums_StepType_)_type'></a>
-`type` [System.Nullable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Nullable-1 'System.Nullable`1')[StepType](Cmf_Common_Cli_Enums.md#Cmf_Common_Cli_Enums_StepType 'Cmf.Common.Cli.Enums.StepType')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Nullable-1 'System.Nullable`1')  
-The type.
-  
-#### Exceptions
-[System.ArgumentNullException](https://docs.microsoft.com/en-us/dotnet/api/System.ArgumentNullException 'System.ArgumentNullException')  
-type
-  
 <a name='Cmf_Common_Cli_Objects_Step_Step(System_Nullable_Cmf_Common_Cli_Enums_StepType__string_string_string_string_System_Nullable_bool__string_System_Nullable_Cmf_Common_Cli_Enums_MessageType_)'></a>
 ## Step.Step(Nullable&lt;StepType&gt;, string, string, string, string, Nullable&lt;bool&gt;, string, Nullable&lt;MessageType&gt;) Constructor
 Initializes a new instance of the [Step](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_Step 'Cmf.Common.Cli.Objects.Step') class.  
@@ -912,7 +897,40 @@ Type of the message.
 [System.ArgumentNullException](https://docs.microsoft.com/en-us/dotnet/api/System.ArgumentNullException 'System.ArgumentNullException')  
 type
   
+<a name='Cmf_Common_Cli_Objects_Step_Step(System_Nullable_Cmf_Common_Cli_Enums_StepType_)'></a>
+## Step.Step(Nullable&lt;StepType&gt;) Constructor
+Initializes a new instance of the [Step](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_Step 'Cmf.Common.Cli.Objects.Step') class.  
+```csharp
+public Step(System.Nullable<Cmf.Common.Cli.Enums.StepType> type);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Objects_Step_Step(System_Nullable_Cmf_Common_Cli_Enums_StepType_)_type'></a>
+`type` [System.Nullable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Nullable-1 'System.Nullable`1')[StepType](Cmf_Common_Cli_Enums.md#Cmf_Common_Cli_Enums_StepType 'Cmf.Common.Cli.Enums.StepType')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Nullable-1 'System.Nullable`1')  
+The type.
+  
+#### Exceptions
+[System.ArgumentNullException](https://docs.microsoft.com/en-us/dotnet/api/System.ArgumentNullException 'System.ArgumentNullException')  
+type
+  
 ### Properties
+<a name='Cmf_Common_Cli_Objects_Step_AutomationWorkflowFileBasePath'></a>
+## Step.AutomationWorkflowFileBasePath Property
+the base path for the automation workflows  
+```csharp
+public string AutomationWorkflowFileBasePath { get; set; }
+```
+#### Property Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
+  
+<a name='Cmf_Common_Cli_Objects_Step_ChecklistImagePath'></a>
+## Step.ChecklistImagePath Property
+the base path of the checklist images  
+```csharp
+public string ChecklistImagePath { get; set; }
+```
+#### Property Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
+  
 <a name='Cmf_Common_Cli_Objects_Step_ContentPath'></a>
 ## Step.ContentPath Property
 Gets or sets the content path.  
@@ -923,6 +941,33 @@ public string ContentPath { get; set; }
 [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
 The content path.  
   
+<a name='Cmf_Common_Cli_Objects_Step_CreateInCollection'></a>
+## Step.CreateInCollection Property
+create master data in collection  
+```csharp
+public System.Nullable<bool> CreateInCollection { get; set; }
+```
+#### Property Value
+[System.Nullable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Nullable-1 'System.Nullable`1')[System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Nullable-1 'System.Nullable`1')
+  
+<a name='Cmf_Common_Cli_Objects_Step_DeeBasePath'></a>
+## Step.DeeBasePath Property
+the base path of the DEEs  
+```csharp
+public string DeeBasePath { get; set; }
+```
+#### Property Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
+  
+<a name='Cmf_Common_Cli_Objects_Step_DocumentFileBasePath'></a>
+## Step.DocumentFileBasePath Property
+the base path of the documents  
+```csharp
+public string DocumentFileBasePath { get; set; }
+```
+#### Property Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
+  
 <a name='Cmf_Common_Cli_Objects_Step_File'></a>
 ## Step.File Property
 Gets or sets the file.  
@@ -932,6 +977,33 @@ public string File { get; set; }
 #### Property Value
 [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
 The file.  
+  
+<a name='Cmf_Common_Cli_Objects_Step_FilePath'></a>
+## Step.FilePath Property
+the path of the file to load via masterdata  
+```csharp
+public string FilePath { get; set; }
+```
+#### Property Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
+  
+<a name='Cmf_Common_Cli_Objects_Step_ImportXMLObjectPath'></a>
+## Step.ImportXMLObjectPath Property
+the base path for the exported objects  
+```csharp
+public string ImportXMLObjectPath { get; set; }
+```
+#### Property Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
+  
+<a name='Cmf_Common_Cli_Objects_Step_MappingFileBasePath'></a>
+## Step.MappingFileBasePath Property
+the base path for the maps  
+```csharp
+public string MappingFileBasePath { get; set; }
+```
+#### Property Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
   
 <a name='Cmf_Common_Cli_Objects_Step_MessageType'></a>
 ## Step.MessageType Property
@@ -952,6 +1024,15 @@ public string OnExecute { get; set; }
 #### Property Value
 [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
 The on execute.  
+  
+<a name='Cmf_Common_Cli_Objects_Step_Order'></a>
+## Step.Order Property
+the order of the steps  
+```csharp
+public int Order { get; set; }
+```
+#### Property Value
+[System.Int32](https://docs.microsoft.com/en-us/dotnet/api/System.Int32 'System.Int32')
   
 <a name='Cmf_Common_Cli_Objects_Step_TagFile'></a>
 ## Step.TagFile Property
