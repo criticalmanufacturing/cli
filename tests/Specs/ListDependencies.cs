@@ -13,7 +13,7 @@ namespace tests
         {
             var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
             {
-                { @"c:\test\cmfpackage.json", new MockFileData(
+                { "/test/cmfpackage.json", new MockFileData(
 @"{
   ""packageId"": ""Cmf.Custom.Package"",
   ""version"": ""1.1.0"",
@@ -36,7 +36,7 @@ namespace tests
     }
   ]
 }") },
-                { @"c:\test\UI\html\cmfpackage.json", new MockFileData(
+                { "/test/UI/html/cmfpackage.json", new MockFileData(
 @"{
   ""packageId"": ""Cmf.Custom.HTML"",
   ""version"": ""1.1.0"",
@@ -55,7 +55,7 @@ namespace tests
   ],
   ""xmlInjection"": [""../../DeploymentMetadata/ui.xml""]
 }") },
-                { @"c:\test\Business\cmfpackage.json", new MockFileData(
+                { "/test/Business/cmfpackage.json", new MockFileData(
 @"{
   ""packageId"": ""Cmf.Custom.Business"",
   ""version"": ""1.1.0"",
@@ -77,7 +77,7 @@ namespace tests
             //var ls = new ListDependenciesCommand(fileSystem);
             //ls.Execute(fileSystem.DirectoryInfo.FromDirectoryName(@"c:\test"), null);
 
-            CmfPackage cmfPackage = CmfPackage.Load(fileSystem.FileInfo.FromFileName(@"C:\test\cmfpackage.json"), setDefaultValues: true);
+            CmfPackage cmfPackage = CmfPackage.Load(fileSystem.FileInfo.FromFileName("/test/cmfpackage.json"), setDefaultValues: true);
             var loadedPackage = cmfPackage.LoadDependencies(null, true);
             Assert.AreEqual("Cmf.Custom.Package", loadedPackage.PackageId, "Root package name doesn't match expected");
             Assert.AreEqual(3, loadedPackage.Dependencies.Count, "Root package doesn't have expected dependencies");
