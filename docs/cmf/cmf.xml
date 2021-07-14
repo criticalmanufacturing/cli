@@ -1885,12 +1885,18 @@
             The location of the package
             </summary>
         </member>
+        <member name="P:Cmf.Common.Cli.Objects.CmfPackage.WaitForIntegrationEntries">
+            <summary>
+            Should the Deployment Framework wait for the Integration Entries created by the package
+            This fails the package installation if any Integration Entry fails
+            </summary>
+        </member>
         <member name="M:Cmf.Common.Cli.Objects.CmfPackage.ValidatePackage">
             <summary>
             Validates the package.
             </summary>
         </member>
-        <member name="M:Cmf.Common.Cli.Objects.CmfPackage.#ctor(System.String,System.String,System.String,System.String,Cmf.Common.Cli.Enums.PackageType,System.String,System.Nullable{System.Boolean},System.Nullable{System.Boolean},System.String,System.Nullable{System.Boolean},Cmf.Common.Cli.Objects.DependencyCollection,System.Collections.Generic.List{Cmf.Common.Cli.Objects.Step},System.Collections.Generic.List{Cmf.Common.Cli.Objects.ContentToPack},System.Collections.Generic.List{System.String},Cmf.Common.Cli.Objects.DependencyCollection)">
+        <member name="M:Cmf.Common.Cli.Objects.CmfPackage.#ctor(System.String,System.String,System.String,System.String,Cmf.Common.Cli.Enums.PackageType,System.String,System.Nullable{System.Boolean},System.Nullable{System.Boolean},System.String,System.Nullable{System.Boolean},Cmf.Common.Cli.Objects.DependencyCollection,System.Collections.Generic.List{Cmf.Common.Cli.Objects.Step},System.Collections.Generic.List{Cmf.Common.Cli.Objects.ContentToPack},System.Collections.Generic.List{System.String},System.Nullable{System.Boolean},Cmf.Common.Cli.Objects.DependencyCollection)">
             <summary>
             Initializes a new instance of the <see cref="T:Cmf.Common.Cli.Objects.CmfPackage"/> class.
             </summary>
@@ -1908,6 +1914,7 @@
             <param name="steps">The steps.</param>
             <param name="contentToPack">The content to pack.</param>
             <param name="xmlInjection">The XML injection.</param>
+            <param name="waitForIntegrationEntries">should wait for integration entries to complete</param>
             <param name="testPackages">The test Packages.</param>
         </member>
         <member name="M:Cmf.Common.Cli.Objects.CmfPackage.#ctor">
@@ -1944,7 +1951,7 @@
             </summary>
             <param name="value">The file information.</param>
         </member>
-        <member name="M:Cmf.Common.Cli.Objects.CmfPackage.SetDefaultValues(System.String,System.String,System.Nullable{System.Boolean},System.Nullable{System.Boolean},System.String,System.Collections.Generic.List{Cmf.Common.Cli.Objects.Step})">
+        <member name="M:Cmf.Common.Cli.Objects.CmfPackage.SetDefaultValues(System.String,System.String,System.Nullable{System.Boolean},System.Nullable{System.Boolean},System.String,System.Nullable{System.Boolean},System.Collections.Generic.List{Cmf.Common.Cli.Objects.Step})">
             <summary>
             Sets the defaults.
             </summary>
@@ -1953,6 +1960,7 @@
             <param name="isInstallable">The is installable.</param>
             <param name="isUniqueInstall">The is unique install.</param>
             <param name="keywords">The keywords.</param>
+            <param name="waitForIntegrationEntries">should we wait for integration entries to complete</param>
             <param name="steps">The steps.</param>
             <exception cref="T:Cmf.Common.Cli.Utilities.CliException"></exception>
         </member>

@@ -206,6 +206,13 @@ namespace Cmf.Common.Cli.Objects
         [JsonIgnore]
         public PackageLocation Location { get; private set; }
 
+        /// <summary>
+        /// Should the Deployment Framework wait for the Integration Entries created by the package
+        /// This fails the package installation if any Integration Entry fails
+        /// </summary>
+        [JsonProperty(Order = 16)]
+        public bool? WaitForIntegrationEntries { get; private set; }
+
         #endregion
 
         #region Private Methods
@@ -258,12 +265,13 @@ namespace Cmf.Common.Cli.Objects
         /// <param name="steps">The steps.</param>
         /// <param name="contentToPack">The content to pack.</param>
         /// <param name="xmlInjection">The XML injection.</param>
+        /// <param name="waitForIntegrationEntries">should wait for integration entries to complete</param>
         /// <param name="testPackages">The test Packages.</param>
         [JsonConstructor]
         public CmfPackage(string name, string packageId, string version, string description, PackageType packageType,
                           string targetDirectory, bool? isInstallable, bool? isUniqueInstall, string keywords,
                           bool? isToSetDefaultSteps, DependencyCollection dependencies, List<Step> steps,
-                          List<ContentToPack> contentToPack, List<string> xmlInjection, DependencyCollection testPackages = null) : this()
+                          List<ContentToPack> contentToPack, List<string> xmlInjection, bool? waitForIntegrationEntries, DependencyCollection testPackages = null) : this()
         {
             Name = name;
             PackageId = packageId ?? throw new ArgumentNullException(nameof(packageId));
@@ -280,6 +288,7 @@ namespace Cmf.Common.Cli.Objects
             ContentToPack = contentToPack;
             XmlInjection = xmlInjection;
             TestPackages = testPackages;
+            WaitForIntegrationEntries = waitForIntegrationEntries;
 
             PackageName = $"{PackageId}.{Version}";
             ZipPackageName = $"{PackageName}.zip";
@@ -358,6 +367,7 @@ namespace Cmf.Common.Cli.Objects
         /// <param name="isInstallable">The is installable.</param>
         /// <param name="isUniqueInstall">The is unique install.</param>
         /// <param name="keywords">The keywords.</param>
+        /// <param name="waitForIntegrationEntries">should we wait for integration entries to complete</param>
         /// <param name="steps">The steps.</param>
         /// <exception cref="CliException"></exception>
         public void SetDefaultValues(
@@ -366,6 +376,7 @@ namespace Cmf.Common.Cli.Objects
             bool? isInstallable = null,
             bool? isUniqueInstall = null,
             string keywords = null,
+            bool? waitForIntegrationEntries = null,
             List<Step> steps = null)
         {
             if (IsToSetDefaultValues)
@@ -379,6 +390,8 @@ namespace Cmf.Common.Cli.Objects
                 IsUniqueInstall ??= isUniqueInstall;
 
                 Keywords = string.IsNullOrEmpty(Keywords) ? keywords : Keywords;
+
+                WaitForIntegrationEntries ??= waitForIntegrationEntries;
 
                 if ((IsToSetDefaultSteps ?? false) && steps.HasAny())
                 {
@@ -446,11 +459,10 @@ namespace Cmf.Common.Cli.Objects
                 {
                     Log.Progress($"Working on dependency {dependency.Id}@{dependency.Version}");
                     string _dependencyFileName = $"{dependency.Id}.{dependency.Version}.zip";
-
-                    #region Get Dependencies from Dependencies Directory
+                    
                     // 1) check if we have found this package before
                     var dependencyPackage = loadedPackages.FirstOrDefault(x => x.PackageId.IgnoreCaseEquals(dependency.Id) && x.Version.IgnoreCaseEquals(dependency.Version));
-
+                    
                     // 2) check if package is in repository
                     if (dependencyPackage == null && (repoDirectory?.Exists ?? false))
                     {
@@ -487,7 +499,7 @@ namespace Cmf.Common.Cli.Objects
                         }
                     }
                 }
-                #endregion
+                
             }
             return this;
         }
@@ -577,7 +589,8 @@ namespace Cmf.Common.Cli.Objects
                 deps,
                 null,
                 null,
-                null
+                null,
+                waitForIntegrationEntries: false
                 );
 
             cmfPackage.Location = PackageLocation.Repository;

@@ -8,6 +8,7 @@
   <version>$(version)</version>
   <isInstallable>$(isInstallable)</isInstallable>
   <isUniqueInstall>$(isUniqueInstall)</isUniqueInstall>
+  <waitForIntegrationEntries>$(waitForIntegrationEntries)</waitForIntegrationEntries>
   <keywords>$(keywords)</keywords>
   <dependencies>
     $(dependencies)

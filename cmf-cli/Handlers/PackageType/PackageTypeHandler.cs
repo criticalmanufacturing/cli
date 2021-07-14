@@ -23,6 +23,7 @@ namespace Cmf.Common.Cli.Handlers
     public abstract class PackageTypeHandler : IPackageTypeHandler
     {
         #region Protected Properties
+
         /// <summary>
         /// the underlying file system
         /// </summary>
@@ -71,7 +72,10 @@ namespace Cmf.Common.Cli.Handlers
         /// Initializes a new instance of the <see cref="PackageTypeHandler" /> class.
         /// </summary>
         /// <exception cref="CliException"></exception>
-        public PackageTypeHandler(CmfPackage cmfPackage) : this(cmfPackage, new FileSystem()) { }
+        public PackageTypeHandler(CmfPackage cmfPackage) : this(cmfPackage, new FileSystem())
+        {
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="PackageTypeHandler" /> class.
         /// </summary>
@@ -110,7 +114,8 @@ namespace Cmf.Common.Cli.Handlers
             string path = $"{packageOutputDir.FullName}/{CliConstants.DeploymentFrameworkManifestFileName}";
 
             // Get Template
-            string fileContent = GenericUtilities.GetEmbeddedResourceContent($"{CliConstants.FolderTemplates}/{CliConstants.DeploymentFrameworkManifestFileName}");
+            string fileContent =
+                GenericUtilities.GetEmbeddedResourceContent($"{CliConstants.FolderTemplates}/{CliConstants.DeploymentFrameworkManifestFileName}");
 
             StringReader dFManifestReader = new(fileContent);
             XDocument dFManifestTemplate = XDocument.Load(dFManifestReader);
@@ -197,6 +202,7 @@ namespace Cmf.Common.Cli.Handlers
                                 {
                                     continue;
                                 }
+
                                 var obj = propertyinfo.GetValue(property);
                                 if (obj != null)
                                 {
@@ -296,6 +302,7 @@ namespace Cmf.Common.Cli.Handlers
             {
                 this.fileSystem.File.Delete(tempzipPath);
             }
+
             ZipFile.CreateFromDirectory(packageOutputDir.FullName, tempzipPath);
 
             // move to final destination
@@ -367,7 +374,8 @@ namespace Cmf.Common.Cli.Handlers
 
                                 string destPackDir = $"{packageOutputDir.FullName}/{_target}/{_packDirectoryName}";
                                 List<string> contentToIgnore = GetContentToIgnore(contentToPack, packDirectory, DefaultContentToIgnore);
-                                var filesInFolder = FileSystemUtilities.GetFilesToPack(contentToPack, packDirectory.FullName, destPackDir, this.fileSystem, contentToIgnore);
+                                var filesInFolder = FileSystemUtilities.GetFilesToPack(contentToPack, packDirectory.FullName, destPackDir, this.fileSystem,
+                                    contentToIgnore);
                                 if (filesInFolder != null)
                                 {
                                     FilesToPack.AddRange(filesInFolder);
@@ -404,6 +412,7 @@ namespace Cmf.Common.Cli.Handlers
                                 {
                                     _targetFolder.Create();
                                 }
+
                                 string destPackFile = $"{_targetFolder.FullName}/{packFile.Name}";
                                 FilesToPack.Add(new()
                                 {
@@ -458,14 +467,14 @@ namespace Cmf.Common.Cli.Handlers
         /// <param name="buildNr">The version for build Nr.</param>
         /// <param name="bumpInformation">The bump information.</param>
         public virtual void Bump(string version, string buildNr, Dictionary<string, object> bumpInformation = null)
-            {
+        {
             // TODO: create "transaction" to rollback if anything fails
             // NOTE: Check pack strategy. Collect all packages to bump before bump.
 
             var currentVersion = CmfPackage.Version.Split("-")[0];
             var currentBuildNr = CmfPackage.Version.Split("-").Length > 1 ? CmfPackage.Version.Split("-")[1] : null;
             if (!currentVersion.IgnoreCaseEquals(version))
-                {
+            {
                 // TODO :: Uncomment if the cmfpackage.json support build number
                 // cmfPackage.SetVersion(GenericUtilities.RetrieveNewVersion(currentVersion, version, buildNr));
 
@@ -476,7 +485,7 @@ namespace Cmf.Common.Cli.Handlers
                 // will save with new version
                 CmfPackage.SaveCmfPackage();
             }
-                }
+        }
 
         /// <summary>
         /// Builds this instance.
@@ -488,7 +497,7 @@ namespace Cmf.Common.Cli.Handlers
                 Log.Information($"Executing '{step.DisplayName}'");
                 step.Exec();
             }
-            }
+        }
 
         /// <summary>
         /// Packs the specified package output dir.
@@ -496,7 +505,7 @@ namespace Cmf.Common.Cli.Handlers
         /// <param name="packageOutputDir">The package output dir.</param>
         /// <param name="outputDir">The output dir.</param>
         public virtual void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir)
-            {
+        {
             GetContentToPack(packageOutputDir);
 
             // TODO: To be removed? Install dependencies
@@ -510,6 +519,5 @@ namespace Cmf.Common.Cli.Handlers
         }
 
         #endregion
-
     }
 }

@@ -27,19 +27,15 @@ namespace Cmf.Common.Cli.Handlers
             (
                 isUniqueInstall:
                     true,
-                targetDirectory:
-                    $"installPackages/{cmfPackage.PackageId}.{cmfPackage.Version}-{DateTime.Now.ToString("yyyyMMddHHmmss")}",
+                waitForIntegrationEntries:
+                    true,
                 steps:
                     new List<Step>()
                     {
-                        new Step(StepType.DeployFiles)
-                        {
-                            ContentPath = "**/**"
-                        }
                     }
             );
 
-            DFPackageType = PackageType.Business;
+            DFPackageType = PackageType.Generic;
         }
 
         /// <summary>
@@ -65,7 +61,7 @@ namespace Cmf.Common.Cli.Handlers
                         ContentType.MasterData => new Step(StepType.MasterData)
                         {
                             Order = 30,
-                            FilePath = $"../{CmfPackage.TargetDirectory}/{target}",
+                            FilePath = target,
                             CreateInCollection = false,
                             DeeBasePath = this.FilesToPack.Find(f => f.ContentToPack.ContentType == ContentType.DEE)?.ContentToPack.Target,
                             ChecklistImagePath = this.FilesToPack.Find(f => f.ContentToPack.ContentType == ContentType.ChecklistImages)?.ContentToPack.Target,
