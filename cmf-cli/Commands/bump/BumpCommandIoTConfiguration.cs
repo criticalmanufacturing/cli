@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 
 namespace Cmf.Common.Cli.Commands
@@ -23,10 +24,14 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="cmd"></param>
         public override void Configure(Command cmd)
         {
-            cmd.AddArgument(new Argument<DirectoryInfo>(
+            cmd.AddArgument(new Argument<IDirectoryInfo>(
                 name: "path",
-                getDefaultValue: () => { return new("."); },
-                description: "path"));
+                parse: (argResult) => Parse<IDirectoryInfo>(argResult, "."),
+                isDefault: true
+            )
+            {
+                Description = "Working Directory"
+            });
 
             cmd.AddOption(new Option<string>(
                 aliases: new string[] { "-v", "--version" },
@@ -73,7 +78,7 @@ namespace Cmf.Common.Cli.Commands
                 description: "Instead of replacing the version will add -$version"));
 
             // Add the handler
-            cmd.Handler = CommandHandler.Create<DirectoryInfo, string, string, bool, bool, string, string, string, string, bool, bool>(Execute);
+            cmd.Handler = CommandHandler.Create<IDirectoryInfo, string, string, bool, bool, string, string, string, string, bool, bool>(Execute);
         }
 
         /// <summary>
@@ -91,10 +96,10 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="isToTag">if set to <c>true</c> [is to tag].</param>
         /// <param name="onlyMdCustomization">if set to <c>true</c> [only md customization].</param>
         /// <returns></returns>
-        public static void Execute(DirectoryInfo packageDirectory, string version, string buildNr, bool isToBumpMasterdata, bool isToBumpIoT, string packageNames, string root, string group, string workflowName, bool isToTag, bool onlyMdCustomization)
+        public void Execute(IDirectoryInfo packageDirectory, string version, string buildNr, bool isToBumpMasterdata, bool isToBumpIoT, string packageNames, string root, string group, string workflowName, bool isToTag, bool onlyMdCustomization)
         {
             // Get All AutomationWorkflowFiles Folders
-            List<string> automationWorkflowDirectories = Directory.GetDirectories(packageDirectory.FullName, "AutomationWorkflowFiles").ToList();
+            List<string> automationWorkflowDirectories = this.fileSystem.Directory.GetDirectories(packageDirectory.FullName, "AutomationWorkflowFiles").ToList();
 
             if (!String.IsNullOrEmpty(root))
             {
@@ -113,14 +118,14 @@ namespace Cmf.Common.Cli.Commands
                 if (isToBumpIoT)
                 {
                     // Get All Group Folders
-                    List<string> groups = Directory.GetDirectories(automationWorkflowDirectory, "*").ToList();
+                    List<string> groups = this.fileSystem.Directory.GetDirectories(automationWorkflowDirectory, "*").ToList();
                     if (!String.IsNullOrEmpty(group) && groups.Any(gr => gr.Contains(group)))
                     {
                         // Get All Group Folders that are called group
                         groups = groups.Where(gr => gr.Contains(group)).ToList();
                     }
 
-                    groups.ForEach(group => IoTUtilities.BumpWorkflowFiles(group, version, buildNr, workflowName, packageNames));
+                    groups.ForEach(group => IoTUtilities.BumpWorkflowFiles(group, version, buildNr, workflowName, packageNames, this.fileSystem));
                 }
 
                 #endregion Bump AutomationWorkflow
@@ -129,7 +134,7 @@ namespace Cmf.Common.Cli.Commands
 
                 if (isToBumpMasterdata)
                 {
-                    IoTUtilities.BumpIoTMasterData(automationWorkflowDirectory, version, buildNr, onlyCustomization: onlyMdCustomization);
+                    IoTUtilities.BumpIoTMasterData(automationWorkflowDirectory, version, buildNr, this.fileSystem, onlyCustomization: onlyMdCustomization);
                 }
 
                 #endregion Bump IoT Masterdata

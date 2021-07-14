@@ -2,7 +2,9 @@ using Cmf.Common.Cli.Attributes;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
+using System.CommandLine.Parsing;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Reflection;
 
@@ -13,6 +15,27 @@ namespace Cmf.Common.Cli.Commands
     /// </summary>
     public abstract class BaseCommand
     {
+        /// <summary>
+        /// The underlying filesystem
+        /// </summary>
+        protected IFileSystem fileSystem;
+
+        /// <summary>
+        /// constructor for System.IO filesystem
+        /// </summary>
+        public BaseCommand() : this(new FileSystem())
+        {
+        }
+
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="fileSystem"></param>
+        public BaseCommand(IFileSystem fileSystem)
+        {
+            this.fileSystem = fileSystem;
+        }
+
         /// <summary>
         /// Configure command
         /// </summary>
@@ -34,7 +57,7 @@ namespace Cmf.Common.Cli.Commands
                 }
             }
 
-            // Commands that depend on root (have not defined parent)
+            // Commands that depend on root (have no defined parent)
             var topmostCommands = commandTypes.Where(
                 t => string.IsNullOrWhiteSpace(t.GetCustomAttributes<CmfCommandAttribute>(false)
                     .First().Parent));
@@ -52,6 +75,7 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="command">The command.</param>
         public static void AddPluginCommands(Command command)
         {
+            const string pluginsPrefix = "cmf-";
             var UNIX = new string[] { "", ".sh", ".ps1" };
             var WIN = new string[] { ".exe", ".cmd", ".ps1" };
             string[] prio;
@@ -77,32 +101,35 @@ namespace Cmf.Common.Cli.Commands
                 DirectoryInfo d = new(path);
                 if (d.Exists) // we may have some trash in PATH
                 {
-                    foreach (var file in d.GetFiles("cmf-*"))
+                    foreach (var file in d.GetFiles($"{pluginsPrefix}*"))
                     {
-                        var commandName = !string.IsNullOrEmpty(file.Extension) ? file.Name.Replace(file.Extension, "") : file.Name;
-                        commandName = commandName.Replace("cmf-", "");
+                        var commandName = !string.IsNullOrEmpty(file.Extension) ? file.Name[0..^file.Extension.Length] : file.Name;
+                        commandName = commandName[pluginsPrefix.Length..];
 
-                        var pos = Array.IndexOf(prio, file.Extension);
-                        if (pos > -1)
+                        if (!string.IsNullOrWhiteSpace(commandName))
                         {
-                            if (!plugins.ContainsKey(commandName))
+                            var pos = Array.IndexOf(prio, file.Extension);
+                            if (pos > -1)
                             {
-                                plugins.Add(commandName, file.FullName);
-                                // Console.WriteLine($"Added command {commandName} as {file.FullName}");
+                                if (!plugins.ContainsKey(commandName))
+                                {
+                                    plugins.Add(commandName, file.FullName);
+                                    // Console.WriteLine($"Added command {commandName} as {file.FullName}");
+                                }
+                                else
+                                {
+                                    var existingPos = Array.IndexOf(prio, file.Extension);
+                                    if (existingPos > pos)
+                                    {
+                                        plugins[commandName] = file.FullName;
+                                        // Console.WriteLine($"Replaced command {commandName} with {file.FullName}");
+                                    }
+                                }
                             }
                             else
                             {
-                                var existingPos = Array.IndexOf(prio, file.Extension);
-                                if (existingPos > pos)
-                                {
-                                    plugins[commandName] = file.FullName;
-                                    // Console.WriteLine($"Replaced command {commandName} with {file.FullName}");
-                                }
+                                // Console.WriteLine($"Skipping {file.FullName} for command {file.Name} as it's not supported on this platform");
                             }
-                        }
-                        else
-                        {
-                            // Console.WriteLine($"Skipping {file.FullName} for command {file.Name} as it's not supported on this platform");
                         }
                     }
                 }
@@ -146,6 +173,23 @@ namespace Cmf.Common.Cli.Commands
                 cmdInstance.AddCommand(childCmd);
             }
             return cmdInstance;
+        }
+
+        /// <summary>
+        /// parse argument/option
+        /// </summary>
+        /// <typeparam name="T">the (target) type of the argument/parameter</typeparam>
+        /// <param name="argResult">the arguments to parse</param>
+        /// <param name="default">the default value if no value is passed for the argument</param>
+        /// <returns></returns>
+        protected T Parse<T>(ArgumentResult argResult, string @default) where T: IDirectoryInfo
+        {
+            var path = @default;
+            if (argResult.Tokens.Any())
+            {
+                path = argResult.Tokens.First().Value;
+            }
+            return (T)this.fileSystem.DirectoryInfo.FromDirectoryName(path);
         }
     }
 }

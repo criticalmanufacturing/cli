@@ -40,6 +40,20 @@ namespace Cmf.Common.Cli.Objects
         [JsonIgnore]
         public bool Mandatory { get; set; }
 
+        /// <summary>
+        /// The CmfPackage that satisfies this dependency
+        /// </summary>
+        [JsonProperty(Order = 3)]
+        [JsonIgnore]
+        public CmfPackage CmfPackage { get; set; }
+
+        /// <summary>
+        /// Is this package missing, i.e. we could not find it anywhere to satisfy this dependency
+        /// </summary>
+        [JsonProperty(Order = 4)]
+        [JsonIgnore]
+        public bool IsMissing => this.CmfPackage == null;
+
         #endregion
 
         #region Constructors
@@ -52,7 +66,7 @@ namespace Cmf.Common.Cli.Objects
         /// <exception cref="ArgumentNullException">id
         /// or
         /// version</exception>
-        public Dependency(string id, string version)
+        public Dependency(string id, string version) : this()
         {
             Id = id ?? throw new ArgumentNullException(nameof(id));
             Version = version ?? throw new ArgumentNullException(nameof(version));

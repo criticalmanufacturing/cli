@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Threading.Tasks;
 using Cmf.Common.Cli.Utilities;
@@ -34,7 +35,7 @@ namespace Cmf.Common.Cli.Builders
         /// <value>
         /// The working directory.
         /// </value>
-        public DirectoryInfo WorkingDirectory { get; set; }
+        public IDirectoryInfo WorkingDirectory { get; set; }
     }
 
     /// <summary>
@@ -43,12 +44,16 @@ namespace Cmf.Common.Cli.Builders
     public abstract class ProcessCommand
     {
         /// <summary>
+        /// the undrlying file system
+        /// </summary>
+        protected IFileSystem fileSystem = new FileSystem();
+        /// <summary>
         /// Gets or sets the working directory.
         /// </summary>
         /// <value>
         /// The working directory.
         /// </value>
-        public DirectoryInfo WorkingDirectory { get; set; }
+        public IDirectoryInfo WorkingDirectory { get; set; }
 
         /// <summary>
         /// Executes this instance.
@@ -59,14 +64,14 @@ namespace Cmf.Common.Cli.Builders
             foreach (var step in this.GetSteps())
             {
                 var command = step.Command;
-                if (step.Command.IndexOf(Path.PathSeparator) < 0)
+                if (step.Command.IndexOf(this.fileSystem.Path.PathSeparator) < 0)
                 {
                     // determine full path
                     var enviromentPath = System.Environment.GetEnvironmentVariable("PATH");
 
                     var paths = enviromentPath.Split(';');
-                    var exePath = paths.Select(x => Path.Combine(x, command))
-                        .Where(File.Exists)
+                    var exePath = paths.Select(x => this.fileSystem.Path.Combine(x, command))
+                        .Where(this.fileSystem.File.Exists)
                         .FirstOrDefault();
 
                     command = exePath ?? command;

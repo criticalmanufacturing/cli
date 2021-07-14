@@ -29,7 +29,7 @@ namespace Cmf.Common.Cli.Commands
         /// </summary>
         public void Execute()
         {
-            var toolsPath = Path.Join(Utilities.FileSystemUtilities.GetProjectRoot().FullName, "Tools");
+            var toolsPath = Path.Join(Utilities.FileSystemUtilities.GetProjectRoot(this.fileSystem).FullName, "Tools");
             var pars = new Dictionary<string, string>
             {
                 {"PSScriptRoot", toolsPath}

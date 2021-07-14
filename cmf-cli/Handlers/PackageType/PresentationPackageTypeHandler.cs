@@ -4,6 +4,7 @@ using Cmf.Common.Cli.Objects;
 using Cmf.Common.Cli.Utilities;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -21,7 +22,7 @@ namespace Cmf.Common.Cli.Handlers
         /// Generates the presentation configuration file.
         /// </summary>
         /// <param name="packageOutputDir">The package output dir.</param>
-        private void GeneratePresentationConfigFile(DirectoryInfo packageOutputDir)
+        private void GeneratePresentationConfigFile(IDirectoryInfo packageOutputDir)
         {
             Log.Debug("Generating Presentation config.json");
             string path = $"{packageOutputDir.FullName}/{CliConstants.CmfPackagePresentationConfig}";
@@ -29,21 +30,29 @@ namespace Cmf.Common.Cli.Handlers
             List<string> packageList = new();
             List<string> transformInjections = new();
 
-            DirectoryInfo cmfPackageDirectory = CmfPackage.GetFileInfo().Directory;
+            IDirectoryInfo cmfPackageDirectory = CmfPackage.GetFileInfo().Directory;
 
             foreach (ContentToPack contentToPack in CmfPackage.ContentToPack)
             {
                 if (contentToPack.Action == null || contentToPack.Action == PackAction.Pack)
                 {
                     // TODO: Validate if contentToPack.Source exists before
-                    DirectoryInfo[] packDirectories = cmfPackageDirectory.GetDirectories(contentToPack.Source);
+                    IDirectoryInfo[] packDirectories = cmfPackageDirectory.GetDirectories(contentToPack.Source);
 
-                    foreach (DirectoryInfo packDirectory in packDirectories)
+                    foreach (IDirectoryInfo packDirectory in packDirectories)
                     {
                         dynamic packageJson = packDirectory.GetPackageJsonFile();
                         if (packageJson != null)
                         {
-                            packageList.Add($"'{packageJson.name}'");
+                            string packageName = packageJson.name;
+
+                            // For IoT Packages we should ignore the driver packages
+                            if (CmfPackage.PackageType == PackageType.IoT && packageName.Contains(CliConstants.Driver, System.StringComparison.InvariantCultureIgnoreCase))
+                            {
+                                continue;
+                            }
+
+                            packageList.Add($"'{packageName}'");
                         }
                     }
                 }
@@ -95,12 +104,12 @@ namespace Cmf.Common.Cli.Handlers
                 if (transformInjections.HasAny())
                 {
                     // we actually want a trailing comma here, because the inject token is in the middle of the document. If this changes we need to put more logic here.
-                    var injections = transformInjections.Select(injection => File.ReadAllText(injection) + ",");
+                    var injections = transformInjections.Select(injection => this.fileSystem.File.ReadAllText(injection) + ",");
                     injection = string.Join(System.Environment.NewLine, injections);
                 }
                 fileContent = fileContent.Replace(CliConstants.TokenJDTInjection, injection);
 
-                File.WriteAllText(path, fileContent);
+                this.fileSystem.File.WriteAllText(path, fileContent);
             }
         }
 
@@ -155,14 +164,14 @@ namespace Cmf.Common.Cli.Handlers
             base.Bump(version, buildNr, bumpInformation);
 
             string parentDirectory = CmfPackage.GetFileInfo().DirectoryName;
-            string[] filesToUpdate = Directory.GetFiles(parentDirectory, "package.json", SearchOption.AllDirectories);
+            string[] filesToUpdate = this.fileSystem.Directory.GetFiles(parentDirectory, "package.json", SearchOption.AllDirectories);
             foreach (var fileName in filesToUpdate)
             {
                 if (fileName.Contains("node_modules"))
                 {
                     continue;
                 }
-                string json = File.ReadAllText(fileName);
+                string json = this.fileSystem.File.ReadAllText(fileName);
                 dynamic jsonObj = Newtonsoft.Json.JsonConvert.DeserializeObject(json);
 
                 if (jsonObj["version"] == null)
@@ -172,10 +181,10 @@ namespace Cmf.Common.Cli.Handlers
 
                 jsonObj["version"] = GenericUtilities.RetrieveNewPresentationVersion(jsonObj["version"].ToString(), version, buildNr);
 
-                File.WriteAllText(fileName, Newtonsoft.Json.JsonConvert.SerializeObject(jsonObj, Newtonsoft.Json.Formatting.Indented));
+                this.fileSystem.File.WriteAllText(fileName, Newtonsoft.Json.JsonConvert.SerializeObject(jsonObj, Newtonsoft.Json.Formatting.Indented));
             }
 
-            filesToUpdate = Directory.GetFiles(parentDirectory, "*metadata.ts", SearchOption.AllDirectories);
+            filesToUpdate = this.fileSystem.Directory.GetFiles(parentDirectory, "*metadata.ts", SearchOption.AllDirectories);
             foreach (var fileName in filesToUpdate)
             {
                 if (fileName.Contains("node_modules")
@@ -183,12 +192,12 @@ namespace Cmf.Common.Cli.Handlers
                 {
                     continue;
                 }
-                string metadataFile = File.ReadAllText(fileName);
+                string metadataFile = this.fileSystem.File.ReadAllText(fileName);
                 string regex = @"version: \""[0-9.-]*\""";
                 var metadataVersion = Regex.Match(metadataFile, regex, RegexOptions.Singleline)?.Value?.Split("\"")[1];
                 metadataVersion = GenericUtilities.RetrieveNewPresentationVersion(metadataVersion, version, buildNr);
                 metadataFile = Regex.Replace(metadataFile, regex, string.Format("version: \"{0}\"", metadataVersion));
-                File.WriteAllText(fileName, metadataFile);
+                this.fileSystem.File.WriteAllText(fileName, metadataFile);
             }
         }
 
@@ -197,7 +206,7 @@ namespace Cmf.Common.Cli.Handlers
         /// </summary>
         /// <param name="packageOutputDir">The package output dir.</param>
         /// <param name="outputDir">The output dir.</param>
-        public override void Pack(DirectoryInfo packageOutputDir, DirectoryInfo outputDir)
+        public override void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir)
         {
             GeneratePresentationConfigFile(packageOutputDir);
 

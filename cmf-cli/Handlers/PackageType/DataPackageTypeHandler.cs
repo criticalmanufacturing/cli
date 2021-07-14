@@ -5,6 +5,7 @@ using Cmf.Common.Cli.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 
 namespace Cmf.Common.Cli.Handlers
 {
@@ -48,23 +49,23 @@ namespace Cmf.Common.Cli.Handlers
         /// Copies the install dependencies.
         /// </summary>
         /// <param name="packageOutputDir">The package output dir.</param>
-        protected override void CopyInstallDependencies(DirectoryInfo packageOutputDir)
+        protected override void CopyInstallDependencies(IDirectoryInfo packageOutputDir)
         {
-            FileSystemUtilities.CopyInstallDependenciesFiles(packageOutputDir, PackageType.Data);
+            FileSystemUtilities.CopyInstallDependenciesFiles(packageOutputDir, PackageType.Data, this.fileSystem);
 
-            string globalVariablesPath = Path.Join(packageOutputDir.FullName, "EnvironmentConfigs", "GlobalVariables.yml");
+            string globalVariablesPath = this.fileSystem.Path.Join(packageOutputDir.FullName, "EnvironmentConfigs", "GlobalVariables.yml");
 
-            string globalVariablesFile = File.ReadAllText(globalVariablesPath);
+            string globalVariablesFile = this.fileSystem.File.ReadAllText(globalVariablesPath);
             globalVariablesFile = globalVariablesFile.Replace(CliConstants.TokenVersion, CmfPackage.Version);
-            File.WriteAllText(globalVariablesPath, globalVariablesFile);
+            this.fileSystem.File.WriteAllText(globalVariablesPath, globalVariablesFile);
 
-            FileInfo runCustomizationInstallDF = new(Path.Join(packageOutputDir.FullName, "RunCustomizationInstallDF.ps1"));
+            IFileInfo runCustomizationInstallDF = this.fileSystem.FileInfo.FromFileName(this.fileSystem.Path.Join(packageOutputDir.FullName, "RunCustomizationInstallDF.ps1"));
 
             string fileContent = runCustomizationInstallDF.ReadToString();
 
             fileContent = fileContent.Replace(CliConstants.TokenPackageId, CmfPackage.PackageId);
 
-            File.WriteAllText(runCustomizationInstallDF.FullName, fileContent);
+            this.fileSystem.File.WriteAllText(runCustomizationInstallDF.FullName, fileContent);
         }
     }
 }

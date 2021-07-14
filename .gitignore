@@ -352,3 +352,6 @@ MigrationBackup/
 dist/
 
 launchSettings.json  
+
+!**/Commands/publish
+*.orig  

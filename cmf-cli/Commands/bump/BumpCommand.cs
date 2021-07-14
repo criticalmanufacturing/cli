@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
+using System.IO.Abstractions;
 
 namespace Cmf.Common.Cli.Commands
 {
@@ -61,7 +62,7 @@ namespace Cmf.Common.Cli.Commands
         /// <exception cref="CliException"></exception>
         public void Execute(DirectoryInfo packagePath, string version, string buildNr, string root, bool all)
         {
-            FileInfo cmfpackageFile = new($"{packagePath}/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = this.fileSystem.FileInfo.FromFileName($"{packagePath}/{CliConstants.CmfPackageFileName}");
 
             if (string.IsNullOrEmpty(version) && string.IsNullOrEmpty(buildNr))
             {
@@ -85,7 +86,7 @@ namespace Cmf.Common.Cli.Commands
         /// <exception cref="CliException"></exception>
         public void Execute(CmfPackage cmfPackage, string version, string buildNr, string root, bool all)
         {
-            DirectoryInfo packageDirectory = cmfPackage.GetFileInfo().Directory;
+            IDirectoryInfo packageDirectory = cmfPackage.GetFileInfo().Directory;
             IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfPackage);
 
             // Will execute specific bump code per Package Type
@@ -98,11 +99,15 @@ namespace Cmf.Common.Cli.Commands
 
             #region Get Dependencies
 
-            if (all && cmfPackage.Dependencies.HasAny())
+            CmfPackageCollection packagePathCmfPackages = new CmfPackageCollection();
+            if (all && (cmfPackage.Dependencies.HasAny() || cmfPackage.TestPackages.HasAny()))
             {
                 // Read all local manifests
-                CmfPackageCollection packagePathCmfPackages = packageDirectory.LoadCmfPackagesFromSubDirectories();
+                packagePathCmfPackages = packageDirectory.LoadCmfPackagesFromSubDirectories();
+            }
 
+            if (all && cmfPackage.Dependencies.HasAny())
+            {
                 foreach (var dependency in cmfPackage.Dependencies)
                 {
                     CmfPackage subCmfPackageWithDependency = packagePathCmfPackages.GetDependency(dependency);
@@ -123,6 +128,27 @@ namespace Cmf.Common.Cli.Commands
                 }
             }
 
+            if (all && cmfPackage.TestPackages.HasAny())
+            {
+                foreach (var dependency in cmfPackage.TestPackages)
+                {
+                    CmfPackage subCmfPackageWithDependency = packagePathCmfPackages.GetDependency(dependency);
+
+                    // TODO :: Uncomment if the cmfpackage.json support build number
+                    // dependency.Version = GenericUtilities.RetrieveNewVersion(dependency.Version, version, buildNr);
+
+                    dependency.Version = !string.IsNullOrWhiteSpace(version) ? version : dependency.Version;
+
+                    if (subCmfPackageWithDependency != null)
+                    {
+                        Execute(subCmfPackageWithDependency, version, buildNr, root, all);
+                    }
+                    else
+                    {
+                        Log.Warning($"Dependency {dependency.Id}.{dependency.Version} not found");
+                    }
+                }
+            }
             #endregion
         }
     }

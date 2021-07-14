@@ -7,6 +7,10 @@ using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
+using System.Linq;
+using System.Xml.Linq;
+using System.IO.Abstractions;
 
 namespace Cmf.Common.Cli.Objects
 {
@@ -22,12 +26,14 @@ namespace Cmf.Common.Cli.Objects
         /// <summary>
         /// The file information
         /// </summary>
-        private FileInfo FileInfo;
+        private IFileInfo FileInfo;
 
         /// <summary>
         /// The skip set default values
         /// </summary>
         private bool IsToSetDefaultValues;
+
+        private IFileSystem fileSystem;
 
         #endregion
 
@@ -184,6 +190,22 @@ namespace Cmf.Common.Cli.Objects
         [JsonProperty(Order = 13)]
         public List<string> XmlInjection { get; private set; }
 
+        /// <summary>
+        /// Gets or sets the Test Package Id.
+        /// </summary>
+        /// <value>
+        /// The Test Package Id.
+        /// </value>
+        [JsonProperty(Order = 14)]
+        public DependencyCollection TestPackages { get; private set; }
+
+        /// <summary>
+        /// The location of the package
+        /// </summary>
+        [JsonProperty(Order = 15)]
+        [JsonIgnore]
+        public PackageLocation Location { get; private set; }
+
         #endregion
 
         #region Private Methods
@@ -236,11 +258,12 @@ namespace Cmf.Common.Cli.Objects
         /// <param name="steps">The steps.</param>
         /// <param name="contentToPack">The content to pack.</param>
         /// <param name="xmlInjection">The XML injection.</param>
+        /// <param name="testPackages">The test Packages.</param>
         [JsonConstructor]
         public CmfPackage(string name, string packageId, string version, string description, PackageType packageType,
                           string targetDirectory, bool? isInstallable, bool? isUniqueInstall, string keywords,
                           bool? isToSetDefaultSteps, DependencyCollection dependencies, List<Step> steps,
-                          List<ContentToPack> contentToPack, List<string> xmlInjection)
+                          List<ContentToPack> contentToPack, List<string> xmlInjection, DependencyCollection testPackages = null) : this()
         {
             Name = name;
             PackageId = packageId ?? throw new ArgumentNullException(nameof(packageId));
@@ -256,9 +279,26 @@ namespace Cmf.Common.Cli.Objects
             Steps = steps;
             ContentToPack = contentToPack;
             XmlInjection = xmlInjection;
+            TestPackages = testPackages;
 
             PackageName = $"{PackageId}.{Version}";
             ZipPackageName = $"{PackageName}.zip";
+        }
+
+        /// <summary>
+        /// initialize an empty CmfPackage
+        /// </summary>
+        public CmfPackage() : this(fileSystem: new FileSystem()) 
+        {    
+        }
+
+        /// <summary>
+        /// Initialize an empty CmfPackage with a specific file system
+        /// </summary>
+        /// <param name="fileSystem"></param>
+        public CmfPackage(IFileSystem fileSystem) 
+        {
+            this.fileSystem = fileSystem;
         }
 
         #endregion
@@ -287,7 +327,7 @@ namespace Cmf.Common.Cli.Objects
                    EqualityComparer<DependencyCollection>.Default.Equals(Dependencies, other.Dependencies) &&
                    EqualityComparer<List<Step>>.Default.Equals(Steps, other.Steps) &&
                    EqualityComparer<List<ContentToPack>>.Default.Equals(ContentToPack, other.ContentToPack) &&
-                   EqualityComparer<FileInfo>.Default.Equals(GetFileInfo(), other.GetFileInfo());
+                   EqualityComparer<IFileInfo>.Default.Equals(GetFileInfo(), other.GetFileInfo());
         }
 
         /// <summary>
@@ -296,7 +336,7 @@ namespace Cmf.Common.Cli.Objects
         /// <returns>
         /// The file information.
         /// </returns>
-        public FileInfo GetFileInfo()
+        public IFileInfo GetFileInfo()
         {
             return FileInfo;
         }
@@ -305,7 +345,7 @@ namespace Cmf.Common.Cli.Objects
         /// Gets or sets the file information.
         /// </summary>
         /// <param name="value">The file information.</param>
-        public void SetFileInfo(FileInfo value)
+        public void SetFileInfo(IFileInfo value)
         {
             FileInfo = value;
         }
@@ -372,6 +412,86 @@ namespace Cmf.Common.Cli.Objects
             Version = version;
         }
 
+        /// <summary>
+        /// Builds a dependency tree by attaching the CmfPackage objects to the parent's dependencies
+        /// Can run recursively and fetch packages from a DF repository.
+        /// Supports cycles
+        /// </summary>
+        /// <param name="repo">the address of the repository (currently only folders are supported)</param>
+        /// <param name="recurse">should we run recursively</param>
+        /// <returns>this CmfPackage for chaining, but the method itself is mutable</returns>
+        public CmfPackage LoadDependencies(string repo, bool recurse = false) {
+            Uri repoUri = repo != null ? new Uri(repo) : null;
+            var loadedPackages = new List<CmfPackage>();
+            loadedPackages.Add(this);
+            Log.Progress($"Working on {this.Name ?? (this.PackageId + "@" + this.Version)}");
+
+            if (this.Dependencies.HasAny())
+            {
+                IDirectoryInfo repoDirectory = null;
+                if (repoUri != null)
+                {
+                    if (repoUri.IsDirectory())
+                    {
+                        repoDirectory = this.fileSystem.DirectoryInfo.FromDirectoryName(repoUri.OriginalString);
+                        // repoDirectory = new(repoUri.OriginalString);
+                    }
+                    else
+                    {
+                        throw new CliException(CliMessages.UrlsNotSupported);
+                    }
+                }
+
+                foreach (var dependency in this.Dependencies)
+                {
+                    Log.Progress($"Working on dependency {dependency.Id}@{dependency.Version}");
+                    string _dependencyFileName = $"{dependency.Id}.{dependency.Version}.zip";
+
+                    #region Get Dependencies from Dependencies Directory
+                    // 1) check if we have found this package before
+                    var dependencyPackage = loadedPackages.FirstOrDefault(x => x.PackageId.IgnoreCaseEquals(dependency.Id) && x.Version.IgnoreCaseEquals(dependency.Version));
+
+                    // 2) check if package is in repository
+                    if (dependencyPackage == null && (repoDirectory?.Exists ?? false))
+                    {
+                        IFileInfo dependencyFile = repoDirectory.GetFiles(_dependencyFileName).FirstOrDefault();
+                        if (dependencyFile != null)
+                        {
+                            var zip = ZipFile.Open(dependencyFile.FullName, ZipArchiveMode.Read);
+                            var manifest = zip.GetEntry(CliConstants.DeploymentFrameworkManifestFileName);
+                            if (manifest != null)
+                            {
+                                using (var stream = manifest.Open())
+                                using (var reader = new StreamReader(stream))
+                                {
+                                    dependencyPackage = CmfPackage.FromManifest(reader.ReadToEnd(), setDefaultValues: true);
+                                }
+
+                            }
+                        }
+                    }
+
+                    // 3) search in the source code repository
+                    if (dependencyPackage == null)
+                    {
+                        dependencyPackage = this.GetFileInfo().Directory.LoadCmfPackagesFromSubDirectories(setDefaultValues: true).GetDependency(dependency);
+                    }
+
+                    if (dependencyPackage != null)
+                    {
+                        loadedPackages.Add(dependencyPackage);
+                        dependency.CmfPackage = dependencyPackage;
+                        if (recurse)
+                        {
+                            dependencyPackage.LoadDependencies(repo, recurse);
+                        }
+                    }
+                }
+                #endregion
+            }
+            return this;
+        }
+
         #region Static Methods
 
         /// <summary>
@@ -379,12 +499,14 @@ namespace Cmf.Common.Cli.Objects
         /// </summary>
         /// <param name="file">The file.</param>
         /// <param name="setDefaultValues"></param>
+        /// <param name="fileSystem">the underlying file system</param>
         /// <returns></returns>
         /// <exception cref="Cmf.Common.Cli.Utilities.CliException">
         /// </exception>
         /// <exception cref="CliException"></exception>
-        public static CmfPackage Load(FileInfo file, bool setDefaultValues = false)
+        public static CmfPackage Load(IFileInfo file, bool setDefaultValues = false, IFileSystem fileSystem = null)
         {
+            fileSystem ??= new FileSystem();
             if (!file.Exists)
             {
                 throw new CliException(string.Format(CliMessages.NotFound, file.FullName));
@@ -392,10 +514,74 @@ namespace Cmf.Common.Cli.Objects
 
             string fileContent = file.ReadToString();
             CmfPackage cmfPackage = JsonConvert.DeserializeObject<CmfPackage>(fileContent);
-            cmfPackage.FileInfo = file;
             cmfPackage.IsToSetDefaultValues = setDefaultValues;
-
+            cmfPackage.FileInfo = file;
+            cmfPackage.Location = PackageLocation.Local;
             cmfPackage.ValidatePackage();
+            cmfPackage.fileSystem = fileSystem;
+
+            return cmfPackage;
+        }
+
+        /// <summary>
+        /// Create a CmfPackage object from a DF package manifest
+        /// </summary>
+        /// <param name="manifest">the manifest content</param>
+        /// <param name="setDefaultValues">should set default values</param>
+        /// <param name="fileSystem">the underlying file system</param>
+        /// <returns>a CmfPackage</returns>
+        public static CmfPackage FromManifest(string manifest, bool setDefaultValues = false, IFileSystem fileSystem = null)
+        {
+            fileSystem ??= new FileSystem();
+            StringReader dFManifestReader = new(manifest);
+            XDocument dFManifestTemplate = XDocument.Load(dFManifestReader);
+            var tokens = new Dictionary<string, string>();
+
+            XElement rootNode = dFManifestTemplate.Element("deploymentPackage", true);
+            if (rootNode == null)
+            {
+                throw new CliException(string.Format(CliMessages.InvalidManifestFile));
+            }
+            DependencyCollection deps = new DependencyCollection();
+            foreach (XElement element in rootNode.Elements())
+            {
+                // Get the Property Value based on the Token name
+                string token = element.Value.Trim();
+
+                if (element.Name.LocalName == "dependencies")
+                {
+                    var deplist = element.Elements().Select(depEl => new Dependency(depEl.Attribute("id").Value, depEl.Attribute("version").Value));
+                    deps.AddRange(deplist);
+                }
+
+                if (string.IsNullOrEmpty(token))
+                {
+                    continue;
+                }
+
+                tokens.Add(element.Name.LocalName.ToLowerInvariant(), token);
+            }
+
+            // TODO: we're extracting only the essentials here for `cmf ls` but we can get extra data from the manifests
+            var cmfPackage = new CmfPackage(
+                tokens.ContainsKey("name") ? tokens["name"] : null,
+                tokens["packageid"],
+                tokens["version"],
+                tokens.ContainsKey("description") ? tokens["description"] : null,
+                PackageType.Generic,
+                "",
+                false,
+                false,
+                tokens.ContainsKey("keywords") ? tokens["keywords"] : null,
+                true,
+                deps,
+                null,
+                null,
+                null
+                );
+
+            cmfPackage.Location = PackageLocation.Repository;
+            cmfPackage.fileSystem = fileSystem;
 
             return cmfPackage;
         }
@@ -434,7 +620,7 @@ namespace Cmf.Common.Cli.Objects
 
             string cmfPackageJson = JsonConvert.SerializeObject(this, jsonSerializerSettings);
 
-            FileInfo file = GetFileInfo();
+            IFileInfo file = GetFileInfo();
             File.WriteAllText(file.FullName, cmfPackageJson);
         }
 

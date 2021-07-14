@@ -12,68 +12,90 @@ Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.O
 
 Implements [System.IEquatable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.IEquatable-1 'System.IEquatable`1')[CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.IEquatable-1 'System.IEquatable`1')  
 ### Constructors
-<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_string_string_Cmf_Common_Cli_Enums_PackageType_string_System_Nullable_bool__System_Nullable_bool__string_System_Nullable_bool__Cmf_Common_Cli_Objects_DependencyCollection_System_Collections_Generic_List_Cmf_Common_Cli_Objects_Step__System_Collections_Generic_List_Cmf_Common_Cli_Objects_ContentToPack__System_Collections_Generic_List_string_)'></a>
-## CmfPackage.CmfPackage(string, string, string, string, PackageType, string, Nullable&lt;bool&gt;, Nullable&lt;bool&gt;, string, Nullable&lt;bool&gt;, DependencyCollection, List&lt;Step&gt;, List&lt;ContentToPack&gt;, List&lt;string&gt;) Constructor
+<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage()'></a>
+## CmfPackage.CmfPackage() Constructor
+initialize an empty CmfPackage  
+```csharp
+public CmfPackage();
+```
+  
+<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_string_string_Cmf_Common_Cli_Enums_PackageType_string_System_Nullable_bool__System_Nullable_bool__string_System_Nullable_bool__Cmf_Common_Cli_Objects_DependencyCollection_System_Collections_Generic_List_Cmf_Common_Cli_Objects_Step__System_Collections_Generic_List_Cmf_Common_Cli_Objects_ContentToPack__System_Collections_Generic_List_string__Cmf_Common_Cli_Objects_DependencyCollection)'></a>
+## CmfPackage.CmfPackage(string, string, string, string, PackageType, string, Nullable&lt;bool&gt;, Nullable&lt;bool&gt;, string, Nullable&lt;bool&gt;, DependencyCollection, List&lt;Step&gt;, List&lt;ContentToPack&gt;, List&lt;string&gt;, DependencyCollection) Constructor
 Initializes a new instance of the [CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage') class.  
 ```csharp
-public CmfPackage(string name, string packageId, string version, string description, Cmf.Common.Cli.Enums.PackageType packageType, string targetDirectory, System.Nullable<bool> isInstallable, System.Nullable<bool> isUniqueInstall, string keywords, System.Nullable<bool> isToSetDefaultSteps, Cmf.Common.Cli.Objects.DependencyCollection dependencies, System.Collections.Generic.List<Cmf.Common.Cli.Objects.Step> steps, System.Collections.Generic.List<Cmf.Common.Cli.Objects.ContentToPack> contentToPack, System.Collections.Generic.List<string> xmlInjection);
+public CmfPackage(string name, string packageId, string version, string description, Cmf.Common.Cli.Enums.PackageType packageType, string targetDirectory, System.Nullable<bool> isInstallable, System.Nullable<bool> isUniqueInstall, string keywords, System.Nullable<bool> isToSetDefaultSteps, Cmf.Common.Cli.Objects.DependencyCollection dependencies, System.Collections.Generic.List<Cmf.Common.Cli.Objects.Step> steps, System.Collections.Generic.List<Cmf.Common.Cli.Objects.ContentToPack> contentToPack, System.Collections.Generic.List<string> xmlInjection, Cmf.Common.Cli.Objects.DependencyCollection testPackages=null);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_string_string_Cmf_Common_Cli_Enums_PackageType_string_System_Nullable_bool__System_Nullable_bool__string_System_Nullable_bool__Cmf_Common_Cli_Objects_DependencyCollection_System_Collections_Generic_List_Cmf_Common_Cli_Objects_Step__System_Collections_Generic_List_Cmf_Common_Cli_Objects_ContentToPack__System_Collections_Generic_List_string_)_name'></a>
+<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_string_string_Cmf_Common_Cli_Enums_PackageType_string_System_Nullable_bool__System_Nullable_bool__string_System_Nullable_bool__Cmf_Common_Cli_Objects_DependencyCollection_System_Collections_Generic_List_Cmf_Common_Cli_Objects_Step__System_Collections_Generic_List_Cmf_Common_Cli_Objects_ContentToPack__System_Collections_Generic_List_string__Cmf_Common_Cli_Objects_DependencyCollection)_name'></a>
 `name` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The name.
   
-<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_string_string_Cmf_Common_Cli_Enums_PackageType_string_System_Nullable_bool__System_Nullable_bool__string_System_Nullable_bool__Cmf_Common_Cli_Objects_DependencyCollection_System_Collections_Generic_List_Cmf_Common_Cli_Objects_Step__System_Collections_Generic_List_Cmf_Common_Cli_Objects_ContentToPack__System_Collections_Generic_List_string_)_packageId'></a>
+<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_string_string_Cmf_Common_Cli_Enums_PackageType_string_System_Nullable_bool__System_Nullable_bool__string_System_Nullable_bool__Cmf_Common_Cli_Objects_DependencyCollection_System_Collections_Generic_List_Cmf_Common_Cli_Objects_Step__System_Collections_Generic_List_Cmf_Common_Cli_Objects_ContentToPack__System_Collections_Generic_List_string__Cmf_Common_Cli_Objects_DependencyCollection)_packageId'></a>
 `packageId` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The package identifier.
   
-<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_string_string_Cmf_Common_Cli_Enums_PackageType_string_System_Nullable_bool__System_Nullable_bool__string_System_Nullable_bool__Cmf_Common_Cli_Objects_DependencyCollection_System_Collections_Generic_List_Cmf_Common_Cli_Objects_Step__System_Collections_Generic_List_Cmf_Common_Cli_Objects_ContentToPack__System_Collections_Generic_List_string_)_version'></a>
+<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_string_string_Cmf_Common_Cli_Enums_PackageType_string_System_Nullable_bool__System_Nullable_bool__string_System_Nullable_bool__Cmf_Common_Cli_Objects_DependencyCollection_System_Collections_Generic_List_Cmf_Common_Cli_Objects_Step__System_Collections_Generic_List_Cmf_Common_Cli_Objects_ContentToPack__System_Collections_Generic_List_string__Cmf_Common_Cli_Objects_DependencyCollection)_version'></a>
 `version` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The version.
   
-<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_string_string_Cmf_Common_Cli_Enums_PackageType_string_System_Nullable_bool__System_Nullable_bool__string_System_Nullable_bool__Cmf_Common_Cli_Objects_DependencyCollection_System_Collections_Generic_List_Cmf_Common_Cli_Objects_Step__System_Collections_Generic_List_Cmf_Common_Cli_Objects_ContentToPack__System_Collections_Generic_List_string_)_description'></a>
+<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_string_string_Cmf_Common_Cli_Enums_PackageType_string_System_Nullable_bool__System_Nullable_bool__string_System_Nullable_bool__Cmf_Common_Cli_Objects_DependencyCollection_System_Collections_Generic_List_Cmf_Common_Cli_Objects_Step__System_Collections_Generic_List_Cmf_Common_Cli_Objects_ContentToPack__System_Collections_Generic_List_string__Cmf_Common_Cli_Objects_DependencyCollection)_description'></a>
 `description` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The description.
   
-<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_string_string_Cmf_Common_Cli_Enums_PackageType_string_System_Nullable_bool__System_Nullable_bool__string_System_Nullable_bool__Cmf_Common_Cli_Objects_DependencyCollection_System_Collections_Generic_List_Cmf_Common_Cli_Objects_Step__System_Collections_Generic_List_Cmf_Common_Cli_Objects_ContentToPack__System_Collections_Generic_List_string_)_packageType'></a>
+<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_string_string_Cmf_Common_Cli_Enums_PackageType_string_System_Nullable_bool__System_Nullable_bool__string_System_Nullable_bool__Cmf_Common_Cli_Objects_DependencyCollection_System_Collections_Generic_List_Cmf_Common_Cli_Objects_Step__System_Collections_Generic_List_Cmf_Common_Cli_Objects_ContentToPack__System_Collections_Generic_List_string__Cmf_Common_Cli_Objects_DependencyCollection)_packageType'></a>
 `packageType` [PackageType](Cmf_Common_Cli_Enums.md#Cmf_Common_Cli_Enums_PackageType 'Cmf.Common.Cli.Enums.PackageType')  
 Type of the package.
   
-<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_string_string_Cmf_Common_Cli_Enums_PackageType_string_System_Nullable_bool__System_Nullable_bool__string_System_Nullable_bool__Cmf_Common_Cli_Objects_DependencyCollection_System_Collections_Generic_List_Cmf_Common_Cli_Objects_Step__System_Collections_Generic_List_Cmf_Common_Cli_Objects_ContentToPack__System_Collections_Generic_List_string_)_targetDirectory'></a>
+<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_string_string_Cmf_Common_Cli_Enums_PackageType_string_System_Nullable_bool__System_Nullable_bool__string_System_Nullable_bool__Cmf_Common_Cli_Objects_DependencyCollection_System_Collections_Generic_List_Cmf_Common_Cli_Objects_Step__System_Collections_Generic_List_Cmf_Common_Cli_Objects_ContentToPack__System_Collections_Generic_List_string__Cmf_Common_Cli_Objects_DependencyCollection)_targetDirectory'></a>
 `targetDirectory` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The target directory.
   
-<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_string_string_Cmf_Common_Cli_Enums_PackageType_string_System_Nullable_bool__System_Nullable_bool__string_System_Nullable_bool__Cmf_Common_Cli_Objects_DependencyCollection_System_Collections_Generic_List_Cmf_Common_Cli_Objects_Step__System_Collections_Generic_List_Cmf_Common_Cli_Objects_ContentToPack__System_Collections_Generic_List_string_)_isInstallable'></a>
+<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_string_string_Cmf_Common_Cli_Enums_PackageType_string_System_Nullable_bool__System_Nullable_bool__string_System_Nullable_bool__Cmf_Common_Cli_Objects_DependencyCollection_System_Collections_Generic_List_Cmf_Common_Cli_Objects_Step__System_Collections_Generic_List_Cmf_Common_Cli_Objects_ContentToPack__System_Collections_Generic_List_string__Cmf_Common_Cli_Objects_DependencyCollection)_isInstallable'></a>
 `isInstallable` [System.Nullable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Nullable-1 'System.Nullable`1')[System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Nullable-1 'System.Nullable`1')  
 The is installable.
   
-<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_string_string_Cmf_Common_Cli_Enums_PackageType_string_System_Nullable_bool__System_Nullable_bool__string_System_Nullable_bool__Cmf_Common_Cli_Objects_DependencyCollection_System_Collections_Generic_List_Cmf_Common_Cli_Objects_Step__System_Collections_Generic_List_Cmf_Common_Cli_Objects_ContentToPack__System_Collections_Generic_List_string_)_isUniqueInstall'></a>
+<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_string_string_Cmf_Common_Cli_Enums_PackageType_string_System_Nullable_bool__System_Nullable_bool__string_System_Nullable_bool__Cmf_Common_Cli_Objects_DependencyCollection_System_Collections_Generic_List_Cmf_Common_Cli_Objects_Step__System_Collections_Generic_List_Cmf_Common_Cli_Objects_ContentToPack__System_Collections_Generic_List_string__Cmf_Common_Cli_Objects_DependencyCollection)_isUniqueInstall'></a>
 `isUniqueInstall` [System.Nullable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Nullable-1 'System.Nullable`1')[System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Nullable-1 'System.Nullable`1')  
 The is unique install.
   
-<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_string_string_Cmf_Common_Cli_Enums_PackageType_string_System_Nullable_bool__System_Nullable_bool__string_System_Nullable_bool__Cmf_Common_Cli_Objects_DependencyCollection_System_Collections_Generic_List_Cmf_Common_Cli_Objects_Step__System_Collections_Generic_List_Cmf_Common_Cli_Objects_ContentToPack__System_Collections_Generic_List_string_)_keywords'></a>
+<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_string_string_Cmf_Common_Cli_Enums_PackageType_string_System_Nullable_bool__System_Nullable_bool__string_System_Nullable_bool__Cmf_Common_Cli_Objects_DependencyCollection_System_Collections_Generic_List_Cmf_Common_Cli_Objects_Step__System_Collections_Generic_List_Cmf_Common_Cli_Objects_ContentToPack__System_Collections_Generic_List_string__Cmf_Common_Cli_Objects_DependencyCollection)_keywords'></a>
 `keywords` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The keywords.
   
-<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_string_string_Cmf_Common_Cli_Enums_PackageType_string_System_Nullable_bool__System_Nullable_bool__string_System_Nullable_bool__Cmf_Common_Cli_Objects_DependencyCollection_System_Collections_Generic_List_Cmf_Common_Cli_Objects_Step__System_Collections_Generic_List_Cmf_Common_Cli_Objects_ContentToPack__System_Collections_Generic_List_string_)_isToSetDefaultSteps'></a>
+<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_string_string_Cmf_Common_Cli_Enums_PackageType_string_System_Nullable_bool__System_Nullable_bool__string_System_Nullable_bool__Cmf_Common_Cli_Objects_DependencyCollection_System_Collections_Generic_List_Cmf_Common_Cli_Objects_Step__System_Collections_Generic_List_Cmf_Common_Cli_Objects_ContentToPack__System_Collections_Generic_List_string__Cmf_Common_Cli_Objects_DependencyCollection)_isToSetDefaultSteps'></a>
 `isToSetDefaultSteps` [System.Nullable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Nullable-1 'System.Nullable`1')[System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Nullable-1 'System.Nullable`1')  
 The is to set default steps.
   
-<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_string_string_Cmf_Common_Cli_Enums_PackageType_string_System_Nullable_bool__System_Nullable_bool__string_System_Nullable_bool__Cmf_Common_Cli_Objects_DependencyCollection_System_Collections_Generic_List_Cmf_Common_Cli_Objects_Step__System_Collections_Generic_List_Cmf_Common_Cli_Objects_ContentToPack__System_Collections_Generic_List_string_)_dependencies'></a>
+<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_string_string_Cmf_Common_Cli_Enums_PackageType_string_System_Nullable_bool__System_Nullable_bool__string_System_Nullable_bool__Cmf_Common_Cli_Objects_DependencyCollection_System_Collections_Generic_List_Cmf_Common_Cli_Objects_Step__System_Collections_Generic_List_Cmf_Common_Cli_Objects_ContentToPack__System_Collections_Generic_List_string__Cmf_Common_Cli_Objects_DependencyCollection)_dependencies'></a>
 `dependencies` [DependencyCollection](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_DependencyCollection 'Cmf.Common.Cli.Objects.DependencyCollection')  
 The dependencies.
   
-<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_string_string_Cmf_Common_Cli_Enums_PackageType_string_System_Nullable_bool__System_Nullable_bool__string_System_Nullable_bool__Cmf_Common_Cli_Objects_DependencyCollection_System_Collections_Generic_List_Cmf_Common_Cli_Objects_Step__System_Collections_Generic_List_Cmf_Common_Cli_Objects_ContentToPack__System_Collections_Generic_List_string_)_steps'></a>
+<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_string_string_Cmf_Common_Cli_Enums_PackageType_string_System_Nullable_bool__System_Nullable_bool__string_System_Nullable_bool__Cmf_Common_Cli_Objects_DependencyCollection_System_Collections_Generic_List_Cmf_Common_Cli_Objects_Step__System_Collections_Generic_List_Cmf_Common_Cli_Objects_ContentToPack__System_Collections_Generic_List_string__Cmf_Common_Cli_Objects_DependencyCollection)_steps'></a>
 `steps` [System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[Step](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_Step 'Cmf.Common.Cli.Objects.Step')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')  
 The steps.
   
-<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_string_string_Cmf_Common_Cli_Enums_PackageType_string_System_Nullable_bool__System_Nullable_bool__string_System_Nullable_bool__Cmf_Common_Cli_Objects_DependencyCollection_System_Collections_Generic_List_Cmf_Common_Cli_Objects_Step__System_Collections_Generic_List_Cmf_Common_Cli_Objects_ContentToPack__System_Collections_Generic_List_string_)_contentToPack'></a>
+<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_string_string_Cmf_Common_Cli_Enums_PackageType_string_System_Nullable_bool__System_Nullable_bool__string_System_Nullable_bool__Cmf_Common_Cli_Objects_DependencyCollection_System_Collections_Generic_List_Cmf_Common_Cli_Objects_Step__System_Collections_Generic_List_Cmf_Common_Cli_Objects_ContentToPack__System_Collections_Generic_List_string__Cmf_Common_Cli_Objects_DependencyCollection)_contentToPack'></a>
 `contentToPack` [System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[ContentToPack](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_ContentToPack 'Cmf.Common.Cli.Objects.ContentToPack')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')  
 The content to pack.
   
-<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_string_string_Cmf_Common_Cli_Enums_PackageType_string_System_Nullable_bool__System_Nullable_bool__string_System_Nullable_bool__Cmf_Common_Cli_Objects_DependencyCollection_System_Collections_Generic_List_Cmf_Common_Cli_Objects_Step__System_Collections_Generic_List_Cmf_Common_Cli_Objects_ContentToPack__System_Collections_Generic_List_string_)_xmlInjection'></a>
+<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_string_string_Cmf_Common_Cli_Enums_PackageType_string_System_Nullable_bool__System_Nullable_bool__string_System_Nullable_bool__Cmf_Common_Cli_Objects_DependencyCollection_System_Collections_Generic_List_Cmf_Common_Cli_Objects_Step__System_Collections_Generic_List_Cmf_Common_Cli_Objects_ContentToPack__System_Collections_Generic_List_string__Cmf_Common_Cli_Objects_DependencyCollection)_xmlInjection'></a>
 `xmlInjection` [System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')  
 The XML injection.
+  
+<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_string_string_Cmf_Common_Cli_Enums_PackageType_string_System_Nullable_bool__System_Nullable_bool__string_System_Nullable_bool__Cmf_Common_Cli_Objects_DependencyCollection_System_Collections_Generic_List_Cmf_Common_Cli_Objects_Step__System_Collections_Generic_List_Cmf_Common_Cli_Objects_ContentToPack__System_Collections_Generic_List_string__Cmf_Common_Cli_Objects_DependencyCollection)_testPackages'></a>
+`testPackages` [DependencyCollection](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_DependencyCollection 'Cmf.Common.Cli.Objects.DependencyCollection')  
+The test Packages.
+  
+  
+<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(System_IO_Abstractions_IFileSystem)'></a>
+## CmfPackage.CmfPackage(IFileSystem) Constructor
+Initialize an empty CmfPackage with a specific file system  
+```csharp
+public CmfPackage(System.IO.Abstractions.IFileSystem fileSystem);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(System_IO_Abstractions_IFileSystem)_fileSystem'></a>
+`fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
   
   
 ### Fields
@@ -81,10 +103,10 @@ The XML injection.
 ## CmfPackage.FileInfo Field
 The file information  
 ```csharp
-private FileInfo FileInfo;
+private IFileInfo FileInfo;
 ```
 #### Field Value
-[System.IO.FileInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.FileInfo 'System.IO.FileInfo')
+[System.IO.Abstractions.IFileInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileInfo 'System.IO.Abstractions.IFileInfo')
   
 <a name='Cmf_Common_Cli_Objects_CmfPackage_IsToSetDefaultValues'></a>
 ## CmfPackage.IsToSetDefaultValues Field
@@ -167,6 +189,15 @@ public string Keywords { get; set; }
 [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
 The is root package.  
   
+<a name='Cmf_Common_Cli_Objects_CmfPackage_Location'></a>
+## CmfPackage.Location Property
+The location of the package  
+```csharp
+public Cmf.Common.Cli.Enums.PackageLocation Location { get; set; }
+```
+#### Property Value
+[PackageLocation](Cmf_Common_Cli_Enums.md#Cmf_Common_Cli_Enums_PackageLocation 'Cmf.Common.Cli.Enums.PackageLocation')
+  
 <a name='Cmf_Common_Cli_Objects_CmfPackage_Name'></a>
 ## CmfPackage.Name Property
 Gets the name.  
@@ -226,6 +257,16 @@ public string TargetDirectory { get; set; }
 #### Property Value
 [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
 The target directory.  
+  
+<a name='Cmf_Common_Cli_Objects_CmfPackage_TestPackages'></a>
+## CmfPackage.TestPackages Property
+Gets or sets the Test Package Id.  
+```csharp
+public Cmf.Common.Cli.Objects.DependencyCollection TestPackages { get; set; }
+```
+#### Property Value
+[DependencyCollection](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_DependencyCollection 'Cmf.Common.Cli.Objects.DependencyCollection')
+The Test Package Id.  
   
 <a name='Cmf_Common_Cli_Objects_CmfPackage_Version'></a>
 ## CmfPackage.Version Property
@@ -288,14 +329,37 @@ The object.
 #### Returns
 [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
   
+<a name='Cmf_Common_Cli_Objects_CmfPackage_FromManifest(string_bool_System_IO_Abstractions_IFileSystem)'></a>
+## CmfPackage.FromManifest(string, bool, IFileSystem) Method
+Create a CmfPackage object from a DF package manifest  
+```csharp
+public static Cmf.Common.Cli.Objects.CmfPackage FromManifest(string manifest, bool setDefaultValues=false, System.IO.Abstractions.IFileSystem fileSystem=null);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Objects_CmfPackage_FromManifest(string_bool_System_IO_Abstractions_IFileSystem)_manifest'></a>
+`manifest` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+the manifest content
+  
+<a name='Cmf_Common_Cli_Objects_CmfPackage_FromManifest(string_bool_System_IO_Abstractions_IFileSystem)_setDefaultValues'></a>
+`setDefaultValues` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
+should set default values
+  
+<a name='Cmf_Common_Cli_Objects_CmfPackage_FromManifest(string_bool_System_IO_Abstractions_IFileSystem)_fileSystem'></a>
+`fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
+the underlying file system
+  
+#### Returns
+[CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')  
+a CmfPackage
+  
 <a name='Cmf_Common_Cli_Objects_CmfPackage_GetFileInfo()'></a>
 ## CmfPackage.GetFileInfo() Method
 Gets or sets the file information.  
 ```csharp
-public System.IO.FileInfo GetFileInfo();
+public System.IO.Abstractions.IFileInfo GetFileInfo();
 ```
 #### Returns
-[System.IO.FileInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.FileInfo 'System.IO.FileInfo')  
+[System.IO.Abstractions.IFileInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileInfo 'System.IO.Abstractions.IFileInfo')  
 The file information.  
   
 <a name='Cmf_Common_Cli_Objects_CmfPackage_GetHashCode()'></a>
@@ -320,25 +384,50 @@ public bool IsRootPackage();
 `true` if [is root package] [the specified CMF package]; otherwise, `false`.  
             
   
-<a name='Cmf_Common_Cli_Objects_CmfPackage_Load(System_IO_FileInfo_bool)'></a>
-## CmfPackage.Load(FileInfo, bool) Method
+<a name='Cmf_Common_Cli_Objects_CmfPackage_Load(System_IO_Abstractions_IFileInfo_bool_System_IO_Abstractions_IFileSystem)'></a>
+## CmfPackage.Load(IFileInfo, bool, IFileSystem) Method
 Loads the specified file.  
 ```csharp
-public static Cmf.Common.Cli.Objects.CmfPackage Load(System.IO.FileInfo file, bool setDefaultValues=false);
+public static Cmf.Common.Cli.Objects.CmfPackage Load(System.IO.Abstractions.IFileInfo file, bool setDefaultValues=false, System.IO.Abstractions.IFileSystem fileSystem=null);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Objects_CmfPackage_Load(System_IO_FileInfo_bool)_file'></a>
-`file` [System.IO.FileInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.FileInfo 'System.IO.FileInfo')  
+<a name='Cmf_Common_Cli_Objects_CmfPackage_Load(System_IO_Abstractions_IFileInfo_bool_System_IO_Abstractions_IFileSystem)_file'></a>
+`file` [System.IO.Abstractions.IFileInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileInfo 'System.IO.Abstractions.IFileInfo')  
 The file.
   
-<a name='Cmf_Common_Cli_Objects_CmfPackage_Load(System_IO_FileInfo_bool)_setDefaultValues'></a>
+<a name='Cmf_Common_Cli_Objects_CmfPackage_Load(System_IO_Abstractions_IFileInfo_bool_System_IO_Abstractions_IFileSystem)_setDefaultValues'></a>
 `setDefaultValues` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
+  
+<a name='Cmf_Common_Cli_Objects_CmfPackage_Load(System_IO_Abstractions_IFileInfo_bool_System_IO_Abstractions_IFileSystem)_fileSystem'></a>
+`fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
+the underlying file system
   
 #### Returns
 [CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')  
 #### Exceptions
 [CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException')  
 [CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException')  
+  
+<a name='Cmf_Common_Cli_Objects_CmfPackage_LoadDependencies(string_bool)'></a>
+## CmfPackage.LoadDependencies(string, bool) Method
+Builds a dependency tree by attaching the CmfPackage objects to the parent's dependencies  
+Can run recursively and fetch packages from a DF repository.  
+Supports cycles  
+```csharp
+public Cmf.Common.Cli.Objects.CmfPackage LoadDependencies(string repo, bool recurse=false);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Objects_CmfPackage_LoadDependencies(string_bool)_repo'></a>
+`repo` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+the address of the repository (currently only folders are supported)
+  
+<a name='Cmf_Common_Cli_Objects_CmfPackage_LoadDependencies(string_bool)_recurse'></a>
+`recurse` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
+should we run recursively
+  
+#### Returns
+[CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')  
+this CmfPackage for chaining, but the method itself is mutable
   
 <a name='Cmf_Common_Cli_Objects_CmfPackage_SaveCmfPackage()'></a>
 ## CmfPackage.SaveCmfPackage() Method
@@ -381,15 +470,15 @@ The steps.
 #### Exceptions
 [CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException')  
   
-<a name='Cmf_Common_Cli_Objects_CmfPackage_SetFileInfo(System_IO_FileInfo)'></a>
-## CmfPackage.SetFileInfo(FileInfo) Method
+<a name='Cmf_Common_Cli_Objects_CmfPackage_SetFileInfo(System_IO_Abstractions_IFileInfo)'></a>
+## CmfPackage.SetFileInfo(IFileInfo) Method
 Gets or sets the file information.  
 ```csharp
-public void SetFileInfo(System.IO.FileInfo value);
+public void SetFileInfo(System.IO.Abstractions.IFileInfo value);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Objects_CmfPackage_SetFileInfo(System_IO_FileInfo)_value'></a>
-`value` [System.IO.FileInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.FileInfo 'System.IO.FileInfo')  
+<a name='Cmf_Common_Cli_Objects_CmfPackage_SetFileInfo(System_IO_Abstractions_IFileInfo)_value'></a>
+`value` [System.IO.Abstractions.IFileInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileInfo 'System.IO.Abstractions.IFileInfo')  
 The file information.
   
   
@@ -564,6 +653,15 @@ id
             version
   
 ### Properties
+<a name='Cmf_Common_Cli_Objects_Dependency_CmfPackage'></a>
+## Dependency.CmfPackage Property
+The CmfPackage that satisfies this dependency  
+```csharp
+public Cmf.Common.Cli.Objects.CmfPackage CmfPackage { get; set; }
+```
+#### Property Value
+[CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')
+  
 <a name='Cmf_Common_Cli_Objects_Dependency_Id'></a>
 ## Dependency.Id Property
 Gets or sets the identifier.  
@@ -573,6 +671,15 @@ public string Id { get; set; }
 #### Property Value
 [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
 The identifier.  
+  
+<a name='Cmf_Common_Cli_Objects_Dependency_IsMissing'></a>
+## Dependency.IsMissing Property
+Is this package missing, i.e. we could not find it anywhere to satisfy this dependency  
+```csharp
+public bool IsMissing { get; }
+```
+#### Property Value
+[System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')
   
 <a name='Cmf_Common_Cli_Objects_Dependency_Mandatory'></a>
 ## Dependency.Mandatory Property
@@ -677,22 +784,22 @@ Initializes a new instance of the [FileToPack](Cmf_Common_Cli_Objects.md#Cmf_Com
 public FileToPack();
 ```
   
-<a name='Cmf_Common_Cli_Objects_FileToPack_FileToPack(System_IO_FileInfo_System_IO_FileInfo_Cmf_Common_Cli_Objects_ContentToPack)'></a>
-## FileToPack.FileToPack(FileInfo, FileInfo, ContentToPack) Constructor
+<a name='Cmf_Common_Cli_Objects_FileToPack_FileToPack(System_IO_Abstractions_IFileInfo_System_IO_Abstractions_IFileInfo_Cmf_Common_Cli_Objects_ContentToPack)'></a>
+## FileToPack.FileToPack(IFileInfo, IFileInfo, ContentToPack) Constructor
 Initializes a new instance of the [FileToPack](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_FileToPack 'Cmf.Common.Cli.Objects.FileToPack') class.  
 ```csharp
-public FileToPack(System.IO.FileInfo source, System.IO.FileInfo target, Cmf.Common.Cli.Objects.ContentToPack contentToPack);
+public FileToPack(System.IO.Abstractions.IFileInfo source, System.IO.Abstractions.IFileInfo target, Cmf.Common.Cli.Objects.ContentToPack contentToPack);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Objects_FileToPack_FileToPack(System_IO_FileInfo_System_IO_FileInfo_Cmf_Common_Cli_Objects_ContentToPack)_source'></a>
-`source` [System.IO.FileInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.FileInfo 'System.IO.FileInfo')  
+<a name='Cmf_Common_Cli_Objects_FileToPack_FileToPack(System_IO_Abstractions_IFileInfo_System_IO_Abstractions_IFileInfo_Cmf_Common_Cli_Objects_ContentToPack)_source'></a>
+`source` [System.IO.Abstractions.IFileInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileInfo 'System.IO.Abstractions.IFileInfo')  
 The source.
   
-<a name='Cmf_Common_Cli_Objects_FileToPack_FileToPack(System_IO_FileInfo_System_IO_FileInfo_Cmf_Common_Cli_Objects_ContentToPack)_target'></a>
-`target` [System.IO.FileInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.FileInfo 'System.IO.FileInfo')  
+<a name='Cmf_Common_Cli_Objects_FileToPack_FileToPack(System_IO_Abstractions_IFileInfo_System_IO_Abstractions_IFileInfo_Cmf_Common_Cli_Objects_ContentToPack)_target'></a>
+`target` [System.IO.Abstractions.IFileInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileInfo 'System.IO.Abstractions.IFileInfo')  
 The target.
   
-<a name='Cmf_Common_Cli_Objects_FileToPack_FileToPack(System_IO_FileInfo_System_IO_FileInfo_Cmf_Common_Cli_Objects_ContentToPack)_contentToPack'></a>
+<a name='Cmf_Common_Cli_Objects_FileToPack_FileToPack(System_IO_Abstractions_IFileInfo_System_IO_Abstractions_IFileInfo_Cmf_Common_Cli_Objects_ContentToPack)_contentToPack'></a>
 `contentToPack` [ContentToPack](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_ContentToPack 'Cmf.Common.Cli.Objects.ContentToPack')  
 The content to pack.
   
@@ -712,20 +819,20 @@ The content to pack.
 ## FileToPack.Source Property
 Gets or sets the source.  
 ```csharp
-public System.IO.FileInfo Source { get; set; }
+public System.IO.Abstractions.IFileInfo Source { get; set; }
 ```
 #### Property Value
-[System.IO.FileInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.FileInfo 'System.IO.FileInfo')
+[System.IO.Abstractions.IFileInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileInfo 'System.IO.Abstractions.IFileInfo')
 The source.  
   
 <a name='Cmf_Common_Cli_Objects_FileToPack_Target'></a>
 ## FileToPack.Target Property
 Gets or sets the target.  
 ```csharp
-public System.IO.FileInfo Target { get; set; }
+public System.IO.Abstractions.IFileInfo Target { get; set; }
 ```
 #### Property Value
-[System.IO.FileInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.FileInfo 'System.IO.FileInfo')
+[System.IO.Abstractions.IFileInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileInfo 'System.IO.Abstractions.IFileInfo')
 The target.  
   
   

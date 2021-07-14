@@ -4,6 +4,7 @@ using Cmf.Common.Cli.Interfaces;
 using Cmf.Common.Cli.Objects;
 using System;
 using System.IO;
+using System.IO.Abstractions;
 
 namespace Cmf.Common.Cli.Factories
 {
@@ -18,7 +19,7 @@ namespace Cmf.Common.Cli.Factories
         /// <param name="file">The file.</param>
         /// <param name="setDefaultValues"></param>
         /// <returns></returns>
-        public static IPackageTypeHandler GetPackageTypeHandler(FileInfo file, bool setDefaultValues = false)
+        public static IPackageTypeHandler GetPackageTypeHandler(IFileInfo file, bool setDefaultValues = false)
         {
             // Load cmfPackage
             CmfPackage cmfPackage = CmfPackage.Load(file, setDefaultValues);
@@ -50,6 +51,7 @@ namespace Cmf.Common.Cli.Factories
                 PackageType.Reporting => new ReportingPackageTypeHandler(cmfPackage),
                 PackageType.ExportedObjects => new ExportedObjectsPackageTypeHandler(cmfPackage),
                 PackageType.Database => new DatabasePackageTypeHandler(cmfPackage),
+                PackageType.Test => new TestPackageTypeHandler(cmfPackage),
                 _ => throw new NotImplementedException()
             };
 

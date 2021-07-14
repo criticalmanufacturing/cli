@@ -48,19 +48,19 @@ The version for build Nr.
 The bump information.
   
   
-<a name='Cmf_Common_Cli_Interfaces_IPackageTypeHandler_Pack(System_IO_DirectoryInfo_System_IO_DirectoryInfo)'></a>
-## IPackageTypeHandler.Pack(DirectoryInfo, DirectoryInfo) Method
+<a name='Cmf_Common_Cli_Interfaces_IPackageTypeHandler_Pack(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo)'></a>
+## IPackageTypeHandler.Pack(IDirectoryInfo, IDirectoryInfo) Method
 Packs the specified package output dir.  
 ```csharp
-void Pack(System.IO.DirectoryInfo packageOutputDir, System.IO.DirectoryInfo outputDir);
+void Pack(System.IO.Abstractions.IDirectoryInfo packageOutputDir, System.IO.Abstractions.IDirectoryInfo outputDir);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Interfaces_IPackageTypeHandler_Pack(System_IO_DirectoryInfo_System_IO_DirectoryInfo)_packageOutputDir'></a>
-`packageOutputDir` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+<a name='Cmf_Common_Cli_Interfaces_IPackageTypeHandler_Pack(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo)_packageOutputDir'></a>
+`packageOutputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
 The package output dir.
   
-<a name='Cmf_Common_Cli_Interfaces_IPackageTypeHandler_Pack(System_IO_DirectoryInfo_System_IO_DirectoryInfo)_outputDir'></a>
-`outputDir` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+<a name='Cmf_Common_Cli_Interfaces_IPackageTypeHandler_Pack(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo)_outputDir'></a>
+`outputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
 The output dir.
   
   
