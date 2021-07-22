@@ -1,7 +1,7 @@
 {
-  "packageId": "Cmf.Custom.Package",
+  "packageId": "<%= $CLI_PARAM_CustomPackageName %>",
   "version": "1.1.0",
-  "description": "This package deploys Critical Manufacturing MES <%= $PLASTER_PARAM_Tenant %> Customization",
+  "description": "This package deploys Critical Manufacturing MES <%= $CLI_PARAM_Tenant %> Customization",
   "packageType": "Root",
   "isInstallable": true,
   "isUniqueInstall": false,

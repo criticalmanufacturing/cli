@@ -16,19 +16,20 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace Cmf.Common.Cli.Commands
 {
     /// <summary>
     /// Init command
     /// </summary>
-    [CmfCommand("new3")]
-    public class InitCommand : BaseCommand
+    [CmfCommand("init")]
+    public class InitCommand : TemplateCommand
     {
         /// <summary>
         /// constructor
         /// </summary>
-        public InitCommand() : base()
+        public InitCommand() : base("init")
         {
         }
 
@@ -36,7 +37,7 @@ namespace Cmf.Common.Cli.Commands
         /// constructor
         /// </summary>
         /// <param name="fileSystem"></param>
-        public InitCommand(IFileSystem fileSystem) : base(fileSystem)
+        public InitCommand(IFileSystem fileSystem) : base("init", fileSystem)
         {
         }
 
@@ -59,67 +60,98 @@ namespace Cmf.Common.Cli.Commands
                 name: "rootPackageName",
                 getDefaultValue: () => "Cmf.Custom.Package"
             ));
+            
+            // passwords for user accounts
+            
+            cmd.AddOption(new Option<IFileInfo>(
+                aliases: new string[] { "-c", "--config" },
+                parseArgument: argResult => Parse<IFileInfo>(argResult),
+                isDefault: true,
+                description: "Configuration file exported from Setup"));
+            
+            cmd.AddOption(new Option<Uri>(
+                aliases: new string[] { "--nugetRegistry" },
+                description: "NuGet registry that contains the MES packages"
+                ));
 
             // Add the handler
-            cmd.Handler = CommandHandler.Create((ParseResult parseResult, IConsole console) =>
-            {
-                // console.Out.WriteLine($"{parseResult}");
-                this.Execute(parseResult.UnparsedTokens);
-            });
+            cmd.Handler = CommandHandler.Create<IDirectoryInfo, string, IFileInfo, Uri>(this.Execute);
         }
 
         /// <summary>
         /// Execute the command
         /// </summary>
         /// <param name="workingDir"></param>
-        /// <param name="repo"></param>
-        public void Execute(IReadOnlyCollection<string> args)
+        /// <param name="rootPackageName"></param>
+        /// <param name="config"></param>
+        /// <param name="nugetRegistry"></param>
+        public void Execute(IDirectoryInfo workingDir, string rootPackageName, IFileInfo config, Uri nugetRegistry)
         {
-            var logger = new TelemetryLogger(null);
-
-            New3Callbacks callbacks = new New3Callbacks()
+            var args = new List<string>()
             {
-                OnFirstRun = FirstRun,
-                //RestoreProject = RestoreProject
+                // engine options
+                "--output", workingDir.FullName,
+                
+                // template symbols
+                "--customPackageName", rootPackageName
             };
 
-            var version = (Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly())
-                .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-                .InformationalVersion;
+            if (nugetRegistry != null)
+            {
+                args.AddRange(new [] {"--nugetRegistry", nugetRegistry.AbsoluteUri});
+            }
 
-            var commands = args.ToList().Concat(new[] { "--debug:custom-hive", $"{System.Environment.GetEnvironmentVariable("USERPROFILE")}/.templateengine/cmf-cli/{version}" });
-
-            New3Command.Run("new3", CreateHost(version), logger, callbacks, 
-                commands.ToArray(), null);
+            if (config != null)
+            {
+                args.AddRange(ParseConfigFile(config));
+            }
+            
+            this.RunCommand(args);
         }
 
-        private static ITemplateEngineHost CreateHost(string version)
+        private IEnumerable<string> ParseConfigFile(IFileInfo configFile)
         {
-            var builtIns = new AssemblyComponentCatalog(new Assembly[]
+            var args = new List<string>();
+            var configTxt = this.fileSystem.File.ReadAllText(configFile.FullName);
+            dynamic configJson = JsonConvert.DeserializeObject(configTxt);
+            if (configJson != null)
             {
-                typeof(RunnableProjectGenerator).GetTypeInfo().Assembly,
-                typeof(ConditionalConfig).GetTypeInfo().Assembly,
-                //typeof(NupkgUpdater).GetTypeInfo().Assembly
-            });
+                args.AddRange(new string[] { "--EnvironmentName", configJson["Product.SystemName"]?.Value });
+                args.AddRange(new string[] { "--RESTPort", configJson["Product.ApplicationServer.Port"]?.Value });
+                args.AddRange(new string[] { "--Tenant", configJson["Product.Tenant.Name"]?.Value });
 
-            var preferences = new Dictionary<string, string>
-            {
-            };
+                args.AddRange(new string[] { "--vmHostname", configJson["Product.ApplicationServer.Address"]?.Value });
+                args.AddRange(new string[] { "--DBReplica1", configJson["Package[Product.Database.Online].Database.Server"]?.Value });
+                args.AddRange(new string[] { "--DBReplica2", configJson["Package[Product.Database.Ods].Database.Server"]?.Value });
+                args.AddRange(new string[] { "--DBServerOnline", configJson["Package[Product.Database.Online].Database.Server"]?.Value });
+                args.AddRange(new string[] { "--DBServerODS", configJson["Package[Product.Database.Ods].Database.Server"]?.Value });
+                args.AddRange(new string[] { "--DBServerDWH", configJson["Package[Product.Database.Dwh].Database.Server"]?.Value });
+                args.AddRange(new string[] { "--ReportServerURI", configJson["Package.ReportingServices.Address"]?.Value });
+                if (configJson["Product.Database.IsAlwaysOn"]?.Value)
+                {
+                    args.AddRange(new string[] { "--AlwaysOn" });
+                }
 
-            return new DefaultTemplateEngineHost("cmf-cli", 
-                version,
-                System.Threading.Thread.CurrentThread.CurrentCulture.Name, preferences, builtIns);
-}
+                args.AddRange(new string[] { "--InstallationPath", configJson["Packages.Root.TargetDirectory"]?.Value });
+                args.AddRange(new string[] { "--DBBackupPath", configJson["Product.Database.BackupShare"]?.Value });
+                args.AddRange(new string[] { "--TemporaryPath", configJson["Product.DocumentManagement.TemporaryFolder"]?.Value });
+                args.AddRange(new string[] { "--HTMLPort", configJson["Product.Presentation.IisConfiguration.Binding.Port"]?.Value });
+                if (configJson["Product.Presentation.IisConfiguration.Binding.IsSslEnabled"]?.Value)
+                {
+                    args.AddRange(new string[] {"--IsSslEnabled"});    
+                }
+                
 
-        private static void FirstRun(IEngineEnvironmentSettings environmentSettings, IInstaller installer)
-        {
-            var paths = new Paths(environmentSettings);
-            var template_feed = new System.IO.DirectoryInfo(System.IO.Path.Join(paths.Global.BaseDir, "resources", "template_feed"));
+                args.AddRange(new string[] {"--GatewayPort", configJson["Product.Gateway.Port"]?.Value });
 
-            installer.InstallPackages(template_feed.GetDirectories().Select(x => x.FullName));
-
-            // install dotnet packages (for testing)
-            //installer.InstallPackages(environmentSettings.Host.FileSystem.EnumerateFiles(@"C:\Program Files\dotnet\templates\5.0.7", "*.nupkg", System.IO.SearchOption.TopDirectoryOnly));
+		        // args.Add("SQLUsername", "cmNavigoUser")
+		        // # TODO: this needs to go
+		        // args.Add("SQLPassword", "76492d1116743f0423413b16050a5345MgB8AGMAcABXAE8AcABsAG0AMQBQAEUAdgBrAHEAYgBnAG4ATgBOADkAUgBrAGcAPQA9AHwAOABjADYAZAAxAGMANgBjADcAYwBiADYAZAAzAGEAOQBhAGYAZAAzADEANAAwAGMAOABmADgANQA2AGYANQBhADYAOQA2ADgAYgA1AGQAMQBiAGUANQA4AGMAMAA0ADEAMQA0AGQANwBkAGEANQBhADAAOQA3AGMAYgAwAGQAZgA=")
+		        // args.Add("AdminUsername", configJson[""Product.Users[1].Account")
+		        // args.Add("AdminPassword", "76492d1116743f0423413b16050a5345MgB8ADAAVABRAGUAdQAzAHoAMgAwAHIAdQBrAEwASABxAHAASQBkAEoAWQBEAEEAPQA9AHwAOAAzADUAMQA5ADIANwBhADIAYgA1AGUAMgA3ADQAOQA5ADIAYwBlAGIAMQBiADkAOAAyAGQAMQBlAGMAMgA5ADIAMgBhADIAMgA1AGQAMQA5ADMAOQBkAGUANABjAGEAOAA0AGMANgAzADYAZQBmAGEAZAA1ADcAYwA5ADQAMAA=")
+                args.AddRange(new string[] {"--ReleaseEnvironmentConfig", configFile.Name});
+            } 
+            return args;
         }
     }
 }

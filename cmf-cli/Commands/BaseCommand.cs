@@ -181,15 +181,27 @@ namespace Cmf.Common.Cli.Commands
         /// <typeparam name="T">the (target) type of the argument/parameter</typeparam>
         /// <param name="argResult">the arguments to parse</param>
         /// <param name="default">the default value if no value is passed for the argument</param>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         /// <returns></returns>
-        protected T Parse<T>(ArgumentResult argResult, string @default) where T: IDirectoryInfo
+        protected T Parse<T>(ArgumentResult argResult, string @default = null)
         {
             var path = @default;
             if (argResult.Tokens.Any())
             {
                 path = argResult.Tokens.First().Value;
             }
-            return (T)this.fileSystem.DirectoryInfo.FromDirectoryName(path);
+
+            if (string.IsNullOrEmpty(path))
+            {
+                return default(T);
+            }
+
+            return typeof(T) switch
+            {
+                {} dirType when dirType == typeof(IDirectoryInfo) => (T)this.fileSystem.DirectoryInfo.FromDirectoryName(path),
+                {} fileType when fileType == typeof(IFileInfo) => (T)this.fileSystem.FileInfo.FromFileName(path),
+                _ => throw new ArgumentOutOfRangeException("This method only parses directory or file paths")
+            };
         }
     }
 }
