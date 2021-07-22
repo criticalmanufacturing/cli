@@ -129,7 +129,7 @@ namespace Cmf.Common.Cli.Handlers
             string path = $"{packageOutputDir.FullName}/{CliConstants.CmfPackageHostConfig}";
 
             // Get Template
-            string fileContent = GenericUtilities.GetEmbeddedResourceContent($"{CliConstants.FolderTemplates}/{CmfPackage.PackageType}/{CliConstants.CmfPackageHostConfig}");
+            string fileContent = GenericUtilities.GetEmbeddedResourceContent($"{CliConstants.FolderTemplates}/Data/{CliConstants.CmfPackageHostConfig}");
             this.fileSystem.File.WriteAllText(path, fileContent);
         }
 
