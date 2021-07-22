@@ -35,6 +35,11 @@
         /// The CMF package default presentation configuration
         /// </summary>
         public const string CmfPackagePresentationConfig = "config.json";
+        
+        /// <summary>
+        /// The CMF package default host configuration
+        /// </summary>
+        public const string CmfPackageHostConfig = "Cmf.Foundation.Services.HostService.dll.config";
 
         /// <summary>
         /// The package json

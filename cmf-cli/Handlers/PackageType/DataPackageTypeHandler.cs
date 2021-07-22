@@ -29,13 +29,28 @@ namespace Cmf.Common.Cli.Handlers
                     true,
                 waitForIntegrationEntries:
                     true,
+                targetDirectory:
+                    "BusinessTier",
                 steps:
                     new List<Step>()
                     {
+                        new Step(StepType.Generic)
+                        {
+                            OnExecute = "$(Agent.Root)/agent/scripts/stop_host.ps1"
+                        },
+                        new Step(StepType.TransformFile)
+                        {
+                            File = "Cmf.Foundation.Services.HostService.dll.config",
+                            TagFile = true
+                        },
+                        new Step(StepType.Generic)
+                        {
+                            OnExecute = "$(Agent.Root)/agent/scripts/start_host.ps1"
+                        }
                     }
             );
 
-            DFPackageType = PackageType.Generic;
+            DFPackageType = PackageType.Business; // necessary because we restart the host during installation
         }
 
         /// <summary>
@@ -89,5 +104,35 @@ namespace Cmf.Common.Cli.Handlers
             }
             base.GenerateDeploymentFrameworkManifest(packageOutputDir);
         }
+
+        /// <summary>
+        /// Pack a Data package
+        /// </summary>
+        /// <param name="packageOutputDir">source directory</param>
+        /// <param name="outputDir">output directory</param>
+        public override void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir)
+        {
+            GenerateHostConfigFile(packageOutputDir);
+            
+            base.Pack(packageOutputDir, outputDir);
+        }
+        
+        #region Private Methods
+
+        /// <summary>
+        /// Generates the host configuration file.
+        /// </summary>
+        /// <param name="packageOutputDir">The package output dir.</param>
+        private void GenerateHostConfigFile(IDirectoryInfo packageOutputDir)
+        {
+            Log.Debug("Generating host Cmf.Foundation.Services.HostService.dll.config");
+            string path = $"{packageOutputDir.FullName}/{CliConstants.CmfPackageHostConfig}";
+
+            // Get Template
+            string fileContent = GenericUtilities.GetEmbeddedResourceContent($"{CliConstants.FolderTemplates}/{CmfPackage.PackageType}/{CliConstants.CmfPackageHostConfig}");
+            this.fileSystem.File.WriteAllText(path, fileContent);
+        }
+
+        #endregion
     }
 }

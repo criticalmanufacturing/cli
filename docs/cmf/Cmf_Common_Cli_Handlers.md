@@ -108,6 +108,36 @@ The package output dir.
 #### Exceptions
 [CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException')  
   
+<a name='Cmf_Common_Cli_Handlers_DataPackageTypeHandler_GenerateHostConfigFile(System_IO_Abstractions_IDirectoryInfo)'></a>
+## DataPackageTypeHandler.GenerateHostConfigFile(IDirectoryInfo) Method
+Generates the host configuration file.  
+```csharp
+private void GenerateHostConfigFile(System.IO.Abstractions.IDirectoryInfo packageOutputDir);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Handlers_DataPackageTypeHandler_GenerateHostConfigFile(System_IO_Abstractions_IDirectoryInfo)_packageOutputDir'></a>
+`packageOutputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
+The package output dir.
+  
+  
+<a name='Cmf_Common_Cli_Handlers_DataPackageTypeHandler_Pack(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo)'></a>
+## DataPackageTypeHandler.Pack(IDirectoryInfo, IDirectoryInfo) Method
+Pack a Data package  
+```csharp
+public override void Pack(System.IO.Abstractions.IDirectoryInfo packageOutputDir, System.IO.Abstractions.IDirectoryInfo outputDir);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Handlers_DataPackageTypeHandler_Pack(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo)_packageOutputDir'></a>
+`packageOutputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
+source directory
+  
+<a name='Cmf_Common_Cli_Handlers_DataPackageTypeHandler_Pack(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo)_outputDir'></a>
+`outputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
+output directory
+  
+
+Implements [Pack(IDirectoryInfo, IDirectoryInfo)](Cmf_Common_Cli_Interfaces.md#Cmf_Common_Cli_Interfaces_IPackageTypeHandler_Pack(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo) 'Cmf.Common.Cli.Interfaces.IPackageTypeHandler.Pack(System.IO.Abstractions.IDirectoryInfo, System.IO.Abstractions.IDirectoryInfo)')  
+  
 #### See Also
 - [PackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_PackageTypeHandler 'Cmf.Common.Cli.Handlers.PackageTypeHandler')
   

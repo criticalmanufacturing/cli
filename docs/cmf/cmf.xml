@@ -933,6 +933,11 @@
             The CMF package default presentation configuration
             </summary>
         </member>
+        <member name="F:Cmf.Common.Cli.Constants.CliConstants.CmfPackageHostConfig">
+            <summary>
+            The CMF package default host configuration
+            </summary>
+        </member>
         <member name="F:Cmf.Common.Cli.Constants.CliConstants.PackageJson">
             <summary>
             The package json
@@ -1313,6 +1318,19 @@
             </summary>
             <param name="packageOutputDir">The package output dir.</param>
             <exception cref="T:Cmf.Common.Cli.Utilities.CliException"></exception>
+        </member>
+        <member name="M:Cmf.Common.Cli.Handlers.DataPackageTypeHandler.Pack(System.IO.Abstractions.IDirectoryInfo,System.IO.Abstractions.IDirectoryInfo)">
+            <summary>
+            Pack a Data package
+            </summary>
+            <param name="packageOutputDir">source directory</param>
+            <param name="outputDir">output directory</param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Handlers.DataPackageTypeHandler.GenerateHostConfigFile(System.IO.Abstractions.IDirectoryInfo)">
+            <summary>
+            Generates the host configuration file.
+            </summary>
+            <param name="packageOutputDir">The package output dir.</param>
         </member>
         <member name="T:Cmf.Common.Cli.Handlers.ExportedObjectsPackageTypeHandler">
              <summary>
