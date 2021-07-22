@@ -15,13 +15,14 @@ Derived
 &#8627; [BumpIoTCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BumpIoTCommand 'Cmf.Common.Cli.Commands.BumpIoTCommand')  
 &#8627; [BumpIoTCustomizationCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BumpIoTCustomizationCommand 'Cmf.Common.Cli.Commands.BumpIoTCustomizationCommand')  
 &#8627; [HelpCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_HelpCommand 'Cmf.Common.Cli.Commands.HelpCommand')  
-&#8627; [InitCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_InitCommand 'Cmf.Common.Cli.Commands.InitCommand')  
 &#8627; [ListDependenciesCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_ListDependenciesCommand 'Cmf.Common.Cli.Commands.ListDependenciesCommand')  
 &#8627; [LocalCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_LocalCommand 'Cmf.Common.Cli.Commands.LocalCommand')  
+&#8627; [New3_Command](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_New3_Command 'Cmf.Common.Cli.Commands.New3_Command')  
 &#8627; [PackCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_PackCommand 'Cmf.Common.Cli.Commands.PackCommand')  
 &#8627; [PluginCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_PluginCommand 'Cmf.Common.Cli.Commands.PluginCommand')  
 &#8627; [PowershellCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_PowershellCommand 'Cmf.Common.Cli.Commands.PowershellCommand')  
 &#8627; [PublishCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_PublishCommand 'Cmf.Common.Cli.Commands.PublishCommand')  
+&#8627; [TemplateCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_TemplateCommand 'Cmf.Common.Cli.Commands.TemplateCommand')  
 ### Constructors
 <a name='Cmf_Common_Cli_Commands_BaseCommand_BaseCommand()'></a>
 ## BaseCommand.BaseCommand() Constructor
@@ -109,8 +110,7 @@ The command types.
 ## BaseCommand.Parse&lt;T&gt;(ArgumentResult, string) Method
 parse argument/option  
 ```csharp
-protected T Parse<T>(System.CommandLine.Parsing.ArgumentResult argResult, string @default)
-    where T : System.IO.Abstractions.IDirectoryInfo;
+protected T Parse<T>(System.CommandLine.Parsing.ArgumentResult argResult, string @default=null);
 ```
 #### Type parameters
 <a name='Cmf_Common_Cli_Commands_BaseCommand_Parse_T_(System_CommandLine_Parsing_ArgumentResult_string)_T'></a>
@@ -128,6 +128,8 @@ the default value if no value is passed for the argument
   
 #### Returns
 [T](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand_Parse_T_(System_CommandLine_Parsing_ArgumentResult_string)_T 'Cmf.Common.Cli.Commands.BaseCommand.Parse&lt;T&gt;(System.CommandLine.Parsing.ArgumentResult, string).T')  
+#### Exceptions
+[System.ArgumentOutOfRangeException](https://docs.microsoft.com/en-us/dotnet/api/System.ArgumentOutOfRangeException 'System.ArgumentOutOfRangeException')  
   
   
 <a name='Cmf_Common_Cli_Commands_BuildCommand'></a>
@@ -609,10 +611,10 @@ public override void Configure(System.CommandLine.Command cmd);
 ## InitCommand Class
 Init command  
 ```csharp
-public class InitCommand : Cmf.Common.Cli.Commands.BaseCommand
+public class InitCommand : Cmf.Common.Cli.Commands.TemplateCommand
 ```
 
-Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand') &#129106; InitCommand  
+Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand') &#129106; [TemplateCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_TemplateCommand 'Cmf.Common.Cli.Commands.TemplateCommand') &#129106; InitCommand  
 ### Constructors
 <a name='Cmf_Common_Cli_Commands_InitCommand_InitCommand()'></a>
 ## InitCommand.InitCommand() Constructor
@@ -644,15 +646,24 @@ public override void Configure(System.CommandLine.Command cmd);
 `cmd` [System.CommandLine.Command](https://docs.microsoft.com/en-us/dotnet/api/System.CommandLine.Command 'System.CommandLine.Command')  
   
   
-<a name='Cmf_Common_Cli_Commands_InitCommand_Execute(System_Collections_Generic_IReadOnlyCollection_string_)'></a>
-## InitCommand.Execute(IReadOnlyCollection&lt;string&gt;) Method
+<a name='Cmf_Common_Cli_Commands_InitCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string_System_IO_Abstractions_IFileInfo_System_Uri)'></a>
+## InitCommand.Execute(IDirectoryInfo, string, IFileInfo, Uri) Method
 Execute the command  
 ```csharp
-public void Execute(System.Collections.Generic.IReadOnlyCollection<string> args);
+public void Execute(System.IO.Abstractions.IDirectoryInfo workingDir, string rootPackageName, System.IO.Abstractions.IFileInfo config, System.Uri nugetRegistry);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Commands_InitCommand_Execute(System_Collections_Generic_IReadOnlyCollection_string_)_args'></a>
-`args` [System.Collections.Generic.IReadOnlyCollection&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IReadOnlyCollection-1 'System.Collections.Generic.IReadOnlyCollection`1')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IReadOnlyCollection-1 'System.Collections.Generic.IReadOnlyCollection`1')  
+<a name='Cmf_Common_Cli_Commands_InitCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string_System_IO_Abstractions_IFileInfo_System_Uri)_workingDir'></a>
+`workingDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
+  
+<a name='Cmf_Common_Cli_Commands_InitCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string_System_IO_Abstractions_IFileInfo_System_Uri)_rootPackageName'></a>
+`rootPackageName` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+  
+<a name='Cmf_Common_Cli_Commands_InitCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string_System_IO_Abstractions_IFileInfo_System_Uri)_config'></a>
+`config` [System.IO.Abstractions.IFileInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileInfo 'System.IO.Abstractions.IFileInfo')  
+  
+<a name='Cmf_Common_Cli_Commands_InitCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string_System_IO_Abstractions_IFileInfo_System_Uri)_nugetRegistry'></a>
+`nugetRegistry` [System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')  
   
   
   
@@ -731,6 +742,57 @@ public override void Configure(System.CommandLine.Command cmd);
   
 #### See Also
 - [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand')
+  
+<a name='Cmf_Common_Cli_Commands_New3_Command'></a>
+## New3_Command Class
+Command to test templates  
+```csharp
+public class New3_Command : Cmf.Common.Cli.Commands.BaseCommand
+```
+
+Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand') &#129106; New3_Command  
+### Constructors
+<a name='Cmf_Common_Cli_Commands_New3_Command_New3_Command()'></a>
+## New3_Command.New3_Command() Constructor
+constructor  
+```csharp
+public New3_Command();
+```
+  
+<a name='Cmf_Common_Cli_Commands_New3_Command_New3_Command(System_IO_Abstractions_IFileSystem)'></a>
+## New3_Command.New3_Command(IFileSystem) Constructor
+constructor  
+```csharp
+public New3_Command(System.IO.Abstractions.IFileSystem fileSystem);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Commands_New3_Command_New3_Command(System_IO_Abstractions_IFileSystem)_fileSystem'></a>
+`fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
+  
+  
+### Methods
+<a name='Cmf_Common_Cli_Commands_New3_Command_Configure(System_CommandLine_Command)'></a>
+## New3_Command.Configure(Command) Method
+configure command signature  
+```csharp
+public override void Configure(System.CommandLine.Command cmd);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Commands_New3_Command_Configure(System_CommandLine_Command)_cmd'></a>
+`cmd` [System.CommandLine.Command](https://docs.microsoft.com/en-us/dotnet/api/System.CommandLine.Command 'System.CommandLine.Command')  
+  
+  
+<a name='Cmf_Common_Cli_Commands_New3_Command_Execute(System_Collections_Generic_IReadOnlyCollection_string_)'></a>
+## New3_Command.Execute(IReadOnlyCollection&lt;string&gt;) Method
+Execute the command  
+```csharp
+public static void Execute(System.Collections.Generic.IReadOnlyCollection<string> args);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Commands_New3_Command_Execute(System_Collections_Generic_IReadOnlyCollection_string_)_args'></a>
+`args` [System.Collections.Generic.IReadOnlyCollection&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IReadOnlyCollection-1 'System.Collections.Generic.IReadOnlyCollection`1')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IReadOnlyCollection-1 'System.Collections.Generic.IReadOnlyCollection`1')  
+  
+  
   
 <a name='Cmf_Common_Cli_Commands_PackCommand'></a>
 ## PackCommand Class
@@ -1095,4 +1157,53 @@ Package version to publish
   
 #### See Also
 - [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand')
+  
+<a name='Cmf_Common_Cli_Commands_TemplateCommand'></a>
+## TemplateCommand Class
+```csharp
+public abstract class TemplateCommand : Cmf.Common.Cli.Commands.BaseCommand
+```
+
+Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand') &#129106; TemplateCommand  
+
+Derived  
+&#8627; [InitCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_InitCommand 'Cmf.Common.Cli.Commands.InitCommand')  
+### Constructors
+<a name='Cmf_Common_Cli_Commands_TemplateCommand_TemplateCommand(string_System_IO_Abstractions_IFileSystem)'></a>
+## TemplateCommand.TemplateCommand(string, IFileSystem) Constructor
+constructor  
+```csharp
+protected TemplateCommand(string commandName, System.IO.Abstractions.IFileSystem fileSystem);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Commands_TemplateCommand_TemplateCommand(string_System_IO_Abstractions_IFileSystem)_commandName'></a>
+`commandName` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+  
+<a name='Cmf_Common_Cli_Commands_TemplateCommand_TemplateCommand(string_System_IO_Abstractions_IFileSystem)_fileSystem'></a>
+`fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
+  
+  
+<a name='Cmf_Common_Cli_Commands_TemplateCommand_TemplateCommand(string)'></a>
+## TemplateCommand.TemplateCommand(string) Constructor
+constructor  
+```csharp
+protected TemplateCommand(string commandName);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Commands_TemplateCommand_TemplateCommand(string)_commandName'></a>
+`commandName` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+  
+  
+### Methods
+<a name='Cmf_Common_Cli_Commands_TemplateCommand_RunCommand(System_Collections_Generic_IReadOnlyCollection_string_)'></a>
+## TemplateCommand.RunCommand(IReadOnlyCollection&lt;string&gt;) Method
+Execute the command  
+```csharp
+public void RunCommand(System.Collections.Generic.IReadOnlyCollection<string> args);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Commands_TemplateCommand_RunCommand(System_Collections_Generic_IReadOnlyCollection_string_)_args'></a>
+`args` [System.Collections.Generic.IReadOnlyCollection&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IReadOnlyCollection-1 'System.Collections.Generic.IReadOnlyCollection`1')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IReadOnlyCollection-1 'System.Collections.Generic.IReadOnlyCollection`1')  
+  
+  
   

@@ -462,6 +462,7 @@
             <typeparam name="T">the (target) type of the argument/parameter</typeparam>
             <param name="argResult">the arguments to parse</param>
             <param name="default">the default value if no value is passed for the argument</param>
+            <exception cref="T:System.ArgumentOutOfRangeException"></exception>
             <returns></returns>
         </member>
         <member name="T:Cmf.Common.Cli.Commands.BuildCommand">
@@ -673,12 +674,41 @@
             </summary>
             <param name="cmd"></param>
         </member>
-        <member name="M:Cmf.Common.Cli.Commands.InitCommand.Execute(System.Collections.Generic.IReadOnlyCollection{System.String})">
+        <member name="M:Cmf.Common.Cli.Commands.InitCommand.Execute(System.IO.Abstractions.IDirectoryInfo,System.String,System.IO.Abstractions.IFileInfo,System.Uri)">
             <summary>
             Execute the command
             </summary>
             <param name="workingDir"></param>
-            <param name="repo"></param>
+            <param name="rootPackageName"></param>
+            <param name="config"></param>
+            <param name="nugetRegistry"></param>
+        </member>
+        <member name="T:Cmf.Common.Cli.Commands.New3_Command">
+            <summary>
+            Command to test templates
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New3_Command.#ctor">
+            <summary>
+            constructor
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New3_Command.#ctor(System.IO.Abstractions.IFileSystem)">
+            <summary>
+            constructor
+            </summary>
+            <param name="fileSystem"></param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New3_Command.Configure(System.CommandLine.Command)">
+            <summary>
+            configure command signature
+            </summary>
+            <param name="cmd"></param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New3_Command.Execute(System.Collections.Generic.IReadOnlyCollection{System.String})">
+            <summary>
+            Execute the command
+            </summary>
         </member>
         <member name="T:Cmf.Common.Cli.Commands.ListDependenciesCommand">
             <summary>
@@ -931,6 +961,30 @@
             <returns></returns>
             <exception cref="T:Cmf.Common.Cli.Objects.CmfPackageCollection">
             </exception>
+        </member>
+        <member name="T:Cmf.Common.Cli.Commands.TemplateCommand">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.TemplateCommand.#ctor(System.String)">
+            <summary>
+            constructor
+            </summary>
+            <param name="commandName"></param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.TemplateCommand.#ctor(System.String,System.IO.Abstractions.IFileSystem)">
+            <summary>
+            constructor
+            </summary>
+            <param name="commandName"></param>
+            <param name="fileSystem"></param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.TemplateCommand.RunCommand(System.Collections.Generic.IReadOnlyCollection{System.String})">
+            <summary>
+            Execute the command
+            </summary>
+            <param name="args"></param>
         </member>
         <member name="T:Cmf.Common.Cli.Constants.CliConstants">
              <summary>
