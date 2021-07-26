@@ -715,14 +715,10 @@
             </summary>
             <param name="cmd"></param>
         </member>
-        <member name="M:Cmf.Common.Cli.Commands.InitCommand.Execute(System.IO.Abstractions.IDirectoryInfo,System.String,System.IO.Abstractions.IFileInfo,System.Uri)">
+        <member name="M:Cmf.Common.Cli.Commands.InitCommand.Execute(Cmf.Common.Cli.Commands.InitArguments)">
             <summary>
             Execute the command
             </summary>
-            <param name="workingDir"></param>
-            <param name="rootPackageName"></param>
-            <param name="config"></param>
-            <param name="nugetRegistry"></param>
         </member>
         <member name="T:Cmf.Common.Cli.Commands.New3_Command">
             <summary>
@@ -1021,11 +1017,19 @@
             <param name="commandName"></param>
             <param name="fileSystem"></param>
         </member>
-        <member name="M:Cmf.Common.Cli.Commands.TemplateCommand.RunCommand(System.Collections.Generic.IReadOnlyCollection{System.String})">
+        <member name="M:Cmf.Common.Cli.Commands.TemplateCommand.RunCommand(System.IO.Abstractions.IDirectoryInfo,System.Collections.Generic.IReadOnlyCollection{System.String})">
             <summary>
             Execute the command
             </summary>
-            <param name="args"></param>
+            <param name="workingDir">the directory where we are running the template</param>
+            <param name="args">the template engine arguments</param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.TemplateCommand.ParseConfigFile(System.IO.Abstractions.IFileInfo)">
+            <summary>
+            Parse a DF exported config file
+            </summary>
+            <param name="configFile">the path to the config file</param>
+            <returns>template engine compatible switches array</returns>
         </member>
         <member name="T:Cmf.Common.Cli.Constants.CliConstants">
              <summary>
@@ -2674,7 +2678,7 @@
             <summary>
             Gets the package root of type package root.
             </summary>
-            <param name="directoryName">Name of the directory.</param>
+            <param name="directoryName">The current working directory</param>
             <param name="packageType">Type of the package.</param>
             <param name="fileSystem">the underlying file system</param>
             <returns></returns>
@@ -2793,6 +2797,13 @@
             <param name="packageId">Package Identifier</param>
             <param name="packageVersion">Package Version</param>
             <param name="fileSystem">the underlying file system</param>
+            <returns></returns>
+        </member>
+        <member name="M:Cmf.Common.Cli.Utilities.GenericUtilities.JsonObjectToUri(System.Object)">
+            <summary>
+            Converts a JsonObject to an Uri
+            </summary>
+            <param name="value"></param>
             <returns></returns>
         </member>
         <member name="T:Cmf.Common.Cli.Utilities.IoTUtilities">

@@ -258,7 +258,7 @@ namespace Cmf.Common.Cli.Utilities
         /// <summary>
         /// Gets the package root of type package root.
         /// </summary>
-        /// <param name="directoryName">Name of the directory.</param>
+        /// <param name="directoryName">The current working directory</param>
         /// <param name="packageType">Type of the package.</param>
         /// <param name="fileSystem">the underlying file system</param>
         /// <returns></returns>

@@ -666,24 +666,15 @@ public override void Configure(System.CommandLine.Command cmd);
 `cmd` [System.CommandLine.Command](https://docs.microsoft.com/en-us/dotnet/api/System.CommandLine.Command 'System.CommandLine.Command')  
   
   
-<a name='Cmf_Common_Cli_Commands_InitCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string_System_IO_Abstractions_IFileInfo_System_Uri)'></a>
-## InitCommand.Execute(IDirectoryInfo, string, IFileInfo, Uri) Method
+<a name='Cmf_Common_Cli_Commands_InitCommand_Execute(Cmf_Common_Cli_Commands_InitArguments)'></a>
+## InitCommand.Execute(InitArguments) Method
 Execute the command  
 ```csharp
-public void Execute(System.IO.Abstractions.IDirectoryInfo workingDir, string rootPackageName, System.IO.Abstractions.IFileInfo config, System.Uri nugetRegistry);
+public void Execute(Cmf.Common.Cli.Commands.InitArguments x);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Commands_InitCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string_System_IO_Abstractions_IFileInfo_System_Uri)_workingDir'></a>
-`workingDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
-  
-<a name='Cmf_Common_Cli_Commands_InitCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string_System_IO_Abstractions_IFileInfo_System_Uri)_rootPackageName'></a>
-`rootPackageName` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
-  
-<a name='Cmf_Common_Cli_Commands_InitCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string_System_IO_Abstractions_IFileInfo_System_Uri)_config'></a>
-`config` [System.IO.Abstractions.IFileInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileInfo 'System.IO.Abstractions.IFileInfo')  
-  
-<a name='Cmf_Common_Cli_Commands_InitCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string_System_IO_Abstractions_IFileInfo_System_Uri)_nugetRegistry'></a>
-`nugetRegistry` [System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')  
+<a name='Cmf_Common_Cli_Commands_InitCommand_Execute(Cmf_Common_Cli_Commands_InitArguments)_x'></a>
+`x` [Cmf.Common.Cli.Commands.InitArguments](https://docs.microsoft.com/en-us/dotnet/api/Cmf.Common.Cli.Commands.InitArguments 'Cmf.Common.Cli.Commands.InitArguments')  
   
   
   
@@ -1215,15 +1206,35 @@ protected TemplateCommand(string commandName);
   
   
 ### Methods
-<a name='Cmf_Common_Cli_Commands_TemplateCommand_RunCommand(System_Collections_Generic_IReadOnlyCollection_string_)'></a>
-## TemplateCommand.RunCommand(IReadOnlyCollection&lt;string&gt;) Method
-Execute the command  
+<a name='Cmf_Common_Cli_Commands_TemplateCommand_ParseConfigFile(System_IO_Abstractions_IFileInfo)'></a>
+## TemplateCommand.ParseConfigFile(IFileInfo) Method
+Parse a DF exported config file  
 ```csharp
-public void RunCommand(System.Collections.Generic.IReadOnlyCollection<string> args);
+protected System.Collections.Generic.IEnumerable<string> ParseConfigFile(System.IO.Abstractions.IFileInfo configFile);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Commands_TemplateCommand_RunCommand(System_Collections_Generic_IReadOnlyCollection_string_)_args'></a>
+<a name='Cmf_Common_Cli_Commands_TemplateCommand_ParseConfigFile(System_IO_Abstractions_IFileInfo)_configFile'></a>
+`configFile` [System.IO.Abstractions.IFileInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileInfo 'System.IO.Abstractions.IFileInfo')  
+the path to the config file
+  
+#### Returns
+[System.Collections.Generic.IEnumerable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')  
+template engine compatible switches array
+  
+<a name='Cmf_Common_Cli_Commands_TemplateCommand_RunCommand(System_IO_Abstractions_IDirectoryInfo_System_Collections_Generic_IReadOnlyCollection_string_)'></a>
+## TemplateCommand.RunCommand(IDirectoryInfo, IReadOnlyCollection&lt;string&gt;) Method
+Execute the command  
+```csharp
+public void RunCommand(System.IO.Abstractions.IDirectoryInfo workingDir, System.Collections.Generic.IReadOnlyCollection<string> args);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Commands_TemplateCommand_RunCommand(System_IO_Abstractions_IDirectoryInfo_System_Collections_Generic_IReadOnlyCollection_string_)_workingDir'></a>
+`workingDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
+the directory where we are running the template
+  
+<a name='Cmf_Common_Cli_Commands_TemplateCommand_RunCommand(System_IO_Abstractions_IDirectoryInfo_System_Collections_Generic_IReadOnlyCollection_string_)_args'></a>
 `args` [System.Collections.Generic.IReadOnlyCollection&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IReadOnlyCollection-1 'System.Collections.Generic.IReadOnlyCollection`1')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IReadOnlyCollection-1 'System.Collections.Generic.IReadOnlyCollection`1')  
+the template engine arguments
   
   
   

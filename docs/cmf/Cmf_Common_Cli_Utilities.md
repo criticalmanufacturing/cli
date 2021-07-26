@@ -506,7 +506,7 @@ public static System.IO.Abstractions.IDirectoryInfo GetPackageRootByType(string 
 #### Parameters
 <a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageRootByType(string_Cmf_Common_Cli_Enums_PackageType_System_IO_Abstractions_IFileSystem)_directoryName'></a>
 `directoryName` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
-Name of the directory.
+The current working directory
   
 <a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageRootByType(string_Cmf_Common_Cli_Enums_PackageType_System_IO_Abstractions_IFileSystem)_packageType'></a>
 `packageType` [PackageType](Cmf_Common_Cli_Enums.md#Cmf_Common_Cli_Enums_PackageType 'Cmf.Common.Cli.Enums.PackageType')  
@@ -683,6 +683,19 @@ the underlying file system
   
 #### Returns
 [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
+  
+<a name='Cmf_Common_Cli_Utilities_GenericUtilities_JsonObjectToUri(dynamic)'></a>
+## GenericUtilities.JsonObjectToUri(dynamic) Method
+Converts a JsonObject to an Uri  
+```csharp
+public static System.Uri? JsonObjectToUri(dynamic value);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_GenericUtilities_JsonObjectToUri(dynamic)_value'></a>
+`value` [dynamic](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/types/using-type-dynamic 'https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/types/using-type-dynamic')  
+  
+#### Returns
+[System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')  
   
 <a name='Cmf_Common_Cli_Utilities_GenericUtilities_RetrieveNewPresentationVersion(string_string_string)'></a>
 ## GenericUtilities.RetrieveNewPresentationVersion(string, string, string) Method

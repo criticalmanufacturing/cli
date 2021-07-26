@@ -1,0 +1,113 @@
+# CM PI Continuous Integration Package Pipeline
+pool:
+  name: <%= $CLI_PARAM_AgentPool %>
+<%
+  if ($CLI_PARAM_AgentType -eq "Cloud") {
+    "  vmImage: 'ubuntu-latest'"    
+  }
+%>
+
+# A pipeline with no CI trigger
+trigger: none
+
+# A pipeline with no PR trigger
+pr: none
+
+parameters:
+- name: PackageId
+  displayName: Package
+  type: string
+- name: PackagePath
+  displayName: Package Path
+  type: string
+
+variables:
+ - template: ../EnvironmentConfigs/GlobalVariables.yml  # Template reference to global variables
+
+workspace:
+    clean: all
+
+name: $(Build.SourceBranchName)_$(Build.DefinitionName)_${{ parameters.PackageId }}.$(Build.BuildId)
+steps:
+- checkout: self
+  persistCredentials: true
+
+# use Node Tool
+- task: NodeTool@0
+  displayName: 'Use Node ${{ variables.NodeVersion }}'
+  inputs:
+    versionSpec: ${{ variables.NodeVersion }}
+
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    useGlobalJson: true
+
+# Get package version
+- task: PowerShell@2
+  displayName: 'Get package version'
+  inputs:
+    pwsh: true
+    failOnStderr: true
+    workingDirectory: ${{ parameters.PackagePath }}
+    targetType: inline
+    script: |
+      $CmfPackageJsonFile = Get-Item ".\cmfpackage.json"
+      $CmfPackageJson = Get-Content -Raw -Path $CmfPackageJsonFile | ConvertFrom-Json
+      $PackVersion = $CmfPackageJson.'version'
+      $PackageId = $CmfPackageJson.'packageId'
+      Write-Host "PackVersion = $PackVersion"
+      Write-Host "PackageId = $PackageId"
+      
+      # Validate if the package version was already released
+      $finalPackageFile = "${{ variables.ProjectPackageRepository }}/Delivered/" + $PackageId + "." + $PackVersion + ".zip"
+      if(Test-Path $finalPackageFile) {
+          throw "Package " + $PackageId + "." + $PackVersion + " already released"
+      }
+
+      echo "##vso[task.setvariable variable=PackageVersion;isOutput=true]$PackVersion"
+      echo "##vso[task.setvariable variable=PackageId;isOutput=true]$PackageId"
+  name: GetPackageVersion
+
+<% 
+if ($CLI_PARAM_NuGetRegistryUsername -and $CLI_PARAM_NuGetRegistryPassword) {
+@"
+- task: NuGetCommand@2
+  displayName: "Remove CMF NuGet source"
+  inputs:
+    command: 'custom'
+    arguments: 'sources remove -Name "CMF" -Config NuGet.Config'
+
+- task: NuGetCommand@2
+  displayName: "Add authenticated CMF NuGet source"
+  inputs:
+    command: 'custom'
+    arguments: 'sources Add -Name "CMF" -Source "${PLASTER_PARAM_NuGetRegistry}" -Username $`(NuGetRegistryUsername) -password $`(NuGetRegistryPassword) -StorePasswordInClearText -Config NuGet.Config'
+"@
+} 
+%>
+
+# Install Cmf Nuget Package
+- task: PowerShell@2
+  displayName: 'Install Cmf Nuget Package'
+  inputs:
+    pwsh: true
+    failOnStderr: false
+    targetType: inline
+    workingDirectory: $(Agent.TempDirectory)
+    script: |
+      npm install --no-save @criticalmanufacturing/cli@1.x.x --registry ${{ variables.CmfCliRepository }}
+
+# Cmf Build - Feature
+- task: PowerShell@2
+  displayName: 'Cmf Build - Feature'
+  inputs:
+    pwsh: true
+    failOnStderr: true
+    workingDirectory: ${{ parameters.PackagePath }}
+    targetType: inline
+    script: |
+      $(Agent.TempDirectory)/node_modules/.bin/cmf-cli/cmf build
+- task: PostBuildCleanup@3
+  displayName: 'Clean Agent Directories'
+  condition: always()

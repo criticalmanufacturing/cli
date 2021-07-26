@@ -11,15 +11,46 @@ using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
+using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Cmf.Common.Cli.Utilities;
 using Newtonsoft.Json;
 
 namespace Cmf.Common.Cli.Commands
 {
+    public enum AgentType
+    {
+        Cloud,
+        Hosted
+    }
+
+    public class InitArguments
+    {
+        public IDirectoryInfo workingDir { get; set; }
+        public string projectName { get; set; }
+        public string rootPackageName { get; set; }
+        public IFileInfo config { get; set; }
+        public IDirectoryInfo deploymentDir { get; set; }
+        public Uri repositoryUrl { get; set; }
+        public string MESVersion { get; set; }
+        public string DevTasksVersion { get; set; }
+        public string HTMLStarterVersion { get; set; }
+        public string yoGeneratorVersion { get; set; }
+        public string nugetVersion { get; set; }
+        public string testScenariosNugetVersion { get; set; }
+        public IFileInfo infrastructure { get; set; }
+        public Uri nugetRegistry { get; set; }
+        public Uri npmRegistry { get; set; }
+        public Uri azureDevOpsCollectionUrl { get; set; }
+        public string agentPool { get; set; }
+        public AgentType? agentType { get; set; }
+        public string nugetRegistryUsername { get; set; }
+        public string nugetRegistryPassword { get; set; }
+    } 
     /// <summary>
     /// Init command
     /// </summary>
@@ -47,6 +78,13 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="cmd"></param>
         public override void Configure(Command cmd)
         {
+            cmd.AddArgument(new Argument<string>(
+                name: "projectName"
+            ));
+            cmd.AddArgument(new Argument<string>(
+                name: "rootPackageName",
+                getDefaultValue: () => "Cmf.Custom.Package"
+            ));
             cmd.AddArgument(new Argument<IDirectoryInfo>(
                 name: "workingDir",
                 parse: (argResult) => Parse<IDirectoryInfo>(argResult, "."),
@@ -55,13 +93,6 @@ namespace Cmf.Common.Cli.Commands
             {
                 Description = "Working Directory"
             });
-
-            cmd.AddArgument(new Argument<string>(
-                name: "rootPackageName",
-                getDefaultValue: () => "Cmf.Custom.Package"
-            ));
-            
-            // passwords for user accounts
             
             cmd.AddOption(new Option<IFileInfo>(
                 aliases: new string[] { "-c", "--config" },
@@ -69,89 +100,214 @@ namespace Cmf.Common.Cli.Commands
                 isDefault: true,
                 description: "Configuration file exported from Setup"));
             
+            // template-time options. These are all mandatory
+            cmd.AddOption(new Option<Uri>(
+                aliases: new string[] { "--repositoryUrl" },
+                description: "Git repository URL"
+            ));
+            cmd.AddOption(new Option<IDirectoryInfo>(
+                aliases: new string[] { "--deploymentDir" },
+                parseArgument: argResult => Parse<IDirectoryInfo>(argResult),
+                isDefault: true,
+                description: "Deployments directory (for releases). Don't specify if not using CI-Release."
+            ));
+            cmd.AddOption(new Option<string>(
+                aliases: new string[] { "--MESVersion" },
+                description: "Target MES version"
+            ));
+            cmd.AddOption(new Option<string>(
+                aliases: new string[] { "--DevTasksVersion" },
+                description: "Critical Manufacturing dev-tasks version"
+            ));
+            cmd.AddOption(new Option<string>(
+                aliases: new string[] { "--HTMLStarterVersion" },
+                description: "HTML Starter version"
+            ));
+            cmd.AddOption(new Option<string>(
+                aliases: new string[] { "--yoGeneratorVersion" },
+                description: "@criticalmanufacturing/html Yeoman generator version"
+            ));
+            cmd.AddOption(new Option<string>(
+                aliases: new string[] { "--nugetVersion" },
+                description: "NuGet versions to target. This is usually the MES version"
+            ));
+            // TODO: remove this one?
+            cmd.AddOption(new Option<string>(
+                aliases: new string[] { "--testScenariosNugetVersion" },
+                description: "Test Scenarios Nuget Version"
+            ));
+            
+            // infra options
+            cmd.AddOption(new Option<IFileInfo>(
+                aliases: new string[] { "--infra", "--infrastructure" },
+                parseArgument: argResult => Parse<IFileInfo>(argResult),
+                isDefault: true,
+                description: "Infrastructure JSON file"
+            ));
             cmd.AddOption(new Option<Uri>(
                 aliases: new string[] { "--nugetRegistry" },
                 description: "NuGet registry that contains the MES packages"
                 ));
+            cmd.AddOption(new Option<Uri>(
+                aliases: new string[] { "--npmRegistry" },
+                description: "NPM registry that contains the MES packages"
+            ));
+            cmd.AddOption(new Option<Uri>(
+                aliases: new string[] { "--azureDevOpsCollectionUrl" },
+                description: "The Azure DevOps collection address"
+            ));
+            cmd.AddOption(new Option<string>(
+                aliases: new string[] { "--agentPool" },
+                description: "Azure DevOps agent pool"
+            ));
+            cmd.AddOption(new Option<AgentType>(
+                aliases: new string[] { "--agentType" },
+                description: "Type of Azure DevOps agents: Cloud or Hosted"
+            ));
+            cmd.AddOption(new Option<string>(
+                aliases: new string[] { "--nugetRegistryUsername" },
+                description: "NuGet registry username",
+                getDefaultValue: () => ""
+            ));
+            cmd.AddOption(new Option<string>(
+                aliases: new string[] { "--nugetRegistryPassword" },
+                description: "NuGet registry password",
+                getDefaultValue: () => ""
+            ));
 
             // Add the handler
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, string, IFileInfo, Uri>(this.Execute);
+            cmd.Handler = CommandHandler
+                .Create((InitArguments args) =>
+                {
+                    this.Execute(args);
+                });
+            // no overload accepts these many arguments...
+            // .Create<
+            //     IDirectoryInfo, // workingDir
+            //     string, // rootPackageName,
+            //     IFileInfo, // config
+            //     IDirectoryInfo, // deploymentDir
+            //     string, // MESVersion
+            //     string, // DevTasksVersion
+            //     string, // HTMLStarterVersion
+            //     string, // yoGeneratorVersion
+            //     string, // nugetVersion
+            //     string, // testScenariosNugetVersion
+            //     IFileInfo, // infrastructure
+            //     Uri, // nugetRegistry
+            //     Uri, // npmRegistry
+            //     Uri, // universalRegistry
+            //     string, // agentPool
+            //     AgentType? // agentType
+            // >(this.Execute);
         }
 
         /// <summary>
         /// Execute the command
         /// </summary>
-        /// <param name="workingDir"></param>
-        /// <param name="rootPackageName"></param>
-        /// <param name="config"></param>
-        /// <param name="nugetRegistry"></param>
-        public void Execute(IDirectoryInfo workingDir, string rootPackageName, IFileInfo config, Uri nugetRegistry)
+        public void Execute(InitArguments x)
         {
             var args = new List<string>()
             {
                 // engine options
-                "--output", workingDir.FullName,
+                "--output", x.workingDir.FullName,
                 
                 // template symbols
-                "--customPackageName", rootPackageName
+                "--customPackageName", x.rootPackageName,
+                "--projectName", x.projectName
             };
 
-            if (nugetRegistry != null)
+            if (x.deploymentDir != null)
             {
-                args.AddRange(new [] {"--nugetRegistry", nugetRegistry.AbsoluteUri});
-            }
-
-            if (config != null)
-            {
-                args.AddRange(ParseConfigFile(config));
+                args.AddRange(new [] {"--deploymentDir", x.deploymentDir.FullName});
             }
             
-            this.RunCommand(args);
-        }
-
-        private IEnumerable<string> ParseConfigFile(IFileInfo configFile)
-        {
-            var args = new List<string>();
-            var configTxt = this.fileSystem.File.ReadAllText(configFile.FullName);
-            dynamic configJson = JsonConvert.DeserializeObject(configTxt);
-            if (configJson != null)
+            if (x.repositoryUrl != null)
             {
-                args.AddRange(new string[] { "--EnvironmentName", configJson["Product.SystemName"]?.Value });
-                args.AddRange(new string[] { "--RESTPort", configJson["Product.ApplicationServer.Port"]?.Value });
-                args.AddRange(new string[] { "--Tenant", configJson["Product.Tenant.Name"]?.Value });
+                args.AddRange(new [] {"--repositoryUrl", x.repositoryUrl.AbsoluteUri});
+            }
+            
+            if (x.MESVersion != null)
+            {
+                args.AddRange(new [] {"--MESVersion", x.MESVersion});
+            }
+            if (x.DevTasksVersion != null)
+            {
+                args.AddRange(new [] {"--DevTasksVersion", x.DevTasksVersion});
+            }
+            if (x.HTMLStarterVersion != null)
+            {
+                args.AddRange(new [] {"--HTMLStarterVersion", x.HTMLStarterVersion});
+            }
+            if (x.yoGeneratorVersion != null)
+            {
+                args.AddRange(new [] {"--yoGeneratorVersion", x.yoGeneratorVersion});
+            }
+            if (x.nugetVersion != null)
+            {
+                args.AddRange(new [] {"--nugetVersion", x.nugetVersion});
+            }
+            if (x.testScenariosNugetVersion != null)
+            {
+                args.AddRange(new [] {"--testScenariosNugetVersion", x.testScenariosNugetVersion});
+            }
+            
 
-                args.AddRange(new string[] { "--vmHostname", configJson["Product.ApplicationServer.Address"]?.Value });
-                args.AddRange(new string[] { "--DBReplica1", configJson["Package[Product.Database.Online].Database.Server"]?.Value });
-                args.AddRange(new string[] { "--DBReplica2", configJson["Package[Product.Database.Ods].Database.Server"]?.Value });
-                args.AddRange(new string[] { "--DBServerOnline", configJson["Package[Product.Database.Online].Database.Server"]?.Value });
-                args.AddRange(new string[] { "--DBServerODS", configJson["Package[Product.Database.Ods].Database.Server"]?.Value });
-                args.AddRange(new string[] { "--DBServerDWH", configJson["Package[Product.Database.Dwh].Database.Server"]?.Value });
-                args.AddRange(new string[] { "--ReportServerURI", configJson["Package.ReportingServices.Address"]?.Value });
-                if (configJson["Product.Database.IsAlwaysOn"]?.Value)
+            #region infrastructure
+            if (x.infrastructure != null)
+            {
+                var infraTxt = this.fileSystem.File.ReadAllText(x.infrastructure.FullName);
+                dynamic infraJson = JsonConvert.DeserializeObject(infraTxt);
+                if (infraJson != null)
                 {
-                    args.AddRange(new string[] { "--AlwaysOn" });
+                    x.nugetRegistry ??= GenericUtilities.JsonObjectToUri(infraJson["NuGetRegistry"]);
+                    x.npmRegistry ??= GenericUtilities.JsonObjectToUri(infraJson["NPMRegistry"]);
+                    x.azureDevOpsCollectionUrl ??= GenericUtilities.JsonObjectToUri(infraJson["AzureDevopsCollectionURL"]);
+                    x.agentPool ??= infraJson["AgentPool"]?.Value;
+                    if (Enum.TryParse<AgentType>(infraJson["AgentType"]?.Value, out AgentType agentTypeParsed))
+                    {
+                        x.agentType ??= agentTypeParsed;    
+                    }
+                    x.nugetRegistryUsername ??= infraJson["NuGetRegistryUsername"]?.Value;
+                    x.nugetRegistryPassword ??= infraJson["NuGetRegistryPassword"]?.Value;
+                    // universalRegistryUsername ??= infraJson["UniversalRegistryUsername"]?.Value;
+                    // universalRegistryPassword ??= infraJson["UniversalRegistryPassword"]?.Value;
                 }
+            }
+            
+            if (x.nugetRegistry != null)
+            {
+                args.AddRange(new [] {"--nugetRegistry", x.nugetRegistry.AbsoluteUri});
+            }
+            if (x.npmRegistry != null)
+            {
+                args.AddRange(new [] {"--npmRegistry", x.npmRegistry.AbsoluteUri});
+            }
+            if (x.azureDevOpsCollectionUrl != null)
+            {
+                args.AddRange(new [] {"--azureDevOpsCollectionUrl", x.azureDevOpsCollectionUrl.AbsoluteUri});
+            }
+            args.AddRange(new [] {"--nugetRegistryUsername", x.nugetRegistryUsername});
+            args.AddRange(new [] {"--nugetRegistryPassword", x.nugetRegistryPassword});
+            if (!string.IsNullOrEmpty(x.agentPool))
+            {
+                args.AddRange(new [] {"--agentPool", x.agentPool});
+            }
+            args.AddRange(new [] {"--agentType", (x.agentType ??= AgentType.Hosted).ToString()});
+            #endregion
 
-                args.AddRange(new string[] { "--InstallationPath", configJson["Packages.Root.TargetDirectory"]?.Value });
-                args.AddRange(new string[] { "--DBBackupPath", configJson["Product.Database.BackupShare"]?.Value });
-                args.AddRange(new string[] { "--TemporaryPath", configJson["Product.DocumentManagement.TemporaryFolder"]?.Value });
-                args.AddRange(new string[] { "--HTMLPort", configJson["Product.Presentation.IisConfiguration.Binding.Port"]?.Value });
-                if (configJson["Product.Presentation.IisConfiguration.Binding.IsSslEnabled"]?.Value)
-                {
-                    args.AddRange(new string[] {"--IsSslEnabled"});    
-                }
-                
+            if (x.config != null)
+            {
+                args.AddRange(ParseConfigFile(x.config));
+            }
+            
+            this.RunCommand(x.workingDir, args);
 
-                args.AddRange(new string[] {"--GatewayPort", configJson["Product.Gateway.Port"]?.Value });
-
-		        // args.Add("SQLUsername", "cmNavigoUser")
-		        // # TODO: this needs to go
-		        // args.Add("SQLPassword", "76492d1116743f0423413b16050a5345MgB8AGMAcABXAE8AcABsAG0AMQBQAEUAdgBrAHEAYgBnAG4ATgBOADkAUgBrAGcAPQA9AHwAOABjADYAZAAxAGMANgBjADcAYwBiADYAZAAzAGEAOQBhAGYAZAAzADEANAAwAGMAOABmADgANQA2AGYANQBhADYAOQA2ADgAYgA1AGQAMQBiAGUANQA4AGMAMAA0ADEAMQA0AGQANwBkAGEANQBhADAAOQA3AGMAYgAwAGQAZgA=")
-		        // args.Add("AdminUsername", configJson[""Product.Users[1].Account")
-		        // args.Add("AdminPassword", "76492d1116743f0423413b16050a5345MgB8ADAAVABRAGUAdQAzAHoAMgAwAHIAdQBrAEwASABxAHAASQBkAEoAWQBEAEEAPQA9AHwAOAAzADUAMQA5ADIANwBhADIAYgA1AGUAMgA3ADQAOQA5ADIAYwBlAGIAMQBiADkAOAAyAGQAMQBlAGMAMgA5ADIAMgBhADIAMgA1AGQAMQA5ADMAOQBkAGUANABjAGEAOAA0AGMANgAzADYAZQBmAGEAZAA1ADcAYwA5ADQAMAA=")
-                args.AddRange(new string[] {"--ReleaseEnvironmentConfig", configFile.Name});
-            } 
-            return args;
+            if (x.config != null)
+            {
+                var envConfigPath = this.fileSystem.Path.Join(Utilities.FileSystemUtilities.GetProjectRoot(this.fileSystem).FullName, "EnvironmentConfigs");
+                x.config.CopyTo(this.fileSystem.Path.Join(envConfigPath, x.config.Name));
+            }
         }
     }
 }

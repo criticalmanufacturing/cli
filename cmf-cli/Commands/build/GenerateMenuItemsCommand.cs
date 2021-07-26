@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
+using Cmf.Common.Cli.Enums;
 
 namespace Cmf.Common.Cli.Commands
 {
@@ -29,7 +30,7 @@ namespace Cmf.Common.Cli.Commands
         /// </summary>
         public void Execute()
         {
-            var helpRoot = Path.Join(FileSystemUtilities.GetProjectRoot(this.fileSystem).FullName, "UI", "Help");
+            var helpRoot = FileSystemUtilities.GetPackageRootByType(Environment.CurrentDirectory, PackageType.Help, this.fileSystem).FullName;
             var project = FileSystemUtilities.ReadProjectConfig(this.fileSystem).RootElement.GetProperty("Tenant").GetString();
             var pars = new Dictionary<string, string>
             {
