@@ -1,11 +1,9 @@
 # CM PI Continuous Integration Package Pipeline
 pool:
   name: <%= $CLI_PARAM_AgentPool %>
-<%
-  if ($CLI_PARAM_AgentType -eq "Cloud") {
-    "  vmImage: 'ubuntu-latest'"    
-  }
-%>
+//#if (agentType == "Cloud")
+  vmImage: 'ubuntu-latest'
+//#endif
 
 # A pipeline with no CI trigger
 trigger: none
@@ -69,9 +67,7 @@ steps:
       echo "##vso[task.setvariable variable=PackageId;isOutput=true]$PackageId"
   name: GetPackageVersion
 
-<% 
-if ($CLI_PARAM_NuGetRegistryUsername -and $CLI_PARAM_NuGetRegistryPassword) {
-@"
+//#if (nugetRegistryUsername != "" && nugetRegistryPassword != "") {
 - task: NuGetCommand@2
   displayName: "Remove CMF NuGet source"
   inputs:
@@ -82,10 +78,8 @@ if ($CLI_PARAM_NuGetRegistryUsername -and $CLI_PARAM_NuGetRegistryPassword) {
   displayName: "Add authenticated CMF NuGet source"
   inputs:
     command: 'custom'
-    arguments: 'sources Add -Name "CMF" -Source "${PLASTER_PARAM_NuGetRegistry}" -Username $`(NuGetRegistryUsername) -password $`(NuGetRegistryPassword) -StorePasswordInClearText -Config NuGet.Config'
-"@
-} 
-%>
+    arguments: 'sources Add -Name "CMF" -Source "<%= $CLI_PARAM_NuGetRegistry %>" -Username $(NuGetRegistryUsername) -password $(NuGetRegistryPassword) -StorePasswordInClearText -Config NuGet.Config'
+//#endif
 
 # Install Cmf Nuget Package
 - task: PowerShell@2
@@ -107,7 +101,11 @@ if ($CLI_PARAM_NuGetRegistryUsername -and $CLI_PARAM_NuGetRegistryPassword) {
     workingDirectory: ${{ parameters.PackagePath }}
     targetType: inline
     script: |
-      $(Agent.TempDirectory)/node_modules/.bin/cmf-cli/cmf build
+//#if (agentType == "Cloud")
+      $(Agent.TempDirectory)/../node_modules/.bin/cmf-cli/cmf build"
+//#else
+      $(Agent.TempDirectory)/node_modules/.bin/cmf-cli/cmf build"
+//#endif
 - task: PostBuildCleanup@3
   displayName: 'Clean Agent Directories'
   condition: always()

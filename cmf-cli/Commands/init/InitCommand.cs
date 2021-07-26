@@ -166,13 +166,11 @@ namespace Cmf.Common.Cli.Commands
             ));
             cmd.AddOption(new Option<string>(
                 aliases: new string[] { "--nugetRegistryUsername" },
-                description: "NuGet registry username",
-                getDefaultValue: () => ""
+                description: "NuGet registry username"
             ));
             cmd.AddOption(new Option<string>(
                 aliases: new string[] { "--nugetRegistryPassword" },
-                description: "NuGet registry password",
-                getDefaultValue: () => ""
+                description: "NuGet registry password"
             ));
 
             // Add the handler
@@ -268,8 +266,14 @@ namespace Cmf.Common.Cli.Commands
                     {
                         x.agentType ??= agentTypeParsed;    
                     }
-                    x.nugetRegistryUsername ??= infraJson["NuGetRegistryUsername"]?.Value;
-                    x.nugetRegistryPassword ??= infraJson["NuGetRegistryPassword"]?.Value;
+                    if (!string.IsNullOrEmpty(infraJson["NuGetRegistryUsername"]?.Value))
+                    {
+                        x.nugetRegistryUsername ??= infraJson["NuGetRegistryUsername"]?.Value;
+                    }
+                    if (!string.IsNullOrEmpty(infraJson["NuGetRegistryPassword"]?.Value))
+                    {
+                        x.nugetRegistryPassword ??= infraJson["NuGetRegistryPassword"]?.Value;
+                    }
                     // universalRegistryUsername ??= infraJson["UniversalRegistryUsername"]?.Value;
                     // universalRegistryPassword ??= infraJson["UniversalRegistryPassword"]?.Value;
                 }
@@ -287,8 +291,14 @@ namespace Cmf.Common.Cli.Commands
             {
                 args.AddRange(new [] {"--azureDevOpsCollectionUrl", x.azureDevOpsCollectionUrl.AbsoluteUri});
             }
-            args.AddRange(new [] {"--nugetRegistryUsername", x.nugetRegistryUsername});
-            args.AddRange(new [] {"--nugetRegistryPassword", x.nugetRegistryPassword});
+            if (x.nugetRegistryUsername != null)
+            {
+                args.AddRange(new[] { "--nugetRegistryUsername", x.nugetRegistryUsername });
+            }
+            if (x.nugetRegistryPassword != null)
+            {
+                args.AddRange(new[] { "--nugetRegistryPassword", x.nugetRegistryPassword });
+            }
             if (!string.IsNullOrEmpty(x.agentPool))
             {
                 args.AddRange(new [] {"--agentPool", x.agentPool});
