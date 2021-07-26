@@ -158,6 +158,16 @@ namespace Cmf.Common.Cli.Utilities
 
             return packageFound;
         }
+
+        /// <summary>
+        /// Converts a JsonObject to an Uri
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static Uri? JsonObjectToUri(dynamic value)
+        {
+            return string.IsNullOrEmpty(value?.Value) ? null : new Uri(value.Value);
+        }
         #endregion Public Methods
     }
 }

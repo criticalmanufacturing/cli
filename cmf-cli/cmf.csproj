@@ -48,7 +48,7 @@
 
   <ItemGroup>
     <EmbeddedResource Remove="resources\template_feed\**" />
-    <None Include="resources\template_feed\**\.template-config\template.json">
+    <None Include="resources\template_feed\**\.template.config\template.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="resources\template_feed\**">

@@ -1,0 +1,265 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Critical Manufacturing",
+  "classifications": [ "cli" ],
+  "description": "Initialize a new repository",
+  "name": "Initialize Repository",
+  "identity": "cmf-cli.init",
+  "groupIdentity": "cmf-cli.init",
+  "shortName": "init", // You can create the project using this short name instead of the one above.
+  "tags": {
+    "language": "C#", // Specify that this template is in C#.
+    "type": "project"
+  },
+  "sourceName": "init_", // Will replace the string 'MyProject.StarterWeb' with the value provided via -n.
+  "preferNameDirectory": false,
+  "symbols": {
+    // arguments
+    "projectName": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The name of our project",
+      "displayName": "Project Name",
+      "replaces": "<%= $CLI_PARAM_ProjectName %>"
+    },
+    "customPackageName": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The custom package name",
+      "displayName": "Package Name",
+      "replaces": "<%= $CLI_PARAM_CustomPackageName %>"
+    },
+    "deploymentDir": {
+      "type": "parameter",
+      "datatype": "string"
+    },
+    "repositoryUrl": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_RepositoryURL %>"
+    },
+    "deploymentDir-JSON": {
+      "type": "derived",
+      "replaces": "\"<%= $CLI_PARAM_DeploymentDir %>\"",
+      "valueSource": "deploymentDir",
+      "valueTransform": "jsonEncode"
+    },
+    "MESVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_MESVersion %>"
+    },
+    "DevTasksVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_DevTasksVersion %>"
+    },
+    "HTMLStarterVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_HTMLStarterVersion %>"
+    },
+    "yoGeneratorVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_YoGeneratorVersion %>"
+    },
+    "nugetVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_NugetVersion %>"
+    },
+    "testScenariosNugetVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_TestScenariosNugetVersion %>"
+    },
+    
+    // from infra
+    "nugetRegistry": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_NuGetRegistry %>"
+    },
+    "npmRegistry": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_NPMRegistry %>"
+    },
+    "agentPool": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_AgentPool %>"
+    },
+    "azureDevOpsCollectionUrl": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_AzureDevopsCollectionURL %>"
+    },
+    "agentType": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_AgentType %>"
+    },
+    "nugetRegistryUsername": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_NuGetRegistryUsername %>"
+    },
+    "nugetRegistryPassword": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_NuGetRegistryPassword %>"
+    },
+    
+    // from config
+    "EnvironmentName": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "",
+      "replaces": "<%= $CLI_PARAM_EnvironmentName %>"
+    },
+    "RESTPort": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "",
+      "replaces": "<%= $CLI_PARAM_RESTPort %>"
+    },
+    "Tenant": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "",
+      "replaces": "<%= $CLI_PARAM_Tenant %>"
+    },
+    "vmHostname": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "",
+      "replaces": "<%= $CLI_PARAM_vmHostname %>"
+    },
+    "DBReplica1": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": ""
+    },
+    "DBReplica1-JSON": {
+      "type": "derived",
+      "replaces": "\"<%= $CLI_PARAM_DBReplica1 %>\"",
+      "valueSource": "DBReplica1",
+      "valueTransform": "jsonEncode"
+    },
+    "DBReplica2": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": ""
+    },
+    "DBReplica2-JSON": {
+      "type": "derived",
+      "replaces": "\"<%= $CLI_PARAM_DBReplica2 %>\"",
+      "valueSource": "DBReplica2",
+      "valueTransform": "jsonEncode"
+    },
+    "DBServerOnline": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": ""
+    },
+    "DBServerOnline-JSON": {
+      "type": "derived",
+      "replaces": "\"<%= $CLI_PARAM_DBServerOnline %>\"",
+      "valueSource": "DBServerOnline",
+      "valueTransform": "jsonEncode"
+    },
+    "DBServerODS": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": ""
+    },
+    "DBServerODS-JSON": {
+      "type": "derived",
+      "replaces": "\"<%= $CLI_PARAM_DBServerODS %>\"",
+      "valueSource": "DBServerODS",
+      "valueTransform": "jsonEncode"
+    },
+    "DBServerDWH": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": ""
+    },
+    "DBServerDWH-JSON": {
+      "type": "derived",
+      "replaces": "\"<%= $CLI_PARAM_DBServerDWH %>\"",
+      "valueSource": "DBServerDWH",
+      "valueTransform": "jsonEncode"
+    },
+    "ReportServerURI": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "",
+      "replaces": "<%= $CLI_PARAM_ReportServerURI %>"
+    },
+    "AlwaysOn": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "replaces": "<%= $CLI_PARAM_AlwaysOn %>"
+    },
+    "InstallationPath": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": ""
+    },
+    "InstallationPath-JSON": {
+      "type": "derived",
+      "replaces": "\"<%= $CLI_PARAM_InstallationPath %>\"",
+      "valueSource": "InstallationPath",
+      "valueTransform": "jsonEncode"
+    },
+    "DBBackupPath": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": ""
+    },
+    "DBBackupPath-JSON": {
+      "type": "derived",
+      "replaces": "\"<%= $CLI_PARAM_DBBackupPath %>\"",
+      "valueSource": "DBBackupPath",
+      "valueTransform": "jsonEncode"
+    },
+    "TemporaryPath": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": ""
+    },
+    "TemporaryPath-JSON": {
+      "type": "derived",
+      "replaces": "\"<%= $CLI_PARAM_TemporaryPath %>\"",
+      "valueSource": "TemporaryPath",
+      "valueTransform": "jsonEncode"
+    },
+    "HTMLPort": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "",
+      "replaces": "<%= $CLI_PARAM_HTMLPort %>"
+    },
+    "IsSslEnabled": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "replaces": "<%= $CLI_PARAM_IsSslEnabled %>"
+    },
+    "GatewayPort": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "",
+      "replaces": "<%= $CLI_PARAM_GatewayPort %>"
+    },
+    "ReleaseEnvironmentConfig": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "",
+      "replaces": "<%= $CLI_PARAM_ReleaseEnvironmentConfig %>"
+    }
+  }
+}

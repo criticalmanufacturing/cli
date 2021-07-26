@@ -2,7 +2,6 @@
   "ProjectName": "<%= $CLI_PARAM_ProjectName %>",
   "NPMRegistry": "<%= $CLI_PARAM_NPMRegistry %>",
   "NuGetRegistry": "<%= $CLI_PARAM_NuGetRegistry %>",
-  "UniversalRegistry": "<%= $CLI_PARAM_UniversalRegistry %>",
   "AzureDevopsCollectionURL": "<%= $CLI_PARAM_AzureDevopsCollectionURL %>",
   "AgentPool": "<%= $CLI_PARAM_AgentPool %>",
   "AgentType": "<%= $CLI_PARAM_AgentType %>",
