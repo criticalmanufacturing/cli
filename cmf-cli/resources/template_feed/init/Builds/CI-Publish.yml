@@ -1,11 +1,9 @@
 # CM PI Continuous Integration Package Pipeline
 pool:
   name: <%= $CLI_PARAM_AgentPool %>
-<%
-  if ($CLI_PARAM_AgentType -eq "Cloud") {
-    "  vmImage: 'ubuntu-latest'"    
-  }
-%>
+//#if (agentType == "Cloud")
+  vmImage: 'ubuntu-latest'
+//#endif
 
 # A pipeline with no CI trigger
 trigger: none

@@ -111,11 +111,13 @@
     "nugetRegistryUsername": {
       "type": "parameter",
       "datatype": "string",
+      "defaultValue": "", // if we don't get the value, clear the token
       "replaces": "<%= $CLI_PARAM_NuGetRegistryUsername %>"
     },
     "nugetRegistryPassword": {
       "type": "parameter",
       "datatype": "string",
+      "defaultValue": "", // if we don't get the value, clear the token
       "replaces": "<%= $CLI_PARAM_NuGetRegistryPassword %>"
     },
     

@@ -1,11 +1,9 @@
 # Changed Package detection pipeline
 pool:
   name: <%= $CLI_PARAM_AgentPool %>
-<%
-  if ($CLI_PARAM_AgentType -eq "Cloud") {
-    "  vmImage: 'ubuntu-latest'"    
-  }
-%>
+//#if (agentType == "Cloud")
+  vmImage: 'ubuntu-latest'
+//#endif
 
 # Trigger on any change in the included branches
 trigger:

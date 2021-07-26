@@ -1,6 +1,9 @@
 # CM PI Environment Backup or Restore Pipeline
 pool:
-  name: ImplementationProjects
+  name: <%= $CLI_PARAM_AgentPool %>
+//#if (agentType == "Cloud")
+  vmImage: 'ubuntu-latest'
+//#endif
 
 # A pipeline with no CI trigger
 trigger: none
