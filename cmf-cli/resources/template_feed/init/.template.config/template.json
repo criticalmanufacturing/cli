@@ -14,6 +14,13 @@
   "sourceName": "init_", // Will replace the string 'MyProject.StarterWeb' with the value provided via -n.
   "preferNameDirectory": false,
   "symbols": {
+    // this symbol renames any _TEMPLATE_.* removing the prefix
+    "templateFileRename": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "",
+      "fileRename": "_TEMPLATE_"
+    },
     // arguments
     "projectName": {
       "type": "parameter",
@@ -117,7 +124,8 @@
       "type": "parameter",
       "datatype": "string",
       "defaultValue": "",
-      "replaces": "<%= $CLI_PARAM_EnvironmentName %>"
+      "replaces": "<%= $CLI_PARAM_EnvironmentName %>",
+      "fileRename": "%EnvironmentName%"
     },
     "RESTPort": {
       "type": "parameter",
