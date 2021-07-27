@@ -36,6 +36,13 @@
       "displayName": "Package Name",
       "replaces": "<%= $CLI_PARAM_CustomPackageName %>"
     },
+    "packageVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The custom package version",
+      "displayName": "Package Version",
+      "replaces": "<%= $CLI_PARAM_CustomPackageVersion %>"
+    },
     "deploymentDir": {
       "type": "parameter",
       "datatype": "string",
