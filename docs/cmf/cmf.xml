@@ -652,6 +652,21 @@
             <param name="isToTag">if set to <c>true</c> [is to tag].</param>
             <exception cref="T:Cmf.Common.Cli.Utilities.CliException"></exception>
         </member>
+        <member name="T:Cmf.Common.Cli.Commands.AgentType">
+            <summary>
+            Azure DevOps Agent Type
+            </summary>
+        </member>
+        <member name="F:Cmf.Common.Cli.Commands.AgentType.Cloud">
+            <summary>
+            Cloud agents 
+            </summary>
+        </member>
+        <member name="F:Cmf.Common.Cli.Commands.AgentType.Hosted">
+            <summary>
+            Self-host agents
+            </summary>
+        </member>
         <member name="T:Cmf.Common.Cli.Commands.InitCommand">
             <summary>
             Init command
@@ -789,6 +804,47 @@
              <seealso cref="T:Cmf.Common.Cli.Commands.BaseCommand" />
         </member>
         <member name="M:Cmf.Common.Cli.Commands.LocalCommand.Configure(System.CommandLine.Command)">
+            <summary>
+            Configure command
+            </summary>
+            <param name="cmd"></param>
+        </member>
+        <member name="T:Cmf.Common.Cli.Commands.FeatureCommand">
+            <summary>
+            new feature command
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.FeatureCommand.#ctor">
+            <summary>
+            constructor
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.FeatureCommand.#ctor(System.IO.Abstractions.IFileSystem)">
+            <summary>
+            constructor
+            </summary>
+            <param name="fileSystem"></param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.FeatureCommand.Configure(System.CommandLine.Command)">
+            <summary>
+            configure the command
+            </summary>
+            <param name="cmd"></param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.FeatureCommand.Execute(System.IO.Abstractions.IDirectoryInfo,System.String,System.String)">
+            <summary>
+            execute the command
+            </summary>
+            <param name="workingDir"></param>
+            <param name="packageName"></param>
+            <param name="version"></param>
+        </member>
+        <member name="T:Cmf.Common.Cli.Commands.NewCommand">
+            <summary>
+            "new" command group
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.NewCommand.Configure(System.CommandLine.Command)">
             <summary>
             Configure command
             </summary>
@@ -976,11 +1032,10 @@
             <param name="commandName"></param>
             <param name="fileSystem"></param>
         </member>
-        <member name="M:Cmf.Common.Cli.Commands.TemplateCommand.RunCommand(System.IO.Abstractions.IDirectoryInfo,System.Collections.Generic.IReadOnlyCollection{System.String})">
+        <member name="M:Cmf.Common.Cli.Commands.TemplateCommand.RunCommand(System.Collections.Generic.IReadOnlyCollection{System.String})">
             <summary>
             Execute the command
             </summary>
-            <param name="workingDir">the directory where we are running the template</param>
             <param name="args">the template engine arguments</param>
         </member>
         <member name="M:Cmf.Common.Cli.Commands.TemplateCommand.ParseConfigFile(System.IO.Abstractions.IFileInfo)">
@@ -2618,7 +2673,7 @@
             <param name="fi">The fi.</param>
             <returns></returns>
         </member>
-        <member name="M:Cmf.Common.Cli.Utilities.FileSystemUtilities.GetPackageRoot(System.IO.Abstractions.IFileSystem)">
+        <member name="M:Cmf.Common.Cli.Utilities.FileSystemUtilities.GetPackageRoot(System.IO.Abstractions.IFileSystem,System.String)">
             <summary>
             Gets the package root.
             </summary>

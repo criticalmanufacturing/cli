@@ -220,9 +220,9 @@ namespace Cmf.Common.Cli.Utilities
         /// </summary>
         /// <returns></returns>
         /// <exception cref="CliException">Cannot find package root. Are you in a valid package directory?</exception>
-        public static IDirectoryInfo GetPackageRoot(IFileSystem fileSystem)
+        public static IDirectoryInfo GetPackageRoot(IFileSystem fileSystem, string workingDir = null)
         {
-            var cwd = fileSystem.DirectoryInfo.FromDirectoryName(fileSystem.Directory.GetCurrentDirectory());
+            var cwd = fileSystem.DirectoryInfo.FromDirectoryName(workingDir ?? fileSystem.Directory.GetCurrentDirectory());
             var cur = cwd;
             while (cur != null && !fileSystem.File.Exists(fileSystem.Path.Join(cur.FullName, CliConstants.CmfPackageFileName)))
             {

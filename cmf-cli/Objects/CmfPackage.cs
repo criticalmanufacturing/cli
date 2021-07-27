@@ -621,7 +621,7 @@ namespace Cmf.Common.Cli.Objects
             string cmfPackageJson = JsonConvert.SerializeObject(this, jsonSerializerSettings);
 
             IFileInfo file = GetFileInfo();
-            File.WriteAllText(file.FullName, cmfPackageJson);
+            this.fileSystem.File.WriteAllText(file.FullName, cmfPackageJson);
         }
 
         /// <summary>

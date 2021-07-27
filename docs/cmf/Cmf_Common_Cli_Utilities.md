@@ -481,15 +481,18 @@ the underlying file system
 #### Returns
 [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
   
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageRoot(System_IO_Abstractions_IFileSystem)'></a>
-## FileSystemUtilities.GetPackageRoot(IFileSystem) Method
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageRoot(System_IO_Abstractions_IFileSystem_string)'></a>
+## FileSystemUtilities.GetPackageRoot(IFileSystem, string) Method
 Gets the package root.  
 ```csharp
-public static System.IO.Abstractions.IDirectoryInfo GetPackageRoot(System.IO.Abstractions.IFileSystem fileSystem);
+public static System.IO.Abstractions.IDirectoryInfo GetPackageRoot(System.IO.Abstractions.IFileSystem fileSystem, string workingDir=null);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageRoot(System_IO_Abstractions_IFileSystem)_fileSystem'></a>
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageRoot(System_IO_Abstractions_IFileSystem_string)_fileSystem'></a>
 `fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
+  
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageRoot(System_IO_Abstractions_IFileSystem_string)_workingDir'></a>
+`workingDir` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
   
 #### Returns
 [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
