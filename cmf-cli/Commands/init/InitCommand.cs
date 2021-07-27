@@ -48,6 +48,8 @@ namespace Cmf.Common.Cli.Commands
         public Uri azureDevOpsCollectionUrl { get; set; }
         public string agentPool { get; set; }
         public AgentType? agentType { get; set; }
+        
+        public IFileInfo ISOLocation { get; set; }
         public string nugetRegistryUsername { get; set; }
         public string nugetRegistryPassword { get; set; }
     } 
@@ -164,6 +166,12 @@ namespace Cmf.Common.Cli.Commands
                 aliases: new string[] { "--agentType" },
                 description: "Type of Azure DevOps agents: Cloud or Hosted"
             ));
+            cmd.AddOption(new Option<IFileInfo>(
+                aliases: new string[] { "--ISOLocation" },
+                parseArgument: argResult => Parse<IFileInfo>(argResult),
+                isDefault: true,
+                description: "MES ISO file"
+            ));
             cmd.AddOption(new Option<string>(
                 aliases: new string[] { "--nugetRegistryUsername" },
                 description: "NuGet registry username"
@@ -262,6 +270,10 @@ namespace Cmf.Common.Cli.Commands
                     x.npmRegistry ??= GenericUtilities.JsonObjectToUri(infraJson["NPMRegistry"]);
                     x.azureDevOpsCollectionUrl ??= GenericUtilities.JsonObjectToUri(infraJson["AzureDevopsCollectionURL"]);
                     x.agentPool ??= infraJson["AgentPool"]?.Value;
+                    if (infraJson["ISOLocation"]?.Value != null)
+                    {
+                        x.ISOLocation ??= this.fileSystem.FileInfo.FromFileName(infraJson["ISOLocation"]?.Value);
+                    }
                     if (Enum.TryParse<AgentType>(infraJson["AgentType"]?.Value, out AgentType agentTypeParsed))
                     {
                         x.agentType ??= agentTypeParsed;    
@@ -290,6 +302,10 @@ namespace Cmf.Common.Cli.Commands
             if (x.azureDevOpsCollectionUrl != null)
             {
                 args.AddRange(new [] {"--azureDevOpsCollectionUrl", x.azureDevOpsCollectionUrl.AbsoluteUri});
+            }
+            if (x.ISOLocation != null)
+            {
+                args.AddRange(new [] {"--ISOLocation", x.ISOLocation.FullName});
             }
             if (x.nugetRegistryUsername != null)
             {
