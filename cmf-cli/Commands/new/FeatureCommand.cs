@@ -43,7 +43,7 @@ namespace Cmf.Common.Cli.Commands
             ));
             cmd.AddArgument(new Argument<IDirectoryInfo>(
                 name: "workingDir",
-                parse: (argResult) => Parse<IDirectoryInfo>(argResult, root.FullName ?? "."),
+                parse: (argResult) => Parse<IDirectoryInfo>(argResult, root?.FullName),
                 isDefault: true
             )
             {
@@ -65,6 +65,11 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="version"></param>
         public void Execute(IDirectoryInfo workingDir, string packageName, string version)
         {
+            if (workingDir == null)
+            {
+                Log.Error("This command needs to run inside a project. Run `cmf init` to create a new project.");
+                return;
+            }
             var featurePath = this.fileSystem.Path.Join(workingDir.FullName, "Features");
             var args = new List<string>()
             {
@@ -84,12 +89,19 @@ namespace Cmf.Common.Cli.Commands
             //     "version": "4.33.0"
             // }
             var parentPackageDir = FileSystemUtilities.GetPackageRoot(this.fileSystem, featurePath);
-            var package = CmfPackage.Load(
-                this.fileSystem.FileInfo.FromFileName(
-                    this.fileSystem.Path.Join(parentPackageDir.FullName, CliConstants.CmfPackageFileName)),
-                fileSystem: this.fileSystem);
-            package.Dependencies.Add(new Dependency(packageName, version));
-            package.SaveCmfPackage();
+            if (parentPackageDir != null)
+            {
+                var cmfPackage = this.fileSystem.Path.Join(parentPackageDir.FullName, CliConstants.CmfPackageFileName);
+                if (this.fileSystem.File.Exists(cmfPackage))
+                {
+                    var package = CmfPackage.Load(
+                        this.fileSystem.FileInfo.FromFileName(
+                            cmfPackage),
+                        fileSystem: this.fileSystem);
+                    package.Dependencies.Add(new Dependency(packageName, version));
+                    package.SaveCmfPackage();
+                }
+            }
         }
     }
 }
