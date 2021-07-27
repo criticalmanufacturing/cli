@@ -38,7 +38,8 @@
     },
     "deploymentDir": {
       "type": "parameter",
-      "datatype": "string"
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_DeploymentDir %>"
     },
     "repositoryUrl": {
       "type": "parameter",
@@ -55,6 +56,13 @@
       "type": "parameter",
       "datatype": "string",
       "replaces": "<%= $CLI_PARAM_MESVersion %>"
+    },
+    "MESVersion-Feature": {
+      "type": "derived",
+      "datatype": "string",
+      "valueSource": "MESVersion",
+      "replaces": "<%= $CLI_PARAM_MESVersion-Feature %>",
+      "valueTransform": "versionToFeature"
     },
     "DevTasksVersion": {
       "type": "parameter",
@@ -119,6 +127,11 @@
       "datatype": "string",
       "defaultValue": "", // if we don't get the value, clear the token
       "replaces": "<%= $CLI_PARAM_NuGetRegistryPassword %>"
+    },
+    "ISOLocation": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_ISOLocation %>"
     },
     
     // from config
@@ -270,6 +283,13 @@
       "datatype": "string",
       "defaultValue": "",
       "replaces": "<%= $CLI_PARAM_ReleaseEnvironmentConfig %>"
+    }
+  },
+  "forms": {
+    "versionToFeature": {
+      "identifier": "replace",
+      "pattern": "(\\d+)\\.(\\d+)\\.(\\d+)",
+      "replacement": "$1.$2.x"
     }
   }
 }
