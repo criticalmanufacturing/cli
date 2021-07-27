@@ -34,6 +34,7 @@ namespace Cmf.Common.Cli.Commands
         public IDirectoryInfo workingDir { get; set; }
         public string projectName { get; set; }
         public string rootPackageName { get; set; }
+        public string version { get; set; }
         public IFileInfo config { get; set; }
         public IDirectoryInfo deploymentDir { get; set; }
         public Uri repositoryUrl { get; set; }
@@ -98,7 +99,11 @@ namespace Cmf.Common.Cli.Commands
             {
                 Description = "Working Directory"
             });
-            
+            cmd.AddOption(new Option<string>(
+                aliases: new[] { "--version" },
+                description: "Package Version",
+                getDefaultValue: () => "1.1.0"
+            ));
             cmd.AddOption(new Option<IFileInfo>(
                 aliases: new[] { "-c", "--config" },
                 parseArgument: argResult => Parse<IFileInfo>(argResult),
@@ -226,6 +231,11 @@ namespace Cmf.Common.Cli.Commands
                 "--projectName", x.projectName
             };
 
+            if (x.version != null)
+            {
+                args.AddRange(new [] {"--packageVersion", x.version});
+            }
+            
             if (x.deploymentDir != null)
             {
                 args.AddRange(new [] {"--deploymentDir", x.deploymentDir.FullName});

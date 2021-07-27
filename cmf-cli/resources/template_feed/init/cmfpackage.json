@@ -1,6 +1,6 @@
 {
   "packageId": "<%= $CLI_PARAM_CustomPackageName %>",
-  "version": "1.1.0",
+  "version": "<%= $CLI_PARAM_CustomPackageVersion %>",
   "description": "This package deploys Critical Manufacturing MES <%= $CLI_PARAM_Tenant %> Customization",
   "packageType": "Root",
   "isInstallable": true,
