@@ -164,9 +164,10 @@ namespace Cmf.Common.Cli.Utilities
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
+#nullable enable
         public static Uri? JsonObjectToUri(dynamic value)
         {
-            return string.IsNullOrEmpty(value?.Value) ? null : new Uri(value.Value);
+            return string.IsNullOrEmpty(value?.Value) ? null : new Uri(value?.Value);
         }
         #endregion Public Methods
     }
