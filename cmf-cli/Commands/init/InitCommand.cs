@@ -1,35 +1,36 @@
 ﻿using Cmf.Common.Cli.Attributes;
-using Microsoft.TemplateEngine.Abstractions;
-using Microsoft.TemplateEngine.Cli;
-using Microsoft.TemplateEngine.Edge;
-using Microsoft.TemplateEngine.Orchestrator.RunnableProjects;
-using Microsoft.TemplateEngine.Orchestrator.RunnableProjects.Config;
-using Microsoft.TemplateEngine.Utils;
-using Microsoft.TemplateSearch.Common.TemplateUpdate;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
-using System.CommandLine.Parsing;
-using System.IO;
 using System.IO.Abstractions;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Cmf.Common.Cli.Utilities;
 using Newtonsoft.Json;
 
 namespace Cmf.Common.Cli.Commands
 {
+    /// <summary>
+    /// Azure DevOps Agent Type
+    /// </summary>
     public enum AgentType
     {
+        /// <summary>
+        /// Cloud agents 
+        /// </summary>
         Cloud,
+        /// <summary>
+        /// Self-host agents
+        /// </summary>
         Hosted
     }
-
-    public class InitArguments
+    
+    // this is public because Execute is public by convention but never invoked externally
+    // so this class mirrors the command internal structure and is never used outside
+    // ReSharper disable once ClassNeverInstantiated.Global
+    internal class InitArguments
     {
+        // ReSharper disable InconsistentNaming
+        // ReSharper disable UnusedAutoPropertyAccessor.Global
         public IDirectoryInfo workingDir { get; set; }
         public string projectName { get; set; }
         public string rootPackageName { get; set; }
@@ -48,11 +49,13 @@ namespace Cmf.Common.Cli.Commands
         public Uri azureDevOpsCollectionUrl { get; set; }
         public string agentPool { get; set; }
         public AgentType? agentType { get; set; }
-        
         public IFileInfo ISOLocation { get; set; }
         public string nugetRegistryUsername { get; set; }
         public string nugetRegistryPassword { get; set; }
-    } 
+        // ReSharper restore UnusedAutoPropertyAccessor.Global
+        // ReSharper restore InconsistentNaming
+    }
+
     /// <summary>
     /// Init command
     /// </summary>
@@ -97,87 +100,87 @@ namespace Cmf.Common.Cli.Commands
             });
             
             cmd.AddOption(new Option<IFileInfo>(
-                aliases: new string[] { "-c", "--config" },
+                aliases: new[] { "-c", "--config" },
                 parseArgument: argResult => Parse<IFileInfo>(argResult),
                 isDefault: true,
                 description: "Configuration file exported from Setup"));
             
             // template-time options. These are all mandatory
             cmd.AddOption(new Option<Uri>(
-                aliases: new string[] { "--repositoryUrl" },
+                aliases: new[] { "--repositoryUrl" },
                 description: "Git repository URL"
             ));
             cmd.AddOption(new Option<IDirectoryInfo>(
-                aliases: new string[] { "--deploymentDir" },
+                aliases: new[] { "--deploymentDir" },
                 parseArgument: argResult => Parse<IDirectoryInfo>(argResult),
                 isDefault: true,
                 description: "Deployments directory (for releases). Don't specify if not using CI-Release."
             ));
             cmd.AddOption(new Option<string>(
-                aliases: new string[] { "--MESVersion" },
+                aliases: new[] { "--MESVersion" },
                 description: "Target MES version"
             ));
             cmd.AddOption(new Option<string>(
-                aliases: new string[] { "--DevTasksVersion" },
+                aliases: new[] { "--DevTasksVersion" },
                 description: "Critical Manufacturing dev-tasks version"
             ));
             cmd.AddOption(new Option<string>(
-                aliases: new string[] { "--HTMLStarterVersion" },
+                aliases: new[] { "--HTMLStarterVersion" },
                 description: "HTML Starter version"
             ));
             cmd.AddOption(new Option<string>(
-                aliases: new string[] { "--yoGeneratorVersion" },
+                aliases: new[] { "--yoGeneratorVersion" },
                 description: "@criticalmanufacturing/html Yeoman generator version"
             ));
             cmd.AddOption(new Option<string>(
-                aliases: new string[] { "--nugetVersion" },
+                aliases: new[] { "--nugetVersion" },
                 description: "NuGet versions to target. This is usually the MES version"
             ));
             // TODO: remove this one?
             cmd.AddOption(new Option<string>(
-                aliases: new string[] { "--testScenariosNugetVersion" },
+                aliases: new[] { "--testScenariosNugetVersion" },
                 description: "Test Scenarios Nuget Version"
             ));
             
             // infra options
             cmd.AddOption(new Option<IFileInfo>(
-                aliases: new string[] { "--infra", "--infrastructure" },
+                aliases: new[] { "--infra", "--infrastructure" },
                 parseArgument: argResult => Parse<IFileInfo>(argResult),
                 isDefault: true,
                 description: "Infrastructure JSON file"
             ));
             cmd.AddOption(new Option<Uri>(
-                aliases: new string[] { "--nugetRegistry" },
+                aliases: new[] { "--nugetRegistry" },
                 description: "NuGet registry that contains the MES packages"
                 ));
             cmd.AddOption(new Option<Uri>(
-                aliases: new string[] { "--npmRegistry" },
+                aliases: new[] { "--npmRegistry" },
                 description: "NPM registry that contains the MES packages"
             ));
             cmd.AddOption(new Option<Uri>(
-                aliases: new string[] { "--azureDevOpsCollectionUrl" },
+                aliases: new[] { "--azureDevOpsCollectionUrl" },
                 description: "The Azure DevOps collection address"
             ));
             cmd.AddOption(new Option<string>(
-                aliases: new string[] { "--agentPool" },
+                aliases: new[] { "--agentPool" },
                 description: "Azure DevOps agent pool"
             ));
             cmd.AddOption(new Option<AgentType>(
-                aliases: new string[] { "--agentType" },
+                aliases: new[] { "--agentType" },
                 description: "Type of Azure DevOps agents: Cloud or Hosted"
             ));
             cmd.AddOption(new Option<IFileInfo>(
-                aliases: new string[] { "--ISOLocation" },
+                aliases: new[] { "--ISOLocation" },
                 parseArgument: argResult => Parse<IFileInfo>(argResult),
                 isDefault: true,
                 description: "MES ISO file"
             ));
             cmd.AddOption(new Option<string>(
-                aliases: new string[] { "--nugetRegistryUsername" },
+                aliases: new[] { "--nugetRegistryUsername" },
                 description: "NuGet registry username"
             ));
             cmd.AddOption(new Option<string>(
-                aliases: new string[] { "--nugetRegistryPassword" },
+                aliases: new[] { "--nugetRegistryPassword" },
                 description: "NuGet registry password"
             ));
 
@@ -211,7 +214,7 @@ namespace Cmf.Common.Cli.Commands
         /// <summary>
         /// Execute the command
         /// </summary>
-        public void Execute(InitArguments x)
+        internal void Execute(InitArguments x)
         {
             var args = new List<string>()
             {
@@ -286,8 +289,6 @@ namespace Cmf.Common.Cli.Commands
                     {
                         x.nugetRegistryPassword ??= infraJson["NuGetRegistryPassword"]?.Value;
                     }
-                    // universalRegistryUsername ??= infraJson["UniversalRegistryUsername"]?.Value;
-                    // universalRegistryPassword ??= infraJson["UniversalRegistryPassword"]?.Value;
                 }
             }
             
@@ -327,11 +328,11 @@ namespace Cmf.Common.Cli.Commands
                 args.AddRange(ParseConfigFile(x.config));
             }
             
-            this.RunCommand(x.workingDir, args);
+            this.RunCommand(args);
 
             if (x.config != null)
             {
-                var envConfigPath = this.fileSystem.Path.Join(Utilities.FileSystemUtilities.GetProjectRoot(this.fileSystem).FullName, "EnvironmentConfigs");
+                var envConfigPath = this.fileSystem.Path.Join(FileSystemUtilities.GetProjectRoot(this.fileSystem).FullName, "EnvironmentConfigs");
                 x.config.CopyTo(this.fileSystem.Path.Join(envConfigPath, x.config.Name));
             }
         }

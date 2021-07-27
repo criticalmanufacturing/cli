@@ -39,9 +39,8 @@ namespace Cmf.Common.Cli.Commands
         /// <summary>
         /// Execute the command
         /// </summary>
-        /// <param name="workingDir">the directory where we are running the template</param>
         /// <param name="args">the template engine arguments</param>
-        public void RunCommand(IDirectoryInfo workingDir, IReadOnlyCollection<string> args)
+        public void RunCommand(IReadOnlyCollection<string> args)
         {
             var logger = new TelemetryLogger(null);
 
