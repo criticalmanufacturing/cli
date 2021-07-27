@@ -36,6 +36,9 @@
     <Compile Remove="nupkg\**" />
     <EmbeddedResource Remove="nupkg\**" />
     <None Remove="nupkg\**" />
+    <None Update="resources\template_feed\feature\feature\cmfpackage.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
