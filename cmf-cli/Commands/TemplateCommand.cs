@@ -3,6 +3,8 @@ using System.CommandLine;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Reflection;
+using Cmf.Common.Cli.Constants;
+using Cmf.Common.Cli.Objects;
 using Cmf.Common.Cli.Utilities;
 using Microsoft.TemplateEngine.Abstractions;
 using Microsoft.TemplateEngine.Cli;
@@ -137,6 +139,49 @@ namespace Cmf.Common.Cli.Commands
                 args.AddRange(new string[] {"--ReleaseEnvironmentConfig", configFile.Name});
             } 
             return args;
+        }
+        
+        /// <summary>
+        /// register this package as a dependency in the parent package
+        /// </summary>
+        /// <param name="packageName">this package name</param>
+        /// <param name="version">this package version</param>
+        /// <param name="parentPath">the parent directory of the package</param>
+        protected void RegisterAsDependencyInParent(string packageName, string version, string parentPath)
+        {
+            // add to upper level package
+            // {
+            //     "id": "Cmf.Custom.Business",
+            //     "version": "4.33.0"
+            // }
+            var parentPackageDir = FileSystemUtilities.GetPackageRoot(this.fileSystem, parentPath);
+            if (parentPackageDir != null)
+            {
+                var package = this.GetPackageInFolder(parentPackageDir.FullName);
+                if (package != null)
+                {
+                    package.Dependencies.Add(new Dependency(packageName, version));
+                    package.SaveCmfPackage();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Get the CmfPackage in the folder
+        /// </summary>
+        /// <param name="path">the folder path</param>
+        /// <returns>the CmfPackage in the folder</returns>
+        protected CmfPackage GetPackageInFolder(string path)
+        {
+            var cmfPackage = this.fileSystem.Path.Join(path, CliConstants.CmfPackageFileName);
+            if (this.fileSystem.File.Exists(cmfPackage))
+            {
+                return CmfPackage.Load(
+                    this.fileSystem.FileInfo.FromFileName(
+                        cmfPackage),
+                    fileSystem: this.fileSystem);
+            }
+            return null;
         }
     }
 }

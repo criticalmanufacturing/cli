@@ -15,7 +15,7 @@
     // Specify that this template is in C#.
     "type": "project"
   },
-  "sourceName": "FeaturePackage",
+  "sourceName": "Feature.Package",
   // Will replace the string 'MyProject.StarterWeb' with the value provided via -n.
   "preferNameDirectory": true,
   "symbols": {
@@ -25,7 +25,7 @@
       "description": "The custom package name",
       "displayName": "Package Name",
       "replaces": "<%= $CLI_PARAM_CustomPackageName %>",
-      "fileRename": "Feature.Package"
+      //"fileRename": "Feature.Package"
     },
     "packageVersion": {
       "type": "parameter",

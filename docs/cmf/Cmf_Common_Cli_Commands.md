@@ -449,6 +449,45 @@ if set to `true` [is to tag].
 #### See Also
 - [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand')
   
+<a name='Cmf_Common_Cli_Commands_BusinessCommand'></a>
+## BusinessCommand Class
+```csharp
+public class BusinessCommand : Cmf.Common.Cli.Commands.TemplateCommand
+```
+
+Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand') &#129106; [TemplateCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_TemplateCommand 'Cmf.Common.Cli.Commands.TemplateCommand') &#129106; BusinessCommand  
+### Constructors
+<a name='Cmf_Common_Cli_Commands_BusinessCommand_BusinessCommand()'></a>
+## BusinessCommand.BusinessCommand() Constructor
+constructor  
+```csharp
+public BusinessCommand();
+```
+  
+<a name='Cmf_Common_Cli_Commands_BusinessCommand_BusinessCommand(System_IO_Abstractions_IFileSystem)'></a>
+## BusinessCommand.BusinessCommand(IFileSystem) Constructor
+constructor  
+```csharp
+public BusinessCommand(System.IO.Abstractions.IFileSystem fileSystem);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Commands_BusinessCommand_BusinessCommand(System_IO_Abstractions_IFileSystem)_fileSystem'></a>
+`fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
+  
+  
+### Methods
+<a name='Cmf_Common_Cli_Commands_BusinessCommand_Configure(System_CommandLine_Command)'></a>
+## BusinessCommand.Configure(Command) Method
+configure the command  
+```csharp
+public override void Configure(System.CommandLine.Command cmd);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Commands_BusinessCommand_Configure(System_CommandLine_Command)_cmd'></a>
+`cmd` [System.CommandLine.Command](https://docs.microsoft.com/en-us/dotnet/api/System.CommandLine.Command 'System.CommandLine.Command')  
+  
+  
+  
 <a name='Cmf_Common_Cli_Commands_FeatureCommand'></a>
 ## FeatureCommand Class
 new feature command  
@@ -1257,6 +1296,7 @@ public abstract class TemplateCommand : Cmf.Common.Cli.Commands.BaseCommand
 Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand') &#129106; TemplateCommand  
 
 Derived  
+&#8627; [BusinessCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BusinessCommand 'Cmf.Common.Cli.Commands.BusinessCommand')  
 &#8627; [FeatureCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_FeatureCommand 'Cmf.Common.Cli.Commands.FeatureCommand')  
 &#8627; [InitCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_InitCommand 'Cmf.Common.Cli.Commands.InitCommand')  
 ### Constructors
@@ -1286,6 +1326,21 @@ protected TemplateCommand(string commandName);
   
   
 ### Methods
+<a name='Cmf_Common_Cli_Commands_TemplateCommand_GetPackageInFolder(string)'></a>
+## TemplateCommand.GetPackageInFolder(string) Method
+Get the CmfPackage in the folder  
+```csharp
+protected Cmf.Common.Cli.Objects.CmfPackage GetPackageInFolder(string path);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Commands_TemplateCommand_GetPackageInFolder(string)_path'></a>
+`path` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+the folder path
+  
+#### Returns
+[CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')  
+the CmfPackage in the folder
+  
 <a name='Cmf_Common_Cli_Commands_TemplateCommand_ParseConfigFile(System_IO_Abstractions_IFileInfo)'></a>
 ## TemplateCommand.ParseConfigFile(IFileInfo) Method
 Parse a DF exported config file  
@@ -1300,6 +1355,26 @@ the path to the config file
 #### Returns
 [System.Collections.Generic.IEnumerable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')  
 template engine compatible switches array
+  
+<a name='Cmf_Common_Cli_Commands_TemplateCommand_RegisterAsDependencyInParent(string_string_string)'></a>
+## TemplateCommand.RegisterAsDependencyInParent(string, string, string) Method
+register this package as a dependency in the parent package  
+```csharp
+protected void RegisterAsDependencyInParent(string packageName, string version, string parentPath);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Commands_TemplateCommand_RegisterAsDependencyInParent(string_string_string)_packageName'></a>
+`packageName` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+this package name
+  
+<a name='Cmf_Common_Cli_Commands_TemplateCommand_RegisterAsDependencyInParent(string_string_string)_version'></a>
+`version` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+this package version
+  
+<a name='Cmf_Common_Cli_Commands_TemplateCommand_RegisterAsDependencyInParent(string_string_string)_parentPath'></a>
+`parentPath` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+the parent directory of the package
+  
   
 <a name='Cmf_Common_Cli_Commands_TemplateCommand_RunCommand(System_Collections_Generic_IReadOnlyCollection_string_)'></a>
 ## TemplateCommand.RunCommand(IReadOnlyCollection&lt;string&gt;) Method

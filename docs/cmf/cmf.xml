@@ -850,6 +850,28 @@
             </summary>
             <param name="cmd"></param>
         </member>
+        <member name="T:Cmf.Common.Cli.Commands.BusinessCommand">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.BusinessCommand.#ctor">
+            <summary>
+            constructor
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.BusinessCommand.#ctor(System.IO.Abstractions.IFileSystem)">
+            <summary>
+            constructor
+            </summary>
+            <param name="fileSystem"></param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.BusinessCommand.Configure(System.CommandLine.Command)">
+            <summary>
+            configure the command
+            </summary>
+            <param name="cmd"></param>
+        </member>
         <member name="T:Cmf.Common.Cli.Commands.FeatureCommand">
             <summary>
             new feature command
@@ -1085,6 +1107,21 @@
             </summary>
             <param name="configFile">the path to the config file</param>
             <returns>template engine compatible switches array</returns>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.TemplateCommand.RegisterAsDependencyInParent(System.String,System.String,System.String)">
+            <summary>
+            register this package as a dependency in the parent package
+            </summary>
+            <param name="packageName">this package name</param>
+            <param name="version">this package version</param>
+            <param name="parentPath">the parent directory of the package</param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.TemplateCommand.GetPackageInFolder(System.String)">
+            <summary>
+            Get the CmfPackage in the folder
+            </summary>
+            <param name="path">the folder path</param>
+            <returns>the CmfPackage in the folder</returns>
         </member>
         <member name="T:Cmf.Common.Cli.Constants.CliConstants">
              <summary>
