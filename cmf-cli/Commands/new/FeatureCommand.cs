@@ -81,27 +81,8 @@ namespace Cmf.Common.Cli.Commands
                 "--packageVersion", version
             };
             
-            this.RunCommand(args);
-            
-            // add to upper level package
-            // {
-            //     "id": "Cmf.Custom.Business",
-            //     "version": "4.33.0"
-            // }
-            var parentPackageDir = FileSystemUtilities.GetPackageRoot(this.fileSystem, featurePath);
-            if (parentPackageDir != null)
-            {
-                var cmfPackage = this.fileSystem.Path.Join(parentPackageDir.FullName, CliConstants.CmfPackageFileName);
-                if (this.fileSystem.File.Exists(cmfPackage))
-                {
-                    var package = CmfPackage.Load(
-                        this.fileSystem.FileInfo.FromFileName(
-                            cmfPackage),
-                        fileSystem: this.fileSystem);
-                    package.Dependencies.Add(new Dependency(packageName, version));
-                    package.SaveCmfPackage();
-                }
-            }
+            base.RunCommand(args);
+            base.RegisterAsDependencyInParent(packageName, version, featurePath);
         }
     }
 }

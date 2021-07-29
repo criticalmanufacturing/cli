@@ -36,13 +36,6 @@
     <Compile Remove="nupkg\**" />
     <EmbeddedResource Remove="nupkg\**" />
     <None Remove="nupkg\**" />
-    <None Update="resources\template_feed\feature\feature\cmfpackage.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="Commands\pipelines\HelpCommand.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -51,10 +44,20 @@
 
   <ItemGroup>
     <EmbeddedResource Remove="resources\template_feed\**" />
+    <Compile Remove="resources\template_feed\**" />
     <None Include="resources\template_feed\**\.template.config\template.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="resources\template_feed\**">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="resources\template_feed\**\*.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="resources\template_feed\**\*.csproj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="resources\template_feed\**\*.sln">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
