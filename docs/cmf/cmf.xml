@@ -872,6 +872,13 @@
             </summary>
             <param name="cmd"></param>
         </member>
+        <member name="M:Cmf.Common.Cli.Commands.BusinessCommand.Execute(System.IO.Abstractions.IDirectoryInfo,System.String)">
+            <summary>
+            Execute the command
+            </summary>
+            <param name="workingDir"></param>
+            <param name="version"></param>
+        </member>
         <member name="T:Cmf.Common.Cli.Commands.FeatureCommand">
             <summary>
             new feature command
@@ -912,6 +919,23 @@
             Configure command
             </summary>
             <param name="cmd"></param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.NewCommand.Execute(System.Boolean)">
+            <summary>
+            Execute command
+            </summary>
+            <param name="reset"></param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.NewCommand.#ctor">
+            <summary>
+            constructor
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.NewCommand.#ctor(System.IO.Abstractions.IFileSystem)">
+            <summary>
+            constructor
+            </summary>
+            <param name="fileSystem"></param>
         </member>
         <member name="T:Cmf.Common.Cli.Commands.PackCommand">
              <summary>
