@@ -18,7 +18,6 @@ Derived
 &#8627; [ListDependenciesCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_ListDependenciesCommand 'Cmf.Common.Cli.Commands.ListDependenciesCommand')  
 &#8627; [LocalCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_LocalCommand 'Cmf.Common.Cli.Commands.LocalCommand')  
 &#8627; [New3_Command](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_New3_Command 'Cmf.Common.Cli.Commands.New3_Command')  
-&#8627; [NewCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_NewCommand 'Cmf.Common.Cli.Commands.NewCommand')  
 &#8627; [PackCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_PackCommand 'Cmf.Common.Cli.Commands.PackCommand')  
 &#8627; [PluginCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_PluginCommand 'Cmf.Common.Cli.Commands.PluginCommand')  
 &#8627; [PowershellCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_PowershellCommand 'Cmf.Common.Cli.Commands.PowershellCommand')  
@@ -467,6 +466,20 @@ public override void Configure(System.CommandLine.Command cmd);
 `cmd` [System.CommandLine.Command](https://docs.microsoft.com/en-us/dotnet/api/System.CommandLine.Command 'System.CommandLine.Command')  
   
   
+<a name='Cmf_Common_Cli_Commands_BusinessCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string)'></a>
+## BusinessCommand.Execute(IDirectoryInfo, string) Method
+Execute the command  
+```csharp
+public void Execute(System.IO.Abstractions.IDirectoryInfo workingDir, string version);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Commands_BusinessCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string)_workingDir'></a>
+`workingDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
+  
+<a name='Cmf_Common_Cli_Commands_BusinessCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string)_version'></a>
+`version` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+  
+  
   
 <a name='Cmf_Common_Cli_Commands_FeatureCommand'></a>
 ## FeatureCommand Class
@@ -886,10 +899,29 @@ public static void Execute(System.Collections.Generic.IReadOnlyCollection<string
 ## NewCommand Class
 "new" command group  
 ```csharp
-public class NewCommand : Cmf.Common.Cli.Commands.BaseCommand
+public class NewCommand : Cmf.Common.Cli.Commands.TemplateCommand
 ```
 
-Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand') &#129106; NewCommand  
+Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand') &#129106; [TemplateCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_TemplateCommand 'Cmf.Common.Cli.Commands.TemplateCommand') &#129106; NewCommand  
+### Constructors
+<a name='Cmf_Common_Cli_Commands_NewCommand_NewCommand()'></a>
+## NewCommand.NewCommand() Constructor
+constructor  
+```csharp
+public NewCommand();
+```
+  
+<a name='Cmf_Common_Cli_Commands_NewCommand_NewCommand(System_IO_Abstractions_IFileSystem)'></a>
+## NewCommand.NewCommand(IFileSystem) Constructor
+constructor  
+```csharp
+public NewCommand(System.IO.Abstractions.IFileSystem fileSystem);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Commands_NewCommand_NewCommand(System_IO_Abstractions_IFileSystem)_fileSystem'></a>
+`fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
+  
+  
 ### Methods
 <a name='Cmf_Common_Cli_Commands_NewCommand_Configure(System_CommandLine_Command)'></a>
 ## NewCommand.Configure(Command) Method
@@ -900,6 +932,17 @@ public override void Configure(System.CommandLine.Command cmd);
 #### Parameters
 <a name='Cmf_Common_Cli_Commands_NewCommand_Configure(System_CommandLine_Command)_cmd'></a>
 `cmd` [System.CommandLine.Command](https://docs.microsoft.com/en-us/dotnet/api/System.CommandLine.Command 'System.CommandLine.Command')  
+  
+  
+<a name='Cmf_Common_Cli_Commands_NewCommand_Execute(bool)'></a>
+## NewCommand.Execute(bool) Method
+Execute command  
+```csharp
+public void Execute(bool reset);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Commands_NewCommand_Execute(bool)_reset'></a>
+`reset` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
   
   
   
@@ -1279,6 +1322,7 @@ Derived
 &#8627; [BusinessCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BusinessCommand 'Cmf.Common.Cli.Commands.BusinessCommand')  
 &#8627; [FeatureCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_FeatureCommand 'Cmf.Common.Cli.Commands.FeatureCommand')  
 &#8627; [InitCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_InitCommand 'Cmf.Common.Cli.Commands.InitCommand')  
+&#8627; [NewCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_NewCommand 'Cmf.Common.Cli.Commands.NewCommand')  
 ### Constructors
 <a name='Cmf_Common_Cli_Commands_TemplateCommand_TemplateCommand(string_System_IO_Abstractions_IFileSystem)'></a>
 ## TemplateCommand.TemplateCommand(string, IFileSystem) Constructor
