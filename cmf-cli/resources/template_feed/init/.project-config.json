@@ -24,7 +24,7 @@
   "DBServerDWH": "<%= $CLI_PARAM_DBServerDWH %>",
   "ReportServerURI": "<%= $CLI_PARAM_ReportServerURI %>",
   "AlwaysOn": "<%= $CLI_PARAM_AlwaysOn %>",
-  "InstallationPath": "<%= $CLI_PARAM_InstallationPath %>",
+  "InstallationPath": "<%= $CLI_PARAM_InstallationPath_JSON %>",
   "DBBackupPath": "<%= $CLI_PARAM_DBBackupPath %>",
   "TemporaryPath": "<%= $CLI_PARAM_TemporaryPath %>",
   "HTMLPort": "<%= $CLI_PARAM_HTMLPort %>",
