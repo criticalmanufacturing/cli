@@ -237,11 +237,12 @@
     "InstallationPath": {
       "type": "parameter",
       "datatype": "string",
-      "defaultValue": ""
+      "defaultValue": "",
+      "replaces": "<%= $CLI_PARAM_InstallationPath %>"
     },
     "InstallationPath-JSON": {
       "type": "derived",
-      "replaces": "\"<%= $CLI_PARAM_InstallationPath %>\"",
+      "replaces": "\"<%= $CLI_PARAM_InstallationPath_JSON %>\"",
       "valueSource": "InstallationPath",
       "valueTransform": "jsonEncode"
     },
