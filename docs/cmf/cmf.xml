@@ -762,6 +762,50 @@
             Execute the command
             </summary>
         </member>
+        <member name="T:Cmf.Common.Cli.Commands.LayerTemplateCommand">
+            <summary>
+            Layer Template Abstract Command
+            provides arguments and execution flow common to all layer templates
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.LayerTemplateCommand.#ctor(System.String,System.String)">
+            <summary>
+            constructor
+            </summary>
+            <param name="commandName">the name of the command</param>
+            <param name="packagePrefix">the package prefix. used as full name if not inside a feature.</param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.LayerTemplateCommand.#ctor(System.String,System.String,System.IO.Abstractions.IFileSystem)">
+            <summary>
+            constructor
+            </summary>
+            <param name="commandName">the name of the command</param>
+            <param name="packagePrefix">the package prefix. used as full name if not inside a feature.</param>
+            <param name="fileSystem">the filesystem implementation</param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.LayerTemplateCommand.Configure(System.CommandLine.Command)">
+            <summary>
+            configure the command
+            </summary>
+            <param name="cmd">base command</param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.LayerTemplateCommand.Execute(System.IO.Abstractions.IDirectoryInfo,System.String)">
+            <summary>
+            Execute the command
+            </summary>
+            <param name="workingDir">the nearest root package</param>
+            <param name="version">the package version</param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.LayerTemplateCommand.GenerateArgs(System.IO.Abstractions.IDirectoryInfo,System.IO.Abstractions.IDirectoryInfo,System.Collections.Generic.List{System.String},System.Text.Json.JsonDocument)">
+            <summary>
+            generates additional arguments for the templating engine
+            </summary>
+            <param name="projectRoot">the project root</param>
+            <param name="workingDir">the current feature root (project root if no features exist)</param>
+            <param name="args">the base arguments: output, package name, version, id segment and tenant</param>
+            <param name="projectConfig">a JsonDocument with the .project-config.json content</param>
+            <returns>the complete list of arguments</returns>
+        </member>
         <member name="T:Cmf.Common.Cli.Commands.ListDependenciesCommand">
             <summary>
             List dependencies command
@@ -852,7 +896,7 @@
         </member>
         <member name="T:Cmf.Common.Cli.Commands.BusinessCommand">
             <summary>
-            
+            Generates the Business layer structure
             </summary>
         </member>
         <member name="M:Cmf.Common.Cli.Commands.BusinessCommand.#ctor">
@@ -866,18 +910,8 @@
             </summary>
             <param name="fileSystem"></param>
         </member>
-        <member name="M:Cmf.Common.Cli.Commands.BusinessCommand.Configure(System.CommandLine.Command)">
-            <summary>
-            configure the command
-            </summary>
-            <param name="cmd"></param>
-        </member>
-        <member name="M:Cmf.Common.Cli.Commands.BusinessCommand.Execute(System.IO.Abstractions.IDirectoryInfo,System.String)">
-            <summary>
-            Execute the command
-            </summary>
-            <param name="workingDir"></param>
-            <param name="version"></param>
+        <member name="M:Cmf.Common.Cli.Commands.BusinessCommand.GenerateArgs(System.IO.Abstractions.IDirectoryInfo,System.IO.Abstractions.IDirectoryInfo,System.Collections.Generic.List{System.String},System.Text.Json.JsonDocument)">
+            <inheritdoc />
         </member>
         <member name="T:Cmf.Common.Cli.Commands.FeatureCommand">
             <summary>
@@ -908,6 +942,25 @@
             <param name="workingDir"></param>
             <param name="packageName"></param>
             <param name="version"></param>
+        </member>
+        <member name="T:Cmf.Common.Cli.Commands.IoTCommand">
+            <summary>
+            Generates IoT package structure
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.IoTCommand.#ctor">
+            <summary>
+            constructor
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.IoTCommand.#ctor(System.IO.Abstractions.IFileSystem)">
+            <summary>
+            constructor
+            </summary>
+            <param name="fileSystem">the filesystem implementation</param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.IoTCommand.GenerateArgs(System.IO.Abstractions.IDirectoryInfo,System.IO.Abstractions.IDirectoryInfo,System.Collections.Generic.List{System.String},System.Text.Json.JsonDocument)">
+            <inheritdoc />
         </member>
         <member name="T:Cmf.Common.Cli.Commands.NewCommand">
             <summary>
