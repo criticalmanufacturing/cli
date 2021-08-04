@@ -15,8 +15,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cmf.Custom.<%= $CLI_PARAM_i
 		{6C3D698D-7F9E-4E39-A571-DEB63582CA52} = {6C3D698D-7F9E-4E39-A571-DEB63582CA52}
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cmf.Custom.<%= $CLI_PARAM_idSegment %>.Actions", "..\Data\DEEs\Cmf.Custom.<%= $CLI_PARAM_idSegment %>.Actions.csproj", "{9F196971-17BC-4C71-B938-E8F6CE388953}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
