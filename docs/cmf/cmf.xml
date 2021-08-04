@@ -768,6 +768,11 @@
             provides arguments and execution flow common to all layer templates
             </summary>
         </member>
+        <member name="F:Cmf.Common.Cli.Commands.LayerTemplateCommand.executedArgs">
+            <summary>
+            Arguments used to execute the template. Available after Execute runs.
+            </summary>
+        </member>
         <member name="M:Cmf.Common.Cli.Commands.LayerTemplateCommand.#ctor(System.String,System.String)">
             <summary>
             constructor
@@ -786,6 +791,12 @@
         <member name="M:Cmf.Common.Cli.Commands.LayerTemplateCommand.Configure(System.CommandLine.Command)">
             <summary>
             configure the command
+            </summary>
+            <param name="cmd">base command</param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.LayerTemplateCommand.GetBaseCommandConfig(System.CommandLine.Command)">
+            <summary>
+            Injects the base arguments and options into the command, required for layer commands
             </summary>
             <param name="cmd">base command</param>
         </member>
@@ -912,6 +923,31 @@
         </member>
         <member name="M:Cmf.Common.Cli.Commands.BusinessCommand.GenerateArgs(System.IO.Abstractions.IDirectoryInfo,System.IO.Abstractions.IDirectoryInfo,System.Collections.Generic.List{System.String},System.Text.Json.JsonDocument)">
             <inheritdoc />
+        </member>
+        <member name="T:Cmf.Common.Cli.Commands.DataCommand">
+            <summary>
+            Generates Data package structure
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.DataCommand.#ctor">
+            <inheritdoc />
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.DataCommand.#ctor(System.IO.Abstractions.IFileSystem)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.DataCommand.Configure(System.CommandLine.Command)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.DataCommand.GenerateArgs(System.IO.Abstractions.IDirectoryInfo,System.IO.Abstractions.IDirectoryInfo,System.Collections.Generic.List{System.String},System.Text.Json.JsonDocument)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.DataCommand.Execute(System.IO.Abstractions.IDirectoryInfo,System.String,System.IO.Abstractions.IDirectoryInfo)">
+            <summary>
+            Execute the command
+            </summary>
+            <param name="workingDir">the nearest root package</param>
+            <param name="version">the package version</param>
+            <param name="businessPackage">business package where the process rules should be built.</param>
         </member>
         <member name="T:Cmf.Common.Cli.Commands.FeatureCommand">
             <summary>

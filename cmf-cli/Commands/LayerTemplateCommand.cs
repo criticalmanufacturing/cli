@@ -16,6 +16,10 @@ namespace Cmf.Common.Cli.Commands
     {
         private string packagePrefix;
         /// <summary>
+        /// Arguments used to execute the template. Available after Execute runs.
+        /// </summary>
+        protected string[] executedArgs;
+        /// <summary>
         /// constructor
         /// </summary>
         /// <param name="commandName">the name of the command</param>
@@ -42,6 +46,16 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="cmd">base command</param>
         public override void Configure(Command cmd)
         {
+            GetBaseCommandConfig(cmd);
+            cmd.Handler = CommandHandler.Create<IDirectoryInfo, string>(Execute);
+        }
+
+        /// <summary>
+        /// Injects the base arguments and options into the command, required for layer commands
+        /// </summary>
+        /// <param name="cmd">base command</param>
+        protected void GetBaseCommandConfig(Command cmd)
+        {
             var nearestRootPackage = FileSystemUtilities.GetPackageRootByType(
                 this.fileSystem.Directory.GetCurrentDirectory(),
                 PackageType.Root,
@@ -61,7 +75,6 @@ namespace Cmf.Common.Cli.Commands
                 description: "Package Version",
                 getDefaultValue: () => "1.1.0"
             ));
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, string>(Execute);
         }
 
         /// <summary>
@@ -114,7 +127,7 @@ namespace Cmf.Common.Cli.Commands
             };
             
             args = this.GenerateArgs(projectRoot, workingDir, args, projectConfig);
-            
+            this.executedArgs = args.ToArray();
             base.RunCommand(args);
             base.RegisterAsDependencyInParent(packageName, version, workingDir.FullName);
         }
