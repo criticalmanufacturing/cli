@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace Cmf.Common.Cli.Builders
 {
     /// <summary>
-    ///
+    /// Validator for json files
     /// </summary>
     /// <seealso cref="Cmf.Common.Cli.Builders.ProcessCommand" />
     /// <seealso cref="Cmf.Common.Cli.Builders.IBuildCommand" />

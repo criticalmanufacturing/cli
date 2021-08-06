@@ -168,15 +168,15 @@ public override void Configure(System.CommandLine.Command cmd);
 `cmd` [System.CommandLine.Command](https://docs.microsoft.com/en-us/dotnet/api/System.CommandLine.Command 'System.CommandLine.Command')  
   
   
-<a name='Cmf_Common_Cli_Commands_BuildCommand_Execute(System_IO_DirectoryInfo)'></a>
-## BuildCommand.Execute(DirectoryInfo) Method
+<a name='Cmf_Common_Cli_Commands_BuildCommand_Execute(System_IO_Abstractions_IDirectoryInfo)'></a>
+## BuildCommand.Execute(IDirectoryInfo) Method
 Executes the specified package path.  
 ```csharp
-public void Execute(System.IO.DirectoryInfo packagePath);
+public void Execute(System.IO.Abstractions.IDirectoryInfo packagePath);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Commands_BuildCommand_Execute(System_IO_DirectoryInfo)_packagePath'></a>
-`packagePath` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+<a name='Cmf_Common_Cli_Commands_BuildCommand_Execute(System_IO_Abstractions_IDirectoryInfo)_packagePath'></a>
+`packagePath` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
 The package path.
   
   

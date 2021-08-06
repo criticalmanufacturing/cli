@@ -248,11 +248,11 @@
             <returns></returns>
         </member>
         <member name="T:Cmf.Common.Cli.Builders.JSONValidatorCommand">
-             <summary>
-            
-             </summary>
-             <seealso cref="T:Cmf.Common.Cli.Builders.ProcessCommand" />
-             <seealso cref="T:Cmf.Common.Cli.Builders.IBuildCommand" />
+            <summary>
+            Validator for json files
+            </summary>
+            <seealso cref="T:Cmf.Common.Cli.Builders.ProcessCommand" />
+            <seealso cref="T:Cmf.Common.Cli.Builders.IBuildCommand" />
         </member>
         <member name="P:Cmf.Common.Cli.Builders.JSONValidatorCommand.FilesToValidate">
             <summary>
@@ -517,7 +517,7 @@
             </summary>
             <param name="cmd"></param>
         </member>
-        <member name="M:Cmf.Common.Cli.Commands.BuildCommand.Execute(System.IO.DirectoryInfo)">
+        <member name="M:Cmf.Common.Cli.Commands.BuildCommand.Execute(System.IO.Abstractions.IDirectoryInfo)">
             <summary>
             Executes the specified package path.
             </summary>

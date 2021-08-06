@@ -297,6 +297,7 @@ public override Cmf.Common.Cli.Builders.ProcessBuildStep[] GetSteps();
   
 <a name='Cmf_Common_Cli_Builders_JSONValidatorCommand'></a>
 ## JSONValidatorCommand Class
+Validator for json files  
 ```csharp
 public class JSONValidatorCommand :
 Cmf.Common.Cli.Builders.IBuildCommand
