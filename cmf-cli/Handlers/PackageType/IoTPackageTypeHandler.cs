@@ -92,7 +92,7 @@ namespace Cmf.Common.Cli.Handlers
                     DisplayName = "Gulp Build",
                     GulpJS = "node_modules/gulp/bin/gulp.js",
                     WorkingDirectory = cmfPackage.GetFileInfo().Directory
-                },
+                }
             };
 
             DFPackageType = PackageType.Presentation;

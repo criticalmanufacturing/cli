@@ -295,6 +295,55 @@ public override Cmf.Common.Cli.Builders.ProcessBuildStep[] GetSteps();
 - [ProcessCommand](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_ProcessCommand 'Cmf.Common.Cli.Builders.ProcessCommand')
 - [IBuildCommand](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_IBuildCommand 'Cmf.Common.Cli.Builders.IBuildCommand')
   
+<a name='Cmf_Common_Cli_Builders_JSONValidatorCommand'></a>
+## JSONValidatorCommand Class
+```csharp
+public class JSONValidatorCommand :
+Cmf.Common.Cli.Builders.IBuildCommand
+```
+
+Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; JSONValidatorCommand  
+
+Implements [IBuildCommand](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_IBuildCommand 'Cmf.Common.Cli.Builders.IBuildCommand')  
+### Properties
+<a name='Cmf_Common_Cli_Builders_JSONValidatorCommand_DisplayName'></a>
+## JSONValidatorCommand.DisplayName Property
+Gets or sets the display name.  
+```csharp
+public string DisplayName { get; set; }
+```
+#### Property Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
+The display name.  
+
+Implements [DisplayName](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_IBuildCommand_DisplayName 'Cmf.Common.Cli.Builders.IBuildCommand.DisplayName')  
+  
+<a name='Cmf_Common_Cli_Builders_JSONValidatorCommand_FilesToValidate'></a>
+## JSONValidatorCommand.FilesToValidate Property
+Gets or sets the command.  
+```csharp
+public System.Collections.Generic.List<Cmf.Common.Cli.Objects.FileToPack> FilesToValidate { get; set; }
+```
+#### Property Value
+[System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[FileToPack](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_FileToPack 'Cmf.Common.Cli.Objects.FileToPack')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')
+The command.  
+  
+### Methods
+<a name='Cmf_Common_Cli_Builders_JSONValidatorCommand_Exec()'></a>
+## JSONValidatorCommand.Exec() Method
+Search all the json files and validate them  
+```csharp
+public System.Threading.Tasks.Task Exec();
+```
+#### Returns
+[System.Threading.Tasks.Task](https://docs.microsoft.com/en-us/dotnet/api/System.Threading.Tasks.Task 'System.Threading.Tasks.Task')  
+
+Implements [Exec()](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_IBuildCommand_Exec() 'Cmf.Common.Cli.Builders.IBuildCommand.Exec()')  
+  
+#### See Also
+- [ProcessCommand](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_ProcessCommand 'Cmf.Common.Cli.Builders.ProcessCommand')
+- [IBuildCommand](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_IBuildCommand 'Cmf.Common.Cli.Builders.IBuildCommand')
+  
 <a name='Cmf_Common_Cli_Builders_NPMCommand'></a>
 ## NPMCommand Class
 ```csharp
@@ -407,7 +456,7 @@ Derived
 ### Fields
 <a name='Cmf_Common_Cli_Builders_ProcessCommand_fileSystem'></a>
 ## ProcessCommand.fileSystem Field
-the undrlying file system  
+the underlying file system  
 ```csharp
 protected IFileSystem fileSystem;
 ```
@@ -457,6 +506,7 @@ Derived
 &#8627; [DotnetCommand](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_DotnetCommand 'Cmf.Common.Cli.Builders.DotnetCommand')  
 &#8627; [ExecuteCommand&lt;T&gt;](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_ExecuteCommand_T_ 'Cmf.Common.Cli.Builders.ExecuteCommand&lt;T&gt;')  
 &#8627; [GulpCommand](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_GulpCommand 'Cmf.Common.Cli.Builders.GulpCommand')  
+&#8627; [JSONValidatorCommand](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_JSONValidatorCommand 'Cmf.Common.Cli.Builders.JSONValidatorCommand')  
 &#8627; [NPMCommand](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_NPMCommand 'Cmf.Common.Cli.Builders.NPMCommand')  
 ### Properties
 <a name='Cmf_Common_Cli_Builders_IBuildCommand_DisplayName'></a>

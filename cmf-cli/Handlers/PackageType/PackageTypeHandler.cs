@@ -304,11 +304,9 @@ namespace Cmf.Common.Cli.Handlers
         /// </summary>
         /// <param name="packageOutputDir">The pack directory.</param>
         /// <returns></returns>
-        internal virtual bool GetContentToPack(IDirectoryInfo packageOutputDir)
+        internal virtual List<FileToPack> GetContentToPack(IDirectoryInfo packageOutputDir)
         {
-            bool foundContentToPack = false;
-
-            #region Get Content to Pack
+            List<FileToPack> filesToPack = new List<FileToPack>();
 
             if (CmfPackage.ContentToPack.HasAny())
             {
@@ -362,13 +360,7 @@ namespace Cmf.Common.Cli.Handlers
 
                                 string destPackDir = $"{packageOutputDir.FullName}/{_target}/{_packDirectoryName}";
                                 List<string> contentToIgnore = GetContentToIgnore(contentToPack, packDirectory, DefaultContentToIgnore);
-                                FilesToPack.AddRange(FileSystemUtilities.GetFilesToPack(contentToPack, packDirectory.FullName, destPackDir, this.fileSystem, contentToIgnore));
-
-                                // If the FilesToPack is empty we assume that we don't have nothing to pack
-                                if (FilesToPack.HasAny())
-                                {
-                                    foundContentToPack = true;
-                                }
+                                filesToPack.AddRange(FileSystemUtilities.GetFilesToPack(contentToPack, packDirectory.FullName, destPackDir, this.fileSystem, contentToIgnore));
                             }
 
                             #endregion
@@ -396,14 +388,12 @@ namespace Cmf.Common.Cli.Handlers
                                     _targetFolder.Create();
                                 }
                                 string destPackFile = $"{_targetFolder.FullName}/{packFile.Name}";
-                                FilesToPack.Add(new()
+                                filesToPack.Add(new()
                                 {
                                     ContentToPack = contentToPack,
                                     Source = packFile,
                                     Target = this.fileSystem.FileInfo.FromFileName(destPackFile)
                                 });
-
-                                foundContentToPack = true;
                             }
 
                             #endregion
@@ -415,15 +405,13 @@ namespace Cmf.Common.Cli.Handlers
                     }
                 }
 
-                if (!foundContentToPack)
+                if (!filesToPack.HasAny())
                 {
                     Log.Warning(string.Format(CliMessages.ContentToPackNotFound, CmfPackage.PackageId, CmfPackage.Version));
                 }
             }
 
-            #endregion
-
-            return foundContentToPack;
+            return filesToPack;
         }
 
         #endregion
@@ -479,7 +467,7 @@ namespace Cmf.Common.Cli.Handlers
                 Log.Information($"Executing '{step.DisplayName}'");
                 step.Exec();
             }
-            }
+        }
 
         /// <summary>
         /// Packs the specified package output dir.
@@ -487,8 +475,8 @@ namespace Cmf.Common.Cli.Handlers
         /// <param name="packageOutputDir">The package output dir.</param>
         /// <param name="outputDir">The output dir.</param>
         public virtual void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir)
-            {
-            GetContentToPack(packageOutputDir);
+        {
+            FilesToPack = GetContentToPack(packageOutputDir);
 
             // TODO: To be removed? Install dependencies
             CopyInstallDependencies(packageOutputDir);

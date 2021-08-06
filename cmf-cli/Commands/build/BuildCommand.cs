@@ -18,6 +18,21 @@ namespace Cmf.Common.Cli.Commands
     public class BuildCommand : BaseCommand
     {
         /// <summary>
+        /// Build command Constructor
+        /// </summary>
+        public BuildCommand()
+        {
+        }
+        /// <summary>
+        /// Build Command Constructor specify fileSystem
+        /// Must have this for tests
+        /// </summary>
+        /// <param name="fileSystem"></param>
+        public BuildCommand(IFileSystem fileSystem) : base(fileSystem)
+        {
+        }
+
+        /// <summary>
         /// Configure command
         /// </summary>
         /// <param name="cmd"></param>
@@ -27,6 +42,10 @@ namespace Cmf.Common.Cli.Commands
             var arg = new Argument<DirectoryInfo>(
                 name: "packagePath",
                 description: "Package path");
+            {
+                Description = "Package Path"
+            };
+
             cmd.AddArgument(arg);
             if (packageRoot != null)
             {

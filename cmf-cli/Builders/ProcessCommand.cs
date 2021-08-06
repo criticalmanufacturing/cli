@@ -44,7 +44,7 @@ namespace Cmf.Common.Cli.Builders
     public abstract class ProcessCommand
     {
         /// <summary>
-        /// the undrlying file system
+        /// the underlying file system
         /// </summary>
         protected IFileSystem fileSystem = new FileSystem();
         /// <summary>
