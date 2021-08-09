@@ -24,6 +24,7 @@
     "build:prod:selfcontained:osx": "dotnet publish ./cmf-cli/cmf.csproj -c Release -r osx-x64 -o dist/osx-x64 --self-contained=false /p:PublishSingleFile=true",
     "publish": "cd npm && npm publish --tag next && cd ..",
     "publish:live": "cd npm && npm publish --tag latest && cd ..",
+    "publish:branch": "cd npm && npm publish --tag $(basename $GITHUB_REF) && cd ..",
     "bump:npm:pre": "cd npm && npm version prerelease --no-git-tag-version && cd ..",
     "bump:npm:patch": "cd npm && npm version patch --no-git-tag-version && cd ..",
     "bump:npm:feature": "cd npm && npm version minor --no-git-tag-version && cd ..",

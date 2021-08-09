@@ -7,6 +7,9 @@ Publishing from GitHub is done using releases. As a guideline creating:
 - a pre-release publishes a new version of the cli to the **@next** tag
     - these releases may be created from branch _development_
 
+- running the npm-publish workflow manually will publish under a tag similar to the branch name
+    - this still requires a valid version number, that should include a pre-release suffix
+
 
 Go to [Releases](https://github.com/criticalmanufacturing/cli/releases) and click "Draft a new release"
 

@@ -4,10 +4,7 @@
 name: cmf-cli
 
 on:
-  # workflow_dispatch:
-  #   inputs:
-  #     tag:
-  #       description: 'Main tag to publish'
+  workflow_dispatch:
   release:
     types: [published]
 jobs:
@@ -55,10 +52,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npm run publish
-        if: "github.event.release.prerelease"
+        if: "github.event.release && github.event.release.prerelease"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - run: npm run publish:live
-        if: "!github.event.release.prerelease"
+        if: "github.event.release && !github.event.release.prerelease"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: npm run publish:branch
+        if: "!github.event.release"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
