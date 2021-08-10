@@ -247,6 +247,35 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="T:Cmf.Common.Cli.Builders.JSONValidatorCommand">
+            <summary>
+            Validator for json files
+            </summary>
+            <seealso cref="T:Cmf.Common.Cli.Builders.ProcessCommand" />
+            <seealso cref="T:Cmf.Common.Cli.Builders.IBuildCommand" />
+        </member>
+        <member name="P:Cmf.Common.Cli.Builders.JSONValidatorCommand.FilesToValidate">
+            <summary>
+            Gets or sets the command.
+            </summary>
+            <value>
+            The command.
+            </value>
+        </member>
+        <member name="P:Cmf.Common.Cli.Builders.JSONValidatorCommand.DisplayName">
+            <summary>
+            Gets or sets the display name.
+            </summary>
+            <value>
+            The display name.
+            </value>
+        </member>
+        <member name="M:Cmf.Common.Cli.Builders.JSONValidatorCommand.Exec">
+            <summary>
+            Search all the json files and validate them
+            </summary>
+            <returns></returns>
+        </member>
         <member name="T:Cmf.Common.Cli.Builders.NPMCommand">
              <summary>
             
@@ -320,7 +349,7 @@
         </member>
         <member name="F:Cmf.Common.Cli.Builders.ProcessCommand.fileSystem">
             <summary>
-            the undrlying file system
+            the underlying file system
             </summary>
         </member>
         <member name="P:Cmf.Common.Cli.Builders.ProcessCommand.WorkingDirectory">
@@ -470,13 +499,25 @@
              </summary>
              <seealso cref="T:Cmf.Common.Cli.Commands.BaseCommand" />
         </member>
+        <member name="M:Cmf.Common.Cli.Commands.BuildCommand.#ctor">
+            <summary>
+            Build command Constructor
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.BuildCommand.#ctor(System.IO.Abstractions.IFileSystem)">
+            <summary>
+            Build Command Constructor specify fileSystem
+            Must have this for tests
+            </summary>
+            <param name="fileSystem"></param>
+        </member>
         <member name="M:Cmf.Common.Cli.Commands.BuildCommand.Configure(System.CommandLine.Command)">
             <summary>
             Configure command
             </summary>
             <param name="cmd"></param>
         </member>
-        <member name="M:Cmf.Common.Cli.Commands.BuildCommand.Execute(System.IO.DirectoryInfo)">
+        <member name="M:Cmf.Common.Cli.Commands.BuildCommand.Execute(System.IO.Abstractions.IDirectoryInfo)">
             <summary>
             Executes the specified package path.
             </summary>

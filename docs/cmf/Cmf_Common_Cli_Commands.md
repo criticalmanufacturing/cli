@@ -136,6 +136,26 @@ public class BuildCommand : Cmf.Common.Cli.Commands.BaseCommand
 ```
 
 Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand') &#129106; BuildCommand  
+### Constructors
+<a name='Cmf_Common_Cli_Commands_BuildCommand_BuildCommand()'></a>
+## BuildCommand.BuildCommand() Constructor
+Build command Constructor  
+```csharp
+public BuildCommand();
+```
+  
+<a name='Cmf_Common_Cli_Commands_BuildCommand_BuildCommand(System_IO_Abstractions_IFileSystem)'></a>
+## BuildCommand.BuildCommand(IFileSystem) Constructor
+Build Command Constructor specify fileSystem  
+Must have this for tests  
+```csharp
+public BuildCommand(System.IO.Abstractions.IFileSystem fileSystem);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Commands_BuildCommand_BuildCommand(System_IO_Abstractions_IFileSystem)_fileSystem'></a>
+`fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
+  
+  
 ### Methods
 <a name='Cmf_Common_Cli_Commands_BuildCommand_Configure(System_CommandLine_Command)'></a>
 ## BuildCommand.Configure(Command) Method
@@ -148,15 +168,15 @@ public override void Configure(System.CommandLine.Command cmd);
 `cmd` [System.CommandLine.Command](https://docs.microsoft.com/en-us/dotnet/api/System.CommandLine.Command 'System.CommandLine.Command')  
   
   
-<a name='Cmf_Common_Cli_Commands_BuildCommand_Execute(System_IO_DirectoryInfo)'></a>
-## BuildCommand.Execute(DirectoryInfo) Method
+<a name='Cmf_Common_Cli_Commands_BuildCommand_Execute(System_IO_Abstractions_IDirectoryInfo)'></a>
+## BuildCommand.Execute(IDirectoryInfo) Method
 Executes the specified package path.  
 ```csharp
-public void Execute(System.IO.DirectoryInfo packagePath);
+public void Execute(System.IO.Abstractions.IDirectoryInfo packagePath);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Commands_BuildCommand_Execute(System_IO_DirectoryInfo)_packagePath'></a>
-`packagePath` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
+<a name='Cmf_Common_Cli_Commands_BuildCommand_Execute(System_IO_Abstractions_IDirectoryInfo)_packagePath'></a>
+`packagePath` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
 The package path.
   
   

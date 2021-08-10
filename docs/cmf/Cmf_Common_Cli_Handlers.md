@@ -531,7 +531,7 @@ The default content to ignore.
 ## PackageTypeHandler.GetContentToPack(IDirectoryInfo) Method
 Get Content To pack  
 ```csharp
-internal virtual bool GetContentToPack(System.IO.Abstractions.IDirectoryInfo packageOutputDir);
+internal virtual System.Collections.Generic.List<Cmf.Common.Cli.Objects.FileToPack> GetContentToPack(System.IO.Abstractions.IDirectoryInfo packageOutputDir);
 ```
 #### Parameters
 <a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_GetContentToPack(System_IO_Abstractions_IDirectoryInfo)_packageOutputDir'></a>
@@ -539,7 +539,7 @@ internal virtual bool GetContentToPack(System.IO.Abstractions.IDirectoryInfo pac
 The pack directory.
   
 #### Returns
-[System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
+[System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[FileToPack](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_FileToPack 'Cmf.Common.Cli.Objects.FileToPack')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')  
   
 <a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_Pack(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo)'></a>
 ## PackageTypeHandler.Pack(IDirectoryInfo, IDirectoryInfo) Method
