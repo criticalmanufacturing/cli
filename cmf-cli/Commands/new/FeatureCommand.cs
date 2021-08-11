@@ -7,7 +7,7 @@ using Cmf.Common.Cli.Constants;
 using Cmf.Common.Cli.Objects;
 using Cmf.Common.Cli.Utilities;
 
-namespace Cmf.Common.Cli.Commands
+namespace Cmf.Common.Cli.Commands.New
 {
     /// <summary>
     /// new feature command

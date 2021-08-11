@@ -7,7 +7,7 @@ using System.Text.Json;
 using Cmf.Common.Cli.Attributes;
 using Cmf.Common.Cli.Builders;
 
-namespace Cmf.Common.Cli.Commands
+namespace Cmf.Common.Cli.Commands.New
 {
     /// <summary>
     /// Generates Data package structure

@@ -11,7 +11,7 @@ using Cmf.Common.Cli.Enums;
 using Cmf.Common.Cli.Objects;
 using Cmf.Common.Cli.Utilities;
 
-namespace Cmf.Common.Cli.Commands
+namespace Cmf.Common.Cli.Commands.New
 {
     /// <summary>
     /// Generates the Business layer structure

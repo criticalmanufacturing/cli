@@ -4,7 +4,7 @@
   "classifications": [
     "cli"
   ],
-  "description": "Generate a new business package",
+  "description": "Generate a new Data package",
   "name": "Data Package",
   "identity": "cmf-cli.new.data",
   "groupIdentity": "cmf-cli.new.data",
