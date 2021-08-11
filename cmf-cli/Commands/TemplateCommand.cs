@@ -44,6 +44,16 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="args">the template engine arguments</param>
         public void RunCommand(IReadOnlyCollection<string> args)
         {
+            this.ExecuteTemplate(this.commandName, args);
+        }
+
+        /// <summary>
+        /// execute a template
+        /// </summary>
+        /// <param name="templateName">the name of the template</param>
+        /// <param name="args">the template engine arguments</param>
+        protected void ExecuteTemplate(string templateName, IReadOnlyCollection<string> args)
+        {
             var logger = new TelemetryLogger(null);
 
             New3Callbacks callbacks = new New3Callbacks()
@@ -58,14 +68,14 @@ namespace Cmf.Common.Cli.Commands
 
             var commands = new List<string>
                 {
-                    this.commandName
+                    templateName
                 }
                 .Concat(args.ToList())
                 .Concat(new[] { "--debug:custom-hive", $"{System.Environment.GetEnvironmentVariable("USERPROFILE")}/.templateengine/cmf-cli/{version}" })
                 .ToList();
 
             Log.Debug(string.Join(' ', commands));
-            New3Command.Run(this.commandName, CreateHost(version), logger, callbacks, 
+            New3Command.Run(templateName, CreateHost(version), logger, callbacks, 
                 commands.ToArray(), null);
         }
 
@@ -158,7 +168,8 @@ namespace Cmf.Common.Cli.Commands
             if (parentPackageDir != null)
             {
                 var package = this.GetPackageInFolder(parentPackageDir.FullName);
-                if (package != null)
+                if (package != null && 
+                    package.Dependencies.FirstOrDefault(dep => dep.Id == packageName && dep.Version == version) == null)
                 {
                     package.Dependencies.Add(new Dependency(packageName, version));
                     package.SaveCmfPackage();

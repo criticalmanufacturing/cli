@@ -4,18 +4,18 @@
   "classifications": [
     "cli"
   ],
-  "description": "Generate a new IoT package",
-  "name": "IoT Package",
-  "identity": "cmf-cli.new.iot",
-  "groupIdentity": "cmf-cli.new.iot",
-  "shortName": "iot",
+  "description": "Generate a new help/documentation package",
+  "name": "Help Package",
+  "identity": "cmf-cli.new.help",
+  "groupIdentity": "cmf-cli.new.help",
+  "shortName": "help",
   // You can create the project using this short name instead of the one above.
   "tags": {
     "language": "C#",
     // Specify that this template is in C#.
     "type": "project"
   },
-  "sourceName": "IoT.Package",
+  "sourceName": "Help.Package",
   // Will replace the string 'MyProject.StarterWeb' with the value provided via -n.
   "preferNameDirectory": true,
   "symbols": {
@@ -46,20 +46,10 @@
       "replaces": "<%= $CLI_PARAM_idSegment %>",
       "fileRename": "%idSegment%"
     },
-    "rootInnerRelativePath": {
+    "rootRelativePath": {
       "type": "parameter",
       "datatype": "string",
-      "replaces": "<%= $CLI_PARAM_rootInnerRelativePath %>"
-    },
-    "DevTasksVersion": {
-      "type": "parameter",
-      "datatype": "string",
-      "replaces": "<%= $CLI_PARAM_DevTasksVersion %>"
-    },
-    "npmRegistry": {
-      "type": "parameter",
-      "datatype": "string",
-      "replaces": "<%= $CLI_PARAM_NPMRegistry %>"
+      "replaces": "<%= $CLI_PARAM_rootRelativePath %>"
     }
   }
 }

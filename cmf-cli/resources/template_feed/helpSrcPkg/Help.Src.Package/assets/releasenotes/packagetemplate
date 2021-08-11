@@ -1,0 +1,19 @@
+# @PackageId@
+
+## Overview
+
+**Customization Version:** @PackageVersion@
+
+**Sprint:** @SprintNumber@
+
+**Release Date:** @ExpectedReleaseDate@
+
+**Includes deliverables of packages:** @PackageDeliverablesIncluded@
+
+## Pre-Requirements
+
+**MES Version:** Critical Manufacturing @MESVersion@
+
+**Customization Version:** @CustomDependsOn@
+
+@UserStories@

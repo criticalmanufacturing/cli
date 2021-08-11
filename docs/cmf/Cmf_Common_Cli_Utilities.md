@@ -379,6 +379,22 @@ The input.
 The output.
   
   
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFileContentFromPackage(string_string)'></a>
+## FileSystemUtilities.GetFileContentFromPackage(string, string) Method
+Get File Content From package  
+```csharp
+public static string GetFileContentFromPackage(string packageFile, string filename);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFileContentFromPackage(string_string)_packageFile'></a>
+`packageFile` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+  
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFileContentFromPackage(string_string)_filename'></a>
+`filename` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+  
+#### Returns
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+  
 <a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFilesToPack(Cmf_Common_Cli_Objects_ContentToPack_string_string_System_IO_Abstractions_IFileSystem_System_Collections_Generic_List_string__bool_bool_System_Collections_Generic_List_Cmf_Common_Cli_Objects_FileToPack_)'></a>
 ## FileSystemUtilities.GetFilesToPack(ContentToPack, string, string, IFileSystem, List&lt;string&gt;, bool, bool, List&lt;FileToPack&gt;) Method
 Gets the files to pack.  

@@ -448,207 +448,6 @@ if set to `true` [is to tag].
 #### See Also
 - [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand')
   
-<a name='Cmf_Common_Cli_Commands_BusinessCommand'></a>
-## BusinessCommand Class
-Generates the Business layer structure  
-```csharp
-public class BusinessCommand : Cmf.Common.Cli.Commands.LayerTemplateCommand
-```
-
-Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand') &#129106; [TemplateCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_TemplateCommand 'Cmf.Common.Cli.Commands.TemplateCommand') &#129106; [LayerTemplateCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_LayerTemplateCommand 'Cmf.Common.Cli.Commands.LayerTemplateCommand') &#129106; BusinessCommand  
-### Constructors
-<a name='Cmf_Common_Cli_Commands_BusinessCommand_BusinessCommand()'></a>
-## BusinessCommand.BusinessCommand() Constructor
-constructor  
-```csharp
-public BusinessCommand();
-```
-  
-<a name='Cmf_Common_Cli_Commands_BusinessCommand_BusinessCommand(System_IO_Abstractions_IFileSystem)'></a>
-## BusinessCommand.BusinessCommand(IFileSystem) Constructor
-constructor  
-```csharp
-public BusinessCommand(System.IO.Abstractions.IFileSystem fileSystem);
-```
-#### Parameters
-<a name='Cmf_Common_Cli_Commands_BusinessCommand_BusinessCommand(System_IO_Abstractions_IFileSystem)_fileSystem'></a>
-`fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
-  
-  
-### Methods
-<a name='Cmf_Common_Cli_Commands_BusinessCommand_GenerateArgs(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_System_Collections_Generic_List_string__System_Text_Json_JsonDocument)'></a>
-## BusinessCommand.GenerateArgs(IDirectoryInfo, IDirectoryInfo, List&lt;string&gt;, JsonDocument) Method
-generates additional arguments for the templating engine  
-```csharp
-protected override System.Collections.Generic.List<string> GenerateArgs(System.IO.Abstractions.IDirectoryInfo projectRoot, System.IO.Abstractions.IDirectoryInfo workingDir, System.Collections.Generic.List<string> args, System.Text.Json.JsonDocument projectConfig);
-```
-#### Parameters
-<a name='Cmf_Common_Cli_Commands_BusinessCommand_GenerateArgs(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_System_Collections_Generic_List_string__System_Text_Json_JsonDocument)_projectRoot'></a>
-`projectRoot` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
-the project root
-  
-<a name='Cmf_Common_Cli_Commands_BusinessCommand_GenerateArgs(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_System_Collections_Generic_List_string__System_Text_Json_JsonDocument)_workingDir'></a>
-`workingDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
-the current feature root (project root if no features exist)
-  
-<a name='Cmf_Common_Cli_Commands_BusinessCommand_GenerateArgs(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_System_Collections_Generic_List_string__System_Text_Json_JsonDocument)_args'></a>
-`args` [System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')  
-the base arguments: output, package name, version, id segment and tenant
-  
-<a name='Cmf_Common_Cli_Commands_BusinessCommand_GenerateArgs(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_System_Collections_Generic_List_string__System_Text_Json_JsonDocument)_projectConfig'></a>
-`projectConfig` [System.Text.Json.JsonDocument](https://docs.microsoft.com/en-us/dotnet/api/System.Text.Json.JsonDocument 'System.Text.Json.JsonDocument')  
-a JsonDocument with the .project-config.json content
-  
-#### Returns
-[System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')  
-the complete list of arguments
-  
-  
-<a name='Cmf_Common_Cli_Commands_DataCommand'></a>
-## DataCommand Class
-Generates Data package structure  
-```csharp
-public class DataCommand : Cmf.Common.Cli.Commands.LayerTemplateCommand
-```
-
-Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand') &#129106; [TemplateCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_TemplateCommand 'Cmf.Common.Cli.Commands.TemplateCommand') &#129106; [LayerTemplateCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_LayerTemplateCommand 'Cmf.Common.Cli.Commands.LayerTemplateCommand') &#129106; DataCommand  
-### Constructors
-<a name='Cmf_Common_Cli_Commands_DataCommand_DataCommand()'></a>
-## DataCommand.DataCommand() Constructor
-constructor for System.IO filesystem  
-```csharp
-public DataCommand();
-```
-  
-<a name='Cmf_Common_Cli_Commands_DataCommand_DataCommand(System_IO_Abstractions_IFileSystem)'></a>
-## DataCommand.DataCommand(IFileSystem) Constructor
-constructor  
-```csharp
-public DataCommand(System.IO.Abstractions.IFileSystem fileSystem);
-```
-#### Parameters
-<a name='Cmf_Common_Cli_Commands_DataCommand_DataCommand(System_IO_Abstractions_IFileSystem)_fileSystem'></a>
-`fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
-  
-  
-### Methods
-<a name='Cmf_Common_Cli_Commands_DataCommand_Configure(System_CommandLine_Command)'></a>
-## DataCommand.Configure(Command) Method
-configure the command  
-```csharp
-public override void Configure(System.CommandLine.Command cmd);
-```
-#### Parameters
-<a name='Cmf_Common_Cli_Commands_DataCommand_Configure(System_CommandLine_Command)_cmd'></a>
-`cmd` [System.CommandLine.Command](https://docs.microsoft.com/en-us/dotnet/api/System.CommandLine.Command 'System.CommandLine.Command')  
-base command
-  
-  
-<a name='Cmf_Common_Cli_Commands_DataCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string_System_IO_Abstractions_IDirectoryInfo)'></a>
-## DataCommand.Execute(IDirectoryInfo, string, IDirectoryInfo) Method
-Execute the command  
-```csharp
-public void Execute(System.IO.Abstractions.IDirectoryInfo workingDir, string version, System.IO.Abstractions.IDirectoryInfo businessPackage);
-```
-#### Parameters
-<a name='Cmf_Common_Cli_Commands_DataCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string_System_IO_Abstractions_IDirectoryInfo)_workingDir'></a>
-`workingDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
-the nearest root package
-  
-<a name='Cmf_Common_Cli_Commands_DataCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string_System_IO_Abstractions_IDirectoryInfo)_version'></a>
-`version` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
-the package version
-  
-<a name='Cmf_Common_Cli_Commands_DataCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string_System_IO_Abstractions_IDirectoryInfo)_businessPackage'></a>
-`businessPackage` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
-business package where the process rules should be built.
-  
-  
-<a name='Cmf_Common_Cli_Commands_DataCommand_GenerateArgs(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_System_Collections_Generic_List_string__System_Text_Json_JsonDocument)'></a>
-## DataCommand.GenerateArgs(IDirectoryInfo, IDirectoryInfo, List&lt;string&gt;, JsonDocument) Method
-generates additional arguments for the templating engine  
-```csharp
-protected override System.Collections.Generic.List<string> GenerateArgs(System.IO.Abstractions.IDirectoryInfo projectRoot, System.IO.Abstractions.IDirectoryInfo workingDir, System.Collections.Generic.List<string> args, System.Text.Json.JsonDocument projectConfig);
-```
-#### Parameters
-<a name='Cmf_Common_Cli_Commands_DataCommand_GenerateArgs(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_System_Collections_Generic_List_string__System_Text_Json_JsonDocument)_projectRoot'></a>
-`projectRoot` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
-the project root
-  
-<a name='Cmf_Common_Cli_Commands_DataCommand_GenerateArgs(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_System_Collections_Generic_List_string__System_Text_Json_JsonDocument)_workingDir'></a>
-`workingDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
-the current feature root (project root if no features exist)
-  
-<a name='Cmf_Common_Cli_Commands_DataCommand_GenerateArgs(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_System_Collections_Generic_List_string__System_Text_Json_JsonDocument)_args'></a>
-`args` [System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')  
-the base arguments: output, package name, version, id segment and tenant
-  
-<a name='Cmf_Common_Cli_Commands_DataCommand_GenerateArgs(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_System_Collections_Generic_List_string__System_Text_Json_JsonDocument)_projectConfig'></a>
-`projectConfig` [System.Text.Json.JsonDocument](https://docs.microsoft.com/en-us/dotnet/api/System.Text.Json.JsonDocument 'System.Text.Json.JsonDocument')  
-a JsonDocument with the .project-config.json content
-  
-#### Returns
-[System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')  
-the complete list of arguments
-  
-  
-<a name='Cmf_Common_Cli_Commands_FeatureCommand'></a>
-## FeatureCommand Class
-new feature command  
-```csharp
-public class FeatureCommand : Cmf.Common.Cli.Commands.TemplateCommand
-```
-
-Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand') &#129106; [TemplateCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_TemplateCommand 'Cmf.Common.Cli.Commands.TemplateCommand') &#129106; FeatureCommand  
-### Constructors
-<a name='Cmf_Common_Cli_Commands_FeatureCommand_FeatureCommand()'></a>
-## FeatureCommand.FeatureCommand() Constructor
-constructor  
-```csharp
-public FeatureCommand();
-```
-  
-<a name='Cmf_Common_Cli_Commands_FeatureCommand_FeatureCommand(System_IO_Abstractions_IFileSystem)'></a>
-## FeatureCommand.FeatureCommand(IFileSystem) Constructor
-constructor  
-```csharp
-public FeatureCommand(System.IO.Abstractions.IFileSystem fileSystem);
-```
-#### Parameters
-<a name='Cmf_Common_Cli_Commands_FeatureCommand_FeatureCommand(System_IO_Abstractions_IFileSystem)_fileSystem'></a>
-`fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
-  
-  
-### Methods
-<a name='Cmf_Common_Cli_Commands_FeatureCommand_Configure(System_CommandLine_Command)'></a>
-## FeatureCommand.Configure(Command) Method
-configure the command  
-```csharp
-public override void Configure(System.CommandLine.Command cmd);
-```
-#### Parameters
-<a name='Cmf_Common_Cli_Commands_FeatureCommand_Configure(System_CommandLine_Command)_cmd'></a>
-`cmd` [System.CommandLine.Command](https://docs.microsoft.com/en-us/dotnet/api/System.CommandLine.Command 'System.CommandLine.Command')  
-  
-  
-<a name='Cmf_Common_Cli_Commands_FeatureCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string_string)'></a>
-## FeatureCommand.Execute(IDirectoryInfo, string, string) Method
-execute the command  
-```csharp
-public void Execute(System.IO.Abstractions.IDirectoryInfo workingDir, string packageName, string version);
-```
-#### Parameters
-<a name='Cmf_Common_Cli_Commands_FeatureCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string_string)_workingDir'></a>
-`workingDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
-  
-<a name='Cmf_Common_Cli_Commands_FeatureCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string_string)_packageName'></a>
-`packageName` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
-  
-<a name='Cmf_Common_Cli_Commands_FeatureCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string_string)_version'></a>
-`version` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
-  
-  
-  
 <a name='Cmf_Common_Cli_Commands_GenerateBasedOnTemplatesCommand'></a>
 ## GenerateBasedOnTemplatesCommand Class
 ```csharp
@@ -879,63 +678,6 @@ internal void Execute(Cmf.Common.Cli.Commands.InitArguments x);
   
   
   
-<a name='Cmf_Common_Cli_Commands_IoTCommand'></a>
-## IoTCommand Class
-Generates IoT package structure  
-```csharp
-public class IoTCommand : Cmf.Common.Cli.Commands.LayerTemplateCommand
-```
-
-Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand') &#129106; [TemplateCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_TemplateCommand 'Cmf.Common.Cli.Commands.TemplateCommand') &#129106; [LayerTemplateCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_LayerTemplateCommand 'Cmf.Common.Cli.Commands.LayerTemplateCommand') &#129106; IoTCommand  
-### Constructors
-<a name='Cmf_Common_Cli_Commands_IoTCommand_IoTCommand()'></a>
-## IoTCommand.IoTCommand() Constructor
-constructor  
-```csharp
-public IoTCommand();
-```
-  
-<a name='Cmf_Common_Cli_Commands_IoTCommand_IoTCommand(System_IO_Abstractions_IFileSystem)'></a>
-## IoTCommand.IoTCommand(IFileSystem) Constructor
-constructor  
-```csharp
-public IoTCommand(System.IO.Abstractions.IFileSystem fileSystem);
-```
-#### Parameters
-<a name='Cmf_Common_Cli_Commands_IoTCommand_IoTCommand(System_IO_Abstractions_IFileSystem)_fileSystem'></a>
-`fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
-the filesystem implementation
-  
-  
-### Methods
-<a name='Cmf_Common_Cli_Commands_IoTCommand_GenerateArgs(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_System_Collections_Generic_List_string__System_Text_Json_JsonDocument)'></a>
-## IoTCommand.GenerateArgs(IDirectoryInfo, IDirectoryInfo, List&lt;string&gt;, JsonDocument) Method
-generates additional arguments for the templating engine  
-```csharp
-protected override System.Collections.Generic.List<string> GenerateArgs(System.IO.Abstractions.IDirectoryInfo projectRoot, System.IO.Abstractions.IDirectoryInfo workingDir, System.Collections.Generic.List<string> args, System.Text.Json.JsonDocument projectConfig);
-```
-#### Parameters
-<a name='Cmf_Common_Cli_Commands_IoTCommand_GenerateArgs(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_System_Collections_Generic_List_string__System_Text_Json_JsonDocument)_projectRoot'></a>
-`projectRoot` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
-the project root
-  
-<a name='Cmf_Common_Cli_Commands_IoTCommand_GenerateArgs(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_System_Collections_Generic_List_string__System_Text_Json_JsonDocument)_workingDir'></a>
-`workingDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
-the current feature root (project root if no features exist)
-  
-<a name='Cmf_Common_Cli_Commands_IoTCommand_GenerateArgs(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_System_Collections_Generic_List_string__System_Text_Json_JsonDocument)_args'></a>
-`args` [System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')  
-the base arguments: output, package name, version, id segment and tenant
-  
-<a name='Cmf_Common_Cli_Commands_IoTCommand_GenerateArgs(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_System_Collections_Generic_List_string__System_Text_Json_JsonDocument)_projectConfig'></a>
-`projectConfig` [System.Text.Json.JsonDocument](https://docs.microsoft.com/en-us/dotnet/api/System.Text.Json.JsonDocument 'System.Text.Json.JsonDocument')  
-a JsonDocument with the .project-config.json content
-  
-#### Returns
-[System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')  
-the complete list of arguments
-  
-  
 <a name='Cmf_Common_Cli_Commands_LayerTemplateCommand'></a>
 ## LayerTemplateCommand Class
 Layer Template Abstract Command  
@@ -947,9 +689,10 @@ public abstract class LayerTemplateCommand : Cmf.Common.Cli.Commands.TemplateCom
 Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand') &#129106; [TemplateCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_TemplateCommand 'Cmf.Common.Cli.Commands.TemplateCommand') &#129106; LayerTemplateCommand  
 
 Derived  
-&#8627; [BusinessCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BusinessCommand 'Cmf.Common.Cli.Commands.BusinessCommand')  
-&#8627; [DataCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_DataCommand 'Cmf.Common.Cli.Commands.DataCommand')  
-&#8627; [IoTCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_IoTCommand 'Cmf.Common.Cli.Commands.IoTCommand')  
+&#8627; [BusinessCommand](Cmf_Common_Cli_Commands_New.md#Cmf_Common_Cli_Commands_New_BusinessCommand 'Cmf.Common.Cli.Commands.New.BusinessCommand')  
+&#8627; [DataCommand](Cmf_Common_Cli_Commands_New.md#Cmf_Common_Cli_Commands_New_DataCommand 'Cmf.Common.Cli.Commands.New.DataCommand')  
+&#8627; [IoTCommand](Cmf_Common_Cli_Commands_New.md#Cmf_Common_Cli_Commands_New_IoTCommand 'Cmf.Common.Cli.Commands.New.IoTCommand')  
+&#8627; [UILayerTemplateCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_UILayerTemplateCommand 'Cmf.Common.Cli.Commands.UILayerTemplateCommand')  
 ### Constructors
 <a name='Cmf_Common_Cli_Commands_LayerTemplateCommand_LayerTemplateCommand(string_string_System_IO_Abstractions_IFileSystem)'></a>
 ## LayerTemplateCommand.LayerTemplateCommand(string, string, IFileSystem) Constructor
@@ -1617,9 +1360,9 @@ public abstract class TemplateCommand : Cmf.Common.Cli.Commands.BaseCommand
 Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand') &#129106; TemplateCommand  
 
 Derived  
-&#8627; [FeatureCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_FeatureCommand 'Cmf.Common.Cli.Commands.FeatureCommand')  
 &#8627; [InitCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_InitCommand 'Cmf.Common.Cli.Commands.InitCommand')  
 &#8627; [LayerTemplateCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_LayerTemplateCommand 'Cmf.Common.Cli.Commands.LayerTemplateCommand')  
+&#8627; [FeatureCommand](Cmf_Common_Cli_Commands_New.md#Cmf_Common_Cli_Commands_New_FeatureCommand 'Cmf.Common.Cli.Commands.New.FeatureCommand')  
 &#8627; [NewCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_NewCommand 'Cmf.Common.Cli.Commands.NewCommand')  
 ### Constructors
 <a name='Cmf_Common_Cli_Commands_TemplateCommand_TemplateCommand(string_System_IO_Abstractions_IFileSystem)'></a>
@@ -1648,6 +1391,22 @@ protected TemplateCommand(string commandName);
   
   
 ### Methods
+<a name='Cmf_Common_Cli_Commands_TemplateCommand_ExecuteTemplate(string_System_Collections_Generic_IReadOnlyCollection_string_)'></a>
+## TemplateCommand.ExecuteTemplate(string, IReadOnlyCollection&lt;string&gt;) Method
+execute a template  
+```csharp
+protected void ExecuteTemplate(string templateName, System.Collections.Generic.IReadOnlyCollection<string> args);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Commands_TemplateCommand_ExecuteTemplate(string_System_Collections_Generic_IReadOnlyCollection_string_)_templateName'></a>
+`templateName` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+the name of the template
+  
+<a name='Cmf_Common_Cli_Commands_TemplateCommand_ExecuteTemplate(string_System_Collections_Generic_IReadOnlyCollection_string_)_args'></a>
+`args` [System.Collections.Generic.IReadOnlyCollection&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IReadOnlyCollection-1 'System.Collections.Generic.IReadOnlyCollection`1')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IReadOnlyCollection-1 'System.Collections.Generic.IReadOnlyCollection`1')  
+the template engine arguments
+  
+  
 <a name='Cmf_Common_Cli_Commands_TemplateCommand_GetPackageInFolder(string)'></a>
 ## TemplateCommand.GetPackageInFolder(string) Method
 Get the CmfPackage in the folder  
@@ -1708,6 +1467,71 @@ public void RunCommand(System.Collections.Generic.IReadOnlyCollection<string> ar
 <a name='Cmf_Common_Cli_Commands_TemplateCommand_RunCommand(System_Collections_Generic_IReadOnlyCollection_string_)_args'></a>
 `args` [System.Collections.Generic.IReadOnlyCollection&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IReadOnlyCollection-1 'System.Collections.Generic.IReadOnlyCollection`1')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IReadOnlyCollection-1 'System.Collections.Generic.IReadOnlyCollection`1')  
 the template engine arguments
+  
+  
+  
+<a name='Cmf_Common_Cli_Commands_UILayerTemplateCommand'></a>
+## UILayerTemplateCommand Class
+UI Layer Template Abstract Command  
+provides arguments and execution flow common to all UI layer templates  
+```csharp
+public abstract class UILayerTemplateCommand : Cmf.Common.Cli.Commands.LayerTemplateCommand
+```
+
+Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand') &#129106; [TemplateCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_TemplateCommand 'Cmf.Common.Cli.Commands.TemplateCommand') &#129106; [LayerTemplateCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_LayerTemplateCommand 'Cmf.Common.Cli.Commands.LayerTemplateCommand') &#129106; UILayerTemplateCommand  
+
+Derived  
+&#8627; [HelpCommand](Cmf_Common_Cli_Commands_New.md#Cmf_Common_Cli_Commands_New_HelpCommand 'Cmf.Common.Cli.Commands.New.HelpCommand')  
+### Constructors
+<a name='Cmf_Common_Cli_Commands_UILayerTemplateCommand_UILayerTemplateCommand(string_string_System_IO_Abstractions_IFileSystem)'></a>
+## UILayerTemplateCommand.UILayerTemplateCommand(string, string, IFileSystem) Constructor
+constructor  
+```csharp
+protected UILayerTemplateCommand(string commandName, string packagePrefix, System.IO.Abstractions.IFileSystem fileSystem);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Commands_UILayerTemplateCommand_UILayerTemplateCommand(string_string_System_IO_Abstractions_IFileSystem)_commandName'></a>
+`commandName` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+the name of the command
+  
+<a name='Cmf_Common_Cli_Commands_UILayerTemplateCommand_UILayerTemplateCommand(string_string_System_IO_Abstractions_IFileSystem)_packagePrefix'></a>
+`packagePrefix` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+the package prefix. used as full name if not inside a feature.
+  
+<a name='Cmf_Common_Cli_Commands_UILayerTemplateCommand_UILayerTemplateCommand(string_string_System_IO_Abstractions_IFileSystem)_fileSystem'></a>
+`fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
+the filesystem implementation
+  
+  
+<a name='Cmf_Common_Cli_Commands_UILayerTemplateCommand_UILayerTemplateCommand(string_string)'></a>
+## UILayerTemplateCommand.UILayerTemplateCommand(string, string) Constructor
+constructor  
+```csharp
+protected UILayerTemplateCommand(string commandName, string packagePrefix);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Commands_UILayerTemplateCommand_UILayerTemplateCommand(string_string)_commandName'></a>
+`commandName` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+the name of the command
+  
+<a name='Cmf_Common_Cli_Commands_UILayerTemplateCommand_UILayerTemplateCommand(string_string)_packagePrefix'></a>
+`packagePrefix` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+the package prefix. used as full name if not inside a feature.
+  
+  
+### Methods
+<a name='Cmf_Common_Cli_Commands_UILayerTemplateCommand_CloneHTMLStarter(string_System_IO_Abstractions_IDirectoryInfo)'></a>
+## UILayerTemplateCommand.CloneHTMLStarter(string, IDirectoryInfo) Method
+Clones HTML Starter from github, checkout desired target version  
+```csharp
+protected void CloneHTMLStarter(string versionTag, System.IO.Abstractions.IDirectoryInfo target);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Commands_UILayerTemplateCommand_CloneHTMLStarter(string_System_IO_Abstractions_IDirectoryInfo)_versionTag'></a>
+`versionTag` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+  
+<a name='Cmf_Common_Cli_Commands_UILayerTemplateCommand_CloneHTMLStarter(string_System_IO_Abstractions_IDirectoryInfo)_target'></a>
+`target` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
   
   
   

@@ -424,6 +424,25 @@ namespace Cmf.Common.Cli.Utilities
             return dFManifest;
         }
 
+        /// <summary>
+        /// Get File Content From package
+        /// </summary>
+        /// <param name="packageFile"></param>
+        /// <param name="filename"></param>
+        /// <returns></returns>
+        public static string GetFileContentFromPackage(string packageFile, string filename)
+        {
+            var zip = ZipFile.Open(packageFile, ZipArchiveMode.Read);
+            var manifest = zip.GetEntry(filename);
+            if (manifest != null)
+            {
+                using var stream = manifest.Open();
+                using var reader = new StreamReader(stream);
+                return reader.ReadToEnd();
+            }
+            return null;
+        }
+
         #endregion
     }
 }
