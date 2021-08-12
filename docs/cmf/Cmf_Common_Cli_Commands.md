@@ -692,6 +692,7 @@ Derived
 &#8627; [BusinessCommand](Cmf_Common_Cli_Commands_New.md#Cmf_Common_Cli_Commands_New_BusinessCommand 'Cmf.Common.Cli.Commands.New.BusinessCommand')  
 &#8627; [DataCommand](Cmf_Common_Cli_Commands_New.md#Cmf_Common_Cli_Commands_New_DataCommand 'Cmf.Common.Cli.Commands.New.DataCommand')  
 &#8627; [IoTCommand](Cmf_Common_Cli_Commands_New.md#Cmf_Common_Cli_Commands_New_IoTCommand 'Cmf.Common.Cli.Commands.New.IoTCommand')  
+&#8627; [TestCommand](Cmf_Common_Cli_Commands_New.md#Cmf_Common_Cli_Commands_New_TestCommand 'Cmf.Common.Cli.Commands.New.TestCommand')  
 &#8627; [UILayerTemplateCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_UILayerTemplateCommand 'Cmf.Common.Cli.Commands.UILayerTemplateCommand')  
 ### Constructors
 <a name='Cmf_Common_Cli_Commands_LayerTemplateCommand_LayerTemplateCommand(string_string_System_IO_Abstractions_IFileSystem)'></a>
@@ -1437,24 +1438,28 @@ the path to the config file
 [System.Collections.Generic.IEnumerable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')  
 template engine compatible switches array
   
-<a name='Cmf_Common_Cli_Commands_TemplateCommand_RegisterAsDependencyInParent(string_string_string)'></a>
-## TemplateCommand.RegisterAsDependencyInParent(string, string, string) Method
+<a name='Cmf_Common_Cli_Commands_TemplateCommand_RegisterAsDependencyInParent(string_string_string_bool)'></a>
+## TemplateCommand.RegisterAsDependencyInParent(string, string, string, bool) Method
 register this package as a dependency in the parent package  
 ```csharp
-protected void RegisterAsDependencyInParent(string packageName, string version, string parentPath);
+protected void RegisterAsDependencyInParent(string packageName, string version, string parentPath, bool isTestPackage=false);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Commands_TemplateCommand_RegisterAsDependencyInParent(string_string_string)_packageName'></a>
+<a name='Cmf_Common_Cli_Commands_TemplateCommand_RegisterAsDependencyInParent(string_string_string_bool)_packageName'></a>
 `packageName` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 this package name
   
-<a name='Cmf_Common_Cli_Commands_TemplateCommand_RegisterAsDependencyInParent(string_string_string)_version'></a>
+<a name='Cmf_Common_Cli_Commands_TemplateCommand_RegisterAsDependencyInParent(string_string_string_bool)_version'></a>
 `version` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 this package version
   
-<a name='Cmf_Common_Cli_Commands_TemplateCommand_RegisterAsDependencyInParent(string_string_string)_parentPath'></a>
+<a name='Cmf_Common_Cli_Commands_TemplateCommand_RegisterAsDependencyInParent(string_string_string_bool)_parentPath'></a>
 `parentPath` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 the parent directory of the package
+  
+<a name='Cmf_Common_Cli_Commands_TemplateCommand_RegisterAsDependencyInParent(string_string_string_bool)_isTestPackage'></a>
+`isTestPackage` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
+is this new package a test package
   
   
 <a name='Cmf_Common_Cli_Commands_TemplateCommand_RunCommand(System_Collections_Generic_IReadOnlyCollection_string_)'></a>
