@@ -150,14 +150,15 @@ namespace Cmf.Common.Cli.Commands
             } 
             return args;
         }
-        
+
         /// <summary>
         /// register this package as a dependency in the parent package
         /// </summary>
         /// <param name="packageName">this package name</param>
         /// <param name="version">this package version</param>
         /// <param name="parentPath">the parent directory of the package</param>
-        protected void RegisterAsDependencyInParent(string packageName, string version, string parentPath)
+        /// <param name="isTestPackage">is this new package a test package</param>
+        protected void RegisterAsDependencyInParent(string packageName, string version, string parentPath, bool isTestPackage = false)
         {
             // add to upper level package
             // {
@@ -168,11 +169,17 @@ namespace Cmf.Common.Cli.Commands
             if (parentPackageDir != null)
             {
                 var package = this.GetPackageInFolder(parentPackageDir.FullName);
-                if (package != null && 
-                    package.Dependencies.FirstOrDefault(dep => dep.Id == packageName && dep.Version == version) == null)
+                if (package != null)
                 {
-                    package.Dependencies.Add(new Dependency(packageName, version));
-                    package.SaveCmfPackage();
+                    var deps = isTestPackage ? 
+                        package.TestPackages ??= new DependencyCollection() : 
+                        package.Dependencies;
+                    var doesNotExist = deps.FirstOrDefault(dep => dep.Id == packageName && dep.Version == version) == null;
+                    if (doesNotExist)
+                    {
+                        deps.Add(new Dependency(packageName, version));
+                        package.SaveCmfPackage();
+                    }
                 }
             }
         }

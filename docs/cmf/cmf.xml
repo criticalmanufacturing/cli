@@ -1058,6 +1058,29 @@
         <member name="M:Cmf.Common.Cli.Commands.New.IoTCommand.GenerateArgs(System.IO.Abstractions.IDirectoryInfo,System.IO.Abstractions.IDirectoryInfo,System.Collections.Generic.List{System.String},System.Text.Json.JsonDocument)">
             <inheritdoc />
         </member>
+        <member name="T:Cmf.Common.Cli.Commands.New.TestCommand">
+            <summary>
+            Generates the Test layer structure
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.TestCommand.#ctor">
+            <inheritdoc />
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.TestCommand.#ctor(System.IO.Abstractions.IFileSystem)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.TestCommand.Configure(System.CommandLine.Command)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.TestCommand.GenerateArgs(System.IO.Abstractions.IDirectoryInfo,System.IO.Abstractions.IDirectoryInfo,System.Collections.Generic.List{System.String},System.Text.Json.JsonDocument)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.TestCommand.Execute(System.String)">
+            <summary>
+            Execute the command
+            </summary>
+            <param name="version">the package version</param>
+        </member>
         <member name="T:Cmf.Common.Cli.Commands.NewCommand">
             <summary>
             "new" command group
@@ -1288,13 +1311,14 @@
             <param name="configFile">the path to the config file</param>
             <returns>template engine compatible switches array</returns>
         </member>
-        <member name="M:Cmf.Common.Cli.Commands.TemplateCommand.RegisterAsDependencyInParent(System.String,System.String,System.String)">
+        <member name="M:Cmf.Common.Cli.Commands.TemplateCommand.RegisterAsDependencyInParent(System.String,System.String,System.String,System.Boolean)">
             <summary>
             register this package as a dependency in the parent package
             </summary>
             <param name="packageName">this package name</param>
             <param name="version">this package version</param>
             <param name="parentPath">the parent directory of the package</param>
+            <param name="isTestPackage">is this new package a test package</param>
         </member>
         <member name="M:Cmf.Common.Cli.Commands.TemplateCommand.GetPackageInFolder(System.String)">
             <summary>
