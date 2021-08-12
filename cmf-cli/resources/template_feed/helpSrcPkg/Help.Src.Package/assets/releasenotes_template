@@ -1,6 +1,6 @@
 # Release Notes
 
-Release information of CM MES implementation for <%= ${CLI_PARAM_Tenant} %>
+Release information of CM MES implementation for <%= $CLI_PARAM_Tenant %>
 
 Each sprint package includes the following artifacts:
 

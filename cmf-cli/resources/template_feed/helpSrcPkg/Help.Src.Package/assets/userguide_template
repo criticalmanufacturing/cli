@@ -1,6 +1,6 @@
 # User Guide
 
-This page documents the customizations, from an end-user perspective, provided as part of <%= ${CLI_PARAM_Tenant} %> implementation project.
+This page documents the customizations, from an end-user perspective, provided as part of <%= $CLI_PARAM_Tenant %> implementation project.
 
 
 ## Features
