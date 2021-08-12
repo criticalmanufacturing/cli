@@ -102,7 +102,7 @@ namespace Cmf.Common.Cli.Commands.New
             rootPkgJson.name = "cmf.docs.area";
             rootPkgJson.description = $"Help customization package for {projectName}";
             rootPkgJson.repository.url = repositoryURL;
-            json = JsonConvert.SerializeObject(rootPkgJson);
+            json = JsonConvert.SerializeObject(rootPkgJson, Formatting.Indented);
             this.fileSystem.File.WriteAllText(rootPkgJsonPath, json);
             Log.Verbose("Updated package.json");
             
@@ -120,7 +120,7 @@ namespace Cmf.Common.Cli.Commands.New
             devTasksJson.webAppPrefix = "cmf.docs.area";
             devTasksJson.registry = npmRegistry;
             devTasksJson.channel = $"release-{mesVersion?.Replace(".", "")}";
-            devTasksStr = JsonConvert.SerializeObject(devTasksJson);
+            devTasksStr = JsonConvert.SerializeObject(devTasksJson, Formatting.Indented);
             this.fileSystem.File.WriteAllText(devTasksPath, devTasksStr);
             Log.Verbose("Updated .dev-tasks.json");
 
@@ -151,10 +151,6 @@ $@"{{
             this.fileSystem.File.WriteAllText(helpWebAppConfigPath, helpWebAppConfigJson);
             
             // create web app
-            var yeomanConfigs = this.fileSystem.DirectoryInfo.FromDirectoryName(
-                this.fileSystem.Path.Join(
-                    this.fileSystem.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location),
-                    "resources", "yeoman_configs"));
             // npx yeoman-gen-run --name @criticalmanufacturing/html --config "$pathHTMLConfig"
             Log.Verbose("Generate web app, this will take a while...");
             (new NPXCommand()
@@ -179,7 +175,7 @@ $@"{{
             Log.Verbose("Web app generated!");
             
             
-            Log.Debug("Obtainining sources from MES Documentation package...");
+            Log.Debug("Obtaining sources from MES Documentation package...");
             var docPkgConfigJsonStr = FileSystemUtilities.GetFileContentFromPackage(documentationPackage.FullName, "config.json");
             // replace tokens that would break Json parse
             docPkgConfigJsonStr = Regex.Replace(docPkgConfigJsonStr, @"\$\([^\)]+\)", "0", RegexOptions.Multiline);
@@ -203,7 +199,9 @@ $@"{{
             configJsonJson.version = $"{projectName} $(Build.BuildNumber) - {mesVersion}";
             configJsonJson.packages.available = docPkgConfigJson.packages.available;
             configJsonJson.packages.bundlePath?.Remove();
-            configJsonStr = JsonConvert.SerializeObject(configJsonJson);
+            configJsonJson.packages.bundles.metadata = false;
+            configJsonJson.packages.bundles.i18n = false;
+            configJsonStr = JsonConvert.SerializeObject(configJsonJson, Formatting.Indented);
             this.fileSystem.File.WriteAllText(configJsonPath, configJsonStr);
             Log.Verbose("Updated config.json");
             
