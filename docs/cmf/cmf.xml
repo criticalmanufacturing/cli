@@ -1014,6 +1014,31 @@
             <param name="version">package version</param>
             <param name="documentationPackage">The MES documentation package path</param>
         </member>
+        <member name="T:Cmf.Common.Cli.Commands.New.HTMLCommand">
+            <summary>
+            Generates Help/Documentation package structure
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.HTMLCommand.#ctor">
+            <inheritdoc />
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.HTMLCommand.#ctor(System.IO.Abstractions.IFileSystem)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.HTMLCommand.Configure(System.CommandLine.Command)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.HTMLCommand.GenerateArgs(System.IO.Abstractions.IDirectoryInfo,System.IO.Abstractions.IDirectoryInfo,System.Collections.Generic.List{System.String},System.Text.Json.JsonDocument)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.HTMLCommand.Execute(System.IO.Abstractions.IDirectoryInfo,System.String,System.IO.Abstractions.IFileInfo)">
+            <summary>
+            Execute the command
+            </summary>
+            <param name="workingDir">nearest root package</param>
+            <param name="version">package version</param>
+            <param name="htmlPackage">The MES Presentation HTML package path</param>
+        </member>
         <member name="T:Cmf.Common.Cli.Commands.New.IoTCommand">
             <summary>
             Generates IoT package structure
