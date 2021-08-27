@@ -862,11 +862,11 @@ stages:
                     artifactName: 'Cmf.Custom.Package'
                     downloadPath: 'PackageApproved'
                                 
-                # Copy generated Packges to Repository
+                # Copy generated Packages to Repository
                 - task: CopyFiles@2
-                  displayName: 'Copy generated Packges From Repository'
+                  displayName: 'Copy generated Packages From Repository'
                   inputs:
-                    SourceFolder: 'PackageApproved'
+                    SourceFolder: 'PackageApproved/Cmf.Custom.Package'
                     Contents: |
                       *.zip
                     TargetFolder: '${{ variables.ProjectPackageRepository }}/Delivered'
@@ -887,9 +887,9 @@ stages:
                     artifactName: 'Cmf.Custom.Package.Tests'
                     downloadPath: 'TestPackageApproved'
                                 
-                # Copy generated Packges to Repository
+                # Copy generated Packages to Repository
                 - task: CopyFiles@2
-                  displayName: 'Copy generated Packges To Repository'
+                  displayName: 'Copy generated Packages To Repository'
                   inputs:
                     SourceFolder: 'TestPackageApproved/Cmf.Custom.Package.Tests'
                     Contents: |
