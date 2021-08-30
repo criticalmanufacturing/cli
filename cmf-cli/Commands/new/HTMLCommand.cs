@@ -186,6 +186,7 @@ $@"{{
             var configJsonPath = this.fileSystem.Path.Join(pkgFolder.FullName, "apps", 
                 this.fileSystem.Path.Join("customization.web", "config.json"));
             var configJsonStr = fileSystem.File.ReadAllText(configJsonPath);
+            configJsonStr = Regex.Replace(configJsonStr, @"\$\([^\)]+\)", "0", RegexOptions.Multiline);
             dynamic configJsonJson = JsonConvert.DeserializeObject(configJsonStr);
             if (configJsonJson == null)
             {
@@ -199,7 +200,7 @@ $@"{{
             configJsonJson.general.environmentName = $"{projectName}Local";
             configJsonJson.version = $"{projectName} $(Build.BuildNumber) - {mesVersion}";
             configJsonJson.packages.available = htmlPkgConfigJson.packages.available;
-            configJsonJson.packages.bundlePath?.Remove();
+            configJsonJson.packages.bundlePath = "node_modules/@criticalmanufacturing/mes-ui-web/bundles";
             configJsonStr = JsonConvert.SerializeObject(configJsonJson, Formatting.Indented);
             this.fileSystem.File.WriteAllText(configJsonPath, configJsonStr);
             Log.Verbose("Updated config.json");

@@ -186,6 +186,7 @@ $@"{{
             var configJsonPath = this.fileSystem.Path.Join(pkgFolder.FullName, "apps", 
                 this.fileSystem.Path.Join("cmf.docs.area.web", "config.json"));
             var configJsonStr = fileSystem.File.ReadAllText(configJsonPath);
+            configJsonStr = Regex.Replace(configJsonStr, @"\$\([^\)]+\)", "0", RegexOptions.Multiline);
             dynamic configJsonJson = JsonConvert.DeserializeObject(configJsonStr);
             if (configJsonJson == null)
             {
@@ -198,9 +199,12 @@ $@"{{
             configJsonJson.host.isLoadBalancerEnabled = false;
             configJsonJson.version = $"{projectName} $(Build.BuildNumber) - {mesVersion}";
             configJsonJson.packages.available = docPkgConfigJson.packages.available;
-            configJsonJson.packages.bundlePath?.Remove();
-            configJsonJson.packages.bundles.metadata = false;
-            configJsonJson.packages.bundles.i18n = false;
+            configJsonJson.packages.Remove("bundlePath");
+            if (configJsonJson.packages.bundles != null)
+            {
+                configJsonJson.packages.bundles.metadata = false;
+                configJsonJson.packages.bundles.i18n = false;
+            }
             configJsonStr = JsonConvert.SerializeObject(configJsonJson, Formatting.Indented);
             this.fileSystem.File.WriteAllText(configJsonPath, configJsonStr);
             Log.Verbose("Updated config.json");
