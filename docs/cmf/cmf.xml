@@ -975,6 +975,20 @@
         <member name="M:Cmf.Common.Cli.Commands.New.BusinessCommand.GenerateArgs(System.IO.Abstractions.IDirectoryInfo,System.IO.Abstractions.IDirectoryInfo,System.Collections.Generic.List{System.String},System.Text.Json.JsonDocument)">
             <inheritdoc />
         </member>
+        <member name="T:Cmf.Common.Cli.Commands.New.DatabaseCommand">
+            <summary>
+            Generates Database package structure
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.DatabaseCommand.#ctor">
+            <inheritdoc />
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.DatabaseCommand.#ctor(System.IO.Abstractions.IFileSystem)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.DatabaseCommand.GenerateArgs(System.IO.Abstractions.IDirectoryInfo,System.IO.Abstractions.IDirectoryInfo,System.Collections.Generic.List{System.String},System.Text.Json.JsonDocument)">
+            <inheritdoc />
+        </member>
         <member name="T:Cmf.Common.Cli.Commands.New.DataCommand">
             <summary>
             Generates Data package structure

@@ -690,6 +690,7 @@ Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.O
 
 Derived  
 &#8627; [BusinessCommand](Cmf_Common_Cli_Commands_New.md#Cmf_Common_Cli_Commands_New_BusinessCommand 'Cmf.Common.Cli.Commands.New.BusinessCommand')  
+&#8627; [DatabaseCommand](Cmf_Common_Cli_Commands_New.md#Cmf_Common_Cli_Commands_New_DatabaseCommand 'Cmf.Common.Cli.Commands.New.DatabaseCommand')  
 &#8627; [DataCommand](Cmf_Common_Cli_Commands_New.md#Cmf_Common_Cli_Commands_New_DataCommand 'Cmf.Common.Cli.Commands.New.DataCommand')  
 &#8627; [IoTCommand](Cmf_Common_Cli_Commands_New.md#Cmf_Common_Cli_Commands_New_IoTCommand 'Cmf.Common.Cli.Commands.New.IoTCommand')  
 &#8627; [TestCommand](Cmf_Common_Cli_Commands_New.md#Cmf_Common_Cli_Commands_New_TestCommand 'Cmf.Common.Cli.Commands.New.TestCommand')  
