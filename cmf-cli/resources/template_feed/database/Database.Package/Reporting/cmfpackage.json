@@ -1,0 +1,15 @@
+{
+  "packageId": "<%= $CLI_PARAM_CustomReportingPackageName %>",
+  "version": "<%= $CLI_PARAM_CustomPackageVersion %>",
+  "description": "<%= $CLI_PARAM_CustomReportingPackageName %> <%= $CLI_PARAM_Tenant %> Package",
+  "packageType": "Reporting",
+  "isInstallable": true,
+  "isUniqueInstall": false,
+  "contentToPack": [
+    {
+      "source": "$(version)/*",
+      "target": ""
+    }
+  ],
+  "xmlInjection": [ "ui.xml", "variables.xml" ]
+}

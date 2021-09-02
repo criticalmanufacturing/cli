@@ -57,6 +57,62 @@ a JsonDocument with the .project-config.json content
 the complete list of arguments
   
   
+<a name='Cmf_Common_Cli_Commands_New_DatabaseCommand'></a>
+## DatabaseCommand Class
+Generates Database package structure  
+```csharp
+public class DatabaseCommand : Cmf.Common.Cli.Commands.LayerTemplateCommand
+```
+
+Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand') &#129106; [TemplateCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_TemplateCommand 'Cmf.Common.Cli.Commands.TemplateCommand') &#129106; [LayerTemplateCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_LayerTemplateCommand 'Cmf.Common.Cli.Commands.LayerTemplateCommand') &#129106; DatabaseCommand  
+### Constructors
+<a name='Cmf_Common_Cli_Commands_New_DatabaseCommand_DatabaseCommand()'></a>
+## DatabaseCommand.DatabaseCommand() Constructor
+constructor for System.IO filesystem  
+```csharp
+public DatabaseCommand();
+```
+  
+<a name='Cmf_Common_Cli_Commands_New_DatabaseCommand_DatabaseCommand(System_IO_Abstractions_IFileSystem)'></a>
+## DatabaseCommand.DatabaseCommand(IFileSystem) Constructor
+constructor  
+```csharp
+public DatabaseCommand(System.IO.Abstractions.IFileSystem fileSystem);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Commands_New_DatabaseCommand_DatabaseCommand(System_IO_Abstractions_IFileSystem)_fileSystem'></a>
+`fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
+  
+  
+### Methods
+<a name='Cmf_Common_Cli_Commands_New_DatabaseCommand_GenerateArgs(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_System_Collections_Generic_List_string__System_Text_Json_JsonDocument)'></a>
+## DatabaseCommand.GenerateArgs(IDirectoryInfo, IDirectoryInfo, List&lt;string&gt;, JsonDocument) Method
+generates additional arguments for the templating engine  
+```csharp
+protected override System.Collections.Generic.List<string> GenerateArgs(System.IO.Abstractions.IDirectoryInfo projectRoot, System.IO.Abstractions.IDirectoryInfo workingDir, System.Collections.Generic.List<string> args, System.Text.Json.JsonDocument projectConfig);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Commands_New_DatabaseCommand_GenerateArgs(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_System_Collections_Generic_List_string__System_Text_Json_JsonDocument)_projectRoot'></a>
+`projectRoot` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
+the project root
+  
+<a name='Cmf_Common_Cli_Commands_New_DatabaseCommand_GenerateArgs(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_System_Collections_Generic_List_string__System_Text_Json_JsonDocument)_workingDir'></a>
+`workingDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
+the current feature root (project root if no features exist)
+  
+<a name='Cmf_Common_Cli_Commands_New_DatabaseCommand_GenerateArgs(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_System_Collections_Generic_List_string__System_Text_Json_JsonDocument)_args'></a>
+`args` [System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')  
+the base arguments: output, package name, version, id segment and tenant
+  
+<a name='Cmf_Common_Cli_Commands_New_DatabaseCommand_GenerateArgs(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_System_Collections_Generic_List_string__System_Text_Json_JsonDocument)_projectConfig'></a>
+`projectConfig` [System.Text.Json.JsonDocument](https://docs.microsoft.com/en-us/dotnet/api/System.Text.Json.JsonDocument 'System.Text.Json.JsonDocument')  
+a JsonDocument with the .project-config.json content
+  
+#### Returns
+[System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')  
+the complete list of arguments
+  
+  
 <a name='Cmf_Common_Cli_Commands_New_DataCommand'></a>
 ## DataCommand Class
 Generates Data package structure  
