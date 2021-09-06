@@ -102,9 +102,9 @@ steps:
     targetType: inline
     script: |
 //#if (agentType == "Cloud")
-      $(Agent.TempDirectory)/../node_modules/.bin/cmf-cli/cmf build"
+      $(Agent.TempDirectory)/../node_modules/.bin/cmf-cli/cmf build
 //#else
-      $(Agent.TempDirectory)/node_modules/.bin/cmf-cli/cmf build"
+      $(Agent.TempDirectory)/node_modules/.bin/cmf-cli/cmf build
 //#endif
 - task: PostBuildCleanup@3
   displayName: 'Clean Agent Directories'
