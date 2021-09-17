@@ -83,7 +83,7 @@ steps:
       # get pipeline
       $url = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$env:SYSTEM_TEAMPROJECTID/_apis/build/definitions?api-version=4.1"
       $defs = Invoke-RestMethod -Uri $url -Method Get -ContentType "application/json" -Headers $headers
-      $def = $defs.value | where { $_.name -eq '${{ variables.CIPipeline }}' }
+      $def = $defs.value | where { $_.name -eq '${{ variables.CIPipeline }}' -and $_.queueStatus -eq "enabled" -and $_.path -eq "\CI-Builds" }
 
       if ($def -eq $null) {
           Write-Host "Build definition '${{ variables.CIPipeline }}' not found in project $(System.TeamProject)"
