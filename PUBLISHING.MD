@@ -47,8 +47,16 @@ At root, run:
   >
   > cmf-cli\npm\package-lock.json
 
+## Publish a development version
+Development versions are published from feature branches for testing. Currently they need to be published using Bash:
 
+    > npm run publish:dev
 
+This will publish a fat (binaries included) package with version `0.0.0-<branchname>-<timestamp>` to our internal registry. The tag `@<branchname>` will also be created.
+
+There's no point in committing the package.json files in this case.
+
+## Example
 An example flow for a bugfix would be:
 
 - fix a bug in cli
