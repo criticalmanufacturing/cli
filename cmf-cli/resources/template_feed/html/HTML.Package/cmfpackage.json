@@ -14,7 +14,7 @@
       ]
     },
     {
-      "source": "apps/customization.web/bundles",
+      "source": "apps/customization.web/node_modules/@criticalmanufacturing/mes-ui-web/bundles",
       "target": ""
     }
   ],
