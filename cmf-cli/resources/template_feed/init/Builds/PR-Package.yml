@@ -90,7 +90,7 @@ steps:
     targetType: inline
     workingDirectory: $(Agent.TempDirectory)
     script: |
-      npm install --no-save @criticalmanufacturing/cli@1.x.x --registry ${{ variables.CmfCliRepository }}
+      npm install --no-save @criticalmanufacturing/cli@${{ variables.CmfCliVersion }} --registry ${{ variables.CmfCliRepository }}
 
 # Cmf Build - Feature
 - task: PowerShell@2
