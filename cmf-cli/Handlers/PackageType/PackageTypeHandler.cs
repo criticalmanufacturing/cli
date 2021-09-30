@@ -22,6 +22,7 @@ namespace Cmf.Common.Cli.Handlers
     public abstract class PackageTypeHandler : IPackageTypeHandler
     {
         #region Protected Properties
+
         /// <summary>
         /// the underlying file system
         /// </summary>
@@ -71,6 +72,7 @@ namespace Cmf.Common.Cli.Handlers
         /// </summary>
         /// <exception cref="CliException"></exception>
         public PackageTypeHandler(CmfPackage cmfPackage) : this(cmfPackage, new FileSystem()) { }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="PackageTypeHandler" /> class.
         /// </summary>
@@ -298,7 +300,6 @@ namespace Cmf.Common.Cli.Handlers
             this.fileSystem.File.Move(tempzipPath, destZipPath, true);
         }
 
-
         /// <summary>
         /// Get Content To pack
         /// </summary>
@@ -451,9 +452,6 @@ namespace Cmf.Common.Cli.Handlers
                 CmfPackage.SetVersion(!string.IsNullOrWhiteSpace(version) ? version : CmfPackage.Version);
 
                 Log.Information($"Will bump {CmfPackage.PackageId} from version {currentVersion} to version {CmfPackage.Version}");
-
-                // will save with new version
-                CmfPackage.SaveCmfPackage();
             }
         }
 
@@ -489,6 +487,5 @@ namespace Cmf.Common.Cli.Handlers
         }
 
         #endregion
-
     }
 }
