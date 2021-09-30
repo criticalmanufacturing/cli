@@ -1,0 +1,10 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<OutputType>Library</OutputType>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<AssemblyName>Cmf.Custom.<%= $CLI_PARAM_Tenant %>.Actions</AssemblyName>
+		<RootNamespace>Cmf.Custom.<%= $CLI_PARAM_Tenant %>.Actions</RootNamespace>
+	</PropertyGroup>
+</Project>

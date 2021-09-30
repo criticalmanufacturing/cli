@@ -1,0 +1,17 @@
+variables:
+  # Used to store the deployments 
+  DeploymentPath: '<%= $CLI_PARAM_DeploymentDir %>'
+  # Project Package Repository
+  ProjectPackageRepository: '\\<%= $CLI_PARAM_vmHostname %>\Shares\DeliverablesPackageRepository'
+  # Cmf Tool Repository
+  CmfCliRepository: 'https://registry.npmjs.com'
+  # Iso Image Path
+  ISOImagePath: '<%= $CLI_PARAM_ISOLocation %>\v<%= $CLI_PARAM_MESVersion-Feature %>\Critical Manufacturing <%= $CLI_PARAM_MESVersion %>.iso'
+  # Destination Folder for packages
+  DestinationFolderForPackages: '\\<%= $CLI_PARAM_vmHostname %>\Shares\ReleasePackages\'
+  # Current refspec to get the tools for the package (by default, a tagged MES version release)
+  CommonBranch: 'refs/tags/<%= $CLI_PARAM_MESVersion %>'
+  # Node version to use in the pipelines
+  NodeVersion: 12.20.2
+  # Defines if the CI-Release should rename the restore point in the end
+  SetNewRestorePoint: true

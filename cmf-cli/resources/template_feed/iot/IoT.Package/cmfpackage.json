@@ -1,0 +1,18 @@
+{
+  "packageId": "<%= $CLI_PARAM_CustomPackageName %>",
+  "version": "<%= $CLI_PARAM_CustomPackageVersion %>",
+  "description": "Cmf Custom <%= $CLI_PARAM_Tenant %> <%= $CLI_PARAM_CustomPackageName %> Package",
+  "packageType": "Root",
+  "isInstallable": true,
+  "isUniqueInstall": false,
+  "dependencies": [
+    {
+      "id": "<%= $CLI_PARAM_CustomPackageName %>.Packages",
+      "version": "<%= $CLI_PARAM_CustomPackageVersion %>"
+    },
+	{
+      "id": "<%= $CLI_PARAM_CustomPackageName %>.Data",
+      "version": "<%= $CLI_PARAM_CustomPackageVersion %>"
+    }
+  ]
+}

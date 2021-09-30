@@ -1,0 +1,25 @@
+{
+  "packageId": "<%= $CLI_PARAM_CustomPackageName %>.Post",
+  "version": "<%= $CLI_PARAM_CustomPackageVersion %>",
+  "description": "<%= $CLI_PARAM_CustomPackageName %> <%= $CLI_PARAM_Tenant %> Post Scripts Package",
+  "packageType": "Database",
+  "isInstallable": true,
+  "isUniqueInstall": false,
+  "dependencies": [],
+  "steps": [],
+  "contentToPack": [
+    {
+      "source": "Online/$(version)/*",
+      "target": "Online/"
+    },
+    {
+      "source": "ODS/$(version)/*",
+      "target": "ODS/"
+    },
+    {
+      "source": "DWH/$(version)/*",
+      "target": "DWH/"
+    }
+  ],
+  "xmlInjection": [ "<%= $CLI_PARAM_rootRelativePath %>/DeploymentMetadata/ui.xml" ]
+}

@@ -1,0 +1,225 @@
+# CM PI Continuous Integration Package Pipeline
+pool:
+  name: <%= $CLI_PARAM_AgentPool %>
+//#if (agentType == "Cloud")
+  vmImage: 'ubuntu-latest'
+//#endif
+
+# A pipeline with no CI trigger
+trigger: none
+
+# A pipeline with no PR trigger
+pr: none
+
+parameters:
+- name: PackageId
+  displayName: Package
+  type: string
+- name: PackagePath
+  displayName: Package Path
+  type: string
+
+variables:
+ - template: ../EnvironmentConfigs/GlobalVariables.yml  # Template reference to global variables
+ - name: groupName
+   value: 'BuiltHEADs'
+
+workspace:
+    clean: all
+
+name: $(Build.SourceBranchName)_$(Build.DefinitionName)_${{ parameters.PackageId }}.$(Build.BuildId)
+steps:
+- checkout: self
+  persistCredentials: true
+
+# use Node Tool
+- task: NodeTool@0
+  displayName: 'Use Node ${{ variables.NodeVersion }}'
+  inputs:
+    versionSpec: ${{ variables.NodeVersion }}
+
+- task: UseDotNet@2
+  displayName: 'Use Repository specified .NET Core version'
+  inputs:
+    packageType: 'sdk'
+    useGlobalJson: true
+
+# Get package version
+- task: PowerShell@2
+  displayName: 'Get package version'
+  inputs:
+    pwsh: true
+    failOnStderr: true
+    workingDirectory: ${{ parameters.PackagePath }}
+    targetType: inline
+    script: |
+      $CmfPackageJsonFile = Get-Item ".\cmfpackage.json"
+      $CmfPackageJson = Get-Content -Raw -Path $CmfPackageJsonFile | ConvertFrom-Json
+      $PackVersion = $CmfPackageJson.'version'
+      $PackageId = $CmfPackageJson.'packageId'
+      Write-Host "PackVersion = $PackVersion"
+      Write-Host "PackageId = $PackageId"
+      echo "##vso[task.setvariable variable=PackageVersion;isOutput=true]$PackVersion"
+      echo "##vso[task.setvariable variable=PackageId;isOutput=true]$PackageId"
+  name: GetPackageVersion
+
+//#if (nugetRegistryUsername != "" && nugetRegistryPassword != "") {
+- task: NuGetCommand@2
+  displayName: "Remove CMF NuGet source"
+  inputs:
+    command: 'custom'
+    arguments: 'sources remove -Name "CMF" -Config NuGet.Config'
+
+- task: NuGetCommand@2
+  displayName: "Add authenticated CMF NuGet source"
+  inputs:
+    command: 'custom'
+    arguments: 'sources Add -Name "CMF" -Source "<%= $CLI_PARAM_NuGetRegistry %>" -Username $(NuGetRegistryUsername) -password $(NuGetRegistryPassword) -StorePasswordInClearText -Config NuGet.Config'
+//#endif
+
+# Install Cmf Nuget Package
+- task: PowerShell@2
+  displayName: 'Install cmf-cli'
+  inputs:
+    pwsh: true
+    failOnStderr: false
+    workingDirectory: $(Agent.TempDirectory)
+    targetType: inline
+    script: |
+      npm install --no-save @criticalmanufacturing/cli@1.x.x --registry ${{ variables.CmfCliRepository }}
+
+# Cmf Build - Feature
+- task: PowerShell@2
+  displayName: 'Cmf Build - Feature'
+  inputs:
+    pwsh: true
+    failOnStderr: true
+    workingDirectory: ${{ parameters.PackagePath }}
+    targetType: inline
+    script: |
+//#if (agentType == "Cloud")
+      $(Agent.TempDirectory)/../node_modules/.bin/cmf-cli/cmf build
+//#else
+      $(Agent.TempDirectory)/node_modules/.bin/cmf-cli/cmf build
+//#endif
+
+
+# Cmf Pack - Feature
+- task: PowerShell@2
+  displayName: 'Cmf Pack - Feature'
+  inputs:
+    pwsh: true
+    failOnStderr: true
+    workingDirectory: ${{ parameters.PackagePath }}
+    targetType: inline
+    script: |
+//#if (agentType == "Cloud")
+      $(Agent.TempDirectory)/../node_modules/.bin/cmf-cli/cmf pack --skipDependencies --repo ${{ variables.ProjectPackageRepository }} --outputDir $(Build.ArtifactStagingDirectory)
+//#else
+      $(Agent.TempDirectory)/node_modules/.bin/cmf-cli/cmf pack --skipDependencies --repo ${{ variables.ProjectPackageRepository }} --outputDir $(Build.ArtifactStagingDirectory)
+//#endif
+
+//#if (agentType == "Cloud")
+# Publish Package Artifact
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Package Artifact'
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    publishLocation: 'Container'
+//#else
+# Copy generated Packages to Repository
+- task: CopyFiles@2
+  displayName: 'Copy generated Packages to Repository'
+  inputs:
+    SourceFolder: '$(Build.ArtifactStagingDirectory)'
+    Contents: |
+     *.zip
+    TargetFolder: '${{ variables.ProjectPackageRepository }}/$(Build.SourceBranchName)'
+    OverWrite: true
+//#endif
+
+# set new built HEAD
+- task: PowerShell@2
+  displayName: 'Set Built HEAD'
+  inputs:
+    pwsh: true
+    failOnStderr: true
+    workingDirectory: ${{ parameters.PackagePath }}
+    targetType: inline
+    script: |
+      $url = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$env:SYSTEM_TEAMPROJECTID/_apis/distributedtask/variablegroups/{GROUP}?api-version=5.0-preview.1"
+      $headers = @{
+        Authorization = "Bearer $env:SYSTEM_ACCESSTOKEN"
+      }
+      
+      $vars = Invoke-RestMethod -Uri $url.Replace("{GROUP}", "") -Method Get -ContentType "application/json" -Headers $headers
+      $groupName = '${{ variables.groupName }}'
+      $createGroup = $false;
+
+      $group = $vars.value | where { $_.Name -eq $groupName }
+      if ($null -eq $group) {
+        Write-Host "Variable group ${groupName} does not exist in project $(System.TeamProject). This will trigger CI for all found packages.";
+        $group = @{
+            type = "Vsts"
+            name= $groupName
+            variables = New-Object PSObject
+        }
+        $createGroup = $true
+      }
+
+      $HEAD = $(git log -n 1 --pretty=format:%H .)
+      $pkgId = "${{ parameters.PackageId }}"
+      $branch = "$(Build.SourceBranchName)"
+      $key = "${pkgId}@${branch}"
+
+      Write-Debug "Key: $key"
+
+      if ([bool]($group.variables.PSobject.Properties.name -match "^$key$")) { 
+        $builtHEAD = $group.variables.$key.value
+        if ($builtHEAD -eq $HEAD) {
+          Write-Host "Current HEAD matches last built: $builtHEAD"
+        } else {
+          Write-Host "Last built HEAD for ${key} was $builtHEAD. Setting to $HEAD"
+          $group.variables.$key.value = $HEAD
+        }
+      } else {
+        Write-Host "No last built HEAD found for ${key}. Setting it to $HEAD"
+        $group.variables | add-member -name $key -value @{value=$HEAD} -MemberType NoteProperty
+      }
+
+      $json = $group | ConvertTo-Json
+      Write-Debug $json
+
+      if ($createGroup) {
+        $pipeline = Invoke-RestMethod -Uri $url.Replace("{GROUP}", "") -Method Post -Body $json -ContentType "application/json" -Headers $headers
+      } else {
+        $pipeline = Invoke-RestMethod -Uri $url.Replace("{GROUP}", $group.id) -Method Put -Body $json -ContentType "application/json" -Headers $headers
+      }
+  name: SetBuiltHead
+  env:
+    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+    SYSTEM_TEAMFOUNDATIONCOLLECTIONURI: $(System.TeamFoundationCollectionUri)
+    SYSTEM_TEAMPROJECTID: $(System.TeamProject)
+
+# Clean up
+- task: DeleteFiles@1
+  displayName: Delete Package
+  inputs:
+    SourceFolder: 'Package'
+    Contents: '**'
+  condition: always()
+- task: DeleteFiles@1
+  displayName: Delete FinalPackage
+  inputs:
+    SourceFolder: 'FinalPackage'
+    Contents: '**'
+  condition: always()
+- task: DeleteFiles@1
+  displayName: Delete Artifacts
+  inputs:
+    SourceFolder: 'Artifacts'
+    Contents: '**'
+  condition: always()
+- task: PostBuildCleanup@3
+  displayName: 'Clean Agent Directories'
+  condition: always()

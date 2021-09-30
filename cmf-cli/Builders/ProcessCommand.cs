@@ -81,6 +81,7 @@ namespace Cmf.Common.Cli.Builders
                 ps.FileName = command;
                 ps.WorkingDirectory = step.WorkingDirectory != null ? step.WorkingDirectory.FullName : this.WorkingDirectory.FullName;
                 ps.Arguments = String.Join(' ', step.Args);
+                // step.Args.ToList().ForEach(arg => ps.ArgumentList.Add(arg));
                 ps.UseShellExecute = false;
                 ps.RedirectStandardOutput = true;
                 ps.RedirectStandardError = true;
@@ -96,6 +97,7 @@ namespace Cmf.Common.Cli.Builders
                 {
                     throw new CliException($"Command '{command} {String.Join(' ', step.Args)}' did not finished successfully: Exit code {process.ExitCode}. Please check the log for more details");
                 }
+                process.Dispose();
             }
 
             return null;
