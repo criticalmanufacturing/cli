@@ -1,0 +1,61 @@
+<ui>
+	<wizardStep id="DeploymentMetadata.ApplicationServer" order="100" title="ApplicationServer Configuration" type="generic" requiresValidation="true">
+		<groups>
+			<group id="Product.Steps.SystemName" order="1" title="CONFIGURATION" type="generic" requiresValidation="true">
+				<variables>
+					<variable name="Product.SystemName" order="0" readOnly="false" isRequired="true" valueType="Text" label="System Name" placeholder="CriticalManufacturingMES" default="CriticalManufacturing" />
+					<variable name="Product.Tenant.Name" order="1" readOnly="false" isRequired="true" valueType="Text" label="Tenant Name" placeholder="CriticalManufacturingMES" default="CriticalManufacturing" />
+					<variable name="Product.Database.BackupShare" readOnly="false" isRequired="true" valueType="Text" label="Backup Share" placeholder="\\Server\Share"/>
+				</variables>
+			</group>
+			<group id="Product.Steps.BusinessTierConfiguration.Network" order="0" title="Application Server" type="generic">
+				<variables>
+					<variable name="Product.ApplicationServer.Address" readOnly="false" isRequired="true" valueType="Text" label="Application Server" placeholder="ServerName" default="localhost" />
+					<variable name="Product.ApplicationServer.Port" readOnly="false" isRequired="true" valueType="NetworkPort" label="WebApi Port" placeholder="Example: 8083" default="8083" />
+					<variable name="Packages.Root.TargetDirectory" readOnly="false" isRequired="true" valueType="Text" label="Root Installation Directory" placeholder="Example: C:\Environments\MES\SystemName" default="C:\Program Files\CriticalManufacturing" />
+					<variable name="Product.ApplicationServer.ServiceUser.UserName" readOnly="false" isRequired="true" valueType="Text" label="User Account" placeholder="DOMAIN\Username" />
+					<variable name="Product.ApplicationServer.ServiceUser.Password" readOnly="false" isRequired="true" valueType="Password" label="User Password" placeholder="password" />
+				</variables>
+			</group>
+		</groups>
+	</wizardStep>
+	<wizardStep id="DeploymentMetadata.Database" order="100" title="Database Configuration" type="generic" requiresValidation="true">
+		<groups>
+			<group id="Product.Steps.DatabaseConfiguration.AlwaysOn.General" order="0" title="AlwaysOn" type="generic" requiresValidation="true">
+				<variables>
+					<variable name="Product.Database.IsAlwaysOn" readOnly="false" isRequired="false" valueType="Boolean" label="AlwaysOn Environment" default="false" />
+					<variable default="Microsoft SQL Server" placeholder="Microsoft SQL Server|Azure SQL Managed Instance" label="Database" valueType="Choice" isRequired="true" readOnly="false" name="Product.Database.Type"/>
+				</variables>
+			</group>
+			<group id="Product.Steps.DatabaseConfiguration.Online.General" order="1" title="Online Database" type="generic" requiresValidation="true">
+				<!-- Basic -->
+				<variables>
+					<variable name="Package[Product.Database.Online].Database.Server" order="0" readOnly="false" isRequired="true" valueType="Text" label="Database Server" />
+					<variable name="Package[Product.Database.Online].Database.User" order="1" readOnly="false" isRequired="true" valueType="Text" label="Database User" placeholder="DBUser" />
+					<variable name="Package[Product.Database.Online].Database.Password" order="2" readOnly="false" isRequired="true" valueType="Password" label="Database User Password" placeholder="password" />
+				</variables>
+			</group>
+			<group id="Product.Steps.DatabaseConfiguration.Ods.General" order="2" title="Ods Database" type="generic" requiresValidation="true">
+				<variables>
+					<variable name="Package[Product.Database.Ods].Database.Server" readOnly="false" isRequired="true" valueType="Text" label="Database Server" />
+					<variable name="Package[Product.Database.Ods].Database.User" readOnly="false" isRequired="true" valueType="Text" label="Database User" placeholder="DBUser" />
+					<variable name="Package[Product.Database.Ods].Database.Password" readOnly="false" isRequired="true" valueType="Password" label="Database User Password" placeholder="password" />
+				</variables>
+			</group>
+			<group id="Product.Steps.DatabaseConfiguration.Dwh.General" order="3" title="Dwh Database" type="generic" requiresValidation="true">
+				<variables>
+					<variable name="Package[Product.Database.Dwh].Database.Server" readOnly="false" isRequired="true" valueType="Text" label="Database Server" />
+					<variable name="Package[Product.Database.Dwh].Database.User" readOnly="false" isRequired="true" valueType="Text" label="Database User" placeholder="DBUser" />
+					<variable name="Package[Product.Database.Dwh].Database.Password" readOnly="false" isRequired="true" valueType="Password" label="Database User Password" placeholder="password" />
+				</variables>
+			</group>
+			<group id="Product.Steps.DatabaseConfiguration.As.General" order="4" title="Analysis Services Database" type="generic" requiresValidation="true" condition="'$(Product.Database.Type)' == 'Microsoft SQL Server'">
+				<variables>
+					<variable name="Package[Product.Database.As].Database.Server" readOnly="false" isRequired="true" valueType="Text" label="Analysis Server" />            
+					<variable name="Package[Product.Database.As].Database.User" readOnly="false" isRequired="true" valueType="Text" label="Database User" placeholder="DBUser" />
+					<variable name="Package[Product.Database.As].Database.Password" readOnly="false" isRequired="true" valueType="Password" label="Database User Password" placeholder="password" />
+				</variables>
+			</group>
+		</groups>
+	</wizardStep>
+</ui>

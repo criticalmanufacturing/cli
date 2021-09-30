@@ -220,9 +220,9 @@ namespace Cmf.Common.Cli.Utilities
         /// </summary>
         /// <returns></returns>
         /// <exception cref="CliException">Cannot find package root. Are you in a valid package directory?</exception>
-        public static IDirectoryInfo GetPackageRoot(IFileSystem fileSystem)
+        public static IDirectoryInfo GetPackageRoot(IFileSystem fileSystem, string workingDir = null)
         {
-            var cwd = fileSystem.DirectoryInfo.FromDirectoryName(fileSystem.Directory.GetCurrentDirectory());
+            var cwd = fileSystem.DirectoryInfo.FromDirectoryName(workingDir ?? fileSystem.Directory.GetCurrentDirectory());
             var cur = cwd;
             while (cur != null && !fileSystem.File.Exists(fileSystem.Path.Join(cur.FullName, CliConstants.CmfPackageFileName)))
             {
@@ -258,7 +258,7 @@ namespace Cmf.Common.Cli.Utilities
         /// <summary>
         /// Gets the package root of type package root.
         /// </summary>
-        /// <param name="directoryName">Name of the directory.</param>
+        /// <param name="directoryName">The current working directory</param>
         /// <param name="packageType">Type of the package.</param>
         /// <param name="fileSystem">the underlying file system</param>
         /// <returns></returns>
@@ -422,6 +422,25 @@ namespace Cmf.Common.Cli.Utilities
                 dFManifest = XDocument.Parse(contentXml.OuterXml);
             }
             return dFManifest;
+        }
+
+        /// <summary>
+        /// Get File Content From package
+        /// </summary>
+        /// <param name="packageFile"></param>
+        /// <param name="filename"></param>
+        /// <returns></returns>
+        public static string GetFileContentFromPackage(string packageFile, string filename)
+        {
+            var zip = ZipFile.Open(packageFile, ZipArchiveMode.Read);
+            var manifest = zip.GetEntry(filename);
+            if (manifest != null)
+            {
+                using var stream = manifest.Open();
+                using var reader = new StreamReader(stream);
+                return reader.ReadToEnd();
+            }
+            return null;
         }
 
         #endregion

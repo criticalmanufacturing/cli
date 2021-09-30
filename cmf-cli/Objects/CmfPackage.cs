@@ -197,7 +197,7 @@ namespace Cmf.Common.Cli.Objects
         /// The Test Package Id.
         /// </value>
         [JsonProperty(Order = 14)]
-        public DependencyCollection TestPackages { get; private set; }
+        public DependencyCollection TestPackages { get; set; }
 
         /// <summary>
         /// The location of the package
@@ -621,7 +621,7 @@ namespace Cmf.Common.Cli.Objects
             string cmfPackageJson = JsonConvert.SerializeObject(this, jsonSerializerSettings);
 
             IFileInfo file = GetFileInfo();
-            File.WriteAllText(file.FullName, cmfPackageJson);
+            this.fileSystem.File.WriteAllText(file.FullName, cmfPackageJson);
         }
 
         /// <summary>

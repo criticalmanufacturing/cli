@@ -175,6 +175,30 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="T:Cmf.Common.Cli.Builders.GitCommand">
+            <summary>
+            Execute a git command
+            </summary>
+        </member>
+        <member name="P:Cmf.Common.Cli.Builders.GitCommand.Command">
+            <summary>
+            Gets or sets the command.
+            </summary>
+            <value>
+            The command.
+            </value>
+        </member>
+        <member name="P:Cmf.Common.Cli.Builders.GitCommand.Args">
+            <summary>
+            Gets or sets the arguments.
+            </summary>
+            <value>
+            The arguments.
+            </value>
+        </member>
+        <member name="M:Cmf.Common.Cli.Builders.GitCommand.GetSteps">
+            <inheritdoc />
+        </member>
         <member name="T:Cmf.Common.Cli.Builders.GulpCommand">
              <summary>
             
@@ -312,6 +336,33 @@
             Gets the steps.
             </summary>
             <returns></returns>
+        </member>
+        <member name="T:Cmf.Common.Cli.Builders.NPXCommand">
+            <summary>
+            run npx command
+            </summary>
+        </member>
+        <member name="P:Cmf.Common.Cli.Builders.NPXCommand.Args">
+            <summary>
+            Gets or sets the arguments.
+            </summary>
+            <value>
+            The arguments.
+            </value>
+        </member>
+        <member name="P:Cmf.Common.Cli.Builders.NPXCommand.Command">
+            <summary>
+            Gets or sets the command.
+            </summary>
+            <value>
+            The command.
+            </value>
+        </member>
+        <member name="M:Cmf.Common.Cli.Builders.NPXCommand.GetSteps">
+            <inheritdoc />
+        </member>
+        <member name="P:Cmf.Common.Cli.Builders.NPXCommand.DisplayName">
+            <inheritdoc />
         </member>
         <member name="T:Cmf.Common.Cli.Builders.ProcessBuildStep">
              <summary>
@@ -491,6 +542,7 @@
             <typeparam name="T">the (target) type of the argument/parameter</typeparam>
             <param name="argResult">the arguments to parse</param>
             <param name="default">the default value if no value is passed for the argument</param>
+            <exception cref="T:System.ArgumentOutOfRangeException"></exception>
             <returns></returns>
         </member>
         <member name="T:Cmf.Common.Cli.Commands.BuildCommand">
@@ -692,6 +744,130 @@
             <param name="isToTag">if set to <c>true</c> [is to tag].</param>
             <exception cref="T:Cmf.Common.Cli.Utilities.CliException"></exception>
         </member>
+        <member name="T:Cmf.Common.Cli.Commands.AgentType">
+            <summary>
+            Azure DevOps Agent Type
+            </summary>
+        </member>
+        <member name="F:Cmf.Common.Cli.Commands.AgentType.Cloud">
+            <summary>
+            Cloud agents 
+            </summary>
+        </member>
+        <member name="F:Cmf.Common.Cli.Commands.AgentType.Hosted">
+            <summary>
+            Self-host agents
+            </summary>
+        </member>
+        <member name="T:Cmf.Common.Cli.Commands.InitCommand">
+            <summary>
+            Init command
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.InitCommand.#ctor">
+            <summary>
+            constructor
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.InitCommand.#ctor(System.IO.Abstractions.IFileSystem)">
+            <summary>
+            constructor
+            </summary>
+            <param name="fileSystem"></param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.InitCommand.Configure(System.CommandLine.Command)">
+            <summary>
+            configure command signature
+            </summary>
+            <param name="cmd"></param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.InitCommand.Execute(Cmf.Common.Cli.Commands.InitArguments)">
+            <summary>
+            Execute the command
+            </summary>
+        </member>
+        <member name="T:Cmf.Common.Cli.Commands.New3_Command">
+            <summary>
+            Command to test templates
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New3_Command.#ctor">
+            <summary>
+            constructor
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New3_Command.#ctor(System.IO.Abstractions.IFileSystem)">
+            <summary>
+            constructor
+            </summary>
+            <param name="fileSystem"></param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New3_Command.Configure(System.CommandLine.Command)">
+            <summary>
+            configure command signature
+            </summary>
+            <param name="cmd"></param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New3_Command.Execute(System.Collections.Generic.IReadOnlyCollection{System.String})">
+            <summary>
+            Execute the command
+            </summary>
+        </member>
+        <member name="T:Cmf.Common.Cli.Commands.LayerTemplateCommand">
+            <summary>
+            Layer Template Abstract Command
+            provides arguments and execution flow common to all layer templates
+            </summary>
+        </member>
+        <member name="F:Cmf.Common.Cli.Commands.LayerTemplateCommand.executedArgs">
+            <summary>
+            Arguments used to execute the template. Available after Execute runs.
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.LayerTemplateCommand.#ctor(System.String,System.String)">
+            <summary>
+            constructor
+            </summary>
+            <param name="commandName">the name of the command</param>
+            <param name="packagePrefix">the package prefix. used as full name if not inside a feature.</param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.LayerTemplateCommand.#ctor(System.String,System.String,System.IO.Abstractions.IFileSystem)">
+            <summary>
+            constructor
+            </summary>
+            <param name="commandName">the name of the command</param>
+            <param name="packagePrefix">the package prefix. used as full name if not inside a feature.</param>
+            <param name="fileSystem">the filesystem implementation</param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.LayerTemplateCommand.Configure(System.CommandLine.Command)">
+            <summary>
+            configure the command
+            </summary>
+            <param name="cmd">base command</param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.LayerTemplateCommand.GetBaseCommandConfig(System.CommandLine.Command)">
+            <summary>
+            Injects the base arguments and options into the command, required for layer commands
+            </summary>
+            <param name="cmd">base command</param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.LayerTemplateCommand.Execute(System.IO.Abstractions.IDirectoryInfo,System.String)">
+            <summary>
+            Execute the command
+            </summary>
+            <param name="workingDir">the nearest root package</param>
+            <param name="version">the package version</param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.LayerTemplateCommand.GenerateArgs(System.IO.Abstractions.IDirectoryInfo,System.IO.Abstractions.IDirectoryInfo,System.Collections.Generic.List{System.String},System.Text.Json.JsonDocument)">
+            <summary>
+            generates additional arguments for the templating engine
+            </summary>
+            <param name="projectRoot">the project root</param>
+            <param name="workingDir">the current feature root (project root if no features exist)</param>
+            <param name="args">the base arguments: output, package name, version, id segment and tenant</param>
+            <param name="projectConfig">a JsonDocument with the .project-config.json content</param>
+            <returns>the complete list of arguments</returns>
+        </member>
         <member name="T:Cmf.Common.Cli.Commands.ListDependenciesCommand">
             <summary>
             List dependencies command
@@ -779,6 +955,214 @@
             Configure command
             </summary>
             <param name="cmd"></param>
+        </member>
+        <member name="T:Cmf.Common.Cli.Commands.New.BusinessCommand">
+            <summary>
+            Generates the Business layer structure
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.BusinessCommand.#ctor">
+            <summary>
+            constructor
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.BusinessCommand.#ctor(System.IO.Abstractions.IFileSystem)">
+            <summary>
+            constructor
+            </summary>
+            <param name="fileSystem"></param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.BusinessCommand.GenerateArgs(System.IO.Abstractions.IDirectoryInfo,System.IO.Abstractions.IDirectoryInfo,System.Collections.Generic.List{System.String},System.Text.Json.JsonDocument)">
+            <inheritdoc />
+        </member>
+        <member name="T:Cmf.Common.Cli.Commands.New.DatabaseCommand">
+            <summary>
+            Generates Database package structure
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.DatabaseCommand.#ctor">
+            <inheritdoc />
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.DatabaseCommand.#ctor(System.IO.Abstractions.IFileSystem)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.DatabaseCommand.GenerateArgs(System.IO.Abstractions.IDirectoryInfo,System.IO.Abstractions.IDirectoryInfo,System.Collections.Generic.List{System.String},System.Text.Json.JsonDocument)">
+            <inheritdoc />
+        </member>
+        <member name="T:Cmf.Common.Cli.Commands.New.DataCommand">
+            <summary>
+            Generates Data package structure
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.DataCommand.#ctor">
+            <inheritdoc />
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.DataCommand.#ctor(System.IO.Abstractions.IFileSystem)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.DataCommand.Configure(System.CommandLine.Command)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.DataCommand.GenerateArgs(System.IO.Abstractions.IDirectoryInfo,System.IO.Abstractions.IDirectoryInfo,System.Collections.Generic.List{System.String},System.Text.Json.JsonDocument)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.DataCommand.Execute(System.IO.Abstractions.IDirectoryInfo,System.String,System.IO.Abstractions.IDirectoryInfo)">
+            <summary>
+            Execute the command
+            </summary>
+            <param name="workingDir">the nearest root package</param>
+            <param name="version">the package version</param>
+            <param name="businessPackage">business package where the process rules should be built.</param>
+        </member>
+        <member name="T:Cmf.Common.Cli.Commands.New.FeatureCommand">
+            <summary>
+            new feature command
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.FeatureCommand.#ctor">
+            <summary>
+            constructor
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.FeatureCommand.#ctor(System.IO.Abstractions.IFileSystem)">
+            <summary>
+            constructor
+            </summary>
+            <param name="fileSystem"></param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.FeatureCommand.Configure(System.CommandLine.Command)">
+            <summary>
+            configure the command
+            </summary>
+            <param name="cmd"></param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.FeatureCommand.Execute(System.IO.Abstractions.IDirectoryInfo,System.String,System.String)">
+            <summary>
+            execute the command
+            </summary>
+            <param name="workingDir"></param>
+            <param name="packageName"></param>
+            <param name="version"></param>
+        </member>
+        <member name="T:Cmf.Common.Cli.Commands.New.HelpCommand">
+            <summary>
+            Generates Help/Documentation package structure
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.HelpCommand.#ctor">
+            <inheritdoc />
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.HelpCommand.#ctor(System.IO.Abstractions.IFileSystem)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.HelpCommand.Configure(System.CommandLine.Command)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.HelpCommand.GenerateArgs(System.IO.Abstractions.IDirectoryInfo,System.IO.Abstractions.IDirectoryInfo,System.Collections.Generic.List{System.String},System.Text.Json.JsonDocument)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.HelpCommand.Execute(System.IO.Abstractions.IDirectoryInfo,System.String,System.IO.Abstractions.IFileInfo)">
+            <summary>
+            Execute the command
+            </summary>
+            <param name="workingDir">nearest root package</param>
+            <param name="version">package version</param>
+            <param name="documentationPackage">The MES documentation package path</param>
+        </member>
+        <member name="T:Cmf.Common.Cli.Commands.New.HTMLCommand">
+            <summary>
+            Generates Help/Documentation package structure
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.HTMLCommand.#ctor">
+            <inheritdoc />
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.HTMLCommand.#ctor(System.IO.Abstractions.IFileSystem)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.HTMLCommand.Configure(System.CommandLine.Command)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.HTMLCommand.GenerateArgs(System.IO.Abstractions.IDirectoryInfo,System.IO.Abstractions.IDirectoryInfo,System.Collections.Generic.List{System.String},System.Text.Json.JsonDocument)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.HTMLCommand.Execute(System.IO.Abstractions.IDirectoryInfo,System.String,System.IO.Abstractions.IFileInfo)">
+            <summary>
+            Execute the command
+            </summary>
+            <param name="workingDir">nearest root package</param>
+            <param name="version">package version</param>
+            <param name="htmlPackage">The MES Presentation HTML package path</param>
+        </member>
+        <member name="T:Cmf.Common.Cli.Commands.New.IoTCommand">
+            <summary>
+            Generates IoT package structure
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.IoTCommand.#ctor">
+            <summary>
+            constructor
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.IoTCommand.#ctor(System.IO.Abstractions.IFileSystem)">
+            <summary>
+            constructor
+            </summary>
+            <param name="fileSystem">the filesystem implementation</param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.IoTCommand.GenerateArgs(System.IO.Abstractions.IDirectoryInfo,System.IO.Abstractions.IDirectoryInfo,System.Collections.Generic.List{System.String},System.Text.Json.JsonDocument)">
+            <inheritdoc />
+        </member>
+        <member name="T:Cmf.Common.Cli.Commands.New.TestCommand">
+            <summary>
+            Generates the Test layer structure
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.TestCommand.#ctor">
+            <inheritdoc />
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.TestCommand.#ctor(System.IO.Abstractions.IFileSystem)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.TestCommand.Configure(System.CommandLine.Command)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.TestCommand.GenerateArgs(System.IO.Abstractions.IDirectoryInfo,System.IO.Abstractions.IDirectoryInfo,System.Collections.Generic.List{System.String},System.Text.Json.JsonDocument)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.New.TestCommand.Execute(System.String)">
+            <summary>
+            Execute the command
+            </summary>
+            <param name="version">the package version</param>
+        </member>
+        <member name="T:Cmf.Common.Cli.Commands.NewCommand">
+            <summary>
+            "new" command group
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.NewCommand.Configure(System.CommandLine.Command)">
+            <summary>
+            Configure command
+            </summary>
+            <param name="cmd"></param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.NewCommand.Execute(System.Boolean)">
+            <summary>
+            Execute command
+            </summary>
+            <param name="reset"></param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.NewCommand.#ctor">
+            <summary>
+            constructor
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.NewCommand.#ctor(System.IO.Abstractions.IFileSystem)">
+            <summary>
+            constructor
+            </summary>
+            <param name="fileSystem"></param>
         </member>
         <member name="T:Cmf.Common.Cli.Commands.PackCommand">
              <summary>
@@ -943,6 +1327,79 @@
             <returns></returns>
             <exception cref="T:Cmf.Common.Cli.Objects.CmfPackageCollection">
             </exception>
+        </member>
+        <member name="T:Cmf.Common.Cli.Commands.TemplateCommand">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.TemplateCommand.#ctor(System.String)">
+            <summary>
+            constructor
+            </summary>
+            <param name="commandName"></param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.TemplateCommand.#ctor(System.String,System.IO.Abstractions.IFileSystem)">
+            <summary>
+            constructor
+            </summary>
+            <param name="commandName"></param>
+            <param name="fileSystem"></param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.TemplateCommand.RunCommand(System.Collections.Generic.IReadOnlyCollection{System.String})">
+            <summary>
+            Execute the command
+            </summary>
+            <param name="args">the template engine arguments</param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.TemplateCommand.ExecuteTemplate(System.String,System.Collections.Generic.IReadOnlyCollection{System.String})">
+            <summary>
+            execute a template
+            </summary>
+            <param name="templateName">the name of the template</param>
+            <param name="args">the template engine arguments</param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.TemplateCommand.ParseConfigFile(System.IO.Abstractions.IFileInfo)">
+            <summary>
+            Parse a DF exported config file
+            </summary>
+            <param name="configFile">the path to the config file</param>
+            <returns>template engine compatible switches array</returns>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.TemplateCommand.RegisterAsDependencyInParent(System.String,System.String,System.String,System.Boolean)">
+            <summary>
+            register this package as a dependency in the parent package
+            </summary>
+            <param name="packageName">this package name</param>
+            <param name="version">this package version</param>
+            <param name="parentPath">the parent directory of the package</param>
+            <param name="isTestPackage">is this new package a test package</param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.TemplateCommand.GetPackageInFolder(System.String)">
+            <summary>
+            Get the CmfPackage in the folder
+            </summary>
+            <param name="path">the folder path</param>
+            <returns>the CmfPackage in the folder</returns>
+        </member>
+        <member name="T:Cmf.Common.Cli.Commands.UILayerTemplateCommand">
+            <summary>
+            UI Layer Template Abstract Command
+            provides arguments and execution flow common to all UI layer templates
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.UILayerTemplateCommand.#ctor(System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.UILayerTemplateCommand.#ctor(System.String,System.String,System.IO.Abstractions.IFileSystem)">
+            <inheritdoc />
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.UILayerTemplateCommand.CloneHTMLStarter(System.String,System.IO.Abstractions.IDirectoryInfo)">
+            <summary>
+            Clones HTML Starter from github, checkout desired target version
+            </summary>
+            <param name="versionTag"></param>
+            <param name="target"></param>
         </member>
         <member name="T:Cmf.Common.Cli.Constants.CliConstants">
              <summary>
@@ -2572,7 +3029,7 @@
             <param name="fi">The fi.</param>
             <returns></returns>
         </member>
-        <member name="M:Cmf.Common.Cli.Utilities.FileSystemUtilities.GetPackageRoot(System.IO.Abstractions.IFileSystem)">
+        <member name="M:Cmf.Common.Cli.Utilities.FileSystemUtilities.GetPackageRoot(System.IO.Abstractions.IFileSystem,System.String)">
             <summary>
             Gets the package root.
             </summary>
@@ -2591,7 +3048,7 @@
             <summary>
             Gets the package root of type package root.
             </summary>
-            <param name="directoryName">Name of the directory.</param>
+            <param name="directoryName">The current working directory</param>
             <param name="packageType">Type of the package.</param>
             <param name="fileSystem">the underlying file system</param>
             <returns></returns>
@@ -2649,6 +3106,14 @@
             Get Manifest File From package
             </summary>
             <param name="packageFile"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Cmf.Common.Cli.Utilities.FileSystemUtilities.GetFileContentFromPackage(System.String,System.String)">
+            <summary>
+            Get File Content From package
+            </summary>
+            <param name="packageFile"></param>
+            <param name="filename"></param>
             <returns></returns>
         </member>
         <member name="T:Cmf.Common.Cli.Utilities.GenericUtilities">
@@ -2710,6 +3175,13 @@
             <param name="packageId">Package Identifier</param>
             <param name="packageVersion">Package Version</param>
             <param name="fileSystem">the underlying file system</param>
+            <returns></returns>
+        </member>
+        <member name="M:Cmf.Common.Cli.Utilities.GenericUtilities.JsonObjectToUri(System.Object)">
+            <summary>
+            Converts a JsonObject to an Uri
+            </summary>
+            <param name="value"></param>
             <returns></returns>
         </member>
         <member name="T:Cmf.Common.Cli.Utilities.IoTUtilities">

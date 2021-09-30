@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <IsTestProject>true</IsTestProject>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+  <PropertyGroup>
+    <NoWarn>NU1605</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<OutputPath>..\Release</OutputPath>
+	</PropertyGroup>
+  <ItemGroup>
+	  <None Include="..\app.config">
+      <Link>app.config</Link>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+	  <Reference Include="Cmf.LightBusinessObjects">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Libs\LBOs\NetStandard\Cmf.LightBusinessObjects.dll</HintPath>
+    </Reference>
+    <Reference Include="Cmf.LoadBalancing">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Libs\LBOs\NetStandard\Cmf.LoadBalancing.dll</HintPath>
+    </Reference>
+    <Reference Include="Cmf.MessageBus.Client">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Libs\LBOs\NetStandard\Cmf.MessageBus.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Libs\LBOs\NetStandard\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.Formatting">
+      <HintPath>..\..\Libs\LBOs\NetStandard\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Cmf.Custom.Tests.Biz.Common\Cmf.Custom.Tests.Biz.Common.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
+    <PackageReference Include="MSTest.TestAdapter" Version="2.2.3" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.2.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Cmf.Common.TestUtilities" Version="2.3.157590" />
+    <PackageReference Include="Cmf.Common.TestFramework.ConnectIoT" Version="1.0.131717" />
+    <PackageReference Include="Cmf.Dev.Mes.TestScenarios" Version="<%= $CLI_PARAM_TestScenariosNugetVersion %>" />
+  </ItemGroup>
+</Project>

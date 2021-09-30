@@ -379,6 +379,22 @@ The input.
 The output.
   
   
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFileContentFromPackage(string_string)'></a>
+## FileSystemUtilities.GetFileContentFromPackage(string, string) Method
+Get File Content From package  
+```csharp
+public static string GetFileContentFromPackage(string packageFile, string filename);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFileContentFromPackage(string_string)_packageFile'></a>
+`packageFile` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+  
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFileContentFromPackage(string_string)_filename'></a>
+`filename` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+  
+#### Returns
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+  
 <a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFilesToPack(Cmf_Common_Cli_Objects_ContentToPack_string_string_System_IO_Abstractions_IFileSystem_System_Collections_Generic_List_string__bool_bool_System_Collections_Generic_List_Cmf_Common_Cli_Objects_FileToPack_)'></a>
 ## FileSystemUtilities.GetFilesToPack(ContentToPack, string, string, IFileSystem, List&lt;string&gt;, bool, bool, List&lt;FileToPack&gt;) Method
 Gets the files to pack.  
@@ -481,15 +497,18 @@ the underlying file system
 #### Returns
 [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
   
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageRoot(System_IO_Abstractions_IFileSystem)'></a>
-## FileSystemUtilities.GetPackageRoot(IFileSystem) Method
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageRoot(System_IO_Abstractions_IFileSystem_string)'></a>
+## FileSystemUtilities.GetPackageRoot(IFileSystem, string) Method
 Gets the package root.  
 ```csharp
-public static System.IO.Abstractions.IDirectoryInfo GetPackageRoot(System.IO.Abstractions.IFileSystem fileSystem);
+public static System.IO.Abstractions.IDirectoryInfo GetPackageRoot(System.IO.Abstractions.IFileSystem fileSystem, string workingDir=null);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageRoot(System_IO_Abstractions_IFileSystem)_fileSystem'></a>
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageRoot(System_IO_Abstractions_IFileSystem_string)_fileSystem'></a>
 `fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
+  
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageRoot(System_IO_Abstractions_IFileSystem_string)_workingDir'></a>
+`workingDir` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
   
 #### Returns
 [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
@@ -506,7 +525,7 @@ public static System.IO.Abstractions.IDirectoryInfo GetPackageRootByType(string 
 #### Parameters
 <a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageRootByType(string_Cmf_Common_Cli_Enums_PackageType_System_IO_Abstractions_IFileSystem)_directoryName'></a>
 `directoryName` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
-Name of the directory.
+The current working directory
   
 <a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageRootByType(string_Cmf_Common_Cli_Enums_PackageType_System_IO_Abstractions_IFileSystem)_packageType'></a>
 `packageType` [PackageType](Cmf_Common_Cli_Enums.md#Cmf_Common_Cli_Enums_PackageType 'Cmf.Common.Cli.Enums.PackageType')  
@@ -683,6 +702,19 @@ the underlying file system
   
 #### Returns
 [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
+  
+<a name='Cmf_Common_Cli_Utilities_GenericUtilities_JsonObjectToUri(dynamic)'></a>
+## GenericUtilities.JsonObjectToUri(dynamic) Method
+Converts a JsonObject to an Uri  
+```csharp
+public static System.Uri? JsonObjectToUri(dynamic value);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_GenericUtilities_JsonObjectToUri(dynamic)_value'></a>
+`value` [dynamic](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/types/using-type-dynamic 'https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/types/using-type-dynamic')  
+  
+#### Returns
+[System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')  
   
 <a name='Cmf_Common_Cli_Utilities_GenericUtilities_RetrieveNewPresentationVersion(string_string_string)'></a>
 ## GenericUtilities.RetrieveNewPresentationVersion(string, string, string) Method

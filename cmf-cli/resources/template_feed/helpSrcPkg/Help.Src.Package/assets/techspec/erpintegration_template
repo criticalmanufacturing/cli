@@ -1,0 +1,19 @@
+# ERP Integration
+
+This section describe the ERP Features delivered.
+
+General Remarks:
+* Due to the way SAP generates the segments on IDocs, the segment name includes a number at the end, that can be changed if anything in the IDoc is updated. To avoid any future issues, the IDoc handlers should identify the segments based on the initial name, and not complete segment name.
+* All values from MES to SAP, are sent rounded up to three decimal places. Due to a limitation of the 3rd party erp used by MES, all decimal values are sent multiplied by 1000.
+  * Example: if MES needs to send the value 6.8, the integration message will have 6.8 x 1000 = 6800 
+
+## Configuration
+
+### Relevant Artifacts
+The table below describes the common configurations for this features:
+
+|Name          | Type      |  Data Type | Description |
+|:------------ | :-------- | :-------- | :-----------|
+
+## Integrations
+@IndexData@

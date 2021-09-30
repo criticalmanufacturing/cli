@@ -218,6 +218,46 @@ Implements [Exec()](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_IBuildCom
 #### See Also
 - [IBuildCommand](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_IBuildCommand 'Cmf.Common.Cli.Builders.IBuildCommand')
   
+<a name='Cmf_Common_Cli_Builders_GitCommand'></a>
+## GitCommand Class
+Execute a git command  
+```csharp
+public class GitCommand : Cmf.Common.Cli.Builders.ProcessCommand
+```
+
+Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [ProcessCommand](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_ProcessCommand 'Cmf.Common.Cli.Builders.ProcessCommand') &#129106; GitCommand  
+### Properties
+<a name='Cmf_Common_Cli_Builders_GitCommand_Args'></a>
+## GitCommand.Args Property
+Gets or sets the arguments.  
+```csharp
+public string[] Args { get; set; }
+```
+#### Property Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[[]](https://docs.microsoft.com/en-us/dotnet/api/System.Array 'System.Array')
+The arguments.  
+  
+<a name='Cmf_Common_Cli_Builders_GitCommand_Command'></a>
+## GitCommand.Command Property
+Gets or sets the command.  
+```csharp
+public string Command { get; set; }
+```
+#### Property Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
+The command.  
+  
+### Methods
+<a name='Cmf_Common_Cli_Builders_GitCommand_GetSteps()'></a>
+## GitCommand.GetSteps() Method
+Gets the steps.  
+```csharp
+public override Cmf.Common.Cli.Builders.ProcessBuildStep[] GetSteps();
+```
+#### Returns
+[ProcessBuildStep](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_ProcessBuildStep 'Cmf.Common.Cli.Builders.ProcessBuildStep')[[]](https://docs.microsoft.com/en-us/dotnet/api/System.Array 'System.Array')  
+  
+  
 <a name='Cmf_Common_Cli_Builders_GulpCommand'></a>
 ## GulpCommand Class
 ```csharp
@@ -402,6 +442,61 @@ public override Cmf.Common.Cli.Builders.ProcessBuildStep[] GetSteps();
 - [ProcessCommand](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_ProcessCommand 'Cmf.Common.Cli.Builders.ProcessCommand')
 - [IBuildCommand](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_IBuildCommand 'Cmf.Common.Cli.Builders.IBuildCommand')
   
+<a name='Cmf_Common_Cli_Builders_NPXCommand'></a>
+## NPXCommand Class
+run npx command  
+```csharp
+public class NPXCommand : Cmf.Common.Cli.Builders.ProcessCommand,
+Cmf.Common.Cli.Builders.IBuildCommand
+```
+
+Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [ProcessCommand](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_ProcessCommand 'Cmf.Common.Cli.Builders.ProcessCommand') &#129106; NPXCommand  
+
+Implements [IBuildCommand](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_IBuildCommand 'Cmf.Common.Cli.Builders.IBuildCommand')  
+### Properties
+<a name='Cmf_Common_Cli_Builders_NPXCommand_Args'></a>
+## NPXCommand.Args Property
+Gets or sets the arguments.  
+```csharp
+public string[] Args { get; set; }
+```
+#### Property Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[[]](https://docs.microsoft.com/en-us/dotnet/api/System.Array 'System.Array')
+The arguments.  
+  
+<a name='Cmf_Common_Cli_Builders_NPXCommand_Command'></a>
+## NPXCommand.Command Property
+Gets or sets the command.  
+```csharp
+public string Command { get; set; }
+```
+#### Property Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
+The command.  
+  
+<a name='Cmf_Common_Cli_Builders_NPXCommand_DisplayName'></a>
+## NPXCommand.DisplayName Property
+Gets or sets the display name.  
+```csharp
+public string DisplayName { get; set; }
+```
+#### Property Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
+The display name.  
+
+Implements [DisplayName](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_IBuildCommand_DisplayName 'Cmf.Common.Cli.Builders.IBuildCommand.DisplayName')  
+  
+### Methods
+<a name='Cmf_Common_Cli_Builders_NPXCommand_GetSteps()'></a>
+## NPXCommand.GetSteps() Method
+Gets the steps.  
+```csharp
+public override Cmf.Common.Cli.Builders.ProcessBuildStep[] GetSteps();
+```
+#### Returns
+[ProcessBuildStep](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_ProcessBuildStep 'Cmf.Common.Cli.Builders.ProcessBuildStep')[[]](https://docs.microsoft.com/en-us/dotnet/api/System.Array 'System.Array')  
+  
+  
 <a name='Cmf_Common_Cli_Builders_ProcessBuildStep'></a>
 ## ProcessBuildStep Class
 ```csharp
@@ -452,8 +547,10 @@ Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.O
 Derived  
 &#8627; [CmdCommand](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_CmdCommand 'Cmf.Common.Cli.Builders.CmdCommand')  
 &#8627; [DotnetCommand](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_DotnetCommand 'Cmf.Common.Cli.Builders.DotnetCommand')  
+&#8627; [GitCommand](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_GitCommand 'Cmf.Common.Cli.Builders.GitCommand')  
 &#8627; [GulpCommand](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_GulpCommand 'Cmf.Common.Cli.Builders.GulpCommand')  
 &#8627; [NPMCommand](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_NPMCommand 'Cmf.Common.Cli.Builders.NPMCommand')  
+&#8627; [NPXCommand](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_NPXCommand 'Cmf.Common.Cli.Builders.NPXCommand')  
 ### Fields
 <a name='Cmf_Common_Cli_Builders_ProcessCommand_fileSystem'></a>
 ## ProcessCommand.fileSystem Field
@@ -509,6 +606,7 @@ Derived
 &#8627; [GulpCommand](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_GulpCommand 'Cmf.Common.Cli.Builders.GulpCommand')  
 &#8627; [JSONValidatorCommand](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_JSONValidatorCommand 'Cmf.Common.Cli.Builders.JSONValidatorCommand')  
 &#8627; [NPMCommand](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_NPMCommand 'Cmf.Common.Cli.Builders.NPMCommand')  
+&#8627; [NPXCommand](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_NPXCommand 'Cmf.Common.Cli.Builders.NPXCommand')  
 ### Properties
 <a name='Cmf_Common_Cli_Builders_IBuildCommand_DisplayName'></a>
 ## IBuildCommand.DisplayName Property
