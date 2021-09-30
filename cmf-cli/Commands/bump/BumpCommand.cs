@@ -115,11 +115,10 @@ namespace Cmf.Common.Cli.Commands
                     // TODO :: Uncomment if the cmfpackage.json support build number
                     // dependency.Version = GenericUtilities.RetrieveNewVersion(dependency.Version, version, buildNr);
 
-                    dependency.Version = !string.IsNullOrWhiteSpace(version) ? version : dependency.Version;
-
                     if (subCmfPackageWithDependency != null)
                     {
                         Execute(subCmfPackageWithDependency, version, buildNr, root, all);
+                        dependency.Version = !string.IsNullOrWhiteSpace(version) ? version : dependency.Version;
                     }
                     else
                     {
@@ -137,11 +136,10 @@ namespace Cmf.Common.Cli.Commands
                     // TODO :: Uncomment if the cmfpackage.json support build number
                     // dependency.Version = GenericUtilities.RetrieveNewVersion(dependency.Version, version, buildNr);
 
-                    dependency.Version = !string.IsNullOrWhiteSpace(version) ? version : dependency.Version;
-
                     if (subCmfPackageWithDependency != null)
                     {
                         Execute(subCmfPackageWithDependency, version, buildNr, root, all);
+                        dependency.Version = !string.IsNullOrWhiteSpace(version) ? version : dependency.Version;
                     }
                     else
                     {
@@ -149,6 +147,10 @@ namespace Cmf.Common.Cli.Commands
                     }
                 }
             }
+
+            // will save with new version
+            cmfPackage.SaveCmfPackage();
+
             #endregion
         }
     }
