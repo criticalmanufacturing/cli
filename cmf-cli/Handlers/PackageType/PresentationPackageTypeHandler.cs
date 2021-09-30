@@ -176,7 +176,7 @@ namespace Cmf.Common.Cli.Handlers
 
                 if (jsonObj["version"] == null)
                 {
-                    throw new CliException(string.Format(CliMessages.MissingMandatoryProperty, "version", fileName));
+                    throw new CliException(string.Format(CliMessages.MissingMandatoryPropertyInFile, "version", $"{fileName}"));
                 }
 
                 jsonObj["version"] = GenericUtilities.RetrieveNewPresentationVersion(jsonObj["version"].ToString(), version, buildNr);

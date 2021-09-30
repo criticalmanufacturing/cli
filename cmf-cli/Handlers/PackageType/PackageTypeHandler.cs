@@ -22,6 +22,7 @@ namespace Cmf.Common.Cli.Handlers
     public abstract class PackageTypeHandler : IPackageTypeHandler
     {
         #region Protected Properties
+
         /// <summary>
         /// the underlying file system
         /// </summary>
@@ -71,6 +72,7 @@ namespace Cmf.Common.Cli.Handlers
         /// </summary>
         /// <exception cref="CliException"></exception>
         public PackageTypeHandler(CmfPackage cmfPackage) : this(cmfPackage, new FileSystem()) { }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="PackageTypeHandler" /> class.
         /// </summary>
@@ -298,7 +300,6 @@ namespace Cmf.Common.Cli.Handlers
             this.fileSystem.File.Move(tempzipPath, destZipPath, true);
         }
 
-
         /// <summary>
         /// Get Content To pack
         /// </summary>
@@ -437,25 +438,22 @@ namespace Cmf.Common.Cli.Handlers
         /// <param name="buildNr">The version for build Nr.</param>
         /// <param name="bumpInformation">The bump information.</param>
         public virtual void Bump(string version, string buildNr, Dictionary<string, object> bumpInformation = null)
-            {
+        {
             // TODO: create "transaction" to rollback if anything fails
             // NOTE: Check pack strategy. Collect all packages to bump before bump.
 
             var currentVersion = CmfPackage.Version.Split("-")[0];
             var currentBuildNr = CmfPackage.Version.Split("-").Length > 1 ? CmfPackage.Version.Split("-")[1] : null;
             if (!currentVersion.IgnoreCaseEquals(version))
-                {
+            {
                 // TODO :: Uncomment if the cmfpackage.json support build number
                 // cmfPackage.SetVersion(GenericUtilities.RetrieveNewVersion(currentVersion, version, buildNr));
 
                 CmfPackage.SetVersion(!string.IsNullOrWhiteSpace(version) ? version : CmfPackage.Version);
 
                 Log.Information($"Will bump {CmfPackage.PackageId} from version {currentVersion} to version {CmfPackage.Version}");
-
-                // will save with new version
-                CmfPackage.SaveCmfPackage();
             }
-                }
+        }
 
         /// <summary>
         /// Builds this instance.
@@ -489,6 +487,5 @@ namespace Cmf.Common.Cli.Handlers
         }
 
         #endregion
-
     }
 }
