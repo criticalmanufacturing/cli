@@ -5,6 +5,8 @@ variables:
   ProjectPackageRepository: '\\<%= $CLI_PARAM_vmHostname %>\Shares\DeliverablesPackageRepository'
   # Cmf Tool Repository
   CmfCliRepository: 'https://registry.npmjs.com'
+  # Cmf Tool Version
+  CmfCliVersion: '1.x.x'
   # Iso Image Path
   ISOImagePath: '<%= $CLI_PARAM_ISOLocation %>\v<%= $CLI_PARAM_MESVersion-Feature %>\Critical Manufacturing <%= $CLI_PARAM_MESVersion %>.iso'
   # Destination Folder for packages

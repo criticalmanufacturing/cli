@@ -72,7 +72,7 @@ steps:
     workingDirectory: $(Agent.TempDirectory)
     targetType: inline
     script: |
-      npm install --no-save @criticalmanufacturing/cli@1.x.x --registry ${{ variables.CmfCliRepository }}
+      npm install --no-save @criticalmanufacturing/cli@${{ variables.CmfCliVersion }} --registry ${{ variables.CmfCliRepository }}
 
 # Get package version
 - task: PowerShell@2
