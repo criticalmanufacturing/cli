@@ -18,9 +18,4 @@
   <ItemGroup>
     <ProjectReference Include="..\cmf-cli\cmf.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Fixtures\init" />
-  </ItemGroup>
-
 </Project>
