@@ -3,6 +3,7 @@
   <packageId>$(packageId)</packageId>
   <name>$(name)</name>
   <targetDirectory>$(targetDirectory)</targetDirectory>
+  <targetLayer>$(targetLayer)</targetLayer>
   <packageType>$(packageType)</packageType>
   <description>$(description)</description>
   <version>$(version)</version>

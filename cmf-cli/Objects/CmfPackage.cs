@@ -108,13 +108,24 @@ namespace Cmf.Common.Cli.Objects
         public PackageType PackageType { get; private set; }
 
         /// <summary>
-        /// Gets or sets the target directory.
+        /// Gets or sets the target directory where the package contents should be installed.
+        /// This is used when the package is installed using Deployment Framework and ignored when it is installed using Environment Manager.
         /// </summary>
         /// <value>
         /// The target directory.
         /// </value>
         [JsonProperty(Order = 5)]
         public string TargetDirectory { get; private set; }
+        
+        /// <summary>
+        /// Gets or sets the target layer, which means the container in which the packages contents should be installed.
+        /// This is used when the package is installed using Environment Manager and ignored when it is installed using Deployment Framework.
+        /// </summary>
+        /// <value>
+        /// The target layer.
+        /// </value>
+        [JsonProperty(Order = 6)]
+        public string TargetLayer { get; private set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this instance is installable.
@@ -122,7 +133,7 @@ namespace Cmf.Common.Cli.Objects
         /// <value>
         ///   <c>true</c> if this instance is installable; otherwise, <c>false</c>.
         /// </value>
-        [JsonProperty(Order = 6)]
+        [JsonProperty(Order = 7)]
         public bool? IsInstallable { get; private set; }
 
         /// <summary>
@@ -131,7 +142,7 @@ namespace Cmf.Common.Cli.Objects
         /// <value>
         /// The is unique install.
         /// </value>
-        [JsonProperty(Order = 7)]
+        [JsonProperty(Order = 8)]
         public bool? IsUniqueInstall { get; private set; }
 
         /// <summary>
@@ -140,7 +151,7 @@ namespace Cmf.Common.Cli.Objects
         /// <value>
         /// The is root package.
         /// </value>
-        [JsonProperty(Order = 8)]
+        [JsonProperty(Order = 9)]
         [JsonIgnore]
         public string Keywords { get; private set; }
 
@@ -150,7 +161,7 @@ namespace Cmf.Common.Cli.Objects
         /// <value>
         /// The set default steps.
         /// </value>
-        [JsonProperty(Order = 9)]
+        [JsonProperty(Order = 10)]
         [JsonIgnore]
         public bool? IsToSetDefaultSteps { get; private set; }
 
@@ -160,7 +171,7 @@ namespace Cmf.Common.Cli.Objects
         /// <value>
         /// The dependencies.
         /// </value>
-        [JsonProperty(Order = 10)]
+        [JsonProperty(Order = 11)]
         public DependencyCollection Dependencies { get; private set; }
 
         /// <summary>
@@ -169,7 +180,7 @@ namespace Cmf.Common.Cli.Objects
         /// <value>
         /// The steps.
         /// </value>
-        [JsonProperty(Order = 11)]
+        [JsonProperty(Order = 12)]
         public List<Step> Steps { get; private set; }
 
         /// <summary>
@@ -178,7 +189,7 @@ namespace Cmf.Common.Cli.Objects
         /// <value>
         /// The content to pack.
         /// </value>
-        [JsonProperty(Order = 12)]
+        [JsonProperty(Order = 13)]
         public List<ContentToPack> ContentToPack { get; private set; }
 
         /// <summary>
@@ -187,7 +198,7 @@ namespace Cmf.Common.Cli.Objects
         /// <value>
         /// The deployment framework UI file.
         /// </value>
-        [JsonProperty(Order = 13)]
+        [JsonProperty(Order = 14)]
         public List<string> XmlInjection { get; private set; }
 
         /// <summary>
@@ -196,13 +207,13 @@ namespace Cmf.Common.Cli.Objects
         /// <value>
         /// The Test Package Id.
         /// </value>
-        [JsonProperty(Order = 14)]
+        [JsonProperty(Order = 15)]
         public DependencyCollection TestPackages { get; set; }
 
         /// <summary>
         /// The location of the package
         /// </summary>
-        [JsonProperty(Order = 15)]
+        [JsonProperty(Order = 16)]
         [JsonIgnore]
         public PackageLocation Location { get; private set; }
 
@@ -250,6 +261,7 @@ namespace Cmf.Common.Cli.Objects
         /// <param name="description">The description.</param>
         /// <param name="packageType">Type of the package.</param>
         /// <param name="targetDirectory">The target directory.</param>
+        /// <param name="targetLayer">The target layer.</param>
         /// <param name="isInstallable">The is installable.</param>
         /// <param name="isUniqueInstall">The is unique install.</param>
         /// <param name="keywords">The keywords.</param>
@@ -261,7 +273,7 @@ namespace Cmf.Common.Cli.Objects
         /// <param name="testPackages">The test Packages.</param>
         [JsonConstructor]
         public CmfPackage(string name, string packageId, string version, string description, PackageType packageType,
-                          string targetDirectory, bool? isInstallable, bool? isUniqueInstall, string keywords,
+                          string targetDirectory, string targetLayer, bool? isInstallable, bool? isUniqueInstall, string keywords,
                           bool? isToSetDefaultSteps, DependencyCollection dependencies, List<Step> steps,
                           List<ContentToPack> contentToPack, List<string> xmlInjection, DependencyCollection testPackages = null) : this()
         {
@@ -271,6 +283,7 @@ namespace Cmf.Common.Cli.Objects
             Description = description;
             PackageType = packageType;
             TargetDirectory = targetDirectory;
+            TargetLayer = targetLayer;
             IsInstallable = isInstallable ?? true;
             IsUniqueInstall = isUniqueInstall ?? false;
             Keywords = keywords;
@@ -320,6 +333,7 @@ namespace Cmf.Common.Cli.Objects
                    Description.IgnoreCaseEquals(other.Description) &&
                    PackageType == other.PackageType &&
                    TargetDirectory.IgnoreCaseEquals(other.TargetDirectory) &&
+                   TargetLayer.IgnoreCaseEquals(other.TargetLayer) &&
                    IsInstallable == other.IsInstallable &&
                    IsUniqueInstall == other.IsUniqueInstall &&
                    Keywords.IgnoreCaseEquals(other.Keywords) &&
@@ -355,6 +369,7 @@ namespace Cmf.Common.Cli.Objects
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="targetDirectory">The target directory.</param>
+        /// <param name="targetLayer">The target layer container.</param>
         /// <param name="isInstallable">The is installable.</param>
         /// <param name="isUniqueInstall">The is unique install.</param>
         /// <param name="keywords">The keywords.</param>
@@ -363,6 +378,7 @@ namespace Cmf.Common.Cli.Objects
         public void SetDefaultValues(
             string name = null,
             string targetDirectory = null,
+            string targetLayer = null,
             bool? isInstallable = null,
             bool? isUniqueInstall = null,
             string keywords = null,
@@ -373,6 +389,8 @@ namespace Cmf.Common.Cli.Objects
                 Name = string.IsNullOrEmpty(Name) ? string.IsNullOrEmpty(name) ? $"{PackageId.Replace(".", " ")}" : name : Name;
 
                 TargetDirectory = string.IsNullOrEmpty(TargetDirectory) ? targetDirectory : TargetDirectory;
+                
+                TargetLayer = string.IsNullOrEmpty(TargetLayer) ? targetLayer : TargetLayer;
 
                 IsInstallable ??= isInstallable;
 
@@ -569,6 +587,7 @@ namespace Cmf.Common.Cli.Objects
                 tokens["version"],
                 tokens.ContainsKey("description") ? tokens["description"] : null,
                 PackageType.Generic,
+                "",
                 "",
                 false,
                 false,

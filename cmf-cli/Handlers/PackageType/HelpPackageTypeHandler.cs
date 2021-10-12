@@ -20,7 +20,9 @@ namespace Cmf.Common.Cli.Handlers
             cmfPackage.SetDefaultValues
             (
                 targetDirectory:
-                    "UI/Help"
+                    "UI/Help",
+                targetLayer:
+                    "help"
             );
 
             BuildSteps = new IBuildCommand[]
