@@ -119,32 +119,41 @@ namespace Cmf.Common.Cli.Commands
             if (configJson != null)
             {
                 // here we retrieve only the entries from config that are actually useful for a template
-                args.AddRange(new string[] { "--EnvironmentName", configJson["Product.SystemName"]?.Value });
-                args.AddRange(new string[] { "--RESTPort", configJson["Product.ApplicationServer.Port"]?.Value });
-                args.AddRange(new string[] { "--Tenant", configJson["Product.Tenant.Name"]?.Value });
+                args.AddRange(new string[] { "--EnvironmentName", configJson["Product.SystemName"]?.Value ?? configJson["SYSTEM_NAME"]?.Value });
+                args.AddRange(new string[] { "--RESTPort", configJson["Product.ApplicationServer.Port"]?.Value ?? configJson["APPLICATION_PUBLIC_HTTP_PORT"]?.Value });
+                args.AddRange(new string[] { "--Tenant", configJson["Product.Tenant.Name"]?.Value ?? configJson["TENANT_NAME"]?.Value });
 
-                args.AddRange(new string[] { "--vmHostname", configJson["Product.ApplicationServer.Address"]?.Value });
-                args.AddRange(new string[] { "--DBReplica1", configJson["Package[Product.Database.Online].Database.Server"]?.Value });
-                args.AddRange(new string[] { "--DBReplica2", configJson["Package[Product.Database.Ods].Database.Server"]?.Value });
-                args.AddRange(new string[] { "--DBServerOnline", configJson["Package[Product.Database.Online].Database.Server"]?.Value });
-                args.AddRange(new string[] { "--DBServerODS", configJson["Package[Product.Database.Ods].Database.Server"]?.Value });
-                args.AddRange(new string[] { "--DBServerDWH", configJson["Package[Product.Database.Dwh].Database.Server"]?.Value });
-                args.AddRange(new string[] { "--ReportServerURI", configJson["Package.ReportingServices.Address"]?.Value });
-                if (configJson["Product.Database.IsAlwaysOn"]?.Value)
+                args.AddRange(new string[] { "--vmHostname", configJson["Product.ApplicationServer.Address"]?.Value ?? configJson["APPLICATION_PUBLIC_HTTP_ADDRESS"]?.Value });
+                args.AddRange(new string[] { "--DBReplica1", configJson["Package[Product.Database.Online].Database.Server"]?.Value ?? configJson["DATABASE_ONLINE_MSSQL_ADDRESS"]?.Value });
+                args.AddRange(new string[] { "--DBReplica2", configJson["Package[Product.Database.Ods].Database.Server"]?.Value ?? configJson["DATABASE_ODS_MSSQL_ADDRESS"]?.Value });
+                args.AddRange(new string[] { "--DBServerOnline", configJson["Package[Product.Database.Online].Database.Server"]?.Value ?? configJson["DATABASE_ONLINE_MSSQL_ADDRESS"]?.Value });
+                args.AddRange(new string[] { "--DBServerODS", configJson["Package[Product.Database.Ods].Database.Server"]?.Value ?? configJson["DATABASE_ODS_MSSQL_ADDRESS"]?.Value });
+                args.AddRange(new string[] { "--DBServerDWH", configJson["Package[Product.Database.Dwh].Database.Server"]?.Value ?? configJson["DATABASE_DWH_MSSQL_ADDRESS"]?.Value });
+                args.AddRange(new string[] { "--ReportServerURI", configJson["Package.ReportingServices.Address"]?.Value ?? configJson["REPORTING_SSRS_WEB_PORTAL_URL"]?.Value });
+                if (configJson["Product.Database.IsAlwaysOn"]?.Value ?? bool.Parse(configJson["DATABASE_MSSQL_ALWAYS_ON_ENABLED"]?.Value ?? false))
                 {
                     args.AddRange(new string[] { "--AlwaysOn" });
                 }
 
-                args.AddRange(new string[] { "--InstallationPath", configJson["Packages.Root.TargetDirectory"]?.Value });
-                args.AddRange(new string[] { "--DBBackupPath", configJson["Product.Database.BackupShare"]?.Value });
-                args.AddRange(new string[] { "--TemporaryPath", configJson["Product.DocumentManagement.TemporaryFolder"]?.Value });
-                args.AddRange(new string[] { "--HTMLPort", configJson["Product.Presentation.IisConfiguration.Binding.Port"]?.Value });
-                if (configJson["Product.Presentation.IisConfiguration.Binding.IsSslEnabled"]?.Value)
+                if (configJson["Packages.Root.TargetDirectory"]?.Value != null)
+                {
+                    args.AddRange(new string[] { "--InstallationPath", configJson["Packages.Root.TargetDirectory"]?.Value });
+                }
+                if (configJson["Product.Database.BackupShare"]?.Value != null)
+                {
+                    args.AddRange(new string[] { "--DBBackupPath", configJson["Product.Database.BackupShare"]?.Value });
+                }
+                if (configJson["Product.DocumentManagement.TemporaryFolder"]?.Value != null)
+                {
+                    args.AddRange(new string[] { "--TemporaryPath", configJson["Product.DocumentManagement.TemporaryFolder"]?.Value });
+                }
+                args.AddRange(new string[] { "--HTMLPort", configJson["Product.Presentation.IisConfiguration.Binding.Port"]?.Value ?? configJson["APPLICATION_PUBLIC_HTTP_PORT"]?.Value });
+                if (configJson["Product.Presentation.IisConfiguration.Binding.IsSslEnabled"]?.Value ?? bool.Parse(configJson["APPLICATION_PUBLIC_HTTP_TLS_ENABLED"]?.Value ?? false))
                 {
                     args.AddRange(new string[] {"--IsSslEnabled"});    
                 }
 
-                args.AddRange(new string[] {"--GatewayPort", configJson["Product.Gateway.Port"]?.Value });
+                args.AddRange(new string[] {"--GatewayPort", configJson["Product.Gateway.Port"]?.Value ?? configJson["APPLICATION_PUBLIC_HTTP_PORT"]?.Value });
 
                 args.AddRange(new string[] {"--ReleaseEnvironmentConfig", configFile.Name});
             } 
