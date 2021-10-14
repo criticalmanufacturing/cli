@@ -2299,10 +2299,20 @@
         </member>
         <member name="P:Cmf.Common.Cli.Objects.CmfPackage.TargetDirectory">
             <summary>
-            Gets or sets the target directory.
+            Gets or sets the target directory where the package contents should be installed.
+            This is used when the package is installed using Deployment Framework and ignored when it is installed using Environment Manager.
             </summary>
             <value>
             The target directory.
+            </value>
+        </member>
+        <member name="P:Cmf.Common.Cli.Objects.CmfPackage.TargetLayer">
+            <summary>
+            Gets or sets the target layer, which means the container in which the packages contents should be installed.
+            This is used when the package is installed using Environment Manager and ignored when it is installed using Deployment Framework.
+            </summary>
+            <value>
+            The target layer.
             </value>
         </member>
         <member name="P:Cmf.Common.Cli.Objects.CmfPackage.IsInstallable">
@@ -2387,7 +2397,7 @@
             Validates the package.
             </summary>
         </member>
-        <member name="M:Cmf.Common.Cli.Objects.CmfPackage.#ctor(System.String,System.String,System.String,System.String,Cmf.Common.Cli.Enums.PackageType,System.String,System.Nullable{System.Boolean},System.Nullable{System.Boolean},System.String,System.Nullable{System.Boolean},Cmf.Common.Cli.Objects.DependencyCollection,System.Collections.Generic.List{Cmf.Common.Cli.Objects.Step},System.Collections.Generic.List{Cmf.Common.Cli.Objects.ContentToPack},System.Collections.Generic.List{System.String},Cmf.Common.Cli.Objects.DependencyCollection)">
+        <member name="M:Cmf.Common.Cli.Objects.CmfPackage.#ctor(System.String,System.String,System.String,System.String,Cmf.Common.Cli.Enums.PackageType,System.String,System.String,System.Nullable{System.Boolean},System.Nullable{System.Boolean},System.String,System.Nullable{System.Boolean},Cmf.Common.Cli.Objects.DependencyCollection,System.Collections.Generic.List{Cmf.Common.Cli.Objects.Step},System.Collections.Generic.List{Cmf.Common.Cli.Objects.ContentToPack},System.Collections.Generic.List{System.String},Cmf.Common.Cli.Objects.DependencyCollection)">
             <summary>
             Initializes a new instance of the <see cref="T:Cmf.Common.Cli.Objects.CmfPackage"/> class.
             </summary>
@@ -2397,6 +2407,7 @@
             <param name="description">The description.</param>
             <param name="packageType">Type of the package.</param>
             <param name="targetDirectory">The target directory.</param>
+            <param name="targetLayer">The target layer.</param>
             <param name="isInstallable">The is installable.</param>
             <param name="isUniqueInstall">The is unique install.</param>
             <param name="keywords">The keywords.</param>
@@ -2441,12 +2452,13 @@
             </summary>
             <param name="value">The file information.</param>
         </member>
-        <member name="M:Cmf.Common.Cli.Objects.CmfPackage.SetDefaultValues(System.String,System.String,System.Nullable{System.Boolean},System.Nullable{System.Boolean},System.String,System.Collections.Generic.List{Cmf.Common.Cli.Objects.Step})">
+        <member name="M:Cmf.Common.Cli.Objects.CmfPackage.SetDefaultValues(System.String,System.String,System.String,System.Nullable{System.Boolean},System.Nullable{System.Boolean},System.String,System.Collections.Generic.List{Cmf.Common.Cli.Objects.Step})">
             <summary>
             Sets the defaults.
             </summary>
             <param name="name">The name.</param>
             <param name="targetDirectory">The target directory.</param>
+            <param name="targetLayer">The target layer container.</param>
             <param name="isInstallable">The is installable.</param>
             <param name="isUniqueInstall">The is unique install.</param>
             <param name="keywords">The keywords.</param>

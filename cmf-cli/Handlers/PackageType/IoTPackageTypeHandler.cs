@@ -29,6 +29,8 @@ namespace Cmf.Common.Cli.Handlers
             (
                 targetDirectory:
                     "UI/Html",
+                targetLayer:
+                    "ui",
                 steps:
                     new List<Step>()
                     {

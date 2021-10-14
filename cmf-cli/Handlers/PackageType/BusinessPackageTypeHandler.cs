@@ -23,6 +23,8 @@ namespace Cmf.Common.Cli.Handlers
             cmfPackage.SetDefaultValues(
             targetDirectory:
                 "BusinessTier",
+            targetLayer:
+                "host",
             steps:
                 new List<Step>()
                 {

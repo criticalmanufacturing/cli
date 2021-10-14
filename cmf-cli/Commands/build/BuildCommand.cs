@@ -39,20 +39,21 @@ namespace Cmf.Common.Cli.Commands
         public override void Configure(Command cmd)
         {
             var packageRoot = FileSystemUtilities.GetPackageRoot(this.fileSystem);
+            var packagePath = ".";
+            if (packageRoot != null)
+            {
+                packagePath = this.fileSystem.Path.GetRelativePath(this.fileSystem.Directory.GetCurrentDirectory(), packageRoot.FullName);
+            }
             var arg = new Argument<IDirectoryInfo>(
                 name: "packagePath",
-                parse: (argResult) => Parse<IDirectoryInfo>(argResult, "."),
+                parse: (argResult) => Parse<IDirectoryInfo>(argResult, packagePath),
                 isDefault: true)
             {
                 Description = "Package Path"
             };
 
             cmd.AddArgument(arg);
-            if (packageRoot != null)
-            {
-                var packagePath = Path.GetRelativePath(Directory.GetCurrentDirectory(), packageRoot.FullName);
-                arg.SetDefaultValue(new DirectoryInfo(packagePath));
-            }
+            
             cmd.Handler = CommandHandler.Create<IDirectoryInfo>(Execute);
         }
 
