@@ -5,6 +5,7 @@ const envPaths = require('env-paths');
 const path = require('path');
 const fs = require('fs');
 const isInstalledGlobally = require('is-installed-globally');
+const isPathInside = require('is-path-inside');
 const node_modules = require('node_modules-path');
 const dbg = require('debug');
 const { parsePackageJson, ARCH_MAPPING, PLATFORM_MAPPING } = require('./utils');
@@ -15,7 +16,7 @@ const debug = dbg("cmf:debug");
 debug("Executing cmf-cli");
 let exePath = null;
 debug("Determining if cli is installed globally or locally...");
-if (isInstalledGlobally) {
+if (isInstalledGlobally || isPathInside(__dirname, process.env.APPDATA)) {
   debug("cli is installed globally. Getting binary location from user profile...");
   const paths = envPaths("cmf-cli", {suffix: ""});
   exePath = path.join(paths.data, opts.binName);
