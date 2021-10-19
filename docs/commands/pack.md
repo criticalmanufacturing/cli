@@ -14,12 +14,13 @@ cmf pack
 
 ### Arguments and Options
 
-| Aliases         | Default Value | Description                                               |
-| --------------- | ------------- | --------------------------------------------------------- |
-| workingDir      | .             | Working Directory                                         |
-| -o, --outputDir | Package       | Output directory for created package                      |
-| -r, --repo      |               | Repository where dependencies are located (url or folder) |
-| -f, --force     | false         | Overwrite all packages even if they already exists        |
+| Aliases            | Default Value | Description                                               |
+| ------------------ | ------------- | --------------------------------------------------------- |
+| workingDir         | .             | Working Directory                                         |
+| -o, --outputDir    | Package       | Output directory for created package                      |
+| -r, --repo         |               | Repository where dependencies are located (url or folder) |
+| -f, --force        | false         | Overwrite all packages even if they already exists        |
+| --skipDependencies | true          | Do not get all dependent packages recursively             |
 
 ### Description
 
