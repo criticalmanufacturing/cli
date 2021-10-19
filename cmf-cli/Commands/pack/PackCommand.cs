@@ -7,9 +7,7 @@ using Cmf.Common.Cli.Utilities;
 using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
-using System.IO;
 using System.IO.Abstractions;
-using System.Linq;
 
 namespace Cmf.Common.Cli.Commands
 {
@@ -51,6 +49,7 @@ namespace Cmf.Common.Cli.Commands
 
             cmd.AddOption(new Option<bool>(
                 aliases: new string[] { "--skipDependencies" },
+                getDefaultValue: () => { return true; },
                 description: "Do not get all dependencies recursively"));
 
             // Add the handler
