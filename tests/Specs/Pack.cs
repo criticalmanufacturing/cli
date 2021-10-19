@@ -1,16 +1,10 @@
 ﻿using Cmf.Common.Cli.Commands;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.IO;
 using System.IO.Abstractions;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace tests.Specs
 {
@@ -40,7 +34,6 @@ namespace tests.Specs
                 _skipDependencies = skipDependencies;
             });
 
-
             var console = new TestConsole();
             cmd.Invoke(new[] {
                 "-o", "test_package_dir", "working_dir"
@@ -52,7 +45,7 @@ namespace tests.Specs
             Assert.IsNotNull(_force);
             Assert.IsFalse(_force ?? true);
             Assert.IsNotNull(_skipDependencies);
-            Assert.IsFalse(_skipDependencies ?? true);
+            Assert.IsTrue(_skipDependencies ?? true);
         }
 
         [TestMethod]
@@ -78,7 +71,6 @@ namespace tests.Specs
                 _skipDependencies = skipDependencies;
             });
 
-
             var console = new TestConsole();
             cmd.Invoke(new[] {
                 "working_dir"
@@ -90,7 +82,7 @@ namespace tests.Specs
             Assert.IsNotNull(_force);
             Assert.IsFalse(_force ?? true);
             Assert.IsNotNull(_skipDependencies);
-            Assert.IsFalse(_skipDependencies ?? true);
+            Assert.IsTrue(_skipDependencies ?? true);
         }
 
         [TestMethod]
@@ -116,7 +108,6 @@ namespace tests.Specs
                 _skipDependencies = skipDependencies;
             });
 
-
             var console = new TestConsole();
             cmd.Invoke(new[] {
                 "-o", "test_package_dir"
@@ -129,7 +120,7 @@ namespace tests.Specs
             Assert.IsNotNull(_force);
             Assert.IsFalse(_force ?? true);
             Assert.IsNotNull(_skipDependencies);
-            Assert.IsFalse(_skipDependencies ?? true);
+            Assert.IsTrue(_skipDependencies ?? true);
         }
 
         [TestMethod]
@@ -155,7 +146,6 @@ namespace tests.Specs
                 _skipDependencies = skipDependencies;
             });
 
-
             var console = new TestConsole();
             cmd.Invoke(new string[] {
             }, console);
@@ -168,7 +158,7 @@ namespace tests.Specs
             Assert.IsNotNull(_force);
             Assert.IsFalse(_force ?? true);
             Assert.IsNotNull(_skipDependencies);
-            Assert.IsFalse(_skipDependencies ?? true);
+            Assert.IsTrue(_skipDependencies ?? true);
         }
     }
 }
