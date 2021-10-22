@@ -1,16 +1,12 @@
 using Cmf.Common.Cli.Attributes;
 using Cmf.Common.Cli.Constants;
-using Cmf.Common.Cli.Factories;
-using Cmf.Common.Cli.Interfaces;
 using Cmf.Common.Cli.Objects;
 using Cmf.Common.Cli.Utilities;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
-using System.IO;
 using System.IO.Abstractions;
-using System.IO.Compression;
 using System.Linq;
 using System.Xml.Linq;
 
@@ -20,8 +16,8 @@ namespace Cmf.Common.Cli.Commands
     ///
     /// </summary>
     /// <seealso cref="Cmf.Common.Cli.Commands.BaseCommand" />
-    [CmfCommand("publish")]
-    public class PublishCommand : BaseCommand
+    [CmfCommand("assemble")]
+    public class AssembleCommand : BaseCommand
     {
         #region Private Methods
 
@@ -119,6 +115,7 @@ namespace Cmf.Common.Cli.Commands
         }
 
         #endregion
+
         /// <summary>
         /// Configure command
         /// </summary>
@@ -192,7 +189,7 @@ namespace Cmf.Common.Cli.Commands
             {
                 return;
             }
-            
+
             if (publishTests)
             {
                 IDirectoryInfo outputTestDir = this.fileSystem.DirectoryInfo.FromDirectoryName(outputDir + "/Tests");
@@ -206,7 +203,6 @@ namespace Cmf.Common.Cli.Commands
 
             try
             {
-
                 List<string> loadedPackages = new List<string>();
 
                 // Get Local Package.
