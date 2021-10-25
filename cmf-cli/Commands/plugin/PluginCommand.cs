@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
@@ -42,12 +43,21 @@ namespace Cmf.Common.Cli.Commands
         public override void Configure(Command cmd)
         {
             cmd.TreatUnmatchedTokensAsErrors = false;
+            cmd.AddArgument(new Argument<string[]>(
+                name: "args",
+                getDefaultValue: Array.Empty<string>,
+                description: "arguments for the plugin execution"));
+
             // Add the handler
             cmd.Handler = CommandHandler.Create(
                 (ParseResult parseResult, IConsole console) =>
                 {
                     // console.Out.WriteLine($"{parseResult}");
-                    this.Execute(parseResult.UnparsedTokens);
+                    this.Execute(parseResult.UnparsedTokens?.Count > 0 ? 
+                        parseResult.UnparsedTokens :
+                        (parseResult.Tokens?.Count > 1) ? parseResult.Tokens.Where(t => t.Type != TokenType.Command).Select(t => t.Value) 
+                            : new ReadOnlyCollection<string>(new List<string>(0))
+                        );
                 });
         }
 
@@ -55,7 +65,7 @@ namespace Cmf.Common.Cli.Commands
         /// Executes the plugin with the supplied parameters
         /// </summary>
         /// <param name="args">The arguments.</param>
-        public void Execute(IReadOnlyCollection<string> args)
+        public void Execute(IEnumerable<string> args)
         {
             ProcessStartInfo ps = new();
             ps.FileName = this.commandPath;
@@ -64,8 +74,8 @@ namespace Cmf.Common.Cli.Commands
             ps.RedirectStandardOutput = true;
 
             using var process = System.Diagnostics.Process.Start(ps);
-            Console.WriteLine(process.StandardOutput.ReadToEnd());
-            process.WaitForExit();
+            Console.WriteLine(process?.StandardOutput.ReadToEnd());
+            process?.WaitForExit();
         }
     }
 }
