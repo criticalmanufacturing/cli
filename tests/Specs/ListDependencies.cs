@@ -1,3 +1,4 @@
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO.Abstractions.TestingHelpers;
 using System.Collections.Generic;
@@ -59,7 +60,7 @@ namespace tests
 @"{
   ""packageId"": ""Cmf.Custom.Business"",
   ""version"": ""1.1.0"",
-  ""description"": ""Cmf Custom Foxconn Business Package"",
+  ""description"": ""Cmf Custom Business Package"",
   ""packageType"": ""Business"",
   ""isInstallable"": true,
   ""isUniqueInstall"": false,
