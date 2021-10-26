@@ -64,4 +64,15 @@ The package output dir.
 The output dir.
   
   
+<a name='Cmf_Common_Cli_Interfaces_IPackageTypeHandler_RestoreDependencies(System_Uri__)'></a>
+## IPackageTypeHandler.RestoreDependencies(Uri[]) Method
+Restore package dependencies (declared cmfpackage.json) from repository packages  
+```csharp
+void RestoreDependencies(System.Uri[] repositories);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Interfaces_IPackageTypeHandler_RestoreDependencies(System_Uri__)_repositories'></a>
+`repositories` [System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')[[]](https://docs.microsoft.com/en-us/dotnet/api/System.Array 'System.Array')  
+  
+  
   

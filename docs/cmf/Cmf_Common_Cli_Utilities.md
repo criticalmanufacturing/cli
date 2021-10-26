@@ -630,6 +630,29 @@ public static class GenericUtilities
 
 Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; GenericUtilities  
 ### Methods
+<a name='Cmf_Common_Cli_Utilities_GenericUtilities_Flatten_T_(System_Collections_Generic_IEnumerable_T__System_Func_T_System_Collections_Generic_IEnumerable_T__)'></a>
+## GenericUtilities.Flatten&lt;T&gt;(IEnumerable&lt;T&gt;, Func&lt;T,IEnumerable&lt;T&gt;&gt;) Method
+Flatten a tree  
+```csharp
+public static System.Collections.Generic.IEnumerable<T> Flatten<T>(this System.Collections.Generic.IEnumerable<T> items, System.Func<T,System.Collections.Generic.IEnumerable<T>> getChildren);
+```
+#### Type parameters
+<a name='Cmf_Common_Cli_Utilities_GenericUtilities_Flatten_T_(System_Collections_Generic_IEnumerable_T__System_Func_T_System_Collections_Generic_IEnumerable_T__)_T'></a>
+`T`  
+The tree node type
+  
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_GenericUtilities_Flatten_T_(System_Collections_Generic_IEnumerable_T__System_Func_T_System_Collections_Generic_IEnumerable_T__)_items'></a>
+`items` [System.Collections.Generic.IEnumerable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')[T](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_GenericUtilities_Flatten_T_(System_Collections_Generic_IEnumerable_T__System_Func_T_System_Collections_Generic_IEnumerable_T__)_T 'Cmf.Common.Cli.Utilities.GenericUtilities.Flatten&lt;T&gt;(System.Collections.Generic.IEnumerable&lt;T&gt;, System.Func&lt;T,System.Collections.Generic.IEnumerable&lt;T&gt;&gt;).T')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')  
+The top level tree items
+  
+<a name='Cmf_Common_Cli_Utilities_GenericUtilities_Flatten_T_(System_Collections_Generic_IEnumerable_T__System_Func_T_System_Collections_Generic_IEnumerable_T__)_getChildren'></a>
+`getChildren` [System.Func&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Func-2 'System.Func`2')[T](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_GenericUtilities_Flatten_T_(System_Collections_Generic_IEnumerable_T__System_Func_T_System_Collections_Generic_IEnumerable_T__)_T 'Cmf.Common.Cli.Utilities.GenericUtilities.Flatten&lt;T&gt;(System.Collections.Generic.IEnumerable&lt;T&gt;, System.Func&lt;T,System.Collections.Generic.IEnumerable&lt;T&gt;&gt;).T')[,](https://docs.microsoft.com/en-us/dotnet/api/System.Func-2 'System.Func`2')[System.Collections.Generic.IEnumerable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')[T](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_GenericUtilities_Flatten_T_(System_Collections_Generic_IEnumerable_T__System_Func_T_System_Collections_Generic_IEnumerable_T__)_T 'Cmf.Common.Cli.Utilities.GenericUtilities.Flatten&lt;T&gt;(System.Collections.Generic.IEnumerable&lt;T&gt;, System.Func&lt;T,System.Collections.Generic.IEnumerable&lt;T&gt;&gt;).T')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Func-2 'System.Func`2')  
+a function that for each tree node returns its children
+  
+#### Returns
+[System.Collections.Generic.IEnumerable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')[T](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_GenericUtilities_Flatten_T_(System_Collections_Generic_IEnumerable_T__System_Func_T_System_Collections_Generic_IEnumerable_T__)_T 'Cmf.Common.Cli.Utilities.GenericUtilities.Flatten&lt;T&gt;(System.Collections.Generic.IEnumerable&lt;T&gt;, System.Func&lt;T,System.Collections.Generic.IEnumerable&lt;T&gt;&gt;).T')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')  
+  
 <a name='Cmf_Common_Cli_Utilities_GenericUtilities_GetCurrentPresentationVersion(string_string_string)'></a>
 ## GenericUtilities.GetCurrentPresentationVersion(string, string, string) Method
 Get current version based on string, for   

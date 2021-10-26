@@ -431,6 +431,15 @@ The default content to ignore.
 
 Implements [DefaultContentToIgnore](Cmf_Common_Cli_Interfaces.md#Cmf_Common_Cli_Interfaces_IPackageTypeHandler_DefaultContentToIgnore 'Cmf.Common.Cli.Interfaces.IPackageTypeHandler.DefaultContentToIgnore')  
   
+<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_DependenciesFolder'></a>
+## PackageTypeHandler.DependenciesFolder Property
+Where should the dependencies go, relative to the cmfpackage.json file  
+```csharp
+public System.IO.Abstractions.IDirectoryInfo DependenciesFolder { get; set; }
+```
+#### Property Value
+[System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')
+  
 ### Methods
 <a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_Build()'></a>
 ## PackageTypeHandler.Build() Method
@@ -558,6 +567,23 @@ The output dir.
   
 
 Implements [Pack(IDirectoryInfo, IDirectoryInfo)](Cmf_Common_Cli_Interfaces.md#Cmf_Common_Cli_Interfaces_IPackageTypeHandler_Pack(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo) 'Cmf.Common.Cli.Interfaces.IPackageTypeHandler.Pack(System.IO.Abstractions.IDirectoryInfo, System.IO.Abstractions.IDirectoryInfo)')  
+  
+<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_RestoreDependencies(System_Uri__)'></a>
+## PackageTypeHandler.RestoreDependencies(Uri[]) Method
+Restore the the current package's dependencies to the dependencies folder  
+```csharp
+public virtual void RestoreDependencies(System.Uri[] repoUris);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_RestoreDependencies(System_Uri__)_repoUris'></a>
+`repoUris` [System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')[[]](https://docs.microsoft.com/en-us/dotnet/api/System.Array 'System.Array')  
+The Uris for the package repos
+  
+#### Exceptions
+[CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException')  
+thrown when a repo uri is not available or in an incorrect format
+
+Implements [RestoreDependencies(Uri[])](Cmf_Common_Cli_Interfaces.md#Cmf_Common_Cli_Interfaces_IPackageTypeHandler_RestoreDependencies(System_Uri__) 'Cmf.Common.Cli.Interfaces.IPackageTypeHandler.RestoreDependencies(System.Uri[])')  
   
   
 <a name='Cmf_Common_Cli_Handlers_PresentationPackageTypeHandler'></a>

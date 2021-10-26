@@ -22,6 +22,7 @@ Derived
 &#8627; [PluginCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_PluginCommand 'Cmf.Common.Cli.Commands.PluginCommand')  
 &#8627; [PowershellCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_PowershellCommand 'Cmf.Common.Cli.Commands.PowershellCommand')  
 &#8627; [PublishCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_PublishCommand 'Cmf.Common.Cli.Commands.PublishCommand')  
+&#8627; [RestoreCommand](Cmf_Common_Cli_Commands_restore.md#Cmf_Common_Cli_Commands_restore_RestoreCommand 'Cmf.Common.Cli.Commands.restore.RestoreCommand')  
 &#8627; [TemplateCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_TemplateCommand 'Cmf.Common.Cli.Commands.TemplateCommand')  
 ### Constructors
 <a name='Cmf_Common_Cli_Commands_BaseCommand_BaseCommand()'></a>
@@ -850,18 +851,20 @@ public override void Configure(System.CommandLine.Command cmd);
 `cmd` [System.CommandLine.Command](https://docs.microsoft.com/en-us/dotnet/api/System.CommandLine.Command 'System.CommandLine.Command')  
   
   
-<a name='Cmf_Common_Cli_Commands_ListDependenciesCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string)'></a>
-## ListDependenciesCommand.Execute(IDirectoryInfo, string) Method
-Execute the command  
+<a name='Cmf_Common_Cli_Commands_ListDependenciesCommand_Execute(System_IO_Abstractions_IDirectoryInfo_System_Uri__)'></a>
+## ListDependenciesCommand.Execute(IDirectoryInfo, Uri[]) Method
+Determine and print a package dependency tree  
 ```csharp
-public void Execute(System.IO.Abstractions.IDirectoryInfo workingDir, string repo);
+public void Execute(System.IO.Abstractions.IDirectoryInfo workingDir, System.Uri[] repos);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Commands_ListDependenciesCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string)_workingDir'></a>
+<a name='Cmf_Common_Cli_Commands_ListDependenciesCommand_Execute(System_IO_Abstractions_IDirectoryInfo_System_Uri__)_workingDir'></a>
 `workingDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
+the path of the package which dependency tree we want to obtain
   
-<a name='Cmf_Common_Cli_Commands_ListDependenciesCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string)_repo'></a>
-`repo` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+<a name='Cmf_Common_Cli_Commands_ListDependenciesCommand_Execute(System_IO_Abstractions_IDirectoryInfo_System_Uri__)_repos'></a>
+`repos` [System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')[[]](https://docs.microsoft.com/en-us/dotnet/api/System.Array 'System.Array')  
+a set of repositories for remote packages
   
   
   

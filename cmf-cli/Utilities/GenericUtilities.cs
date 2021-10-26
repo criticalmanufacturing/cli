@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Reflection;
@@ -157,6 +158,34 @@ namespace Cmf.Common.Cli.Utilities
             }
 
             return packageFound;
+        }
+        
+        /// <summary>
+        /// Flatten a tree
+        /// </summary>
+        /// <param name="items">The top level tree items</param>
+        /// <param name="getChildren">a function that for each tree node returns its children</param>
+        /// <typeparam name="T">The tree node type</typeparam>
+        /// <returns></returns>
+        public static IEnumerable<T> Flatten<T>(
+            this IEnumerable<T> items,
+            Func<T, IEnumerable<T>> getChildren)
+        {
+            var stack = new Stack<T>();
+            foreach(var item in items)
+                stack.Push(item);
+
+            while(stack.Count > 0)
+            {
+                var current = stack.Pop();
+                yield return current;
+
+                var children = getChildren(current);
+                if (children == null) continue;
+
+                foreach (var child in children) 
+                    stack.Push(child);
+            }
         }
 
         /// <summary>

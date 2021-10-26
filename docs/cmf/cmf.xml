@@ -890,12 +890,12 @@
             </summary>
             <param name="cmd"></param>
         </member>
-        <member name="M:Cmf.Common.Cli.Commands.ListDependenciesCommand.Execute(System.IO.Abstractions.IDirectoryInfo,System.String)">
+        <member name="M:Cmf.Common.Cli.Commands.ListDependenciesCommand.Execute(System.IO.Abstractions.IDirectoryInfo,System.Uri[])">
             <summary>
-            Execute the command
+            Determine and print a package dependency tree
             </summary>
-            <param name="workingDir"></param>
-            <param name="repo"></param>
+            <param name="workingDir">the path of the package which dependency tree we want to obtain</param>
+            <param name="repos">a set of repositories for remote packages</param>
         </member>
         <member name="T:Cmf.Common.Cli.Commands.GenerateLBOsCommand">
              <summary>
@@ -1327,6 +1327,24 @@
             <returns></returns>
             <exception cref="T:Cmf.Common.Cli.Objects.CmfPackageCollection">
             </exception>
+        </member>
+        <member name="T:Cmf.Common.Cli.Commands.restore.RestoreCommand">
+            <summary>
+            Restore package dependencies (declared cmfpackage.json) from repository packages
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.restore.RestoreCommand.Configure(System.CommandLine.Command)">
+            <summary>
+            Configure the Restore command options and arguments 
+            </summary>
+            <param name="cmd"></param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.restore.RestoreCommand.Execute(System.IO.Abstractions.IDirectoryInfo,System.Uri[])">
+            <summary>
+            Execute the restore command
+            </summary>
+            <param name="packagePath">The path of the current package folder</param>
+            <param name="repos">The package repositories URI/path</param>
         </member>
         <member name="T:Cmf.Common.Cli.Commands.TemplateCommand">
             <summary>
@@ -1954,6 +1972,11 @@
             The default content to ignore.
             </value>
         </member>
+        <member name="P:Cmf.Common.Cli.Handlers.PackageTypeHandler.DependenciesFolder">
+            <summary>
+            Where should the dependencies go, relative to the cmfpackage.json file
+            </summary>
+        </member>
         <member name="M:Cmf.Common.Cli.Handlers.PackageTypeHandler.#ctor(Cmf.Common.Cli.Objects.CmfPackage)">
             <summary>
             Initializes a new instance of the <see cref="T:Cmf.Common.Cli.Handlers.PackageTypeHandler" /> class.
@@ -2023,6 +2046,13 @@
             </summary>
             <param name="packageOutputDir">The package output dir.</param>
             <param name="outputDir">The output dir.</param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Handlers.PackageTypeHandler.RestoreDependencies(System.Uri[])">
+            <summary>
+            Restore the the current package's dependencies to the dependencies folder
+            </summary>
+            <param name="repoUris">The Uris for the package repos</param>
+            <exception cref="T:Cmf.Common.Cli.Utilities.CliException">thrown when a repo uri is not available or in an incorrect format</exception>
         </member>
         <member name="T:Cmf.Common.Cli.Handlers.PresentationPackageTypeHandler">
              <summary>
@@ -2140,6 +2170,11 @@
             </summary>
             <param name="packageOutputDir">The package output dir.</param>
             <param name="outputDir">The output dir.</param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Interfaces.IPackageTypeHandler.RestoreDependencies(System.Uri[])">
+            <summary>
+            Restore package dependencies (declared cmfpackage.json) from repository packages
+            </summary>
         </member>
         <member name="T:Cmf.Common.Cli.Log">
              <summary>
@@ -2392,6 +2427,11 @@
             The location of the package
             </summary>
         </member>
+        <member name="P:Cmf.Common.Cli.Objects.CmfPackage.Uri">
+            <summary>
+            The Uri of the package
+            </summary>
+        </member>
         <member name="M:Cmf.Common.Cli.Objects.CmfPackage.ValidatePackage">
             <summary>
             Validates the package.
@@ -2472,13 +2512,13 @@
             <param name="version">The version.</param>
             <exception cref="T:System.NotImplementedException"></exception>
         </member>
-        <member name="M:Cmf.Common.Cli.Objects.CmfPackage.LoadDependencies(System.String,System.Boolean)">
+        <member name="M:Cmf.Common.Cli.Objects.CmfPackage.LoadDependencies(System.Uri[],System.Boolean)">
             <summary>
             Builds a dependency tree by attaching the CmfPackage objects to the parent's dependencies
             Can run recursively and fetch packages from a DF repository.
             Supports cycles
             </summary>
-            <param name="repo">the address of the repository (currently only folders are supported)</param>
+            <param name="repoUris">the address of the package repositories (currently only folders are supported)</param>
             <param name="recurse">should we run recursively</param>
             <returns>this CmfPackage for chaining, but the method itself is mutable</returns>
         </member>
@@ -3187,6 +3227,15 @@
             <param name="packageId">Package Identifier</param>
             <param name="packageVersion">Package Version</param>
             <param name="fileSystem">the underlying file system</param>
+            <returns></returns>
+        </member>
+        <member name="M:Cmf.Common.Cli.Utilities.GenericUtilities.Flatten``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Collections.Generic.IEnumerable{``0}})">
+            <summary>
+            Flatten a tree
+            </summary>
+            <param name="items">The top level tree items</param>
+            <param name="getChildren">a function that for each tree node returns its children</param>
+            <typeparam name="T">The tree node type</typeparam>
             <returns></returns>
         </member>
         <member name="M:Cmf.Common.Cli.Utilities.GenericUtilities.JsonObjectToUri(System.Object)">
