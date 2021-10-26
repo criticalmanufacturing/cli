@@ -1,16 +1,10 @@
 ﻿using Cmf.Common.Cli.Commands;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.IO;
 using System.IO.Abstractions;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace tests.Specs
 {
@@ -22,9 +16,7 @@ namespace tests.Specs
         {
             string _workingDir = null;
             string _outputDir = null;
-            string _repo = null;
             bool? _force = null;
-            bool? _skipDependencies = null;
 
             var packCommand = new PackCommand();
             var cmd = new Command("pack");
@@ -35,11 +27,8 @@ namespace tests.Specs
             {
                 _workingDir = workingDir.Name;
                 _outputDir = outputDir.Name;
-                _repo = repo;
                 _force = force;
-                _skipDependencies = skipDependencies;
             });
-
 
             var console = new TestConsole();
             cmd.Invoke(new[] {
@@ -48,11 +37,8 @@ namespace tests.Specs
 
             Assert.AreEqual("working_dir", _workingDir);
             Assert.AreEqual("test_package_dir", _outputDir);
-            Assert.IsNull(_repo);
             Assert.IsNotNull(_force);
             Assert.IsFalse(_force ?? true);
-            Assert.IsNotNull(_skipDependencies);
-            Assert.IsFalse(_skipDependencies ?? true);
         }
 
         [TestMethod]
@@ -60,9 +46,7 @@ namespace tests.Specs
         {
             string _workingDir = null;
             string _outputDir = null;
-            string _repo = null;
             bool? _force = null;
-            bool? _skipDependencies = null;
 
             var packCommand = new PackCommand();
             var cmd = new Command("pack");
@@ -73,11 +57,8 @@ namespace tests.Specs
             {
                 _workingDir = workingDir.Name;
                 _outputDir = outputDir.Name;
-                _repo = repo;
                 _force = force;
-                _skipDependencies = skipDependencies;
             });
-
 
             var console = new TestConsole();
             cmd.Invoke(new[] {
@@ -86,11 +67,8 @@ namespace tests.Specs
 
             Assert.AreEqual("working_dir", _workingDir);
             Assert.AreEqual("Package", _outputDir);
-            Assert.IsNull(_repo);
             Assert.IsNotNull(_force);
             Assert.IsFalse(_force ?? true);
-            Assert.IsNotNull(_skipDependencies);
-            Assert.IsFalse(_skipDependencies ?? true);
         }
 
         [TestMethod]
@@ -98,9 +76,7 @@ namespace tests.Specs
         {
             string _workingDir = null;
             string _outputDir = null;
-            string _repo = null;
             bool? _force = null;
-            bool? _skipDependencies = null;
 
             var packCommand = new PackCommand();
             var cmd = new Command("pack");
@@ -111,11 +87,8 @@ namespace tests.Specs
             {
                 _workingDir = workingDir.Name;
                 _outputDir = outputDir.Name;
-                _repo = repo;
                 _force = force;
-                _skipDependencies = skipDependencies;
             });
-
 
             var console = new TestConsole();
             cmd.Invoke(new[] {
@@ -125,11 +98,8 @@ namespace tests.Specs
             var curDir = new DirectoryInfo(System.IO.Directory.GetCurrentDirectory());
             Assert.AreEqual(curDir.Name, _workingDir);
             Assert.AreEqual("test_package_dir", _outputDir);
-            Assert.IsNull(_repo);
             Assert.IsNotNull(_force);
             Assert.IsFalse(_force ?? true);
-            Assert.IsNotNull(_skipDependencies);
-            Assert.IsFalse(_skipDependencies ?? true);
         }
 
         [TestMethod]
@@ -137,9 +107,7 @@ namespace tests.Specs
         {
             string _workingDir = null;
             string _outputDir = null;
-            string _repo = null;
             bool? _force = null;
-            bool? _skipDependencies = null;
 
             var packCommand = new PackCommand();
             var cmd = new Command("pack");
@@ -150,11 +118,8 @@ namespace tests.Specs
             {
                 _workingDir = workingDir.Name;
                 _outputDir = outputDir.Name;
-                _repo = repo;
                 _force = force;
-                _skipDependencies = skipDependencies;
             });
-
 
             var console = new TestConsole();
             cmd.Invoke(new string[] {
@@ -164,11 +129,8 @@ namespace tests.Specs
 
             Assert.AreEqual(curDir.Name, _workingDir);
             Assert.AreEqual("Package", _outputDir);
-            Assert.IsNull(_repo);
             Assert.IsNotNull(_force);
             Assert.IsFalse(_force ?? true);
-            Assert.IsNotNull(_skipDependencies);
-            Assert.IsFalse(_skipDependencies ?? true);
         }
     }
 }
