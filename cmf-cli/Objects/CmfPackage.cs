@@ -217,6 +217,13 @@ namespace Cmf.Common.Cli.Objects
         [JsonIgnore]
         public PackageLocation Location { get; private set; }
 
+        /// <summary>
+        /// The Uri of the package
+        /// </summary>
+        [JsonProperty(Order = 17)]
+        [JsonIgnore]
+        public Uri Uri { get; private set; }
+        
         #endregion
 
         #region Private Methods
@@ -435,31 +442,30 @@ namespace Cmf.Common.Cli.Objects
         /// Can run recursively and fetch packages from a DF repository.
         /// Supports cycles
         /// </summary>
-        /// <param name="repo">the address of the repository (currently only folders are supported)</param>
+        /// <param name="repoUris">the address of the package repositories (currently only folders are supported)</param>
         /// <param name="recurse">should we run recursively</param>
         /// <returns>this CmfPackage for chaining, but the method itself is mutable</returns>
-        public CmfPackage LoadDependencies(string repo, bool recurse = false) {
-            Uri repoUri = repo != null ? new Uri(repo) : null;
+        public CmfPackage LoadDependencies(Uri[] repoUris, bool recurse = false) {
             var loadedPackages = new List<CmfPackage>();
             loadedPackages.Add(this);
             Log.Progress($"Working on {this.Name ?? (this.PackageId + "@" + this.Version)}");
 
             if (this.Dependencies.HasAny())
             {
-                IDirectoryInfo repoDirectory = null;
-                if (repoUri != null)
+                var allDirectories = repoUris?.All(r => r.IsDirectory());
+                if (allDirectories == false)
                 {
-                    if (repoUri.IsDirectory())
-                    {
-                        repoDirectory = this.fileSystem.DirectoryInfo.FromDirectoryName(repoUri.OriginalString);
-                        // repoDirectory = new(repoUri.OriginalString);
-                    }
-                    else
-                    {
-                        throw new CliException(CliMessages.UrlsNotSupported);
-                    }
+                    Log.Error(CliMessages.UrlsNotSupported);
+                    return this;
                 }
-
+                
+                IDirectoryInfo[] repoDirectories = repoUris?.Select(r => this.fileSystem.DirectoryInfo.FromDirectoryName(r.OriginalString)).ToArray();
+                var missingRepoDirectories = repoDirectories?.Where(r => r.Exists == false).ToArray();
+                if (missingRepoDirectories?.Any() ?? false)
+                {
+                    Log.Error($"Some of the provided repositories do not exist: {string.Join(", ", missingRepoDirectories.Select(d => d.FullName))}");
+                    return this;
+                }
                 foreach (var dependency in this.Dependencies)
                 {
                     Log.Progress($"Working on dependency {dependency.Id}@{dependency.Version}");
@@ -470,9 +476,12 @@ namespace Cmf.Common.Cli.Objects
                     var dependencyPackage = loadedPackages.FirstOrDefault(x => x.PackageId.IgnoreCaseEquals(dependency.Id) && x.Version.IgnoreCaseEquals(dependency.Version));
 
                     // 2) check if package is in repository
-                    if (dependencyPackage == null && (repoDirectory?.Exists ?? false))
+                    if (dependencyPackage == null)
                     {
-                        IFileInfo dependencyFile = repoDirectory.GetFiles(_dependencyFileName).FirstOrDefault();
+                        IFileInfo dependencyFile = repoDirectories?
+                            .Select(r => r.GetFiles(_dependencyFileName).FirstOrDefault())
+                            .Where(r => r != null)
+                            .FirstOrDefault();
                         if (dependencyFile != null)
                         {
                             var zip = ZipFile.Open(dependencyFile.FullName, ZipArchiveMode.Read);
@@ -483,16 +492,24 @@ namespace Cmf.Common.Cli.Objects
                                 using (var reader = new StreamReader(stream))
                                 {
                                     dependencyPackage = CmfPackage.FromManifest(reader.ReadToEnd(), setDefaultValues: true);
+                                    if (dependencyPackage != null)
+                                    {
+                                        dependencyPackage.Uri = new Uri(dependencyFile.FullName);
+                                    }
                                 }
 
                             }
                         }
                     }
 
-                    // 3) search in the source code repository
-                    if (dependencyPackage == null)
+                    // 3) search in the source code repository (only if this is a local package)
+                    if (dependencyPackage == null && this.Location == PackageLocation.Local)
                     {
                         dependencyPackage = this.GetFileInfo().Directory.LoadCmfPackagesFromSubDirectories(setDefaultValues: true).GetDependency(dependency);
+                        if (dependencyPackage != null)
+                        {
+                            dependencyPackage.Uri = new Uri(dependencyPackage.FileInfo.FullName);
+                        }
                     }
 
                     if (dependencyPackage != null)
@@ -501,7 +518,7 @@ namespace Cmf.Common.Cli.Objects
                         dependency.CmfPackage = dependencyPackage;
                         if (recurse)
                         {
-                            dependencyPackage.LoadDependencies(repo, recurse);
+                            dependencyPackage.LoadDependencies(repoUris, recurse);
                         }
                     }
                 }
