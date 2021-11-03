@@ -18,6 +18,15 @@ public const string CmfPackageFileName = cmfpackage.json;
 #### Field Value
 [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
   
+<a name='Cmf_Common_Cli_Constants_CliConstants_CmfPackageHostConfig'></a>
+## CliConstants.CmfPackageHostConfig Field
+The CMF package default host configuration  
+```csharp
+public const string CmfPackageHostConfig = Cmf.Foundation.Services.HostService.dll.config;
+```
+#### Field Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
+  
 <a name='Cmf_Common_Cli_Constants_CliConstants_CmfPackagePresentationConfig'></a>
 ## CliConstants.CmfPackagePresentationConfig Field
 The CMF package default presentation configuration  

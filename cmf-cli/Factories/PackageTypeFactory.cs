@@ -47,7 +47,12 @@ namespace Cmf.Common.Cli.Factories
                 PackageType.Help => new HelpPackageTypeHandler(cmfPackage),
                 PackageType.IoT => new IoTPackageTypeHandler(cmfPackage),
                 PackageType.IoTData => new IoTDataPackageTypeHandler(cmfPackage),
-                PackageType.Data => new DataPackageTypeHandler(cmfPackage),
+                PackageType.Data => cmfPackage.HandlerVersion switch
+                {
+                    2 => new DataPackageTypeHandlerV2(cmfPackage),
+                    1 => new DataPackageTypeHandler(cmfPackage),
+                    _ => new DataPackageTypeHandlerV2(cmfPackage)
+                },
                 PackageType.Reporting => new ReportingPackageTypeHandler(cmfPackage),
                 PackageType.ExportedObjects => new ExportedObjectsPackageTypeHandler(cmfPackage),
                 PackageType.Database => new DatabasePackageTypeHandler(cmfPackage),

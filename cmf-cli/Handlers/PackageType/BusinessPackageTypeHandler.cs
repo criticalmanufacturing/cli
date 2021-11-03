@@ -58,7 +58,8 @@ namespace Cmf.Common.Cli.Handlers
                     DisplayName = "Build Business Solution",
                     Solution = this.fileSystem.FileInfo.FromFileName(Path.Join(cmfPackage.GetFileInfo().Directory.FullName, "Business.sln")),
                     Configuration = "Release",
-                    WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                    WorkingDirectory = cmfPackage.GetFileInfo().Directory,
+                    Args = new [] { "--no-restore "}
                 }
             };
         }
