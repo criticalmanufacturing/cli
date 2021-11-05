@@ -1,5 +1,7 @@
 {
     "private": true,
+    "packageId": "<%= $CLI_PARAM_CustomPackageName %>.Packages",
+    "version": "<%= $CLI_PARAM_CustomPackageVersion %>",
     "scripts": {
         "preinstall": "node npm.preinstall.js",
         "postinstall": "node npm.postinstall.js"
