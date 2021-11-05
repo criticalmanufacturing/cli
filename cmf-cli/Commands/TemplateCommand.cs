@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.CommandLine;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Reflection;
@@ -71,7 +70,7 @@ namespace Cmf.Common.Cli.Commands
                     templateName
                 }
                 .Concat(args.ToList())
-                .Concat(new[] { "--debug:custom-hive", $"{System.Environment.GetEnvironmentVariable("USERPROFILE")}/.templateengine/cmf-cli/{version}" })
+                .Concat(new[] { "--debug:custom-hive", $"{System.Environment.GetEnvironmentVariable("HOME")}/.templateengine/cmf-cli/{version}" })
                 .ToList();
 
             Log.Debug(string.Join(' ', commands));

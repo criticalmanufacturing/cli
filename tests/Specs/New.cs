@@ -80,7 +80,7 @@ namespace tests.Specs
                 Assert.IsTrue(File.Exists(".project-config.json"), "project config is missing");
                 Assert.IsTrue(File.Exists("cmfpackage.json"), "root cmfpackage is missing");
                 Assert.IsTrue(File.Exists("global.json"), "global .NET versioning is missing");
-                Assert.IsTrue(File.Exists("NuGet.config"), "global NuGet feeds config is missing");
+                Assert.IsTrue(File.Exists("NuGet.Config"), "global NuGet feeds config is missing");
                 
                 Assert.IsTrue(Directory.Exists(Path.Join(tmp, "Builds")), "pipelines are missing");
                 Assert.IsTrue(
