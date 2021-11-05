@@ -155,6 +155,8 @@ namespace Cmf.Common.Cli.Commands
 
                 args.AddRange(new string[] {"--GatewayPort", configJson["Product.Gateway.Port"]?.Value ?? configJson["APPLICATION_PUBLIC_HTTP_PORT"]?.Value });
 
+                args.AddRange(new string[] {"--DefaultDomain", configJson["Product.Security.Domain"]?.Value ?? configJson["SECURITY_PORTAL_STRATEGY_LOCAL_AD_DEFAULT_DOMAIN"]?.Value});
+
                 args.AddRange(new string[] {"--ReleaseEnvironmentConfig", configFile.Name});
             } 
             return args;

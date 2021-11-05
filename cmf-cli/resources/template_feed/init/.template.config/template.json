@@ -149,6 +149,12 @@
       "replaces": "<%= $CLI_PARAM_EnvironmentName %>",
       "fileRename": "%EnvironmentName%"
     },
+    "DefaultDomain": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "",
+      "replaces": "<%= $CLI_PARAM_DefaultDomain %>"
+    },
     "RESTPort": {
       "type": "parameter",
       "datatype": "string",

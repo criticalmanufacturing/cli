@@ -7,6 +7,7 @@
   "AgentType": "<%= $CLI_PARAM_AgentType %>",
   "RepositoryURL": "<%= $CLI_PARAM_RepositoryURL %>",
   "EnvironmentName": "<%= $CLI_PARAM_EnvironmentName %>",
+  "DefaultDomain": "<%= $CLI_PARAM_DefaultDomain %>",
   "RESTPort": "<%= $CLI_PARAM_RESTPort %>",
   "Tenant": "<%= $CLI_PARAM_Tenant %>",
   "MESVersion": "<%= $CLI_PARAM_MESVersion %>",
