@@ -42,12 +42,8 @@ namespace Cmf.Common.Cli.Commands
                 aliases: new string[] { "-r", "--root" },
                 description: "Will bump only versions under a specific root folder (i.e. 1.0.0)"));
 
-            cmd.AddOption(new Option<bool>(
-                aliases: new string[] { "-a", "--all" },
-                description: "Will bump all versions beneath where the command is run"));
-
             // Add the handler
-            cmd.Handler = CommandHandler.Create<DirectoryInfo, string, string, string, bool>(Execute);
+            cmd.Handler = CommandHandler.Create<DirectoryInfo, string, string, string>(Execute);
         }
 
         /// <summary>
@@ -60,7 +56,7 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="all">if set to <c>true</c> [all].</param>
         /// <exception cref="Cmf.Common.Cli.Utilities.CliException"></exception>
         /// <exception cref="CliException"></exception>
-        public void Execute(DirectoryInfo packagePath, string version, string buildNr, string root, bool all)
+        public void Execute(DirectoryInfo packagePath, string version, string buildNr, string root)
         {
             IFileInfo cmfpackageFile = this.fileSystem.FileInfo.FromFileName($"{packagePath}/{CliConstants.CmfPackageFileName}");
 
@@ -72,7 +68,7 @@ namespace Cmf.Common.Cli.Commands
             // Reading cmfPackage
             CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile);
 
-            Execute(cmfPackage, version, buildNr, root, all);
+            Execute(cmfPackage, version, buildNr, root);
         }
 
         /// <summary>
@@ -84,7 +80,7 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="root">The root.</param>
         /// <param name="all">if set to <c>true</c> [all].</param>
         /// <exception cref="CliException"></exception>
-        public void Execute(CmfPackage cmfPackage, string version, string buildNr, string root, bool all)
+        public void Execute(CmfPackage cmfPackage, string version, string buildNr, string root)
         {
             IDirectoryInfo packageDirectory = cmfPackage.GetFileInfo().Directory;
             IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfPackage);
@@ -97,61 +93,8 @@ namespace Cmf.Common.Cli.Commands
 
             packageTypeHandler.Bump(version, buildNr, bumpInformation);
 
-            #region Get Dependencies
-
-            CmfPackageCollection packagePathCmfPackages = new CmfPackageCollection();
-            if (all && (cmfPackage.Dependencies.HasAny() || cmfPackage.TestPackages.HasAny()))
-            {
-                // Read all local manifests
-                packagePathCmfPackages = packageDirectory.LoadCmfPackagesFromSubDirectories();
-            }
-
-            if (all && cmfPackage.Dependencies.HasAny())
-            {
-                foreach (var dependency in cmfPackage.Dependencies)
-                {
-                    CmfPackage subCmfPackageWithDependency = packagePathCmfPackages.GetDependency(dependency);
-
-                    // TODO :: Uncomment if the cmfpackage.json support build number
-                    // dependency.Version = GenericUtilities.RetrieveNewVersion(dependency.Version, version, buildNr);
-
-                    if (subCmfPackageWithDependency != null)
-                    {
-                        Execute(subCmfPackageWithDependency, version, buildNr, root, all);
-                        dependency.Version = !string.IsNullOrWhiteSpace(version) ? version : dependency.Version;
-                    }
-                    else
-                    {
-                        Log.Warning($"Dependency {dependency.Id}.{dependency.Version} not found");
-                    }
-                }
-            }
-
-            if (all && cmfPackage.TestPackages.HasAny())
-            {
-                foreach (var dependency in cmfPackage.TestPackages)
-                {
-                    CmfPackage subCmfPackageWithDependency = packagePathCmfPackages.GetDependency(dependency);
-
-                    // TODO :: Uncomment if the cmfpackage.json support build number
-                    // dependency.Version = GenericUtilities.RetrieveNewVersion(dependency.Version, version, buildNr);
-
-                    if (subCmfPackageWithDependency != null)
-                    {
-                        Execute(subCmfPackageWithDependency, version, buildNr, root, all);
-                        dependency.Version = !string.IsNullOrWhiteSpace(version) ? version : dependency.Version;
-                    }
-                    else
-                    {
-                        Log.Warning($"Dependency {dependency.Id}.{dependency.Version} not found");
-                    }
-                }
-            }
-
             // will save with new version
             cmfPackage.SaveCmfPackage();
-
-            #endregion
         }
     }
 }

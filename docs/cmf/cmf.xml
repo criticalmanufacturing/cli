@@ -645,7 +645,7 @@
             </summary>
             <param name="cmd"></param>
         </member>
-        <member name="M:Cmf.Common.Cli.Commands.BumpCommand.Execute(System.IO.DirectoryInfo,System.String,System.String,System.String,System.Boolean)">
+        <member name="M:Cmf.Common.Cli.Commands.BumpCommand.Execute(System.IO.DirectoryInfo,System.String,System.String,System.String)">
             <summary>
             Executes the specified package path.
             </summary>
@@ -657,7 +657,7 @@
             <exception cref="T:Cmf.Common.Cli.Utilities.CliException"></exception>
             <exception cref="T:Cmf.Common.Cli.Utilities.CliException"></exception>
         </member>
-        <member name="M:Cmf.Common.Cli.Commands.BumpCommand.Execute(Cmf.Common.Cli.Objects.CmfPackage,System.String,System.String,System.String,System.Boolean)">
+        <member name="M:Cmf.Common.Cli.Commands.BumpCommand.Execute(Cmf.Common.Cli.Objects.CmfPackage,System.String,System.String,System.String)">
             <summary>
             Executes the specified CMF package.
             </summary>
@@ -890,12 +890,12 @@
             </summary>
             <param name="cmd"></param>
         </member>
-        <member name="M:Cmf.Common.Cli.Commands.ListDependenciesCommand.Execute(System.IO.Abstractions.IDirectoryInfo,System.String)">
+        <member name="M:Cmf.Common.Cli.Commands.ListDependenciesCommand.Execute(System.IO.Abstractions.IDirectoryInfo,System.Uri[])">
             <summary>
-            Execute the command
+            Determine and print a package dependency tree
             </summary>
-            <param name="workingDir"></param>
-            <param name="repo"></param>
+            <param name="workingDir">the path of the package which dependency tree we want to obtain</param>
+            <param name="repos">a set of repositories for remote packages</param>
         </member>
         <member name="T:Cmf.Common.Cli.Commands.GenerateLBOsCommand">
              <summary>
@@ -1176,27 +1176,22 @@
             </summary>
             <param name="cmd"></param>
         </member>
-        <member name="M:Cmf.Common.Cli.Commands.PackCommand.Execute(System.IO.Abstractions.IDirectoryInfo,System.IO.Abstractions.IDirectoryInfo,System.String,System.Boolean,System.Boolean)">
+        <member name="M:Cmf.Common.Cli.Commands.PackCommand.Execute(System.IO.Abstractions.IDirectoryInfo,System.IO.Abstractions.IDirectoryInfo,System.Boolean)">
             <summary>
             Executes the specified working dir.
             </summary>
             <param name="workingDir">The working dir.</param>
             <param name="outputDir">The output dir.</param>
-            <param name="repo">The repo.</param>
             <param name="force">if set to <c>true</c> [force].</param>
-            <param name="skipDependencies"></param>
             <returns></returns>
         </member>
-        <member name="M:Cmf.Common.Cli.Commands.PackCommand.Execute(Cmf.Common.Cli.Objects.CmfPackage,System.IO.Abstractions.IDirectoryInfo,System.Uri,Cmf.Common.Cli.Objects.CmfPackageCollection,System.Boolean,System.Boolean)">
+        <member name="M:Cmf.Common.Cli.Commands.PackCommand.Execute(Cmf.Common.Cli.Objects.CmfPackage,System.IO.Abstractions.IDirectoryInfo,System.Boolean)">
             <summary>
             Executes the specified CMF package.
             </summary>
             <param name="cmfPackage">The CMF package.</param>
             <param name="outputDir">The output dir.</param>
-            <param name="repoUri">The repo URI.</param>
-            <param name="loadedPackages">The loaded packages.</param>
             <param name="force">if set to <c>true</c> [force].</param>
-            <param name="skipDependencies"></param>
             <returns></returns>
             <exception cref="T:Cmf.Common.Cli.Objects.CmfPackageCollection">
             </exception>
@@ -2392,6 +2387,11 @@
             The location of the package
             </summary>
         </member>
+        <member name="P:Cmf.Common.Cli.Objects.CmfPackage.Uri">
+            <summary>
+            The Uri of the package
+            </summary>
+        </member>
         <member name="M:Cmf.Common.Cli.Objects.CmfPackage.ValidatePackage">
             <summary>
             Validates the package.
@@ -2472,13 +2472,13 @@
             <param name="version">The version.</param>
             <exception cref="T:System.NotImplementedException"></exception>
         </member>
-        <member name="M:Cmf.Common.Cli.Objects.CmfPackage.LoadDependencies(System.String,System.Boolean)">
+        <member name="M:Cmf.Common.Cli.Objects.CmfPackage.LoadDependencies(System.Uri[],System.Boolean)">
             <summary>
             Builds a dependency tree by attaching the CmfPackage objects to the parent's dependencies
             Can run recursively and fetch packages from a DF repository.
             Supports cycles
             </summary>
-            <param name="repo">the address of the repository (currently only folders are supported)</param>
+            <param name="repoUris">the address of the package repositories (currently only folders are supported)</param>
             <param name="recurse">should we run recursively</param>
             <returns>this CmfPackage for chaining, but the method itself is mutable</returns>
         </member>
