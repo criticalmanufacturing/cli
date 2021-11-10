@@ -645,7 +645,7 @@
             </summary>
             <param name="cmd"></param>
         </member>
-        <member name="M:Cmf.Common.Cli.Commands.BumpCommand.Execute(System.IO.DirectoryInfo,System.String,System.String,System.String,System.Boolean)">
+        <member name="M:Cmf.Common.Cli.Commands.BumpCommand.Execute(System.IO.DirectoryInfo,System.String,System.String,System.String)">
             <summary>
             Executes the specified package path.
             </summary>
@@ -657,7 +657,7 @@
             <exception cref="T:Cmf.Common.Cli.Utilities.CliException"></exception>
             <exception cref="T:Cmf.Common.Cli.Utilities.CliException"></exception>
         </member>
-        <member name="M:Cmf.Common.Cli.Commands.BumpCommand.Execute(Cmf.Common.Cli.Objects.CmfPackage,System.String,System.String,System.String,System.Boolean)">
+        <member name="M:Cmf.Common.Cli.Commands.BumpCommand.Execute(Cmf.Common.Cli.Objects.CmfPackage,System.String,System.String,System.String)">
             <summary>
             Executes the specified CMF package.
             </summary>

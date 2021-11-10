@@ -208,62 +208,54 @@ public override void Configure(System.CommandLine.Command cmd);
 `cmd` [System.CommandLine.Command](https://docs.microsoft.com/en-us/dotnet/api/System.CommandLine.Command 'System.CommandLine.Command')  
   
   
-<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_string_string_string_bool)'></a>
-## BumpCommand.Execute(CmfPackage, string, string, string, bool) Method
+<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_string_string_string)'></a>
+## BumpCommand.Execute(CmfPackage, string, string, string) Method
 Executes the specified CMF package.  
 ```csharp
-public void Execute(Cmf.Common.Cli.Objects.CmfPackage cmfPackage, string version, string buildNr, string root, bool all);
+public void Execute(Cmf.Common.Cli.Objects.CmfPackage cmfPackage, string version, string buildNr, string root);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_string_string_string_bool)_cmfPackage'></a>
+<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_string_string_string)_cmfPackage'></a>
 `cmfPackage` [CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')  
 The CMF package.
   
-<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_string_string_string_bool)_version'></a>
+<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_string_string_string)_version'></a>
 `version` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The version.
   
-<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_string_string_string_bool)_buildNr'></a>
+<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_string_string_string)_buildNr'></a>
 `buildNr` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The version for build Nr.
   
-<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_string_string_string_bool)_root'></a>
+<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_string_string_string)_root'></a>
 `root` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The root.
-  
-<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_string_string_string_bool)_all'></a>
-`all` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
-if set to `true` [all].
   
 #### Exceptions
 [CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException')  
   
-<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(System_IO_DirectoryInfo_string_string_string_bool)'></a>
-## BumpCommand.Execute(DirectoryInfo, string, string, string, bool) Method
+<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(System_IO_DirectoryInfo_string_string_string)'></a>
+## BumpCommand.Execute(DirectoryInfo, string, string, string) Method
 Executes the specified package path.  
 ```csharp
-public void Execute(System.IO.DirectoryInfo packagePath, string version, string buildNr, string root, bool all);
+public void Execute(System.IO.DirectoryInfo packagePath, string version, string buildNr, string root);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(System_IO_DirectoryInfo_string_string_string_bool)_packagePath'></a>
+<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(System_IO_DirectoryInfo_string_string_string)_packagePath'></a>
 `packagePath` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
 The package path.
   
-<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(System_IO_DirectoryInfo_string_string_string_bool)_version'></a>
+<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(System_IO_DirectoryInfo_string_string_string)_version'></a>
 `version` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The version.
   
-<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(System_IO_DirectoryInfo_string_string_string_bool)_buildNr'></a>
+<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(System_IO_DirectoryInfo_string_string_string)_buildNr'></a>
 `buildNr` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The version for build Nr.
   
-<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(System_IO_DirectoryInfo_string_string_string_bool)_root'></a>
+<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(System_IO_DirectoryInfo_string_string_string)_root'></a>
 `root` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The root.
-  
-<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(System_IO_DirectoryInfo_string_string_string_bool)_all'></a>
-`all` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
-if set to `true` [all].
   
 #### Exceptions
 [CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException')  
