@@ -104,7 +104,7 @@ namespace Cmf.Common.Cli.Handlers
                 if (transformInjections.HasAny())
                 {
                     // we actually want a trailing comma here, because the inject token is in the middle of the document. If this changes we need to put more logic here.
-                    var injections = transformInjections.Select(injection => this.fileSystem.File.ReadAllText(injection) + ",");
+                    var injections = transformInjections.Select(injection => this.fileSystem.File.ReadAllText($"{cmfPackageDirectory}/{injection}") + ",");
                     injection = string.Join(System.Environment.NewLine, injections);
                 }
                 fileContent = fileContent.Replace(CliConstants.TokenJDTInjection, injection);
