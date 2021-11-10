@@ -1,0 +1,28 @@
+# <Analytics artifact / Report Name>
+
+## Requirement Specification
+
+<Description of the main purpose and scope of the analytics artifact being delivered.>
+
+## Design Specification
+
+<Description how this functionality is supposed to work, what the solution will accomplish.>
+
+## Relevant Artifacts
+
+The table below describes the relevant MES artifacts for the implementation of this requirement:
+
+| Name          | Type of element | New? | Description |
+| :------------ | :-------------- | :--: | :---------- |
+
+
+## Assumptions
+
+<Describe the assumptions of this feature/requirement.>
+
+## Work items
+
+The table below describes de user stories that affect the current functionality:
+
+| User Story | Type | Title | Description |
+| :--------- | :--- | :---- | :---------- |

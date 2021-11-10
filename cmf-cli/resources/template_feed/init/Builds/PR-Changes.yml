@@ -53,7 +53,7 @@ steps:
       # get pipeline
       $url = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$env:SYSTEM_TEAMPROJECTID/_apis/build/definitions?api-version=4.1"
       $defs = Invoke-RestMethod -Uri $url -Method Get -ContentType "application/json" -Headers $headers
-      $def = $defs.value | where { $_.name -eq '${{ variables.PRPipeline }}' }
+      $def = $defs.value | where { $_.name -eq '${{ variables.PRPipeline }}' -and $_.queueStatus -eq "enabled" -and $_.path -eq "\PR-Builds" }
 
       if ($def -eq $null) {
           Write-Host "Build definition '${{ variables.PRPipeline }}' not found in project $(System.TeamProject)"

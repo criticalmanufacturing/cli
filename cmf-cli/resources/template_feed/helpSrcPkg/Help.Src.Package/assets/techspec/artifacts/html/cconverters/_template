@@ -1,0 +1,28 @@
+# Custom Converter Name
+
+## Overview
+
+Brief Custom converter description
+
+## Input Object
+
+The table below describes the input parameters for the converter:
+
+| Name | Type | Description |
+| :--- | :----: | :---------- |
+| <Input #1> | <Type> | <Description> |
+
+
+## Output Object
+
+The table below describes the output parameters for the converter:
+
+| Name | Type | Description |
+| :--- | :----: | :---------- |
+| <Output #1> | <Type> | <Description> |{Name: value} |
+
+## Where is used
+
+| UI Page names | 
+| :--- | 
+| <UI page #1> | 
