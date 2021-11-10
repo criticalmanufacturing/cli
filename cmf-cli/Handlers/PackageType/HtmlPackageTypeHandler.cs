@@ -57,7 +57,7 @@ namespace Cmf.Common.Cli.Handlers
                     Task = "build",
                     DisplayName = "Gulp Build",
                     GulpJS = "node_modules/gulp/bin/gulp.js",
-                    Args = new [] { "--production" },
+                    Args = new [] { "--production" , "--dist"},
                     WorkingDirectory = cmfPackage.GetFileInfo().Directory
                 },
             };
