@@ -32,7 +32,17 @@ namespace Cmf.Common.Cli.Objects
         /// </returns>
         public bool Contains(Dependency dependency, bool ignoreVersion)
         {
-            return this.HasAny() && this.Any(x => x.Id.IgnoreCaseEquals(dependency.Id) && (ignoreVersion || x.Version.IgnoreCaseEquals(dependency.Version)));
+            return this.HasAny(x => x.Id.IgnoreCaseEquals(dependency.Id) && (ignoreVersion || x.Version.IgnoreCaseEquals(dependency.Version)));
+        }
+
+        /// <summary>
+        /// Gets the specified dependency.
+        /// </summary>
+        /// <param name="dependency">The dependency.</param>
+        /// <returns></returns>
+        public Dependency Get(Dependency dependency)
+        {
+            return this.FirstOrDefault(x => x.Id.IgnoreCaseEquals(dependency.Id) && x.Version.IgnoreCaseEquals(dependency.Version));
         }
     }
 }

@@ -70,9 +70,9 @@ namespace Cmf.Common.Cli.Commands
             // Reading cmfPackage
             CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true);
             Log.Progress("Starting ls...");
-            var loadedPackage = cmfPackage.LoadDependencies(repos, true);
+            cmfPackage.LoadDependencies(repos, true);
             Log.Progress("Finished ls", true);
-            DisplayTree(loadedPackage);
+            DisplayTree(cmfPackage);
         }
         
         private string PrintBranch(List<bool> levels, bool isLast = false) {

@@ -34,6 +34,20 @@ namespace Cmf.Common.Cli.Utilities
         }
 
         /// <summary>
+        /// Determines whether a sequence contains any elements.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the source.</typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="predicate"></param>
+        /// <returns>
+        ///   <c>true</c> if the specified source has any; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool HasAny<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate = null)
+        {
+            return source != null && source.Any(predicate);
+        }
+
+        /// <summary>
         /// Determines whether [has] [the specified object].
         /// </summary>
         /// <param name="objects">The objects.</param>

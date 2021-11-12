@@ -110,6 +110,15 @@ internal static System.Resources.ResourceManager ResourceManager { get; }
 #### Property Value
 [System.Resources.ResourceManager](https://docs.microsoft.com/en-us/dotnet/api/System.Resources.ResourceManager 'System.Resources.ResourceManager')
   
+<a name='Cmf_Common_Cli_CliMessages_SomePackagesNotFound'></a>
+## CliMessages.SomePackagesNotFound Property
+Looks up a localized string similar to Some packages were not found: {0}.  
+```csharp
+internal static string SomePackagesNotFound { get; }
+```
+#### Property Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
+  
 <a name='Cmf_Common_Cli_CliMessages_UrlsNotSupported'></a>
 ## CliMessages.UrlsNotSupported Property
 Looks up a localized string similar to Urls not supported yet.  

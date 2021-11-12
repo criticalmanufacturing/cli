@@ -160,6 +160,30 @@ The object.
 `true` if [has] [the specified object]; otherwise, `false`.  
             
   
+<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource__System_Func_TSource_bool_)'></a>
+## ExtensionMethods.HasAny&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource,bool&gt;) Method
+Determines whether a sequence contains any elements.  
+```csharp
+public static bool HasAny<TSource>(this System.Collections.Generic.IEnumerable<TSource> source, System.Func<TSource,bool> predicate=null);
+```
+#### Type parameters
+<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource__System_Func_TSource_bool_)_TSource'></a>
+`TSource`  
+The type of the source.
+  
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource__System_Func_TSource_bool_)_source'></a>
+`source` [System.Collections.Generic.IEnumerable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')[TSource](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource__System_Func_TSource_bool_)_TSource 'Cmf.Common.Cli.Utilities.ExtensionMethods.HasAny&lt;TSource&gt;(System.Collections.Generic.IEnumerable&lt;TSource&gt;, System.Func&lt;TSource,bool&gt;).TSource')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')  
+The source.
+  
+<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource__System_Func_TSource_bool_)_predicate'></a>
+`predicate` [System.Func&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Func-2 'System.Func`2')[TSource](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource__System_Func_TSource_bool_)_TSource 'Cmf.Common.Cli.Utilities.ExtensionMethods.HasAny&lt;TSource&gt;(System.Collections.Generic.IEnumerable&lt;TSource&gt;, System.Func&lt;TSource,bool&gt;).TSource')[,](https://docs.microsoft.com/en-us/dotnet/api/System.Func-2 'System.Func`2')[System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Func-2 'System.Func`2')  
+  
+#### Returns
+[System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
+`true` if the specified source has any; otherwise, `false`.  
+            
+  
 <a name='Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource_)'></a>
 ## ExtensionMethods.HasAny&lt;TSource&gt;(IEnumerable&lt;TSource&gt;) Method
 Determines whether a sequence contains any elements.  
@@ -632,7 +656,7 @@ Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.O
 ### Methods
 <a name='Cmf_Common_Cli_Utilities_GenericUtilities_GetCurrentPresentationVersion(string_string_string)'></a>
 ## GenericUtilities.GetCurrentPresentationVersion(string, string, string) Method
-Get current version based on string, for   
+Get current version based on string, for  
 the format 1.0.0-1234  
 where 1.0.0 will be the version  
 and the 1234 will be the build number  

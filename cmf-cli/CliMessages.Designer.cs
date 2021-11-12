@@ -142,6 +142,15 @@ namespace Cmf.Common.Cli {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Some packages were not found: {0}.
+        /// </summary>
+        internal static string SomePackagesNotFound {
+            get {
+                return ResourceManager.GetString("SomePackagesNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Urls not supported yet.
         /// </summary>
         internal static string UrlsNotSupported {

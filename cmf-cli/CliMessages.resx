@@ -151,6 +151,10 @@
   <data name="PackageRootNotFound" xml:space="preserve">
     <value>Cannot find package root. Are you in a valid package directory?</value>
   </data>
+  <data name="SomePackagesNotFound" xml:space="preserve">
+    <value>Some packages were not found: {0}</value>
+    <comment>0 - List of Packages</comment>
+  </data>
   <data name="UrlsNotSupported" xml:space="preserve">
     <value>Urls not supported yet</value>
   </data>
