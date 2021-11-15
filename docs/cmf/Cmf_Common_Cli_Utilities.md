@@ -346,6 +346,19 @@ public static class FileSystemUtilities
 
 Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; FileSystemUtilities  
 ### Methods
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_AllFilesAndFolders(System_IO_Abstractions_IDirectoryInfo)'></a>
+## FileSystemUtilities.AllFilesAndFolders(IDirectoryInfo) Method
+Get all files and folders from a directory  
+```csharp
+private static System.Collections.Generic.IEnumerable<System.IO.Abstractions.IFileSystemInfo> AllFilesAndFolders(this System.IO.Abstractions.IDirectoryInfo dir);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_AllFilesAndFolders(System_IO_Abstractions_IDirectoryInfo)_dir'></a>
+`dir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
+  
+#### Returns
+[System.Collections.Generic.IEnumerable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')[System.IO.Abstractions.IFileSystemInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystemInfo 'System.IO.Abstractions.IFileSystemInfo')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')  
+  
 <a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_CopyDirectory(string_string_System_IO_Abstractions_IFileSystem_System_Collections_Generic_List_string__bool_bool)'></a>
 ## FileSystemUtilities.CopyDirectory(string, string, IFileSystem, List&lt;string&gt;, bool, bool) Method
 Directories copy.  
@@ -659,6 +672,19 @@ The fi.
   
 #### Returns
 [System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')  
+  
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_ZipDirectory(string_System_IO_Abstractions_IDirectoryInfo)'></a>
+## FileSystemUtilities.ZipDirectory(string, IDirectoryInfo) Method
+```csharp
+public static void ZipDirectory(string filePath, System.IO.Abstractions.IDirectoryInfo directory);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_ZipDirectory(string_System_IO_Abstractions_IDirectoryInfo)_filePath'></a>
+`filePath` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+  
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_ZipDirectory(string_System_IO_Abstractions_IDirectoryInfo)_directory'></a>
+`directory` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
+  
   
   
 <a name='Cmf_Common_Cli_Utilities_GenericUtilities'></a>

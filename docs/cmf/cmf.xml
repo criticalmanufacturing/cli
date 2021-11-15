@@ -3194,6 +3194,21 @@
             <param name="filename"></param>
             <returns></returns>
         </member>
+        <member name="M:Cmf.Common.Cli.Utilities.FileSystemUtilities.ZipDirectory(System.String,System.IO.Abstractions.IDirectoryInfo)">
+             <summary>
+            
+             </summary>
+             <param name="filePath"></param>
+             <param name="directory"></param>
+             <returns></returns>
+        </member>
+        <member name="M:Cmf.Common.Cli.Utilities.FileSystemUtilities.AllFilesAndFolders(System.IO.Abstractions.IDirectoryInfo)">
+            <summary>
+            Get all files and folders from a directory
+            </summary>
+            <param name="dir"></param>
+            <returns></returns>
+        </member>
         <member name="T:Cmf.Common.Cli.Utilities.GenericUtilities">
              <summary>
             
