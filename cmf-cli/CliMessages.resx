@@ -121,6 +121,10 @@
     <value>Nothing was found on ContentToPack Sources of {0}.{1}</value>
     <comment>0 - Package Id; 1 - Package Version</comment>
   </data>
+  <data name="GetPackage" xml:space="preserve">
+    <value>Get Package {0}.{1}...</value>
+    <comment>0 - Id; 1 - Version</comment>
+  </data>
   <data name="InvalidManifestFile" xml:space="preserve">
     <value>It was not possible to read the manifest file.</value>
   </data>
@@ -144,9 +148,16 @@
     <value>Missing mandatory property {0} in file {1}</value>
     <comment>0 - Property name; 1 - File name</comment>
   </data>
+  <data name="NotARootPackage" xml:space="preserve">
+    <value>This is not a root package</value>
+  </data>
   <data name="NotFound" xml:space="preserve">
     <value>{0} not found!</value>
     <comment>0 - Name</comment>
+  </data>
+  <data name="PackageHasNoTestPackages" xml:space="preserve">
+    <value>Package {0}.{1} has no test packages</value>
+    <comment>0 - Id; 1 - Version</comment>
   </data>
   <data name="PackageRootNotFound" xml:space="preserve">
     <value>Cannot find package root. Are you in a valid package directory?</value>

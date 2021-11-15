@@ -16,6 +16,33 @@ Initializes a new instance of the [CliException](Cmf_Common_Cli_Utilities.md#Cmf
 public CliException();
 ```
   
+<a name='Cmf_Common_Cli_Utilities_CliException_CliException(string)'></a>
+## CliException.CliException(string) Constructor
+Initializes a new instance of the [CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException') class.  
+```csharp
+public CliException(string message);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_CliException_CliException(string)_message'></a>
+`message` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+The message that describes the error.
+  
+  
+<a name='Cmf_Common_Cli_Utilities_CliException_CliException(string_object__)'></a>
+## CliException.CliException(string, object[]) Constructor
+Initializes a new instance of the [CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException') class.  
+```csharp
+public CliException(string message, params object[] args);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_CliException_CliException(string_object__)_message'></a>
+`message` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+The message that describes the error.
+  
+<a name='Cmf_Common_Cli_Utilities_CliException_CliException(string_object__)_args'></a>
+`args` [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object')[[]](https://docs.microsoft.com/en-us/dotnet/api/System.Array 'System.Array')  
+  
+  
 <a name='Cmf_Common_Cli_Utilities_CliException_CliException(string_System_Exception)'></a>
 ## CliException.CliException(string, Exception) Constructor
 Initializes a new instance of the [CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException') class.  
@@ -30,18 +57,6 @@ The error message that explains the reason for the exception.
 <a name='Cmf_Common_Cli_Utilities_CliException_CliException(string_System_Exception)_innerException'></a>
 `innerException` [System.Exception](https://docs.microsoft.com/en-us/dotnet/api/System.Exception 'System.Exception')  
 The exception that is the cause of the current exception, or a null reference ([Nothing](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/Nothing 'https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/Nothing') in Visual Basic) if no inner exception is specified.
-  
-  
-<a name='Cmf_Common_Cli_Utilities_CliException_CliException(string)'></a>
-## CliException.CliException(string) Constructor
-Initializes a new instance of the [CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException') class.  
-```csharp
-public CliException(string message);
-```
-#### Parameters
-<a name='Cmf_Common_Cli_Utilities_CliException_CliException(string)_message'></a>
-`message` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
-The message that describes the error.
   
   
 <a name='Cmf_Common_Cli_Utilities_CliException_CliException(System_Runtime_Serialization_SerializationInfo_System_Runtime_Serialization_StreamingContext)'></a>
@@ -160,6 +175,27 @@ The object.
 `true` if [has] [the specified object]; otherwise, `false`.  
             
   
+<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource_)'></a>
+## ExtensionMethods.HasAny&lt;TSource&gt;(IEnumerable&lt;TSource&gt;) Method
+Determines whether a sequence contains any elements.  
+```csharp
+public static bool HasAny<TSource>(this System.Collections.Generic.IEnumerable<TSource> source);
+```
+#### Type parameters
+<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource_)_TSource'></a>
+`TSource`  
+The type of the source.
+  
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource_)_source'></a>
+`source` [System.Collections.Generic.IEnumerable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')[TSource](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource_)_TSource 'Cmf.Common.Cli.Utilities.ExtensionMethods.HasAny&lt;TSource&gt;(System.Collections.Generic.IEnumerable&lt;TSource&gt;).TSource')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')  
+The source.
+  
+#### Returns
+[System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
+`true` if the specified source has any; otherwise, `false`.  
+            
+  
 <a name='Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource__System_Func_TSource_bool_)'></a>
 ## ExtensionMethods.HasAny&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource,bool&gt;) Method
 Determines whether a sequence contains any elements.  
@@ -178,27 +214,6 @@ The source.
   
 <a name='Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource__System_Func_TSource_bool_)_predicate'></a>
 `predicate` [System.Func&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Func-2 'System.Func`2')[TSource](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource__System_Func_TSource_bool_)_TSource 'Cmf.Common.Cli.Utilities.ExtensionMethods.HasAny&lt;TSource&gt;(System.Collections.Generic.IEnumerable&lt;TSource&gt;, System.Func&lt;TSource,bool&gt;).TSource')[,](https://docs.microsoft.com/en-us/dotnet/api/System.Func-2 'System.Func`2')[System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Func-2 'System.Func`2')  
-  
-#### Returns
-[System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
-`true` if the specified source has any; otherwise, `false`.  
-            
-  
-<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource_)'></a>
-## ExtensionMethods.HasAny&lt;TSource&gt;(IEnumerable&lt;TSource&gt;) Method
-Determines whether a sequence contains any elements.  
-```csharp
-public static bool HasAny<TSource>(this System.Collections.Generic.IEnumerable<TSource> source);
-```
-#### Type parameters
-<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource_)_TSource'></a>
-`TSource`  
-The type of the source.
-  
-#### Parameters
-<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource_)_source'></a>
-`source` [System.Collections.Generic.IEnumerable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')[TSource](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource_)_TSource 'Cmf.Common.Cli.Utilities.ExtensionMethods.HasAny&lt;TSource&gt;(System.Collections.Generic.IEnumerable&lt;TSource&gt;).TSource')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')  
-The source.
   
 #### Returns
 [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  

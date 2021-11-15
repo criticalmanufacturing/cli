@@ -19,7 +19,7 @@ namespace Cmf.Common.Cli {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class CliMessages {
@@ -66,6 +66,15 @@ namespace Cmf.Common.Cli {
         internal static string ContentToPackNotFound {
             get {
                 return ResourceManager.GetString("ContentToPackNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Get Package {0}.{1}....
+        /// </summary>
+        internal static string GetPackage {
+            get {
+                return ResourceManager.GetString("GetPackage", resourceCulture);
             }
         }
         
@@ -124,11 +133,29 @@ namespace Cmf.Common.Cli {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to This is not a root package.
+        /// </summary>
+        internal static string NotARootPackage {
+            get {
+                return ResourceManager.GetString("NotARootPackage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} not found!.
         /// </summary>
         internal static string NotFound {
             get {
                 return ResourceManager.GetString("NotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Package {0}.{1} has no test packages.
+        /// </summary>
+        internal static string PackageHasNoTestPackages {
+            get {
+                return ResourceManager.GetString("PackageHasNoTestPackages", resourceCulture);
             }
         }
         

@@ -444,6 +444,11 @@
               Looks up a localized string similar to Nothing was found on ContentToPack Sources of {0}.{1}.
             </summary>
         </member>
+        <member name="P:Cmf.Common.Cli.CliMessages.GetPackage">
+            <summary>
+              Looks up a localized string similar to Get Package {0}.{1}....
+            </summary>
+        </member>
         <member name="P:Cmf.Common.Cli.CliMessages.InvalidManifestFile">
             <summary>
               Looks up a localized string similar to It was not possible to read the manifest file..
@@ -474,9 +479,19 @@
               Looks up a localized string similar to Missing mandatory property {0} in file {1}.
             </summary>
         </member>
+        <member name="P:Cmf.Common.Cli.CliMessages.NotARootPackage">
+            <summary>
+              Looks up a localized string similar to This is not a root package.
+            </summary>
+        </member>
         <member name="P:Cmf.Common.Cli.CliMessages.NotFound">
             <summary>
               Looks up a localized string similar to {0} not found!.
+            </summary>
+        </member>
+        <member name="P:Cmf.Common.Cli.CliMessages.PackageHasNoTestPackages">
+            <summary>
+              Looks up a localized string similar to Package {0}.{1} has no test packages.
             </summary>
         </member>
         <member name="P:Cmf.Common.Cli.CliMessages.PackageRootNotFound">
@@ -496,29 +511,28 @@
         </member>
         <member name="T:Cmf.Common.Cli.Commands.AssembleCommand">
             <summary>
-            This command will be responsible for assemble a package based on a given cmfpackage and respective dependencies
+            This command will be responsible for assembling a package based on a given cmfpackage and respective dependencies
             </summary>
             <seealso cref="T:Cmf.Common.Cli.Commands.BaseCommand" />
         </member>
-        <member name="M:Cmf.Common.Cli.Commands.AssembleCommand.AssembleDependencies(System.IO.Abstractions.IDirectoryInfo,System.Uri[],Cmf.Common.Cli.Objects.CmfPackage,Cmf.Common.Cli.Objects.DependencyCollection)">
+        <member name="M:Cmf.Common.Cli.Commands.AssembleCommand.AssembleDependencies(System.IO.Abstractions.IDirectoryInfo,System.Uri,System.Collections.Generic.IEnumerable{System.Uri},Cmf.Common.Cli.Objects.CmfPackage,Cmf.Common.Cli.Objects.DependencyCollection)">
             <summary>
             Publish Dependencies from one package. recursive operation
             </summary>
             <param name="outputDir">Destination for the dependencies package and also used for the current package</param>
+            <param name="ciRepo"></param>
             <param name="repos">The repos.</param>
             <param name="cmfPackage">The CMF package.</param>
-            <param name="loadedDependencies">The loaded dependencies.</param>
+            <param name="assembledDependencies">The loaded dependencies.</param>
         </member>
-        <member name="M:Cmf.Common.Cli.Commands.AssembleCommand.AssemblePackage(System.IO.Abstractions.IDirectoryInfo,System.Uri[],Cmf.Common.Cli.Objects.CmfPackage)">
+        <member name="M:Cmf.Common.Cli.Commands.AssembleCommand.AssemblePackage(System.IO.Abstractions.IDirectoryInfo,System.Collections.Generic.IEnumerable{System.Uri},Cmf.Common.Cli.Objects.CmfPackage,System.Boolean)">
             <summary>
             Publish a package to the output directory
             </summary>
             <param name="outputDir">Destiny for the package</param>
             <param name="repos">The repos.</param>
             <param name="cmfPackage">The CMF package.</param>
-            <returns>
-            True if package was coppied
-            </returns>
+            <param name="includeTestPackages"></param>
             <exception cref="T:Cmf.Common.Cli.Utilities.CliException"></exception>
         </member>
         <member name="M:Cmf.Common.Cli.Commands.AssembleCommand.Configure(System.CommandLine.Command)">
@@ -527,12 +541,13 @@
             </summary>
             <param name="cmd"></param>
         </member>
-        <member name="M:Cmf.Common.Cli.Commands.AssembleCommand.Execute(System.IO.Abstractions.IDirectoryInfo,System.IO.Abstractions.IDirectoryInfo,System.Uri[],System.Boolean)">
+        <member name="M:Cmf.Common.Cli.Commands.AssembleCommand.Execute(System.IO.Abstractions.IDirectoryInfo,System.IO.Abstractions.IDirectoryInfo,System.Uri,System.Uri[],System.Boolean)">
             <summary>
             Executes the specified working dir.
             </summary>
             <param name="workingDir">The working dir.</param>
             <param name="outputDir">The output dir.</param>
+            <param name="ciRepo"></param>
             <param name="repos">The repo.</param>
             <param name="includeTestPackages">True to publish test packages</param>
             <returns></returns>
@@ -1402,6 +1417,11 @@
         <member name="F:Cmf.Common.Cli.Constants.CliConstants.FolderInstallDependencies">
             <summary>
             The folder install dependencies
+            </summary>
+        </member>
+        <member name="F:Cmf.Common.Cli.Constants.CliConstants.FolderTests">
+            <summary>
+            Tests Folder
             </summary>
         </member>
         <member name="F:Cmf.Common.Cli.Constants.CliConstants.DeploymentFrameworkManifestFileName">
@@ -2390,12 +2410,6 @@
             Validates the package.
             </summary>
         </member>
-        <member name="M:Cmf.Common.Cli.Objects.CmfPackage.ShallowCopy">
-            <summary>
-            Shallows the copy.
-            </summary>
-            <returns></returns>
-        </member>
         <member name="M:Cmf.Common.Cli.Objects.CmfPackage.#ctor(System.String,System.String,System.String,System.String,Cmf.Common.Cli.Enums.PackageType,System.String,System.String,System.Nullable{System.Boolean},System.Nullable{System.Boolean},System.String,System.Nullable{System.Boolean},Cmf.Common.Cli.Objects.DependencyCollection,System.Collections.Generic.List{Cmf.Common.Cli.Objects.Step},System.Collections.Generic.List{Cmf.Common.Cli.Objects.ContentToPack},System.Collections.Generic.List{System.String},Cmf.Common.Cli.Objects.DependencyCollection)">
             <summary>
             Initializes a new instance of the <see cref="T:Cmf.Common.Cli.Objects.CmfPackage"/> class.
@@ -2471,7 +2485,7 @@
             <param name="version">The version.</param>
             <exception cref="T:System.NotImplementedException"></exception>
         </member>
-        <member name="M:Cmf.Common.Cli.Objects.CmfPackage.LoadDependencies(System.Uri[],System.Boolean)">
+        <member name="M:Cmf.Common.Cli.Objects.CmfPackage.LoadDependencies(System.Collections.Generic.IEnumerable{System.Uri},System.Boolean)">
             <summary>
             Builds a dependency tree by attaching the CmfPackage objects to the parent's dependencies
             Can run recursively and fetch packages from a DF repository.
@@ -2885,6 +2899,13 @@
             Initializes a new instance of the <see cref="T:Cmf.Common.Cli.Utilities.CliException"/> class.
             </summary>
             <param name="message">The message that describes the error.</param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Utilities.CliException.#ctor(System.String,System.Object[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:Cmf.Common.Cli.Utilities.CliException"/> class.
+            </summary>
+            <param name="message">The message that describes the error.</param>
+            <param name="args"></param>
         </member>
         <member name="M:Cmf.Common.Cli.Utilities.CliException.#ctor(System.String,System.Exception)">
             <summary>

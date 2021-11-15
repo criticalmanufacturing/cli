@@ -28,6 +28,17 @@ namespace Cmf.Common.Cli.Utilities
         /// <summary>
         /// Initializes a new instance of the <see cref="CliException"/> class.
         /// </summary>
+        /// <param name="message">The message that describes the error.</param>
+        /// <param name="args"></param>
+        public CliException(string message, params object[] args) : base(message)
+        {
+            message = string.Format(message, args);
+            Log.Error(message);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CliException"/> class.
+        /// </summary>
         /// <param name="message">The error message that explains the reason for the exception.</param>
         /// <param name="innerException">The exception that is the cause of the current exception, or a null reference (<see langword="Nothing" /> in Visual Basic) if no inner exception is specified.</param>
         public CliException(string message, Exception innerException) : base(message, innerException)

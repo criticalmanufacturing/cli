@@ -255,15 +255,6 @@ namespace Cmf.Common.Cli.Objects
             }
         }
 
-        /// <summary>
-        /// Shallows the copy.
-        /// </summary>
-        /// <returns></returns>
-        private CmfPackage ShallowCopy()
-        {
-            return (CmfPackage)MemberwiseClone();
-        }
-
         #endregion
 
         #region Constructors
@@ -454,9 +445,9 @@ namespace Cmf.Common.Cli.Objects
         /// <param name="repoUris">the address of the package repositories (currently only folders are supported)</param>
         /// <param name="recurse">should we run recursively</param>
         /// <returns>this CmfPackage for chaining, but the method itself is mutable</returns>
-        public void LoadDependencies(Uri[] repoUris, bool recurse = false)
+        public void LoadDependencies(IEnumerable<Uri> repoUris, bool recurse = false)
         {
-            var loadedPackages = new List<CmfPackage>();
+            List<CmfPackage> loadedPackages = new();
             loadedPackages.Add(this);
             Log.Progress($"Working on {this.Name ?? (this.PackageId + "@" + this.Version)}");
 
@@ -516,8 +507,6 @@ namespace Cmf.Common.Cli.Objects
             }
         }
 
-        
-
         #region Static Methods
 
         /// <summary>
@@ -571,20 +560,19 @@ namespace Cmf.Common.Cli.Objects
                             .Select(r => r.GetFiles(_dependencyFileName).FirstOrDefault())
                             .Where(r => r != null)
                             .FirstOrDefault();
+
             if (dependencyFile != null)
             {
                 var zip = ZipFile.Open(dependencyFile.FullName, ZipArchiveMode.Read);
                 var manifest = zip.GetEntry(CliConstants.DeploymentFrameworkManifestFileName);
                 if (manifest != null)
                 {
-                    using (var stream = manifest.Open())
-                    using (var reader = new StreamReader(stream))
+                    using var stream = manifest.Open();
+                    using var reader = new StreamReader(stream);
+                    cmfPackage = FromManifest(reader.ReadToEnd(), setDefaultValues: true);
+                    if (cmfPackage != null)
                     {
-                        cmfPackage = FromManifest(reader.ReadToEnd(), setDefaultValues: true);
-                        if (cmfPackage != null)
-                        {
-                            cmfPackage.Uri = new(dependencyFile.FullName);
-                        }
+                        cmfPackage.Uri = new(dependencyFile.FullName);
                     }
                 }
             }
@@ -611,7 +599,7 @@ namespace Cmf.Common.Cli.Objects
             {
                 throw new CliException(string.Format(CliMessages.InvalidManifestFile));
             }
-            DependencyCollection deps = new DependencyCollection();
+            DependencyCollection deps = new();
             foreach (XElement element in rootNode.Elements())
             {
                 // Get the Property Value based on the Token name

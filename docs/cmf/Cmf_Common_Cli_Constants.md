@@ -72,6 +72,15 @@ public const string FolderTemplates = templateFiles;
 #### Field Value
 [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
   
+<a name='Cmf_Common_Cli_Constants_CliConstants_FolderTests'></a>
+## CliConstants.FolderTests Field
+Tests Folder  
+```csharp
+public const string FolderTests = /Tests;
+```
+#### Field Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
+  
 <a name='Cmf_Common_Cli_Constants_CliConstants_LBOsFileLocation'></a>
 ## CliConstants.LBOsFileLocation Field
 The lb os file location  
