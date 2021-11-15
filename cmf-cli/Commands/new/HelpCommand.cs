@@ -197,6 +197,8 @@ $@"{{
             configJsonJson.host.rest.address = "localhost";
             configJsonJson.host.rest.port = restPort;
             configJsonJson.host.isLoadBalancerEnabled = false;
+            configJsonJson.host.tenant.name = projectConfig.RootElement.GetProperty("Tenant").GetString();
+            configJsonJson.general.defaultDomain = projectConfig.RootElement.GetProperty("DefaultDomain").GetString();
             configJsonJson.version = $"{projectName} $(Build.BuildNumber) - {mesVersion}";
             configJsonJson.packages.available = docPkgConfigJson.packages.available;
             configJsonJson.packages.Remove("bundlePath");
