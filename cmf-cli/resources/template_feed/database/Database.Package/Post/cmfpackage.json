@@ -1,7 +1,7 @@
 {
   "packageId": "<%= $CLI_PARAM_CustomPackageName %>.Post",
   "version": "<%= $CLI_PARAM_CustomPackageVersion %>",
-  "description": "<%= $CLI_PARAM_CustomPackageName %> <%= $CLI_PARAM_Tenant %> Post Scripts Package",
+  "description": "<%= $CLI_PARAM_CustomPackageName %> <%= $CLI_PARAM_Tenant %> Database Scripts Package (Post)",
   "packageType": "Database",
   "isInstallable": true,
   "isUniqueInstall": false,
@@ -9,17 +9,91 @@
   "steps": [],
   "contentToPack": [
     {
-      "source": "Online/$(version)/*",
+      "source": "ONLINE/UpgradeScripts/$(version)/*",
+      "target": "Online/"
+    },
+	{
+      "source": "ONLINE/UserDataModel/Tables/*",
+      "target": "Online/"
+    },
+	{
+      "source": "ONLINE/UserDataModel/Views/*",
+      "target": "Online/"
+    },
+	{
+      "source": "ONLINE/UserDataModel/Synonyms/*",
+      "target": "Online/"
+    },
+	{
+      "source": "ONLINE/UserDataModel/Functions/*",
+      "target": "Online/"
+    },
+	{
+      "source": "ONLINE/UserDataModel/Stored Procedures/*",
+      "target": "Online/"
+    },
+	{
+      "source": "ONLINE/UserDataModel/User Defined Types/*",
       "target": "Online/"
     },
     {
-      "source": "ODS/$(version)/*",
+      "source": "ODS/UpgradeScripts/$(version)/*",
       "target": "ODS/"
     },
-    {
-      "source": "DWH/$(version)/*",
+	{
+      "source": "ODS/UserDataModel/Tables/*",
+      "target": "ODS/"
+    },
+	{
+      "source": "ODS/UserDataModel/Views/*",
+      "target": "ODS/"
+    },
+	{
+      "source": "ODS/UserDataModel/Synonyms/*",
+      "target": "ODS/"
+    },
+	{
+      "source": "ODS/UserDataModel/Functions/*",
+      "target": "ODS/"
+    },
+	{
+      "source": "ODS/UserDataModel/Stored Procedures/*",
+      "target": "ODS/"
+    },
+	{
+      "source": "ODS/UserDataModel/User Defined Types/*",
+      "target": "ODS/"
+    },
+	{
+      "source": "DWH/UpgradeScripts/$(version)/*",
+      "target": "DWH/"
+    },
+	{
+      "source": "DWH/UserDataModel/Tables/*",
+      "target": "DWH/"
+    },
+	{
+      "source": "DWH/UserDataModel/Views/*",
+      "target": "DWH/"
+    },
+	{
+      "source": "DWH/UserDataModel/Synonyms/*",
+      "target": "DWH/"
+    },
+	{
+      "source": "DWH/UserDataModel/Functions/*",
+      "target": "DWH/"
+    },
+	{
+      "source": "DWH/UserDataModel/Stored Procedures/*",
+      "target": "DWH/"
+    },
+	{
+      "source": "DWH/UserDataModel/User Defined Types/*",
       "target": "DWH/"
     }
   ],
-  "xmlInjection": [ "<%= $CLI_PARAM_rootRelativePath %>/DeploymentMetadata/ui.xml" ]
+  "xmlInjection": [
+    "<%= $CLI_PARAM_rootRelativePath %>/DeploymentMetadata/ui.xml"
+  ]
 }

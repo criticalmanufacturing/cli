@@ -53,7 +53,6 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="version">The version.</param>
         /// <param name="buildNr">The version for build Nr.</param>
         /// <param name="root">The root.</param>
-        /// <param name="all">if set to <c>true</c> [all].</param>
         /// <exception cref="Cmf.Common.Cli.Utilities.CliException"></exception>
         /// <exception cref="CliException"></exception>
         public void Execute(DirectoryInfo packagePath, string version, string buildNr, string root)
@@ -78,7 +77,6 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="version">The version.</param>
         /// <param name="buildNr">The version for build Nr.</param>
         /// <param name="root">The root.</param>
-        /// <param name="all">if set to <c>true</c> [all].</param>
         /// <exception cref="CliException"></exception>
         public void Execute(CmfPackage cmfPackage, string version, string buildNr, string root)
         {
