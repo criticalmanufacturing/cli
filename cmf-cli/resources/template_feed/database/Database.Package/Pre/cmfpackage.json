@@ -1,23 +1,27 @@
 {
   "packageId": "<%= $CLI_PARAM_CustomPackageName %>.Pre",
   "version": "<%= $CLI_PARAM_CustomPackageVersion %>",
-  "description": "<%= $CLI_PARAM_CustomPackageName %> <%= $CLI_PARAM_Tenant %> Pre Scripts Package",
+  "description": "<%= $CLI_PARAM_CustomPackageName %> <%= $CLI_PARAM_Tenant %> Database Scripts Package (Pre)",
   "packageType": "Database",
   "isInstallable": true,
   "isUniqueInstall": false,
+  "dependencies": [],
+  "steps": [],
   "contentToPack": [
     {
-      "source": "Online/$(version)/*",
+      "source": "ONLINE/UpgradeScripts/$(version)/*",
       "target": "Online/"
-    },
+    },	
     {
-      "source": "ODS/$(version)/*",
+      "source": "ODS/UpgradeScripts/$(version)/*",
       "target": "ODS/"
-    },
-    {
-      "source": "DWH/$(version)/*",
+    },	
+	{
+      "source": "DWH/UpgradeScripts/$(version)/*",
       "target": "DWH/"
     }
   ],
-  "xmlInjection": [ "<%= $CLI_PARAM_rootRelativePath %>/DeploymentMetadata/ui.xml" ]
+  "xmlInjection": [
+    "<%= $CLI_PARAM_rootRelativePath %>/DeploymentMetadata/ui.xml"
+  ]
 }
