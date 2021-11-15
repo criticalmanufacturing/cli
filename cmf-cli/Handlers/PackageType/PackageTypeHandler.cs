@@ -9,7 +9,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
-using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using System.Xml.Linq;
@@ -293,7 +292,8 @@ namespace Cmf.Common.Cli.Handlers
             {
                 this.fileSystem.File.Delete(tempzipPath);
             }
-            ZipFile.CreateFromDirectory(packageOutputDir.FullName, tempzipPath);
+
+            FileSystemUtilities.ZipDirectory(tempzipPath, packageOutputDir);
 
             // move to final destination
             string destZipPath = $"{outputDir.FullName}/{CmfPackage.ZipPackageName}";

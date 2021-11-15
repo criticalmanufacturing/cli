@@ -4,8 +4,9 @@ using Cmf.Common.Cli.Objects;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
 using System.IO.Abstractions;
+using System.IO.Compression;
+using System.Linq;
 using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
@@ -411,16 +412,22 @@ namespace Cmf.Common.Cli.Utilities
         {
             XDocument dFManifest = null;
 
-            var zip = ZipFile.Open(packageFile, ZipArchiveMode.Read);
-            var manifest = zip.GetEntry(CliConstants.DeploymentFrameworkManifestFileName);
-            if (manifest != null)
+            using (FileStream zipToOpen = new(packageFile, FileMode.Open))
             {
-                using var stream = manifest.Open();
-                using var reader = new StreamReader(stream);
-                XmlDocument contentXml = new XmlDocument();
-                contentXml.Load(reader);
-                dFManifest = XDocument.Parse(contentXml.OuterXml);
+                using (ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read))
+                {
+                    var manifest = zip.GetEntry(CliConstants.DeploymentFrameworkManifestFileName);
+                    if (manifest != null)
+                    {
+                        using var stream = manifest.Open();
+                        using var reader = new StreamReader(stream);
+                        XmlDocument contentXml = new XmlDocument();
+                        contentXml.Load(reader);
+                        dFManifest = XDocument.Parse(contentXml.OuterXml);
+                    }
+                }
             }
+
             return dFManifest;
         }
 
@@ -432,15 +439,62 @@ namespace Cmf.Common.Cli.Utilities
         /// <returns></returns>
         public static string GetFileContentFromPackage(string packageFile, string filename)
         {
-            var zip = ZipFile.Open(packageFile, ZipArchiveMode.Read);
-            var manifest = zip.GetEntry(filename);
-            if (manifest != null)
+            using (FileStream zipToOpen = new(packageFile, FileMode.Open))
             {
-                using var stream = manifest.Open();
-                using var reader = new StreamReader(stream);
-                return reader.ReadToEnd();
+                using (ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read))
+                {
+                    var manifest = zip.GetEntry(filename);
+                    if (manifest != null)
+                    {
+                        using var stream = manifest.Open();
+                        using var reader = new StreamReader(stream);
+                        return reader.ReadToEnd();
+                    }
+                }
             }
             return null;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="directory"></param>
+        /// <returns></returns>
+        public static void ZipDirectory(string filePath, IDirectoryInfo directory)
+        {
+            using (FileStream zipToOpen = new(filePath, FileMode.Create))
+            {
+                using (ZipArchive archive = new(zipToOpen, ZipArchiveMode.Create))
+                {
+                    foreach (IFileInfo file in directory.AllFilesAndFolders().Where(o => o is IFileInfo).Cast<IFileInfo>())
+                    {
+                        var relPath = file.FullName.Substring(directory.FullName.Length + 1);
+                        archive.CreateEntryFromFile(file.FullName, relPath);
+                    }
+                }
+            }
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        /// Get all files and folders from a directory
+        /// </summary>
+        /// <param name="dir"></param>
+        /// <returns></returns>
+        private static IEnumerable<IFileSystemInfo> AllFilesAndFolders(this IDirectoryInfo dir)
+        {
+            foreach (var f in dir.GetFiles())
+                yield return f;
+            foreach (var d in dir.GetDirectories())
+            {
+                yield return d;
+                foreach (var o in AllFilesAndFolders(d))
+                    yield return o;
+            }
         }
 
         #endregion

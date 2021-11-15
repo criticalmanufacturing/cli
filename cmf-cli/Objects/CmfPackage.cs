@@ -563,16 +563,21 @@ namespace Cmf.Common.Cli.Objects
 
             if (dependencyFile != null)
             {
-                var zip = ZipFile.Open(dependencyFile.FullName, ZipArchiveMode.Read);
-                var manifest = zip.GetEntry(CliConstants.DeploymentFrameworkManifestFileName);
-                if (manifest != null)
+                using (FileStream zipToOpen = new(dependencyFile.FullName, FileMode.Open))
                 {
-                    using var stream = manifest.Open();
-                    using var reader = new StreamReader(stream);
-                    cmfPackage = FromManifest(reader.ReadToEnd(), setDefaultValues: true);
-                    if (cmfPackage != null)
+                    using (ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read))
                     {
-                        cmfPackage.Uri = new(dependencyFile.FullName);
+                        var manifest = zip.GetEntry(CliConstants.DeploymentFrameworkManifestFileName);
+                        if (manifest != null)
+                        {
+                            using var stream = manifest.Open();
+                            using var reader = new StreamReader(stream);
+                            cmfPackage = FromManifest(reader.ReadToEnd(), setDefaultValues: true);
+                            if (cmfPackage != null)
+                            {
+                                cmfPackage.Uri = new(dependencyFile.FullName);
+                            }
+                        }
                     }
                 }
             }
