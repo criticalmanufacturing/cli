@@ -515,6 +515,28 @@
             </summary>
             <seealso cref="T:Cmf.Common.Cli.Commands.BaseCommand" />
         </member>
+        <member name="F:Cmf.Common.Cli.Commands.AssembleCommand.PackagesLocation">
+            <summary>
+            Packages names and Uri to saved in a file in the end of the command execution
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.AssembleCommand.Configure(System.CommandLine.Command)">
+            <summary>
+            Configure command
+            </summary>
+            <param name="cmd"></param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.AssembleCommand.Execute(System.IO.Abstractions.IDirectoryInfo,System.IO.Abstractions.IDirectoryInfo,System.Uri,System.Uri[],System.Boolean)">
+            <summary>
+            Executes the specified working dir.
+            </summary>
+            <param name="workingDir">The working dir.</param>
+            <param name="outputDir">The output dir.</param>
+            <param name="ciRepo"></param>
+            <param name="repos">The repo.</param>
+            <param name="includeTestPackages">True to publish test packages</param>
+            <returns></returns>
+        </member>
         <member name="M:Cmf.Common.Cli.Commands.AssembleCommand.AssembleDependencies(System.IO.Abstractions.IDirectoryInfo,System.Uri,System.Collections.Generic.IEnumerable{System.Uri},Cmf.Common.Cli.Objects.CmfPackage,Cmf.Common.Cli.Objects.DependencyCollection)">
             <summary>
             Publish Dependencies from one package. recursive operation
@@ -534,23 +556,6 @@
             <param name="cmfPackage">The CMF package.</param>
             <param name="includeTestPackages"></param>
             <exception cref="T:Cmf.Common.Cli.Utilities.CliException"></exception>
-        </member>
-        <member name="M:Cmf.Common.Cli.Commands.AssembleCommand.Configure(System.CommandLine.Command)">
-            <summary>
-            Configure command
-            </summary>
-            <param name="cmd"></param>
-        </member>
-        <member name="M:Cmf.Common.Cli.Commands.AssembleCommand.Execute(System.IO.Abstractions.IDirectoryInfo,System.IO.Abstractions.IDirectoryInfo,System.Uri,System.Uri[],System.Boolean)">
-            <summary>
-            Executes the specified working dir.
-            </summary>
-            <param name="workingDir">The working dir.</param>
-            <param name="outputDir">The output dir.</param>
-            <param name="ciRepo"></param>
-            <param name="repos">The repo.</param>
-            <param name="includeTestPackages">True to publish test packages</param>
-            <returns></returns>
         </member>
         <member name="T:Cmf.Common.Cli.Commands.BaseCommand">
              <summary>
@@ -1454,9 +1459,9 @@
             The lb os file location
             </summary>
         </member>
-        <member name="F:Cmf.Common.Cli.Constants.CliConstants.Driver">
+        <member name="F:Cmf.Common.Cli.Constants.CliConstants.FileDependencies">
             <summary>
-            Driver keyword for IoT Packages
+            Dependencies File Name
             </summary>
         </member>
         <member name="F:Cmf.Common.Cli.Constants.CliConstants.RootPackageDefaultKeyword">
@@ -1467,6 +1472,11 @@
         <member name="F:Cmf.Common.Cli.Constants.CliConstants.DeploymentMetadataDependency">
             <summary>
             The deployment metadata dependency
+            </summary>
+        </member>
+        <member name="F:Cmf.Common.Cli.Constants.CliConstants.Driver">
+            <summary>
+            Driver keyword for IoT Packages
             </summary>
         </member>
         <member name="F:Cmf.Common.Cli.Constants.CliConstants.TokenStartElement">
