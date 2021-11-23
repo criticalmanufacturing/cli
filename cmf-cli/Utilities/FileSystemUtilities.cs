@@ -9,6 +9,7 @@ using System.IO.Abstractions;
 using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
+using Newtonsoft.Json;
 
 namespace Cmf.Common.Cli.Utilities
 {
@@ -316,6 +317,41 @@ namespace Cmf.Common.Cli.Utilities
             var projectCfg = fileSystem.Path.Join(GetProjectRoot(fileSystem).FullName, CliConstants.ProjectConfigFileName);
             var json = fileSystem.File.ReadAllText(projectCfg);
             return JsonDocument.Parse(json);
+        }
+
+        /// <summary>
+        /// Read DF repositories config from filesystem
+        /// </summary>
+        /// <param name="fileSystem">The filesystem object</param>
+        /// <returns>a RepositoriesConfig object</returns>
+        public static RepositoriesConfig ReadRepositoriesConfig(IFileSystem fileSystem)
+        {
+            var cwd = fileSystem.DirectoryInfo.FromDirectoryName(fileSystem.Directory.GetCurrentDirectory());
+            var cur = cwd;
+            string repoConfigPath = null;
+            var repoConfig = new RepositoriesConfig();
+            while (cur != null)
+            {
+                if (fileSystem.File.Exists(fileSystem.Path.Join(cur.FullName, CliConstants.RepositoriesConfigFileName)))
+                {
+                    repoConfigPath = fileSystem.Path.Join(cur.FullName, CliConstants.RepositoriesConfigFileName);
+                    break;
+                }
+                if (fileSystem.File.Exists(fileSystem.Path.Join(cur.FullName, CliConstants.ProjectConfigFileName)))
+                {
+                    // we're at the repository root, quit
+                    break;
+                }
+                cur = cur.Parent;
+            }
+
+            if (repoConfigPath != null)
+            {
+                var json = fileSystem.File.ReadAllText(repoConfigPath);
+                repoConfig = JsonConvert.DeserializeObject<RepositoriesConfig>(json);
+            }
+
+            return repoConfig;
         }
 
         /// <summary>

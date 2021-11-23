@@ -66,7 +66,7 @@ The output dir.
   
 <a name='Cmf_Common_Cli_Interfaces_IPackageTypeHandler_RestoreDependencies(System_Uri__)'></a>
 ## IPackageTypeHandler.RestoreDependencies(Uri[]) Method
-Restore package dependencies (declared cmfpackage.json) from repository packages  
+Restore package dependencies (declared in cmfpackage.json) from repository packages  
 ```csharp
 void RestoreDependencies(System.Uri[] repositories);
 ```

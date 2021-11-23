@@ -8,6 +8,7 @@ using Cmf.Common.Cli.Attributes;
 using Cmf.Common.Cli.Constants;
 using Cmf.Common.Cli.Factories;
 using Cmf.Common.Cli.Interfaces;
+using Cmf.Common.Cli.Objects;
 using Cmf.Common.Cli.Utilities;
 
 namespace Cmf.Common.Cli.Commands.restore
@@ -51,8 +52,13 @@ namespace Cmf.Common.Cli.Commands.restore
         {
             IFileInfo cmfpackageFile = this.fileSystem.FileInfo.FromFileName($"{packagePath}/{CliConstants.CmfPackageFileName}");
 
+            if (repos != null)
+            {
+                ExecutionContext.Instance.RepositoriesConfig.Repositories.InsertRange(0, repos);
+            }
+
             IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile, setDefaultValues: false);
-            packageTypeHandler.RestoreDependencies(repos);
+            packageTypeHandler.RestoreDependencies(ExecutionContext.Instance.RepositoriesConfig.Repositories.ToArray());
         }
     }
 }

@@ -239,6 +239,11 @@ namespace Cmf.Common.Cli.Commands
             if (x.deploymentDir != null)
             {
                 args.AddRange(new [] {"--deploymentDir", x.deploymentDir.FullName});
+                // repositories are sub-folders of deploymentDir 
+                args.AddRange(new [] {"--CIRepo", $"{x.deploymentDir.FullName}\\CIPackages"});
+                args.AddRange(new [] {"--ADArtifactsRepo", $"{x.deploymentDir.FullName}\\ADArtifacts"});
+                args.AddRange(new [] {"--RCRepo", $"{x.deploymentDir.FullName}\\ReleaseCandidates"});
+                args.AddRange(new [] {"--DeliveredRepo", $"{x.deploymentDir.FullName}\\Delivered"});
             }
             
             if (x.repositoryUrl != null)

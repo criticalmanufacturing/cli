@@ -45,6 +45,11 @@
         /// The project config file name, located in the project root
         /// </summary>
         public const string ProjectConfigFileName = ".project-config.json";
+        
+        /// <summary>
+        /// The repositories config file name, usually located in the project root
+        /// </summary>
+        public const string RepositoriesConfigFileName = "repositories.json";
 
         /// <summary>
         /// The lb os file location

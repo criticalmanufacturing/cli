@@ -101,7 +101,7 @@ steps:
     workingDirectory: ${{ parameters.PackagePath }}
     targetType: inline
     script: |
-      $(Agent.TempDirectory)/node_modules/.bin/cmf-cli/cmf publish --repo '${{ variables.ProjectPackageRepository }}/$(Build.SourceBranchName)' -o '$(Build.SourcesDirectory)/FinalPackage' --publishTests
+      $(Agent.TempDirectory)/node_modules/.bin/cmf-cli/cmf publish --repo '${{ variables.CIPackages }}/$(Build.SourceBranchName)' -o '$(Build.SourcesDirectory)/FinalPackage' --publishTests
 
 # Publish tests Artifact
 - task: PublishBuildArtifacts@1
@@ -110,7 +110,7 @@ steps:
     PathtoPublish: 'FinalPackage/Tests'
     ArtifactName: 'Cmf.Custom.Package.Tests'
     publishLocation: FilePath
-    TargetPath: '$(DeploymentPath)/$(Build.SourceBranchName)/$(Build.DefinitionName)_$(GetPackageVersion.PackageVersion).$(Build.BuildId)'
+    TargetPath: '$(CIPublishArtifacts)/$(Build.SourceBranchName)/$(Build.DefinitionName)_$(GetPackageVersion.PackageVersion).$(Build.BuildId)'
 
 # Remove Tests Source Folder
 - task: DeleteFiles@1
@@ -127,7 +127,7 @@ steps:
     PathtoPublish: 'FinalPackage'
     ArtifactName: 'Cmf.Custom.Package'
     publishLocation: FilePath
-    TargetPath: '$(DeploymentPath)/$(Build.SourceBranchName)/$(Build.DefinitionName)_$(GetPackageVersion.PackageVersion).$(Build.BuildId)'
+    TargetPath: '$(CIPublishArtifacts)/$(Build.SourceBranchName)/$(Build.DefinitionName)_$(GetPackageVersion.PackageVersion).$(Build.BuildId)'
 
 
 # Configuration Artifact
@@ -176,7 +176,7 @@ steps:
     PathtoPublish: 'Configurations'
     ArtifactName: 'Cmf.Custom.Package.Configurations'
     publishLocation: FilePath
-    TargetPath: '$(DeploymentPath)/$(Build.SourceBranchName)/$(Build.DefinitionName)_$(GetPackageVersion.PackageVersion).$(Build.BuildId)'
+    TargetPath: '$(CIPublishArtifacts)/$(Build.SourceBranchName)/$(Build.DefinitionName)_$(GetPackageVersion.PackageVersion).$(Build.BuildId)'
 
 # Clean up
 - task: DeleteFiles@1

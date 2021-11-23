@@ -593,6 +593,21 @@ public static System.Text.Json.JsonDocument ReadProjectConfig(System.IO.Abstract
 #### Returns
 [System.Text.Json.JsonDocument](https://docs.microsoft.com/en-us/dotnet/api/System.Text.Json.JsonDocument 'System.Text.Json.JsonDocument')  
   
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_ReadRepositoriesConfig(System_IO_Abstractions_IFileSystem)'></a>
+## FileSystemUtilities.ReadRepositoriesConfig(IFileSystem) Method
+Read DF repositories config from filesystem  
+```csharp
+public static Cmf.Common.Cli.Objects.RepositoriesConfig ReadRepositoriesConfig(System.IO.Abstractions.IFileSystem fileSystem);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_ReadRepositoriesConfig(System_IO_Abstractions_IFileSystem)_fileSystem'></a>
+`fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
+The filesystem object
+  
+#### Returns
+[RepositoriesConfig](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_RepositoriesConfig 'Cmf.Common.Cli.Objects.RepositoriesConfig')  
+a RepositoriesConfig object
+  
 <a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_ReadToString(System_IO_Abstractions_IFileInfo)'></a>
 ## FileSystemUtilities.ReadToString(IFileInfo) Method
 Reads to string.  

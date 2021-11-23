@@ -1,7 +1,5 @@
 # CMF Command Line tool
 
-WARNING: cmf-cli is alpha software. Buckle up.
-
 ## Installing
 
 ```

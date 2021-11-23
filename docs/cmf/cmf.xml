@@ -1459,6 +1459,11 @@
             The project config file name, located in the project root
             </summary>
         </member>
+        <member name="F:Cmf.Common.Cli.Constants.CliConstants.RepositoriesConfigFileName">
+            <summary>
+            The repositories config file name, usually located in the project root
+            </summary>
+        </member>
         <member name="F:Cmf.Common.Cli.Constants.CliConstants.LBOsFileLocation">
             <summary>
             The lb os file location
@@ -2173,7 +2178,7 @@
         </member>
         <member name="M:Cmf.Common.Cli.Interfaces.IPackageTypeHandler.RestoreDependencies(System.Uri[])">
             <summary>
-            Restore package dependencies (declared cmfpackage.json) from repository packages
+            Restore package dependencies (declared in cmfpackage.json) from repository packages
             </summary>
         </member>
         <member name="T:Cmf.Common.Cli.Log">
@@ -2726,6 +2731,26 @@
               <c>true</c> if [contains] [the specified dependency]; otherwise, <c>false</c>.
             </returns>
         </member>
+        <member name="T:Cmf.Common.Cli.Objects.ExecutionContext">
+            <summary>
+            The current execution context
+            </summary>
+        </member>
+        <member name="P:Cmf.Common.Cli.Objects.ExecutionContext.Instance">
+            <summary>
+            The current ExecutionContext object
+            </summary>
+        </member>
+        <member name="P:Cmf.Common.Cli.Objects.ExecutionContext.RepositoriesConfig">
+            <summary>
+            The current execution RepositoriesConfig object
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Objects.ExecutionContext.Initialize(System.IO.Abstractions.IFileSystem)">
+            <summary>
+            Initialize the current ExecutionContext instance
+            </summary>
+        </member>
         <member name="T:Cmf.Common.Cli.Objects.FileToPack">
              <summary>
             
@@ -2766,6 +2791,27 @@
         <member name="M:Cmf.Common.Cli.Objects.FileToPack.#ctor">
             <summary>
             Initializes a new instance of the <see cref="T:Cmf.Common.Cli.Objects.FileToPack"/> class.
+            </summary>
+        </member>
+        <member name="T:Cmf.Common.Cli.Objects.RepositoriesConfig">
+            <summary>
+            The DF repositories used in this run
+            </summary>
+        </member>
+        <member name="P:Cmf.Common.Cli.Objects.RepositoriesConfig.CIRepository">
+            <summary>
+            The CI repository folder: this is the place where Packages built by CI are stored, by branch
+            </summary>
+        </member>
+        <member name="P:Cmf.Common.Cli.Objects.RepositoriesConfig.Repositories">
+            <summary>
+            The DF repositories: these contain package that we treat as official (i.e. upstream dependencies or already releases packages)
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Objects.RepositoriesConfig.#ctor">
+            <summary>
+            Initialize new RepositoriesConfig.
+            This constructor is only used as fallback, if a config is found in the filesystem, the file will be deserialized into this object
             </summary>
         </member>
         <member name="T:Cmf.Common.Cli.Objects.Step">
@@ -3119,6 +3165,13 @@
             Reads the project configuration.
             </summary>
             <returns></returns>
+        </member>
+        <member name="M:Cmf.Common.Cli.Utilities.FileSystemUtilities.ReadRepositoriesConfig(System.IO.Abstractions.IFileSystem)">
+            <summary>
+            Read DF repositories config from filesystem
+            </summary>
+            <param name="fileSystem">The filesystem object</param>
+            <returns>a RepositoriesConfig object</returns>
         </member>
         <member name="M:Cmf.Common.Cli.Utilities.FileSystemUtilities.CopyStream(System.IO.Stream,System.IO.Stream)">
             <summary>
