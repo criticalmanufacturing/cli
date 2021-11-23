@@ -1,7 +1,16 @@
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO.Abstractions.TestingHelpers;
 using System.Collections.Generic;
+using System.CommandLine;
+using System.CommandLine.Invocation;
+using System.CommandLine.IO;
+using System.IO;
+using System.IO.Abstractions;
+using System.Linq;
+using Cmf.Common.Cli.Commands;
 using Cmf.Common.Cli.Objects;
+using Cmf.Common.Cli.Utilities;
 
 namespace tests
 {
@@ -59,7 +68,7 @@ namespace tests
 @"{
   ""packageId"": ""Cmf.Custom.Business"",
   ""version"": ""1.1.0"",
-  ""description"": ""Cmf Custom Foxconn Business Package"",
+  ""description"": ""Cmf Custom Business Package"",
   ""packageType"": ""Business"",
   ""isInstallable"": true,
   ""isUniqueInstall"": false,
@@ -98,5 +107,125 @@ namespace tests
             Assert.IsTrue(productPackage.IsMissing, "Product package isn't missing");
             Assert.IsNull(productPackage.CmfPackage, "Product package could be loaded");
         }
+        
+        [TestMethod]
+        public void Args_MultiRepo()
+        {
+          string _workingDir = null;
+          string[] _repos = null;
+          
+          var listDependenciesCommand = new ListDependenciesCommand();
+          var cmd = new Command("ls");
+          listDependenciesCommand.Configure(cmd);
+
+          cmd.Handler = CommandHandler.Create<IDirectoryInfo, Uri[]>(
+            (workingDir, repos) =>
+            {
+              _workingDir = workingDir.Name;
+              _repos = repos?.Select(uri => uri.OriginalString).ToArray();
+            });
+
+          var console = new TestConsole();
+          cmd.Invoke(new[] {
+            "-r", "d:\\xpto", "e:\\packages"
+          }, console);
+          
+          var curDir = new DirectoryInfo(System.IO.Directory.GetCurrentDirectory());
+          Assert.AreEqual(curDir.Name, _workingDir, "working dir does not match expected");
+          Assert.AreEqual(2, _repos.Length, "Expecting 2 repositories");
+          Assert.AreEqual("d:\\xpto", _repos[0], "Wrong repository location");
+          Assert.AreEqual("e:\\packages", _repos[1], "Wrong repository location");
+        }
+        
+        [TestMethod]
+        public void Args_MultiRepo_UrlLocalMix()
+        {
+          string _workingDir = null;
+          Uri[] _repos = null;
+          
+          var listDependenciesCommand = new ListDependenciesCommand();
+          var cmd = new Command("ls");
+          listDependenciesCommand.Configure(cmd);
+
+          cmd.Handler = CommandHandler.Create<IDirectoryInfo, Uri[]>(
+            (workingDir, repos) =>
+            {
+              _workingDir = workingDir.Name;
+              _repos = repos;
+            });
+
+          var console = new TestConsole();
+          cmd.Invoke(new[] {
+            "-r", "d:\\xpto", "http://repository.example"
+          }, console);
+          
+          var curDir = new DirectoryInfo(System.IO.Directory.GetCurrentDirectory());
+          Assert.AreEqual(curDir.Name, _workingDir, "working dir does not match expected");
+          Assert.AreEqual(2, _repos.Length, "Expecting 2 repositories");
+          Assert.AreEqual("file:///d:/xpto", _repos[0].AbsoluteUri, "Wrong repository location");
+          Assert.AreEqual("http://repository.example/", _repos[1].AbsoluteUri, "Wrong repository location");
+          Assert.IsTrue(_repos[0].IsDirectory(), "First repo should be a directory");
+          Assert.IsFalse(_repos[1].IsDirectory(), "Second repo not should be a directory");
+        }
+        
+        [TestMethod]
+        public void Args_MultiRepo_RelativeDirectory()
+        {
+          string _workingDir = null;
+          Uri[] _repos = null;
+          
+          var listDependenciesCommand = new ListDependenciesCommand();
+          var cmd = new Command("ls");
+          listDependenciesCommand.Configure(cmd);
+
+          cmd.Handler = CommandHandler.Create<IDirectoryInfo, Uri[]>(
+            (workingDir, repos) =>
+            {
+              _workingDir = workingDir.Name;
+              _repos = repos;
+            });
+
+          var console = new TestConsole();
+          cmd.Invoke(new[] {
+            "-r", "..\\xpto", "\\root_dir"
+          }, console);
+          
+          var curDir = new DirectoryInfo(System.IO.Directory.GetCurrentDirectory());
+          Assert.AreEqual(curDir.Name, _workingDir, "working dir does not match expected");
+          Assert.AreEqual(2, _repos.Length, "Expecting 2 repositories");
+          Assert.AreEqual("..\\xpto", _repos[0].OriginalString, "Wrong repository location");
+          Assert.AreEqual("\\root_dir", _repos[1].OriginalString, "Wrong repository location");
+          // TODO: use mock filesystem to resolve relative urls
+        }
+        
+        [TestMethod]
+        public void Args_SingleRepo()
+        {
+          string _workingDir = null;
+          string[] _repos = null;
+          
+          var listDependenciesCommand = new ListDependenciesCommand();
+          var cmd = new Command("ls");
+          listDependenciesCommand.Configure(cmd);
+
+          cmd.Handler = CommandHandler.Create<IDirectoryInfo, Uri[]>(
+            (workingDir, repos) =>
+            {
+              _workingDir = workingDir.Name;
+              _repos = repos?.Select(uri => uri.OriginalString).ToArray();
+            });
+
+          var console = new TestConsole();
+          cmd.Invoke(new[] {
+            "-r", "d:\\xpto"
+          }, console);
+          
+          var curDir = new DirectoryInfo(System.IO.Directory.GetCurrentDirectory());
+          Assert.AreEqual(curDir.Name, _workingDir, "working dir does not match expected");
+          Assert.AreEqual(1, _repos.Length, "Expecting 2 repositories");
+          Assert.AreEqual("d:\\xpto", _repos[0], "Wrong repository location");
+        }
     }
+    
+    
 }

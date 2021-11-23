@@ -297,6 +297,15 @@ public Cmf.Common.Cli.Objects.DependencyCollection TestPackages { get; set; }
 [DependencyCollection](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_DependencyCollection 'Cmf.Common.Cli.Objects.DependencyCollection')
 The Test Package Id.  
   
+<a name='Cmf_Common_Cli_Objects_CmfPackage_Uri'></a>
+## CmfPackage.Uri Property
+The Uri of the package  
+```csharp
+public System.Uri Uri { get; set; }
+```
+#### Property Value
+[System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')
+  
 <a name='Cmf_Common_Cli_Objects_CmfPackage_Version'></a>
 ## CmfPackage.Version Property
 Gets or sets the version.  
@@ -447,20 +456,20 @@ the underlying file system
 [CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException')  
 [CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException')  
   
-<a name='Cmf_Common_Cli_Objects_CmfPackage_LoadDependencies(string_bool)'></a>
-## CmfPackage.LoadDependencies(string, bool) Method
+<a name='Cmf_Common_Cli_Objects_CmfPackage_LoadDependencies(System_Uri___bool)'></a>
+## CmfPackage.LoadDependencies(Uri[], bool) Method
 Builds a dependency tree by attaching the CmfPackage objects to the parent's dependencies  
 Can run recursively and fetch packages from a DF repository.  
 Supports cycles  
 ```csharp
-public Cmf.Common.Cli.Objects.CmfPackage LoadDependencies(string repo, bool recurse=false);
+public Cmf.Common.Cli.Objects.CmfPackage LoadDependencies(System.Uri[] repoUris, bool recurse=false);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Objects_CmfPackage_LoadDependencies(string_bool)_repo'></a>
-`repo` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
-the address of the repository (currently only folders are supported)
+<a name='Cmf_Common_Cli_Objects_CmfPackage_LoadDependencies(System_Uri___bool)_repoUris'></a>
+`repoUris` [System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')[[]](https://docs.microsoft.com/en-us/dotnet/api/System.Array 'System.Array')  
+the address of the package repositories (currently only folders are supported)
   
-<a name='Cmf_Common_Cli_Objects_CmfPackage_LoadDependencies(string_bool)_recurse'></a>
+<a name='Cmf_Common_Cli_Objects_CmfPackage_LoadDependencies(System_Uri___bool)_recurse'></a>
 `recurse` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
 should we run recursively
   

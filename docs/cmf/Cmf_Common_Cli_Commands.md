@@ -208,62 +208,54 @@ public override void Configure(System.CommandLine.Command cmd);
 `cmd` [System.CommandLine.Command](https://docs.microsoft.com/en-us/dotnet/api/System.CommandLine.Command 'System.CommandLine.Command')  
   
   
-<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_string_string_string_bool)'></a>
-## BumpCommand.Execute(CmfPackage, string, string, string, bool) Method
+<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_string_string_string)'></a>
+## BumpCommand.Execute(CmfPackage, string, string, string) Method
 Executes the specified CMF package.  
 ```csharp
-public void Execute(Cmf.Common.Cli.Objects.CmfPackage cmfPackage, string version, string buildNr, string root, bool all);
+public void Execute(Cmf.Common.Cli.Objects.CmfPackage cmfPackage, string version, string buildNr, string root);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_string_string_string_bool)_cmfPackage'></a>
+<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_string_string_string)_cmfPackage'></a>
 `cmfPackage` [CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')  
 The CMF package.
   
-<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_string_string_string_bool)_version'></a>
+<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_string_string_string)_version'></a>
 `version` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The version.
   
-<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_string_string_string_bool)_buildNr'></a>
+<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_string_string_string)_buildNr'></a>
 `buildNr` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The version for build Nr.
   
-<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_string_string_string_bool)_root'></a>
+<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_string_string_string)_root'></a>
 `root` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The root.
-  
-<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_string_string_string_bool)_all'></a>
-`all` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
-if set to `true` [all].
   
 #### Exceptions
 [CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException')  
   
-<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(System_IO_DirectoryInfo_string_string_string_bool)'></a>
-## BumpCommand.Execute(DirectoryInfo, string, string, string, bool) Method
+<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(System_IO_DirectoryInfo_string_string_string)'></a>
+## BumpCommand.Execute(DirectoryInfo, string, string, string) Method
 Executes the specified package path.  
 ```csharp
-public void Execute(System.IO.DirectoryInfo packagePath, string version, string buildNr, string root, bool all);
+public void Execute(System.IO.DirectoryInfo packagePath, string version, string buildNr, string root);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(System_IO_DirectoryInfo_string_string_string_bool)_packagePath'></a>
+<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(System_IO_DirectoryInfo_string_string_string)_packagePath'></a>
 `packagePath` [System.IO.DirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryInfo 'System.IO.DirectoryInfo')  
 The package path.
   
-<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(System_IO_DirectoryInfo_string_string_string_bool)_version'></a>
+<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(System_IO_DirectoryInfo_string_string_string)_version'></a>
 `version` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The version.
   
-<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(System_IO_DirectoryInfo_string_string_string_bool)_buildNr'></a>
+<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(System_IO_DirectoryInfo_string_string_string)_buildNr'></a>
 `buildNr` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The version for build Nr.
   
-<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(System_IO_DirectoryInfo_string_string_string_bool)_root'></a>
+<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(System_IO_DirectoryInfo_string_string_string)_root'></a>
 `root` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 The root.
-  
-<a name='Cmf_Common_Cli_Commands_BumpCommand_Execute(System_IO_DirectoryInfo_string_string_string_bool)_all'></a>
-`all` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
-if set to `true` [all].
   
 #### Exceptions
 [CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException')  
@@ -850,18 +842,20 @@ public override void Configure(System.CommandLine.Command cmd);
 `cmd` [System.CommandLine.Command](https://docs.microsoft.com/en-us/dotnet/api/System.CommandLine.Command 'System.CommandLine.Command')  
   
   
-<a name='Cmf_Common_Cli_Commands_ListDependenciesCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string)'></a>
-## ListDependenciesCommand.Execute(IDirectoryInfo, string) Method
-Execute the command  
+<a name='Cmf_Common_Cli_Commands_ListDependenciesCommand_Execute(System_IO_Abstractions_IDirectoryInfo_System_Uri__)'></a>
+## ListDependenciesCommand.Execute(IDirectoryInfo, Uri[]) Method
+Determine and print a package dependency tree  
 ```csharp
-public void Execute(System.IO.Abstractions.IDirectoryInfo workingDir, string repo);
+public void Execute(System.IO.Abstractions.IDirectoryInfo workingDir, System.Uri[] repos);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Commands_ListDependenciesCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string)_workingDir'></a>
+<a name='Cmf_Common_Cli_Commands_ListDependenciesCommand_Execute(System_IO_Abstractions_IDirectoryInfo_System_Uri__)_workingDir'></a>
 `workingDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
+the path of the package which dependency tree we want to obtain
   
-<a name='Cmf_Common_Cli_Commands_ListDependenciesCommand_Execute(System_IO_Abstractions_IDirectoryInfo_string)_repo'></a>
-`repo` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+<a name='Cmf_Common_Cli_Commands_ListDependenciesCommand_Execute(System_IO_Abstractions_IDirectoryInfo_System_Uri__)_repos'></a>
+`repos` [System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')[[]](https://docs.microsoft.com/en-us/dotnet/api/System.Array 'System.Array')  
+a set of repositories for remote packages
   
   
   
@@ -1008,64 +1002,46 @@ public override void Configure(System.CommandLine.Command cmd);
 `cmd` [System.CommandLine.Command](https://docs.microsoft.com/en-us/dotnet/api/System.CommandLine.Command 'System.CommandLine.Command')  
   
   
-<a name='Cmf_Common_Cli_Commands_PackCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_System_IO_Abstractions_IDirectoryInfo_System_Uri_Cmf_Common_Cli_Objects_CmfPackageCollection_bool_bool)'></a>
-## PackCommand.Execute(CmfPackage, IDirectoryInfo, Uri, CmfPackageCollection, bool, bool) Method
+<a name='Cmf_Common_Cli_Commands_PackCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_System_IO_Abstractions_IDirectoryInfo_bool)'></a>
+## PackCommand.Execute(CmfPackage, IDirectoryInfo, bool) Method
 Executes the specified CMF package.  
 ```csharp
-public void Execute(Cmf.Common.Cli.Objects.CmfPackage cmfPackage, System.IO.Abstractions.IDirectoryInfo outputDir, System.Uri repoUri, Cmf.Common.Cli.Objects.CmfPackageCollection loadedPackages, bool force, bool skipDependencies);
+public void Execute(Cmf.Common.Cli.Objects.CmfPackage cmfPackage, System.IO.Abstractions.IDirectoryInfo outputDir, bool force);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Commands_PackCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_System_IO_Abstractions_IDirectoryInfo_System_Uri_Cmf_Common_Cli_Objects_CmfPackageCollection_bool_bool)_cmfPackage'></a>
+<a name='Cmf_Common_Cli_Commands_PackCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_System_IO_Abstractions_IDirectoryInfo_bool)_cmfPackage'></a>
 `cmfPackage` [CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')  
 The CMF package.
   
-<a name='Cmf_Common_Cli_Commands_PackCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_System_IO_Abstractions_IDirectoryInfo_System_Uri_Cmf_Common_Cli_Objects_CmfPackageCollection_bool_bool)_outputDir'></a>
+<a name='Cmf_Common_Cli_Commands_PackCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_System_IO_Abstractions_IDirectoryInfo_bool)_outputDir'></a>
 `outputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
 The output dir.
   
-<a name='Cmf_Common_Cli_Commands_PackCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_System_IO_Abstractions_IDirectoryInfo_System_Uri_Cmf_Common_Cli_Objects_CmfPackageCollection_bool_bool)_repoUri'></a>
-`repoUri` [System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')  
-The repo URI.
-  
-<a name='Cmf_Common_Cli_Commands_PackCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_System_IO_Abstractions_IDirectoryInfo_System_Uri_Cmf_Common_Cli_Objects_CmfPackageCollection_bool_bool)_loadedPackages'></a>
-`loadedPackages` [CmfPackageCollection](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackageCollection 'Cmf.Common.Cli.Objects.CmfPackageCollection')  
-The loaded packages.
-  
-<a name='Cmf_Common_Cli_Commands_PackCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_System_IO_Abstractions_IDirectoryInfo_System_Uri_Cmf_Common_Cli_Objects_CmfPackageCollection_bool_bool)_force'></a>
+<a name='Cmf_Common_Cli_Commands_PackCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_System_IO_Abstractions_IDirectoryInfo_bool)_force'></a>
 `force` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
 if set to `true` [force].
-  
-<a name='Cmf_Common_Cli_Commands_PackCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_System_IO_Abstractions_IDirectoryInfo_System_Uri_Cmf_Common_Cli_Objects_CmfPackageCollection_bool_bool)_skipDependencies'></a>
-`skipDependencies` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
   
 #### Exceptions
 [CmfPackageCollection](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackageCollection 'Cmf.Common.Cli.Objects.CmfPackageCollection')  
   
-<a name='Cmf_Common_Cli_Commands_PackCommand_Execute(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_string_bool_bool)'></a>
-## PackCommand.Execute(IDirectoryInfo, IDirectoryInfo, string, bool, bool) Method
+<a name='Cmf_Common_Cli_Commands_PackCommand_Execute(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_bool)'></a>
+## PackCommand.Execute(IDirectoryInfo, IDirectoryInfo, bool) Method
 Executes the specified working dir.  
 ```csharp
-public void Execute(System.IO.Abstractions.IDirectoryInfo workingDir, System.IO.Abstractions.IDirectoryInfo outputDir, string repo, bool force, bool skipDependencies);
+public void Execute(System.IO.Abstractions.IDirectoryInfo workingDir, System.IO.Abstractions.IDirectoryInfo outputDir, bool force);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Commands_PackCommand_Execute(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_string_bool_bool)_workingDir'></a>
+<a name='Cmf_Common_Cli_Commands_PackCommand_Execute(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_bool)_workingDir'></a>
 `workingDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
 The working dir.
   
-<a name='Cmf_Common_Cli_Commands_PackCommand_Execute(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_string_bool_bool)_outputDir'></a>
+<a name='Cmf_Common_Cli_Commands_PackCommand_Execute(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_bool)_outputDir'></a>
 `outputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
 The output dir.
   
-<a name='Cmf_Common_Cli_Commands_PackCommand_Execute(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_string_bool_bool)_repo'></a>
-`repo` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
-The repo.
-  
-<a name='Cmf_Common_Cli_Commands_PackCommand_Execute(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_string_bool_bool)_force'></a>
+<a name='Cmf_Common_Cli_Commands_PackCommand_Execute(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_bool)_force'></a>
 `force` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
 if set to `true` [force].
-  
-<a name='Cmf_Common_Cli_Commands_PackCommand_Execute(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_string_bool_bool)_skipDependencies'></a>
-`skipDependencies` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
   
   
 #### See Also

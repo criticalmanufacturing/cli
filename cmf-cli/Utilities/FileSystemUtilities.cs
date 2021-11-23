@@ -240,7 +240,7 @@ namespace Cmf.Common.Cli.Utilities
         /// <exception cref="CliException">Cannot find project root. Are you in a valid project directory?</exception>
         public static IDirectoryInfo GetProjectRoot(IFileSystem fileSystem, bool throwException = false)
         {
-            var cwd = fileSystem.DirectoryInfo.FromDirectoryName(Directory.GetCurrentDirectory());
+            var cwd = fileSystem.DirectoryInfo.FromDirectoryName(fileSystem.Directory.GetCurrentDirectory());
             var cur = cwd;
             while (cur != null && !fileSystem.File.Exists(fileSystem.Path.Join(cur.FullName, CliConstants.ProjectConfigFileName)))
             {
@@ -313,7 +313,7 @@ namespace Cmf.Common.Cli.Utilities
         /// <returns></returns>
         public static JsonDocument ReadProjectConfig(IFileSystem fileSystem)
         {
-            var projectCfg = fileSystem.Path.Join(GetProjectRoot(fileSystem).FullName, CliConstants.ProjectConfigFileName);
+            var projectCfg = fileSystem.Path.Join(GetProjectRoot(fileSystem)?.FullName, CliConstants.ProjectConfigFileName);
             var json = fileSystem.File.ReadAllText(projectCfg);
             return JsonDocument.Parse(json);
         }

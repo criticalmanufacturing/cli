@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.CommandLine;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Reflection;
@@ -71,7 +70,7 @@ namespace Cmf.Common.Cli.Commands
                     templateName
                 }
                 .Concat(args.ToList())
-                .Concat(new[] { "--debug:custom-hive", $"{System.Environment.GetEnvironmentVariable("USERPROFILE")}/.templateengine/cmf-cli/{version}" })
+                .Concat(new[] { "--debug:custom-hive", $"{System.Environment.GetEnvironmentVariable("HOME")}/.templateengine/cmf-cli/{version}" })
                 .ToList();
 
             Log.Debug(string.Join(' ', commands));
@@ -154,6 +153,8 @@ namespace Cmf.Common.Cli.Commands
                 }
 
                 args.AddRange(new string[] {"--GatewayPort", configJson["Product.Gateway.Port"]?.Value ?? configJson["APPLICATION_PUBLIC_HTTP_PORT"]?.Value });
+
+                args.AddRange(new string[] {"--DefaultDomain", configJson["Product.Security.Domain"]?.Value ?? configJson["SECURITY_PORTAL_STRATEGY_LOCAL_AD_DEFAULT_DOMAIN"]?.Value});
 
                 args.AddRange(new string[] {"--ReleaseEnvironmentConfig", configFile.Name});
             } 

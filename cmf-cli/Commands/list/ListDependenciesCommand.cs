@@ -50,27 +50,27 @@ namespace Cmf.Common.Cli.Commands
                 Description = "Working Directory"
             });
 
-            cmd.AddOption(new Option<string>(
-                aliases: new string[] { "-r", "--repo" },
-                description: "Repository where dependencies are located (url or folder)"));
+            cmd.AddOption(new Option<Uri[]>(
+                aliases: new string[] { "-r", "--repos", "--repo" },
+                description: "Repositories where dependencies are located (folder)"));
 
             // Add the handler
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, string>(Execute);
+            cmd.Handler = CommandHandler.Create<IDirectoryInfo, Uri[]>(Execute);
         }
 
         /// <summary>
-        /// Execute the command
+        /// Determine and print a package dependency tree
         /// </summary>
-        /// <param name="workingDir"></param>
-        /// <param name="repo"></param>
-        public void Execute(IDirectoryInfo workingDir, string repo)
+        /// <param name="workingDir">the path of the package which dependency tree we want to obtain</param>
+        /// <param name="repos">a set of repositories for remote packages</param>
+        public void Execute(IDirectoryInfo workingDir, Uri[] repos)
         {
             IFileInfo cmfpackageFile = this.fileSystem.FileInfo.FromFileName($"{workingDir}/{CliConstants.CmfPackageFileName}");
 
             // Reading cmfPackage
             CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true);
             Log.Progress("Starting ls...");
-            var loadedPackage = cmfPackage.LoadDependencies(repo, true);
+            var loadedPackage = cmfPackage.LoadDependencies(repos, true);
             Log.Progress("Finished ls", true);
             DisplayTree(loadedPackage);
         }
