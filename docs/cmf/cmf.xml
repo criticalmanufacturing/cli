@@ -1323,6 +1323,24 @@
             <exception cref="T:Cmf.Common.Cli.Objects.CmfPackageCollection">
             </exception>
         </member>
+        <member name="T:Cmf.Common.Cli.Commands.restore.RestoreCommand">
+            <summary>
+            Restore package dependencies (declared cmfpackage.json) from repository packages
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.restore.RestoreCommand.Configure(System.CommandLine.Command)">
+            <summary>
+            Configure the Restore command options and arguments 
+            </summary>
+            <param name="cmd"></param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.restore.RestoreCommand.Execute(System.IO.Abstractions.IDirectoryInfo,System.Uri[])">
+            <summary>
+            Execute the restore command
+            </summary>
+            <param name="packagePath">The path of the current package folder</param>
+            <param name="repos">The package repositories URI/path</param>
+        </member>
         <member name="T:Cmf.Common.Cli.Commands.TemplateCommand">
             <summary>
             
@@ -1434,6 +1452,11 @@
         <member name="F:Cmf.Common.Cli.Constants.CliConstants.ProjectConfigFileName">
             <summary>
             The project config file name, located in the project root
+            </summary>
+        </member>
+        <member name="F:Cmf.Common.Cli.Constants.CliConstants.RepositoriesConfigFileName">
+            <summary>
+            The repositories config file name, usually located in the project root
             </summary>
         </member>
         <member name="F:Cmf.Common.Cli.Constants.CliConstants.LBOsFileLocation">
@@ -1949,6 +1972,11 @@
             The default content to ignore.
             </value>
         </member>
+        <member name="P:Cmf.Common.Cli.Handlers.PackageTypeHandler.DependenciesFolder">
+            <summary>
+            Where should the dependencies go, relative to the cmfpackage.json file
+            </summary>
+        </member>
         <member name="M:Cmf.Common.Cli.Handlers.PackageTypeHandler.#ctor(Cmf.Common.Cli.Objects.CmfPackage)">
             <summary>
             Initializes a new instance of the <see cref="T:Cmf.Common.Cli.Handlers.PackageTypeHandler" /> class.
@@ -2018,6 +2046,13 @@
             </summary>
             <param name="packageOutputDir">The package output dir.</param>
             <param name="outputDir">The output dir.</param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Handlers.PackageTypeHandler.RestoreDependencies(System.Uri[])">
+            <summary>
+            Restore the the current package's dependencies to the dependencies folder
+            </summary>
+            <param name="repoUris">The Uris for the package repos</param>
+            <exception cref="T:Cmf.Common.Cli.Utilities.CliException">thrown when a repo uri is not available or in an incorrect format</exception>
         </member>
         <member name="T:Cmf.Common.Cli.Handlers.PresentationPackageTypeHandler">
              <summary>
@@ -2135,6 +2170,11 @@
             </summary>
             <param name="packageOutputDir">The package output dir.</param>
             <param name="outputDir">The output dir.</param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Interfaces.IPackageTypeHandler.RestoreDependencies(System.Uri[])">
+            <summary>
+            Restore package dependencies (declared in cmfpackage.json) from repository packages
+            </summary>
         </member>
         <member name="T:Cmf.Common.Cli.Log">
              <summary>
@@ -2686,6 +2726,26 @@
               <c>true</c> if [contains] [the specified dependency]; otherwise, <c>false</c>.
             </returns>
         </member>
+        <member name="T:Cmf.Common.Cli.Objects.ExecutionContext">
+            <summary>
+            The current execution context
+            </summary>
+        </member>
+        <member name="P:Cmf.Common.Cli.Objects.ExecutionContext.Instance">
+            <summary>
+            The current ExecutionContext object
+            </summary>
+        </member>
+        <member name="P:Cmf.Common.Cli.Objects.ExecutionContext.RepositoriesConfig">
+            <summary>
+            The current execution RepositoriesConfig object
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Objects.ExecutionContext.Initialize(System.IO.Abstractions.IFileSystem)">
+            <summary>
+            Initialize the current ExecutionContext instance
+            </summary>
+        </member>
         <member name="T:Cmf.Common.Cli.Objects.FileToPack">
              <summary>
             
@@ -2726,6 +2786,27 @@
         <member name="M:Cmf.Common.Cli.Objects.FileToPack.#ctor">
             <summary>
             Initializes a new instance of the <see cref="T:Cmf.Common.Cli.Objects.FileToPack"/> class.
+            </summary>
+        </member>
+        <member name="T:Cmf.Common.Cli.Objects.RepositoriesConfig">
+            <summary>
+            The DF repositories used in this run
+            </summary>
+        </member>
+        <member name="P:Cmf.Common.Cli.Objects.RepositoriesConfig.CIRepository">
+            <summary>
+            The CI repository folder: this is the place where Packages built by CI are stored, by branch
+            </summary>
+        </member>
+        <member name="P:Cmf.Common.Cli.Objects.RepositoriesConfig.Repositories">
+            <summary>
+            The DF repositories: these contain package that we treat as official (i.e. upstream dependencies or already releases packages)
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Objects.RepositoriesConfig.#ctor">
+            <summary>
+            Initialize new RepositoriesConfig.
+            This constructor is only used as fallback, if a config is found in the filesystem, the file will be deserialized into this object
             </summary>
         </member>
         <member name="T:Cmf.Common.Cli.Objects.Step">
@@ -3080,6 +3161,13 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:Cmf.Common.Cli.Utilities.FileSystemUtilities.ReadRepositoriesConfig(System.IO.Abstractions.IFileSystem)">
+            <summary>
+            Read DF repositories config from filesystem
+            </summary>
+            <param name="fileSystem">The filesystem object</param>
+            <returns>a RepositoriesConfig object</returns>
+        </member>
         <member name="M:Cmf.Common.Cli.Utilities.FileSystemUtilities.CopyStream(System.IO.Stream,System.IO.Stream)">
             <summary>
             Copies the contents of input to output. Doesn't close either stream.
@@ -3187,6 +3275,15 @@
             <param name="packageId">Package Identifier</param>
             <param name="packageVersion">Package Version</param>
             <param name="fileSystem">the underlying file system</param>
+            <returns></returns>
+        </member>
+        <member name="M:Cmf.Common.Cli.Utilities.GenericUtilities.Flatten``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Collections.Generic.IEnumerable{``0}})">
+            <summary>
+            Flatten a tree
+            </summary>
+            <param name="items">The top level tree items</param>
+            <param name="getChildren">a function that for each tree node returns its children</param>
+            <typeparam name="T">The tree node type</typeparam>
             <returns></returns>
         </member>
         <member name="M:Cmf.Common.Cli.Utilities.GenericUtilities.JsonObjectToUri(System.Object)">

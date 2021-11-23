@@ -114,9 +114,9 @@ steps:
     targetType: inline
     script: |
 //#if (agentType == "Cloud")
-      $(Agent.TempDirectory)/../node_modules/.bin/cmf-cli/cmf pack --skipDependencies --repo ${{ variables.ProjectPackageRepository }} --outputDir $(Build.ArtifactStagingDirectory)
+      $(Agent.TempDirectory)/../node_modules/.bin/cmf-cli/cmf pack --outputDir $(Build.ArtifactStagingDirectory)
 //#else
-      $(Agent.TempDirectory)/node_modules/.bin/cmf-cli/cmf pack --skipDependencies --repo ${{ variables.ProjectPackageRepository }} --outputDir $(Build.ArtifactStagingDirectory)
+      $(Agent.TempDirectory)/node_modules/.bin/cmf-cli/cmf pack --outputDir $(Build.ArtifactStagingDirectory)
 //#endif
 
 //#if (agentType == "Cloud")
@@ -134,7 +134,7 @@ steps:
     SourceFolder: '$(Build.ArtifactStagingDirectory)'
     Contents: |
      *.zip
-    TargetFolder: '${{ variables.ProjectPackageRepository }}/$(Build.SourceBranchName)'
+    TargetFolder: '${{ variables.CIPackages }}/$(Build.SourceBranchName)'
     OverWrite: true
 //#endif
 

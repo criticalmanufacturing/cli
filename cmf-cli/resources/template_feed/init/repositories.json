@@ -1,0 +1,6 @@
+{
+    "CIRepository": "<%= $CLI_PARAM_CIRepo %>\\development",
+    "Repositories": [
+        "<%= $CLI_PARAM_DeliveredRepo %>"
+    ]
+}

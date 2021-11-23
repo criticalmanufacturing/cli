@@ -7,6 +7,7 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Reflection;
+using Cmf.Common.Cli.Objects;
 
 namespace Cmf.Common.Cli.Commands
 {
@@ -34,6 +35,7 @@ namespace Cmf.Common.Cli.Commands
         public BaseCommand(IFileSystem fileSystem)
         {
             this.fileSystem = fileSystem;
+            ExecutionContext.Initialize(fileSystem);
         }
 
         /// <summary>

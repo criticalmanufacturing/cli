@@ -203,7 +203,7 @@ stages:
           - task: DeleteFiles@1
             displayName: 'Clean deploy folder'
             inputs:
-              SourceFolder: '${{ variables.DeploymentPath }}/Deploy'
+              SourceFolder: '${{ variables.CandidatePackages }}'
               Contents: '**'
 
           # Download Package Artifacts
@@ -219,7 +219,7 @@ stages:
               branchName: '$(Build.SourceBranch)'
               downloadType: 'single'
               artifactName: 'Cmf.Custom.Package'
-              downloadPath: '${{ variables.DeploymentPath }}/Deploy'
+              downloadPath: '${{ variables.CandidatePackages }}'
           
           # Download Configurations Artifacts
           - task: DownloadBuildArtifacts@0
@@ -242,19 +242,19 @@ stages:
             inputs:
               SourceFolder: Cmf.Custom.Package.Configurations/EnvironmentConfigs
               Contents: '${{ parameters.EnvironmentConfigName }}.json'
-              TargetFolder: ${{ variables.DeploymentPath }}/Deploy
+              TargetFolder: ${{ variables.CandidatePackages }}
 
           # Customization Installation
           - task: PowerShell@2
             displayName: "Customization Installation"
             inputs:
               pwsh: false
-              arguments: "-ImagePath '${{ variables.ISOImagePath }}' -EnvironmentConfigName '${{ parameters.EnvironmentConfigName }}' -PackageSource '${{ variables.DeploymentPath }}/Deploy'"
+              arguments: "-ImagePath '${{ variables.ISOImagePath }}' -EnvironmentConfigName '${{ parameters.EnvironmentConfigName }}' -PackageSource '${{ variables.CandidatePackages }}'"
               targetType: 'inline'
               script: |
                 $ImagePath = '${{ variables.ISOImagePath }}'; 
                 $EnvironmentConfigName = '${{ parameters.EnvironmentConfigName }}';
-                $PackageSource = '${{ variables.DeploymentPath }}/Deploy';
+                $PackageSource = '${{ variables.CandidatePackages }}';
                 
                 # Assuming repository Checkout
                 $EnvironmentConfig = "$EnvironmentConfigName.json";
@@ -298,7 +298,7 @@ stages:
                 
                 try {      
                   $iso = Get-Item $ImagePath
-                  $destPath = "${{ variables.DeploymentPath }}/isos/"
+                  $destPath = "${{ variables.CandidatePackages }}/../isos/"
                   $destIso = "$destPath/" + $iso.Name
 
                   if (-Not (Test-Path $destIso)) {
@@ -869,7 +869,7 @@ stages:
                     SourceFolder: 'PackageApproved/Cmf.Custom.Package'
                     Contents: |
                       *.zip
-                    TargetFolder: '${{ variables.ProjectPackageRepository }}/Delivered'
+                    TargetFolder: '${{ variables.ApprovedPackages }}'
                     OverWrite: false
 
                 # Download Tests Artifacts
@@ -894,7 +894,7 @@ stages:
                     SourceFolder: 'TestPackageApproved/Cmf.Custom.Package.Tests'
                     Contents: |
                       *.zip
-                    TargetFolder: '${{ variables.ProjectPackageRepository }}/Delivered'
+                    TargetFolder: '${{ variables.ApprovedPackages }}'
                     OverWrite: false
 
                 # Clean

@@ -58,7 +58,7 @@ steps:
       Write-Host "PackageId = $PackageId"
       
       # Validate if the package version was already released
-      $finalPackageFile = "${{ variables.ProjectPackageRepository }}/Delivered/" + $PackageId + "." + $PackVersion + ".zip"
+      $finalPackageFile = "${{ variables.ApprovedPackages }}/" + $PackageId + "." + $PackVersion + ".zip"
       if(Test-Path $finalPackageFile) {
           throw "Package " + $PackageId + "." + $PackVersion + " already released"
       }
