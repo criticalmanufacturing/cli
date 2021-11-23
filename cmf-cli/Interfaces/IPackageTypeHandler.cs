@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 
@@ -36,5 +37,10 @@ namespace Cmf.Common.Cli.Interfaces
         /// <param name="packageOutputDir">The package output dir.</param>
         /// <param name="outputDir">The output dir.</param>
         public void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir);
+        
+        /// <summary>
+        /// Restore package dependencies (declared in cmfpackage.json) from repository packages
+        /// </summary>
+        public void RestoreDependencies(Uri[] repositories);
     }
 }

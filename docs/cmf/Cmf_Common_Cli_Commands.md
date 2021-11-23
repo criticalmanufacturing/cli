@@ -29,11 +29,11 @@ public AssembleCommand(System.IO.Abstractions.IFileSystem fileSystem);
   
   
 ### Fields
-<a name='Cmf_Common_Cli_Commands_AssembleCommand_PackagesLocation'></a>
-## AssembleCommand.PackagesLocation Field
+<a name='Cmf_Common_Cli_Commands_AssembleCommand_packagesLocation'></a>
+## AssembleCommand.packagesLocation Field
 Packages names and Uri to saved in a file in the end of the command execution  
 ```csharp
-private Dictionary<string,string> PackagesLocation;
+private readonly Dictionary<string,string> packagesLocation;
 ```
 #### Field Value
 [System.Collections.Generic.Dictionary&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.Dictionary-2 'System.Collections.Generic.Dictionary`2')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[,](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.Dictionary-2 'System.Collections.Generic.Dictionary`2')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.Dictionary-2 'System.Collections.Generic.Dictionary`2')
@@ -153,6 +153,7 @@ Derived
 &#8627; [PackCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_PackCommand 'Cmf.Common.Cli.Commands.PackCommand')  
 &#8627; [PluginCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_PluginCommand 'Cmf.Common.Cli.Commands.PluginCommand')  
 &#8627; [PowershellCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_PowershellCommand 'Cmf.Common.Cli.Commands.PowershellCommand')  
+&#8627; [RestoreCommand](Cmf_Common_Cli_Commands_restore.md#Cmf_Common_Cli_Commands_restore_RestoreCommand 'Cmf.Common.Cli.Commands.restore.RestoreCommand')  
 &#8627; [TemplateCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_TemplateCommand 'Cmf.Common.Cli.Commands.TemplateCommand')  
 ### Constructors
 <a name='Cmf_Common_Cli_Commands_BaseCommand_BaseCommand()'></a>

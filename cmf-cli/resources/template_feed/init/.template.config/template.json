@@ -59,6 +59,38 @@
       "valueSource": "deploymentDir",
       "valueTransform": "jsonEncode"
     },
+    "CIRepo": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_CIRepo %>"
+    },
+    "ADArtifactsRepo": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_ADArtifactsRepo %>"
+    },
+    "RCRepo": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_RCRepo %>"
+    },
+    "DeliveredRepo": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_DeliveredRepo %>"
+    },
+    "CIRepo-JSON": {
+      "type": "derived",
+      "replaces": "\"<%= $CLI_PARAM_CIRepo %>\"",
+      "valueSource": "CIRepo",
+      "valueTransform": "jsonEncode"
+    },
+    "DeliveredRepo-JSON": {
+      "type": "derived",
+      "replaces": "\"<%= $CLI_PARAM_DeliveredRepo %>\"",
+      "valueSource": "DeliveredRepo",
+      "valueTransform": "jsonEncode"
+    },
     "MESVersion": {
       "type": "parameter",
       "datatype": "string",

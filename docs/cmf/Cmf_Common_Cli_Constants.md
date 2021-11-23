@@ -117,6 +117,15 @@ public const string ProjectConfigFileName = .project-config.json;
 #### Field Value
 [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
   
+<a name='Cmf_Common_Cli_Constants_CliConstants_RepositoriesConfigFileName'></a>
+## CliConstants.RepositoriesConfigFileName Field
+The repositories config file name, usually located in the project root  
+```csharp
+public const string RepositoriesConfigFileName = repositories.json;
+```
+#### Field Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
+  
 <a name='Cmf_Common_Cli_Constants_CliConstants_RootPackageDefaultKeyword'></a>
 ## CliConstants.RootPackageDefaultKeyword Field
 The root package default keyword  
