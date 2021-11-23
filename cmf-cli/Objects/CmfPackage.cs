@@ -565,7 +565,7 @@ namespace Cmf.Common.Cli.Objects
             {
                 using (FileStream zipToOpen = new(dependencyFile.FullName, FileMode.Open))
                 {
-                    using (ZipArchive zip = new(zipToOpen))
+                    using (ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read))
                     {
                         var manifest = zip.GetEntry(CliConstants.DeploymentFrameworkManifestFileName);
                         if (manifest != null)
