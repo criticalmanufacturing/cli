@@ -460,7 +460,7 @@ namespace Cmf.Common.Cli.Objects
                     return;
                 }
 
-                IDirectoryInfo[] repoDirectories = repoUris?.Select(r => this.fileSystem.DirectoryInfo.FromDirectoryName(r.OriginalString)).ToArray();
+                IDirectoryInfo[] repoDirectories = repoUris?.Select(r => r.IsUnc ? this.fileSystem.DirectoryInfo.FromDirectoryName(r.OriginalString) : this.fileSystem.DirectoryInfo.FromDirectoryName(r.LocalPath)).ToArray();
                 var missingRepoDirectories = repoDirectories?.Where(r => r.Exists == false).ToArray();
                 if (missingRepoDirectories?.Any() ?? false)
                 {
@@ -557,15 +557,15 @@ namespace Cmf.Common.Cli.Objects
             string _dependencyFileName = $"{packageId}.{version}.zip";
 
             IFileInfo dependencyFile = repoDirectories?
-                            .Select(r => r.GetFiles(_dependencyFileName).FirstOrDefault())
-                            .Where(r => r != null)
-                            .FirstOrDefault();
+                           .Select(r => r.GetFiles(_dependencyFileName).FirstOrDefault())
+                           .Where(r => r != null)
+                           .FirstOrDefault();
 
             if (dependencyFile != null)
             {
                 using (FileStream zipToOpen = new(dependencyFile.FullName, FileMode.Open))
                 {
-                    using (ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read))
+                    using (ZipArchive zip = new(zipToOpen))
                     {
                         var manifest = zip.GetEntry(CliConstants.DeploymentFrameworkManifestFileName);
                         if (manifest != null)

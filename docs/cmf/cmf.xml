@@ -464,6 +464,11 @@
               Looks up a localized string similar to Mandatory Dependency {0}.{1} not found.
             </summary>
         </member>
+        <member name="P:Cmf.Common.Cli.CliMessages.MissingMandatoryOption">
+            <summary>
+              Looks up a localized string similar to Missing mandatory option {0}.
+            </summary>
+        </member>
         <member name="P:Cmf.Common.Cli.CliMessages.MissingMandatoryProperties">
             <summary>
               Looks up a localized string similar to Missing mandatory properties: {0}.
@@ -519,6 +524,17 @@
             <summary>
             Packages names and Uri to saved in a file in the end of the command execution
             </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.AssembleCommand.#ctor">
+            <summary>
+            Assemble Command
+            </summary>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.AssembleCommand.#ctor(System.IO.Abstractions.IFileSystem)">
+            <summary>
+            Assemble Command
+            </summary>
+            <param name="fileSystem"></param>
         </member>
         <member name="M:Cmf.Common.Cli.Commands.AssembleCommand.Configure(System.CommandLine.Command)">
             <summary>
@@ -2517,13 +2533,14 @@
             </exception>
             <exception cref="T:Cmf.Common.Cli.Utilities.CliException"></exception>
         </member>
-        <member name="M:Cmf.Common.Cli.Objects.CmfPackage.LoadFromRepo(System.IO.Abstractions.IDirectoryInfo[],System.String,System.String)">
+        <member name="M:Cmf.Common.Cli.Objects.CmfPackage.LoadFromRepo(System.IO.Abstractions.IDirectoryInfo[],System.String,System.String,System.IO.Abstractions.IFileSystem)">
             <summary>
             Gets the URI from repos.
             </summary>
             <param name="repoDirectories">The repo directories.</param>
             <param name="packageId"></param>
             <param name="version"></param>
+            <param name="fileSystem"></param>
             <returns></returns>
         </member>
         <member name="M:Cmf.Common.Cli.Objects.CmfPackage.FromManifest(System.String,System.Boolean,System.IO.Abstractions.IFileSystem)">

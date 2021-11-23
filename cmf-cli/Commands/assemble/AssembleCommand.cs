@@ -24,7 +24,22 @@ namespace Cmf.Common.Cli.Commands
         /// <summary>
         /// Packages names and Uri to saved in a file in the end of the command execution
         /// </summary>
-        private Dictionary<string, string> PackagesLocation = new();
+        private readonly Dictionary<string, string> packagesLocation = new();
+
+        #endregion
+
+        #region Constructors
+
+        /// <summary>
+        /// Assemble Command
+        /// </summary>
+        public AssembleCommand() : base() { }
+
+        /// <summary>
+        /// Assemble Command
+        /// </summary>
+        /// <param name="fileSystem"></param>
+        public AssembleCommand(IFileSystem fileSystem) : base(fileSystem) { }
 
         #endregion
 
@@ -77,9 +92,14 @@ namespace Cmf.Common.Cli.Commands
         /// <returns></returns>
         public void Execute(IDirectoryInfo workingDir, IDirectoryInfo outputDir, Uri ciRepo, Uri[] repos, bool includeTestPackages)
         {
+            if (ciRepo == null)
+            {
+                throw new CliException(CliMessages.MissingMandatoryOption, "cirepo");
+            }
+
             IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"{workingDir}/{CliConstants.CmfPackageFileName}");
 
-            CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile);
+            CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: false, fileSystem: fileSystem);
 
             if (cmfPackage.PackageType != Enums.PackageType.Root)
             {
@@ -89,7 +109,10 @@ namespace Cmf.Common.Cli.Commands
             // The method LoadDependencies will return the dependency from the first repo in the list
             // We need to force the CI Repo to be the last to be checked, to make sure that we first check the "release repositories"
             List<Uri> remoteRepos = new();
-            remoteRepos.AddRange(repos);
+            if (repos.HasAny())
+            {
+                remoteRepos.AddRange(repos);
+            }
             remoteRepos.Add(ciRepo);
 
             cmfPackage.LoadDependencies(remoteRepos, true);
@@ -105,7 +128,7 @@ namespace Cmf.Common.Cli.Commands
 
             if (missingPackages.HasAny())
             {
-                throw new CliException(CliMessages.SomePackagesNotFound, string.Join(",", missingPackages));
+                throw new CliException(CliMessages.SomePackagesNotFound, string.Join(", ", missingPackages));
             }
 
             #endregion
@@ -136,7 +159,7 @@ namespace Cmf.Common.Cli.Commands
                 // Save Dependencies File
                 // This file will be needed for CMF Internal Releases to know where the external dependencies are located
                 string depedenciesFilePath = this.fileSystem.Path.Join(workingDir.FullName, CliConstants.FileDependencies);
-                fileSystem.File.WriteAllText(depedenciesFilePath, JsonConvert.SerializeObject(PackagesLocation));
+                fileSystem.File.WriteAllText(depedenciesFilePath, JsonConvert.SerializeObject(packagesLocation));
             }
             catch (Exception e)
             {
@@ -203,7 +226,7 @@ namespace Cmf.Common.Cli.Commands
                     // Save all external dependencies and locations in a dictionary
                     else
                     {
-                        PackagesLocation.Add($"{dependency.Id}@{dependency.Version}", dependency.CmfPackage.Uri.OriginalString);
+                        packagesLocation.Add($"{dependency.Id}@{dependency.Version}", dependency.CmfPackage.Uri.OriginalString);
                     }
 
                     AssembleDependencies(outputDir, ciRepo, repos, dependency.CmfPackage, assembledDependencies);

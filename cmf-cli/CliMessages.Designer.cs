@@ -106,6 +106,15 @@ namespace Cmf.Common.Cli {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Missing mandatory option {0}.
+        /// </summary>
+        internal static string MissingMandatoryOption {
+            get {
+                return ResourceManager.GetString("MissingMandatoryOption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Missing mandatory properties: {0}.
         /// </summary>
         internal static string MissingMandatoryProperties {

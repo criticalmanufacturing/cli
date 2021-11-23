@@ -65,6 +65,15 @@ internal static string MissingMandatoryDependency { get; }
 #### Property Value
 [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
   
+<a name='Cmf_Common_Cli_CliMessages_MissingMandatoryOption'></a>
+## CliMessages.MissingMandatoryOption Property
+Looks up a localized string similar to Missing mandatory option {0}.  
+```csharp
+internal static string MissingMandatoryOption { get; }
+```
+#### Property Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
+  
 <a name='Cmf_Common_Cli_CliMessages_MissingMandatoryProperties'></a>
 ## CliMessages.MissingMandatoryProperties Property
 Looks up a localized string similar to Missing mandatory properties: {0}.  

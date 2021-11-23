@@ -136,6 +136,10 @@
     <value>Mandatory Dependency {0}.{1} not found</value>
     <comment>0 - Dependency Id; 1 - Dependency Version</comment>
   </data>
+  <data name="MissingMandatoryOption" xml:space="preserve">
+    <value>Missing mandatory option {0}</value>
+    <comment>0 - Option name</comment>
+  </data>
   <data name="MissingMandatoryProperties" xml:space="preserve">
     <value>Missing mandatory properties: {0}</value>
     <comment>0 - List of properties</comment>
