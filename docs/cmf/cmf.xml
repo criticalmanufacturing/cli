@@ -2800,6 +2800,11 @@
             The current ExecutionContext object
             </summary>
         </member>
+        <member name="P:Cmf.Common.Cli.Objects.ExecutionContext.FileSystem">
+            <summary>
+            The current FileSystem object
+            </summary>
+        </member>
         <member name="P:Cmf.Common.Cli.Objects.ExecutionContext.RepositoriesConfig">
             <summary>
             The current execution RepositoriesConfig object
@@ -3006,13 +3011,6 @@
             Initializes a new instance of the <see cref="T:Cmf.Common.Cli.Utilities.CliException"/> class.
             </summary>
             <param name="message">The message that describes the error.</param>
-        </member>
-        <member name="M:Cmf.Common.Cli.Utilities.CliException.#ctor(System.String,System.Object[])">
-            <summary>
-            Initializes a new instance of the <see cref="T:Cmf.Common.Cli.Utilities.CliException"/> class.
-            </summary>
-            <param name="message">The message that describes the error.</param>
-            <param name="args"></param>
         </member>
         <member name="M:Cmf.Common.Cli.Utilities.CliException.#ctor(System.String,System.Exception)">
             <summary>
@@ -3305,6 +3303,34 @@
              <param name="filePath"></param>
              <param name="directory"></param>
              <returns></returns>
+        </member>
+        <member name="M:Cmf.Common.Cli.Utilities.FileSystemUtilities.GetDirectory(System.Uri)">
+            <summary>
+            Get Directory from a FileSystem dependending if Uri is UNC
+            </summary>
+            <param name="uri"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Cmf.Common.Cli.Utilities.FileSystemUtilities.GetDirectoryName(System.Uri)">
+            <summary>
+            Get Directory Name from a FileSystem dependending if Uri is UNC
+            </summary>
+            <param name="uri"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Cmf.Common.Cli.Utilities.FileSystemUtilities.GetFile(System.Uri)">
+            <summary>
+            Get File from a FileSystem dependending if Uri is UNC
+            </summary>
+            <param name="uri"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Cmf.Common.Cli.Utilities.FileSystemUtilities.GetFileName(System.Uri)">
+            <summary>
+            Get Directory Name from a FileSystem dependending if Uri is UNC
+            </summary>
+            <param name="uri"></param>
+            <returns></returns>
         </member>
         <member name="M:Cmf.Common.Cli.Utilities.FileSystemUtilities.AllFilesAndFolders(System.IO.Abstractions.IDirectoryInfo)">
             <summary>
