@@ -460,9 +460,9 @@ namespace Cmf.Common.Cli.Objects
                     return;
                 }
 
-                IDirectoryInfo[] repoDirectories = repoUris?.Select(r => r.IsUnc ? this.fileSystem.DirectoryInfo.FromDirectoryName(r.OriginalString) : this.fileSystem.DirectoryInfo.FromDirectoryName(r.LocalPath)).ToArray();
+                IDirectoryInfo[] repoDirectories = repoUris?.Select(r => r.GetDirectory()).ToArray();
                 var missingRepoDirectories = repoDirectories?.Where(r => r.Exists == false).ToArray();
-                if (missingRepoDirectories?.Any() ?? false)
+                if (missingRepoDirectories.HasAny())
                 {
                     Log.Error($"Some of the provided repositories do not exist: {string.Join(", ", missingRepoDirectories.Select(d => d.FullName))}");
                     return;
@@ -485,7 +485,7 @@ namespace Cmf.Common.Cli.Objects
                     // 3) search in the source code repository (only if this is a local package)
                     if (dependencyPackage == null && this.Location == PackageLocation.Local)
                     {
-                        dependencyPackage = this.GetFileInfo().Directory.LoadCmfPackagesFromSubDirectories(setDefaultValues: true).GetDependency(dependency);
+                        dependencyPackage = FileInfo.Directory.LoadCmfPackagesFromSubDirectories(setDefaultValues: true).GetDependency(dependency);
                         if (dependencyPackage != null)
                         {
                             dependencyPackage.Uri = new Uri(dependencyPackage.FileInfo.FullName);
@@ -563,7 +563,7 @@ namespace Cmf.Common.Cli.Objects
 
             if (dependencyFile != null)
             {
-                using (FileStream zipToOpen = new(dependencyFile.FullName, FileMode.Open))
+                using (Stream zipToOpen = dependencyFile.OpenRead())
                 {
                     using (ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read))
                     {

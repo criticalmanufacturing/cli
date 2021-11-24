@@ -1,6 +1,7 @@
 ﻿using Cmf.Common.Cli.Constants;
 using Cmf.Common.Cli.Enums;
 using Cmf.Common.Cli.Objects;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,7 +11,6 @@ using System.Linq;
 using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
-using Newtonsoft.Json;
 
 namespace Cmf.Common.Cli.Utilities
 {
@@ -510,6 +510,50 @@ namespace Cmf.Common.Cli.Utilities
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Get Directory from a FileSystem dependending if Uri is UNC
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <returns></returns>
+        public static IDirectoryInfo GetDirectory(this Uri uri)
+        {
+            string path = uri.IsUnc ? uri.OriginalString : uri.LocalPath;
+
+            return ExecutionContext.Instance.FileSystem.DirectoryInfo.FromDirectoryName(path);
+        }
+
+        /// <summary>
+        /// Get Directory Name from a FileSystem dependending if Uri is UNC
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <returns></returns>
+        public static string GetDirectoryName(this Uri uri)
+        {
+            return GetDirectory(uri).FullName;
+        }
+
+        /// <summary>
+        /// Get File from a FileSystem dependending if Uri is UNC
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <returns></returns>
+        public static IFileInfo GetFile(this Uri uri)
+        {
+            string path = uri.IsUnc ? uri.OriginalString : uri.LocalPath;
+
+            return ExecutionContext.Instance.FileSystem.FileInfo.FromFileName(path);
+        }
+
+        /// <summary>
+        /// Get Directory Name from a FileSystem dependending if Uri is UNC
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <returns></returns>
+        public static string GetFileName(this Uri uri)
+        {
+            return GetFile(uri).FullName;
         }
 
         #endregion
