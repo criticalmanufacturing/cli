@@ -69,8 +69,14 @@ namespace Cmf.Common.Cli.Commands
 
             // Reading cmfPackage
             CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true);
+            
+            if (repos != null)
+            {
+                ExecutionContext.Instance.RepositoriesConfig.Repositories.InsertRange(0, repos);
+            }
+            
             Log.Progress("Starting ls...");
-            cmfPackage.LoadDependencies(repos, true);
+            cmfPackage.LoadDependencies(ExecutionContext.Instance.RepositoriesConfig.Repositories.ToArray(), true);
             Log.Progress("Finished ls", true);
             DisplayTree(cmfPackage);
         }

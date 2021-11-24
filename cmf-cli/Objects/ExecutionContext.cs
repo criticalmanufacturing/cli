@@ -30,7 +30,6 @@ namespace Cmf.Common.Cli.Objects
         {
             // private constructor, can only obtain instance via the Instance property
             this.fileSystem = fileSystem;
-            Log.Debug("Finding repositories config...");
             this.RepositoriesConfig = FileSystemUtilities.ReadRepositoriesConfig(fileSystem);
         }
 
