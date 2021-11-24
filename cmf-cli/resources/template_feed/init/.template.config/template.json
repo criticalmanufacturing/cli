@@ -85,6 +85,46 @@
       "valueSource": "CIRepo",
       "valueTransform": "jsonEncode"
     },
+    "CIRepo_MainBranch": {
+      "type": "generated",
+      "generator": "join",
+      //"replaces": "<%= $CLI_PARAM_CIRepo_MainBranch %>",
+      "parameters": {
+        "symbols": [
+          {
+            "type": "ref",
+            "value": "CIRepo"
+          },
+          {
+            "type": "const",
+            "value": "development"
+          }        
+        ],
+        "separator": "\\"
+      }
+    },
+    // seems like we can't get derived symbols from generated symbols, so we do a simple backslash escape via regex replace
+    "CIRepo_MainBranch-JSON": {
+      "type": "generated",
+      "generator": "regex",
+      "dataType": "string",
+      "replaces": "<%= $CLI_PARAM_CIRepo_MainBranch %>",
+      "parameters": {
+        "source": "CIRepo_MainBranch",
+        "steps": [
+          {
+            "regex": "\\\\",
+            "replacement": "\\\\"
+          }
+        ]
+      }
+    },
+//    "CIRepo_MainBranch-JSON": {
+//      "type": "derived",
+//      "replaces": "\"<%= $CLI_PARAM_CIRepo_MainBranch %>\"",
+//      "valueSource": "CIRepo_MainBranch",
+//      "valueTransform": "jsonEncode"
+//    },
     "DeliveredRepo-JSON": {
       "type": "derived",
       "replaces": "\"<%= $CLI_PARAM_DeliveredRepo %>\"",

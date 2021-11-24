@@ -1,5 +1,5 @@
 {
-    "CIRepository": "<%= $CLI_PARAM_CIRepo %>\\development",
+    "CIRepository": "<%= $CLI_PARAM_CIRepo_MainBranch %>",
     "Repositories": [
         "<%= $CLI_PARAM_DeliveredRepo %>"
     ]
