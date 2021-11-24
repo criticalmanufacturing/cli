@@ -17,6 +17,11 @@
         /// </summary>
         public const string FolderInstallDependencies = "installDependencies";
 
+        /// <summary>
+        /// Tests Folder
+        /// </summary>
+        public const string FolderTests = "/Tests";
+
         #endregion
 
         #region Files
@@ -57,9 +62,9 @@
         public const string LBOsFileLocation = "Libs/LBOs/NetStandard/Cmf.LightBusinessObjects.dll";
 
         /// <summary>
-        /// Driver keyword for IoT Packages
+        /// Dependencies File Name
         /// </summary>
-        public const string Driver = "driver";
+        public const string FileDependencies = "dependencies.json";
 
         #endregion
 
@@ -74,6 +79,11 @@
         /// The deployment metadata dependency
         /// </summary>
         public const string DeploymentMetadataDependency = "Cmf.Custom.DeploymentMetadata";
+
+        /// <summary>
+        /// Driver keyword for IoT Packages
+        /// </summary>
+        public const string Driver = "driver";
 
         #endregion
 

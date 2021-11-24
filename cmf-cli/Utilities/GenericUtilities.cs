@@ -80,7 +80,7 @@ namespace Cmf.Common.Cli.Utilities
         }
 
         /// <summary>
-        /// Get current version based on string, for 
+        /// Get current version based on string, for
         /// the format 1.0.0-1234
         /// where 1.0.0 will be the version
         /// and the 1234 will be the build number
@@ -194,10 +194,12 @@ namespace Cmf.Common.Cli.Utilities
         /// <param name="value"></param>
         /// <returns></returns>
 #nullable enable
+
         public static Uri? JsonObjectToUri(dynamic value)
         {
             return string.IsNullOrEmpty(value?.Value) ? null : new Uri(value?.Value);
         }
+
         #endregion Public Methods
     }
 }

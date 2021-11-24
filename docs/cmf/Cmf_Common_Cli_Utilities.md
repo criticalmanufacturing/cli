@@ -160,6 +160,30 @@ The object.
 `true` if [has] [the specified object]; otherwise, `false`.  
             
   
+<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource__System_Func_TSource_bool_)'></a>
+## ExtensionMethods.HasAny&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource,bool&gt;) Method
+Determines whether a sequence contains any elements.  
+```csharp
+public static bool HasAny<TSource>(this System.Collections.Generic.IEnumerable<TSource> source, System.Func<TSource,bool> predicate=null);
+```
+#### Type parameters
+<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource__System_Func_TSource_bool_)_TSource'></a>
+`TSource`  
+The type of the source.
+  
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource__System_Func_TSource_bool_)_source'></a>
+`source` [System.Collections.Generic.IEnumerable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')[TSource](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource__System_Func_TSource_bool_)_TSource 'Cmf.Common.Cli.Utilities.ExtensionMethods.HasAny&lt;TSource&gt;(System.Collections.Generic.IEnumerable&lt;TSource&gt;, System.Func&lt;TSource,bool&gt;).TSource')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')  
+The source.
+  
+<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource__System_Func_TSource_bool_)_predicate'></a>
+`predicate` [System.Func&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Func-2 'System.Func`2')[TSource](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource__System_Func_TSource_bool_)_TSource 'Cmf.Common.Cli.Utilities.ExtensionMethods.HasAny&lt;TSource&gt;(System.Collections.Generic.IEnumerable&lt;TSource&gt;, System.Func&lt;TSource,bool&gt;).TSource')[,](https://docs.microsoft.com/en-us/dotnet/api/System.Func-2 'System.Func`2')[System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Func-2 'System.Func`2')  
+  
+#### Returns
+[System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
+`true` if the specified source has any; otherwise, `false`.  
+            
+  
 <a name='Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource_)'></a>
 ## ExtensionMethods.HasAny&lt;TSource&gt;(IEnumerable&lt;TSource&gt;) Method
 Determines whether a sequence contains any elements.  
@@ -307,6 +331,19 @@ public static class FileSystemUtilities
 
 Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; FileSystemUtilities  
 ### Methods
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_AllFilesAndFolders(System_IO_Abstractions_IDirectoryInfo)'></a>
+## FileSystemUtilities.AllFilesAndFolders(IDirectoryInfo) Method
+Get all files and folders from a directory  
+```csharp
+private static System.Collections.Generic.IEnumerable<System.IO.Abstractions.IFileSystemInfo> AllFilesAndFolders(this System.IO.Abstractions.IDirectoryInfo dir);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_AllFilesAndFolders(System_IO_Abstractions_IDirectoryInfo)_dir'></a>
+`dir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
+  
+#### Returns
+[System.Collections.Generic.IEnumerable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')[System.IO.Abstractions.IFileSystemInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystemInfo 'System.IO.Abstractions.IFileSystemInfo')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')  
+  
 <a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_CopyDirectory(string_string_System_IO_Abstractions_IFileSystem_System_Collections_Generic_List_string__bool_bool)'></a>
 ## FileSystemUtilities.CopyDirectory(string, string, IFileSystem, List&lt;string&gt;, bool, bool) Method
 Directories copy.  
@@ -379,6 +416,45 @@ The input.
 The output.
   
   
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetDirectory(System_Uri)'></a>
+## FileSystemUtilities.GetDirectory(Uri) Method
+Get Directory from a FileSystem dependending if Uri is UNC  
+```csharp
+public static System.IO.Abstractions.IDirectoryInfo GetDirectory(this System.Uri uri);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetDirectory(System_Uri)_uri'></a>
+`uri` [System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')  
+  
+#### Returns
+[System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
+  
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetDirectoryName(System_Uri)'></a>
+## FileSystemUtilities.GetDirectoryName(Uri) Method
+Get Directory Name from a FileSystem dependending if Uri is UNC  
+```csharp
+public static string GetDirectoryName(this System.Uri uri);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetDirectoryName(System_Uri)_uri'></a>
+`uri` [System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')  
+  
+#### Returns
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+  
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFile(System_Uri)'></a>
+## FileSystemUtilities.GetFile(Uri) Method
+Get File from a FileSystem dependending if Uri is UNC  
+```csharp
+public static System.IO.Abstractions.IFileInfo GetFile(this System.Uri uri);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFile(System_Uri)_uri'></a>
+`uri` [System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')  
+  
+#### Returns
+[System.IO.Abstractions.IFileInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileInfo 'System.IO.Abstractions.IFileInfo')  
+  
 <a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFileContentFromPackage(string_string)'></a>
 ## FileSystemUtilities.GetFileContentFromPackage(string, string) Method
 Get File Content From package  
@@ -391,6 +467,19 @@ public static string GetFileContentFromPackage(string packageFile, string filena
   
 <a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFileContentFromPackage(string_string)_filename'></a>
 `filename` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+  
+#### Returns
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+  
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFileName(System_Uri)'></a>
+## FileSystemUtilities.GetFileName(Uri) Method
+Get Directory Name from a FileSystem dependending if Uri is UNC  
+```csharp
+public static string GetFileName(this System.Uri uri);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFileName(System_Uri)_uri'></a>
+`uri` [System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')  
   
 #### Returns
 [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
@@ -636,6 +725,19 @@ The fi.
 #### Returns
 [System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')  
   
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_ZipDirectory(string_System_IO_Abstractions_IDirectoryInfo)'></a>
+## FileSystemUtilities.ZipDirectory(string, IDirectoryInfo) Method
+```csharp
+public static void ZipDirectory(string filePath, System.IO.Abstractions.IDirectoryInfo directory);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_ZipDirectory(string_System_IO_Abstractions_IDirectoryInfo)_filePath'></a>
+`filePath` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+  
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_ZipDirectory(string_System_IO_Abstractions_IDirectoryInfo)_directory'></a>
+`directory` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
+  
+  
   
 <a name='Cmf_Common_Cli_Utilities_GenericUtilities'></a>
 ## GenericUtilities Class
@@ -670,7 +772,7 @@ a function that for each tree node returns its children
   
 <a name='Cmf_Common_Cli_Utilities_GenericUtilities_GetCurrentPresentationVersion(string_string_string)'></a>
 ## GenericUtilities.GetCurrentPresentationVersion(string, string, string) Method
-Get current version based on string, for   
+Get current version based on string, for  
 the format 1.0.0-1234  
 where 1.0.0 will be the version  
 and the 1234 will be the build number  
