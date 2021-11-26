@@ -22,6 +22,7 @@ namespace Cmf.Common.Cli.Handlers
         /// <param name="cmfPackage">The CMF package.</param>
         public DataPackageTypeHandler(CmfPackage cmfPackage) : base(cmfPackage)
         {
+            Log.Debug("Using Data Handler v1");
             // TargetDirectory with DateTimeStamp to avoid wrong files installation
             cmfPackage.SetDefaultValues
             (

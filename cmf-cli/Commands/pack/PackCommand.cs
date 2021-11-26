@@ -98,7 +98,7 @@ namespace Cmf.Common.Cli.Commands
             }
             catch (Exception e)
             {
-                throw new CliException(e.Message);
+                throw new CliException(e.Message, e);
             }
             finally
             {

@@ -109,6 +109,74 @@ The package output dir.
 #### See Also
 - [PackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_PackageTypeHandler 'Cmf.Common.Cli.Handlers.PackageTypeHandler')
   
+<a name='Cmf_Common_Cli_Handlers_DataPackageTypeHandlerV2'></a>
+## DataPackageTypeHandlerV2 Class
+```csharp
+public class DataPackageTypeHandlerV2 : Cmf.Common.Cli.Handlers.PackageTypeHandler
+```
+
+Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [PackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_PackageTypeHandler 'Cmf.Common.Cli.Handlers.PackageTypeHandler') &#129106; DataPackageTypeHandlerV2  
+### Constructors
+<a name='Cmf_Common_Cli_Handlers_DataPackageTypeHandlerV2_DataPackageTypeHandlerV2(Cmf_Common_Cli_Objects_CmfPackage)'></a>
+## DataPackageTypeHandlerV2.DataPackageTypeHandlerV2(CmfPackage) Constructor
+Initializes a new instance of the [DataPackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_DataPackageTypeHandler 'Cmf.Common.Cli.Handlers.DataPackageTypeHandler') class.  
+```csharp
+public DataPackageTypeHandlerV2(Cmf.Common.Cli.Objects.CmfPackage cmfPackage);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Handlers_DataPackageTypeHandlerV2_DataPackageTypeHandlerV2(Cmf_Common_Cli_Objects_CmfPackage)_cmfPackage'></a>
+`cmfPackage` [CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')  
+The CMF package.
+  
+  
+### Methods
+<a name='Cmf_Common_Cli_Handlers_DataPackageTypeHandlerV2_GenerateDeploymentFrameworkManifest(System_IO_Abstractions_IDirectoryInfo)'></a>
+## DataPackageTypeHandlerV2.GenerateDeploymentFrameworkManifest(IDirectoryInfo) Method
+Generates the deployment framework manifest.  
+```csharp
+internal override void GenerateDeploymentFrameworkManifest(System.IO.Abstractions.IDirectoryInfo packageOutputDir);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Handlers_DataPackageTypeHandlerV2_GenerateDeploymentFrameworkManifest(System_IO_Abstractions_IDirectoryInfo)_packageOutputDir'></a>
+`packageOutputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
+The package output dir.
+  
+#### Exceptions
+[CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException')  
+  
+<a name='Cmf_Common_Cli_Handlers_DataPackageTypeHandlerV2_GenerateHostConfigFile(System_IO_Abstractions_IDirectoryInfo)'></a>
+## DataPackageTypeHandlerV2.GenerateHostConfigFile(IDirectoryInfo) Method
+Generates the host configuration file.  
+```csharp
+private void GenerateHostConfigFile(System.IO.Abstractions.IDirectoryInfo packageOutputDir);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Handlers_DataPackageTypeHandlerV2_GenerateHostConfigFile(System_IO_Abstractions_IDirectoryInfo)_packageOutputDir'></a>
+`packageOutputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
+The package output dir.
+  
+  
+<a name='Cmf_Common_Cli_Handlers_DataPackageTypeHandlerV2_Pack(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo)'></a>
+## DataPackageTypeHandlerV2.Pack(IDirectoryInfo, IDirectoryInfo) Method
+Pack a Data package  
+```csharp
+public override void Pack(System.IO.Abstractions.IDirectoryInfo packageOutputDir, System.IO.Abstractions.IDirectoryInfo outputDir);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Handlers_DataPackageTypeHandlerV2_Pack(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo)_packageOutputDir'></a>
+`packageOutputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
+source directory
+  
+<a name='Cmf_Common_Cli_Handlers_DataPackageTypeHandlerV2_Pack(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo)_outputDir'></a>
+`outputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
+output directory
+  
+
+Implements [Pack(IDirectoryInfo, IDirectoryInfo)](Cmf_Common_Cli_Interfaces.md#Cmf_Common_Cli_Interfaces_IPackageTypeHandler_Pack(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo) 'Cmf.Common.Cli.Interfaces.IPackageTypeHandler.Pack(System.IO.Abstractions.IDirectoryInfo, System.IO.Abstractions.IDirectoryInfo)')  
+  
+#### See Also
+- [PackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_PackageTypeHandler 'Cmf.Common.Cli.Handlers.PackageTypeHandler')
+  
 <a name='Cmf_Common_Cli_Handlers_ExportedObjectsPackageTypeHandler'></a>
 ## ExportedObjectsPackageTypeHandler Class
 ```csharp
@@ -336,6 +404,7 @@ Derived
 &#8627; [BusinessPackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_BusinessPackageTypeHandler 'Cmf.Common.Cli.Handlers.BusinessPackageTypeHandler')  
 &#8627; [DatabasePackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_DatabasePackageTypeHandler 'Cmf.Common.Cli.Handlers.DatabasePackageTypeHandler')  
 &#8627; [DataPackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_DataPackageTypeHandler 'Cmf.Common.Cli.Handlers.DataPackageTypeHandler')  
+&#8627; [DataPackageTypeHandlerV2](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_DataPackageTypeHandlerV2 'Cmf.Common.Cli.Handlers.DataPackageTypeHandlerV2')  
 &#8627; [ExportedObjectsPackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_ExportedObjectsPackageTypeHandler 'Cmf.Common.Cli.Handlers.ExportedObjectsPackageTypeHandler')  
 &#8627; [GenericPackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_GenericPackageTypeHandler 'Cmf.Common.Cli.Handlers.GenericPackageTypeHandler')  
 &#8627; [PresentationPackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_PresentationPackageTypeHandler 'Cmf.Common.Cli.Handlers.PresentationPackageTypeHandler')  

@@ -42,6 +42,11 @@
         public const string CmfPackagePresentationConfig = "config.json";
 
         /// <summary>
+        /// The CMF package default host configuration
+        /// </summary>
+        public const string CmfPackageHostConfig = "Cmf.Foundation.Services.HostService.dll.config";
+
+        /// <summary>
         /// The package json
         /// </summary>
         public const string PackageJson = "package.json";
@@ -50,7 +55,7 @@
         /// The project config file name, located in the project root
         /// </summary>
         public const string ProjectConfigFileName = ".project-config.json";
-        
+
         /// <summary>
         /// The repositories config file name, usually located in the project root
         /// </summary>

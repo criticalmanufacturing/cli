@@ -13,6 +13,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using System.Xml.Linq;
+using System.Xml.Serialization;
 
 namespace Cmf.Common.Cli.Handlers
 {
@@ -201,6 +202,11 @@ namespace Cmf.Common.Cli.Handlers
                             List<XAttribute> xAttributes = new();
                             foreach (PropertyInfo propertyinfo in property.GetType().GetProperties())
                             {
+                                if (propertyinfo.CustomAttributes.Any(attr => attr.AttributeType == typeof(XmlIgnoreAttribute)))
+                                {
+                                    continue;
+                                }
+
                                 var obj = propertyinfo.GetValue(property);
                                 if (obj != null)
                                 {
@@ -482,7 +488,11 @@ namespace Cmf.Common.Cli.Handlers
         /// <param name="outputDir">The output dir.</param>
         public virtual void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir)
         {
-            FilesToPack = GetContentToPack(packageOutputDir);
+            var filesToPack = GetContentToPack(packageOutputDir);
+            if (filesToPack != null)
+            {
+                FilesToPack.AddRange(filesToPack);
+            }
 
             // TODO: To be removed? Install dependencies
             CopyInstallDependencies(packageOutputDir);
