@@ -63,6 +63,15 @@ public const string Driver = driver;
 #### Field Value
 [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
   
+<a name='Cmf_Common_Cli_Constants_CliConstants_FileDependencies'></a>
+## CliConstants.FileDependencies Field
+Dependencies File Name  
+```csharp
+public const string FileDependencies = dependencies.json;
+```
+#### Field Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
+  
 <a name='Cmf_Common_Cli_Constants_CliConstants_FolderInstallDependencies'></a>
 ## CliConstants.FolderInstallDependencies Field
 The folder install dependencies  
@@ -77,6 +86,15 @@ public const string FolderInstallDependencies = installDependencies;
 The folder templates  
 ```csharp
 public const string FolderTemplates = templateFiles;
+```
+#### Field Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
+  
+<a name='Cmf_Common_Cli_Constants_CliConstants_FolderTests'></a>
+## CliConstants.FolderTests Field
+Tests Folder  
+```csharp
+public const string FolderTests = /Tests;
 ```
 #### Field Value
 [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
@@ -104,6 +122,15 @@ public const string PackageJson = package.json;
 The project config file name, located in the project root  
 ```csharp
 public const string ProjectConfigFileName = .project-config.json;
+```
+#### Field Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
+  
+<a name='Cmf_Common_Cli_Constants_CliConstants_RepositoriesConfigFileName'></a>
+## CliConstants.RepositoriesConfigFileName Field
+The repositories config file name, usually located in the project root  
+```csharp
+public const string RepositoriesConfigFileName = repositories.json;
 ```
 #### Field Value
 [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')

@@ -95,6 +95,23 @@ should wait for integration entries to complete
 The test Packages.
   
   
+<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_System_Uri)'></a>
+## CmfPackage.CmfPackage(string, string, Uri) Constructor
+Initialize CmfPackage with PackageId, Version and Uri  
+```csharp
+public CmfPackage(string packageId, string version, System.Uri uri);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_System_Uri)_packageId'></a>
+`packageId` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+  
+<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_System_Uri)_version'></a>
+`version` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+  
+<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_System_Uri)_uri'></a>
+`uri` [System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')  
+  
+  
 <a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(System_IO_Abstractions_IFileSystem)'></a>
 ## CmfPackage.CmfPackage(IFileSystem) Constructor
 Initialize an empty CmfPackage with a specific file system  
@@ -456,26 +473,43 @@ the underlying file system
 [CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException')  
 [CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException')  
   
-<a name='Cmf_Common_Cli_Objects_CmfPackage_LoadDependencies(System_Uri___bool)'></a>
-## CmfPackage.LoadDependencies(Uri[], bool) Method
+<a name='Cmf_Common_Cli_Objects_CmfPackage_LoadDependencies(System_Collections_Generic_IEnumerable_System_Uri__bool)'></a>
+## CmfPackage.LoadDependencies(IEnumerable&lt;Uri&gt;, bool) Method
 Builds a dependency tree by attaching the CmfPackage objects to the parent's dependencies  
 Can run recursively and fetch packages from a DF repository.  
 Supports cycles  
 ```csharp
-public Cmf.Common.Cli.Objects.CmfPackage LoadDependencies(System.Uri[] repoUris, bool recurse=false);
+public void LoadDependencies(System.Collections.Generic.IEnumerable<System.Uri> repoUris, bool recurse=false);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Objects_CmfPackage_LoadDependencies(System_Uri___bool)_repoUris'></a>
-`repoUris` [System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')[[]](https://docs.microsoft.com/en-us/dotnet/api/System.Array 'System.Array')  
+<a name='Cmf_Common_Cli_Objects_CmfPackage_LoadDependencies(System_Collections_Generic_IEnumerable_System_Uri__bool)_repoUris'></a>
+`repoUris` [System.Collections.Generic.IEnumerable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')[System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')  
 the address of the package repositories (currently only folders are supported)
   
-<a name='Cmf_Common_Cli_Objects_CmfPackage_LoadDependencies(System_Uri___bool)_recurse'></a>
+<a name='Cmf_Common_Cli_Objects_CmfPackage_LoadDependencies(System_Collections_Generic_IEnumerable_System_Uri__bool)_recurse'></a>
 `recurse` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
 should we run recursively
   
+  
+<a name='Cmf_Common_Cli_Objects_CmfPackage_LoadFromRepo(System_IO_Abstractions_IDirectoryInfo___string_string)'></a>
+## CmfPackage.LoadFromRepo(IDirectoryInfo[], string, string) Method
+Gets the URI from repos.  
+```csharp
+public static Cmf.Common.Cli.Objects.CmfPackage LoadFromRepo(System.IO.Abstractions.IDirectoryInfo[] repoDirectories, string packageId, string version);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Objects_CmfPackage_LoadFromRepo(System_IO_Abstractions_IDirectoryInfo___string_string)_repoDirectories'></a>
+`repoDirectories` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')[[]](https://docs.microsoft.com/en-us/dotnet/api/System.Array 'System.Array')  
+The repo directories.
+  
+<a name='Cmf_Common_Cli_Objects_CmfPackage_LoadFromRepo(System_IO_Abstractions_IDirectoryInfo___string_string)_packageId'></a>
+`packageId` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+  
+<a name='Cmf_Common_Cli_Objects_CmfPackage_LoadFromRepo(System_IO_Abstractions_IDirectoryInfo___string_string)_version'></a>
+`version` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+  
 #### Returns
 [CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')  
-this CmfPackage for chaining, but the method itself is mutable
   
 <a name='Cmf_Common_Cli_Objects_CmfPackage_SaveCmfPackage()'></a>
 ## CmfPackage.SaveCmfPackage() Method
@@ -570,6 +604,21 @@ public class CmfPackageCollection : System.Collections.Generic.List<Cmf.Common.C
 
 Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1') &#129106; CmfPackageCollection  
 ### Methods
+<a name='Cmf_Common_Cli_Objects_CmfPackageCollection_Contains(Cmf_Common_Cli_Objects_CmfPackage)'></a>
+## CmfPackageCollection.Contains(CmfPackage) Method
+Determines whether this instance contains the object.  
+```csharp
+public bool Contains(Cmf.Common.Cli.Objects.CmfPackage cmfPackage);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Objects_CmfPackageCollection_Contains(Cmf_Common_Cli_Objects_CmfPackage)_cmfPackage'></a>
+`cmfPackage` [CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')  
+  
+#### Returns
+[System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
+`true` if [contains] [the specified dependency]; otherwise, `false`.  
+            
+  
 <a name='Cmf_Common_Cli_Objects_CmfPackageCollection_GetDependency(Cmf_Common_Cli_Objects_Dependency)'></a>
 ## CmfPackageCollection.GetDependency(Dependency) Method
 Gets the dependency.  
@@ -822,8 +871,73 @@ The dependency.
 `true` if [contains] [the specified dependency]; otherwise, `false`.  
             
   
+<a name='Cmf_Common_Cli_Objects_DependencyCollection_Get(Cmf_Common_Cli_Objects_Dependency)'></a>
+## DependencyCollection.Get(Dependency) Method
+Gets the specified dependency.  
+```csharp
+public Cmf.Common.Cli.Objects.Dependency Get(Cmf.Common.Cli.Objects.Dependency dependency);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Objects_DependencyCollection_Get(Cmf_Common_Cli_Objects_Dependency)_dependency'></a>
+`dependency` [Dependency](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_Dependency 'Cmf.Common.Cli.Objects.Dependency')  
+The dependency.
+  
+#### Returns
+[Dependency](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_Dependency 'Cmf.Common.Cli.Objects.Dependency')  
+  
 #### See Also
 - [System.Collections.Generic.List<Cmf.Common.Cli.Objects.Dependency>](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List<Cmf.Common.Cli.Objects.Dependency> 'System.Collections.Generic.List<Cmf.Common.Cli.Objects.Dependency>')
+  
+<a name='Cmf_Common_Cli_Objects_ExecutionContext'></a>
+## ExecutionContext Class
+The current execution context  
+```csharp
+public class ExecutionContext
+```
+
+Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; ExecutionContext  
+### Properties
+<a name='Cmf_Common_Cli_Objects_ExecutionContext_FileSystem'></a>
+## ExecutionContext.FileSystem Property
+The current FileSystem object  
+```csharp
+public System.IO.Abstractions.IFileSystem FileSystem { get; }
+```
+#### Property Value
+[System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')
+  
+<a name='Cmf_Common_Cli_Objects_ExecutionContext_Instance'></a>
+## ExecutionContext.Instance Property
+The current ExecutionContext object  
+```csharp
+public static Cmf.Common.Cli.Objects.ExecutionContext Instance { get; }
+```
+#### Property Value
+[ExecutionContext](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_ExecutionContext 'Cmf.Common.Cli.Objects.ExecutionContext')
+  
+<a name='Cmf_Common_Cli_Objects_ExecutionContext_RepositoriesConfig'></a>
+## ExecutionContext.RepositoriesConfig Property
+The current execution RepositoriesConfig object  
+```csharp
+public Cmf.Common.Cli.Objects.RepositoriesConfig RepositoriesConfig { get; set; }
+```
+#### Property Value
+[RepositoriesConfig](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_RepositoriesConfig 'Cmf.Common.Cli.Objects.RepositoriesConfig')
+  
+### Methods
+<a name='Cmf_Common_Cli_Objects_ExecutionContext_Initialize(System_IO_Abstractions_IFileSystem)'></a>
+## ExecutionContext.Initialize(IFileSystem) Method
+Initialize the current ExecutionContext instance  
+```csharp
+public static Cmf.Common.Cli.Objects.ExecutionContext Initialize(System.IO.Abstractions.IFileSystem fileSystem);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Objects_ExecutionContext_Initialize(System_IO_Abstractions_IFileSystem)_fileSystem'></a>
+`fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
+  
+#### Returns
+[ExecutionContext](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_ExecutionContext 'Cmf.Common.Cli.Objects.ExecutionContext')  
+  
   
 <a name='Cmf_Common_Cli_Objects_FileToPack'></a>
 ## FileToPack Class
@@ -890,6 +1004,43 @@ public System.IO.Abstractions.IFileInfo Target { get; set; }
 #### Property Value
 [System.IO.Abstractions.IFileInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileInfo 'System.IO.Abstractions.IFileInfo')
 The target.  
+  
+  
+<a name='Cmf_Common_Cli_Objects_RepositoriesConfig'></a>
+## RepositoriesConfig Class
+The DF repositories used in this run  
+```csharp
+public class RepositoriesConfig
+```
+
+Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; RepositoriesConfig  
+### Constructors
+<a name='Cmf_Common_Cli_Objects_RepositoriesConfig_RepositoriesConfig()'></a>
+## RepositoriesConfig.RepositoriesConfig() Constructor
+Initialize new RepositoriesConfig.  
+This constructor is only used as fallback, if a config is found in the filesystem, the file will be deserialized into this object  
+```csharp
+public RepositoriesConfig();
+```
+  
+### Properties
+<a name='Cmf_Common_Cli_Objects_RepositoriesConfig_CIRepository'></a>
+## RepositoriesConfig.CIRepository Property
+The CI repository folder: this is the place where Packages built by CI are stored, by branch  
+```csharp
+public System.Uri CIRepository { get; set; }
+```
+#### Property Value
+[System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')
+  
+<a name='Cmf_Common_Cli_Objects_RepositoriesConfig_Repositories'></a>
+## RepositoriesConfig.Repositories Property
+The DF repositories: these contain package that we treat as official (i.e. upstream dependencies or already releases packages)  
+```csharp
+public System.Collections.Generic.List<System.Uri> Repositories { get; set; }
+```
+#### Property Value
+[System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')
   
   
 <a name='Cmf_Common_Cli_Objects_Step'></a>

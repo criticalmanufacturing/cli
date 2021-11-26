@@ -1,6 +1,157 @@
 #### [cmf](index.md 'index')
 ## Cmf.Common.Cli.Commands Namespace
 ### Classes
+<a name='Cmf_Common_Cli_Commands_AssembleCommand'></a>
+## AssembleCommand Class
+This command will be responsible for assembling a package based on a given cmfpackage and respective dependencies  
+```csharp
+public class AssembleCommand : Cmf.Common.Cli.Commands.BaseCommand
+```
+
+Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand') &#129106; AssembleCommand  
+### Constructors
+<a name='Cmf_Common_Cli_Commands_AssembleCommand_AssembleCommand()'></a>
+## AssembleCommand.AssembleCommand() Constructor
+Assemble Command  
+```csharp
+public AssembleCommand();
+```
+  
+<a name='Cmf_Common_Cli_Commands_AssembleCommand_AssembleCommand(System_IO_Abstractions_IFileSystem)'></a>
+## AssembleCommand.AssembleCommand(IFileSystem) Constructor
+Assemble Command  
+```csharp
+public AssembleCommand(System.IO.Abstractions.IFileSystem fileSystem);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Commands_AssembleCommand_AssembleCommand(System_IO_Abstractions_IFileSystem)_fileSystem'></a>
+`fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
+  
+  
+### Fields
+<a name='Cmf_Common_Cli_Commands_AssembleCommand_packagesLocation'></a>
+## AssembleCommand.packagesLocation Field
+Packages names and Uri to saved in a file in the end of the command execution  
+```csharp
+private readonly Dictionary<string,string> packagesLocation;
+```
+#### Field Value
+[System.Collections.Generic.Dictionary&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.Dictionary-2 'System.Collections.Generic.Dictionary`2')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[,](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.Dictionary-2 'System.Collections.Generic.Dictionary`2')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.Dictionary-2 'System.Collections.Generic.Dictionary`2')
+  
+### Methods
+<a name='Cmf_Common_Cli_Commands_AssembleCommand_AssembleDependencies(System_IO_Abstractions_IDirectoryInfo_System_Uri_System_IO_Abstractions_IDirectoryInfo___Cmf_Common_Cli_Objects_CmfPackage_Cmf_Common_Cli_Objects_DependencyCollection_bool)'></a>
+## AssembleCommand.AssembleDependencies(IDirectoryInfo, Uri, IDirectoryInfo[], CmfPackage, DependencyCollection, bool) Method
+Publish Dependencies from one package. recursive operation  
+```csharp
+private void AssembleDependencies(System.IO.Abstractions.IDirectoryInfo outputDir, System.Uri ciRepo, System.IO.Abstractions.IDirectoryInfo[] repoDirectories, Cmf.Common.Cli.Objects.CmfPackage cmfPackage, Cmf.Common.Cli.Objects.DependencyCollection assembledDependencies=null, bool includeTestPackages=false);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Commands_AssembleCommand_AssembleDependencies(System_IO_Abstractions_IDirectoryInfo_System_Uri_System_IO_Abstractions_IDirectoryInfo___Cmf_Common_Cli_Objects_CmfPackage_Cmf_Common_Cli_Objects_DependencyCollection_bool)_outputDir'></a>
+`outputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
+Destination for the dependencies package and also used for the current package
+  
+<a name='Cmf_Common_Cli_Commands_AssembleCommand_AssembleDependencies(System_IO_Abstractions_IDirectoryInfo_System_Uri_System_IO_Abstractions_IDirectoryInfo___Cmf_Common_Cli_Objects_CmfPackage_Cmf_Common_Cli_Objects_DependencyCollection_bool)_ciRepo'></a>
+`ciRepo` [System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')  
+  
+<a name='Cmf_Common_Cli_Commands_AssembleCommand_AssembleDependencies(System_IO_Abstractions_IDirectoryInfo_System_Uri_System_IO_Abstractions_IDirectoryInfo___Cmf_Common_Cli_Objects_CmfPackage_Cmf_Common_Cli_Objects_DependencyCollection_bool)_repoDirectories'></a>
+`repoDirectories` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')[[]](https://docs.microsoft.com/en-us/dotnet/api/System.Array 'System.Array')  
+The repos.
+  
+<a name='Cmf_Common_Cli_Commands_AssembleCommand_AssembleDependencies(System_IO_Abstractions_IDirectoryInfo_System_Uri_System_IO_Abstractions_IDirectoryInfo___Cmf_Common_Cli_Objects_CmfPackage_Cmf_Common_Cli_Objects_DependencyCollection_bool)_cmfPackage'></a>
+`cmfPackage` [CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')  
+The CMF package.
+  
+<a name='Cmf_Common_Cli_Commands_AssembleCommand_AssembleDependencies(System_IO_Abstractions_IDirectoryInfo_System_Uri_System_IO_Abstractions_IDirectoryInfo___Cmf_Common_Cli_Objects_CmfPackage_Cmf_Common_Cli_Objects_DependencyCollection_bool)_assembledDependencies'></a>
+`assembledDependencies` [DependencyCollection](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_DependencyCollection 'Cmf.Common.Cli.Objects.DependencyCollection')  
+The loaded dependencies.
+  
+<a name='Cmf_Common_Cli_Commands_AssembleCommand_AssembleDependencies(System_IO_Abstractions_IDirectoryInfo_System_Uri_System_IO_Abstractions_IDirectoryInfo___Cmf_Common_Cli_Objects_CmfPackage_Cmf_Common_Cli_Objects_DependencyCollection_bool)_includeTestPackages'></a>
+`includeTestPackages` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
+  
+  
+<a name='Cmf_Common_Cli_Commands_AssembleCommand_AssemblePackage(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo___Cmf_Common_Cli_Objects_CmfPackage_bool)'></a>
+## AssembleCommand.AssemblePackage(IDirectoryInfo, IDirectoryInfo[], CmfPackage, bool) Method
+Publish a package to the output directory  
+```csharp
+private void AssemblePackage(System.IO.Abstractions.IDirectoryInfo outputDir, System.IO.Abstractions.IDirectoryInfo[] repoDirectories, Cmf.Common.Cli.Objects.CmfPackage cmfPackage, bool includeTestPackages);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Commands_AssembleCommand_AssemblePackage(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo___Cmf_Common_Cli_Objects_CmfPackage_bool)_outputDir'></a>
+`outputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
+Destiny for the package
+  
+<a name='Cmf_Common_Cli_Commands_AssembleCommand_AssemblePackage(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo___Cmf_Common_Cli_Objects_CmfPackage_bool)_repoDirectories'></a>
+`repoDirectories` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')[[]](https://docs.microsoft.com/en-us/dotnet/api/System.Array 'System.Array')  
+The repos.
+  
+<a name='Cmf_Common_Cli_Commands_AssembleCommand_AssemblePackage(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo___Cmf_Common_Cli_Objects_CmfPackage_bool)_cmfPackage'></a>
+`cmfPackage` [CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')  
+The CMF package.
+  
+<a name='Cmf_Common_Cli_Commands_AssembleCommand_AssemblePackage(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo___Cmf_Common_Cli_Objects_CmfPackage_bool)_includeTestPackages'></a>
+`includeTestPackages` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
+  
+#### Exceptions
+[CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException')  
+  
+<a name='Cmf_Common_Cli_Commands_AssembleCommand_AssembleTestPackages(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo___Cmf_Common_Cli_Objects_CmfPackage)'></a>
+## AssembleCommand.AssembleTestPackages(IDirectoryInfo, IDirectoryInfo[], CmfPackage) Method
+Assemble Packages of Type Test  
+```csharp
+private void AssembleTestPackages(System.IO.Abstractions.IDirectoryInfo outputDir, System.IO.Abstractions.IDirectoryInfo[] repoDirectories, Cmf.Common.Cli.Objects.CmfPackage cmfPackage);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Commands_AssembleCommand_AssembleTestPackages(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo___Cmf_Common_Cli_Objects_CmfPackage)_outputDir'></a>
+`outputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
+  
+<a name='Cmf_Common_Cli_Commands_AssembleCommand_AssembleTestPackages(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo___Cmf_Common_Cli_Objects_CmfPackage)_repoDirectories'></a>
+`repoDirectories` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')[[]](https://docs.microsoft.com/en-us/dotnet/api/System.Array 'System.Array')  
+  
+<a name='Cmf_Common_Cli_Commands_AssembleCommand_AssembleTestPackages(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo___Cmf_Common_Cli_Objects_CmfPackage)_cmfPackage'></a>
+`cmfPackage` [CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')  
+  
+  
+<a name='Cmf_Common_Cli_Commands_AssembleCommand_Configure(System_CommandLine_Command)'></a>
+## AssembleCommand.Configure(Command) Method
+Configure command  
+```csharp
+public override void Configure(System.CommandLine.Command cmd);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Commands_AssembleCommand_Configure(System_CommandLine_Command)_cmd'></a>
+`cmd` [System.CommandLine.Command](https://docs.microsoft.com/en-us/dotnet/api/System.CommandLine.Command 'System.CommandLine.Command')  
+  
+  
+<a name='Cmf_Common_Cli_Commands_AssembleCommand_Execute(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_System_Uri_System_Uri___bool)'></a>
+## AssembleCommand.Execute(IDirectoryInfo, IDirectoryInfo, Uri, Uri[], bool) Method
+Executes the specified working dir.  
+```csharp
+public void Execute(System.IO.Abstractions.IDirectoryInfo workingDir, System.IO.Abstractions.IDirectoryInfo outputDir, System.Uri ciRepo, System.Uri[] repos, bool includeTestPackages);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Commands_AssembleCommand_Execute(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_System_Uri_System_Uri___bool)_workingDir'></a>
+`workingDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
+The working dir.
+  
+<a name='Cmf_Common_Cli_Commands_AssembleCommand_Execute(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_System_Uri_System_Uri___bool)_outputDir'></a>
+`outputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
+The output dir.
+  
+<a name='Cmf_Common_Cli_Commands_AssembleCommand_Execute(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_System_Uri_System_Uri___bool)_ciRepo'></a>
+`ciRepo` [System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')  
+  
+<a name='Cmf_Common_Cli_Commands_AssembleCommand_Execute(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_System_Uri_System_Uri___bool)_repos'></a>
+`repos` [System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')[[]](https://docs.microsoft.com/en-us/dotnet/api/System.Array 'System.Array')  
+The repo.
+  
+<a name='Cmf_Common_Cli_Commands_AssembleCommand_Execute(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_System_Uri_System_Uri___bool)_includeTestPackages'></a>
+`includeTestPackages` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
+True to publish test packages
+  
+  
+#### See Also
+- [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand')
+  
 <a name='Cmf_Common_Cli_Commands_BaseCommand'></a>
 ## BaseCommand Class
 ```csharp
@@ -10,6 +161,7 @@ public abstract class BaseCommand
 Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; BaseCommand  
 
 Derived  
+&#8627; [AssembleCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_AssembleCommand 'Cmf.Common.Cli.Commands.AssembleCommand')  
 &#8627; [BuildCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BuildCommand 'Cmf.Common.Cli.Commands.BuildCommand')  
 &#8627; [BumpCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BumpCommand 'Cmf.Common.Cli.Commands.BumpCommand')  
 &#8627; [BumpIoTCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BumpIoTCommand 'Cmf.Common.Cli.Commands.BumpIoTCommand')  
@@ -21,7 +173,7 @@ Derived
 &#8627; [PackCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_PackCommand 'Cmf.Common.Cli.Commands.PackCommand')  
 &#8627; [PluginCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_PluginCommand 'Cmf.Common.Cli.Commands.PluginCommand')  
 &#8627; [PowershellCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_PowershellCommand 'Cmf.Common.Cli.Commands.PowershellCommand')  
-&#8627; [PublishCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_PublishCommand 'Cmf.Common.Cli.Commands.PublishCommand')  
+&#8627; [RestoreCommand](Cmf_Common_Cli_Commands_restore.md#Cmf_Common_Cli_Commands_restore_RestoreCommand 'Cmf.Common.Cli.Commands.restore.RestoreCommand')  
 &#8627; [TemplateCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_TemplateCommand 'Cmf.Common.Cli.Commands.TemplateCommand')  
 ### Constructors
 <a name='Cmf_Common_Cli_Commands_BaseCommand_BaseCommand()'></a>
@@ -1197,134 +1349,6 @@ The hostname.
   
 #### Returns
 [System.Management.Automation.Runspaces.Runspace](https://docs.microsoft.com/en-us/dotnet/api/System.Management.Automation.Runspaces.Runspace 'System.Management.Automation.Runspaces.Runspace')  
-  
-#### See Also
-- [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand')
-  
-<a name='Cmf_Common_Cli_Commands_PublishCommand'></a>
-## PublishCommand Class
-```csharp
-public class PublishCommand : Cmf.Common.Cli.Commands.BaseCommand
-```
-
-Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand') &#129106; PublishCommand  
-### Methods
-<a name='Cmf_Common_Cli_Commands_PublishCommand_Configure(System_CommandLine_Command)'></a>
-## PublishCommand.Configure(Command) Method
-Configure command  
-```csharp
-public override void Configure(System.CommandLine.Command cmd);
-```
-#### Parameters
-<a name='Cmf_Common_Cli_Commands_PublishCommand_Configure(System_CommandLine_Command)_cmd'></a>
-`cmd` [System.CommandLine.Command](https://docs.microsoft.com/en-us/dotnet/api/System.CommandLine.Command 'System.CommandLine.Command')  
-  
-  
-<a name='Cmf_Common_Cli_Commands_PublishCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_System_IO_Abstractions_IDirectoryInfo_System_Uri_bool)'></a>
-## PublishCommand.Execute(CmfPackage, IDirectoryInfo, Uri, bool) Method
-Executes the specified CMF package.  
-```csharp
-public void Execute(Cmf.Common.Cli.Objects.CmfPackage cmfPackage, System.IO.Abstractions.IDirectoryInfo outputDir, System.Uri repoUri, bool publishTests);
-```
-#### Parameters
-<a name='Cmf_Common_Cli_Commands_PublishCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_System_IO_Abstractions_IDirectoryInfo_System_Uri_bool)_cmfPackage'></a>
-`cmfPackage` [CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')  
-The CMF package.
-  
-<a name='Cmf_Common_Cli_Commands_PublishCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_System_IO_Abstractions_IDirectoryInfo_System_Uri_bool)_outputDir'></a>
-`outputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
-The output dir.
-  
-<a name='Cmf_Common_Cli_Commands_PublishCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_System_IO_Abstractions_IDirectoryInfo_System_Uri_bool)_repoUri'></a>
-`repoUri` [System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')  
-The repo URI.
-  
-<a name='Cmf_Common_Cli_Commands_PublishCommand_Execute(Cmf_Common_Cli_Objects_CmfPackage_System_IO_Abstractions_IDirectoryInfo_System_Uri_bool)_publishTests'></a>
-`publishTests` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
-True to publish test packages
-  
-#### Exceptions
-[CmfPackageCollection](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackageCollection 'Cmf.Common.Cli.Objects.CmfPackageCollection')  
-  
-<a name='Cmf_Common_Cli_Commands_PublishCommand_Execute(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_string_bool)'></a>
-## PublishCommand.Execute(IDirectoryInfo, IDirectoryInfo, string, bool) Method
-Executes the specified working dir.  
-```csharp
-public void Execute(System.IO.Abstractions.IDirectoryInfo workingDir, System.IO.Abstractions.IDirectoryInfo outputDir, string repo, bool publishTests);
-```
-#### Parameters
-<a name='Cmf_Common_Cli_Commands_PublishCommand_Execute(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_string_bool)_workingDir'></a>
-`workingDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
-The working dir.
-  
-<a name='Cmf_Common_Cli_Commands_PublishCommand_Execute(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_string_bool)_outputDir'></a>
-`outputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
-The output dir.
-  
-<a name='Cmf_Common_Cli_Commands_PublishCommand_Execute(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_string_bool)_repo'></a>
-`repo` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
-The repo.
-  
-<a name='Cmf_Common_Cli_Commands_PublishCommand_Execute(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo_string_bool)_publishTests'></a>
-`publishTests` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
-True to publish test packages
-  
-  
-<a name='Cmf_Common_Cli_Commands_PublishCommand_PublishDependenciesFromPackage(System_IO_Abstractions_IDirectoryInfo_System_Uri_string_string_System_Collections_Generic_List_string__bool)'></a>
-## PublishCommand.PublishDependenciesFromPackage(IDirectoryInfo, Uri, string, string, List&lt;string&gt;, bool) Method
-Publish Dependencies from one package. recursive operation  
-```csharp
-private void PublishDependenciesFromPackage(System.IO.Abstractions.IDirectoryInfo outputDir, System.Uri repoUri, string packageId, string packageVersion, System.Collections.Generic.List<string> loadedPackages, bool publishTests);
-```
-#### Parameters
-<a name='Cmf_Common_Cli_Commands_PublishCommand_PublishDependenciesFromPackage(System_IO_Abstractions_IDirectoryInfo_System_Uri_string_string_System_Collections_Generic_List_string__bool)_outputDir'></a>
-`outputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
-Destination for the dependencies package and also used for the current package
-  
-<a name='Cmf_Common_Cli_Commands_PublishCommand_PublishDependenciesFromPackage(System_IO_Abstractions_IDirectoryInfo_System_Uri_string_string_System_Collections_Generic_List_string__bool)_repoUri'></a>
-`repoUri` [System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')  
-Source Location where the package dependencies should be downloaded
-  
-<a name='Cmf_Common_Cli_Commands_PublishCommand_PublishDependenciesFromPackage(System_IO_Abstractions_IDirectoryInfo_System_Uri_string_string_System_Collections_Generic_List_string__bool)_packageId'></a>
-`packageId` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
-Source Package ID
-  
-<a name='Cmf_Common_Cli_Commands_PublishCommand_PublishDependenciesFromPackage(System_IO_Abstractions_IDirectoryInfo_System_Uri_string_string_System_Collections_Generic_List_string__bool)_packageVersion'></a>
-`packageVersion` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
-Source Package Version
-  
-<a name='Cmf_Common_Cli_Commands_PublishCommand_PublishDependenciesFromPackage(System_IO_Abstractions_IDirectoryInfo_System_Uri_string_string_System_Collections_Generic_List_string__bool)_loadedPackages'></a>
-`loadedPackages` [System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')  
-List of packages already processed.
-  
-<a name='Cmf_Common_Cli_Commands_PublishCommand_PublishDependenciesFromPackage(System_IO_Abstractions_IDirectoryInfo_System_Uri_string_string_System_Collections_Generic_List_string__bool)_publishTests'></a>
-`publishTests` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
-True to publish test packages
-  
-  
-<a name='Cmf_Common_Cli_Commands_PublishCommand_PublishPackageToOutput(System_IO_Abstractions_IDirectoryInfo_System_Uri_string_string)'></a>
-## PublishCommand.PublishPackageToOutput(IDirectoryInfo, Uri, string, string) Method
-Publish a package to the output directory  
-```csharp
-private void PublishPackageToOutput(System.IO.Abstractions.IDirectoryInfo outputDir, System.Uri repoUri, string packageId, string packageVersion);
-```
-#### Parameters
-<a name='Cmf_Common_Cli_Commands_PublishCommand_PublishPackageToOutput(System_IO_Abstractions_IDirectoryInfo_System_Uri_string_string)_outputDir'></a>
-`outputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
-Destiny for the package
-  
-<a name='Cmf_Common_Cli_Commands_PublishCommand_PublishPackageToOutput(System_IO_Abstractions_IDirectoryInfo_System_Uri_string_string)_repoUri'></a>
-`repoUri` [System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')  
-Source Location where the package should be downloaded
-  
-<a name='Cmf_Common_Cli_Commands_PublishCommand_PublishPackageToOutput(System_IO_Abstractions_IDirectoryInfo_System_Uri_string_string)_packageId'></a>
-`packageId` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
-Package Id to publish
-  
-<a name='Cmf_Common_Cli_Commands_PublishCommand_PublishPackageToOutput(System_IO_Abstractions_IDirectoryInfo_System_Uri_string_string)_packageVersion'></a>
-`packageVersion` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
-Package version to publish
-  
   
 #### See Also
 - [BaseCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_BaseCommand 'Cmf.Common.Cli.Commands.BaseCommand')

@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
+using Cmf.Common.Cli.Commands.restore;
 
 namespace Cmf.Common.Cli.Handlers
 {
@@ -72,6 +73,15 @@ namespace Cmf.Common.Cli.Handlers
 
             BuildSteps = new IBuildCommand[]
             {
+                new ExecuteCommand<RestoreCommand>()
+                {
+                    Command = new RestoreCommand(),
+                    DisplayName = "cmf restore",
+                    Execute = command =>
+                    {
+                        command.Execute(cmfPackage.GetFileInfo().Directory, null);
+                    }
+                },
                 new NPMCommand()
                 {
                     DisplayName = "NPM Install",
