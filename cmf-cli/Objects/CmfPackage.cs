@@ -321,6 +321,19 @@ namespace Cmf.Common.Cli.Objects
             this.fileSystem = fileSystem;
         }
 
+        /// <summary>
+        /// Initialize CmfPackage with PackageId, Version and Uri
+        /// </summary>
+        public CmfPackage(string packageId, string version, Uri uri)
+        {
+            PackageId = packageId ?? throw new ArgumentNullException(nameof(packageId));
+            Version = version ?? throw new ArgumentNullException(nameof(version));
+            Uri = uri;
+
+            PackageName = $"{PackageId}.{Version}";
+            ZipPackageName = $"{PackageName}.zip";
+        }
+
         #endregion
 
         #region Public Methods
@@ -605,6 +618,7 @@ namespace Cmf.Common.Cli.Objects
                 throw new CliException(string.Format(CliMessages.InvalidManifestFile));
             }
             DependencyCollection deps = new();
+            DependencyCollection testPackages = new();
             foreach (XElement element in rootNode.Elements())
             {
                 // Get the Property Value based on the Token name
@@ -614,6 +628,12 @@ namespace Cmf.Common.Cli.Objects
                 {
                     var deplist = element.Elements().Select(depEl => new Dependency(depEl.Attribute("id").Value, depEl.Attribute("version").Value));
                     deps.AddRange(deplist);
+                }
+
+                if (element.Name.LocalName == "testPackages")
+                {
+                    var testPackagesList = element.Elements().Select(depEl => new Dependency(depEl.Attribute("id").Value, depEl.Attribute("version").Value));
+                    testPackages.AddRange(testPackagesList);
                 }
 
                 if (string.IsNullOrEmpty(token))
@@ -640,7 +660,8 @@ namespace Cmf.Common.Cli.Objects
                 deps,
                 null,
                 null,
-                null
+                null,
+                testPackages
                 );
 
             cmfPackage.Location = PackageLocation.Repository;
