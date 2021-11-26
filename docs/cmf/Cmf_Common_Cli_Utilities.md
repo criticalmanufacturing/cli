@@ -94,6 +94,61 @@ If set to `true` case will be ignored whilst searching for the [System.Xml.Linq.
 [System.Xml.Linq.XElement](https://docs.microsoft.com/en-us/dotnet/api/System.Xml.Linq.XElement 'System.Xml.Linq.XElement')  
 A [System.Xml.Linq.XElement](https://docs.microsoft.com/en-us/dotnet/api/System.Xml.Linq.XElement 'System.Xml.Linq.XElement') that matches the specified [System.Xml.Linq.XName](https://docs.microsoft.com/en-us/dotnet/api/System.Xml.Linq.XName 'System.Xml.Linq.XName'), or null.  
   
+<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_ExtractToFile(System_IO_Compression_ZipArchiveEntry_string_bool_System_IO_Abstractions_IFileSystem)'></a>
+## ExtensionMethods.ExtractToFile(ZipArchiveEntry, string, bool, IFileSystem) Method
+Creates a file on the file system with the entry?s contents and the specified name.  
+The last write time of the file is set to the entry?s last write time.  
+This method does allows overwriting of an existing file with the same name.  
+```csharp
+public static void ExtractToFile(this System.IO.Compression.ZipArchiveEntry source, string destinationFileName, bool overwrite, System.IO.Abstractions.IFileSystem fileSystem);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_ExtractToFile(System_IO_Compression_ZipArchiveEntry_string_bool_System_IO_Abstractions_IFileSystem)_source'></a>
+`source` [System.IO.Compression.ZipArchiveEntry](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Compression.ZipArchiveEntry 'System.IO.Compression.ZipArchiveEntry')  
+The zip archive entry to extract a file from.
+  
+<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_ExtractToFile(System_IO_Compression_ZipArchiveEntry_string_bool_System_IO_Abstractions_IFileSystem)_destinationFileName'></a>
+`destinationFileName` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+The name of the file that will hold the contents of the entry.  
+            The path is permitted to specify relative or absolute path information.  
+            Relative path information is interpreted as relative to the current working directory.
+  
+<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_ExtractToFile(System_IO_Compression_ZipArchiveEntry_string_bool_System_IO_Abstractions_IFileSystem)_overwrite'></a>
+`overwrite` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
+True to indicate overwrite.
+  
+<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_ExtractToFile(System_IO_Compression_ZipArchiveEntry_string_bool_System_IO_Abstractions_IFileSystem)_fileSystem'></a>
+`fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
+The target fileSystem
+  
+#### Exceptions
+[System.UnauthorizedAccessException](https://docs.microsoft.com/en-us/dotnet/api/System.UnauthorizedAccessException 'System.UnauthorizedAccessException')  
+The caller does not have the required permission.
+[System.ArgumentException](https://docs.microsoft.com/en-us/dotnet/api/System.ArgumentException 'System.ArgumentException')  
+destinationFileName is a zero-length string, contains only whitespace,  
+            or contains one or more invalid characters as defined by InvalidPathChars. -or- destinationFileName specifies a directory.
+[System.ArgumentNullException](https://docs.microsoft.com/en-us/dotnet/api/System.ArgumentNullException 'System.ArgumentNullException')  
+destinationFileName is null.
+[System.IO.PathTooLongException](https://docs.microsoft.com/en-us/dotnet/api/System.IO.PathTooLongException 'System.IO.PathTooLongException')  
+The specified path, file name, or both exceed the system-defined maximum length.  
+            For example, on Windows-based platforms, paths must be less than 248 characters, and file names must be less than 260 characters.
+[System.IO.DirectoryNotFoundException](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryNotFoundException 'System.IO.DirectoryNotFoundException')  
+The path specified in destinationFileName is invalid  
+            (for example, it is on an unmapped drive).
+[System.IO.IOException](https://docs.microsoft.com/en-us/dotnet/api/System.IO.IOException 'System.IO.IOException')  
+destinationFileName exists and overwrite is false.  
+            -or- An I/O error has occurred.  
+            -or- The entry is currently open for writing.  
+            -or- The entry has been deleted from the archive.
+[System.NotSupportedException](https://docs.microsoft.com/en-us/dotnet/api/System.NotSupportedException 'System.NotSupportedException')  
+destinationFileName is in an invalid format  
+            -or- The ZipArchive that this entry belongs to was opened in a write-only mode.
+[System.IO.InvalidDataException](https://docs.microsoft.com/en-us/dotnet/api/System.IO.InvalidDataException 'System.IO.InvalidDataException')  
+The entry is missing from the archive or is corrupt and cannot be read  
+            -or- The entry has been compressed using a compression method that is not supported.
+[System.ObjectDisposedException](https://docs.microsoft.com/en-us/dotnet/api/System.ObjectDisposedException 'System.ObjectDisposedException')  
+The ZipArchive that this entry belongs to has been disposed.
+  
 <a name='Cmf_Common_Cli_Utilities_ExtensionMethods_GetPackageJsonFile(System_IO_Abstractions_IDirectoryInfo)'></a>
 ## ExtensionMethods.GetPackageJsonFile(IDirectoryInfo) Method
 Gets the package json file.  

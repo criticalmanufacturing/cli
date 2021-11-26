@@ -9,8 +9,10 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using Cmf.Common.Cli.Commands;
+using Cmf.Common.Cli.Enums;
 using Cmf.Common.Cli.Objects;
 using Cmf.Common.Cli.Utilities;
+using tests.Objects;
 
 namespace tests
 {
@@ -86,7 +88,7 @@ namespace tests
             //var ls = new ListDependenciesCommand(fileSystem);
             //ls.Execute(fileSystem.DirectoryInfo.FromDirectoryName(@"c:\test"), null);
 
-            CmfPackage cmfPackage = CmfPackage.Load(fileSystem.FileInfo.FromFileName("/test/cmfpackage.json"), setDefaultValues: true);
+            CmfPackage cmfPackage = CmfPackage.Load(fileSystem.FileInfo.FromFileName("/test/cmfpackage.json"), setDefaultValues: true, fileSystem);
             cmfPackage.LoadDependencies(null, true);
             Assert.AreEqual("Cmf.Custom.Package", cmfPackage.PackageId, "Root package name doesn't match expected");
             Assert.AreEqual(3, cmfPackage.Dependencies.Count, "Root package doesn't have expected dependencies");
@@ -106,6 +108,114 @@ namespace tests
             var productPackage = cmfPackage.Dependencies[2];
             Assert.IsTrue(productPackage.IsMissing, "Product package isn't missing");
             Assert.IsNull(productPackage.CmfPackage, "Product package could be loaded");
+        }
+        
+        [TestMethod]
+        public void LocalDependencies_RepositoryPackages()
+        {
+            var repoUri = OperatingSystem.IsWindows() ? new Uri("\\\\share\\dir") : new Uri("file:///repoDir");
+            var repo = OperatingSystem.IsWindows() ? "\\\\share\\dir" : "/repoDir";
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { "/test/cmfpackage.json", new MockFileData(
+@"{
+  ""packageId"": ""Cmf.Custom.Package"",
+  ""version"": ""1.1.0"",
+  ""description"": ""This package deploys Critical Manufacturing Customization"",
+  ""packageType"": ""Root"",
+  ""isInstallable"": true,
+  ""isUniqueInstall"": false,
+  ""dependencies"": [
+    {
+         ""id"": ""Cmf.Custom.Business"",
+        ""version"": ""1.1.0""
+    },
+    {
+        ""id"": ""Cmf.Custom.HTML"",
+        ""version"": ""1.1.0""
+    },
+    {
+        ""id"": ""CriticalManufacturing"",
+        ""version"": ""8.1.1""
+    }
+  ]
+}") },
+                { "/test/UI/html/cmfpackage.json", new MockFileData(
+@"{
+  ""packageId"": ""Cmf.Custom.HTML"",
+  ""version"": ""1.1.0"",
+  ""description"": ""Cmf Custom HTML Package"",
+  ""packageType"": ""Html"",
+  ""isInstallable"": true,
+  ""isUniqueInstall"": false,
+  ""contentToPack"": [
+    {
+      ""source"": ""src/packages/*"",
+      ""target"": ""node_modules"",
+      ""ignoreFiles"": [
+        "".npmignore""
+      ]
+    }
+  ],
+  ""xmlInjection"": [""../../DeploymentMetadata/ui.xml""]
+}") },
+                { "/test/Business/cmfpackage.json", new MockFileData(
+@"{
+  ""packageId"": ""Cmf.Custom.Business"",
+  ""version"": ""1.1.0"",
+  ""description"": ""Cmf Custom Business Package"",
+  ""packageType"": ""Business"",
+  ""isInstallable"": true,
+  ""isUniqueInstall"": false,
+  ""contentToPack"": [
+    {
+      ""source"": ""Release/*.dll"",
+      ""target"": """"
+    }
+  ],
+  ""xmlInjection"": [""../DeploymentMetadata/ui.xml""]
+}") },
+                { $"{repo}/CriticalManufacturing.8.1.1.zip", new MockFileData(new DFPackageBuilder().CreateEntry("manifest.xml",
+                  @"<?xml version=""1.0"" encoding=""utf-8""?>
+                        <deploymentPackage>
+                          <packageId>CriticalManufacturing</packageId>
+                          <version>8.1.1</version>
+                          <dependencies>
+                            <dependency id=""Inner.Package"" version=""0.0.1"" mandatory=""true"" isMissing=""true"" />
+                          </dependencies>
+                        </deploymentPackage>").ToByteArray()) }
+            });
+            
+            CmfPackage cmfPackage = CmfPackage.Load(fileSystem.FileInfo.FromFileName("/test/cmfpackage.json"), setDefaultValues: true, fileSystem);
+            ExecutionContext.Initialize(fileSystem);
+            cmfPackage.LoadDependencies(new []{ repoUri }, true);
+            Assert.AreEqual("Cmf.Custom.Package", cmfPackage.PackageId, "Root package name doesn't match expected");
+            Assert.AreEqual(3, cmfPackage.Dependencies.Count, "Root package doesn't have expected dependencies");
+
+            var busPackage = cmfPackage.Dependencies[0];
+            Assert.IsFalse(busPackage.IsMissing, "Business package is missing");
+            Assert.IsNotNull(busPackage.CmfPackage, "Business package couldn't be loaded");
+            Assert.AreEqual("Cmf.Custom.Business", busPackage.CmfPackage.PackageId, "Business package name doesn't match expected");
+            Assert.IsNull(busPackage.CmfPackage.Dependencies, "Business package has unexpected dependencies");
+
+            var htmlPackage = cmfPackage.Dependencies[1];
+            Assert.IsFalse(htmlPackage.IsMissing, "HTML package is missing");
+            Assert.IsNotNull(htmlPackage.CmfPackage, "HTML package couldn't be loaded");
+            Assert.AreEqual("Cmf.Custom.HTML", htmlPackage.CmfPackage.PackageId, "HTML package name doesn't match expected");
+            Assert.IsNull(htmlPackage.CmfPackage.Dependencies, "HTML package has unexpected dependencies");
+
+            var productPackage = cmfPackage.Dependencies[2];
+            Assert.IsFalse(productPackage.IsMissing, "Product package is missing");
+            Assert.IsNotNull(productPackage.CmfPackage, "Product package couldn't be loaded");
+            Assert.AreEqual(productPackage.CmfPackage.Location, PackageLocation.Repository,
+              "Product package is not located in Repository");
+            Assert.AreEqual("CriticalManufacturing", productPackage.CmfPackage.PackageId, "Product package name doesn't match expected");
+            Assert.AreEqual(1, productPackage.CmfPackage.Dependencies.Count, "Product package doesn't have expected dependencies");
+            
+            var productInnerPackage = productPackage.CmfPackage.Dependencies[0];
+            Assert.IsTrue(productInnerPackage.IsMissing, "Product Inner package isn't missing");
+            Assert.IsNull(productInnerPackage.CmfPackage, "Product Inner package could be loaded");
+            
         }
         
         [TestMethod]

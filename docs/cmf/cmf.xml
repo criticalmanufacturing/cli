@@ -3246,6 +3246,37 @@
               <c>true</c> if the specified URI is directory; otherwise, <c>false</c>.
             </returns>
         </member>
+        <member name="M:Cmf.Common.Cli.Utilities.ExtensionMethods.ExtractToFile(System.IO.Compression.ZipArchiveEntry,System.String,System.Boolean,System.IO.Abstractions.IFileSystem)">
+            <summary>
+            Creates a file on the file system with the entry?s contents and the specified name.
+            The last write time of the file is set to the entry?s last write time.
+            This method does allows overwriting of an existing file with the same name.
+            </summary>
+            
+            <exception cref="T:System.UnauthorizedAccessException">The caller does not have the required permission.</exception>
+            <exception cref="T:System.ArgumentException">destinationFileName is a zero-length string, contains only whitespace,
+            or contains one or more invalid characters as defined by InvalidPathChars. -or- destinationFileName specifies a directory.</exception>
+            <exception cref="T:System.ArgumentNullException">destinationFileName is null.</exception>
+            <exception cref="T:System.IO.PathTooLongException">The specified path, file name, or both exceed the system-defined maximum length.
+            For example, on Windows-based platforms, paths must be less than 248 characters, and file names must be less than 260 characters.</exception>
+            <exception cref="T:System.IO.DirectoryNotFoundException">The path specified in destinationFileName is invalid
+            (for example, it is on an unmapped drive).</exception>
+            <exception cref="T:System.IO.IOException">destinationFileName exists and overwrite is false.
+            -or- An I/O error has occurred.
+            -or- The entry is currently open for writing.
+            -or- The entry has been deleted from the archive.</exception>
+            <exception cref="T:System.NotSupportedException">destinationFileName is in an invalid format
+            -or- The ZipArchive that this entry belongs to was opened in a write-only mode.</exception>
+            <exception cref="T:System.IO.InvalidDataException">The entry is missing from the archive or is corrupt and cannot be read
+            -or- The entry has been compressed using a compression method that is not supported.</exception>
+            <exception cref="T:System.ObjectDisposedException">The ZipArchive that this entry belongs to has been disposed.</exception>
+            <param name="source">The zip archive entry to extract a file from.</param>
+            <param name="destinationFileName">The name of the file that will hold the contents of the entry.
+            The path is permitted to specify relative or absolute path information.
+            Relative path information is interpreted as relative to the current working directory.</param>
+            <param name="overwrite">True to indicate overwrite.</param>
+            <param name="fileSystem">The target fileSystem</param>
+        </member>
         <member name="M:Cmf.Common.Cli.Utilities.ExtensionMethods.IsToken(System.String)">
             <summary>
             Determines whether the specified value is token.
