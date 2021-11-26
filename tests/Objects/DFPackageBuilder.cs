@@ -52,7 +52,7 @@ namespace tests.Objects
         /// <param name="version"></param>
         /// <param name="dependencies"></param>
         /// <returns></returns>
-        public DFPackageBuilder CreateManifest(string id, string version, Dictionary<string, string> dependencies = null)
+        public DFPackageBuilder CreateManifest(string id, string version, Dictionary<string, string> dependencies = null, Dictionary<string, string> testPackages = null)
         {
             return CreateEntry("manifest.xml",
                     @$"<?xml version=""1.0"" encoding=""utf-8""?>
@@ -61,6 +61,9 @@ namespace tests.Objects
                           <version>{version}</version>
                           {(dependencies != null
                                 ? "<dependencies>" + string.Join(System.Environment.NewLine, dependencies.Select(d => @$"<dependency id=""{d.Key}"" version=""{d.Value}"" />")) + "</dependencies>"
+                                : string.Empty)}
+                          {(testPackages != null
+                                ? "<testPackages>" + string.Join(System.Environment.NewLine, testPackages.Select(t => @$"<dependency id=""{t.Key}"" version=""{t.Value}"" />")) + "</testPackages>"
                                 : string.Empty)}
                         </deploymentPackage>");
         }
