@@ -172,5 +172,65 @@ namespace tests.Specs
             string expectedContent = @$"{{""{packageDep1.Key}@{packageDep1.Value}"":""{MockUnixSupport.Path($@"{repo1}\{packageDep1.Key}.{packageDep1.Value}.zip").Replace("\\", "\\\\")}"",""{packageDep2.Key}@{packageDep2.Value}"":""{MockUnixSupport.Path($@"{repo2}\{packageDep2.Key}.{packageDep2.Value}.zip").Replace("\\", "\\\\")}""}}";
             Assert.AreEqual(expectedContent, dependenciesJsonFile.OpenText().ReadToEnd());
         }
+
+        [TestMethod]
+        public void Assemble_FromCIRepo_WithTestPackage()
+        {
+            string cirepo = @"/cirepo";
+            KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.1.0");
+            KeyValuePair<string, string> packageDep1 = new("Cmf.Custom.Business", "1.1.0");
+            KeyValuePair<string, string> packageDep2 = new("Cmf.Custom.Html", "1.1.0");
+            KeyValuePair<string, string> packageTest = new("Cmf.Custom.Tests", "1.1.0");
+            KeyValuePair<string, MockDirectoryData> assembleOutputDir = new("/test/assemble/", new());
+
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { "/test/cmfpackage.json", new MockFileData(
+                @$"{{
+                  ""packageId"": ""{packageRoot.Key}"",
+                  ""version"": ""{packageRoot.Value}"",
+                  ""description"": ""This package deploys Critical Manufacturing Customization"",
+                  ""packageType"": ""Root"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": false,
+                  ""dependencies"": [
+                    {{
+                         ""id"": ""{packageDep1.Key}"",
+                        ""version"": ""{packageDep1.Value}""
+                    }},
+                    {{
+                        ""id"": ""{packageDep2.Key}"",
+                        ""version"": ""{packageDep2.Value}""
+                    }}
+                  ],
+                  ""testPackages"": [
+                    {{
+                         ""id"": ""{packageTest.Key}"",
+                        ""version"": ""{packageTest.Value}""
+                    }}
+                  ]
+                }}")},
+                { assembleOutputDir.Key, assembleOutputDir.Value },
+                { @$"{cirepo}/{packageRoot.Key}.{packageRoot.Value}.zip", new DFPackageBuilder().CreateManifest(packageRoot.Key, packageRoot.Value, new() { { packageDep1.Key, packageDep1.Value}  }, new() { { packageTest.Key, packageTest.Value} }).ToMockFileData() },
+                { @$"{cirepo}/{packageDep1.Key}.{packageDep1.Value}.zip", new DFPackageBuilder().CreateManifest(packageDep1.Key, packageDep1.Value).ToMockFileData() },
+                { @$"{cirepo}/{packageDep2.Key}.{packageDep2.Value}.zip", new DFPackageBuilder().CreateManifest(packageDep2.Key, packageDep2.Value).ToMockFileData() },
+                { @$"{cirepo}/{packageTest.Key}.{packageTest.Value}.zip",  new DFPackageBuilder().CreateEntry($"{packageTest.Key}.{packageTest.Value}.zip", string.Empty).ToMockFileData() }
+            });
+
+            var assembleCommand = new AssembleCommand(fileSystem);
+            assembleCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName("test"), fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key), new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = cirepo }.Uri, null, true);
+
+            IEnumerable<string> assembledFiles = fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key).EnumerateFiles("*.zip").Select(f => f.Name);
+            Assert.AreEqual(3, assembledFiles.Count());
+
+            Assert.IsTrue(assembledFiles.Contains($"{packageRoot.Key}.{packageRoot.Value}.zip"));
+            Assert.IsTrue(assembledFiles.Contains($"{packageDep1.Key}.{packageDep1.Value}.zip"));
+            Assert.IsTrue(assembledFiles.Contains($"{packageDep2.Key}.{packageDep2.Value}.zip"));
+
+            IEnumerable<string> assembledTestFiles = fileSystem.DirectoryInfo.FromDirectoryName(@$"{assembleOutputDir.Key}/Tests").EnumerateFiles("*.zip").Select(f => f.Name);
+            Assert.AreEqual(1, assembledTestFiles.Count());
+
+            Assert.IsTrue(assembledTestFiles.Contains($"{packageTest.Key}.{packageTest.Value}.zip"));
+        }
     }
 }

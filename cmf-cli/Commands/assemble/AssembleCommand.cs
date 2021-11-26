@@ -156,11 +156,13 @@ namespace Cmf.Common.Cli.Commands
 
             try
             {
+                IDirectoryInfo[] repoDirectories = ExecutionContext.Instance.RepositoriesConfig.Repositories?.Select(r => r.GetDirectory()).ToArray();
+
                 // Assemble current package
-                AssemblePackage(outputDir, ExecutionContext.Instance.RepositoriesConfig.Repositories, cmfPackage);
+                AssemblePackage(outputDir, repoDirectories, cmfPackage, includeTestPackages);
 
                 // Assemble Dependencies
-                AssembleDependencies(outputDir, ciRepo, ExecutionContext.Instance.RepositoriesConfig.Repositories, cmfPackage);
+                AssembleDependencies(outputDir, ciRepo, repoDirectories, cmfPackage);
 
                 // Save Dependencies File
                 // This file will be needed for CMF Internal Releases to know where the external dependencies are located
@@ -177,7 +179,13 @@ namespace Cmf.Common.Cli.Commands
 
         #region Private Methods
 
-        private void AssembleTestPackages(IDirectoryInfo outputDir, IEnumerable<Uri> repos, CmfPackage cmfPackage, DependencyCollection loadedDependencies = null)
+        /// <summary>
+        /// Assemble Packages of Type Test
+        /// </summary>
+        /// <param name="outputDir"></param>
+        /// <param name="repoDirectories"></param>
+        /// <param name="cmfPackage"></param>
+        private void AssembleTestPackages(IDirectoryInfo outputDir, IDirectoryInfo[] repoDirectories, CmfPackage cmfPackage)
         {
             if (!cmfPackage.TestPackages.HasAny())
             {
@@ -190,13 +198,23 @@ namespace Cmf.Common.Cli.Commands
 
                 foreach (Dependency testPackage in cmfPackage.TestPackages)
                 {
-                    if (!loadedDependencies.Contains(testPackage))
+                    // Load test package from repo if is not loaded yet
+                    if (testPackage.CmfPackage == null || (testPackage.CmfPackage != null && testPackage.CmfPackage.Uri == null))
                     {
-                        Log.Information(string.Format(CliMessages.GetPackage, testPackage.Id, testPackage.Version));
-                        loadedDependencies.Add(testPackage);
+                        string _dependencyFileName = $"{testPackage.Id}.{testPackage.Version}.zip";
 
-                        AssemblePackage(testOutputDir, repos, testPackage.CmfPackage);
+                        IFileInfo dependencyFile = repoDirectories?
+                                       .Select(r => r.GetFiles(_dependencyFileName).FirstOrDefault())
+                                       .Where(r => r != null)
+                                       .FirstOrDefault();
+
+                        if (dependencyFile != null)
+                        {
+                            testPackage.CmfPackage = new(testPackage.Id, testPackage.Version, new(dependencyFile.FullName));
+                        }
                     }
+
+                    AssemblePackage(testOutputDir, repoDirectories, testPackage.CmfPackage, false);
                 }
             }
         }
@@ -206,10 +224,11 @@ namespace Cmf.Common.Cli.Commands
         /// </summary>
         /// <param name="outputDir">Destination for the dependencies package and also used for the current package</param>
         /// <param name="ciRepo"></param>
-        /// <param name="repos">The repos.</param>
+        /// <param name="repoDirectories">The repos.</param>
         /// <param name="cmfPackage">The CMF package.</param>
         /// <param name="assembledDependencies">The loaded dependencies.</param>
-        private void AssembleDependencies(IDirectoryInfo outputDir, Uri ciRepo, IEnumerable<Uri> repos, CmfPackage cmfPackage, DependencyCollection assembledDependencies = null)
+        /// <param name="includeTestPackages"></param>
+        private void AssembleDependencies(IDirectoryInfo outputDir, Uri ciRepo, IDirectoryInfo[] repoDirectories, CmfPackage cmfPackage, DependencyCollection assembledDependencies = null, bool includeTestPackages = false)
         {
             if (cmfPackage.Dependencies.HasAny())
             {
@@ -225,10 +244,8 @@ namespace Cmf.Common.Cli.Commands
                     if (!assembledDependencies.Contains(dependency) &&
                         string.Equals(ciRepo.GetDirectoryName(), dependencyPath))
                     {
-                        Log.Information(string.Format(CliMessages.GetPackage, dependency.Id, dependency.Version));
-
                         assembledDependencies.Add(dependency);
-                        AssemblePackage(outputDir, repos, dependency.CmfPackage);
+                        AssemblePackage(outputDir, repoDirectories, dependency.CmfPackage, includeTestPackages);
                     }
                     // Save all external dependencies and locations in a dictionary
                     else
@@ -236,7 +253,7 @@ namespace Cmf.Common.Cli.Commands
                         packagesLocation.Add($"{dependency.Id}@{dependency.Version}", dependency.CmfPackage.Uri.GetFileName());
                     }
 
-                    AssembleDependencies(outputDir, ciRepo, repos, dependency.CmfPackage, assembledDependencies);
+                    AssembleDependencies(outputDir, ciRepo, repoDirectories, dependency.CmfPackage, assembledDependencies, includeTestPackages);
                 }
             }
         }
@@ -245,14 +262,12 @@ namespace Cmf.Common.Cli.Commands
         /// Publish a package to the output directory
         /// </summary>
         /// <param name="outputDir">Destiny for the package</param>
-        /// <param name="repos">The repos.</param>
+        /// <param name="repoDirectories">The repos.</param>
         /// <param name="cmfPackage">The CMF package.</param>
         /// <param name="includeTestPackages"></param>
         /// <exception cref="Cmf.Common.Cli.Utilities.CliException"></exception>
-        private void AssemblePackage(IDirectoryInfo outputDir, IEnumerable<Uri> repos, CmfPackage cmfPackage, bool includeTestPackages = false)
+        private void AssemblePackage(IDirectoryInfo outputDir, IDirectoryInfo[] repoDirectories, CmfPackage cmfPackage, bool includeTestPackages)
         {
-            IDirectoryInfo[] repoDirectories = repos?.Select(r => r.GetDirectory()).ToArray();
-
             // Load package from repo if is not loaded yet
             if (cmfPackage == null || (cmfPackage != null && cmfPackage.Uri == null))
             {
@@ -265,12 +280,13 @@ namespace Cmf.Common.Cli.Commands
                 fileSystem.File.Delete(destinationFile);
             }
 
+            Log.Information(string.Format(CliMessages.GetPackage, cmfPackage.PackageId, cmfPackage.Version));
             cmfPackage.Uri.GetFile().CopyTo(destinationFile);
 
             // Assemble Tests
             if (includeTestPackages)
             {
-                AssembleTestPackages(outputDir, repos, cmfPackage);
+                AssembleTestPackages(outputDir, repoDirectories, cmfPackage);
             }
         }
 
