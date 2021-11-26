@@ -91,6 +91,23 @@ The XML injection.
 The test Packages.
   
   
+<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_System_Uri)'></a>
+## CmfPackage.CmfPackage(string, string, Uri) Constructor
+Initialize CmfPackage with PackageId, Version and Uri  
+```csharp
+public CmfPackage(string packageId, string version, System.Uri uri);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_System_Uri)_packageId'></a>
+`packageId` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+  
+<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_System_Uri)_version'></a>
+`version` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+  
+<a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(string_string_System_Uri)_uri'></a>
+`uri` [System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')  
+  
+  
 <a name='Cmf_Common_Cli_Objects_CmfPackage_CmfPackage(System_IO_Abstractions_IFileSystem)'></a>
 ## CmfPackage.CmfPackage(IFileSystem) Constructor
 Initialize an empty CmfPackage with a specific file system  

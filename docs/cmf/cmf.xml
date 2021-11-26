@@ -553,22 +553,31 @@
             <param name="includeTestPackages">True to publish test packages</param>
             <returns></returns>
         </member>
-        <member name="M:Cmf.Common.Cli.Commands.AssembleCommand.AssembleDependencies(System.IO.Abstractions.IDirectoryInfo,System.Uri,System.Collections.Generic.IEnumerable{System.Uri},Cmf.Common.Cli.Objects.CmfPackage,Cmf.Common.Cli.Objects.DependencyCollection)">
+        <member name="M:Cmf.Common.Cli.Commands.AssembleCommand.AssembleTestPackages(System.IO.Abstractions.IDirectoryInfo,System.IO.Abstractions.IDirectoryInfo[],Cmf.Common.Cli.Objects.CmfPackage)">
+            <summary>
+            Assemble Packages of Type Test
+            </summary>
+            <param name="outputDir"></param>
+            <param name="repoDirectories"></param>
+            <param name="cmfPackage"></param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Commands.AssembleCommand.AssembleDependencies(System.IO.Abstractions.IDirectoryInfo,System.Uri,System.IO.Abstractions.IDirectoryInfo[],Cmf.Common.Cli.Objects.CmfPackage,Cmf.Common.Cli.Objects.DependencyCollection,System.Boolean)">
             <summary>
             Publish Dependencies from one package. recursive operation
             </summary>
             <param name="outputDir">Destination for the dependencies package and also used for the current package</param>
             <param name="ciRepo"></param>
-            <param name="repos">The repos.</param>
+            <param name="repoDirectories">The repos.</param>
             <param name="cmfPackage">The CMF package.</param>
             <param name="assembledDependencies">The loaded dependencies.</param>
+            <param name="includeTestPackages"></param>
         </member>
-        <member name="M:Cmf.Common.Cli.Commands.AssembleCommand.AssemblePackage(System.IO.Abstractions.IDirectoryInfo,System.Collections.Generic.IEnumerable{System.Uri},Cmf.Common.Cli.Objects.CmfPackage,System.Boolean)">
+        <member name="M:Cmf.Common.Cli.Commands.AssembleCommand.AssemblePackage(System.IO.Abstractions.IDirectoryInfo,System.IO.Abstractions.IDirectoryInfo[],Cmf.Common.Cli.Objects.CmfPackage,System.Boolean)">
             <summary>
             Publish a package to the output directory
             </summary>
             <param name="outputDir">Destiny for the package</param>
-            <param name="repos">The repos.</param>
+            <param name="repoDirectories">The repos.</param>
             <param name="cmfPackage">The CMF package.</param>
             <param name="includeTestPackages"></param>
             <exception cref="T:Cmf.Common.Cli.Utilities.CliException"></exception>
@@ -737,7 +746,6 @@
             <param name="version">The version.</param>
             <param name="buildNr">The version for build Nr.</param>
             <param name="root">The root.</param>
-            <param name="all">if set to <c>true</c> [all].</param>
             <exception cref="T:Cmf.Common.Cli.Utilities.CliException"></exception>
             <exception cref="T:Cmf.Common.Cli.Utilities.CliException"></exception>
         </member>
@@ -749,7 +757,6 @@
             <param name="version">The version.</param>
             <param name="buildNr">The version for build Nr.</param>
             <param name="root">The root.</param>
-            <param name="all">if set to <c>true</c> [all].</param>
             <exception cref="T:Cmf.Common.Cli.Utilities.CliException"></exception>
         </member>
         <member name="T:Cmf.Common.Cli.Commands.BumpIoTCommand">
@@ -2507,6 +2514,11 @@
             Initialize an empty CmfPackage with a specific file system
             </summary>
             <param name="fileSystem"></param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Objects.CmfPackage.#ctor(System.String,System.String,System.Uri)">
+            <summary>
+            Initialize CmfPackage with PackageId, Version and Uri
+            </summary>
         </member>
         <member name="M:Cmf.Common.Cli.Objects.CmfPackage.Equals(Cmf.Common.Cli.Objects.CmfPackage)">
             <summary>
