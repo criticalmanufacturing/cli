@@ -22,9 +22,7 @@ namespace Cmf.Common.Cli.Commands
     /// <summary>
     /// Command to test templates
     /// </summary>
-#if DEBUG    
-    [CmfCommand("new3")]
-#endif
+    [CmfCommand("new3", IsHidden = true)]
     public class New3_Command : BaseCommand
     {
         /// <summary>
