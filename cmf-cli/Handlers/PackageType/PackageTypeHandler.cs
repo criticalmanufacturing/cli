@@ -77,7 +77,7 @@ namespace Cmf.Common.Cli.Handlers
         /// Initializes a new instance of the <see cref="PackageTypeHandler" /> class.
         /// </summary>
         /// <exception cref="CliException"></exception>
-        public PackageTypeHandler(CmfPackage cmfPackage) : this(cmfPackage, new FileSystem()) { }
+        public PackageTypeHandler(CmfPackage cmfPackage) : this(cmfPackage, cmfPackage.FileSystem) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PackageTypeHandler" /> class.
@@ -563,7 +563,7 @@ namespace Cmf.Common.Cli.Handlers
                 Log.Debug($"Found package {identifier} at {dependency.CmfPackage.Uri.AbsoluteUri}");
                 if (dependency.CmfPackage.Uri.IsDirectory())
                 {
-                    using (FileStream zipToOpen = new(dependency.CmfPackage.Uri.LocalPath, FileMode.Open))
+                    using (Stream zipToOpen = this.fileSystem.FileStream.Create(dependency.CmfPackage.Uri.LocalPath, FileMode.Open))
                     {
                         using (ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read))
                         {
@@ -582,15 +582,16 @@ namespace Cmf.Common.Cli.Handlers
                                     continue;
                                 }
 
-                                if (!File.Exists(target)) // TODO: support overwriting if requested
+                                if (!fileSystem.File.Exists(target)) // TODO: support overwriting if requested
                                 {
+                                    var overwrite = false;
                                     Log.Debug($"Extracting {entry.Item1.FullName} to {target}");
                                     if (!string.IsNullOrEmpty(targetDir))
                                     {
-                                        Directory.CreateDirectory(targetDir);
+                                        fileSystem.Directory.CreateDirectory(targetDir);
                                     }
 
-                                    entry.Item1.ExtractToFile(target);
+                                    entry.Item1.ExtractToFile(target, overwrite, fileSystem);
                                 }
                                 else
                                 {

@@ -39,6 +39,8 @@ namespace Cmf.Common.Cli.Objects
 
         #region Internal Properties
 
+        internal IFileSystem FileSystem => fileSystem;
+        
         /// <summary>
         /// Gets the name of the package.
         /// </summary>
@@ -496,8 +498,7 @@ namespace Cmf.Common.Cli.Objects
                 var missingRepoDirectories = repoDirectories?.Where(r => r.Exists == false).ToArray();
                 if (missingRepoDirectories.HasAny())
                 {
-                    Log.Error($"Some of the provided repositories do not exist: {string.Join(", ", missingRepoDirectories.Select(d => d.FullName))}");
-                    return;
+                    throw new CliException($"Some of the provided repositories do not exist: {string.Join(", ", missingRepoDirectories.Select(d => d.FullName))}");
                 }
                 foreach (var dependency in this.Dependencies)
                 {

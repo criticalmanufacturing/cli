@@ -140,7 +140,7 @@ stages:
             displayName: 'Copy EnvironmentConfig to Server'
             inputs:
               SourceFolder: Cmf.Custom.Package.Configurations/EnvironmentConfigs
-              Contents: '${{ parameters.EnvironmentConfigName }}.json'
+              Contents: '${{ parameters.EnvironmentConfigName }}'
               TargetFolder: BackupRestoreTools/EnvironmentConfigs
 
           # Restore DB
@@ -241,7 +241,7 @@ stages:
             displayName: 'Copy EnvironmentConfig to Server'
             inputs:
               SourceFolder: Cmf.Custom.Package.Configurations/EnvironmentConfigs
-              Contents: '${{ parameters.EnvironmentConfigName }}.json'
+              Contents: '${{ parameters.EnvironmentConfigName }}'
               TargetFolder: ${{ variables.CandidatePackages }}
 
           # Customization Installation
@@ -257,7 +257,7 @@ stages:
                 $PackageSource = '${{ variables.CandidatePackages }}';
                 
                 # Assuming repository Checkout
-                $EnvironmentConfig = "$EnvironmentConfigName.json";
+                $EnvironmentConfig = "$EnvironmentConfigName";
                 $EnvConfigFile = Get-Item "./Cmf.Custom.Package.Configurations/EnvironmentConfigs/$EnvironmentConfig"
                 $EnvConfigJson = Get-Content -Raw -Path $EnvConfigFile | ConvertFrom-Json
                 $ServerAddress = $EnvConfigJson.'Product.ApplicationServer.Address'
@@ -388,7 +388,7 @@ stages:
             displayName: 'Copy EnvironmentConfig to BackupRestoreTools'
             inputs:
               SourceFolder: Cmf.Custom.Package.Configurations/EnvironmentConfigs
-              Contents: '${{ parameters.EnvironmentConfigName }}.json'
+              Contents: '${{ parameters.EnvironmentConfigName }}'
               TargetFolder: BackupRestoreTools/EnvironmentConfigs
 
           # Create Restore Point
@@ -513,7 +513,7 @@ stages:
             displayName: 'Copy EnvironmentConfig to Package'
             inputs:
               SourceFolder: Cmf.Custom.Package.Configurations/EnvironmentConfigs
-              Contents: '${{ parameters.EnvironmentConfigName }}.json'
+              Contents: '${{ parameters.EnvironmentConfigName }}'
               TargetFolder: Package/EnvironmentConfigs
             condition: eq(variables['ArtifactExists'], true)
 
@@ -547,7 +547,7 @@ stages:
               script: |
                 $packageRootFolder = "./Package/" # change to match package root folder
                 $cmfInstallActionsFolder = "$packageRootFolder/CMFInstallActions"
-                $jsonConfigFilePath = "$packageRootFolder/EnvironmentConfigs/${{ parameters.EnvironmentConfigName }}.json"
+                $jsonConfigFilePath = "$packageRootFolder/EnvironmentConfigs/${{ parameters.EnvironmentConfigName }}"
                 Import-Module $cmfInstallActionsFolder/CMFInstallActions.psd1
                 $env = (Get-CMFEnvironment -environmentConfigPath $jsonConfigFilePath -cmfInstallActionsPath $cmfInstallActionsFolder)
                 Stop-NavigoHosts $env -disableNLBManagement
@@ -613,7 +613,7 @@ stages:
             displayName: 'Copy EnvironmentConfig to BackupRestoreTools'
             inputs:
               SourceFolder: Cmf.Custom.Package.Configurations/EnvironmentConfigs
-              Contents: '${{ parameters.EnvironmentConfigName }}.json'
+              Contents: '${{ parameters.EnvironmentConfigName }}'
               TargetFolder: BackupRestoreTools/EnvironmentConfigs
 
           # Create Restore Point - DailyBackup
@@ -952,7 +952,7 @@ stages:
               targetType: inline
               failOnStderr: true
               script: |
-                $EnvironmentConfig = "${{ parameters.EnvironmentConfigName }}.json";
+                $EnvironmentConfig = "${{ parameters.EnvironmentConfigName }}";
                 $EnvConfigFile = Get-Item "./Cmf.Custom.Package.Configurations/EnvironmentConfigs/$EnvironmentConfig"
                 $EnvConfigJson = Get-Content -Raw -Path $EnvConfigFile | ConvertFrom-Json
                 $BackupLocation = $EnvConfigJson.'Product.Database.BackupShare'
