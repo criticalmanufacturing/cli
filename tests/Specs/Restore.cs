@@ -176,16 +176,7 @@ namespace tests.Specs
             
             Assert.IsFalse(fileSystem.DirectoryInfo.FromDirectoryName(MockUnixSupport.Path("c:\\Dependencies")).Exists, "Dependencies folder already exists!");
 
-            try
-            {
-                packageTypeHandler.RestoreDependencies(new[] { repo });
-            }
-            catch (CliException)
-            {
-                return;
-            }
-
-            Assert.Fail("Should have thrown an error");
+            Assert.ThrowsException<CliException>(() => packageTypeHandler.RestoreDependencies(new[] { repo }));
         }
     }
 }
