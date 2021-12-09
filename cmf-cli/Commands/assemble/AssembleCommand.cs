@@ -26,6 +26,11 @@ namespace Cmf.Common.Cli.Commands
         /// </summary>
         private readonly Dictionary<string, string> packagesLocation = new();
 
+        /// <summary>
+        /// Dependencies that will be missing but should be ignored
+        /// </summary>
+        private readonly string[] defaultDependenciesToIgnore = new string[]{ "criticalmanufacturing", "cmf.environment" };
+
         #endregion
 
         #region Constructors
@@ -128,7 +133,11 @@ namespace Cmf.Common.Cli.Commands
             List<string> missingPackages = new();
             foreach (Dependency dependency in cmfPackage.Dependencies.Where(x => x.IsMissing))
             {
-                missingPackages.Add($"{dependency.Id}@{dependency.Version}");
+                if(!defaultDependenciesToIgnore.Contains(dependency.Id.ToLower()))
+                {
+                    missingPackages.Add($"{dependency.Id}@{dependency.Version}");
+                }
+                
             }
 
             if (missingPackages.HasAny())
@@ -236,24 +245,26 @@ namespace Cmf.Common.Cli.Commands
 
                 foreach (Dependency dependency in cmfPackage.Dependencies)
                 {
-                    string dependencyPath = dependency.CmfPackage.Uri.GetFile().Directory.FullName;
-                    //string dependencyPath = fileSystem.Path.GetDirectoryName(dependency.CmfPackage.Uri.OriginalString);
-
-                    // To avoid assembling the same dependency twice
-                    // Only assemble dependencies from the CI Repository
-                    if (!assembledDependencies.Contains(dependency) &&
-                        string.Equals(ciRepo.GetDirectoryName(), dependencyPath))
+                    if (!defaultDependenciesToIgnore.Contains(dependency.Id.ToLower()))
                     {
-                        assembledDependencies.Add(dependency);
-                        AssemblePackage(outputDir, repoDirectories, dependency.CmfPackage, includeTestPackages);
-                    }
-                    // Save all external dependencies and locations in a dictionary
-                    else
-                    {
-                        packagesLocation.Add($"{dependency.Id}@{dependency.Version}", dependency.CmfPackage.Uri.GetFileName());
-                    }
+                        string dependencyPath = dependency.CmfPackage.Uri.GetFile().Directory.FullName;
 
-                    AssembleDependencies(outputDir, ciRepo, repoDirectories, dependency.CmfPackage, assembledDependencies, includeTestPackages);
+                        // To avoid assembling the same dependency twice
+                        // Only assemble dependencies from the CI Repository
+                        if (!assembledDependencies.Contains(dependency) &&
+                            string.Equals(ciRepo.GetDirectoryName(), dependencyPath))
+                        {
+                            assembledDependencies.Add(dependency);
+                            AssemblePackage(outputDir, repoDirectories, dependency.CmfPackage, includeTestPackages);
+                        }
+                        // Save all external dependencies and locations in a dictionary
+                        else
+                        {
+                            packagesLocation.Add($"{dependency.Id}@{dependency.Version}", dependency.CmfPackage.Uri.GetFileName());
+                        }
+
+                        AssembleDependencies(outputDir, ciRepo, repoDirectories, dependency.CmfPackage, assembledDependencies, includeTestPackages);
+                    }                    
                 }
             }
         }
