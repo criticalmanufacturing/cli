@@ -313,7 +313,7 @@ namespace Cmf.Common.Cli.Commands
                     }
                     else
                     {
-                        x.cmfPipelineRepository = CliConstants.NpmJsUrl;
+                        x.cmfCliRepository = CliConstants.NpmJsUrl;
                     }
                     if (!string.IsNullOrEmpty(infraJson["CmfPipelineRepository"]?.Value))
                     {
