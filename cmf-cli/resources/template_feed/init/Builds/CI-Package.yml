@@ -78,7 +78,11 @@ steps:
     workingDirectory: ${{ parameters.PackagePath }}
     targetType: inline
     script: |
+//#if (agentType == "Cloud")
+      $(Agent.TempDirectory)/../node_modules/.bin/cmf-cli/cmf build
+//#else
       $(Agent.TempDirectory)/node_modules/.bin/cmf-cli/cmf build
+//#endif
 
 
 # Cmf Pack
@@ -90,7 +94,11 @@ steps:
     workingDirectory: ${{ parameters.PackagePath }}
     targetType: inline
     script: |
+//#if (agentType == "Cloud")
+      $(Agent.TempDirectory)/../node_modules/.bin/cmf-cli/cmf pack --force --outputDir '${{ variables.CIPackages }}/$(Build.SourceBranchName)'
+//#else
       $(Agent.TempDirectory)/node_modules/.bin/cmf-cli/cmf pack --force --outputDir '${{ variables.CIPackages }}/$(Build.SourceBranchName)'
+//#endif
 
 # set new built HEAD
 - task: PowerShell@2
