@@ -6,6 +6,7 @@ using System.CommandLine.Invocation;
 using System.IO.Abstractions;
 using Cmf.Common.Cli.Utilities;
 using Newtonsoft.Json;
+using Cmf.Common.Cli.Constants;
 
 namespace Cmf.Common.Cli.Commands
 {
@@ -53,6 +54,8 @@ namespace Cmf.Common.Cli.Commands
         public IFileInfo ISOLocation { get; set; }
         public string nugetRegistryUsername { get; set; }
         public string nugetRegistryPassword { get; set; }
+        public string cmfPipelineRepository { get; set; }
+        public string cmfCliRepository { get; set; }
         // ReSharper restore UnusedAutoPropertyAccessor.Global
         // ReSharper restore InconsistentNaming
     }
@@ -304,6 +307,22 @@ namespace Cmf.Common.Cli.Commands
                     {
                         x.nugetRegistryPassword ??= infraJson["NuGetRegistryPassword"]?.Value;
                     }
+                    if(!string.IsNullOrEmpty(infraJson["CmfCliRepository"]?.Value))
+                    {
+                        x.cmfCliRepository ??= infraJson["CmfCliRepository"]?.Value;
+                    }
+                    else
+                    {
+                        x.cmfPipelineRepository = CliConstants.NpmJsUrl;
+                    }
+                    if (!string.IsNullOrEmpty(infraJson["CmfPipelineRepository"]?.Value))
+                    {
+                        x.cmfPipelineRepository ??= infraJson["CmfPipelineRepository"]?.Value;
+                    }
+                    else
+                    {
+                        x.cmfPipelineRepository = CliConstants.NpmJsUrl;
+                    }
                 }
             }
             
@@ -330,6 +349,14 @@ namespace Cmf.Common.Cli.Commands
             if (x.nugetRegistryPassword != null)
             {
                 args.AddRange(new[] { "--nugetRegistryPassword", x.nugetRegistryPassword });
+            }
+            if (x.cmfCliRepository != null)
+            {
+                args.AddRange(new[] { "--cmfCliRepository", x.cmfCliRepository });
+            }
+            if (x.cmfPipelineRepository != null)
+            {
+                args.AddRange(new[] { "--cmfPipelineRepository", x.cmfPipelineRepository });
             }
             if (!string.IsNullOrEmpty(x.agentPool))
             {
