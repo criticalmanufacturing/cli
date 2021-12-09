@@ -44,25 +44,6 @@ steps:
     packageType: 'sdk'
     useGlobalJson: true
 
-# Get package version
-- task: PowerShell@2
-  displayName: 'Get package version'
-  inputs:
-    pwsh: true
-    failOnStderr: true
-    workingDirectory: ${{ parameters.PackagePath }}
-    targetType: inline
-    script: |
-      $CmfPackageJsonFile = Get-Item ".\cmfpackage.json"
-      $CmfPackageJson = Get-Content -Raw -Path $CmfPackageJsonFile | ConvertFrom-Json
-      $PackVersion = $CmfPackageJson.'version'
-      $PackageId = $CmfPackageJson.'packageId'
-      Write-Host "PackVersion = $PackVersion"
-      Write-Host "PackageId = $PackageId"
-      echo "##vso[task.setvariable variable=PackageVersion;isOutput=true]$PackVersion"
-      echo "##vso[task.setvariable variable=PackageId;isOutput=true]$PackageId"
-  name: GetPackageVersion
-
 //#if (nugetRegistryUsername != "" && nugetRegistryPassword != "") {
 - task: NuGetCommand@2
   displayName: "Remove CMF NuGet source"
@@ -77,9 +58,9 @@ steps:
     arguments: 'sources Add -Name "CMF" -Source "<%= $CLI_PARAM_NuGetRegistry %>" -Username $(NuGetRegistryUsername) -password $(NuGetRegistryPassword) -StorePasswordInClearText -Config NuGet.Config'
 //#endif
 
-# Install Cmf Nuget Package
+# Install cmf-cli
 - task: PowerShell@2
-  displayName: 'Install cmf-cli'
+  displayName: 'Install cmf-cli@${{ variables.CmfCliVersion }}'
   inputs:
     pwsh: true
     failOnStderr: false
@@ -88,55 +69,28 @@ steps:
     script: |
       npm install --no-save @criticalmanufacturing/cli@${{ variables.CmfCliVersion }} --registry ${{ variables.CmfCliRepository }}
 
-# Cmf Build - Feature
+# Cmf Build
 - task: PowerShell@2
-  displayName: 'Cmf Build - Feature'
+  displayName: 'Build ${{ parameters.PackageId }}'
   inputs:
     pwsh: true
     failOnStderr: true
     workingDirectory: ${{ parameters.PackagePath }}
     targetType: inline
     script: |
-//#if (agentType == "Cloud")
-      $(Agent.TempDirectory)/../node_modules/.bin/cmf-cli/cmf build
-//#else
       $(Agent.TempDirectory)/node_modules/.bin/cmf-cli/cmf build
-//#endif
 
 
-# Cmf Pack - Feature
+# Cmf Pack
 - task: PowerShell@2
-  displayName: 'Cmf Pack - Feature'
+  displayName: 'Pack ${{ parameters.PackageId }}'
   inputs:
     pwsh: true
     failOnStderr: true
     workingDirectory: ${{ parameters.PackagePath }}
     targetType: inline
     script: |
-//#if (agentType == "Cloud")
-      $(Agent.TempDirectory)/../node_modules/.bin/cmf-cli/cmf pack --outputDir $(Build.ArtifactStagingDirectory)
-//#else
-      $(Agent.TempDirectory)/node_modules/.bin/cmf-cli/cmf pack --outputDir $(Build.ArtifactStagingDirectory)
-//#endif
-
-//#if (agentType == "Cloud")
-# Publish Package Artifact
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Package Artifact'
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    publishLocation: 'Container'
-//#else
-# Copy generated Packages to Repository
-- task: CopyFiles@2
-  displayName: 'Copy generated Packages to Repository'
-  inputs:
-    SourceFolder: '$(Build.ArtifactStagingDirectory)'
-    Contents: |
-     *.zip
-    TargetFolder: '${{ variables.CIPackages }}/$(Build.SourceBranchName)'
-    OverWrite: true
-//#endif
+      $(Agent.TempDirectory)/node_modules/.bin/cmf-cli/cmf pack --force --outputDir '${{ variables.CIPackages }}/$(Build.SourceBranchName)'
 
 # set new built HEAD
 - task: PowerShell@2
@@ -151,7 +105,7 @@ steps:
       $headers = @{
         Authorization = "Bearer $env:SYSTEM_ACCESSTOKEN"
       }
-      
+
       $vars = Invoke-RestMethod -Uri $url.Replace("{GROUP}", "") -Method Get -ContentType "application/json" -Headers $headers
       $groupName = '${{ variables.groupName }}'
       $createGroup = $false;
@@ -202,24 +156,6 @@ steps:
     SYSTEM_TEAMPROJECTID: $(System.TeamProject)
 
 # Clean up
-- task: DeleteFiles@1
-  displayName: Delete Package
-  inputs:
-    SourceFolder: 'Package'
-    Contents: '**'
-  condition: always()
-- task: DeleteFiles@1
-  displayName: Delete FinalPackage
-  inputs:
-    SourceFolder: 'FinalPackage'
-    Contents: '**'
-  condition: always()
-- task: DeleteFiles@1
-  displayName: Delete Artifacts
-  inputs:
-    SourceFolder: 'Artifacts'
-    Contents: '**'
-  condition: always()
 - task: PostBuildCleanup@3
   displayName: 'Clean Agent Directories'
   condition: always()
