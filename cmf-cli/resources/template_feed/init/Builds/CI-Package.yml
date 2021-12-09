@@ -95,9 +95,18 @@ steps:
     targetType: inline
     script: |
 //#if (agentType == "Cloud")
-      $(Agent.TempDirectory)/../node_modules/.bin/cmf-cli/cmf pack --force --outputDir '${{ variables.CIPackages }}/$(Build.SourceBranchName)'
+      $(Agent.TempDirectory)/../node_modules/.bin/cmf-cli/cmf pack --outputDir $(Build.ArtifactStagingDirectory)
 //#else
       $(Agent.TempDirectory)/node_modules/.bin/cmf-cli/cmf pack --force --outputDir '${{ variables.CIPackages }}/$(Build.SourceBranchName)'
+//#endif
+
+//#if (agentType == "Cloud")
+# Publish Package Artifact
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Package Artifact'
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    publishLocation: 'Container'
 //#endif
 
 # set new built HEAD
