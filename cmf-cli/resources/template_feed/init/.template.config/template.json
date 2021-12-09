@@ -212,6 +212,16 @@
       "datatype": "string",
       "replaces": "<%= $CLI_PARAM_ISOLocation %>"
     },
+    "cmfCliRepository": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_CmfCliRepository %>"
+    },
+    "cmfPipelineRepository": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_CmfPipelineRepository %>"
+    },
     
     // from config
     "EnvironmentName": {

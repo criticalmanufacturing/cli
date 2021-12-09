@@ -7,10 +7,14 @@ variables:
   CandidatePackages: '<%= $CLI_PARAM_RCRepo %>'
   # Location of approved and released packages
   ApprovedPackages: '<%= $CLI_PARAM_DeliveredRepo %>'
-  # Cmf Tool Repository
-  CmfCliRepository: 'https://registry.npmjs.com'
-  # Cmf Tool Version
+  # cmf cli Repository
+  CmfCliRepository: '<%= $CLI_PARAM_CmfCliRepository %>'
+  # cmf cli Version
   CmfCliVersion: 'next'
+  # cmf pipeline Repository
+  CmfPipelineRepository: '<%= $CLI_PARAM_CmfPipelineRepository %>'
+  # cmf pipeline Version
+  CmfPipelineVersion: '1.x.x'
   # Iso Image Path
   ISOImagePath: '<%= $CLI_PARAM_ISOLocation %>\v<%= $CLI_PARAM_MESVersion-Feature %>\Critical Manufacturing <%= $CLI_PARAM_MESVersion %>.iso'
   # Current refspec to get the tools for the package (by default, a tagged MES version release)

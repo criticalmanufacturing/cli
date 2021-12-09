@@ -90,6 +90,11 @@
         /// </summary>
         public const string Driver = "driver";
 
+        /// <summary>
+        /// npm.js repository url
+        /// </summary>
+        public const string NpmJsUrl = "https://registry.npmjs.com";
+
         #endregion
 
         #region Tokens
