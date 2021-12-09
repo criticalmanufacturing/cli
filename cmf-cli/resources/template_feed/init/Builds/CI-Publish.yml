@@ -63,9 +63,9 @@ steps:
   inputs:
     versionSpec: ${{ variables.NodeVersion }}
 
-# Install Cmf Nuget Package
+# Install cmf-cli
 - task: PowerShell@2
-  displayName: 'Install Cmf Nuget Package'
+  displayName: 'Install cmf-cli@${{ variables.CmfCliVersion }}'
   inputs:
     pwsh: true
     failOnStderr: false
@@ -91,17 +91,83 @@ steps:
       echo "##vso[task.setvariable variable=PackageId;isOutput=true]$PackageId"
   name: GetPackageVersion
 
-
-# Cmf publish - Feature 
+# Cmf assemble
 - task: PowerShell@2
-  displayName: 'Cmf publish - Feature'
+  displayName: 'Assemble'
   inputs:
     pwsh: true
     failOnStderr: true
     workingDirectory: ${{ parameters.PackagePath }}
     targetType: inline
     script: |
-      $(Agent.TempDirectory)/node_modules/.bin/cmf-cli/cmf publish --repo '${{ variables.CIPackages }}/$(Build.SourceBranchName)' -o '$(Build.SourcesDirectory)/FinalPackage' --publishTests
+      $(Agent.TempDirectory)/node_modules/.bin/cmf-cli/cmf assemble --includeTestPackages --outputDir '$(Build.SourcesDirectory)/FinalPackage'
+
+# Configuration Artifact
+# Copy dependencies.json to Configurations
+- task: CopyFiles@2
+  displayName: 'Copy dependencies.json to Configurations'
+  inputs:
+    Contents: '$(Build.SourcesDirectory)/FinalPackage/dependencies.json'
+    FlattenFolders: true
+    TargetFolder: Configurations
+
+# Copy cmfpackage.json to Configurations
+- task: CopyFiles@2
+  displayName: 'Copy cmfpackage.json to Configurations'
+  inputs:
+    SourceFolder: '${{ parameters.PackagePath }}'
+    Contents: 'cmfpackage.json'
+    TargetFolder: Configurations
+# Copy EnvironmentConfigs to Configurations
+- task: CopyFiles@2
+  displayName: 'Copy EnvironmentConfigs to Configurations'
+  inputs:
+    SourceFolder: EnvironmentConfigs
+    Contents: '*.json'
+    TargetFolder: Configurations/EnvironmentConfigs
+
+# Copy LBOs to Configurations
+- task: CopyFiles@2
+  displayName: 'Copy LBOs to Configurations'
+  inputs:
+    SourceFolder: 'Libs/LBOs/NetStandard'
+    Contents: |
+      Cmf.LightBusinessObjects.dll
+    TargetFolder: 'Configurations/LBOs'
+
+# Copy global.json to Configurations
+# global.json only exists on root folder
+- task: CopyFiles@2
+  displayName: 'Copy global.json to Configurations'
+  inputs:
+    SourceFolder: '.'
+    Contents: 'global.json'
+    TargetFolder: Configurations
+
+# Copy Runsettings to Configurations
+- task: CopyFiles@2
+  displayName: 'Copy Runsettings to Configurations'
+  inputs:
+    SourceFolder: './Tests/'
+    Contents: '*.runsettings'
+    TargetFolder: Configurations/Runsettings
+
+# Publish Configurations Artifact
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Configurations Artifact'
+  inputs:
+    PathtoPublish: 'Configurations'
+    ArtifactName: 'Cmf.Custom.Package.Configurations'
+    publishLocation: FilePath
+    TargetPath: '${{ variables.CIPublishArtifacts}}/$(Build.SourceBranchName)/$(Build.DefinitionName)_$(GetPackageVersion.PackageVersion).$(Build.BuildId)'
+
+# Remove dependencies.json
+- task: DeleteFiles@1
+  displayName: 'Remove dependencies.json'
+  inputs:
+    SourceFolder: 'FinalPackage'
+    Contents: 'dependencies.json'
+    RemoveSourceFolder: true
 
 # Publish tests Artifact
 - task: PublishBuildArtifacts@1
@@ -110,7 +176,7 @@ steps:
     PathtoPublish: 'FinalPackage/Tests'
     ArtifactName: 'Cmf.Custom.Package.Tests'
     publishLocation: FilePath
-    TargetPath: '$(CIPublishArtifacts)/$(Build.SourceBranchName)/$(Build.DefinitionName)_$(GetPackageVersion.PackageVersion).$(Build.BuildId)'
+    TargetPath: '${{ variables.CIPublishArtifacts}}/$(Build.SourceBranchName)/$(Build.DefinitionName)_$(GetPackageVersion.PackageVersion).$(Build.BuildId)'
 
 # Remove Tests Source Folder
 - task: DeleteFiles@1
@@ -127,56 +193,7 @@ steps:
     PathtoPublish: 'FinalPackage'
     ArtifactName: 'Cmf.Custom.Package'
     publishLocation: FilePath
-    TargetPath: '$(CIPublishArtifacts)/$(Build.SourceBranchName)/$(Build.DefinitionName)_$(GetPackageVersion.PackageVersion).$(Build.BuildId)'
-
-
-# Configuration Artifact
-# Copy cmfpackage to Configurations
-- task: CopyFiles@2
-  displayName: 'Copy EnvironmentConfig to Configurations'
-  inputs:
-    SourceFolder: '${{ parameters.PackagePath }}'
-    Contents: 'cmfpackage.json'
-    TargetFolder: Configurations
-# Copy EnvironmentConfigs to Configurations
-- task: CopyFiles@2
-  displayName: 'Copy EnvironmentConfig to Configurations'
-  inputs:
-    SourceFolder: EnvironmentConfigs
-    Contents: '*.json'
-    TargetFolder: Configurations/EnvironmentConfigs
-# Copy LBOs to Configurations
-- task: CopyFiles@2
-  displayName: 'Copy LBOs to Configurations'
-  inputs:
-    SourceFolder: 'Libs/LBOs/NetStandard'
-    Contents: |
-      Cmf.LightBusinessObjects.dll
-    TargetFolder: 'Configurations/LBOs'
-# Copy global.json to Configurations
-# global.json only exists on root folder
-- task: CopyFiles@2
-  displayName: 'Copy global.json to Configurations'
-  inputs:
-    SourceFolder: '.'
-    Contents: 'global.json'
-    TargetFolder: Configurations
-# Copy Runsettings to Configurations
-- task: CopyFiles@2
-  displayName: 'Copy Runsettings to Configurations'
-  inputs:
-    SourceFolder: './Tests/'
-    Contents: '*.runsettings'
-    TargetFolder: Configurations/Runsettings
-
-# Publish Configurations Artifact
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Configurations Artifact'
-  inputs:
-    PathtoPublish: 'Configurations'
-    ArtifactName: 'Cmf.Custom.Package.Configurations'
-    publishLocation: FilePath
-    TargetPath: '$(CIPublishArtifacts)/$(Build.SourceBranchName)/$(Build.DefinitionName)_$(GetPackageVersion.PackageVersion).$(Build.BuildId)'
+    TargetPath: '${{ variables.CIPublishArtifacts}}/$(Build.SourceBranchName)/$(Build.DefinitionName)_$(GetPackageVersion.PackageVersion).$(Build.BuildId)'
 
 # Clean up
 - task: DeleteFiles@1
@@ -185,12 +202,14 @@ steps:
     SourceFolder: 'Package'
     Contents: '**'
   condition: always()
+
 - task: DeleteFiles@1
   displayName: Delete FinalPackage
   inputs:
     SourceFolder: 'FinalPackage'
     Contents: '**'
   condition: always()
+
 - task: DeleteFiles@1
   displayName: Delete Artifacts
   inputs:
