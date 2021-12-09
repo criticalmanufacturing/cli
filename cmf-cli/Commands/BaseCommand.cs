@@ -154,10 +154,11 @@ namespace Cmf.Common.Cli.Commands
         /// <returns></returns>
         private static Command FindChildCommands(Type cmd, List<Type> commandTypes)
         {
-            var cmdName = cmd.GetCustomAttribute<CmfCommandAttribute>().Name;
+            var dec = cmd.GetCustomAttribute<CmfCommandAttribute>();
+            var cmdName = dec.Name;
 
             // Create command
-            var cmdInstance = new Command(cmdName);
+            var cmdInstance = new Command(cmdName) { IsHidden = dec.IsHidden };
 
             // Call "Configure" method
             BaseCommand cmdHandler = Activator.CreateInstance(cmd) as BaseCommand;
