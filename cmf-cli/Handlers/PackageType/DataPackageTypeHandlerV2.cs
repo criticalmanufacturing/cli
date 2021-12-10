@@ -103,6 +103,9 @@ namespace Cmf.Common.Cli.Handlers
                     this.CmfPackage.Steps = steps.ToList();
                 }
             }
+
+            this.CmfPackage.Steps = this.CmfPackage.Steps.OrderBy(step => step.FilePath).OrderBy(step => step.Order).ToList();
+
             base.GenerateDeploymentFrameworkManifest(packageOutputDir);
         }
 

@@ -250,7 +250,7 @@ stages:
             inputs:
               targetType: 'inline'
               script: |
-                cmf-pipelines copyDependencies Cmf.Custom.Package.Configurations/dependencies.json ${{ variables.CandidatePackages }}/Cmf.Custom.Package
+                $(Agent.TempDirectory)/node_modules/@criticalmanufacturing/cmf-pipeline/dist/win-x64/cmf-pipeline copyDependencies Cmf.Custom.Package.Configurations/dependencies.json ${{ variables.CandidatePackages }}/Cmf.Custom.Package
               pwsh: true
 
           # Copy EnvironmentConfig to Server
