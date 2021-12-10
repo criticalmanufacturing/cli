@@ -501,7 +501,7 @@ namespace Cmf.Common.Cli.Handlers
 
             FinalArchive(packageOutputDir, outputDir);
 
-            Log.Information($"{CmfPackage.PackageName} created");
+            Log.Information($"{outputDir.FullName}/{CmfPackage.ZipPackageName} created");
         }
 
         /// <summary>
