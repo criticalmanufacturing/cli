@@ -17,10 +17,8 @@ resources:
    - pipeline: CIPublish
      source: CI-Publish
      branch: $(Build.SourceBranch)
-     trigger:
-      branches:
-       include:
-         - development
+     project: '<%= $CLI_PARAM_ProjectName %>'
+     trigger: true
 
 variables:
  - template: ../EnvironmentConfigs/GlobalVariables.yml  # Template reference to global variables
@@ -106,7 +104,9 @@ stages:
               project: '<%= $CLI_PARAM_ProjectName %>'
               pipeline: 'CI-Publish'
               specificBuildWithTriggering: true
-              allowPartiallySucceededBuilds: true
+              buildVersionToDownload: 'specific'
+              buildId: '$(resources.pipeline.CIPublish.runID)'
+              downloadType: 'single'
               artifactName: 'Cmf.Custom.Package.Configurations'
               downloadPath: '.'
           
@@ -123,6 +123,7 @@ stages:
               downloadType: specific
               downloadPath: 'DownloadPackages'
               artifactName: Cmf.BackupRestore.Tools
+
           # Extract files - BackupRestoreTools
           - task: ExtractFiles@1
             displayName: "Extract files - Pre-Package"
@@ -211,7 +212,9 @@ stages:
               project: '<%= $CLI_PARAM_ProjectName %>'
               pipeline: 'CI-Publish'
               specificBuildWithTriggering: true
-              allowPartiallySucceededBuilds: true
+              buildVersionToDownload: 'specific'
+              buildId: '$(resources.pipeline.CIPublish.runID)'
+              downloadType: 'single'
               artifactName: 'Cmf.Custom.Package'
               downloadPath: '${{ variables.CandidatePackages }}'
           
@@ -223,7 +226,9 @@ stages:
               project: '<%= $CLI_PARAM_ProjectName %>'
               pipeline: 'CI-Publish'
               specificBuildWithTriggering: true
-              allowPartiallySucceededBuilds: true
+              buildVersionToDownload: 'specific'
+              buildId: '$(resources.pipeline.CIPublish.runID)'
+              downloadType: 'single'
               artifactName: 'Cmf.Custom.Package.Configurations'
               downloadPath: '.'
 
@@ -346,7 +351,9 @@ stages:
               project: '<%= $CLI_PARAM_ProjectName %>'
               pipeline: 'CI-Publish'
               specificBuildWithTriggering: true
-              allowPartiallySucceededBuilds: true
+              buildVersionToDownload: 'specific'
+              buildId: '$(resources.pipeline.CIPublish.runID)'
+              downloadType: 'single'
               artifactName: 'Cmf.Custom.Package.Configurations'
               downloadPath: '.'
 
@@ -431,7 +438,9 @@ stages:
             project: '<%= $CLI_PARAM_ProjectName %>'
             pipeline: 'CI-Publish'
             specificBuildWithTriggering: true
-            allowPartiallySucceededBuilds: true
+            buildVersionToDownload: 'specific'
+            buildId: '$(resources.pipeline.CIPublish.runID)'
+            downloadType: 'single'
             artifactName: 'Cmf.Custom.Package.Configurations'
             downloadPath: '.'
 
@@ -443,7 +452,9 @@ stages:
             project: '<%= $CLI_PARAM_ProjectName %>'
             pipeline: 'CI-Publish'
             specificBuildWithTriggering: true
-            allowPartiallySucceededBuilds: true
+            buildVersionToDownload: 'specific'
+            buildId: '$(resources.pipeline.CIPublish.runID)'
+            downloadType: 'single'
             artifactName: 'Cmf.Custom.Package.Tests'
             downloadPath: '${{ variables.CandidatePackages }}'
           continueOnError: true
@@ -492,6 +503,9 @@ stages:
                 $sc = {
                     param ($ImagePath, $PackageId, $PackageVersion, $PackageSource, $EnvironmentConfig)
 
+                    $parameters = "$PackageSource\$EnvironmentConfig"
+                    $package = "$PackageId@$PackageVersion"
+
                     # Mount the ISO, without having a drive letter auto-assigned
                     if (!(Get-DiskImage -ImagePath $ImagePath).Attached) {
                         Mount-DiskImage -ImagePath $ImagePath -PassThru  | Out-Null
@@ -499,8 +513,7 @@ stages:
                     $driveLetter = (Get-DiskImage -ImagePath $ImagePath | Get-Volume).DriveLetter
                     $PackageSource = $PackageSource #+ '\' + $PackageVersion
                     Set-Location -Path $driveLetter':\'
-                    $scriptPath = '.\tools\CmfDeploy.exe install ' + $PackageId + '@' + `
-                    $PackageVersion + ' --parameters="' + $PackageSource + '\' + $EnvironmentConfig + '" --packageSource="' + $PackageSource + '" -logFileLocation "' + $PackageSource + '"'
+                    $scriptPath = '.\tools\CmfDeploy.exe install ' + $package + ' --parameters="' + $parameters + '" --packageSources="' + $driveLetter + ':\,' + $PackageSource + '" -logFileLocation "' + $PackageSource + '"'
 
                     Write-Host("Script to run: " + $scriptPath)
 
@@ -564,7 +577,9 @@ stages:
               project: '<%= $CLI_PARAM_ProjectName %>'
               pipeline: 'CI-Publish'
               specificBuildWithTriggering: true
-              allowPartiallySucceededBuilds: true
+              buildVersionToDownload: 'specific'
+              buildId: '$(resources.pipeline.CIPublish.runID)'
+              downloadType: 'single'
               artifactName: 'Cmf.Custom.Package.Configurations'
               downloadPath: '.'
 
@@ -625,6 +640,7 @@ stages:
           clean: all
         steps:
           - checkout: none
+
           # Download Configurations Artifacts
           - task: DownloadBuildArtifacts@0
             displayName: "Download Configurations Artifacts"
@@ -633,9 +649,12 @@ stages:
               project: '<%= $CLI_PARAM_ProjectName %>'
               pipeline: 'CI-Publish'
               specificBuildWithTriggering: true
-              allowPartiallySucceededBuilds: true
+              buildVersionToDownload: 'specific'
+              buildId: '$(resources.pipeline.CIPublish.runID)'
+              downloadType: 'single'
               artifactName: 'Cmf.Custom.Package.Configurations'
               downloadPath: '.'
+
           # Copy Copy global.json to root
           - task: CopyFiles@2
             displayName: 'Copy global.json to root'
@@ -652,7 +671,9 @@ stages:
               project: '<%= $CLI_PARAM_ProjectName %>'
               pipeline: 'CI-Publish'
               specificBuildWithTriggering: true
-              allowPartiallySucceededBuilds: true
+              buildVersionToDownload: 'specific'
+              buildId: '$(resources.pipeline.CIPublish.runID)'
+              downloadType: 'single'
               artifactName: 'Cmf.Custom.Package.Tests'
               downloadPath: '$(Build.SourcesDirectory)'
             continueOnError: true
@@ -776,7 +797,9 @@ stages:
                     project: '<%= $CLI_PARAM_ProjectName %>'
                     pipeline: 'CI-Publish'
                     specificBuildWithTriggering: true
-                    allowPartiallySucceededBuilds: true
+                    buildVersionToDownload: 'specific'
+                    buildId: '$(resources.pipeline.CIPublish.runID)'
+                    downloadType: 'single'
                     artifactName: 'Cmf.Custom.Package.Configurations'
                     downloadPath: '.'
 
@@ -827,7 +850,9 @@ stages:
                     project: '<%= $CLI_PARAM_ProjectName %>'
                     pipeline: 'CI-Publish'
                     specificBuildWithTriggering: true
-                    allowPartiallySucceededBuilds: true
+                    buildVersionToDownload: 'specific'
+                    buildId: '$(resources.pipeline.CIPublish.runID)'
+                    downloadType: 'single'
                     artifactName: 'Cmf.Custom.Package'
                     downloadPath: 'PackageApproved'
 
@@ -849,7 +874,9 @@ stages:
                     project: '<%= $CLI_PARAM_ProjectName %>'
                     pipeline: 'CI-Publish'
                     specificBuildWithTriggering: true
-                    allowPartiallySucceededBuilds: true
+                    buildVersionToDownload: 'specific'
+                    buildId: '$(resources.pipeline.CIPublish.runID)'
+                    downloadType: 'single'
                     artifactName: 'Cmf.Custom.Package.Tests'
                     downloadPath: 'TestPackageApproved'
 
@@ -887,7 +914,9 @@ stages:
               project: '<%= $CLI_PARAM_ProjectName %>'
               pipeline: 'CI-Publish'
               specificBuildWithTriggering: true
-              allowPartiallySucceededBuilds: true
+              buildVersionToDownload: 'specific'
+              buildId: '$(resources.pipeline.CIPublish.runID)'
+              downloadType: 'single'
               artifactName: 'Cmf.Custom.Package.Configurations'
               downloadPath: '.'
 
