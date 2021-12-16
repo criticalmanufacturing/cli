@@ -1,0 +1,32 @@
+{
+  "name": "cli-docs",
+  "version": "1.0.0",
+  "description": "@criticalmanufacturing/cli docs",
+  "scripts": {
+    
+    "clean": "docker stop devops_cli_doc && docker rm devops_cli_doc && docker rmi devops/cli-doc",
+    "clean:img": "docker rmi devops/mdbook",
+    "img:build": "cd image && docker build -t devops/mdbook . && cd ..",
+    "init:linux": "docker run --rm -v $(pwd):/data -u $(id -u):$(id -g) -it devops/mdbook mdbook init",
+    "build:linux": "podman run --rm -v $(pwd):/data -u $(id -u):$(id -g) -it devops/mdbook mdbook build",
+    "serve:linux": "docker run--rm -p 3000:3000 -p 3001:3001 -v $(pwd):/data -u $(id -u):$(id -g) -it devops/mdbook mdbook serve -p 3000 -n 0.0.0.0",
+    "init": "docker run --rm -v %CD%:/data -it devops/mdbook mdbook init",
+    "build": "docker run --rm -v %CD%:/data -it devops/mdbook mdbook build",
+    "serve": "docker run --rm -p 3000:3000 -p 3001:3001 -v %CD%:/data -it devops/mdbook mdbook serve -p 3000 -n 0.0.0.0",
+    "publish:build": "docker build --rm -t devops/cli-doc .",
+    "publish:run": "docker run -d -p 8889:80 --name devops_cli_doc devops/cli-doc",
+    "publish": "npm run clean && npm run publish:build && npm run publish:run",
+    "publish:full": "npm run clean:img && npm run img:build && npm run clean && npm run publish:build && npm run publish:run",
+    "export": "docker build --rm -v %CD%:/book -t devops/cli-doc .",
+    
+    "clean:mkdocs": "rm -fr book/* && docker stop cli_docs && docker rm cli_docs && docker rmi cli/docs",
+    "build:mkdocs": "docker build -t cli/docs -f mkdocs/Dockerfile .",
+    "serve:mkdocs": "docker run -d --name cli_docs -p 8080:80 cli/docs",
+    "dist:mkdocs": "docker cp cli_docs:/usr/share/nginx/html dist",
+
+    "help:init": "git clone https://github.com/valeriangalliat/help2md.git",
+    "help:gen": "node gen-cmds.js"
+  },
+  "author": "Marco Silva <marcosilva@criticalmanufacturing.com>",
+  "license": "BSD-3-Clause"
+}

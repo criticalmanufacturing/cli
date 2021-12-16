@@ -1,0 +1,20 @@
+.md-typeset {
+    font-size: .7rem;
+}
+
+.md-tabs__link--active {
+    font-weight: 600
+}
+
+[data-md-color-primary=white] {
+    --md-primary-fg-color: #fff;
+    --md-primary-fg-color--light: hsla(0,0%,100%,0.7);
+    --md-primary-fg-color--dark: rgba(0,0,0,0.07);
+    --md-primary-bg-color: rgba(8,85,140,1);
+    --md-primary-bg-color--light: rgba(0,0,0,0.54);
+    --md-typeset-a-color: #00558C;
+}
+
+[data-md-color-scheme=slate][data-md-color-primary=grey] {
+    --md-typeset-a-color: #00558C;
+}
