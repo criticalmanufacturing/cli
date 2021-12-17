@@ -238,7 +238,7 @@ namespace tests.Specs
         {
             string cirepo = @"/cirepo";
             KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.1.0");
-            KeyValuePair<string, string> packageDep1 = new("CriticalManufacturing", "8.3.0");            
+            KeyValuePair<string, string> packageDep1 = new("CriticalManufacturing.DeploymentMetadata", "8.3.0");            
             KeyValuePair<string, MockDirectoryData> assembleOutputDir = new("/test/assemble/", new());
 
             var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
