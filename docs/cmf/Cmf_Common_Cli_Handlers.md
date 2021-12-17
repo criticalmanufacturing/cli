@@ -414,6 +414,19 @@ Derived
 
 Implements [IPackageTypeHandler](Cmf_Common_Cli_Interfaces.md#Cmf_Common_Cli_Interfaces_IPackageTypeHandler 'Cmf.Common.Cli.Interfaces.IPackageTypeHandler')  
 ### Constructors
+<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_PackageTypeHandler(Cmf_Common_Cli_Objects_CmfPackage)'></a>
+## PackageTypeHandler.PackageTypeHandler(CmfPackage) Constructor
+Initializes a new instance of the [PackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_PackageTypeHandler 'Cmf.Common.Cli.Handlers.PackageTypeHandler') class.  
+```csharp
+public PackageTypeHandler(Cmf.Common.Cli.Objects.CmfPackage cmfPackage);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_PackageTypeHandler(Cmf_Common_Cli_Objects_CmfPackage)_cmfPackage'></a>
+`cmfPackage` [CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')  
+  
+#### Exceptions
+[CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException')  
+  
 <a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_PackageTypeHandler(Cmf_Common_Cli_Objects_CmfPackage_System_IO_Abstractions_IFileSystem)'></a>
 ## PackageTypeHandler.PackageTypeHandler(CmfPackage, IFileSystem) Constructor
 Initializes a new instance of the [PackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_PackageTypeHandler 'Cmf.Common.Cli.Handlers.PackageTypeHandler') class.  
@@ -427,19 +440,6 @@ public PackageTypeHandler(Cmf.Common.Cli.Objects.CmfPackage cmfPackage, System.I
 <a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_PackageTypeHandler(Cmf_Common_Cli_Objects_CmfPackage_System_IO_Abstractions_IFileSystem)_fileSystem'></a>
 `fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
   
-  
-<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_PackageTypeHandler(Cmf_Common_Cli_Objects_CmfPackage)'></a>
-## PackageTypeHandler.PackageTypeHandler(CmfPackage) Constructor
-Initializes a new instance of the [PackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_PackageTypeHandler 'Cmf.Common.Cli.Handlers.PackageTypeHandler') class.  
-```csharp
-public PackageTypeHandler(Cmf.Common.Cli.Objects.CmfPackage cmfPackage);
-```
-#### Parameters
-<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_PackageTypeHandler(Cmf_Common_Cli_Objects_CmfPackage)_cmfPackage'></a>
-`cmfPackage` [CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')  
-  
-#### Exceptions
-[CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException')  
   
 ### Fields
 <a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_BuildSteps'></a>

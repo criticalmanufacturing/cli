@@ -26,6 +26,11 @@
             The parent.
             </value>
         </member>
+        <member name="P:Cmf.Common.Cli.Attributes.CmfCommandAttribute.IsHidden">
+            <summary>
+            should hide the command in help screens?
+            </summary>
+        </member>
         <member name="M:Cmf.Common.Cli.Attributes.CmfCommandAttribute.#ctor(System.String)">
             <summary>
             Initializes a new instance of the <see cref="T:Cmf.Common.Cli.Attributes.CmfCommandAttribute" /> class.
@@ -523,6 +528,11 @@
         <member name="F:Cmf.Common.Cli.Commands.AssembleCommand.packagesLocation">
             <summary>
             Packages names and Uri to saved in a file in the end of the command execution
+            </summary>
+        </member>
+        <member name="F:Cmf.Common.Cli.Commands.AssembleCommand.defaultDependenciesToIgnore">
+            <summary>
+            Dependencies that will be missing but should be ignored
             </summary>
         </member>
         <member name="M:Cmf.Common.Cli.Commands.AssembleCommand.#ctor">
@@ -1036,10 +1046,10 @@
             <returns></returns>
         </member>
         <member name="T:Cmf.Common.Cli.Commands.LocalCommand">
-             <summary>
-            
-             </summary>
-             <seealso cref="T:Cmf.Common.Cli.Commands.BaseCommand" />
+            <summary>
+            Local commands. TODO: migrate this to the dev plugin.
+            </summary>
+            <seealso cref="T:Cmf.Common.Cli.Commands.BaseCommand" />
         </member>
         <member name="M:Cmf.Common.Cli.Commands.LocalCommand.Configure(System.CommandLine.Command)">
             <summary>
@@ -1528,6 +1538,11 @@
         <member name="F:Cmf.Common.Cli.Constants.CliConstants.Driver">
             <summary>
             Driver keyword for IoT Packages
+            </summary>
+        </member>
+        <member name="F:Cmf.Common.Cli.Constants.CliConstants.NpmJsUrl">
+            <summary>
+            npm.js repository url
             </summary>
         </member>
         <member name="F:Cmf.Common.Cli.Constants.CliConstants.TokenStartElement">

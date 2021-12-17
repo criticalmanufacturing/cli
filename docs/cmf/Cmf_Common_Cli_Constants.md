@@ -108,6 +108,15 @@ public const string LBOsFileLocation = Libs/LBOs/NetStandard/Cmf.LightBusinessOb
 #### Field Value
 [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
   
+<a name='Cmf_Common_Cli_Constants_CliConstants_NpmJsUrl'></a>
+## CliConstants.NpmJsUrl Field
+npm.js repository url  
+```csharp
+public const string NpmJsUrl = https://registry.npmjs.com;
+```
+#### Field Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
+  
 <a name='Cmf_Common_Cli_Constants_CliConstants_PackageJson'></a>
 ## CliConstants.PackageJson Field
 The package json  
