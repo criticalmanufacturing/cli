@@ -2,6 +2,7 @@
 using Cmf.Common.Cli.Enums;
 using Cmf.Common.Cli.Objects;
 using Cmf.Common.Cli.Utilities;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
@@ -108,6 +109,7 @@ namespace Cmf.Common.Cli.Handlers
                     injection = string.Join(System.Environment.NewLine, injections);
                 }
                 fileContent = fileContent.Replace(CliConstants.TokenJDTInjection, injection);
+                fileContent = fileContent.Replace(CliConstants.CacheId, DateTime.Now.ToString("yyyyMMddHHmmss"));
 
                 this.fileSystem.File.WriteAllText(path, fileContent);
             }
@@ -132,7 +134,6 @@ namespace Cmf.Common.Cli.Handlers
                         {
                             ContentPath = "node_modules/**"
                         },
-
                         new Step(StepType.TransformFile)
                         {
                             File = "config.json",

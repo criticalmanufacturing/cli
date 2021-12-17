@@ -1,6 +1,7 @@
 ﻿using Cmf.Common.Cli.Utilities;
 using Newtonsoft.Json;
 using System;
+using System.Xml.Serialization;
 
 namespace Cmf.Common.Cli.Objects
 {
@@ -52,6 +53,7 @@ namespace Cmf.Common.Cli.Objects
         /// </summary>
         [JsonProperty(Order = 4)]
         [JsonIgnore]
+        [XmlIgnore]
         public bool IsMissing => this.CmfPackage == null;
 
         #endregion

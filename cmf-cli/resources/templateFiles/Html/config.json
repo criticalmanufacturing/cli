@@ -9,6 +9,6 @@
     }
   ],
   $(JDTInjection)
-  "cacheId": "$(Product.Presentation.CacheToken)",
+  "cacheId": "$(cacheId)",
   "customizationVersion": "$(version)"
 }

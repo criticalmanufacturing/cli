@@ -29,7 +29,7 @@ namespace Cmf.Common.Cli.Commands
         /// <summary>
         /// Dependencies that will be missing but should be ignored
         /// </summary>
-        private readonly string[] defaultDependenciesToIgnore = new string[]{ "criticalmanufacturing", "cmf.environment" };
+        private readonly string[] defaultDependenciesToIgnore = new string[]{ "criticalmanufacturing.deploymentmetadata", "cmf.environment" };
 
         #endregion
 

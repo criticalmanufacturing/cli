@@ -16,6 +16,22 @@
     {
       "source": "apps/customization.web/node_modules/@criticalmanufacturing/mes-ui-web/bundles",
       "target": ""
+    },
+    {
+      "source": "../../Libs/LBOs/TypeScript/APIReference*",
+      "target": "node_modules/cmf.lbos"
+    },
+    {
+      "source": "../../Libs/LBOs/TypeScript/cmf.lbos.*",
+      "target": "node_modules/cmf.lbos"
+    },
+    {
+      "source": "../../Libs/LBOs/TypeScript/package.json",
+      "target": "node_modules/cmf.lbos"
+    },
+    {
+      "source": "config.json",
+      "action": "Transform"
     }
   ],
   "xmlInjection": ["<%= $CLI_PARAM_rootRelativePath %>/DeploymentMetadata/ui.xml"]

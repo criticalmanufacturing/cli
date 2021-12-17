@@ -1,3 +1,4 @@
+using Cmf.Common.Cli.Builders;
 using Cmf.Common.Cli.Constants;
 using Cmf.Common.Cli.Enums;
 using Cmf.Common.Cli.Objects;
@@ -31,27 +32,20 @@ namespace Cmf.Common.Cli.Handlers
                 waitForIntegrationEntries:
                     true,
                 targetDirectory:
-                    "BusinessTier",
-                steps:
-                    new List<Step>()
-                    {
-                        new Step(StepType.Generic)
-                        {
-                            OnExecute = "$(Agent.Root)/agent/scripts/stop_host.ps1"
-                        },
-                        new Step(StepType.TransformFile)
-                        {
-                            File = "Cmf.Foundation.Services.HostService.dll.config",
-                            TagFile = true
-                        },
-                        new Step(StepType.Generic)
-                        {
-                            OnExecute = "$(Agent.Root)/agent/scripts/start_host.ps1"
-                        }
-                    }
+                    "BusinessTier"
             );
 
+            BuildSteps = new IBuildCommand[]
+            {
+                new JSONValidatorCommand()
+                {
+                    DisplayName = "JSON Validator Command",
+                    FilesToValidate = GetContentToPack(this.fileSystem.DirectoryInfo.FromDirectoryName("."))
+                }
+            };
+
             DFPackageType = PackageType.Business; // necessary because we restart the host during installation
+
         }
 
         /// <summary>
@@ -103,6 +97,9 @@ namespace Cmf.Common.Cli.Handlers
                     this.CmfPackage.Steps = steps.ToList();
                 }
             }
+
+            this.CmfPackage.Steps = this.CmfPackage.Steps.OrderBy(step => step.FilePath).OrderBy(step => step.Order).ToList();
+
             base.GenerateDeploymentFrameworkManifest(packageOutputDir);
         }
 

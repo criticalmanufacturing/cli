@@ -157,7 +157,7 @@ steps:
   displayName: 'Publish Configurations Artifact'
   inputs:
     PathtoPublish: 'Configurations'
-    ArtifactName: 'Cmf.Custom.Package.Configurations'
+    ArtifactName: 'Configurations'
     publishLocation: FilePath
     TargetPath: '${{ variables.CIPublishArtifacts}}/$(Build.SourceBranchName)/$(Build.DefinitionName)_$(GetPackageVersion.PackageVersion).$(Build.BuildId)'
 
@@ -174,7 +174,7 @@ steps:
   displayName: 'Publish Test Artifact'
   inputs:
     PathtoPublish: 'FinalPackage/Tests'
-    ArtifactName: 'Cmf.Custom.Package.Tests'
+    ArtifactName: 'Tests'
     publishLocation: FilePath
     TargetPath: '${{ variables.CIPublishArtifacts}}/$(Build.SourceBranchName)/$(Build.DefinitionName)_$(GetPackageVersion.PackageVersion).$(Build.BuildId)'
 
@@ -191,7 +191,7 @@ steps:
   displayName: 'Publish Package Artifact'
   inputs:
     PathtoPublish: 'FinalPackage'
-    ArtifactName: 'Cmf.Custom.Package'
+    ArtifactName: 'Package'
     publishLocation: FilePath
     TargetPath: '${{ variables.CIPublishArtifacts}}/$(Build.SourceBranchName)/$(Build.DefinitionName)_$(GetPackageVersion.PackageVersion).$(Build.BuildId)'
 

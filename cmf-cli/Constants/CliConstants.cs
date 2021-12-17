@@ -139,6 +139,11 @@
         /// </summary>
         public const string TokenPackageId = "$(packageId)";
 
+        /// <summary>
+        /// The token cache Id
+        /// </summary>
+        public const string CacheId = "$(cacheId)";
+
         #endregion
     }
 }

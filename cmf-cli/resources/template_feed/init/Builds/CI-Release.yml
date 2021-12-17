@@ -17,10 +17,8 @@ resources:
    - pipeline: CIPublish
      source: CI-Publish
      branch: $(Build.SourceBranch)
-     trigger:
-      branches:
-       include:
-         - development
+     project: '<%= $CLI_PARAM_ProjectName %>'
+     trigger: true
 
 variables:
  - template: ../EnvironmentConfigs/GlobalVariables.yml  # Template reference to global variables
@@ -106,8 +104,10 @@ stages:
               project: '<%= $CLI_PARAM_ProjectName %>'
               pipeline: 'CI-Publish'
               specificBuildWithTriggering: true
-              allowPartiallySucceededBuilds: true
-              artifactName: 'Cmf.Custom.Package.Configurations'
+              buildVersionToDownload: 'specific'
+              buildId: '$(resources.pipeline.CIPublish.runID)'
+              downloadType: 'single'
+              artifactName: 'Configurations'
               downloadPath: '.'
           
           # Download Build Artifacts - BackupRestore Tools
@@ -123,6 +123,7 @@ stages:
               downloadType: specific
               downloadPath: 'DownloadPackages'
               artifactName: Cmf.BackupRestore.Tools
+
           # Extract files - BackupRestoreTools
           - task: ExtractFiles@1
             displayName: "Extract files - Pre-Package"
@@ -136,7 +137,7 @@ stages:
           - task: CopyFiles@2
             displayName: 'Copy EnvironmentConfig to Server'
             inputs:
-              SourceFolder: Cmf.Custom.Package.Configurations/EnvironmentConfigs
+              SourceFolder: Configurations/EnvironmentConfigs
               Contents: '${{ parameters.EnvironmentConfigName }}'
               TargetFolder: BackupRestoreTools/EnvironmentConfigs
 
@@ -211,8 +212,10 @@ stages:
               project: '<%= $CLI_PARAM_ProjectName %>'
               pipeline: 'CI-Publish'
               specificBuildWithTriggering: true
-              allowPartiallySucceededBuilds: true
-              artifactName: 'Cmf.Custom.Package'
+              buildVersionToDownload: 'specific'
+              buildId: '$(resources.pipeline.CIPublish.runID)'
+              downloadType: 'single'
+              artifactName: 'Package'
               downloadPath: '${{ variables.CandidatePackages }}'
           
           # Download Configurations Artifacts
@@ -223,8 +226,10 @@ stages:
               project: '<%= $CLI_PARAM_ProjectName %>'
               pipeline: 'CI-Publish'
               specificBuildWithTriggering: true
-              allowPartiallySucceededBuilds: true
-              artifactName: 'Cmf.Custom.Package.Configurations'
+              buildVersionToDownload: 'specific'
+              buildId: '$(resources.pipeline.CIPublish.runID)'
+              downloadType: 'single'
+              artifactName: 'Configurations'
               downloadPath: '.'
 
           # Copy External Package Dependencies
@@ -250,14 +255,14 @@ stages:
             inputs:
               targetType: 'inline'
               script: |
-                cmf-pipelines copyDependencies Cmf.Custom.Package.Configurations/dependencies.json ${{ variables.CandidatePackages }}/Cmf.Custom.Package
+                $(Agent.TempDirectory)/node_modules/@criticalmanufacturing/cmf-pipeline/dist/win-x64/cmf-pipeline copyDependencies Configurations/dependencies.json ${{ variables.CandidatePackages }}/Package
               pwsh: true
 
           # Copy EnvironmentConfig to Server
           - task: CopyFiles@2
             displayName: 'Copy EnvironmentConfig to Server'
             inputs:
-              SourceFolder: Cmf.Custom.Package.Configurations/EnvironmentConfigs
+              SourceFolder: Configurations/EnvironmentConfigs
               Contents: '${{ parameters.EnvironmentConfigName }}'
               TargetFolder: ${{ variables.CandidatePackages }}
 
@@ -275,10 +280,10 @@ stages:
 
                 # Assuming repository Checkout
                 $EnvironmentConfig = "$EnvironmentConfigName";
-                $EnvConfigFile = Get-Item "./Cmf.Custom.Package.Configurations/EnvironmentConfigs/$EnvironmentConfig"
+                $EnvConfigFile = Get-Item "./Configurations/EnvironmentConfigs/$EnvironmentConfig"
                 $EnvConfigJson = Get-Content -Raw -Path $EnvConfigFile | ConvertFrom-Json
                 $ServerAddress = $EnvConfigJson.'Product.ApplicationServer.Address'
-                $CmfPackageJsonFile = Get-Item "./Cmf.Custom.Package.Configurations/cmfpackage.json"
+                $CmfPackageJsonFile = Get-Item "./Configurations/cmfpackage.json"
                 $CmfPackageJson = Get-Content -Raw -Path $CmfPackageJsonFile | ConvertFrom-Json
 
                 $PackageId = $CmfPackageJson.'packageId'
@@ -346,8 +351,10 @@ stages:
               project: '<%= $CLI_PARAM_ProjectName %>'
               pipeline: 'CI-Publish'
               specificBuildWithTriggering: true
-              allowPartiallySucceededBuilds: true
-              artifactName: 'Cmf.Custom.Package.Configurations'
+              buildVersionToDownload: 'specific'
+              buildId: '$(resources.pipeline.CIPublish.runID)'
+              downloadType: 'single'
+              artifactName: 'Configurations'
               downloadPath: '.'
 
           # Get package version
@@ -356,7 +363,7 @@ stages:
             inputs:
               targetType: inline
               script: |
-                $CmfPackageJsonFile = Get-Item "./Cmf.Custom.Package.Configurations/cmfpackage.json"
+                $CmfPackageJsonFile = Get-Item "./Configurations/cmfpackage.json"
                 $CmfPackageJson = Get-Content -Raw -Path $CmfPackageJsonFile | ConvertFrom-Json
                 $PackVersion = $CmfPackageJson.'version'
                 $PackageId = $CmfPackageJson.'packageId'
@@ -393,7 +400,7 @@ stages:
           - task: CopyFiles@2
             displayName: 'Copy EnvironmentConfig to BackupRestoreTools'
             inputs:
-              SourceFolder: Cmf.Custom.Package.Configurations/EnvironmentConfigs
+              SourceFolder: Configurations/EnvironmentConfigs
               Contents: '${{ parameters.EnvironmentConfigName }}'
               TargetFolder: BackupRestoreTools/EnvironmentConfigs
 
@@ -431,8 +438,10 @@ stages:
             project: '<%= $CLI_PARAM_ProjectName %>'
             pipeline: 'CI-Publish'
             specificBuildWithTriggering: true
-            allowPartiallySucceededBuilds: true
-            artifactName: 'Cmf.Custom.Package.Configurations'
+            buildVersionToDownload: 'specific'
+            buildId: '$(resources.pipeline.CIPublish.runID)'
+            downloadType: 'single'
+            artifactName: 'Configurations'
             downloadPath: '.'
 
         # Download Tests Artifacts
@@ -443,8 +452,10 @@ stages:
             project: '<%= $CLI_PARAM_ProjectName %>'
             pipeline: 'CI-Publish'
             specificBuildWithTriggering: true
-            allowPartiallySucceededBuilds: true
-            artifactName: 'Cmf.Custom.Package.Tests'
+            buildVersionToDownload: 'specific'
+            buildId: '$(resources.pipeline.CIPublish.runID)'
+            downloadType: 'single'
+            artifactName: 'Tests'
             downloadPath: '${{ variables.CandidatePackages }}'
           continueOnError: true
 
@@ -454,7 +465,7 @@ stages:
           inputs:
             targetType: inline
             script: |
-                $masterDataFiles = "${{ variables.CandidatePackages }}/Cmf.*.Tests/*MasterData*.zip"
+                $masterDataFiles = "${{ variables.CandidatePackages }}/Tests/*MasterData*.zip"
                 Write-Host "##vso[task.setVariable variable=ArtifactExists;]false"
 
                 if (Get-ChildItem -Path $masterDataFiles)
@@ -466,7 +477,7 @@ stages:
         - task: CopyFiles@2
           displayName: 'Copy ${{ parameters.EnvironmentConfigName }} to ${{ variables.CandidatePackages }}'
           inputs:
-            SourceFolder: Cmf.Custom.Package.Configurations/EnvironmentConfigs
+            SourceFolder: Configurations/EnvironmentConfigs
             Contents: '${{ parameters.EnvironmentConfigName }}'
             TargetFolder: ${{ variables.CandidatePackages }}
           condition: eq(variables['ArtifactExists'], true)
@@ -485,12 +496,15 @@ stages:
 
                 # Assuming repository Checkout
                 $EnvironmentConfig = "$EnvironmentConfigName";
-                $EnvConfigFile = Get-Item "./Cmf.Custom.Package.Configurations/EnvironmentConfigs/$EnvironmentConfig"
+                $EnvConfigFile = Get-Item "./Configurations/EnvironmentConfigs/$EnvironmentConfig"
                 $EnvConfigJson = Get-Content -Raw -Path $EnvConfigFile | ConvertFrom-Json
                 $ServerAddress = $EnvConfigJson.'Product.ApplicationServer.Address'
 
                 $sc = {
                     param ($ImagePath, $PackageId, $PackageVersion, $PackageSource, $EnvironmentConfig)
+
+                    $parameters = "$PackageSource\$EnvironmentConfig"
+                    $package = "$PackageId@$PackageVersion"
 
                     # Mount the ISO, without having a drive letter auto-assigned
                     if (!(Get-DiskImage -ImagePath $ImagePath).Attached) {
@@ -499,8 +513,7 @@ stages:
                     $driveLetter = (Get-DiskImage -ImagePath $ImagePath | Get-Volume).DriveLetter
                     $PackageSource = $PackageSource #+ '\' + $PackageVersion
                     Set-Location -Path $driveLetter':\'
-                    $scriptPath = '.\tools\CmfDeploy.exe install ' + $PackageId + '@' + `
-                    $PackageVersion + ' --parameters="' + $PackageSource + '\' + $EnvironmentConfig + '" --packageSource="' + $PackageSource + '" -logFileLocation "' + $PackageSource + '"'
+                    $scriptPath = '.\tools\CmfDeploy.exe install ' + $package + ' --parameters="' + $parameters + '" --packageSources="' + $driveLetter + ':\,' + $PackageSource + '" -logFileLocation "' + $PackageSource + '"'
 
                     Write-Host("Script to run: " + $scriptPath)
 
@@ -521,7 +534,7 @@ stages:
                         Copy-Item -Path $iso -Destination $destIso -Force -Verbose
                     }
 
-                    $masterDataFiles = "${{ variables.CandidatePackages }}/Cmf.*.Tests/*MasterData*.zip"
+                    $masterDataFiles = "${{ variables.CandidatePackages }}/Tests/*MasterData*.zip"
 
                     Get-ChildItem $masterDataFiles | foreach {
                         $PackageId = [regex]::split($_.BaseName, ".[0-9].[0-9].[0-9]")[0];
@@ -564,8 +577,10 @@ stages:
               project: '<%= $CLI_PARAM_ProjectName %>'
               pipeline: 'CI-Publish'
               specificBuildWithTriggering: true
-              allowPartiallySucceededBuilds: true
-              artifactName: 'Cmf.Custom.Package.Configurations'
+              buildVersionToDownload: 'specific'
+              buildId: '$(resources.pipeline.CIPublish.runID)'
+              downloadType: 'single'
+              artifactName: 'Configurations'
               downloadPath: '.'
 
           # BackupRestoreTools Artifact
@@ -595,7 +610,7 @@ stages:
           - task: CopyFiles@2
             displayName: 'Copy EnvironmentConfig to BackupRestoreTools'
             inputs:
-              SourceFolder: Cmf.Custom.Package.Configurations/EnvironmentConfigs
+              SourceFolder: Configurations/EnvironmentConfigs
               Contents: '${{ parameters.EnvironmentConfigName }}'
               TargetFolder: BackupRestoreTools/EnvironmentConfigs
 
@@ -625,6 +640,7 @@ stages:
           clean: all
         steps:
           - checkout: none
+
           # Download Configurations Artifacts
           - task: DownloadBuildArtifacts@0
             displayName: "Download Configurations Artifacts"
@@ -633,14 +649,17 @@ stages:
               project: '<%= $CLI_PARAM_ProjectName %>'
               pipeline: 'CI-Publish'
               specificBuildWithTriggering: true
-              allowPartiallySucceededBuilds: true
-              artifactName: 'Cmf.Custom.Package.Configurations'
+              buildVersionToDownload: 'specific'
+              buildId: '$(resources.pipeline.CIPublish.runID)'
+              downloadType: 'single'
+              artifactName: 'Configurations'
               downloadPath: '.'
+
           # Copy Copy global.json to root
           - task: CopyFiles@2
             displayName: 'Copy global.json to root'
             inputs:
-              SourceFolder: Cmf.Custom.Package.Configurations
+              SourceFolder: Configurations
               Contents: 'global.json'
               TargetFolder: '.'
 
@@ -652,8 +671,10 @@ stages:
               project: '<%= $CLI_PARAM_ProjectName %>'
               pipeline: 'CI-Publish'
               specificBuildWithTriggering: true
-              allowPartiallySucceededBuilds: true
-              artifactName: 'Cmf.Custom.Package.Tests'
+              buildVersionToDownload: 'specific'
+              buildId: '$(resources.pipeline.CIPublish.runID)'
+              downloadType: 'single'
+              artifactName: 'Tests'
               downloadPath: '$(Build.SourcesDirectory)'
             continueOnError: true
 
@@ -664,7 +685,7 @@ stages:
               targetType: inline
               script: |
                 Write-Host "##vso[task.setVariable variable=ArtifactExists;]false"
-                $artifactPath = "$(Build.SourcesDirectory)/Cmf.*.Tests/*.zip"
+                $artifactPath = "$(Build.SourcesDirectory)/Tests/*.zip"
                 Write-Host "$artifactPath"
                 if (Get-ChildItem -Path $artifactPath)
                 {
@@ -693,7 +714,7 @@ stages:
           - task: CopyFiles@2
             displayName: 'Copy RunSettings to TestExecution'
             inputs:
-              SourceFolder: Cmf.Custom.Package.Configurations
+              SourceFolder: Configurations
               Contents: 'RunSettings/**'
               TargetFolder: 'TestExecution'
 
@@ -776,8 +797,10 @@ stages:
                     project: '<%= $CLI_PARAM_ProjectName %>'
                     pipeline: 'CI-Publish'
                     specificBuildWithTriggering: true
-                    allowPartiallySucceededBuilds: true
-                    artifactName: 'Cmf.Custom.Package.Configurations'
+                    buildVersionToDownload: 'specific'
+                    buildId: '$(resources.pipeline.CIPublish.runID)'
+                    downloadType: 'single'
+                    artifactName: 'Configurations'
                     downloadPath: '.'
 
                 # Get package version
@@ -786,7 +809,7 @@ stages:
                   inputs:
                     targetType: inline
                     script: |
-                      $CmfPackageJsonFile = Get-Item "./Cmf.Custom.Package.Configurations/cmfpackage.json"
+                      $CmfPackageJsonFile = Get-Item "./Configurations/cmfpackage.json"
                       $CmfPackageJson = Get-Content -Raw -Path $CmfPackageJsonFile | ConvertFrom-Json
                       $PackVersion = $CmfPackageJson.'version'
                       $PackageId = $CmfPackageJson.'packageId'
@@ -827,15 +850,17 @@ stages:
                     project: '<%= $CLI_PARAM_ProjectName %>'
                     pipeline: 'CI-Publish'
                     specificBuildWithTriggering: true
-                    allowPartiallySucceededBuilds: true
-                    artifactName: 'Cmf.Custom.Package'
+                    buildVersionToDownload: 'specific'
+                    buildId: '$(resources.pipeline.CIPublish.runID)'
+                    downloadType: 'single'
+                    artifactName: 'Package'
                     downloadPath: 'PackageApproved'
 
                 # Copy generated Packages to Repository
                 - task: CopyFiles@2
                   displayName: 'Copy generated Packages From Repository'
                   inputs:
-                    SourceFolder: 'PackageApproved/Cmf.Custom.Package'
+                    SourceFolder: 'PackageApproved/Package'
                     Contents: |
                       *.zip
                     TargetFolder: '${{ variables.ApprovedPackages }}'
@@ -849,15 +874,17 @@ stages:
                     project: '<%= $CLI_PARAM_ProjectName %>'
                     pipeline: 'CI-Publish'
                     specificBuildWithTriggering: true
-                    allowPartiallySucceededBuilds: true
-                    artifactName: 'Cmf.Custom.Package.Tests'
+                    buildVersionToDownload: 'specific'
+                    buildId: '$(resources.pipeline.CIPublish.runID)'
+                    downloadType: 'single'
+                    artifactName: 'Tests'
                     downloadPath: 'TestPackageApproved'
 
                 # Copy generated Packages to Repository
                 - task: CopyFiles@2
                   displayName: 'Copy generated Packages To Repository'
                   inputs:
-                    SourceFolder: 'TestPackageApproved/Cmf.Custom.Package.Tests'
+                    SourceFolder: 'TestPackageApproved/Tests'
                     Contents: |
                       *.zip
                     TargetFolder: '${{ variables.ApprovedPackages }}'
@@ -887,8 +914,10 @@ stages:
               project: '<%= $CLI_PARAM_ProjectName %>'
               pipeline: 'CI-Publish'
               specificBuildWithTriggering: true
-              allowPartiallySucceededBuilds: true
-              artifactName: 'Cmf.Custom.Package.Configurations'
+              buildVersionToDownload: 'specific'
+              buildId: '$(resources.pipeline.CIPublish.runID)'
+              downloadType: 'single'
+              artifactName: 'Configurations'
               downloadPath: '.'
 
           # Get package version
@@ -897,7 +926,7 @@ stages:
             inputs:
               targetType: inline
               script: |
-                $CmfPackageJsonFile = Get-Item "./Cmf.Custom.Package.Configurations/cmfpackage.json"
+                $CmfPackageJsonFile = Get-Item "./Configurations/cmfpackage.json"
                 $CmfPackageJson = Get-Content -Raw -Path $CmfPackageJsonFile | ConvertFrom-Json
                 $PackVersion = $CmfPackageJson.'version'
                 $PackageId = $CmfPackageJson.'packageId'
@@ -916,7 +945,7 @@ stages:
               failOnStderr: true
               script: |
                 $EnvironmentConfig = "${{ parameters.EnvironmentConfigName }}";
-                $EnvConfigFile = Get-Item "./Cmf.Custom.Package.Configurations/EnvironmentConfigs/$EnvironmentConfig"
+                $EnvConfigFile = Get-Item "./Configurations/EnvironmentConfigs/$EnvironmentConfig"
                 $EnvConfigJson = Get-Content -Raw -Path $EnvConfigFile | ConvertFrom-Json
                 $BackupLocation = $EnvConfigJson.'Product.Database.BackupShare'
 

@@ -25,3 +25,7 @@ $arguments = "/Mode:1 /InstallPath:""$businessInstallationPath"""
 Write-Host "Deal with host config file"
 Set-Location -Path $protectUnprotectConfigFilePath
 Start-Process Cmf.Tools.ProtectUnprotectConfigFile.exe $arguments -Wait
+
+$filePath = (Get-Item $myinvocation.mycommand.path).DirectoryName.ToString() + "\GenerateLBOs.ps1"
+
+Remove-Item $filePath -Force -Recurse
