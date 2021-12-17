@@ -25,23 +25,7 @@ namespace Cmf.Common.Cli.Handlers
             targetDirectory:
                 "BusinessTier",
             targetLayer:
-                "host",
-            steps:
-                new List<Step>()
-                {
-                        new Step(StepType.Generic)
-                        {
-                            OnExecute = "$(Agent.Root)/agent/scripts/stop_host.ps1"
-                        },
-                        new Step(StepType.DeployFiles)
-                        {
-                            ContentPath = "**/!(Cmf.Custom.*.BusinessObjects*).dll"
-                        },
-                        new Step(StepType.Generic)
-                        {
-                            OnExecute = "$(Agent.Root)/agent/scripts/start_host.ps1"
-                        }
-                 });
+                "host");
 
             BuildSteps = new IBuildCommand[]
             {
