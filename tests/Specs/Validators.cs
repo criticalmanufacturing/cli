@@ -54,8 +54,7 @@ namespace tests
                             ""target"": ""MasterData/$(version)/"",
                             ""contentType"": ""MasterData""
                         }
-                      ],
-                      ""xmlInjection"": [""../../DeploymentMetadata/ui.xml""]
+                      ]
                     }")
                 },
                 { "/test/Data/MasterData/1.1.0/Test.json", new CmfMockJsonData(
@@ -126,8 +125,7 @@ namespace tests
                               ""target"": ""MasterData /$(version)/"",
                                 ""contentType"": ""MasterData""
                             },
-                      ],
-                      ""xmlInjection"": [""../../DeploymentMetadata/ui.xml""]
+                      ]
                     }")
                 },
                 { "/test/Data/MasterData/1.1.0/Test.json", new CmfMockJsonData(
@@ -194,7 +192,6 @@ namespace tests
                           ""version"": ""1.1.0""
                         }
                       ]
-                      ""xmlInjection"": [""../DeploymentMetadata/ui.xml""]
                     }")
                 },
                 { "/test/IoTData/cmfpackage.json", new CmfMockJsonData(
@@ -212,8 +209,7 @@ namespace tests
                               ""target"": ""MasterData /$(version)/"",
                                 ""contentType"": ""MasterData""
                             },
-                      ],
-                      ""xmlInjection"": [""../DeploymentMetadata/ui.xml""]
+                      ]
                     }")
                 },
                 { "/test/IoTData/MasterData/1.0.0IoT.json", new CmfMockJsonData(
@@ -303,7 +299,6 @@ namespace tests
                           ""version"": ""1.1.0""
                         }
                       ]
-                      ""xmlInjection"": [""../DeploymentMetadata/ui.xml""]
                     }")
                 },
                 { "/test/IoTData/cmfpackage.json", new CmfMockJsonData(
@@ -321,8 +316,7 @@ namespace tests
                               ""target"": ""MasterData /$(version)/"",
                                 ""contentType"": ""MasterData""
                             },
-                      ],
-                      ""xmlInjection"": [""../DeploymentMetadata/ui.xml""]
+                      ]
                     }")
                 },
                 { "/test/IoTData/MasterData/1.0.0IoT.json", new CmfMockJsonData(

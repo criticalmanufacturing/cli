@@ -9,6 +9,15 @@ public static class CliConstants
 
 Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; CliConstants  
 ### Fields
+<a name='Cmf_Common_Cli_Constants_CliConstants_CacheId'></a>
+## CliConstants.CacheId Field
+The token cache Id  
+```csharp
+public const string CacheId = $(cacheId);
+```
+#### Field Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
+  
 <a name='Cmf_Common_Cli_Constants_CliConstants_CmfPackageFileName'></a>
 ## CliConstants.CmfPackageFileName Field
 The CMF package file name  

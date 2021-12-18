@@ -33,6 +33,5 @@
       "source": "config.json",
       "action": "Transform"
     }
-  ],
-  "xmlInjection": ["<%= $CLI_PARAM_rootRelativePath %>/DeploymentMetadata/ui.xml"]
+  ]
 }

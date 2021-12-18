@@ -256,17 +256,18 @@ namespace Cmf.Common.Cli.Objects
                 {
                     throw new CliException(string.Format(CliMessages.MissingMandatoryPropertyInFile, nameof(ContentToPack), $"{FileInfo.FullName}"));
                 }
-
-                if (!XmlInjection.HasAny())
-                {
-                    throw new CliException(string.Format(CliMessages.MissingMandatoryPropertyInFile, nameof(XmlInjection), $"{FileInfo.FullName}"));
-                }
             }
 
-            if (PackageType == PackageType.Data &&
+            if (PackageType.Equals(PackageType.Data) &&
                 !(IsUniqueInstall ?? false))
             {
                 throw new CliException(string.Format(CliMessages.InvalidValue, this.GetType(), "IsUniqueInstall", true));
+            }
+
+            if (PackageType == PackageType.Root &&
+                !Dependencies.Any(d=> d.IsIgnorable))
+            {
+                throw new CliException(string.Format(CliMessages.MissingMandatoryDependency, "Cmf.Environment or CriticalManufacturing.DeploymentMetadata", string.Empty));
             }
         }
 

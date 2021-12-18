@@ -757,6 +757,16 @@ id
             or  
             version
   
+### Fields
+<a name='Cmf_Common_Cli_Objects_Dependency_DefaultDependenciesToIgnore'></a>
+## Dependency.DefaultDependenciesToIgnore Field
+Dependencies that will be missing but should be ignored  
+```csharp
+private readonly string[] DefaultDependenciesToIgnore;
+```
+#### Field Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[[]](https://docs.microsoft.com/en-us/dotnet/api/System.Array 'System.Array')
+  
 ### Properties
 <a name='Cmf_Common_Cli_Objects_Dependency_CmfPackage'></a>
 ## Dependency.CmfPackage Property
@@ -776,6 +786,15 @@ public string Id { get; set; }
 #### Property Value
 [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
 The identifier.  
+  
+<a name='Cmf_Common_Cli_Objects_Dependency_IsIgnorable'></a>
+## Dependency.IsIgnorable Property
+If the dependency is part of the DefaultDependenciesToIgnore, should be marked as ignorable  
+```csharp
+internal bool IsIgnorable { get; }
+```
+#### Property Value
+[System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')
   
 <a name='Cmf_Common_Cli_Objects_Dependency_IsMissing'></a>
 ## Dependency.IsMissing Property

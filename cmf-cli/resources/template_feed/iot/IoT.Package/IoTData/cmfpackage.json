@@ -11,8 +11,5 @@
       "target": "MasterData/$(version)",
       "contentType": "MasterData"
     }
-  ],
-  "xmlInjection": [
-    "<%= $CLI_PARAM_rootInnerRelativePath %>/DeploymentMetadata/ui.xml"
   ]
 }
