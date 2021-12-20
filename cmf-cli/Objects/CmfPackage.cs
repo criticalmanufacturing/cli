@@ -238,7 +238,7 @@ namespace Cmf.Common.Cli.Objects
         [JsonProperty(Order = 17)]
         [JsonIgnore]
         public Uri Uri { get; private set; }
-        
+
         #endregion
 
         #region Private Methods
@@ -265,9 +265,15 @@ namespace Cmf.Common.Cli.Objects
             }
 
             if (PackageType == PackageType.Root &&
-                !Dependencies.Any(d=> d.IsIgnorable))
+                !Dependencies.HasAny(d => d.Id.IgnoreCaseEquals(Dependency.DefaultDependenciesToIgnore[0]) || d.Id.IgnoreCaseEquals(Dependency.DefaultDependenciesToIgnore[1])))
             {
-                throw new CliException(string.Format(CliMessages.MissingMandatoryDependency, "Cmf.Environment or CriticalManufacturing.DeploymentMetadata", string.Empty));
+                throw new CliException(string.Format(CliMessages.MissingMandatoryDependency, $"{ Dependency.DefaultDependenciesToIgnore[0] } or { Dependency.DefaultDependenciesToIgnore[1] }", string.Empty));
+            }
+
+            if (PackageType == PackageType.IoT &&
+                !Dependencies.HasAny(d => d.Id.IgnoreCaseEquals(Dependency.DefaultDependenciesToIgnore[2])))
+            {
+                throw new CliException(string.Format(CliMessages.MissingMandatoryDependency, $"{ Dependency.DefaultDependenciesToIgnore[2] }", string.Empty));
             }
         }
 
