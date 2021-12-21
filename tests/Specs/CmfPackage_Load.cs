@@ -174,8 +174,9 @@ namespace tests.Specs
             {
                 message = ex.Message;
             }
+            string fileLocation = fileSystem.FileInfo.FromFileName("/repo/cmfpackage.json").FullName;
 
-            Assert.AreEqual(@"Missing mandatory property ContentToPack in file C:\repo\cmfpackage.json", message);
+            Assert.AreEqual(@$"Missing mandatory property ContentToPack in file { fileLocation }", message);
         }
     }
 }
