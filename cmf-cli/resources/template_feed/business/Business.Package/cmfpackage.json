@@ -10,6 +10,5 @@
       "source": "Release/*.dll",
       "target": ""
     }
-  ],
-  "xmlInjection": ["<%= $CLI_PARAM_deploymentMetadataRelativePath %>/ui.xml"]
+  ]
 }

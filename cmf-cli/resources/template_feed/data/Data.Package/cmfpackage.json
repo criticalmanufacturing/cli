@@ -74,6 +74,5 @@
       "target": "DeeRules/ProcessRules/$(version)/After",
       "contentType": "ProcessRulesPost"
     }
-  ],
-  "xmlInjection": ["<%= $CLI_PARAM_rootRelativePath %>/DeploymentMetadata/ui.xml"]
+  ]
 }

@@ -530,11 +530,6 @@
             Packages names and Uri to saved in a file in the end of the command execution
             </summary>
         </member>
-        <member name="F:Cmf.Common.Cli.Commands.AssembleCommand.defaultDependenciesToIgnore">
-            <summary>
-            Dependencies that will be missing but should be ignored
-            </summary>
-        </member>
         <member name="M:Cmf.Common.Cli.Commands.AssembleCommand.#ctor">
             <summary>
             Assemble Command
@@ -1583,6 +1578,11 @@
         <member name="F:Cmf.Common.Cli.Constants.CliConstants.TokenPackageId">
             <summary>
             The token package identifier
+            </summary>
+        </member>
+        <member name="F:Cmf.Common.Cli.Constants.CliConstants.CacheId">
+            <summary>
+            The token cache Id
             </summary>
         </member>
         <member name="T:Cmf.Common.Cli.Enums.ContentType">
@@ -2809,6 +2809,16 @@
         <member name="P:Cmf.Common.Cli.Objects.Dependency.IsMissing">
             <summary>
             Is this package missing, i.e. we could not find it anywhere to satisfy this dependency
+            </summary>
+        </member>
+        <member name="P:Cmf.Common.Cli.Objects.Dependency.IsIgnorable">
+            <summary>
+            If the dependency is part of the DefaultDependenciesToIgnore, should be marked as ignorable
+            </summary>
+        </member>
+        <member name="F:Cmf.Common.Cli.Objects.Dependency.DefaultDependenciesToIgnore">
+            <summary>
+            Dependencies that will be missing but should be ignored
             </summary>
         </member>
         <member name="M:Cmf.Common.Cli.Objects.Dependency.#ctor(System.String,System.String)">

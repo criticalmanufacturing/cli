@@ -42,7 +42,7 @@ namespace tests
         ""version"": ""1.1.0""
     },
     {
-        ""id"": ""CriticalManufacturing"",
+        ""id"": ""CriticalManufacturing.DeploymentMetadata"",
         ""version"": ""8.1.1""
     }
   ]
@@ -63,8 +63,7 @@ namespace tests
         "".npmignore""
       ]
     }
-  ],
-  ""xmlInjection"": [""../../DeploymentMetadata/ui.xml""]
+  ]
 }") },
                 { "/test/Business/cmfpackage.json", new MockFileData(
 @"{
@@ -79,8 +78,7 @@ namespace tests
       ""source"": ""Release/*.dll"",
       ""target"": """"
     }
-  ],
-  ""xmlInjection"": [""../DeploymentMetadata/ui.xml""]
+  ]
 }") }
             });
 
@@ -135,7 +133,7 @@ namespace tests
         ""version"": ""1.1.0""
     },
     {
-        ""id"": ""CriticalManufacturing"",
+        ""id"": ""CriticalManufacturing.DeploymentMetadata"",
         ""version"": ""8.1.1""
     }
   ]
@@ -156,8 +154,7 @@ namespace tests
         "".npmignore""
       ]
     }
-  ],
-  ""xmlInjection"": [""../../DeploymentMetadata/ui.xml""]
+  ]
 }") },
                 { "/test/Business/cmfpackage.json", new MockFileData(
 @"{
@@ -172,10 +169,9 @@ namespace tests
       ""source"": ""Release/*.dll"",
       ""target"": """"
     }
-  ],
-  ""xmlInjection"": [""../DeploymentMetadata/ui.xml""]
+  ]
 }") },
-                { $"{repo}/CriticalManufacturing.8.1.1.zip", new MockFileData(new DFPackageBuilder().CreateEntry("manifest.xml",
+                { $"{repo}/CriticalManufacturing.DeploymentMetadata.8.1.1.zip", new MockFileData(new DFPackageBuilder().CreateEntry("manifest.xml",
                   @"<?xml version=""1.0"" encoding=""utf-8""?>
                         <deploymentPackage>
                           <packageId>CriticalManufacturing</packageId>

@@ -18,6 +18,7 @@ namespace tests.Specs
         {
             string cirepo = @"/cirepo";
             KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.1.0");
+            KeyValuePair<string, string> packageDep = new("CriticalManufacturing.DeploymentMetadata", "8.3.0");
             KeyValuePair<string, string> packageDep1 = new("Cmf.Custom.Business", "1.1.0");
             KeyValuePair<string, string> packageDep2 = new("Cmf.Custom.Html", "1.1.0");
             KeyValuePair<string, MockDirectoryData> assembleOutputDir = new("/test/assemble/", new());
@@ -33,6 +34,10 @@ namespace tests.Specs
                   ""isInstallable"": true,
                   ""isUniqueInstall"": false,
                   ""dependencies"": [
+                    {{
+                         ""id"": ""{packageDep.Key}"",
+                        ""version"": ""{packageDep.Value}""
+                    }},
                     {{
                          ""id"": ""{packageDep1.Key}"",
                         ""version"": ""{packageDep1.Value}""
@@ -70,6 +75,7 @@ namespace tests.Specs
         {
             string cirepo1 = @"/cirepo";
             KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.1.0");
+            KeyValuePair<string, string> packageDep = new("CriticalManufacturing.DeploymentMetadata", "8.3.0");
             KeyValuePair<string, string> packageDep1 = new("Cmf.Custom.Business", "1.1.0");
             KeyValuePair<string, string> packageDep2 = new("Cmf.Custom.Html", "1.1.0");
             KeyValuePair<string, MockDirectoryData> assembleOutputDir = new("/test/assemble/", new());
@@ -85,6 +91,10 @@ namespace tests.Specs
                   ""isInstallable"": true,
                   ""isUniqueInstall"": false,
                   ""dependencies"": [
+                    {{
+                         ""id"": ""{packageDep.Key}"",
+                        ""version"": ""{packageDep.Value}""
+                    }},
                     {{
                          ""id"": ""{packageDep1.Key}"",
                         ""version"": ""{packageDep1.Value}""
@@ -124,6 +134,7 @@ namespace tests.Specs
             string repo1 = MockUnixSupport.Path(@"x:\repo1");
             string repo2 = MockUnixSupport.Path(@"y:\repo2");
             KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.1.0");
+            KeyValuePair<string, string> packageDep = new("CriticalManufacturing.DeploymentMetadata", "8.3.0");
             KeyValuePair<string, string> packageDep1 = new("Cmf.Custom.Business", "1.1.0");
             KeyValuePair<string, string> packageDep2 = new("Cmf.Custom.Html", "1.1.0");
             KeyValuePair<string, MockDirectoryData> assembleOutputDir = new("/test/assemble/", new());
@@ -139,6 +150,10 @@ namespace tests.Specs
                   ""isInstallable"": true,
                   ""isUniqueInstall"": false,
                   ""dependencies"": [
+                    {{
+                         ""id"": ""{packageDep.Key}"",
+                        ""version"": ""{packageDep.Value}""
+                    }},
                     {{
                          ""id"": ""{packageDep1.Key}"",
                         ""version"": ""{packageDep1.Value}""
@@ -178,6 +193,7 @@ namespace tests.Specs
         {
             string cirepo = @"/cirepo";
             KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.1.0");
+            KeyValuePair<string, string> packageDep = new("CriticalManufacturing.DeploymentMetadata", "8.3.0");
             KeyValuePair<string, string> packageDep1 = new("Cmf.Custom.Business", "1.1.0");
             KeyValuePair<string, string> packageDep2 = new("Cmf.Custom.Html", "1.1.0");
             KeyValuePair<string, string> packageTest = new("Cmf.Custom.Tests", "1.1.0");
@@ -194,6 +210,10 @@ namespace tests.Specs
                   ""isInstallable"": true,
                   ""isUniqueInstall"": false,
                   ""dependencies"": [
+                    {{
+                         ""id"": ""{packageDep.Key}"",
+                        ""version"": ""{packageDep.Value}""
+                    }},
                     {{
                          ""id"": ""{packageDep1.Key}"",
                         ""version"": ""{packageDep1.Value}""

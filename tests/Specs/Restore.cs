@@ -33,6 +33,10 @@ namespace tests.Specs
                   ""isUniqueInstall"": false,
                   ""dependencies"": [
                     {
+                         ""id"": ""CriticalManufacturing.DeploymentMetadata"",
+                        ""version"": ""8.3.0""
+                    },
+                    {
                          ""id"": ""Cmf.Custom.Business"",
                         ""version"": ""1.1.0""
                     },
@@ -118,6 +122,10 @@ namespace tests.Specs
                   ""isInstallable"": true,
                   ""isUniqueInstall"": false,
                   ""dependencies"": [
+                    {
+                         ""id"": ""CriticalManufacturing.DeploymentMetadata"",
+                        ""version"": ""8.3.0""
+                    },
                     {
                          ""id"": ""Cmf.Custom.Business"",
                         ""version"": ""1.1.0""

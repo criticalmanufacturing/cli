@@ -238,7 +238,7 @@ namespace Cmf.Common.Cli.Objects
         [JsonProperty(Order = 17)]
         [JsonIgnore]
         public Uri Uri { get; private set; }
-        
+
         #endregion
 
         #region Private Methods
@@ -256,17 +256,24 @@ namespace Cmf.Common.Cli.Objects
                 {
                     throw new CliException(string.Format(CliMessages.MissingMandatoryPropertyInFile, nameof(ContentToPack), $"{FileInfo.FullName}"));
                 }
-
-                if (!XmlInjection.HasAny())
-                {
-                    throw new CliException(string.Format(CliMessages.MissingMandatoryPropertyInFile, nameof(XmlInjection), $"{FileInfo.FullName}"));
-                }
             }
 
-            if (PackageType == PackageType.Data &&
+            if (PackageType.Equals(PackageType.Data) &&
                 !(IsUniqueInstall ?? false))
             {
                 throw new CliException(string.Format(CliMessages.InvalidValue, this.GetType(), "IsUniqueInstall", true));
+            }
+
+            if (PackageType == PackageType.Root &&
+                !Dependencies.HasAny(d => d.Id.IgnoreCaseEquals(Dependency.DefaultDependenciesToIgnore[0]) || d.Id.IgnoreCaseEquals(Dependency.DefaultDependenciesToIgnore[1])))
+            {
+                throw new CliException(string.Format(CliMessages.MissingMandatoryDependency, $"{ Dependency.DefaultDependenciesToIgnore[0] } or { Dependency.DefaultDependenciesToIgnore[1] }", string.Empty));
+            }
+
+            if (PackageType == PackageType.IoT &&
+                !Dependencies.HasAny(d => d.Id.IgnoreCaseEquals(Dependency.DefaultDependenciesToIgnore[2])))
+            {
+                throw new CliException(string.Format(CliMessages.MissingMandatoryDependency, $"{ Dependency.DefaultDependenciesToIgnore[2] }", string.Empty));
             }
         }
 

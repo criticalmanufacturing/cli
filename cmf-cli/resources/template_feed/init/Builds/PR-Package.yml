@@ -41,7 +41,7 @@ steps:
     script: |
       $CmfPackageJsonFile = Get-Item ".\cmfpackage.json"
       $CmfPackageJson = Get-Content -Raw -Path $CmfPackageJsonFile | ConvertFrom-Json
-      $PackageName = ($CmfPackageJson.'version') + "." + ($CmfPackageJson.'packageId')
+      $PackageName = ($CmfPackageJson.'packageId') + "." + ($CmfPackageJson.'version')
 
       # Validate if the package version was already released
       $finalPackageFile = "${{ variables.ApprovedPackages }}/" + $PackageName + ".zip"

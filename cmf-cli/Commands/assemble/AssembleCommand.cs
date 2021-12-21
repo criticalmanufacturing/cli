@@ -26,11 +26,6 @@ namespace Cmf.Common.Cli.Commands
         /// </summary>
         private readonly Dictionary<string, string> packagesLocation = new();
 
-        /// <summary>
-        /// Dependencies that will be missing but should be ignored
-        /// </summary>
-        private readonly string[] defaultDependenciesToIgnore = new string[]{ "criticalmanufacturing.deploymentmetadata", "cmf.environment" };
-
         #endregion
 
         #region Constructors
@@ -133,7 +128,7 @@ namespace Cmf.Common.Cli.Commands
             List<string> missingPackages = new();
             foreach (Dependency dependency in cmfPackage.Dependencies.Where(x => x.IsMissing))
             {
-                if(!defaultDependenciesToIgnore.Contains(dependency.Id.ToLower()))
+                if(!dependency.IsIgnorable)
                 {
                     missingPackages.Add($"{dependency.Id}@{dependency.Version}");
                 }
@@ -245,7 +240,7 @@ namespace Cmf.Common.Cli.Commands
 
                 foreach (Dependency dependency in cmfPackage.Dependencies)
                 {
-                    if (!defaultDependenciesToIgnore.Contains(dependency.Id.ToLower()))
+                    if (!dependency.IsIgnorable)
                     {
                         string dependencyPath = dependency.CmfPackage.Uri.GetFile().Directory.FullName;
 

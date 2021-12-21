@@ -20,8 +20,5 @@
       "source": "DWH/UpgradeScripts/$(version)/*",
       "target": "DWH/"
     }
-  ],
-  "xmlInjection": [
-    "<%= $CLI_PARAM_rootRelativePath %>/DeploymentMetadata/ui.xml"
   ]
 }

@@ -1,6 +1,7 @@
 ﻿using Cmf.Common.Cli.Utilities;
 using Newtonsoft.Json;
 using System;
+using System.Linq;
 using System.Xml.Serialization;
 
 namespace Cmf.Common.Cli.Objects
@@ -55,6 +56,22 @@ namespace Cmf.Common.Cli.Objects
         [JsonIgnore]
         [XmlIgnore]
         public bool IsMissing => this.CmfPackage == null;
+
+        #endregion
+
+        #region Internal Properties
+
+        /// <summary>
+        /// Dependencies that will be missing but should be ignored
+        /// </summary>
+        [JsonIgnore]
+        internal static readonly string[] DefaultDependenciesToIgnore = new string[] { "criticalmanufacturing.deploymentmetadata", "cmf.environment", "cmf.connectiot.packages" };
+
+        /// <summary>
+        /// If the dependency is part of the DefaultDependenciesToIgnore, should be marked as ignorable
+        /// </summary>
+        [JsonIgnore]
+        internal bool IsIgnorable => DefaultDependenciesToIgnore.Contains(Id.ToLower());
 
         #endregion
 

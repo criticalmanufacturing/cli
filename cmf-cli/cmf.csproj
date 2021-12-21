@@ -68,6 +68,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>CliMessages.resx</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="installDependencies\Data\GenerateLBOs.ps1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -97,6 +98,5 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>CliMessages.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    
   </ItemGroup>
 </Project>

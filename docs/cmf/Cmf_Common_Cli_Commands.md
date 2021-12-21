@@ -29,15 +29,6 @@ public AssembleCommand(System.IO.Abstractions.IFileSystem fileSystem);
   
   
 ### Fields
-<a name='Cmf_Common_Cli_Commands_AssembleCommand_defaultDependenciesToIgnore'></a>
-## AssembleCommand.defaultDependenciesToIgnore Field
-Dependencies that will be missing but should be ignored  
-```csharp
-private readonly string[] defaultDependenciesToIgnore;
-```
-#### Field Value
-[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[[]](https://docs.microsoft.com/en-us/dotnet/api/System.Array 'System.Array')
-  
 <a name='Cmf_Common_Cli_Commands_AssembleCommand_packagesLocation'></a>
 ## AssembleCommand.packagesLocation Field
 Packages names and Uri to saved in a file in the end of the command execution  

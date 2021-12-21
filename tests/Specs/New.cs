@@ -115,7 +115,6 @@ namespace tests.Specs
                             .GetFiles("Builds")
                             .Select(extractFileName)
                             .Contains(f)), "Missing policy metadata");
-                Assert.IsTrue(Directory.Exists(Path.Join(tmp, "DeploymentMetadata")), "Deployment Metadata is missing");
                 Assert.IsTrue(Directory.Exists(Path.Join(tmp, "EnvironmentConfigs")), "environment configs are missing");
                 Assert.IsTrue(
                     new []{ "GlobalVariables.yml" }

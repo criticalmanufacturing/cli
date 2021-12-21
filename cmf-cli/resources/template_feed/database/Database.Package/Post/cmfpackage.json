@@ -92,8 +92,5 @@
       "source": "DWH/UserDataModel/User Defined Types/*",
       "target": "DWH/"
     }
-  ],
-  "xmlInjection": [
-    "<%= $CLI_PARAM_rootRelativePath %>/DeploymentMetadata/ui.xml"
   ]
 }

@@ -525,7 +525,7 @@ namespace Cmf.Common.Cli.Handlers
 
             // flatten dependency tree. We need to obtain all dependencies
             var allDependencies = this.CmfPackage.Dependencies.Flatten(
-                dependency => dependency.IsMissing ?
+                dependency => dependency.IsMissing || dependency.IsIgnorable ?
                     new DependencyCollection() :
                     dependency.CmfPackage.Dependencies).ToArray();
 
