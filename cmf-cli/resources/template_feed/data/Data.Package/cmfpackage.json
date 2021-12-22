@@ -31,14 +31,6 @@
       "contentType": "Documents"
     },
     {
-      "source": "AutomationWorkFlows/*",
-      "target": "AutomationWorkFlows",
-      "ignoreFiles": [
-        "../.cmfpackageignore"
-      ],
-      "contentType": "AutomationWorkFlows"
-    },
-    {
       "source": "Maps/*",
       "target": "Maps",
       "ignoreFiles": [

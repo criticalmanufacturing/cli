@@ -10,6 +10,14 @@
       "source": "$(version)/*",
       "target": "MasterData/$(version)",
       "contentType": "MasterData"
+    },
+    {
+      "source": "AutomationWorkFlows/*",
+      "target": "AutomationWorkFlows",
+      "ignoreFiles": [
+        "../.cmfpackageignore"
+      ],
+      "contentType": "AutomationWorkFlows"
     }
   ]
 }
