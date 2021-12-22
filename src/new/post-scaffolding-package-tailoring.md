@@ -1,4 +1,4 @@
-# post scaffolding package tailoring
+# Post-scaffolding package tailoring
 
 ## Containers:
  - **Root Package**

@@ -10,11 +10,11 @@ Run `cmf pack -h` to get a list of available arguments and options.
 
 ### Important
 
-cmf pack comes with preconfigured [Steps](./../cmf/Step.md) per [PackageType](./../cmf/PackageType.md) to run during the installation. This pre defined steps are assuming a restrict structure during the installation, this can be disabled using the flag `isToSetDefaultSteps:false` in your `cmfpackage.json`.
+cmf pack comes with preconfigured [Steps](https://github.com/criticalmanufacturing/cli/blob/development/docs/cmf/Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_Step) per [PackageType](https://github.com/criticalmanufacturing/cli/blob/development/docs/cmf/Cmf_Common_Cli_Enums.md#Cmf_Common_Cli_Enums_PackageType) to run during the installation. This pre defined steps are assuming a restrict structure during the installation, this can be disabled using the flag `isToSetDefaultSteps:false` in your `cmfpackage.json`.
 
 ### How it works
 
-When the cmf pack is executed it will search in the working directory, for a `cmfpackage.json` file, that then is serialized to the [CmfPackage](./../cmf/CmfPackage.md) this will guarantee that the `cmfpackage.json` has all the valid and needed fields. Then it will get which is the [PackageType](./../cmf/PackageType.md), and based on that will generate the package.
+When the cmf pack is executed it will search in the working directory, for a `cmfpackage.json` file, that then is serialized to the [CmfPackage](https://github.com/criticalmanufacturing/cli/blob/development/docs/cmf/Cmf_Common_Cli_Objects.md#cmfpackage-class) this will guarantee that the `cmfpackage.json` has all the valid and needed fields. Then it will get which is the [PackageType](https://github.com/criticalmanufacturing/cli/blob/development/docs/cmf/Cmf_Common_Cli_Enums.md#Cmf_Common_Cli_Enums_PackageType), and based on that will generate the package.
 
 <!-- BEGIN USAGE -->
 Usage

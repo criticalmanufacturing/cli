@@ -19,10 +19,10 @@
     "publish:full": "npm run clean:img && npm run img:build && npm run clean && npm run publish:build && npm run publish:run",
     "export": "docker build --rm -v %CD%:/book -t devops/cli-doc .",
     
-    "clean:mkdocs": "rm -fr book/* && docker stop cli_docs && docker rm cli_docs && docker rmi cli/docs",
-    "build:mkdocs": "docker build -t cli/docs -f mkdocs/Dockerfile .",
-    "serve:mkdocs": "docker run -d --name cli_docs -p 8080:80 cli/docs",
-    "dist:mkdocs": "docker cp cli_docs:/usr/share/nginx/html dist",
+    "clean:mkdocs": "rm -fr dist && docker stop cli_docs && docker rm cli_docs && docker rmi cli/docs",
+    "build:mkdocs": "docker build --rm -t cli/docs -f mkdocs/Dockerfile .",
+    "serve:mkdocs": "docker run -d --name cli_docs -p 8081:80 cli/docs",
+    "dist:mkdocs": "docker cp cli_docs:/usr/share/nginx/html/ dist",
 
     "help:init": "git clone https://github.com/valeriangalliat/help2md.git",
     "help:gen": "node gen-cmds.js"
