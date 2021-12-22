@@ -248,7 +248,7 @@ namespace Cmf.Common.Cli.Objects
         /// </summary>
         private void ValidatePackage()
         {
-            // If is installable and is not a root Package ContentToPack and XmlInjection are mandatory
+            // If is installable and is not a root Package ContentToPack are mandatory
             if (!PackageType.Equals(PackageType.Root) &&
                 (IsInstallable ?? false))
             {
@@ -264,17 +264,20 @@ namespace Cmf.Common.Cli.Objects
                 throw new CliException(string.Format(CliMessages.InvalidValue, this.GetType(), "IsUniqueInstall", true));
             }
 
-            if (PackageType == PackageType.Root &&
+            // criticalmanufacturing.deploymentmetadata or cmf.environment should be part of the dependencies in a package of Type Root
+            if (PackageType.Equals(PackageType.Root) &&
                 !Dependencies.HasAny(d => d.Id.IgnoreCaseEquals(Dependency.DefaultDependenciesToIgnore[0]) || d.Id.IgnoreCaseEquals(Dependency.DefaultDependenciesToIgnore[1])))
             {
                 throw new CliException(string.Format(CliMessages.MissingMandatoryDependency, $"{ Dependency.DefaultDependenciesToIgnore[0] } or { Dependency.DefaultDependenciesToIgnore[1] }", string.Empty));
             }
 
-            if (PackageType == PackageType.IoT &&
-                !Dependencies.HasAny(d => d.Id.IgnoreCaseEquals(Dependency.DefaultDependenciesToIgnore[2])))
-            {
-                throw new CliException(string.Format(CliMessages.MissingMandatoryDependency, $"{ Dependency.DefaultDependenciesToIgnore[2] }", string.Empty));
-            }
+            // When is fixed by the product team, this can be uncommented
+            //// cmf.connectiot.packages should be part of the dependencies in a package of Type IoT
+            //if (PackageType.Equals(PackageType.IoT) &&
+            //    !Dependencies.HasAny(d => d.Id.IgnoreCaseEquals(Dependency.DefaultDependenciesToIgnore[2])))
+            //{
+            //    throw new CliException(string.Format(CliMessages.MissingMandatoryDependency, $"{ Dependency.DefaultDependenciesToIgnore[2] }", string.Empty));
+            //}
         }
 
         #endregion

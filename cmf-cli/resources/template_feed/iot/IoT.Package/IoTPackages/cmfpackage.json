@@ -5,12 +5,6 @@
   "packageType": "IoT",
   "isInstallable": true,
   "isUniqueInstall": false,
-  "dependencies": [
-    {
-      "id": "Cmf.ConnectIoT.Packages",
-      "version": "<%= $CLI_PARAM_MESVersion %>"
-    }
-  ],
   "contentToPack": [
     {
       "source": "src/*",
@@ -19,5 +13,8 @@
         ".npmignore"
       ]
     }
+  ],
+  "xmlInjection": [
+    "<%= $CLI_PARAM_rootInnerRelativePath %>/DeploymentMetadata/ui.xml"
   ]
 }

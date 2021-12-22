@@ -87,7 +87,7 @@ steps:
 
 # Cmf Build
 - task: PowerShell@2
-  displayName: Build ${{ parameters.PackagePath }}
+  displayName: Build ${{ parameters.PackageId }}
   inputs:
     pwsh: true
     failOnStderr: true
