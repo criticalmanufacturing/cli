@@ -15,7 +15,7 @@
     <DefaultDocumentationFileNameMode>Name</DefaultDocumentationFileNameMode>
     <DefaultDocumentationNestedTypeVisibility>Namespace</DefaultDocumentationNestedTypeVisibility>
     <DefaultDocumentationGeneratedPages>Namespaces</DefaultDocumentationGeneratedPages>
-    <Version>2.0.0-12</Version>
+    <Version>2.0.0-13</Version>
   </PropertyGroup>
 
   <ItemGroup>
