@@ -49,6 +49,18 @@ namespace Cmf.Common.Cli.Handlers
         }
 
         /// <summary>
+        /// Pack a Data package
+        /// </summary>
+        /// <param name="packageOutputDir">source directory</param>
+        /// <param name="outputDir">output directory</param>
+        public override void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir)
+        {
+            GenerateHostConfigFile(packageOutputDir);
+            
+            base.Pack(packageOutputDir, outputDir);
+        }
+
+        /// <summary>
         /// Generates the deployment framework manifest.
         /// </summary>
         /// <param name="packageOutputDir">The package output dir.</param>
@@ -104,20 +116,6 @@ namespace Cmf.Common.Cli.Handlers
         }
 
         /// <summary>
-        /// Pack a Data package
-        /// </summary>
-        /// <param name="packageOutputDir">source directory</param>
-        /// <param name="outputDir">output directory</param>
-        public override void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir)
-        {
-            GenerateHostConfigFile(packageOutputDir);
-            
-            base.Pack(packageOutputDir, outputDir);
-        }
-        
-        #region Private Methods
-
-        /// <summary>
         /// Generates the host configuration file.
         /// </summary>
         /// <param name="packageOutputDir">The package output dir.</param>
@@ -131,6 +129,17 @@ namespace Cmf.Common.Cli.Handlers
             this.fileSystem.File.WriteAllText(path, fileContent);
         }
 
-        #endregion
+        /// <summary>
+        /// Copies the install dependencies.
+        /// </summary>
+        /// <param name="packageOutputDir">The package output dir.</param>
+        protected override void CopyInstallDependencies(IDirectoryInfo packageOutputDir)
+        {
+            IDirectoryInfo dir = fileSystem.DirectoryInfo.FromDirectoryName(fileSystem.Path.Join(AppDomain.CurrentDomain.BaseDirectory, CliConstants.FolderInstallDependencies, "Data"));
+            IFileInfo generateLBOsFile = dir.GetFiles("GenerateLBOs.ps1")[0];
+            string tempPath = fileSystem.Path.Combine(packageOutputDir.FullName, generateLBOsFile.Name);
+            generateLBOsFile.CopyTo(tempPath, true);
+        }
+
     }
 }
