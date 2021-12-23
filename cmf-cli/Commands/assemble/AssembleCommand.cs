@@ -173,9 +173,10 @@ namespace Cmf.Common.Cli.Commands
                 string depedenciesFilePath = this.fileSystem.Path.Join(outputDir.FullName, CliConstants.FileDependencies);
                 fileSystem.File.WriteAllText(depedenciesFilePath, JsonConvert.SerializeObject(packagesLocation));
             }
+            catch (CliException) { }
             catch (Exception e)
             {
-                throw new CliException(e.Message);
+                throw new CliException(e.Message, e);
             }
         }
 
@@ -216,6 +217,10 @@ namespace Cmf.Common.Cli.Commands
                         {
                             testPackage.CmfPackage = new(testPackage.Id, testPackage.Version, new(dependencyFile.FullName));
                         }
+                        else
+                        {
+                            throw new CliException(string.Format(CliMessages.SomePackagesNotFound, _dependencyFileName));
+                        }
                     }
 
                     AssemblePackage(testOutputDir, repoDirectories, testPackage.CmfPackage, false);
@@ -255,7 +260,7 @@ namespace Cmf.Common.Cli.Commands
                         // Save all external dependencies and locations in a dictionary
                         else
                         {
-                            packagesLocation.Add($"{dependency.Id}@{dependency.Version}", dependency.CmfPackage.Uri.GetFileName());
+                            packagesLocation[$"{dependency.Id}@{dependency.Version}"] = dependency.CmfPackage.Uri.GetFileName();
                         }
 
                         AssembleDependencies(outputDir, ciRepo, repoDirectories, dependency.CmfPackage, assembledDependencies, includeTestPackages);
