@@ -46,7 +46,12 @@ namespace Cmf.Common.Cli.Factories
                 PackageType.Html => new HtmlPackageTypeHandler(cmfPackage),
                 PackageType.Help => new HelpPackageTypeHandler(cmfPackage),
                 PackageType.IoT => new IoTPackageTypeHandler(cmfPackage),
-                PackageType.IoTData => new IoTDataPackageTypeHandler(cmfPackage),
+                PackageType.IoTData => cmfPackage.HandlerVersion switch
+                {
+                    2 => new IoTDataPackageTypeHandlerV2(cmfPackage),
+                    1 => new IoTDataPackageTypeHandler(cmfPackage),
+                    _ => new IoTDataPackageTypeHandlerV2(cmfPackage)
+                },
                 PackageType.Data => cmfPackage.HandlerVersion switch
                 {
                     2 => new DataPackageTypeHandlerV2(cmfPackage),
