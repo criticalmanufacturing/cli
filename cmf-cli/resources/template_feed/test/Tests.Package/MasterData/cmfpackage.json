@@ -1,0 +1,20 @@
+﻿{
+  "packageId": "Cmf.Custom.Tests.MasterData",
+  "version": "<%= $CLI_PARAM_CustomPackageVersion %>",
+  "description": "Cmf <%= $CLI_PARAM_Tenant %> Test MasterData Package",
+  "packageType": "Data",
+  "isInstallable": false,
+  "isUniqueInstall": true,
+  "contentToPack": [
+    {
+      "source": "Files/*",
+      "target": "MasterData",
+      "contentType": "MasterData"
+    },
+    {
+      "source": "Files/ExportedObjects/*",
+      "target": "ExportedObjects",
+      "contentType": "ExportedObjects"
+    }
+  ]
+}
