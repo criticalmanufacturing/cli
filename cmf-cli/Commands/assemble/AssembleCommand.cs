@@ -173,7 +173,6 @@ namespace Cmf.Common.Cli.Commands
                 string depedenciesFilePath = this.fileSystem.Path.Join(outputDir.FullName, CliConstants.FileDependencies);
                 fileSystem.File.WriteAllText(depedenciesFilePath, JsonConvert.SerializeObject(packagesLocation));
             }
-            catch (CliException) { }
             catch (Exception e)
             {
                 throw new CliException(e.Message, e);
@@ -219,7 +218,7 @@ namespace Cmf.Common.Cli.Commands
                         }
                         else
                         {
-                            throw new CliException(string.Format(CliMessages.SomePackagesNotFound, _dependencyFileName));
+                            throw new Exception(string.Format(CliMessages.SomePackagesNotFound, _dependencyFileName));
                         }
                     }
 

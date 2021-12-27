@@ -96,7 +96,6 @@ namespace Cmf.Common.Cli.Commands
             {
                 packageTypeHandler.Pack(packageOutputDir, outputDir);
             }
-            catch (CliException) { }
             catch (Exception e)
             {
                 throw new CliException(e.Message, e);
