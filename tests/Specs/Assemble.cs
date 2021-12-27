@@ -348,13 +348,19 @@ namespace tests.Specs
             });
 
 
-            StringWriter consoleOutput = new ();
-            Console.SetOut(consoleOutput);
+            try
+            {
+                var assembleCommand = new AssembleCommand(fileSystem);
+                assembleCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName("test"), fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key), new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = cirepo }.Uri, null, true);
+            }
+            catch (Exception ex)
+            {
+                Assert.IsTrue(ex.Message.Contains($"Some packages were not found: {packageTest.Key}.{packageTest.Value}.zip"), ex.Message.ToString());
+            }
 
-            var assembleCommand = new AssembleCommand(fileSystem);
-            assembleCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName("test"), fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key), new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = cirepo }.Uri, null, true);
+            
 
-            Assert.IsTrue(consoleOutput.ToString().Contains($"Some packages were not found: {packageTest.Key}.{packageTest.Value}.zip"), consoleOutput.ToString());
+            
         }
     }
 }
