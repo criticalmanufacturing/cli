@@ -18,7 +18,7 @@ namespace Cmf.Common.Cli.Commands.New
         /// <summary>
         /// constructor
         /// </summary>
-        public IoTCommand() : base("iot", "Cmf.Custom.IoT")
+        public IoTCommand() : base("iot", Enums.PackageType.IoT)
         {
         }
 
@@ -26,7 +26,7 @@ namespace Cmf.Common.Cli.Commands.New
         /// constructor
         /// </summary>
         /// <param name="fileSystem">the filesystem implementation</param>
-        public IoTCommand(IFileSystem fileSystem) : base("iot", "Cmf.Custom.IoT", fileSystem)
+        public IoTCommand(IFileSystem fileSystem) : base("iot", Enums.PackageType.IoT, fileSystem)
         {
         }
 

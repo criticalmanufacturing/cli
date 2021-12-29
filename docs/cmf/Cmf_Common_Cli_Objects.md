@@ -762,7 +762,7 @@ id
 ## Dependency.DefaultDependenciesToIgnore Field
 Dependencies that will be missing but should be ignored  
 ```csharp
-private readonly string[] DefaultDependenciesToIgnore;
+internal static readonly string[] DefaultDependenciesToIgnore;
 ```
 #### Field Value
 [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[[]](https://docs.microsoft.com/en-us/dotnet/api/System.Array 'System.Array')

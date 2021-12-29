@@ -24,12 +24,12 @@ namespace Cmf.Common.Cli.Commands.New
         private JsonDocument projectConfig = null;
 
         /// <inheritdoc />
-        public HelpCommand() : base("help", "Cmf.Custom.Help")
+        public HelpCommand() : base("help", Enums.PackageType.Help)
         {
         }
 
         /// <inheritdoc />
-        public HelpCommand(IFileSystem fileSystem) : base("help", "Cmf.Custom.Help", fileSystem)
+        public HelpCommand(IFileSystem fileSystem) : base("help", Enums.PackageType.Help, fileSystem)
         {
         }
         
@@ -41,7 +41,8 @@ namespace Cmf.Common.Cli.Commands.New
                 aliases: new[] { "--docPkg", "--documentationPackage" },
                 description: "Path to the MES documentation package",
                 parseArgument: argResult => Parse<IFileInfo>(argResult)
-            ));
+            )
+            { IsRequired = true });
             cmd.Handler = CommandHandler.Create<IDirectoryInfo, string, IFileInfo>(this.Execute);
         }
 

@@ -1,0 +1,219 @@
+# CM PI Continuous Integration Package Pipeline
+pool:
+  name: agent_pool
+
+# A pipeline with no CI trigger
+trigger: none
+
+# A pipeline with no PR trigger
+pr: none
+
+schedules:
+  - cron: "0 2 * * Mon-Fri"
+    displayName: Daily build # friendly name given to a specific schedule
+    branches:
+      include: # which branches the schedule applies to
+        - development
+      # exclude: [ string ] # which branches to exclude from the schedule
+    always: false # whether to always run the pipeline or only if there have been source code changes since the last run. The default is false.
+
+variables:
+ - template: ../EnvironmentConfigs/GlobalVariables.yml  # Template reference to global variables
+
+parameters:
+  - name: PackagePath
+    displayName: Package Directory
+    type: string
+    default: .
+
+workspace:
+    clean: all
+
+name: $(Build.SourceBranchName)_$(Build.DefinitionName).$(Build.BuildId)
+steps:
+- checkout: self
+  persistCredentials: true
+
+# BackupRestoreTools Artifact
+- task: DownloadBuildArtifacts@0
+  displayName: 'Download Build Artifacts - BackupRestore Tools'
+  inputs:
+    buildType: specific
+    project: 'COMMON'
+    pipeline: 'CI-BackupRestoreTools'
+    specificBuildWithTriggering: true
+    buildVersionToDownload: latestFromBranch
+    branchName: '${{ variables.CommonBranch }}'
+    downloadType: specific
+    downloadPath: 'Package'
+    artifactName: Cmf.BackupRestore.Tools
+- task: CopyFiles@2
+  displayName: Copy Cmf.BackupRestore.Tools
+  inputs:
+    SourceFolder: 'Package/Cmf.BackupRestore.Tools'
+    Contents: '**'
+    TargetFolder: 'FinalPackage'
+
+# use Node Tool
+- task: NodeTool@0
+  displayName: 'Use Node ${{ variables.NodeVersion }}'
+  inputs:
+    versionSpec: ${{ variables.NodeVersion }}
+
+# Install cmf-cli
+- task: PowerShell@2
+  displayName: 'Install cmf-cli@${{ variables.CmfCliVersion }}'
+  inputs:
+    pwsh: true
+    failOnStderr: false
+    workingDirectory: $(Agent.TempDirectory)
+    targetType: inline
+    script: |
+      npm install --no-save @criticalmanufacturing/cli@${{ variables.CmfCliVersion }} --registry ${{ variables.CmfCliRepository }}
+
+# Get package version
+- task: PowerShell@2
+  displayName: 'Get package version'
+  inputs:
+    workingDirectory: ${{ parameters.PackagePath }}
+    targetType: inline
+    script: |
+      $CmfPackageJsonFile = Get-Item ".\cmfpackage.json"
+      $CmfPackageJson = Get-Content -Raw -Path $CmfPackageJsonFile | ConvertFrom-Json
+      $PackVersion = $CmfPackageJson.'version'
+      $PackageId = $CmfPackageJson.'packageId'
+      Write-Host "PackVersion = $PackVersion"
+      Write-Host "PackageId = $PackageId"
+      echo "##vso[task.setvariable variable=PackageVersion;isOutput=true]$PackVersion"
+      echo "##vso[task.setvariable variable=PackageId;isOutput=true]$PackageId"
+  name: GetPackageVersion
+
+# Cmf assemble
+- task: PowerShell@2
+  displayName: 'Assemble'
+  inputs:
+    pwsh: true
+    failOnStderr: true
+    workingDirectory: ${{ parameters.PackagePath }}
+    targetType: inline
+    script: |
+      $(Agent.TempDirectory)/node_modules/.bin/cmf-cli/cmf assemble --includeTestPackages --outputDir '$(Build.SourcesDirectory)/FinalPackage'
+
+# Configuration Artifact
+# Copy dependencies.json to Configurations
+- task: CopyFiles@2
+  displayName: 'Copy dependencies.json to Configurations'
+  inputs:
+    Contents: '$(Build.SourcesDirectory)/FinalPackage/dependencies.json'
+    FlattenFolders: true
+    TargetFolder: Configurations
+
+# Copy cmfpackage.json to Configurations
+- task: CopyFiles@2
+  displayName: 'Copy cmfpackage.json to Configurations'
+  inputs:
+    SourceFolder: '${{ parameters.PackagePath }}'
+    Contents: 'cmfpackage.json'
+    TargetFolder: Configurations
+# Copy EnvironmentConfigs to Configurations
+- task: CopyFiles@2
+  displayName: 'Copy EnvironmentConfigs to Configurations'
+  inputs:
+    SourceFolder: EnvironmentConfigs
+    Contents: '*.json'
+    TargetFolder: Configurations/EnvironmentConfigs
+
+# Copy LBOs to Configurations
+- task: CopyFiles@2
+  displayName: 'Copy LBOs to Configurations'
+  inputs:
+    SourceFolder: 'Libs/LBOs/NetStandard'
+    Contents: |
+      Cmf.LightBusinessObjects.dll
+    TargetFolder: 'Configurations/LBOs'
+
+# Copy global.json to Configurations
+# global.json only exists on root folder
+- task: CopyFiles@2
+  displayName: 'Copy global.json to Configurations'
+  inputs:
+    SourceFolder: '.'
+    Contents: 'global.json'
+    TargetFolder: Configurations
+
+# Copy Runsettings to Configurations
+- task: CopyFiles@2
+  displayName: 'Copy Runsettings to Configurations'
+  inputs:
+    SourceFolder: './Tests/'
+    Contents: '*.runsettings'
+    TargetFolder: Configurations/Runsettings
+
+# Publish Configurations Artifact
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Configurations Artifact'
+  inputs:
+    PathtoPublish: 'Configurations'
+    ArtifactName: 'Configurations'
+    publishLocation: FilePath
+    TargetPath: '${{ variables.CIPublishArtifacts}}/$(Build.SourceBranchName)/$(Build.DefinitionName)_$(GetPackageVersion.PackageVersion).$(Build.BuildId)'
+
+# Remove dependencies.json
+- task: DeleteFiles@1
+  displayName: 'Remove dependencies.json'
+  inputs:
+    SourceFolder: 'FinalPackage'
+    Contents: 'dependencies.json'
+    RemoveSourceFolder: true
+
+# Publish tests Artifact
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Test Artifact'
+  inputs:
+    PathtoPublish: 'FinalPackage/Tests'
+    ArtifactName: 'Tests'
+    publishLocation: FilePath
+    TargetPath: '${{ variables.CIPublishArtifacts}}/$(Build.SourceBranchName)/$(Build.DefinitionName)_$(GetPackageVersion.PackageVersion).$(Build.BuildId)'
+
+# Remove Tests Source Folder
+- task: DeleteFiles@1
+  displayName: 'Remove Tests Source Folder'
+  inputs:
+    SourceFolder: 'FinalPackage/Tests'
+    Contents: '**'
+    RemoveSourceFolder: true
+
+# Publish Package Artifact
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Package Artifact'
+  inputs:
+    PathtoPublish: 'FinalPackage'
+    ArtifactName: 'Package'
+    publishLocation: FilePath
+    TargetPath: '${{ variables.CIPublishArtifacts}}/$(Build.SourceBranchName)/$(Build.DefinitionName)_$(GetPackageVersion.PackageVersion).$(Build.BuildId)'
+
+# Clean up
+- task: DeleteFiles@1
+  displayName: Delete Package
+  inputs:
+    SourceFolder: 'Package'
+    Contents: '**'
+  condition: always()
+
+- task: DeleteFiles@1
+  displayName: Delete FinalPackage
+  inputs:
+    SourceFolder: 'FinalPackage'
+    Contents: '**'
+  condition: always()
+
+- task: DeleteFiles@1
+  displayName: Delete Artifacts
+  inputs:
+    SourceFolder: 'Artifacts'
+    Contents: '**'
+  condition: always()
+
+- task: PostBuildCleanup@3
+  displayName: 'Clean Agent Directories'
+  condition: always()

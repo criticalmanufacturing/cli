@@ -840,38 +840,38 @@ Derived
 &#8627; [TestCommand](Cmf_Common_Cli_Commands_New.md#Cmf_Common_Cli_Commands_New_TestCommand 'Cmf.Common.Cli.Commands.New.TestCommand')  
 &#8627; [UILayerTemplateCommand](Cmf_Common_Cli_Commands.md#Cmf_Common_Cli_Commands_UILayerTemplateCommand 'Cmf.Common.Cli.Commands.UILayerTemplateCommand')  
 ### Constructors
-<a name='Cmf_Common_Cli_Commands_LayerTemplateCommand_LayerTemplateCommand(string_string)'></a>
-## LayerTemplateCommand.LayerTemplateCommand(string, string) Constructor
+<a name='Cmf_Common_Cli_Commands_LayerTemplateCommand_LayerTemplateCommand(string_Cmf_Common_Cli_Enums_PackageType)'></a>
+## LayerTemplateCommand.LayerTemplateCommand(string, PackageType) Constructor
 constructor  
 ```csharp
-protected LayerTemplateCommand(string commandName, string packagePrefix);
+protected LayerTemplateCommand(string commandName, Cmf.Common.Cli.Enums.PackageType packageType);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Commands_LayerTemplateCommand_LayerTemplateCommand(string_string)_commandName'></a>
+<a name='Cmf_Common_Cli_Commands_LayerTemplateCommand_LayerTemplateCommand(string_Cmf_Common_Cli_Enums_PackageType)_commandName'></a>
 `commandName` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 the name of the command
   
-<a name='Cmf_Common_Cli_Commands_LayerTemplateCommand_LayerTemplateCommand(string_string)_packagePrefix'></a>
-`packagePrefix` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
-the package prefix. used as full name if not inside a feature.
+<a name='Cmf_Common_Cli_Commands_LayerTemplateCommand_LayerTemplateCommand(string_Cmf_Common_Cli_Enums_PackageType)_packageType'></a>
+`packageType` [PackageType](Cmf_Common_Cli_Enums.md#Cmf_Common_Cli_Enums_PackageType 'Cmf.Common.Cli.Enums.PackageType')  
+the package type
   
   
-<a name='Cmf_Common_Cli_Commands_LayerTemplateCommand_LayerTemplateCommand(string_string_System_IO_Abstractions_IFileSystem)'></a>
-## LayerTemplateCommand.LayerTemplateCommand(string, string, IFileSystem) Constructor
+<a name='Cmf_Common_Cli_Commands_LayerTemplateCommand_LayerTemplateCommand(string_Cmf_Common_Cli_Enums_PackageType_System_IO_Abstractions_IFileSystem)'></a>
+## LayerTemplateCommand.LayerTemplateCommand(string, PackageType, IFileSystem) Constructor
 constructor  
 ```csharp
-protected LayerTemplateCommand(string commandName, string packagePrefix, System.IO.Abstractions.IFileSystem fileSystem);
+protected LayerTemplateCommand(string commandName, Cmf.Common.Cli.Enums.PackageType packageType, System.IO.Abstractions.IFileSystem fileSystem);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Commands_LayerTemplateCommand_LayerTemplateCommand(string_string_System_IO_Abstractions_IFileSystem)_commandName'></a>
+<a name='Cmf_Common_Cli_Commands_LayerTemplateCommand_LayerTemplateCommand(string_Cmf_Common_Cli_Enums_PackageType_System_IO_Abstractions_IFileSystem)_commandName'></a>
 `commandName` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 the name of the command
   
-<a name='Cmf_Common_Cli_Commands_LayerTemplateCommand_LayerTemplateCommand(string_string_System_IO_Abstractions_IFileSystem)_packagePrefix'></a>
-`packagePrefix` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
-the package prefix. used as full name if not inside a feature.
+<a name='Cmf_Common_Cli_Commands_LayerTemplateCommand_LayerTemplateCommand(string_Cmf_Common_Cli_Enums_PackageType_System_IO_Abstractions_IFileSystem)_packageType'></a>
+`packageType` [PackageType](Cmf_Common_Cli_Enums.md#Cmf_Common_Cli_Enums_PackageType 'Cmf.Common.Cli.Enums.PackageType')  
+the package type
   
-<a name='Cmf_Common_Cli_Commands_LayerTemplateCommand_LayerTemplateCommand(string_string_System_IO_Abstractions_IFileSystem)_fileSystem'></a>
+<a name='Cmf_Common_Cli_Commands_LayerTemplateCommand_LayerTemplateCommand(string_Cmf_Common_Cli_Enums_PackageType_System_IO_Abstractions_IFileSystem)_fileSystem'></a>
 `fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
 the filesystem implementation
   
@@ -885,6 +885,15 @@ protected string[] executedArgs;
 ```
 #### Field Value
 [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[[]](https://docs.microsoft.com/en-us/dotnet/api/System.Array 'System.Array')
+  
+<a name='Cmf_Common_Cli_Commands_LayerTemplateCommand_registerInParent'></a>
+## LayerTemplateCommand.registerInParent Field
+should register the newly created package in its parent as dependency  
+```csharp
+protected bool registerInParent;
+```
+#### Field Value
+[System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')
   
 ### Methods
 <a name='Cmf_Common_Cli_Commands_LayerTemplateCommand_Configure(System_CommandLine_Command)'></a>
@@ -1491,38 +1500,38 @@ Derived
 &#8627; [HelpCommand](Cmf_Common_Cli_Commands_New.md#Cmf_Common_Cli_Commands_New_HelpCommand 'Cmf.Common.Cli.Commands.New.HelpCommand')  
 &#8627; [HTMLCommand](Cmf_Common_Cli_Commands_New.md#Cmf_Common_Cli_Commands_New_HTMLCommand 'Cmf.Common.Cli.Commands.New.HTMLCommand')  
 ### Constructors
-<a name='Cmf_Common_Cli_Commands_UILayerTemplateCommand_UILayerTemplateCommand(string_string)'></a>
-## UILayerTemplateCommand.UILayerTemplateCommand(string, string) Constructor
+<a name='Cmf_Common_Cli_Commands_UILayerTemplateCommand_UILayerTemplateCommand(string_Cmf_Common_Cli_Enums_PackageType)'></a>
+## UILayerTemplateCommand.UILayerTemplateCommand(string, PackageType) Constructor
 constructor  
 ```csharp
-protected UILayerTemplateCommand(string commandName, string packagePrefix);
+protected UILayerTemplateCommand(string commandName, Cmf.Common.Cli.Enums.PackageType packageType);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Commands_UILayerTemplateCommand_UILayerTemplateCommand(string_string)_commandName'></a>
+<a name='Cmf_Common_Cli_Commands_UILayerTemplateCommand_UILayerTemplateCommand(string_Cmf_Common_Cli_Enums_PackageType)_commandName'></a>
 `commandName` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 the name of the command
   
-<a name='Cmf_Common_Cli_Commands_UILayerTemplateCommand_UILayerTemplateCommand(string_string)_packagePrefix'></a>
-`packagePrefix` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
-the package prefix. used as full name if not inside a feature.
+<a name='Cmf_Common_Cli_Commands_UILayerTemplateCommand_UILayerTemplateCommand(string_Cmf_Common_Cli_Enums_PackageType)_packageType'></a>
+`packageType` [PackageType](Cmf_Common_Cli_Enums.md#Cmf_Common_Cli_Enums_PackageType 'Cmf.Common.Cli.Enums.PackageType')  
+the package type
   
   
-<a name='Cmf_Common_Cli_Commands_UILayerTemplateCommand_UILayerTemplateCommand(string_string_System_IO_Abstractions_IFileSystem)'></a>
-## UILayerTemplateCommand.UILayerTemplateCommand(string, string, IFileSystem) Constructor
+<a name='Cmf_Common_Cli_Commands_UILayerTemplateCommand_UILayerTemplateCommand(string_Cmf_Common_Cli_Enums_PackageType_System_IO_Abstractions_IFileSystem)'></a>
+## UILayerTemplateCommand.UILayerTemplateCommand(string, PackageType, IFileSystem) Constructor
 constructor  
 ```csharp
-protected UILayerTemplateCommand(string commandName, string packagePrefix, System.IO.Abstractions.IFileSystem fileSystem);
+protected UILayerTemplateCommand(string commandName, Cmf.Common.Cli.Enums.PackageType packageType, System.IO.Abstractions.IFileSystem fileSystem);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Commands_UILayerTemplateCommand_UILayerTemplateCommand(string_string_System_IO_Abstractions_IFileSystem)_commandName'></a>
+<a name='Cmf_Common_Cli_Commands_UILayerTemplateCommand_UILayerTemplateCommand(string_Cmf_Common_Cli_Enums_PackageType_System_IO_Abstractions_IFileSystem)_commandName'></a>
 `commandName` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
 the name of the command
   
-<a name='Cmf_Common_Cli_Commands_UILayerTemplateCommand_UILayerTemplateCommand(string_string_System_IO_Abstractions_IFileSystem)_packagePrefix'></a>
-`packagePrefix` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
-the package prefix. used as full name if not inside a feature.
+<a name='Cmf_Common_Cli_Commands_UILayerTemplateCommand_UILayerTemplateCommand(string_Cmf_Common_Cli_Enums_PackageType_System_IO_Abstractions_IFileSystem)_packageType'></a>
+`packageType` [PackageType](Cmf_Common_Cli_Enums.md#Cmf_Common_Cli_Enums_PackageType 'Cmf.Common.Cli.Enums.PackageType')  
+the package type
   
-<a name='Cmf_Common_Cli_Commands_UILayerTemplateCommand_UILayerTemplateCommand(string_string_System_IO_Abstractions_IFileSystem)_fileSystem'></a>
+<a name='Cmf_Common_Cli_Commands_UILayerTemplateCommand_UILayerTemplateCommand(string_Cmf_Common_Cli_Enums_PackageType_System_IO_Abstractions_IFileSystem)_fileSystem'></a>
 `fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
 the filesystem implementation
   

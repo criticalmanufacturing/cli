@@ -136,8 +136,8 @@ The metadata
 `Help` 6  
 The help  
   
-<a name='Cmf_Common_Cli_Enums_PackageType_Html'></a>
-`Html` 5  
+<a name='Cmf_Common_Cli_Enums_PackageType_HTML'></a>
+`HTML` 5  
 The HTML  
   
 <a name='Cmf_Common_Cli_Enums_PackageType_IoT'></a>
@@ -164,8 +164,8 @@ The reporting
 `Root` 2  
 The root  
   
-<a name='Cmf_Common_Cli_Enums_PackageType_Test'></a>
-`Test` 13  
+<a name='Cmf_Common_Cli_Enums_PackageType_Tests'></a>
+`Tests` 13  
 The test  
   
   

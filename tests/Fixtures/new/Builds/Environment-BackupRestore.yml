@@ -1,0 +1,207 @@
+# CM PI Environment Backup or Restore Pipeline
+pool:
+  name: agent_pool
+
+# A pipeline with no CI trigger
+trigger: none
+
+# A pipeline with no PR trigger
+pr: none
+
+variables:
+ - template: ..\EnvironmentConfigs\GlobalVariables.yml  # Template reference to global variables
+
+# Setted in runtime
+parameters:
+- name: BackupRestore
+  displayName: Backup or Restore
+  type: string
+  default: Backup
+  values:
+  - Backup
+  - Restore
+- name: BackupRestoreDB
+  displayName: Database
+  type: boolean
+  default: true
+- name: BackupRestoreAppServer
+  displayName: AppServer
+  type: boolean
+  default: true
+- name: EnvironmentConfigName
+  displayName: EnvironmentConfig file name
+  type: string
+  default: config.json
+  values:
+  - config.json
+- name: BackupRestoreIdentifier
+  type: string
+  default: 'ORIGINAL'
+
+name: ${{ parameters.BackupRestore }} environment ${{ parameters.EnvironmentConfigName }} ${{ parameters.BackupRestoreIdentifier }}
+stages:
+  - stage: "BackupEnvironment"
+    displayName: "Backup Environment"
+    condition: eq('${{ parameters.BackupRestore }}', 'Backup')
+    jobs:
+      - job: "BackupDatabase"
+        displayName: 'Backup - Database'
+        condition: eq('${{ parameters.BackupRestoreDB }}', true) 
+        workspace:
+         clean: all
+        steps:
+          - checkout: self
+            clean: true
+          # Download Common CI-BackupRestoreTools
+          - task: DownloadBuildArtifacts@0
+            displayName: 'Download Build Artifacts - CI-BackupRestoreTools'
+            inputs:
+             buildType: specific
+             project: 'COMMON'
+             pipeline: 'CI-BackupRestoreTools'
+             specificBuildWithTriggering: true
+             buildVersionToDownload: latestFromBranch
+             branchName: '${{ variables.CommonBranch }}'
+             downloadType: specific
+             downloadPath: '_CommonTools'
+          - task: ExtractFiles@1
+            inputs:
+             archiveFilePatterns: '_CommonTools/*.zip'
+             destinationFolder: 'Package'
+             cleanDestinationFolder: true
+          - task: CopyFiles@2
+            inputs:
+             SourceFolder: 'EnvironmentConfigs'
+             Contents: '**'
+             TargetFolder: 'Package/EnvironmentConfigs'
+          - task: PowerShell@2
+            displayName: 'Backup - Database'
+            inputs:
+             targetType: filePath
+             filePath: './Package/DeploymentTools/SystemBackup.ps1'
+             arguments: '-EnvironmentConfigName ${{ parameters.EnvironmentConfigName }} -InteractiveMode:$false -backupIdentifier ${{ parameters.BackupRestoreIdentifier }} -FullBackup:$false -BackupDBOnline:$true -BackupDBODS:$true -BackupDBDWH:$true -doNotStopHosts:$true'
+          - task: PostBuildCleanup@3
+            displayName: 'Clean Agent Directories'
+            condition: always()
+      - job: "BackupAppServer"
+        displayName: 'Backup - AppServer'
+        condition: eq('${{ parameters.BackupRestoreAppServer }}', true) 
+        workspace:
+         clean: all
+        steps:
+          - checkout: self
+            clean: true
+          # Download Common CI-BackupRestoreTools
+          - task: DownloadBuildArtifacts@0
+            displayName: 'Download Build Artifacts - CI-BackupRestoreTools'
+            inputs:
+             buildType: specific
+             project: 'COMMON'
+             pipeline: 'CI-BackupRestoreTools'
+             specificBuildWithTriggering: true
+             buildVersionToDownload: latestFromBranch
+             branchName: '${{ variables.CommonBranch }}'
+             downloadType: specific
+             downloadPath: '_CommonTools'
+          - task: ExtractFiles@1
+            inputs:
+             archiveFilePatterns: '_CommonTools/*.zip'
+             destinationFolder: 'Package'
+             cleanDestinationFolder: true
+          - task: CopyFiles@2
+            inputs:
+             SourceFolder: 'EnvironmentConfigs'
+             Contents: '**'
+             TargetFolder: 'Package/EnvironmentConfigs'
+          - task: PowerShell@2
+            displayName: 'Backup - AppServer'
+            inputs:
+             targetType: filePath
+             filePath: './Package/DeploymentTools/SystemBackup.ps1'
+             arguments: '-EnvironmentConfigName ${{ parameters.EnvironmentConfigName }} -InteractiveMode:$false -backupIdentifier ${{ parameters.BackupRestoreIdentifier }} -FullBackup:$false -BackupBusinessTier:$true -BackupUIHtml:$true -BackupUIHelp:$true -doNotStopHosts:$true'
+          - task: PostBuildCleanup@3
+            displayName: 'Clean Agent Directories'
+            condition: always()
+  - stage: "RestoreEnvironment"
+    displayName: "Restore Environment"
+    condition: eq('${{ parameters.BackupRestore }}', 'Restore')
+    jobs:
+      - job: "RestoreDatabase"
+        displayName: "Restore Database"
+        condition: eq('${{ parameters.BackupRestoreDB }}', true)
+        workspace:
+          clean: all
+        steps:
+          - checkout: self
+            clean: true
+          # Download Common CI-BackupRestoreTools
+          - task: DownloadBuildArtifacts@0
+            displayName: 'Download Build Artifacts - CI-BackupRestoreTools'
+            inputs:
+             buildType: specific
+             project: 'COMMON'
+             pipeline: 'CI-BackupRestoreTools'
+             specificBuildWithTriggering: true
+             buildVersionToDownload: latestFromBranch
+             branchName: '${{ variables.CommonBranch }}'
+             downloadType: specific
+             downloadPath: '_CommonTools'
+          - task: ExtractFiles@1
+            inputs:
+             archiveFilePatterns: '_CommonTools/*.zip'
+             destinationFolder: 'Package'
+             cleanDestinationFolder: true
+          - task: CopyFiles@2
+            inputs:
+             SourceFolder: 'EnvironmentConfigs'
+             Contents: '**'
+             TargetFolder: 'Package/EnvironmentConfigs'
+          - task: PowerShell@2
+            displayName: 'Restore - Database'
+            inputs:
+             targetType: filePath
+             filePath: './Package/DeploymentTools/SystemRestore.ps1'
+             arguments: '-EnvironmentConfigName ${{ parameters.EnvironmentConfigName }} -InteractiveMode:$false -restoreIdentifier "${{ parameters.BackupRestoreIdentifier }}" -FullRestore:$false -RestoreDBOnline:$true -RestoreDBODS:$true -RestoreDBDWH:$true -doNotStopHosts:$true'
+          - task: PostBuildCleanup@3
+            displayName: 'Clean Agent Directories'
+            condition: always()
+      - job: "RestoreAppServer"
+        displayName: "Restore AppServer"
+        condition: eq('${{ parameters.BackupRestoreAppServer }}', true) 
+        workspace:
+          clean: all
+        steps:
+          - checkout: self
+            clean: true
+          # Download Common CI-BackupRestoreTools
+          - task: DownloadBuildArtifacts@0
+            displayName: 'Download Build Artifacts - CI-BackupRestoreTools'
+            inputs:
+             buildType: specific
+             project: 'COMMON'
+             pipeline: 'CI-BackupRestoreTools'
+             specificBuildWithTriggering: true
+             buildVersionToDownload: latestFromBranch
+             branchName: '${{ variables.CommonBranch }}'
+             downloadType: specific
+             downloadPath: '_CommonTools'
+          - task: ExtractFiles@1
+            inputs:
+             archiveFilePatterns: '_CommonTools/*.zip'
+             destinationFolder: 'Package'
+             cleanDestinationFolder: true
+          - task: CopyFiles@2
+            inputs:
+             SourceFolder: 'EnvironmentConfigs'
+             Contents: '**'
+             TargetFolder: 'Package/EnvironmentConfigs'
+          - task: PowerShell@2
+            displayName: 'Restore - AppServer'
+            inputs:
+             targetType: filePath
+             filePath: './Package/DeploymentTools/SystemRestore.ps1'
+             arguments: '-EnvironmentConfigName ${{ parameters.EnvironmentConfigName }} -InteractiveMode:$false -restoreIdentifier "${{ parameters.BackupRestoreIdentifier }}" -FullRestore:$false -RestoreBusinessTier:$true -RestoreUIHtml:$true -RestoreUIHelp:$true'
+          - task: PostBuildCleanup@3
+            displayName: 'Clean Agent Directories'
+            condition: always()
+

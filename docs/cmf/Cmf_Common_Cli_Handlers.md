@@ -116,6 +116,9 @@ public class DataPackageTypeHandlerV2 : Cmf.Common.Cli.Handlers.PackageTypeHandl
 ```
 
 Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [PackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_PackageTypeHandler 'Cmf.Common.Cli.Handlers.PackageTypeHandler') &#129106; DataPackageTypeHandlerV2  
+
+Derived  
+&#8627; [IoTDataPackageTypeHandlerV2](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_IoTDataPackageTypeHandlerV2 'Cmf.Common.Cli.Handlers.IoTDataPackageTypeHandlerV2')  
 ### Constructors
 <a name='Cmf_Common_Cli_Handlers_DataPackageTypeHandlerV2_DataPackageTypeHandlerV2(Cmf_Common_Cli_Objects_CmfPackage)'></a>
 ## DataPackageTypeHandlerV2.DataPackageTypeHandlerV2(CmfPackage) Constructor
@@ -130,6 +133,18 @@ The CMF package.
   
   
 ### Methods
+<a name='Cmf_Common_Cli_Handlers_DataPackageTypeHandlerV2_CopyInstallDependencies(System_IO_Abstractions_IDirectoryInfo)'></a>
+## DataPackageTypeHandlerV2.CopyInstallDependencies(IDirectoryInfo) Method
+Copies the install dependencies.  
+```csharp
+protected override void CopyInstallDependencies(System.IO.Abstractions.IDirectoryInfo packageOutputDir);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Handlers_DataPackageTypeHandlerV2_CopyInstallDependencies(System_IO_Abstractions_IDirectoryInfo)_packageOutputDir'></a>
+`packageOutputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
+The package output dir.
+  
+  
 <a name='Cmf_Common_Cli_Handlers_DataPackageTypeHandlerV2_GenerateDeploymentFrameworkManifest(System_IO_Abstractions_IDirectoryInfo)'></a>
 ## DataPackageTypeHandlerV2.GenerateDeploymentFrameworkManifest(IDirectoryInfo) Method
 Generates the deployment framework manifest.  
@@ -312,6 +327,52 @@ Implements [Bump(string, string, Dictionary<string,object>)](Cmf_Common_Cli_Inte
   
 #### See Also
 - [DataPackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_DataPackageTypeHandler 'Cmf.Common.Cli.Handlers.DataPackageTypeHandler')
+  
+<a name='Cmf_Common_Cli_Handlers_IoTDataPackageTypeHandlerV2'></a>
+## IoTDataPackageTypeHandlerV2 Class
+```csharp
+public class IoTDataPackageTypeHandlerV2 : Cmf.Common.Cli.Handlers.DataPackageTypeHandlerV2
+```
+
+Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [PackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_PackageTypeHandler 'Cmf.Common.Cli.Handlers.PackageTypeHandler') &#129106; [DataPackageTypeHandlerV2](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_DataPackageTypeHandlerV2 'Cmf.Common.Cli.Handlers.DataPackageTypeHandlerV2') &#129106; IoTDataPackageTypeHandlerV2  
+### Constructors
+<a name='Cmf_Common_Cli_Handlers_IoTDataPackageTypeHandlerV2_IoTDataPackageTypeHandlerV2(Cmf_Common_Cli_Objects_CmfPackage)'></a>
+## IoTDataPackageTypeHandlerV2.IoTDataPackageTypeHandlerV2(CmfPackage) Constructor
+Initializes a new instance of the [DataPackageTypeHandlerV2](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_DataPackageTypeHandlerV2 'Cmf.Common.Cli.Handlers.DataPackageTypeHandlerV2') class.  
+```csharp
+public IoTDataPackageTypeHandlerV2(Cmf.Common.Cli.Objects.CmfPackage cmfPackage);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Handlers_IoTDataPackageTypeHandlerV2_IoTDataPackageTypeHandlerV2(Cmf_Common_Cli_Objects_CmfPackage)_cmfPackage'></a>
+`cmfPackage` [CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')  
+The CMF package.
+  
+  
+### Methods
+<a name='Cmf_Common_Cli_Handlers_IoTDataPackageTypeHandlerV2_Bump(string_string_System_Collections_Generic_Dictionary_string_object_)'></a>
+## IoTDataPackageTypeHandlerV2.Bump(string, string, Dictionary&lt;string,object&gt;) Method
+Bumps the specified CMF package.  
+```csharp
+public override void Bump(string version, string buildNr, System.Collections.Generic.Dictionary<string,object> bumpInformation=null);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Handlers_IoTDataPackageTypeHandlerV2_Bump(string_string_System_Collections_Generic_Dictionary_string_object_)_version'></a>
+`version` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+The version.
+  
+<a name='Cmf_Common_Cli_Handlers_IoTDataPackageTypeHandlerV2_Bump(string_string_System_Collections_Generic_Dictionary_string_object_)_buildNr'></a>
+`buildNr` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+The version for build Nr.
+  
+<a name='Cmf_Common_Cli_Handlers_IoTDataPackageTypeHandlerV2_Bump(string_string_System_Collections_Generic_Dictionary_string_object_)_bumpInformation'></a>
+`bumpInformation` [System.Collections.Generic.Dictionary&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.Dictionary-2 'System.Collections.Generic.Dictionary`2')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[,](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.Dictionary-2 'System.Collections.Generic.Dictionary`2')[System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.Dictionary-2 'System.Collections.Generic.Dictionary`2')  
+The bump information.
+  
+
+Implements [Bump(string, string, Dictionary<string,object>)](Cmf_Common_Cli_Interfaces.md#Cmf_Common_Cli_Interfaces_IPackageTypeHandler_Bump(string_string_System_Collections_Generic_Dictionary_string_object_) 'Cmf.Common.Cli.Interfaces.IPackageTypeHandler.Bump(string, string, System.Collections.Generic.Dictionary&lt;string,object&gt;)')  
+  
+#### See Also
+- [DataPackageTypeHandlerV2](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_DataPackageTypeHandlerV2 'Cmf.Common.Cli.Handlers.DataPackageTypeHandlerV2')
   
 <a name='Cmf_Common_Cli_Handlers_IoTPackageTypeHandler'></a>
 ## IoTPackageTypeHandler Class

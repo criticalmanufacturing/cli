@@ -15,12 +15,12 @@ namespace Cmf.Common.Cli.Commands.New
     public class TestCommand : LayerTemplateCommand
     {
         /// <inheritdoc />
-        public TestCommand() : base("test", "Cmf.Custom.Tests")
+        public TestCommand() : base("test", Enums.PackageType.Tests)
         {
         }
 
         /// <inheritdoc />
-        public TestCommand(IFileSystem fileSystem) : base("test", "Cmf.Custom.Tests", fileSystem)
+        public TestCommand(IFileSystem fileSystem) : base("test", Enums.PackageType.Tests, fileSystem)
         {
         }
 
@@ -30,7 +30,7 @@ namespace Cmf.Common.Cli.Commands.New
             cmd.AddOption(new Option<string>(
                 aliases: new[] { "--version" },
                 description: "Package Version",
-                getDefaultValue: () => "1.1.0"
+                getDefaultValue: () => "1.0.0"
             ));
             cmd.Handler = CommandHandler.Create<string>(Execute);
         }

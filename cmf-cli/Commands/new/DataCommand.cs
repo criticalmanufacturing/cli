@@ -16,12 +16,12 @@ namespace Cmf.Common.Cli.Commands.New
     public class DataCommand : LayerTemplateCommand
     {
         /// <inheritdoc />
-        public DataCommand() : base("data", "Cmf.Custom.Data")
+        public DataCommand() : base("data", Enums.PackageType.Data)
         {
         }
 
         /// <inheritdoc />
-        public DataCommand(IFileSystem fileSystem) : base("data", "Cmf.Custom.Data", fileSystem)
+        public DataCommand(IFileSystem fileSystem) : base("data", Enums.PackageType.Data, fileSystem)
         {
         }
 
