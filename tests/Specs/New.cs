@@ -561,7 +561,7 @@ namespace tests.Specs
                 }, scaffoldingDir: pkgDir, extraAsserts: args =>
                 {
                     var (pkgVersion, _) = args;
-                    Assert.IsTrue(Directory.Exists(Path.Join(dir, "Features/TestFeature", $"{packageId}/Cmf.Custom.Common/src/packages/cmf.docs.area.tenant")), "Help package is missing or has wrong name");
+                    Assert.IsTrue(Directory.Exists(Path.Join(dir, "Features/TestFeature", $"{packageId}/src/packages/cmf.docs.area.tenant")), "Help package is missing or has wrong name");
                 });
             }
             finally
