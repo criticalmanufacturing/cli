@@ -14,23 +14,45 @@ These types of projects usually fully own their git repository and as such need 
 
 This is done with the `cmf init` command:
 
-Example: 
-```bash
-cmf init Example \
-    --infra ..\COMMON\infrastructure\CMF-internal.json \
-    -c Example.json \
-    --repositoryUrl https://tfs.criticalmanufacturing.com/Projects/Test/_git/Test \
-    --MESVersion 8.2.1 \
-    --DevTasksVersion 8.2.0 \
-    --HTMLStarterVersion 8.0.0 \
-    --yoGeneratorVersion 8.1.1 \
-    --nugetVersion 8.2.1 \
-    --testScenariosNugetVersion 8.2.1 \
-    --deploymentDir \\vm-project.criticalmanufacturing.com\Deployments \
-    --ISOLocation "\\setups\cmNavigo" \
-    --version 1.0.0
-```
-Note: The `\` character escapes multiline commands in `bash`. For PowerShell, the `` ` `` character does the same thing.
+=== "Classic"
+    ```pwsh
+    cmf init Example `
+        --infra ..\COMMON\infrastructure\CMF-internal.json `
+        -c Example.json `
+        --repositoryUrl https://tfs.criticalmanufacturing.com/Projects/Test/_git/Test `
+        --MESVersion 8.2.1 `
+        --DevTasksVersion 8.2.0 `
+        --HTMLStarterVersion 8.0.0 `
+        --yoGeneratorVersion 8.1.1 `
+        --nugetVersion 8.2.1 `
+        --testScenariosNugetVersion 8.2.1 `
+        --deploymentDir \\vm-project.criticalmanufacturing.com\Deployments `
+        --ISOLocation \\setups\CriticalManufacturing.iso `
+        --version 1.0.0
+    ```
+=== "Containers"
+    ```pwsh
+    cmf init Example `
+        --infra ..\COMMON\infrastructure\CMF-internal.json `
+        -c Example.json `
+        --repositoryUrl https://tfs.criticalmanufacturing.com/Projects/Test/_git/Test `
+        --MESVersion 8.2.1 `
+        --DevTasksVersion 8.2.0 `
+        --HTMLStarterVersion 8.0.0 `
+        --yoGeneratorVersion 8.1.1 `
+        --nugetVersion 8.2.1 `
+        --testScenariosNugetVersion 8.2.1 `
+        --deploymentDir \\vm-project.criticalmanufacturing.com\Deployments `
+        --ISOLocation \\setups\CriticalManufacturing.iso `
+        --version 1.0.0 `
+        --releaseCustomerEnvironment EnvironmentName `
+        --releaseSite EnvironmentSite `
+        --releaseDeploymentPackage \@criticalmanufacturing\mes:8.3.1 `
+        --releaseLicense EnvironmentLicense `
+        --releaseDeploymentTarget EnvironmentTarget
+    ```
+
+Note: The `` ` `` character escapes multiline commands in `powershell`. For bash, the `\` character does the same thing.
 
 The infrastructure file specifies the repositories to be used to get the project dependencies.
 If you are scaffolding a Deployment Services project, there is a CMF-internal.json infra file which specifies our internal infrastructure. It's in the **COMMON** project, **Tools** repository, at `/infrastructure`.
@@ -39,6 +61,8 @@ If scaffolding a customer or partner project, you will need to create this infra
 As in previous scenarios, the versions for the various input options must be previously determined. Unlike with `solgen`, `cmf init` will not assume default/current values for these options.
 
 This will also create a root package, which may or may not be shipped to the customer. Unlike with `solgen`, this root package has no dependencies, initially. Each time a layer package is created, it will be registered in the higher level package found. For a traditional repository, this will be the root package.
+
+After this, follow the instructions defined in the [Post-scaffolding package tailoring](./post-scaffolding-package-tailoring.md). You will not be able to generate the layer packages before doing this.
 
 ## Layer packages
 
