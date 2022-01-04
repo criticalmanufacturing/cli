@@ -16,7 +16,7 @@ namespace Cmf.Common.Cli.Commands
     public enum AgentType
     {
         /// <summary>
-        /// Cloud agents 
+        /// Cloud agents
         /// </summary>
         Cloud,
         /// <summary>
@@ -24,7 +24,7 @@ namespace Cmf.Common.Cli.Commands
         /// </summary>
         Hosted
     }
-    
+
     // this is public because Execute is public by convention but never invoked externally
     // so this class mirrors the command internal structure and is never used outside
     // ReSharper disable once ClassNeverInstantiated.Global
@@ -56,6 +56,11 @@ namespace Cmf.Common.Cli.Commands
         public string nugetRegistryPassword { get; set; }
         public string cmfPipelineRepository { get; set; }
         public string cmfCliRepository { get; set; }
+        public string releaseCustomerEnvironment { get; set; }
+        public string releaseSite { get; set; }
+        public string releaseDeploymentPackage { get; set; }
+        public string releaseLicense { get; set; }
+        public string releaseDeploymentTarget { get; set; }
         // ReSharper restore UnusedAutoPropertyAccessor.Global
         // ReSharper restore InconsistentNaming
     }
@@ -149,7 +154,7 @@ namespace Cmf.Common.Cli.Commands
                 aliases: new[] { "--testScenariosNugetVersion" },
                 description: "Test Scenarios Nuget Version"
             ));
-            
+
             // infra options
             cmd.AddOption(new Option<IFileInfo>(
                 aliases: new[] { "--infra", "--infrastructure" },
@@ -191,6 +196,26 @@ namespace Cmf.Common.Cli.Commands
                 aliases: new[] { "--nugetRegistryPassword" },
                 description: "NuGet registry password"
             ));
+            cmd.AddOption(new Option<string>(
+                aliases: new[] { "--releaseCustomerEnvironment" },
+                description: "Customer Environment Name defined in DevOpsCenter"
+            ));
+            cmd.AddOption(new Option<string>(
+                aliases: new[] { "--releaseSite" },
+                description: "Site defined in DevOpsCenter"
+            ));
+            cmd.AddOption(new Option<string>(
+                aliases: new[] { "--releaseDeploymentPackage" },
+                description: "DeploymentPackage defined in DevOpsCenter"
+            ));
+            cmd.AddOption(new Option<string>(
+                aliases: new[] { "--releaseLicense" },
+                description: "License defined in DevOpsCenter"
+            ));
+            cmd.AddOption(new Option<string>(
+                aliases: new[] { "--releaseDeploymentTarget" },
+                description: "DeploymentTarget defined in DevOpsCenter"
+            ));
 
             // Add the handler
             cmd.Handler = CommandHandler
@@ -228,7 +253,7 @@ namespace Cmf.Common.Cli.Commands
             {
                 // engine options
                 "--output", x.workingDir.FullName,
-                
+
                 // template symbols
                 "--customPackageName", x.rootPackageName,
                 "--projectName", x.projectName
@@ -238,7 +263,7 @@ namespace Cmf.Common.Cli.Commands
             {
                 args.AddRange(new [] {"--packageVersion", x.version});
             }
-            
+
             if (x.deploymentDir != null)
             {
                 args.AddRange(new [] {"--deploymentDir", x.deploymentDir.FullName});
@@ -248,12 +273,12 @@ namespace Cmf.Common.Cli.Commands
                 args.AddRange(new [] {"--RCRepo", $"{x.deploymentDir.FullName}\\ReleaseCandidates"});
                 args.AddRange(new [] {"--DeliveredRepo", $"{x.deploymentDir.FullName}\\Delivered"});
             }
-            
+
             if (x.repositoryUrl != null)
             {
                 args.AddRange(new [] {"--repositoryUrl", x.repositoryUrl.AbsoluteUri});
             }
-            
+
             if (x.MESVersion != null)
             {
                 args.AddRange(new [] {"--MESVersion", x.MESVersion});
@@ -278,9 +303,9 @@ namespace Cmf.Common.Cli.Commands
             {
                 args.AddRange(new [] {"--testScenariosNugetVersion", x.testScenariosNugetVersion});
             }
-            
 
             #region infrastructure
+
             if (x.infrastructure != null)
             {
                 var infraTxt = this.fileSystem.File.ReadAllText(x.infrastructure.FullName);
@@ -291,13 +316,9 @@ namespace Cmf.Common.Cli.Commands
                     x.npmRegistry ??= GenericUtilities.JsonObjectToUri(infraJson["NPMRegistry"]);
                     x.azureDevOpsCollectionUrl ??= GenericUtilities.JsonObjectToUri(infraJson["AzureDevopsCollectionURL"]);
                     x.agentPool ??= infraJson["AgentPool"]?.Value;
-                    if (infraJson["ISOLocation"]?.Value != null)
-                    {
-                        x.ISOLocation ??= this.fileSystem.FileInfo.FromFileName(infraJson["ISOLocation"]?.Value);
-                    }
                     if (Enum.TryParse<AgentType>(infraJson["AgentType"]?.Value, out AgentType agentTypeParsed))
                     {
-                        x.agentType ??= agentTypeParsed;    
+                        x.agentType ??= agentTypeParsed;
                     }
                     if (!string.IsNullOrEmpty(infraJson["NuGetRegistryUsername"]?.Value))
                     {
@@ -325,7 +346,7 @@ namespace Cmf.Common.Cli.Commands
                     }
                 }
             }
-            
+
             if (x.nugetRegistry != null)
             {
                 args.AddRange(new [] {"--nugetRegistry", x.nugetRegistry.AbsoluteUri});
@@ -363,18 +384,50 @@ namespace Cmf.Common.Cli.Commands
                 args.AddRange(new [] {"--agentPool", x.agentPool});
             }
             args.AddRange(new [] {"--agentType", (x.agentType ??= AgentType.Hosted).ToString()});
+
+            if (!string.IsNullOrEmpty(x.releaseCustomerEnvironment))
+            {
+                args.AddRange(new[] { "--releaseCustomerEnvironment", x.releaseCustomerEnvironment });
+            }
+
+            if (!string.IsNullOrEmpty(x.releaseSite))
+            {
+                args.AddRange(new[] { "--releaseSite", x.releaseSite });
+            }
+
+            if (!string.IsNullOrEmpty(x.releaseDeploymentPackage))
+            {
+                // we need to escape the @ symbol to avoid that commandline lib parses it as a file
+                // https://github.com/dotnet/command-line-api/issues/816
+                x.releaseDeploymentPackage = x.releaseDeploymentPackage.Length > 1 && x.releaseDeploymentPackage[0] == '\\'
+                ? x.releaseDeploymentPackage[1..]
+                : x.releaseDeploymentPackage;
+
+                args.AddRange(new[] { "--releaseDeploymentPackage", $"{x.releaseDeploymentPackage}" });
+            }
+
+            if (!string.IsNullOrEmpty(x.releaseLicense))
+            {
+                args.AddRange(new[] { "--releaseLicense", x.releaseLicense });
+            }
+
+            if (!string.IsNullOrEmpty(x.releaseDeploymentTarget))
+            {
+                args.AddRange(new[] { "--releaseDeploymentTarget", x.releaseDeploymentTarget });
+            }
+
             #endregion
 
             if (x.config != null)
             {
                 args.AddRange(ParseConfigFile(x.config));
             }
-            
+
             this.RunCommand(args);
 
             if (x.config != null)
             {
-                var envConfigPath = this.fileSystem.Path.Join(FileSystemUtilities.GetProjectRoot(this.fileSystem).FullName, "EnvironmentConfigs");
+                var envConfigPath = this.fileSystem.Path.Join(FileSystemUtilities.GetProjectRoot(this.fileSystem, throwException: true).FullName, "EnvironmentConfigs");
                 x.config.CopyTo(this.fileSystem.Path.Join(envConfigPath, x.config.Name));
             }
         }

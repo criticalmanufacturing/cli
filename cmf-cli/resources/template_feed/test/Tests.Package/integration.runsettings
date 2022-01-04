@@ -22,7 +22,7 @@
     <Parameter name="auxiliaryUserName" value="TestUserAccountHere" />
     <Parameter name="auxiliaryUserPassword" value="TestUserPasswordHere" />
     <Parameter name="skipLogin" value="true" />
-    <Parameter name="useSsl" value="false" />
+    <Parameter name="hostUseSSL" value="true" />
     <Parameter name="securityToken" value="4n5g84uLK347" />
     <Parameter name="useLoadBalancer" value="false" />
     <Parameter name="requestTimeout" value="00:10:00" />
