@@ -22,6 +22,7 @@ resources:
 
 variables:
  - template: ../EnvironmentConfigs/GlobalVariables.yml  # Template reference to global variables
+ - template: ../EnvironmentConfigs/${{ parameters.Environment }}.yml  # Template reference to environment variables
  - name: RestoreIdentifier
    value: 'ORIGINAL'
 
@@ -33,18 +34,6 @@ parameters:
   default: <%= $CLI_PARAM_EnvironmentName %>
   values:
   - <%= $CLI_PARAM_EnvironmentName %>
-- name: RunSettings
-  displayName: RunSettings file name
-  type: string
-  default: integration.runsettings
-  values:
-  - integration.runsettings
-- name: EnvironmentConfigName
-  displayName: EnvironmentConfig file name
-  type: string
-  default: <%= $CLI_PARAM_ReleaseEnvironmentConfig %>
-  values:
-  - <%= $CLI_PARAM_ReleaseEnvironmentConfig %>
 # Stages to Run
 - name: executeAllStages
   displayName: ExecuteAllStages
@@ -109,7 +98,7 @@ stages:
               downloadType: 'single'
               artifactName: 'Configurations'
               downloadPath: '.'
-          
+
           # Download Build Artifacts - BackupRestore Tools
           - task: DownloadBuildArtifacts@0
             displayName: 'Download Build Artifacts - BackupRestore Tools'
@@ -138,7 +127,7 @@ stages:
             displayName: 'Copy EnvironmentConfig to Server'
             inputs:
               SourceFolder: Configurations/EnvironmentConfigs
-              Contents: '${{ parameters.EnvironmentConfigName }}'
+              Contents: '${{ variables.EnvironmentConfigName }}'
               TargetFolder: BackupRestoreTools/EnvironmentConfigs
 
           # Restore DB
@@ -148,7 +137,7 @@ stages:
               pwsh: false
               targetType: filePath
               filePath: '.\BackupRestoreTools\DeploymentTools\SystemRestore.ps1'
-              arguments: '-EnvironmentConfigName ${{ parameters.EnvironmentConfigName }} -InteractiveMode:$false -restoreIdentifier "$(RestoreIdentifier)" -FullRestore:$false -RestoreDBOnline:$true -RestoreDBODS:$true -RestoreDBDWH:$true -doNotStopHosts:$true'
+              arguments: '-EnvironmentConfigName ${{ variables.EnvironmentConfigName }} -InteractiveMode:$false -restoreIdentifier "$(RestoreIdentifier)" -FullRestore:$false -RestoreDBOnline:$true -RestoreDBODS:$true -RestoreDBDWH:$true -doNotStopHosts:$true'
             continueOnError: false
 
           # Restore Business Tier
@@ -158,7 +147,7 @@ stages:
               pwsh: false
               targetType: filePath
               filePath: '.\BackupRestoreTools\DeploymentTools\SystemRestore.ps1'
-              arguments: '-EnvironmentConfigName ${{ parameters.EnvironmentConfigName }} -InteractiveMode:$false -restoreIdentifier "$(RestoreIdentifier)" -FullRestore:$false -RestoreBusiness:$true'
+              arguments: '-EnvironmentConfigName ${{ variables.EnvironmentConfigName }} -InteractiveMode:$false -restoreIdentifier "$(RestoreIdentifier)" -FullRestore:$false -RestoreBusiness:$true'
             continueOnError: false
 
           # Restore HTML
@@ -168,7 +157,7 @@ stages:
               pwsh: false
               targetType: filePath
               filePath: '.\BackupRestoreTools\DeploymentTools\SystemRestore.ps1'
-              arguments: '-EnvironmentConfigName ${{ parameters.EnvironmentConfigName }} -InteractiveMode:$false -restoreIdentifier "$(RestoreIdentifier)" -FullRestore:$false -RestoreUIHtml:$true -doNotStopHosts:$true'
+              arguments: '-EnvironmentConfigName ${{ variables.EnvironmentConfigName }} -InteractiveMode:$false -restoreIdentifier "$(RestoreIdentifier)" -FullRestore:$false -RestoreUIHtml:$true -doNotStopHosts:$true'
             continueOnError: false
 
           # Restore Help
@@ -178,7 +167,7 @@ stages:
               pwsh: false
               targetType: filePath
               filePath: '.\BackupRestoreTools\DeploymentTools\SystemRestore.ps1'
-              arguments: '-EnvironmentConfigName ${{ parameters.EnvironmentConfigName }} -InteractiveMode:$false -restoreIdentifier "$(RestoreIdentifier)" -FullRestore:$false -RestoreUIHelp:$true -doNotStopHosts:$true'
+              arguments: '-EnvironmentConfigName ${{ variables.EnvironmentConfigName }} -InteractiveMode:$false -restoreIdentifier "$(RestoreIdentifier)" -FullRestore:$false -RestoreUIHelp:$true -doNotStopHosts:$true'
             continueOnError: false
 
           # Clean
@@ -263,7 +252,7 @@ stages:
             displayName: 'Copy EnvironmentConfig to Server'
             inputs:
               SourceFolder: Configurations/EnvironmentConfigs
-              Contents: '${{ parameters.EnvironmentConfigName }}'
+              Contents: '${{ variables.EnvironmentConfigName }}'
               TargetFolder: ${{ variables.CandidatePackages }}
 
           # Customization Installation
@@ -271,11 +260,11 @@ stages:
             displayName: "Customization Installation"
             inputs:
               pwsh: false
-              arguments: "-ImagePath '${{ variables.ISOImagePath }}' -EnvironmentConfigName '${{ parameters.EnvironmentConfigName }}' -PackageSource '${{ variables.CandidatePackages }}'"
+              arguments: "-ImagePath '${{ variables.ISOImagePath }}' -EnvironmentConfigName '${{ variables.EnvironmentConfigName }}' -PackageSource '${{ variables.CandidatePackages }}'"
               targetType: 'inline'
               script: |
                 $ImagePath = '${{ variables.ISOImagePath }}';
-                $EnvironmentConfigName = '${{ parameters.EnvironmentConfigName }}';
+                $EnvironmentConfigName = '${{ variables.EnvironmentConfigName }}';
                 $PackageSource = '${{ variables.CandidatePackages }}';
 
                 # Assuming repository Checkout
@@ -401,7 +390,7 @@ stages:
             displayName: 'Copy EnvironmentConfig to BackupRestoreTools'
             inputs:
               SourceFolder: Configurations/EnvironmentConfigs
-              Contents: '${{ parameters.EnvironmentConfigName }}'
+              Contents: '${{ variables.EnvironmentConfigName }}'
               TargetFolder: BackupRestoreTools/EnvironmentConfigs
 
           # Create Restore Point
@@ -411,7 +400,7 @@ stages:
               pwsh: false
               targetType: filePath
               filePath: './BackupRestoreTools/DeploymentTools/SystemBackup.ps1'
-              arguments: "-EnvironmentConfigName ${{ parameters.EnvironmentConfigName }} -backupIdentifier $(GetPackageVersion.PackageId)_$(GetPackageVersion.PackageVersion) -InteractiveMode:$false"
+              arguments: "-EnvironmentConfigName ${{ variables.EnvironmentConfigName }} -backupIdentifier $(GetPackageVersion.PackageId)_$(GetPackageVersion.PackageVersion) -InteractiveMode:$false"
             continueOnError: false
 
           # Clean
@@ -475,10 +464,10 @@ stages:
 
         # Copy EnvironmentConfig to Server
         - task: CopyFiles@2
-          displayName: 'Copy ${{ parameters.EnvironmentConfigName }} to ${{ variables.CandidatePackages }}'
+          displayName: 'Copy ${{ variables.EnvironmentConfigName }} to ${{ variables.CandidatePackages }}'
           inputs:
             SourceFolder: Configurations/EnvironmentConfigs
-            Contents: '${{ parameters.EnvironmentConfigName }}'
+            Contents: '${{ variables.EnvironmentConfigName }}'
             TargetFolder: ${{ variables.CandidatePackages }}
           condition: eq(variables['ArtifactExists'], true)
 
@@ -487,11 +476,11 @@ stages:
           displayName: "Load Master Data Files"
           inputs:
             pwsh: false
-            arguments: "-ImagePath '${{ variables.ISOImagePath }}' -EnvironmentConfigName '${{ parameters.EnvironmentConfigName }}' -PackageSource '${{ variables.CandidatePackages }}'"
+            arguments: "-ImagePath '${{ variables.ISOImagePath }}' -EnvironmentConfigName '${{ variables.EnvironmentConfigName }}' -PackageSource '${{ variables.CandidatePackages }}'"
             targetType: 'inline'
             script: |
                 $ImagePath = '${{ variables.ISOImagePath }}'; 
-                $EnvironmentConfigName = '${{ parameters.EnvironmentConfigName }}';
+                $EnvironmentConfigName = '${{ variables.EnvironmentConfigName }}';
                 $PackageSource = '${{ variables.CandidatePackages }}';
 
                 # Assuming repository Checkout
@@ -611,7 +600,7 @@ stages:
             displayName: 'Copy EnvironmentConfig to BackupRestoreTools'
             inputs:
               SourceFolder: Configurations/EnvironmentConfigs
-              Contents: '${{ parameters.EnvironmentConfigName }}'
+              Contents: '${{ variables.EnvironmentConfigName }}'
               TargetFolder: BackupRestoreTools/EnvironmentConfigs
 
           # Create Restore Point - DailyBackup
@@ -621,7 +610,7 @@ stages:
               pwsh: false
               targetType: filePath
               filePath: './BackupRestoreTools/DeploymentTools/SystemBackup.ps1'
-              arguments: "-EnvironmentConfigName ${{ parameters.EnvironmentConfigName }} -backupIdentifier 'DailyBackup' -InteractiveMode:$false -FullBackup:$false -BackupDBOnline:$true -doNotStopHosts:$true"
+              arguments: "-EnvironmentConfigName ${{ variables.EnvironmentConfigName }} -backupIdentifier 'DailyBackup' -InteractiveMode:$false -FullBackup:$false -BackupDBOnline:$true -doNotStopHosts:$true"
             continueOnError: false
 
           # Clean
@@ -725,7 +714,7 @@ stages:
               testAssemblyVer2: '**\*.Biz.dll'
               searchFolder: $(System.DefaultWorkingDirectory)
               resultsFolder: '$(Agent.TempDirectory)\TestResults'
-              runSettingsFile: 'TestExecution\RunSettings\${{ parameters.RunSettings }}'
+              runSettingsFile: 'TestExecution\RunSettings\${{ variables.RunSettings }}'
               testRunTitle: "Business Tests"
               rerunFailedTests: true
               rerunType: "basedOnTestFailurePercentage" # Optional. Options: basedOnTestFailurePercentage, basedOnTestFailureCount
@@ -741,7 +730,7 @@ stages:
               testAssemblyVer2: '**\*.GUI.dll'
               searchFolder: $(System.DefaultWorkingDirectory)
               resultsFolder: '$(Agent.TempDirectory)\TestResults'
-              runSettingsFile: 'TestExecution\RunSettings\${{ parameters.RunSettings }}'
+              runSettingsFile: 'TestExecution\RunSettings\${{ variables.RunSettings }}'
               testRunTitle: "HTML Tests"
               rerunFailedTests: true
               rerunType: "basedOnTestFailurePercentage" # Optional. Options: basedOnTestFailurePercentage, basedOnTestFailureCount
@@ -758,7 +747,7 @@ stages:
               searchFolder: $(System.DefaultWorkingDirectory)
               resultsFolder: '$(Agent.TempDirectory)\TestResults'
               platform: latest
-              runSettingsFile: 'TestExecution\RunSettings\${{ parameters.RunSettings }}'
+              runSettingsFile: 'TestExecution\RunSettings\${{ variables.RunSettings }}'
               testRunTitle: "IoT Tests"
               rerunFailedTests: true
               rerunType: "basedOnTestFailurePercentage" # Optional. Options: basedOnTestFailurePercentage, basedOnTestFailureCount
@@ -944,7 +933,7 @@ stages:
               targetType: inline
               failOnStderr: true
               script: |
-                $EnvironmentConfig = "${{ parameters.EnvironmentConfigName }}";
+                $EnvironmentConfig = "${{ variables.EnvironmentConfigName }}";
                 $EnvConfigFile = Get-Item "./Configurations/EnvironmentConfigs/$EnvironmentConfig"
                 $EnvConfigJson = Get-Content -Raw -Path $EnvConfigFile | ConvertFrom-Json
                 $BackupLocation = $EnvConfigJson.'Product.Database.BackupShare'

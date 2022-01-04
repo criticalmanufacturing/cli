@@ -16,7 +16,7 @@ variables:
   # cmf pipeline Version
   CmfPipelineVersion: '1.x.x'
   # Iso Image Path
-  ISOImagePath: '<%= $CLI_PARAM_ISOLocation %>\v<%= $CLI_PARAM_MESVersion-Feature %>\Critical Manufacturing <%= $CLI_PARAM_MESVersion %>.iso'
+  ISOImagePath: '<%= $CLI_PARAM_ISOLocation %>'
   # Current refspec to get the tools for the package (by default, a tagged MES version release)
   CommonBranch: 'refs/tags/<%= $CLI_PARAM_MESVersion %>'
   # Node version to use in the pipelines
