@@ -37,26 +37,6 @@ steps:
 - checkout: self
   persistCredentials: true
 
-# BackupRestoreTools Artifact
-- task: DownloadBuildArtifacts@0
-  displayName: 'Download Build Artifacts - BackupRestore Tools'
-  inputs:
-    buildType: specific
-    project: 'COMMON'
-    pipeline: 'CI-BackupRestoreTools'
-    specificBuildWithTriggering: true
-    buildVersionToDownload: latestFromBranch
-    branchName: '${{ variables.CommonBranch }}'
-    downloadType: specific
-    downloadPath: 'Package'
-    artifactName: Cmf.BackupRestore.Tools
-- task: CopyFiles@2
-  displayName: Copy Cmf.BackupRestore.Tools
-  inputs:
-    SourceFolder: 'Package/Cmf.BackupRestore.Tools'
-    Contents: '**'
-    TargetFolder: 'FinalPackage'
-
 # use Node Tool
 - task: NodeTool@0
   displayName: 'Use Node ${{ variables.NodeVersion }}'

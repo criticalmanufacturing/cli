@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace tests.Specs
+namespace tests
 {
     [TestClass]
     public class CmfPackage_Load

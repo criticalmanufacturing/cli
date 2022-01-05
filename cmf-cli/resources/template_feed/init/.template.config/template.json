@@ -379,6 +379,36 @@
       "datatype": "string",
       "defaultValue": "",
       "replaces": "<%= $CLI_PARAM_ReleaseEnvironmentConfig %>"
+    },
+    "releaseCustomerEnvironment": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "",
+      "replaces": "<%= $CLI_PARAM_ReleaseCustomerEnvironment %>"
+    },
+    "releaseSite": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "",
+      "replaces": "<%= $CLI_PARAM_ReleaseSite %>"
+    },
+    "releaseDeploymentPackage": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "",
+      "replaces": "<%= $CLI_PARAM_ReleaseDeploymentPackage %>"
+    },
+    "releaseLicense": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "",
+      "replaces": "<%= $CLI_PARAM_ReleaseLicense %>"
+    },
+    "releaseDeploymentTarget": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "",
+      "replaces": "<%= $CLI_PARAM_ReleaseDeploymentTarget %>"
     }
   },
   "forms": {
