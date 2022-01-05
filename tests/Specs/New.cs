@@ -160,8 +160,8 @@ namespace tests.Specs
                 cmd.Invoke(new[]
                 {
                     projectName,
-                    "--infra", this.GetFixturePath("init", "infrastructure.json"),
-                    "-c", this.GetFixturePath("init", "config.json"),
+                    "--infra", GetFixturePath("init", "infrastructure.json"),
+                    "-c", GetFixturePath("init", "config.json"),
                     "--repositoryUrl", repoUrl,
                     "--MESVersion", "8.2.0",
                     "--DevTasksVersion", "8.1.0",
@@ -244,7 +244,7 @@ namespace tests.Specs
             }
         }
 
-			[TestMethod]
+        [TestMethod]
         public void Business()
         {
             RunNew(new BusinessCommand(), "Cmf.Custom.Business", extraAsserts: args =>

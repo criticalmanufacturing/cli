@@ -312,7 +312,7 @@ stages:
               {
                 Copy-Item -Path Configurations/EnvironmentConfigs/devopscenter.qa.json -Destination $env:AGENT_TEMPDIRECTORY/node_modules/@criticalmanufacturing/portal/bin/appsettings.json -Force
               }
-              Write-Host PAT: $(CustomerPortalPAT)
+
               & $env:AGENT_TEMPDIRECTORY/node_modules/@criticalmanufacturing/portal/bin/cmf-portal.exe login --token $(CustomerPortalPAT) --verbose
               & $env:AGENT_TEMPDIRECTORY/node_modules/@criticalmanufacturing/portal/bin/cmf-portal.exe deploy `
                 --name "${{ variables.CustomerEnvironmentName }}" `

@@ -847,7 +847,7 @@
         </member>
         <member name="F:Cmf.Common.Cli.Commands.AgentType.Cloud">
             <summary>
-            Cloud agents 
+            Cloud agents
             </summary>
         </member>
         <member name="F:Cmf.Common.Cli.Commands.AgentType.Hosted">
