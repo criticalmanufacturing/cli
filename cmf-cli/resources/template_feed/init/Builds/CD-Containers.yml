@@ -296,11 +296,6 @@ stages:
               $envConfig = Get-Content "$file" | out-string | ConvertFrom-Json
               $envConfig.ENV_MANAGER_BOOT_PACKAGE = $PackageIdentifier
 
-              $packageSourceShare = "$(CandidatePackages)/Package"
-              $addrPackageSourceShare = (($packageSourceShare -split "\\" | Where {  $_ -ne ""  })[0] -replace ".cmf.criticalmanufacturing.com")
-              $envConfig.DockerSwarm_Volume_NetworkShare_Path_package_source_share = $packageSourceShare;
-              $envConfig.DockerSwarm_Volume_NetworkShare_Address_package_source_share = "$addrPackageSourceShare.cmf.criticalmanufacturing.com"
-
               Write-Output "Installing package $PackageIdentifier"
               $envConfig | ConvertTo-Json -Depth 10 | set-content "$(Agent.TempDirectory)/install-package.json"
 
@@ -539,6 +534,7 @@ stages:
 
             pwsh: true
             workingDirectory: 'C:\tools\Cmf.Deployment.Framework'
+          condition: eq(variables['ArtifactExists'], true)
 
         # Clean
         - task: PostBuildCleanup@3
@@ -893,11 +889,11 @@ stages:
                 condition: always()
 
   - stage: "SetNewRestorePoint"
-    displayName: "Copy Full Backup packages to stack packages share"
+    displayName: "Copy Full Backup packages to approved packages share"
     condition: or( and( eq('${{ variables.SetNewRestorePoint }}', true), eq('${{ parameters.ExecuteAllStages }}', true), succeeded() ), and( eq('${{ parameters.ExecuteAllStages }}', false), eq('${{ parameters.SetNewRestorePoint }}', true) ) )
     jobs:
       - job: "SetNewRestorePoint"
-        displayName: "Copy Full Backup packages to stack packages share"
+        displayName: "Copy Full Backup packages to approved packages share"
         workspace:
           clean: all
         steps:
