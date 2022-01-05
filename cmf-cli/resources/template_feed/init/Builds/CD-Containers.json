@@ -29,7 +29,16 @@
       "inputs": {}
     }
   ],
-  "triggers": [],
+  "triggers": [
+    {
+      "branchFilters": [],
+      "pathFilters": [],
+      "settingsSourceType": 2,
+      "batchChanges": false,
+      "maxConcurrentBuildsPerBranch": 1,
+      "triggerType": 2
+    }
+  ],
   "properties": {},
   "tags": [],
   "jobAuthorizationScope": 1,
