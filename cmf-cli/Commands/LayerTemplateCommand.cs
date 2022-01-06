@@ -88,12 +88,12 @@ namespace Cmf.Common.Cli.Commands
         {
             
             string featureName = null;
-            var projectRoot = FileSystemUtilities.GetProjectRoot(this.fileSystem);
+            var projectRoot = FileSystemUtilities.GetProjectRoot(this.fileSystem, throwException: true);
 
             //load .project-config
             var projectConfig = FileSystemUtilities.ReadProjectConfig(this.fileSystem);
-            var organization = "Cmf";
-            var product = "Custom";
+            var organization = Constants.CliConstants.DefaultOrganization;
+            var product = Constants.CliConstants.DefaultProduct;
             if (projectConfig.RootElement.TryGetProperty("Organization", out JsonElement element)) 
             {
                 organization = element.GetString();

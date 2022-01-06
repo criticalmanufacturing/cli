@@ -95,6 +95,16 @@
         /// </summary>
         public const string NpmJsUrl = "https://registry.npmjs.com";
 
+        /// <summary>
+        /// The default organization for naming new packages
+        /// </summary>
+        public const string DefaultOrganization = "Cmf";
+
+        /// <summary>
+        /// the default product to name new packages
+        /// </summary>
+        public const string DefaultProduct = "Custom";
+
         #endregion
 
         #region Tokens
