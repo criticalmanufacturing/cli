@@ -43,8 +43,8 @@ Creating layer packages works exactly in the same way as for a [traditional proj
 
 ```bash
 > cd Features/Cmf.Custom.Baseline
-> cmf new html
-The template "HTML Package" was created successfully.
+> cmf new business
+The template "Business Package" was created successfully.
 ```
 
 The layer package name will include the feature package name fragment to distinguish it from other packages in the same repository.

@@ -122,4 +122,10 @@ The tests package is generated and built like any other layer package, but it is
 cmf new test --version 1.0.0
 ```
 
+## Demo
 
+This demo show the usual initial setup for a new project. For the first sprints, which focus heavily on modelling, the Data package is of the most importance. Obviously a Tests package is also needed. As an extra, the Business package is also initialized. This allows the Process Rules in the Data package to have a .NET solution where they can be compiled for checking.
+
+Note that the GIF is quite large and can take a bit to load.
+
+![Traditional Scaffolding Demo](./traditional.gif "Traditional Scaffolding")

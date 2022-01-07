@@ -5,6 +5,7 @@
 Though `@criticalmanufacturing/cli` runs with the latest `node` version, to run scaffolding commands the versions required by the target MES version are __mandatory__.
 
 For MES v8, the recommended versions are:
+
 - latest node 12 (Erbium)
 - latest npm 6 (should come with node)
 
@@ -52,7 +53,7 @@ For more advanced structures, you'll probably be using [Features](./features.md)
 ## Continuous Integration and Delivery
 The scaffolding templates provide a few pipelines designed for [Azure DevOps](https://dev.azure.com/). They work both in [Azure DevOps Server](https://azure.microsoft.com/en-us/services/devops/server/) and [Azure DevOps Services](https://dev.azure.com/).
 
-> **IMPORTANT**: Only the pipelines for Pull Request and for Package generation are designed to run outside of Critical Manufacturing infrastructure. We currently do not support running the Continuous Delivery part of the pipelines in a client infrastructure.
+> **IMPORTANT**: Only the pipelines for Pull Request and for Package generation (CI-Changes and CI-Package) are designed to run outside of Critical Manufacturing infrastructure. We currently do not support running the Continuous Delivery part of the pipelines in a client infrastructure.
 
 The YAML files are available in the Builds folder at the repository root. Next to them are some JSON files which contain the metadata for the pipelines in Azure DevOps format, which can be used by directly invoking the Azure DevOps API. These files are in git ignore and they should **not** be committed, as they can contain secrets in plain text, such as Nuget credentials.
 

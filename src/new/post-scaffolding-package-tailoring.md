@@ -48,4 +48,4 @@ Below are some tailoring options for specific targets. It's recommended that the
         ]
         ```
 
-**NOTE:** Make sure that the order of the steps is the same referenced on this document
+**NOTE:** Make sure that the order of the steps is the same referenced in this document.

@@ -15,6 +15,7 @@ build:
 
 image:
     FROM nginx
+    RUN touch /usr/share/nginx/html/.nojekyll # disable GitHub pages parsing
     COPY +build/dist /usr/share/nginx/html
     COPY +build/output /usr/share/nginx/html/output
     EXPOSE 80
