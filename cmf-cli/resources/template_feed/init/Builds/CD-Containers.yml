@@ -15,7 +15,8 @@ resources:
      source: CI-Publish
      branch: $(Build.SourceBranch)
      project: '<%= $CLI_PARAM_ProjectName %>'
-     trigger: true
+     trigger:
+      enabled: true
 
 variables:
  - group: Docker Variables
@@ -307,12 +308,11 @@ stages:
             targetType: 'inline'
             script: |
               $packageSourceShare = "$(CandidatePackages)/Package"
-              Copy-Item -Path $(DATABASE_NETWORK_SHARE)/approved/Cmf.FullBackup.*.zip -Destination $packageSourceShare -Force
+              Copy-Item -Path $(DATABASE_NETWORK_SHARE)/approved/Cmf.FullBackup.*.zip -Destination $packageSourceShare -Force -Verbose
               if (Test-Path "Configurations/EnvironmentConfigs/devopscenter.qa.json" -PathType leaf)
               {
                 Copy-Item -Path Configurations/EnvironmentConfigs/devopscenter.qa.json -Destination $env:AGENT_TEMPDIRECTORY/node_modules/@criticalmanufacturing/portal/bin/appsettings.json -Force
               }
-
               & $env:AGENT_TEMPDIRECTORY/node_modules/@criticalmanufacturing/portal/bin/cmf-portal.exe login --token $(CustomerPortalPAT) --verbose
               & $env:AGENT_TEMPDIRECTORY/node_modules/@criticalmanufacturing/portal/bin/cmf-portal.exe deploy `
                 --name "${{ variables.CustomerEnvironmentName }}" `
@@ -322,7 +322,8 @@ stages:
                 --site "${{ variables.SiteName }}" `
                 --target "${{ variables.DeploymentTarget }}" `
                 --package="${{ variables.DeploymentPackage }}" `
-                --replace-tokens TargetVersion=${{ variables.MESVersion }} --verbose
+                --replace-tokens TargetVersion=${{ variables.MESVersion }} --verbose `
+                --terminateOtherVersions
 
         # Clean
         - task: PostBuildCleanup@3
