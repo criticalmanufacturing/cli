@@ -59,7 +59,7 @@ The YAML files are available in the Builds folder at the repository root. Next t
 
 > _For CMFers_: you can use an internal tool to import the pipeline metadata, as well as the branch policies. Check "How To Import Builds" in the COMMON wiki at Docs/Pipelines.
 
------ TODO: manual pipeline creation steps
+## [Manual Pipeline import](./pipeline_import.md)
 
 ## External Users
 There is more available information for non-CMFers at [External Users](./external.md).
