@@ -107,6 +107,12 @@ All notable changes to this project will be documented in this file. See [standa
 
 ## [2.0.0-5](https://github.com/criticalmanufacturing/cli/compare/2.0.0-4...2.0.0-5) (2021-11-23)
 
+### ⚠ BREAKING CHANGES
+
+* **publish:** replace publish command with assemble command [#53](https://github.com/criticalmanufacturing/cli/issues/53) ([d95220c](https://github.com/criticalmanufacturing/cli/commit/d95220c03507066a38171bea2953d2da1bbb9999))
+* **pack**: remove dependencies packing - cmf pack will not longer pack any unpacked dependencies [#54](https://github.com/criticalmanufacturing/cli/issues/54) ([3bca78b](https://github.com/criticalmanufacturing/cli/commit/3bca78b6b552a5fcc391acdd6bd2603d9dc62f8f))
+* **bump**: remove `all` option - bump will not longer bump the current package's dependencies [#49](https://github.com/criticalmanufacturing/cli/issues/49) ([120040e](https://github.com/criticalmanufacturing/cli/commit/120040efa77093b69deeae1e966888c619edd7ca))
+
 
 ### Features
 
