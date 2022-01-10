@@ -10,7 +10,7 @@ variables:
   # cmf cli Repository
   CmfCliRepository: '<%= $CLI_PARAM_CmfCliRepository %>'
   # cmf cli Version
-  CmfCliVersion: 'next'
+  CmfCliVersion: '2.x.x'
   # cmf pipeline Repository
   CmfPipelineRepository: '<%= $CLI_PARAM_CmfPipelineRepository %>'
   # cmf pipeline Version
