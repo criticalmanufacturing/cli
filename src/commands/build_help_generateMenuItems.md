@@ -1,3 +1,5 @@
+# build help generateMenuItems
+
 <!-- BEGIN USAGE -->
 
 Usage

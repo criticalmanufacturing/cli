@@ -1,3 +1,5 @@
+# new help
+
 <!-- BEGIN USAGE -->
 
 Usage
@@ -17,8 +19,8 @@ Name | Description
 
 Name | Description
 ---- | -----------
-`--version <version>` | Package Version [default: 1.1.0]
-`--docPkg, --documentationPackage <documentationPackage>` | Path to the MES documentation package
+`--version <version>` | Package Version [default: 1.0.0]
+`--docPkg, --documentationPackage <documentationPackage> (REQUIRED)` | Path to the MES documentation package
 `-?, -h, --help` | Show help and usage information
 
 

@@ -1,3 +1,5 @@
+# new html
+
 <!-- BEGIN USAGE -->
 
 Usage
@@ -17,8 +19,8 @@ Name | Description
 
 Name | Description
 ---- | -----------
-`--version <version>` | Package Version [default: 1.1.0]
-`--htmlPackage, --htmlPkg <htmlPackage>` | Path to the MES Presentation HTML package
+`--version <version>` | Package Version [default: 1.0.0]
+`--htmlPackage, --htmlPkg <htmlPackage> (REQUIRED)` | Path to the MES Presentation HTML package
 `-?, -h, --help` | Show help and usage information
 
 

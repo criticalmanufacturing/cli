@@ -1,3 +1,5 @@
+# new
+
 <!-- BEGIN USAGE -->
 
 Usage
@@ -25,7 +27,7 @@ Name | Description
 `help <workingDir>` | [default: ]
 `html <workingDir>` | [default: ]
 `iot <workingDir>` | [default: ]
-`test` |
+`test` | 
 
 
 <!-- END USAGE -->

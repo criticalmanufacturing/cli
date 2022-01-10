@@ -1,3 +1,5 @@
+# new database
+
 <!-- BEGIN USAGE -->
 
 Usage
@@ -17,7 +19,7 @@ Name | Description
 
 Name | Description
 ---- | -----------
-`--version <version>` | Package Version [default: 1.1.0]
+`--version <version>` | Package Version [default: 1.0.0]
 `-?, -h, --help` | Show help and usage information
 
 

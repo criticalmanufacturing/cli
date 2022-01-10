@@ -6,16 +6,16 @@ cmf build
 cmf bump
 cmf init
 cmf ls
-cmf local
 cmf new
 cmf pack
 cmf restore
-cmf ad
-cmf portal
 cmf build help
+cmf build help generateBasedOnTemplates
+cmf build help generateMenuItems
 cmf bump iot
-cmf local generateLBOs
-cmf local getLocalEnvironment
+cmf bump iot configuration
+cmf bump iot customization
+cmf new
 cmf new business
 cmf new database
 cmf new data
@@ -23,11 +23,7 @@ cmf new feature
 cmf new help
 cmf new html
 cmf new iot
-cmf new test
-cmf build help generateBasedOnTemplates
-cmf build help generateMenuItems
-cmf bump iot configuration
-cmf bump iot customization`;
+cmf new test`;
 
 const myArgs = process.argv.slice(2);
 if (myArgs.length < 1) {

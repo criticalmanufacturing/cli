@@ -17,6 +17,7 @@ cmf pack comes with preconfigured [Steps](https://github.com/criticalmanufacturi
 When the cmf pack is executed it will search in the working directory, for a `cmfpackage.json` file, that then is serialized to the [CmfPackage](https://github.com/criticalmanufacturing/cli/blob/development/docs/cmf/Cmf_Common_Cli_Objects.md#cmfpackage-class) this will guarantee that the `cmfpackage.json` has all the valid and needed fields. Then it will get which is the [PackageType](https://github.com/criticalmanufacturing/cli/blob/development/docs/cmf/Cmf_Common_Cli_Enums.md#Cmf_Common_Cli_Enums_PackageType), and based on that will generate the package.
 
 <!-- BEGIN USAGE -->
+
 Usage
 -----
 
@@ -37,4 +38,6 @@ Name | Description
 `-o, --outputDir <outputDir>` | Output directory for created package [default: Package]
 `-f, --force` | Overwrite all packages even if they already exists
 `-?, -h, --help` | Show help and usage information
+
+
 <!-- END USAGE -->
