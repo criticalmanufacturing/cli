@@ -45,6 +45,24 @@ public const string CmfPackagePresentationConfig = config.json;
 #### Field Value
 [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
   
+<a name='Cmf_Common_Cli_Constants_CliConstants_DefaultOrganization'></a>
+## CliConstants.DefaultOrganization Field
+The default organization for naming new packages  
+```csharp
+public const string DefaultOrganization = Cmf;
+```
+#### Field Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
+  
+<a name='Cmf_Common_Cli_Constants_CliConstants_DefaultProduct'></a>
+## CliConstants.DefaultProduct Field
+the default product to name new packages  
+```csharp
+public const string DefaultProduct = Custom;
+```
+#### Field Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
+  
 <a name='Cmf_Common_Cli_Constants_CliConstants_DeploymentFrameworkManifestFileName'></a>
 ## CliConstants.DeploymentFrameworkManifestFileName Field
 The deployment framework manifest template  

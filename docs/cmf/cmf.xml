@@ -1545,6 +1545,16 @@
             npm.js repository url
             </summary>
         </member>
+        <member name="F:Cmf.Common.Cli.Constants.CliConstants.DefaultOrganization">
+            <summary>
+            The default organization for naming new packages
+            </summary>
+        </member>
+        <member name="F:Cmf.Common.Cli.Constants.CliConstants.DefaultProduct">
+            <summary>
+            the default product to name new packages
+            </summary>
+        </member>
         <member name="F:Cmf.Common.Cli.Constants.CliConstants.TokenStartElement">
             <summary>
             The token start element
