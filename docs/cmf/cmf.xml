@@ -847,7 +847,7 @@
         </member>
         <member name="F:Cmf.Common.Cli.Commands.AgentType.Cloud">
             <summary>
-            Cloud agents 
+            Cloud agents
             </summary>
         </member>
         <member name="F:Cmf.Common.Cli.Commands.AgentType.Hosted">
@@ -915,24 +915,29 @@
             provides arguments and execution flow common to all layer templates
             </summary>
         </member>
+        <member name="F:Cmf.Common.Cli.Commands.LayerTemplateCommand.registerInParent">
+            <summary>
+            should register the newly created package in its parent as dependency
+            </summary>
+        </member>
         <member name="F:Cmf.Common.Cli.Commands.LayerTemplateCommand.executedArgs">
             <summary>
             Arguments used to execute the template. Available after Execute runs.
             </summary>
         </member>
-        <member name="M:Cmf.Common.Cli.Commands.LayerTemplateCommand.#ctor(System.String,System.String)">
+        <member name="M:Cmf.Common.Cli.Commands.LayerTemplateCommand.#ctor(System.String,Cmf.Common.Cli.Enums.PackageType)">
             <summary>
             constructor
             </summary>
             <param name="commandName">the name of the command</param>
-            <param name="packagePrefix">the package prefix. used as full name if not inside a feature.</param>
+            <param name="packageType">the package type</param>
         </member>
-        <member name="M:Cmf.Common.Cli.Commands.LayerTemplateCommand.#ctor(System.String,System.String,System.IO.Abstractions.IFileSystem)">
+        <member name="M:Cmf.Common.Cli.Commands.LayerTemplateCommand.#ctor(System.String,Cmf.Common.Cli.Enums.PackageType,System.IO.Abstractions.IFileSystem)">
             <summary>
             constructor
             </summary>
             <param name="commandName">the name of the command</param>
-            <param name="packagePrefix">the package prefix. used as full name if not inside a feature.</param>
+            <param name="packageType">the package type</param>
             <param name="fileSystem">the filesystem implementation</param>
         </member>
         <member name="M:Cmf.Common.Cli.Commands.LayerTemplateCommand.Configure(System.CommandLine.Command)">
@@ -1442,10 +1447,10 @@
             provides arguments and execution flow common to all UI layer templates
             </summary>
         </member>
-        <member name="M:Cmf.Common.Cli.Commands.UILayerTemplateCommand.#ctor(System.String,System.String)">
+        <member name="M:Cmf.Common.Cli.Commands.UILayerTemplateCommand.#ctor(System.String,Cmf.Common.Cli.Enums.PackageType)">
             <inheritdoc />
         </member>
-        <member name="M:Cmf.Common.Cli.Commands.UILayerTemplateCommand.#ctor(System.String,System.String,System.IO.Abstractions.IFileSystem)">
+        <member name="M:Cmf.Common.Cli.Commands.UILayerTemplateCommand.#ctor(System.String,Cmf.Common.Cli.Enums.PackageType,System.IO.Abstractions.IFileSystem)">
             <inheritdoc />
         </member>
         <member name="M:Cmf.Common.Cli.Commands.UILayerTemplateCommand.CloneHTMLStarter(System.String,System.IO.Abstractions.IDirectoryInfo)">
@@ -1722,7 +1727,7 @@
             The presentation
             </summary>
         </member>
-        <member name="F:Cmf.Common.Cli.Enums.PackageType.Html">
+        <member name="F:Cmf.Common.Cli.Enums.PackageType.HTML">
             <summary>
             The HTML
             </summary>
@@ -1762,7 +1767,7 @@
             The IoT Data
             </summary>
         </member>
-        <member name="F:Cmf.Common.Cli.Enums.PackageType.Test">
+        <member name="F:Cmf.Common.Cli.Enums.PackageType.Tests">
             <summary>
             The test
             </summary>
@@ -1907,13 +1912,6 @@
             </summary>
             <param name="cmfPackage">The CMF package.</param>
         </member>
-        <member name="M:Cmf.Common.Cli.Handlers.DataPackageTypeHandlerV2.GenerateDeploymentFrameworkManifest(System.IO.Abstractions.IDirectoryInfo)">
-            <summary>
-            Generates the deployment framework manifest.
-            </summary>
-            <param name="packageOutputDir">The package output dir.</param>
-            <exception cref="T:Cmf.Common.Cli.Utilities.CliException"></exception>
-        </member>
         <member name="M:Cmf.Common.Cli.Handlers.DataPackageTypeHandlerV2.Pack(System.IO.Abstractions.IDirectoryInfo,System.IO.Abstractions.IDirectoryInfo)">
             <summary>
             Pack a Data package
@@ -1921,9 +1919,22 @@
             <param name="packageOutputDir">source directory</param>
             <param name="outputDir">output directory</param>
         </member>
+        <member name="M:Cmf.Common.Cli.Handlers.DataPackageTypeHandlerV2.GenerateDeploymentFrameworkManifest(System.IO.Abstractions.IDirectoryInfo)">
+            <summary>
+            Generates the deployment framework manifest.
+            </summary>
+            <param name="packageOutputDir">The package output dir.</param>
+            <exception cref="T:Cmf.Common.Cli.Utilities.CliException"></exception>
+        </member>
         <member name="M:Cmf.Common.Cli.Handlers.DataPackageTypeHandlerV2.GenerateHostConfigFile(System.IO.Abstractions.IDirectoryInfo)">
             <summary>
             Generates the host configuration file.
+            </summary>
+            <param name="packageOutputDir">The package output dir.</param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Handlers.DataPackageTypeHandlerV2.CopyInstallDependencies(System.IO.Abstractions.IDirectoryInfo)">
+            <summary>
+            Copies the install dependencies.
             </summary>
             <param name="packageOutputDir">The package output dir.</param>
         </member>
@@ -1988,6 +1999,26 @@
             <param name="cmfPackage">The CMF package.</param>
         </member>
         <member name="M:Cmf.Common.Cli.Handlers.IoTDataPackageTypeHandler.Bump(System.String,System.String,System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            Bumps the specified CMF package.
+            </summary>
+            <param name="version">The version.</param>
+            <param name="buildNr">The version for build Nr.</param>
+            <param name="bumpInformation">The bump information.</param>
+        </member>
+        <member name="T:Cmf.Common.Cli.Handlers.IoTDataPackageTypeHandlerV2">
+             <summary>
+            
+             </summary>
+             <seealso cref="T:Cmf.Common.Cli.Handlers.DataPackageTypeHandlerV2" />
+        </member>
+        <member name="M:Cmf.Common.Cli.Handlers.IoTDataPackageTypeHandlerV2.#ctor(Cmf.Common.Cli.Objects.CmfPackage)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Cmf.Common.Cli.Handlers.DataPackageTypeHandlerV2" /> class.
+            </summary>
+            <param name="cmfPackage">The CMF package.</param>
+        </member>
+        <member name="M:Cmf.Common.Cli.Handlers.IoTDataPackageTypeHandlerV2.Bump(System.String,System.String,System.Collections.Generic.Dictionary{System.String,System.Object})">
             <summary>
             Bumps the specified CMF package.
             </summary>
@@ -2811,14 +2842,14 @@
             Is this package missing, i.e. we could not find it anywhere to satisfy this dependency
             </summary>
         </member>
-        <member name="P:Cmf.Common.Cli.Objects.Dependency.IsIgnorable">
-            <summary>
-            If the dependency is part of the DefaultDependenciesToIgnore, should be marked as ignorable
-            </summary>
-        </member>
         <member name="F:Cmf.Common.Cli.Objects.Dependency.DefaultDependenciesToIgnore">
             <summary>
             Dependencies that will be missing but should be ignored
+            </summary>
+        </member>
+        <member name="P:Cmf.Common.Cli.Objects.Dependency.IsIgnorable">
+            <summary>
+            If the dependency is part of the DefaultDependenciesToIgnore, should be marked as ignorable
             </summary>
         </member>
         <member name="M:Cmf.Common.Cli.Objects.Dependency.#ctor(System.String,System.String)">

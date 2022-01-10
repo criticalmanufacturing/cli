@@ -1,0 +1,14 @@
+{
+  "packageId": "TestFeature",
+  "version": "1.0.0",
+  "description": "This package deploys TestFeature in Critical Manufacturing MES",
+  "packageType": "Root",
+  "isInstallable": true,
+  "isUniqueInstall": false,
+  "dependencies": [
+	{
+		"id":"Cmf.Environment",
+		"version":"9.9.9"
+	}
+  ]
+}

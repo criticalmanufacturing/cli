@@ -16,13 +16,15 @@ namespace Cmf.Common.Cli.Commands.New
     public class DatabaseCommand : LayerTemplateCommand
     {
         /// <inheritdoc />
-        public DatabaseCommand() : base("database", "Cmf.Custom.Database")
+        public DatabaseCommand() : base("database", Enums.PackageType.Database)
         {
+            this.registerInParent = false;
         }
 
         /// <inheritdoc />
-        public DatabaseCommand(IFileSystem fileSystem) : base("database", "Cmf.Custom.Database", fileSystem)
+        public DatabaseCommand(IFileSystem fileSystem) : base("database", Enums.PackageType.Database, fileSystem)
         {
+            this.registerInParent = false;
         }
 
         /// <inheritdoc />

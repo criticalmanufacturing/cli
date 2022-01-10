@@ -25,12 +25,12 @@ namespace Cmf.Common.Cli.Commands.New
         private JsonDocument projectConfig = null;
 
         /// <inheritdoc />
-        public HTMLCommand() : base("html", "Cmf.Custom.HTML")
+        public HTMLCommand() : base("html", Enums.PackageType.HTML)
         {
         }
 
         /// <inheritdoc />
-        public HTMLCommand(IFileSystem fileSystem) : base("html", "Cmf.Custom.HTML", fileSystem)
+        public HTMLCommand(IFileSystem fileSystem) : base("html", Enums.PackageType.HTML, fileSystem)
         {
         }
         
@@ -41,8 +41,10 @@ namespace Cmf.Common.Cli.Commands.New
             cmd.AddOption(new Option<IFileInfo>(
                 aliases: new[] { "--htmlPkg", "--htmlPackage" },
                 description: "Path to the MES Presentation HTML package",
+                isDefault: false,
                 parseArgument: argResult => Parse<IFileInfo>(argResult)
-            ));
+            )
+            { IsRequired = true });
             cmd.Handler = CommandHandler.Create<IDirectoryInfo, string, IFileInfo>(this.Execute);
         }
 

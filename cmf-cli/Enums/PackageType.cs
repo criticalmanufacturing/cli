@@ -33,7 +33,7 @@
         /// <summary>
         /// The HTML
         /// </summary>
-        Html = 5,
+        HTML = 5,
 
         /// <summary>
         /// The help
@@ -72,6 +72,6 @@
         /// <summary>
         /// The test
         /// </summary>
-        Test = 13
+        Tests = 13
     }
 }

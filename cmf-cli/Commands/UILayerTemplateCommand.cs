@@ -3,6 +3,7 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using Cmf.Common.Cli.Builders;
+using Cmf.Common.Cli.Enums;
 
 namespace Cmf.Common.Cli.Commands
 {
@@ -13,12 +14,12 @@ namespace Cmf.Common.Cli.Commands
     public abstract class UILayerTemplateCommand : LayerTemplateCommand
     {
         /// <inheritdoc />
-        protected UILayerTemplateCommand(string commandName, string packagePrefix) : base(commandName, packagePrefix)
+        protected UILayerTemplateCommand(string commandName, PackageType packageType) : base(commandName, packageType)
         {
         }
 
         /// <inheritdoc />
-        protected UILayerTemplateCommand(string commandName, string packagePrefix, IFileSystem fileSystem) : base(commandName, packagePrefix, fileSystem)
+        protected UILayerTemplateCommand(string commandName, PackageType packageType, IFileSystem fileSystem) : base(commandName, packageType, fileSystem)
         {
         }
 

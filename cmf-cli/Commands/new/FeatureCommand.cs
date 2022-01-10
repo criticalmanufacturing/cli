@@ -52,7 +52,7 @@ namespace Cmf.Common.Cli.Commands.New
             cmd.AddOption(new Option<string>(
                 aliases: new[] { "--version" },
                 description: "Package Version",
-                getDefaultValue: () => "1.1.0"
+                getDefaultValue: () => "1.0.0"
             ));
             cmd.Handler = CommandHandler.Create<IDirectoryInfo, string, string>(Execute);
         }

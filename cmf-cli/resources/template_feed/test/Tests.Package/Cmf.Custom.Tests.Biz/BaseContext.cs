@@ -12,8 +12,6 @@
 using Cmf.Foundation.BusinessOrchestration.SecurityManagement.InputObjects;
 using Cmf.Foundation.Security;
 using Cmf.LightBusinessObjects.Infrastructure;
-using Cmf.Navigo.BusinessObjects;
-using Cmf.Navigo.BusinessOrchestration.LaborManagement.InputObjects;
 using Cmf.TestScenarios.EmployeeHelper;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;

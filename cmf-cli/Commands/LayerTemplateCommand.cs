@@ -5,6 +5,7 @@ using System.IO.Abstractions;
 using System.Text.Json;
 using Cmf.Common.Cli.Enums;
 using Cmf.Common.Cli.Utilities;
+using System.Linq;
 
 namespace Cmf.Common.Cli.Commands
 {
@@ -14,7 +15,13 @@ namespace Cmf.Common.Cli.Commands
     /// </summary>
     public abstract class LayerTemplateCommand : TemplateCommand
     {
-        private string packagePrefix;
+        // private string packagePrefix;
+        private PackageType packageType;
+
+        /// <summary>
+        /// should register the newly created package in its parent as dependency
+        /// </summary>
+        protected bool registerInParent = true;
         /// <summary>
         /// Arguments used to execute the template. Available after Execute runs.
         /// </summary>
@@ -23,21 +30,21 @@ namespace Cmf.Common.Cli.Commands
         /// constructor
         /// </summary>
         /// <param name="commandName">the name of the command</param>
-        /// <param name="packagePrefix">the package prefix. used as full name if not inside a feature.</param>
-        protected LayerTemplateCommand(string commandName, string packagePrefix) : base(commandName)
+        /// <param name="packageType">the package type</param>
+        protected LayerTemplateCommand(string commandName, PackageType packageType) : base(commandName)
         {
-            this.packagePrefix = packagePrefix;
+            this.packageType = packageType;
         }
 
         /// <summary>
         /// constructor
         /// </summary>
         /// <param name="commandName">the name of the command</param>
-        /// <param name="packagePrefix">the package prefix. used as full name if not inside a feature.</param>
+        /// <param name="packageType">the package type</param>
         /// <param name="fileSystem">the filesystem implementation</param>
-        protected LayerTemplateCommand(string commandName, string packagePrefix, IFileSystem fileSystem) : base(commandName, fileSystem)
+        protected LayerTemplateCommand(string commandName, PackageType packageType, IFileSystem fileSystem) : base(commandName, fileSystem)
         {
-            this.packagePrefix = packagePrefix;
+            this.packageType = packageType;
         }
         
         /// <summary>
@@ -73,9 +80,58 @@ namespace Cmf.Common.Cli.Commands
             cmd.AddOption(new Option<string>(
                 aliases: new[] { "--version" },
                 description: "Package Version",
-                getDefaultValue: () => "1.1.0"
+                getDefaultValue: () => "1.0.0"
             ));
         }
+
+        private (string, string)? GeneratePackageName(IDirectoryInfo workingDir)
+        {
+            
+            string featureName = null;
+            var projectRoot = FileSystemUtilities.GetProjectRoot(this.fileSystem, throwException: true);
+
+            //load .project-config
+            var projectConfig = FileSystemUtilities.ReadProjectConfig(this.fileSystem);
+            var organization = Constants.CliConstants.DefaultOrganization;
+            var product = Constants.CliConstants.DefaultProduct;
+            if (projectConfig.RootElement.TryGetProperty("Organization", out JsonElement element)) 
+            {
+                organization = element.GetString();
+            }
+            if (projectConfig.RootElement.TryGetProperty("Product", out JsonElement element2))
+            {
+                product = element2.GetString();
+            }
+            var packageName = $"{organization}.{product}.{this.packageType}";
+
+            if (string.Equals(projectRoot.FullName, workingDir.FullName))
+            {
+                // is a root-level package.
+                var featuresPath = this.fileSystem.Path.Join(projectRoot.FullName, "Features");
+                if (this.fileSystem.Directory.Exists(featuresPath))
+                {
+                    Log.Error($"Cannot create a root-level layer package when features already exist.");
+                    return null;
+                }
+            }
+            else
+            {
+                // is a feature-level package
+                var package = base.GetPackageInFolder(workingDir.FullName);
+                if (package.PackageId.Count(e => e == '.') < 2)
+                {
+                    featureName = package.PackageId;
+                }
+                else
+                {
+                    featureName = string.Join('.', package.PackageId.Split('.').Skip(2));
+                }
+                packageName = $"{organization}.{product}.{featureName}.{this.packageType}";
+            }
+
+            return (packageName, featureName);
+        }
+
 
         /// <summary>
         /// Execute the command
@@ -90,26 +146,11 @@ namespace Cmf.Common.Cli.Commands
                 return;
             }
 
-            var packageName = this.packagePrefix;
-            string featureName = null;
-            var projectRoot = FileSystemUtilities.GetProjectRoot(this.fileSystem);
-            if (string.Equals(projectRoot.FullName, workingDir.FullName))
-            {
-                // is a root-level package.
-                var featuresPath = this.fileSystem.Path.Join(projectRoot.FullName, "Features");
-                if (this.fileSystem.Directory.Exists(featuresPath))
-                {
-                    Log.Error($"Cannot create a root-level layer package when features already exist.");
-                    return;
-                }
+            var names = this.GeneratePackageName(workingDir);
+            if (names == null) {
+                return;
             }
-            else
-            {
-                // is a feature-level package
-                var package = base.GetPackageInFolder(workingDir.FullName);
-                featureName = package.PackageId.Replace("Cmf.Custom.", "");
-                packageName = $"{this.packagePrefix}.{featureName}";
-            }
+            var (packageName, featureName) = names.Value;
             
             //load .project-config
             var projectConfig = FileSystemUtilities.ReadProjectConfig(this.fileSystem);
@@ -125,11 +166,15 @@ namespace Cmf.Common.Cli.Commands
                 "--idSegment", featureName != null ? $"{tenant}.{featureName}" : tenant,
                 "--Tenant", tenant
             };
-            
+
+            var projectRoot = FileSystemUtilities.GetProjectRoot(this.fileSystem);
             args = this.GenerateArgs(projectRoot, workingDir, args, projectConfig);
             this.executedArgs = args.ToArray();
             base.RunCommand(args);
-            base.RegisterAsDependencyInParent(packageName, version, workingDir.FullName);
+            if (registerInParent)
+            {
+                base.RegisterAsDependencyInParent(packageName, version, workingDir.FullName);
+            }
         }
 
         /// <summary>

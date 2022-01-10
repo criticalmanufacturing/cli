@@ -22,7 +22,7 @@ namespace Cmf.Common.Cli.Commands.New
         /// <summary>
         /// constructor
         /// </summary>
-        public BusinessCommand() : base("business", "Cmf.Custom.Business")
+        public BusinessCommand() : base("business", Enums.PackageType.Business)
         {
         }
 
@@ -30,7 +30,7 @@ namespace Cmf.Common.Cli.Commands.New
         /// constructor
         /// </summary>
         /// <param name="fileSystem"></param>
-        public BusinessCommand(IFileSystem fileSystem) : base("business", "Cmf.Custom.Business", fileSystem)
+        public BusinessCommand(IFileSystem fileSystem) : base("business", Enums.PackageType.Business, fileSystem)
         {
         }
 
