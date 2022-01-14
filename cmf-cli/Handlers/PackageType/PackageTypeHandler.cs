@@ -452,14 +452,14 @@ namespace Cmf.Common.Cli.Handlers
         /// <param name="buildNr">The version for build Nr.</param>
         /// <param name="bumpInformation">The bump information.</param>
         public virtual void Bump(string version, string buildNr, Dictionary<string, object> bumpInformation = null)
-        {
+            {
             // TODO: create "transaction" to rollback if anything fails
             // NOTE: Check pack strategy. Collect all packages to bump before bump.
 
             var currentVersion = CmfPackage.Version.Split("-")[0];
             var currentBuildNr = CmfPackage.Version.Split("-").Length > 1 ? CmfPackage.Version.Split("-")[1] : null;
             if (!currentVersion.IgnoreCaseEquals(version))
-            {
+                {
                 // TODO :: Uncomment if the cmfpackage.json support build number
                 // cmfPackage.SetVersion(GenericUtilities.RetrieveNewVersion(currentVersion, version, buildNr));
 
@@ -467,7 +467,7 @@ namespace Cmf.Common.Cli.Handlers
 
                 Log.Information($"Will bump {CmfPackage.PackageId} from version {currentVersion} to version {CmfPackage.Version}");
             }
-        }
+                }
 
         /// <summary>
         /// Builds this instance.
@@ -479,7 +479,7 @@ namespace Cmf.Common.Cli.Handlers
                 Log.Information($"Executing '{step.DisplayName}'");
                 step.Exec();
             }
-        }
+            }
 
         /// <summary>
         /// Packs the specified package output dir.
@@ -487,7 +487,7 @@ namespace Cmf.Common.Cli.Handlers
         /// <param name="packageOutputDir">The package output dir.</param>
         /// <param name="outputDir">The output dir.</param>
         public virtual void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir)
-        {
+            {
             var filesToPack = GetContentToPack(packageOutputDir);
             if (filesToPack != null)
             {
