@@ -25,6 +25,11 @@ namespace Cmf.Common.Cli.Attributes
         /// </value>
         public string Parent { get; set; }
 
+        /// <summary>
+        /// should hide the command in help screens?
+        /// </summary>
+        public bool IsHidden { get; set; } = false;
+
         #endregion
 
         #region Public Methods

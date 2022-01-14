@@ -1,0 +1,8 @@
+{
+    "ISOLocation": "\\\\share\\iso_location",
+    "NPMRegistry": "http://npm_registry",
+    "NuGetRegistry": "htt://nuget_registry",
+    "AzureDevopsCollectionURL": "http://ad/collection",
+    "AgentPool": "agent_pool",
+    "AgentType": "Hosted"
+}

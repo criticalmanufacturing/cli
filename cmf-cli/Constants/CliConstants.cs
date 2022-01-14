@@ -17,6 +17,11 @@
         /// </summary>
         public const string FolderInstallDependencies = "installDependencies";
 
+        /// <summary>
+        /// Tests Folder
+        /// </summary>
+        public const string FolderTests = "/Tests";
+
         #endregion
 
         #region Files
@@ -37,6 +42,11 @@
         public const string CmfPackagePresentationConfig = "config.json";
 
         /// <summary>
+        /// The CMF package default host configuration
+        /// </summary>
+        public const string CmfPackageHostConfig = "Cmf.Foundation.Services.HostService.dll.config";
+
+        /// <summary>
         /// The package json
         /// </summary>
         public const string PackageJson = "package.json";
@@ -47,14 +57,19 @@
         public const string ProjectConfigFileName = ".project-config.json";
 
         /// <summary>
+        /// The repositories config file name, usually located in the project root
+        /// </summary>
+        public const string RepositoriesConfigFileName = "repositories.json";
+
+        /// <summary>
         /// The lb os file location
         /// </summary>
         public const string LBOsFileLocation = "Libs/LBOs/NetStandard/Cmf.LightBusinessObjects.dll";
 
         /// <summary>
-        /// Driver keyword for IoT Packages
+        /// Dependencies File Name
         /// </summary>
-        public const string Driver = "driver";
+        public const string FileDependencies = "dependencies.json";
 
         #endregion
 
@@ -69,6 +84,26 @@
         /// The deployment metadata dependency
         /// </summary>
         public const string DeploymentMetadataDependency = "Cmf.Custom.DeploymentMetadata";
+
+        /// <summary>
+        /// Driver keyword for IoT Packages
+        /// </summary>
+        public const string Driver = "driver";
+
+        /// <summary>
+        /// npm.js repository url
+        /// </summary>
+        public const string NpmJsUrl = "https://registry.npmjs.com";
+
+        /// <summary>
+        /// The default organization for naming new packages
+        /// </summary>
+        public const string DefaultOrganization = "Cmf";
+
+        /// <summary>
+        /// the default product to name new packages
+        /// </summary>
+        public const string DefaultProduct = "Custom";
 
         #endregion
 
@@ -113,6 +148,11 @@
         /// The token package identifier
         /// </summary>
         public const string TokenPackageId = "$(packageId)";
+
+        /// <summary>
+        /// The token cache Id
+        /// </summary>
+        public const string CacheId = "$(cacheId)";
 
         #endregion
     }

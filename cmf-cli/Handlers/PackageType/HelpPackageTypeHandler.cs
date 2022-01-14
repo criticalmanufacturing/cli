@@ -1,5 +1,6 @@
 ﻿using Cmf.Common.Cli.Builders;
 using Cmf.Common.Cli.Commands;
+using Cmf.Common.Cli.Commands.restore;
 using Cmf.Common.Cli.Enums;
 using Cmf.Common.Cli.Objects;
 
@@ -20,11 +21,22 @@ namespace Cmf.Common.Cli.Handlers
             cmfPackage.SetDefaultValues
             (
                 targetDirectory:
-                    "UI/Help"
+                    "UI/Help",
+                targetLayer:
+                    "help"
             );
 
             BuildSteps = new IBuildCommand[]
             {
+                new ExecuteCommand<RestoreCommand>()
+                {
+                    Command = new RestoreCommand(),
+                    DisplayName = "cmf restore",
+                    Execute = command =>
+                    {
+                        command.Execute(cmfPackage.GetFileInfo().Directory, null);
+                    }
+                },
                 new NPMCommand()
                 {
                     DisplayName = "NPM Install",

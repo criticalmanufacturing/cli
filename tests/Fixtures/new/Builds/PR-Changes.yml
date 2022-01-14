@@ -1,0 +1,110 @@
+# Changed Package detection pipeline
+pool:
+  name: agent_pool
+
+# Trigger on any change in the included branches
+trigger: none
+
+# A pipeline with no PR trigger
+pr: none
+
+variables:
+- name: PRPipeline
+  value: 'PR-Package'
+
+steps:
+- checkout: self
+  persistCredentials: true
+- task: PowerShell@2
+  displayName: "Find changes and trigger package builds"
+  inputs:
+    targetType: 'inline'
+    script: |
+      $headers = @{
+        Authorization = "Bearer $env:SYSTEM_ACCESSTOKEN"
+      }
+      git fetch --all
+      $targetBranchName = $("$(System.PullRequest.TargetBranch)" -split "/")[-1]
+      $packages = Get-ChildItem -Path .\ -Filter cmfpackage.json -Recurse -File | % {	
+          $pkgJson = Get-Content $_ | ConvertFrom-Json
+          @{
+              id = $pkgJson.packageId
+              version = $pkgJson.version
+              path = $_.DirectoryName
+              NEW_HEAD = $(git log -n 1 --pretty=format:%H $_.DirectoryName)
+              OLD_HEAD = $(git log -n 1 --pretty=format:%H remotes/origin/$targetBranchName -- $_.DirectoryName)
+          }
+      }
+      $packages | % { Write-Host "Found package $($_.id)@$($_.version) at $($_.path) with current HEADs $($_.OLD_HEAD)..$($_.NEW_HEAD)" }
+
+      $changes = {@()}.Invoke()
+      $packages | % {
+        if ($_.NEW_HEAD -eq $_.OLD_HEAD) {
+            Write-Host "Package $($_.id)@$($_.version) wasn't changed: $($_.NEW_HEAD)"
+        } else {
+            Write-Host "Package $($_.id)@$($_.version) was changed: HEAD was $($_.OLD_HEAD) and HEAD is now $($_.NEW_HEAD). Triggering PR Pipeline..."
+            $changes.Add($_)
+        }
+      }
+
+      # get pipeline
+      $url = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$env:SYSTEM_TEAMPROJECTID/_apis/build/definitions?api-version=4.1"
+      $defs = Invoke-RestMethod -Uri $url -Method Get -ContentType "application/json" -Headers $headers
+      $def = $defs.value | where { $_.name -eq '${{ variables.PRPipeline }}' -and $_.queueStatus -eq "enabled" -and $_.path -eq "\PR-Builds" }
+
+      if ($def -eq $null) {
+          Write-Host "Build definition '${{ variables.PRPipeline }}' not found in project $(System.TeamProject)"
+      } else {
+        $triggeredBuildIds = {@()}.Invoke()
+        $changes | % {
+          $relPath = [IO.Path]::GetRelativePath("$(Build.SourcesDirectory)", $_.path)
+          $params = @{
+            "system.debug" = @{ value = "$true" }
+          }
+          $body = @{
+            resources = @{
+              repositories = @{
+                self = @{
+                  refName = "$(Build.SourceBranch)"
+                }
+              }
+            }
+            templateParameters = @{
+              PackagePath = $relPath
+              PackageId = $_.id
+            }
+            variables = $params
+          }
+
+          $bodyString = $body | ConvertTo-Json -Depth 10
+          Write-Debug $bodyString
+          Write-Host "Queueing build for pipeline '${{ variables.PRPipeline }}' for package '$($_.id)' at '$relPath'"
+          $url = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$env:SYSTEM_TEAMPROJECTID/_apis/pipelines/$($def.id)/runs?api-version=5.1-preview.1"
+          $buildresponse = Invoke-RestMethod -Method Post -ContentType "application/json" -Uri $url -Body $bodyString -Headers $headers
+          $triggeredBuildIds.Add($buildresponse.id)
+        }
+        Write-Host "##vso[task.setvariable variable=TriggeredBuildIds]$($triggeredBuildIds -join(","))"
+      }
+    pwsh: true
+  env:
+    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+    SYSTEM_TEAMFOUNDATIONCOLLECTIONURI: $(System.TeamFoundationCollectionUri)
+    SYSTEM_TEAMPROJECTID: $(System.TeamProject)
+
+- task: WaitForBuildToFinish@2
+  inputs:
+    definitionIsInCurrentTeamProject: true
+    ignoreSslCertificateErrors: false
+    waitForQueuedBuildsToFinishRefreshTime: '60'
+    failTaskIfBuildsNotSuccessful: true
+    cancelBuildsIfAnyFails: false
+    treatPartiallySucceededBuildAsSuccessful: false
+    downloadBuildArtifacts: false
+    clearVariable: true
+    authenticationMethod: 'Personal Access Token'
+    password: $(System.AccessToken)
+  env:
+    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+- task: PostBuildCleanup@3
+  displayName: 'Clean Agent Directories'
+  condition: always()

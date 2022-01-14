@@ -1,0 +1,18 @@
+# <Smart Table Name>
+
+## Overview
+<Brief Description of the Smart Table existence>
+
+## Table Columns
+The following table describes the table columns:
+
+| Name | Is Key | Is Mandatory | Data Type | Reference | Description |
+| :--- | :----: | :----------: | :-------- | :-------- | :---------- |
+| <Column Name> | <Column IsKey> | <Column IsMandatory> | <String/Decimal/DateTime> | <None/LookupValue/EntityType> <Entity Type Name/LookupTable> | <Column Description>
+
+## Precedence Keys
+The following table lists the precedence keys applicable for this Smart Table:
+
+| Order | Precedence Keys |
+| :---: | :-------------- |
+|<Order#>|<Column1>+<Column2>|

@@ -43,15 +43,25 @@ namespace Cmf.Common.Cli.Factories
                 PackageType.Root => new RootPackageTypeHandler(cmfPackage),
                 PackageType.Generic => new GenericPackageTypeHandler(cmfPackage),
                 PackageType.Business => new BusinessPackageTypeHandler(cmfPackage),
-                PackageType.Html => new HtmlPackageTypeHandler(cmfPackage),
+                PackageType.HTML => new HtmlPackageTypeHandler(cmfPackage),
                 PackageType.Help => new HelpPackageTypeHandler(cmfPackage),
                 PackageType.IoT => new IoTPackageTypeHandler(cmfPackage),
-                PackageType.IoTData => new IoTDataPackageTypeHandler(cmfPackage),
-                PackageType.Data => new DataPackageTypeHandler(cmfPackage),
+                PackageType.IoTData => cmfPackage.HandlerVersion switch
+                {
+                    2 => new IoTDataPackageTypeHandlerV2(cmfPackage),
+                    1 => new IoTDataPackageTypeHandler(cmfPackage),
+                    _ => new IoTDataPackageTypeHandlerV2(cmfPackage)
+                },
+                PackageType.Data => cmfPackage.HandlerVersion switch
+                {
+                    2 => new DataPackageTypeHandlerV2(cmfPackage),
+                    1 => new DataPackageTypeHandler(cmfPackage),
+                    _ => new DataPackageTypeHandlerV2(cmfPackage)
+                },
                 PackageType.Reporting => new ReportingPackageTypeHandler(cmfPackage),
                 PackageType.ExportedObjects => new ExportedObjectsPackageTypeHandler(cmfPackage),
                 PackageType.Database => new DatabasePackageTypeHandler(cmfPackage),
-                PackageType.Test => new TestPackageTypeHandler(cmfPackage),
+                PackageType.Tests => new TestPackageTypeHandler(cmfPackage),
                 _ => throw new NotImplementedException()
             };
 

@@ -6,6 +6,8 @@
 | [Cmf.Common.Cli.Attributes](Cmf_Common_Cli_Attributes.md 'Cmf.Common.Cli.Attributes') |  |
 | [Cmf.Common.Cli.Builders](Cmf_Common_Cli_Builders.md 'Cmf.Common.Cli.Builders') |  |
 | [Cmf.Common.Cli.Commands](Cmf_Common_Cli_Commands.md 'Cmf.Common.Cli.Commands') |  |
+| [Cmf.Common.Cli.Commands.New](Cmf_Common_Cli_Commands_New.md 'Cmf.Common.Cli.Commands.New') |  |
+| [Cmf.Common.Cli.Commands.restore](Cmf_Common_Cli_Commands_restore.md 'Cmf.Common.Cli.Commands.restore') |  |
 | [Cmf.Common.Cli.Constants](Cmf_Common_Cli_Constants.md 'Cmf.Common.Cli.Constants') |  |
 | [Cmf.Common.Cli.Enums](Cmf_Common_Cli_Enums.md 'Cmf.Common.Cli.Enums') |  |
 | [Cmf.Common.Cli.Factories](Cmf_Common_Cli_Factories.md 'Cmf.Common.Cli.Factories') |  |

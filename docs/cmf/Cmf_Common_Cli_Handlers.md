@@ -109,6 +109,89 @@ The package output dir.
 #### See Also
 - [PackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_PackageTypeHandler 'Cmf.Common.Cli.Handlers.PackageTypeHandler')
   
+<a name='Cmf_Common_Cli_Handlers_DataPackageTypeHandlerV2'></a>
+## DataPackageTypeHandlerV2 Class
+```csharp
+public class DataPackageTypeHandlerV2 : Cmf.Common.Cli.Handlers.PackageTypeHandler
+```
+
+Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [PackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_PackageTypeHandler 'Cmf.Common.Cli.Handlers.PackageTypeHandler') &#129106; DataPackageTypeHandlerV2  
+
+Derived  
+&#8627; [IoTDataPackageTypeHandlerV2](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_IoTDataPackageTypeHandlerV2 'Cmf.Common.Cli.Handlers.IoTDataPackageTypeHandlerV2')  
+### Constructors
+<a name='Cmf_Common_Cli_Handlers_DataPackageTypeHandlerV2_DataPackageTypeHandlerV2(Cmf_Common_Cli_Objects_CmfPackage)'></a>
+## DataPackageTypeHandlerV2.DataPackageTypeHandlerV2(CmfPackage) Constructor
+Initializes a new instance of the [DataPackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_DataPackageTypeHandler 'Cmf.Common.Cli.Handlers.DataPackageTypeHandler') class.  
+```csharp
+public DataPackageTypeHandlerV2(Cmf.Common.Cli.Objects.CmfPackage cmfPackage);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Handlers_DataPackageTypeHandlerV2_DataPackageTypeHandlerV2(Cmf_Common_Cli_Objects_CmfPackage)_cmfPackage'></a>
+`cmfPackage` [CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')  
+The CMF package.
+  
+  
+### Methods
+<a name='Cmf_Common_Cli_Handlers_DataPackageTypeHandlerV2_CopyInstallDependencies(System_IO_Abstractions_IDirectoryInfo)'></a>
+## DataPackageTypeHandlerV2.CopyInstallDependencies(IDirectoryInfo) Method
+Copies the install dependencies.  
+```csharp
+protected override void CopyInstallDependencies(System.IO.Abstractions.IDirectoryInfo packageOutputDir);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Handlers_DataPackageTypeHandlerV2_CopyInstallDependencies(System_IO_Abstractions_IDirectoryInfo)_packageOutputDir'></a>
+`packageOutputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
+The package output dir.
+  
+  
+<a name='Cmf_Common_Cli_Handlers_DataPackageTypeHandlerV2_GenerateDeploymentFrameworkManifest(System_IO_Abstractions_IDirectoryInfo)'></a>
+## DataPackageTypeHandlerV2.GenerateDeploymentFrameworkManifest(IDirectoryInfo) Method
+Generates the deployment framework manifest.  
+```csharp
+internal override void GenerateDeploymentFrameworkManifest(System.IO.Abstractions.IDirectoryInfo packageOutputDir);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Handlers_DataPackageTypeHandlerV2_GenerateDeploymentFrameworkManifest(System_IO_Abstractions_IDirectoryInfo)_packageOutputDir'></a>
+`packageOutputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
+The package output dir.
+  
+#### Exceptions
+[CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException')  
+  
+<a name='Cmf_Common_Cli_Handlers_DataPackageTypeHandlerV2_GenerateHostConfigFile(System_IO_Abstractions_IDirectoryInfo)'></a>
+## DataPackageTypeHandlerV2.GenerateHostConfigFile(IDirectoryInfo) Method
+Generates the host configuration file.  
+```csharp
+private void GenerateHostConfigFile(System.IO.Abstractions.IDirectoryInfo packageOutputDir);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Handlers_DataPackageTypeHandlerV2_GenerateHostConfigFile(System_IO_Abstractions_IDirectoryInfo)_packageOutputDir'></a>
+`packageOutputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
+The package output dir.
+  
+  
+<a name='Cmf_Common_Cli_Handlers_DataPackageTypeHandlerV2_Pack(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo)'></a>
+## DataPackageTypeHandlerV2.Pack(IDirectoryInfo, IDirectoryInfo) Method
+Pack a Data package  
+```csharp
+public override void Pack(System.IO.Abstractions.IDirectoryInfo packageOutputDir, System.IO.Abstractions.IDirectoryInfo outputDir);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Handlers_DataPackageTypeHandlerV2_Pack(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo)_packageOutputDir'></a>
+`packageOutputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
+source directory
+  
+<a name='Cmf_Common_Cli_Handlers_DataPackageTypeHandlerV2_Pack(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo)_outputDir'></a>
+`outputDir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
+output directory
+  
+
+Implements [Pack(IDirectoryInfo, IDirectoryInfo)](Cmf_Common_Cli_Interfaces.md#Cmf_Common_Cli_Interfaces_IPackageTypeHandler_Pack(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo) 'Cmf.Common.Cli.Interfaces.IPackageTypeHandler.Pack(System.IO.Abstractions.IDirectoryInfo, System.IO.Abstractions.IDirectoryInfo)')  
+  
+#### See Also
+- [PackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_PackageTypeHandler 'Cmf.Common.Cli.Handlers.PackageTypeHandler')
+  
 <a name='Cmf_Common_Cli_Handlers_ExportedObjectsPackageTypeHandler'></a>
 ## ExportedObjectsPackageTypeHandler Class
 ```csharp
@@ -245,6 +328,52 @@ Implements [Bump(string, string, Dictionary<string,object>)](Cmf_Common_Cli_Inte
 #### See Also
 - [DataPackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_DataPackageTypeHandler 'Cmf.Common.Cli.Handlers.DataPackageTypeHandler')
   
+<a name='Cmf_Common_Cli_Handlers_IoTDataPackageTypeHandlerV2'></a>
+## IoTDataPackageTypeHandlerV2 Class
+```csharp
+public class IoTDataPackageTypeHandlerV2 : Cmf.Common.Cli.Handlers.DataPackageTypeHandlerV2
+```
+
+Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [PackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_PackageTypeHandler 'Cmf.Common.Cli.Handlers.PackageTypeHandler') &#129106; [DataPackageTypeHandlerV2](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_DataPackageTypeHandlerV2 'Cmf.Common.Cli.Handlers.DataPackageTypeHandlerV2') &#129106; IoTDataPackageTypeHandlerV2  
+### Constructors
+<a name='Cmf_Common_Cli_Handlers_IoTDataPackageTypeHandlerV2_IoTDataPackageTypeHandlerV2(Cmf_Common_Cli_Objects_CmfPackage)'></a>
+## IoTDataPackageTypeHandlerV2.IoTDataPackageTypeHandlerV2(CmfPackage) Constructor
+Initializes a new instance of the [DataPackageTypeHandlerV2](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_DataPackageTypeHandlerV2 'Cmf.Common.Cli.Handlers.DataPackageTypeHandlerV2') class.  
+```csharp
+public IoTDataPackageTypeHandlerV2(Cmf.Common.Cli.Objects.CmfPackage cmfPackage);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Handlers_IoTDataPackageTypeHandlerV2_IoTDataPackageTypeHandlerV2(Cmf_Common_Cli_Objects_CmfPackage)_cmfPackage'></a>
+`cmfPackage` [CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')  
+The CMF package.
+  
+  
+### Methods
+<a name='Cmf_Common_Cli_Handlers_IoTDataPackageTypeHandlerV2_Bump(string_string_System_Collections_Generic_Dictionary_string_object_)'></a>
+## IoTDataPackageTypeHandlerV2.Bump(string, string, Dictionary&lt;string,object&gt;) Method
+Bumps the specified CMF package.  
+```csharp
+public override void Bump(string version, string buildNr, System.Collections.Generic.Dictionary<string,object> bumpInformation=null);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Handlers_IoTDataPackageTypeHandlerV2_Bump(string_string_System_Collections_Generic_Dictionary_string_object_)_version'></a>
+`version` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+The version.
+  
+<a name='Cmf_Common_Cli_Handlers_IoTDataPackageTypeHandlerV2_Bump(string_string_System_Collections_Generic_Dictionary_string_object_)_buildNr'></a>
+`buildNr` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+The version for build Nr.
+  
+<a name='Cmf_Common_Cli_Handlers_IoTDataPackageTypeHandlerV2_Bump(string_string_System_Collections_Generic_Dictionary_string_object_)_bumpInformation'></a>
+`bumpInformation` [System.Collections.Generic.Dictionary&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.Dictionary-2 'System.Collections.Generic.Dictionary`2')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[,](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.Dictionary-2 'System.Collections.Generic.Dictionary`2')[System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.Dictionary-2 'System.Collections.Generic.Dictionary`2')  
+The bump information.
+  
+
+Implements [Bump(string, string, Dictionary<string,object>)](Cmf_Common_Cli_Interfaces.md#Cmf_Common_Cli_Interfaces_IPackageTypeHandler_Bump(string_string_System_Collections_Generic_Dictionary_string_object_) 'Cmf.Common.Cli.Interfaces.IPackageTypeHandler.Bump(string, string, System.Collections.Generic.Dictionary&lt;string,object&gt;)')  
+  
+#### See Also
+- [DataPackageTypeHandlerV2](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_DataPackageTypeHandlerV2 'Cmf.Common.Cli.Handlers.DataPackageTypeHandlerV2')
+  
 <a name='Cmf_Common_Cli_Handlers_IoTPackageTypeHandler'></a>
 ## IoTPackageTypeHandler Class
 ```csharp
@@ -336,6 +465,7 @@ Derived
 &#8627; [BusinessPackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_BusinessPackageTypeHandler 'Cmf.Common.Cli.Handlers.BusinessPackageTypeHandler')  
 &#8627; [DatabasePackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_DatabasePackageTypeHandler 'Cmf.Common.Cli.Handlers.DatabasePackageTypeHandler')  
 &#8627; [DataPackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_DataPackageTypeHandler 'Cmf.Common.Cli.Handlers.DataPackageTypeHandler')  
+&#8627; [DataPackageTypeHandlerV2](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_DataPackageTypeHandlerV2 'Cmf.Common.Cli.Handlers.DataPackageTypeHandlerV2')  
 &#8627; [ExportedObjectsPackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_ExportedObjectsPackageTypeHandler 'Cmf.Common.Cli.Handlers.ExportedObjectsPackageTypeHandler')  
 &#8627; [GenericPackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_GenericPackageTypeHandler 'Cmf.Common.Cli.Handlers.GenericPackageTypeHandler')  
 &#8627; [PresentationPackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_PresentationPackageTypeHandler 'Cmf.Common.Cli.Handlers.PresentationPackageTypeHandler')  
@@ -345,19 +475,6 @@ Derived
 
 Implements [IPackageTypeHandler](Cmf_Common_Cli_Interfaces.md#Cmf_Common_Cli_Interfaces_IPackageTypeHandler 'Cmf.Common.Cli.Interfaces.IPackageTypeHandler')  
 ### Constructors
-<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_PackageTypeHandler(Cmf_Common_Cli_Objects_CmfPackage)'></a>
-## PackageTypeHandler.PackageTypeHandler(CmfPackage) Constructor
-Initializes a new instance of the [PackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_PackageTypeHandler 'Cmf.Common.Cli.Handlers.PackageTypeHandler') class.  
-```csharp
-public PackageTypeHandler(Cmf.Common.Cli.Objects.CmfPackage cmfPackage);
-```
-#### Parameters
-<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_PackageTypeHandler(Cmf_Common_Cli_Objects_CmfPackage)_cmfPackage'></a>
-`cmfPackage` [CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')  
-  
-#### Exceptions
-[CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException')  
-  
 <a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_PackageTypeHandler(Cmf_Common_Cli_Objects_CmfPackage_System_IO_Abstractions_IFileSystem)'></a>
 ## PackageTypeHandler.PackageTypeHandler(CmfPackage, IFileSystem) Constructor
 Initializes a new instance of the [PackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_PackageTypeHandler 'Cmf.Common.Cli.Handlers.PackageTypeHandler') class.  
@@ -371,6 +488,19 @@ public PackageTypeHandler(Cmf.Common.Cli.Objects.CmfPackage cmfPackage, System.I
 <a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_PackageTypeHandler(Cmf_Common_Cli_Objects_CmfPackage_System_IO_Abstractions_IFileSystem)_fileSystem'></a>
 `fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
   
+  
+<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_PackageTypeHandler(Cmf_Common_Cli_Objects_CmfPackage)'></a>
+## PackageTypeHandler.PackageTypeHandler(CmfPackage) Constructor
+Initializes a new instance of the [PackageTypeHandler](Cmf_Common_Cli_Handlers.md#Cmf_Common_Cli_Handlers_PackageTypeHandler 'Cmf.Common.Cli.Handlers.PackageTypeHandler') class.  
+```csharp
+public PackageTypeHandler(Cmf.Common.Cli.Objects.CmfPackage cmfPackage);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_PackageTypeHandler(Cmf_Common_Cli_Objects_CmfPackage)_cmfPackage'></a>
+`cmfPackage` [CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')  
+  
+#### Exceptions
+[CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException')  
   
 ### Fields
 <a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_BuildSteps'></a>
@@ -430,6 +560,15 @@ public System.Collections.Generic.List<string> DefaultContentToIgnore { get; }
 The default content to ignore.  
 
 Implements [DefaultContentToIgnore](Cmf_Common_Cli_Interfaces.md#Cmf_Common_Cli_Interfaces_IPackageTypeHandler_DefaultContentToIgnore 'Cmf.Common.Cli.Interfaces.IPackageTypeHandler.DefaultContentToIgnore')  
+  
+<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_DependenciesFolder'></a>
+## PackageTypeHandler.DependenciesFolder Property
+Where should the dependencies go, relative to the cmfpackage.json file  
+```csharp
+public System.IO.Abstractions.IDirectoryInfo DependenciesFolder { get; set; }
+```
+#### Property Value
+[System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')
   
 ### Methods
 <a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_Build()'></a>
@@ -531,7 +670,7 @@ The default content to ignore.
 ## PackageTypeHandler.GetContentToPack(IDirectoryInfo) Method
 Get Content To pack  
 ```csharp
-internal virtual bool GetContentToPack(System.IO.Abstractions.IDirectoryInfo packageOutputDir);
+internal virtual System.Collections.Generic.List<Cmf.Common.Cli.Objects.FileToPack> GetContentToPack(System.IO.Abstractions.IDirectoryInfo packageOutputDir);
 ```
 #### Parameters
 <a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_GetContentToPack(System_IO_Abstractions_IDirectoryInfo)_packageOutputDir'></a>
@@ -539,7 +678,7 @@ internal virtual bool GetContentToPack(System.IO.Abstractions.IDirectoryInfo pac
 The pack directory.
   
 #### Returns
-[System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
+[System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[FileToPack](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_FileToPack 'Cmf.Common.Cli.Objects.FileToPack')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')  
   
 <a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_Pack(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo)'></a>
 ## PackageTypeHandler.Pack(IDirectoryInfo, IDirectoryInfo) Method
@@ -558,6 +697,23 @@ The output dir.
   
 
 Implements [Pack(IDirectoryInfo, IDirectoryInfo)](Cmf_Common_Cli_Interfaces.md#Cmf_Common_Cli_Interfaces_IPackageTypeHandler_Pack(System_IO_Abstractions_IDirectoryInfo_System_IO_Abstractions_IDirectoryInfo) 'Cmf.Common.Cli.Interfaces.IPackageTypeHandler.Pack(System.IO.Abstractions.IDirectoryInfo, System.IO.Abstractions.IDirectoryInfo)')  
+  
+<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_RestoreDependencies(System_Uri__)'></a>
+## PackageTypeHandler.RestoreDependencies(Uri[]) Method
+Restore the the current package's dependencies to the dependencies folder  
+```csharp
+public virtual void RestoreDependencies(System.Uri[] repoUris);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Handlers_PackageTypeHandler_RestoreDependencies(System_Uri__)_repoUris'></a>
+`repoUris` [System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')[[]](https://docs.microsoft.com/en-us/dotnet/api/System.Array 'System.Array')  
+The Uris for the package repos
+  
+#### Exceptions
+[CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException')  
+thrown when a repo uri is not available or in an incorrect format
+
+Implements [RestoreDependencies(Uri[])](Cmf_Common_Cli_Interfaces.md#Cmf_Common_Cli_Interfaces_IPackageTypeHandler_RestoreDependencies(System_Uri__) 'Cmf.Common.Cli.Interfaces.IPackageTypeHandler.RestoreDependencies(System.Uri[])')  
   
   
 <a name='Cmf_Common_Cli_Handlers_PresentationPackageTypeHandler'></a>

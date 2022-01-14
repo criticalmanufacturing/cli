@@ -3,11 +3,13 @@
   <packageId>$(packageId)</packageId>
   <name>$(name)</name>
   <targetDirectory>$(targetDirectory)</targetDirectory>
+  <targetLayer>$(targetLayer)</targetLayer>
   <packageType>$(packageType)</packageType>
   <description>$(description)</description>
   <version>$(version)</version>
   <isInstallable>$(isInstallable)</isInstallable>
   <isUniqueInstall>$(isUniqueInstall)</isUniqueInstall>
+  <waitForIntegrationEntries>$(waitForIntegrationEntries)</waitForIntegrationEntries>
   <keywords>$(keywords)</keywords>
   <dependencies>
     $(dependencies)

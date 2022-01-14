@@ -22,6 +22,15 @@ The name.
   
   
 ### Properties
+<a name='Cmf_Common_Cli_Attributes_CmfCommandAttribute_IsHidden'></a>
+## CmfCommandAttribute.IsHidden Property
+should hide the command in help screens?  
+```csharp
+public bool IsHidden { get; set; }
+```
+#### Property Value
+[System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')
+  
 <a name='Cmf_Common_Cli_Attributes_CmfCommandAttribute_Name'></a>
 ## CmfCommandAttribute.Name Property
 Gets or sets the name.  

@@ -2,6 +2,7 @@
 using Cmf.Common.Cli.Enums;
 using Cmf.Common.Cli.Objects;
 using Cmf.Common.Cli.Utilities;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
@@ -104,10 +105,11 @@ namespace Cmf.Common.Cli.Handlers
                 if (transformInjections.HasAny())
                 {
                     // we actually want a trailing comma here, because the inject token is in the middle of the document. If this changes we need to put more logic here.
-                    var injections = transformInjections.Select(injection => this.fileSystem.File.ReadAllText(injection) + ",");
+                    var injections = transformInjections.Select(injection => this.fileSystem.File.ReadAllText($"{cmfPackageDirectory}/{injection}") + ",");
                     injection = string.Join(System.Environment.NewLine, injections);
                 }
                 fileContent = fileContent.Replace(CliConstants.TokenJDTInjection, injection);
+                fileContent = fileContent.Replace(CliConstants.CacheId, DateTime.Now.ToString("yyyyMMddHHmmss"));
 
                 this.fileSystem.File.WriteAllText(path, fileContent);
             }
@@ -132,7 +134,6 @@ namespace Cmf.Common.Cli.Handlers
                         {
                             ContentPath = "node_modules/**"
                         },
-
                         new Step(StepType.TransformFile)
                         {
                             File = "config.json",

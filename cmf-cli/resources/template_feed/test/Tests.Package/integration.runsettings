@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<RunSettings>
+  <!-- Configurations that affect the Test Framework -->
+  <RunConfiguration>
+    <!--0 = As many processes as possible, limited by number of cores on machine, 1 = Sequential (1 process), 2-> Given number of processes up to limit by number of cores on machine-->
+    <MaxCpuCount>1</MaxCpuCount>
+  </RunConfiguration>
+  
+    <!-- Parameters used by tests at runtime -->
+  <TestRunParameters>
+    <Parameter name="applicationName" value="AutomaticTests" />
+	<Parameter name="websiteAdress" value="<%= $CLI_PARAM_vmHostname %>" />
+	<Parameter name="websitePort" value="<%= $CLI_PARAM_HTMLPort %>" />
+    <Parameter name="websiteUseSSL" value="<%= $CLI_PARAM_IsSslEnabled %>" />
+    <Parameter name="hostAdress" value="<%= $CLI_PARAM_vmHostname %>" />
+    <Parameter name="hostPort" value="<%= $CLI_PARAM_RESTPort %>" />
+    <Parameter name="clientTenantName" value="<%= $CLI_PARAM_Tenant %>" />  
+    <Parameter name="culture" value="en-US"/>
+    <Parameter name="userRole" value="Administrators"/>
+    <Parameter name="userName" value="TestUserAccountHere" />
+    <Parameter name="password" value="TestUserPasswordHere" />
+    <Parameter name="auxiliaryUserName" value="TestUserAccountHere" />
+    <Parameter name="auxiliaryUserPassword" value="TestUserPasswordHere" />
+    <Parameter name="skipLogin" value="true" />
+    <Parameter name="hostUseSSL" value="true" />
+    <Parameter name="securityToken" value="4n5g84uLK347" />
+    <Parameter name="useLoadBalancer" value="false" />
+    <Parameter name="requestTimeout" value="00:10:00" />
+    <Parameter name="reuseWebDriver" value="true" />
+    <Parameter name="browser" value="chrome" />
+    <Parameter name="debug" value="false" />
+    <!-- Connect IoT -->
+    <Parameter name="mode" value="RemoteService" />
+    <!-- This is For build, to Run Locally point to your directory -->
+    <Parameter name="filePathRemote" value="./RunSettings/integration.runsettings" />
+    <Parameter name="filePathLocal" value="../../../../integration.runsettings" />
+    <!-- test output -->
+    <Parameter name="screenshotPath" value="\\<%= $CLI_PARAM_vmHostname %>\Deployment\TestArtifacts" />
+    <Parameter name="logsPath" value="\\<%= $CLI_PARAM_vmHostname %>\Deployment\TestArtifacts" />
+    <Parameter name="documentationScreenshotPath" value="\\<%= $CLI_PARAM_vmHostname %>\Deployment\TestArtifacts\Documentation" />
+  </TestRunParameters>
+
+  <!-- MSTest adapter -->
+  <MSTest>
+    <KeepExecutorAliveAfterLegacyRun>true</KeepExecutorAliveAfterLegacyRun>
+    <MapInconclusiveToFailed>true</MapInconclusiveToFailed>
+    <CaptureTraceOutput>true</CaptureTraceOutput>
+    <DeleteDeploymentDirectoryAfterTestRunIsComplete>false</DeleteDeploymentDirectoryAfterTestRunIsComplete>
+    <DeploymentEnabled>false</DeploymentEnabled>
+    <InProcMode>false</InProcMode>
+  </MSTest>
+
+  <!-- Connect IoT -->
+  <!-- <connectIotAutomaticTests>
+    <Global
+      dataDir="%TestsPath%\Cmf.Custom.Tests.IoT\bin\Debug\"
+      logDebug="true" />
+
+    <Equipments>
+      <Cluster name="%ResourceName%" automationManager="%ManagerName%">
+        <Equipment name="%EquipmentFriendlyName%" driverAlias="%DriverAlias%" description="" driver="%DriverType%" dataDir="" 
+          serviceName="%ManagerServiceName%" configLocation="%ConfigLocation%">
+          <Directory name="" path="" />
+        </Equipment>
+      </Cluster>
+    </Equipments>
+  </connectIotAutomaticTests> -->
+</RunSettings>

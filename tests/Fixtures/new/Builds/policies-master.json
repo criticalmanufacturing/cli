@@ -1,0 +1,83 @@
+[
+  {
+    "isEnabled": true,
+    "isBlocking": true,
+    "isDeleted": false,
+    "settings": {
+      "allowNoFastForward": true,
+      "scope": [
+        {
+          "refName": "refs/heads/master",
+          "matchKind": "Exact",
+          "__repositoryName": "CF58AABF"
+        }
+      ]
+    },
+    "isEnterpriseManaged": false,
+    "revision": 1,
+    "type": {
+      "displayName": "Require a merge strategy"
+    }
+  },
+  {
+    "isEnabled": true,
+    "isBlocking": true,
+    "isDeleted": false,
+    "settings": {
+      "minimumApproverCount": 1,
+      "creatorVoteCounts": false,
+      "allowDownvotes": true,
+      "resetOnSourcePush": false,
+      "scope": [
+        {
+          "refName": "refs/heads/master",
+          "matchKind": "Exact",
+          "__repositoryName": "CF58AABF"
+        }
+      ]
+    },
+    "isEnterpriseManaged": false,
+    "revision": 1,
+    "type": {
+      "displayName": "Minimum number of reviewers"
+    }
+  },
+  {
+    "isEnabled": true,
+    "isBlocking": false,
+    "isDeleted": false,
+    "settings": {
+      "scope": [
+        {
+          "refName": "refs/heads/master",
+          "matchKind": "Exact",
+          "__repositoryName": "CF58AABF"
+        }
+      ]
+    },
+    "isEnterpriseManaged": false,
+    "revision": 1,
+    "type": {
+      "displayName": "Comment requirements"
+    }
+  },
+  {
+    "isEnabled": true,
+    "isBlocking": true,
+    "isDeleted": false,
+    "settings": {
+      "scope": [
+        {
+          "refName": "refs/heads/master",
+          "matchKind": "Exact",
+          "__repositoryName": "CF58AABF"
+        }
+      ]
+    },
+    "isEnterpriseManaged": false,
+    "revision": 1,
+    "type": {
+      "displayName": "Work item linking"
+    }
+  }
+]

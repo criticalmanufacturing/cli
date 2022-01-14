@@ -1,0 +1,70 @@
+{
+  "packageId": "<%= $CLI_PARAM_CustomPackageName %>",
+  "version": "<%= $CLI_PARAM_CustomPackageVersion %>",
+  "description": "Cmf Custom <%= $CLI_PARAM_Tenant %> <%= $CLI_PARAM_CustomPackageName %> Package",
+  "packageType": "Data",
+  "isInstallable": true,
+  "isUniqueInstall": true,
+  "contentToPack": [
+    {
+      "source": "DEEs/*",
+      "target": "DeeRules",
+      "ignoreFiles": [
+        "../.cmfpackageignore"
+      ],
+      "contentType": "DEE"
+    },
+    {
+      "source": "ChecklistImages/*",
+      "target": "ChecklistImages",
+      "ignoreFiles": [
+        "../.cmfpackageignore"
+      ],
+      "contentType": "ChecklistImages"
+    },
+    {
+      "source": "Documents/*",
+      "target": "Documents",
+      "ignoreFiles": [
+        "../.cmfpackageignore"
+      ],
+      "contentType": "Documents"
+    },
+    {
+      "source": "Maps/*",
+      "target": "Maps",
+      "ignoreFiles": [
+        "../.cmfpackageignore"
+      ],
+      "contentType": "Maps"
+    },
+    {
+      "source": "ExportedObjects/*",
+      "target": "ExportedObjects",
+      "ignoreFiles": [
+        "../.cmfpackageignore"
+      ],
+      "contentType": "ExportedObjects"
+    },
+    {
+      "source": "DEEs/ProcessRules/EntityTypes/*",
+      "target": "DeeRules/ProcessRules/EntityTypes/",
+      "contentType": "EntityTypes"
+    },
+    {
+      "source": "DEEs/ProcessRules/$(version)/Before/*",
+      "target": "DeeRules/ProcessRules/$(version)/Before",
+      "contentType": "ProcessRulesPre"
+    },
+    {
+      "source": "MasterData/$(version)/*",
+      "target": "MasterData/$(version)/",
+      "contentType": "MasterData"
+    },
+    {
+      "source": "DEEs/ProcessRules/$(version)/After/*",
+      "target": "DeeRules/ProcessRules/$(version)/After",
+      "contentType": "ProcessRulesPost"
+    }
+  ]
+}

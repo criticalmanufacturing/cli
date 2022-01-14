@@ -16,18 +16,6 @@ Initializes a new instance of the [CliException](Cmf_Common_Cli_Utilities.md#Cmf
 public CliException();
 ```
   
-<a name='Cmf_Common_Cli_Utilities_CliException_CliException(string)'></a>
-## CliException.CliException(string) Constructor
-Initializes a new instance of the [CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException') class.  
-```csharp
-public CliException(string message);
-```
-#### Parameters
-<a name='Cmf_Common_Cli_Utilities_CliException_CliException(string)_message'></a>
-`message` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
-The message that describes the error.
-  
-  
 <a name='Cmf_Common_Cli_Utilities_CliException_CliException(string_System_Exception)'></a>
 ## CliException.CliException(string, Exception) Constructor
 Initializes a new instance of the [CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException') class.  
@@ -42,6 +30,18 @@ The error message that explains the reason for the exception.
 <a name='Cmf_Common_Cli_Utilities_CliException_CliException(string_System_Exception)_innerException'></a>
 `innerException` [System.Exception](https://docs.microsoft.com/en-us/dotnet/api/System.Exception 'System.Exception')  
 The exception that is the cause of the current exception, or a null reference ([Nothing](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/Nothing 'https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/Nothing') in Visual Basic) if no inner exception is specified.
+  
+  
+<a name='Cmf_Common_Cli_Utilities_CliException_CliException(string)'></a>
+## CliException.CliException(string) Constructor
+Initializes a new instance of the [CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException') class.  
+```csharp
+public CliException(string message);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_CliException_CliException(string)_message'></a>
+`message` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+The message that describes the error.
   
   
 <a name='Cmf_Common_Cli_Utilities_CliException_CliException(System_Runtime_Serialization_SerializationInfo_System_Runtime_Serialization_StreamingContext)'></a>
@@ -93,6 +93,61 @@ If set to `true` case will be ignored whilst searching for the [System.Xml.Linq.
 #### Returns
 [System.Xml.Linq.XElement](https://docs.microsoft.com/en-us/dotnet/api/System.Xml.Linq.XElement 'System.Xml.Linq.XElement')  
 A [System.Xml.Linq.XElement](https://docs.microsoft.com/en-us/dotnet/api/System.Xml.Linq.XElement 'System.Xml.Linq.XElement') that matches the specified [System.Xml.Linq.XName](https://docs.microsoft.com/en-us/dotnet/api/System.Xml.Linq.XName 'System.Xml.Linq.XName'), or null.  
+  
+<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_ExtractToFile(System_IO_Compression_ZipArchiveEntry_string_bool_System_IO_Abstractions_IFileSystem)'></a>
+## ExtensionMethods.ExtractToFile(ZipArchiveEntry, string, bool, IFileSystem) Method
+Creates a file on the file system with the entry?s contents and the specified name.  
+The last write time of the file is set to the entry?s last write time.  
+This method does allows overwriting of an existing file with the same name.  
+```csharp
+public static void ExtractToFile(this System.IO.Compression.ZipArchiveEntry source, string destinationFileName, bool overwrite, System.IO.Abstractions.IFileSystem fileSystem);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_ExtractToFile(System_IO_Compression_ZipArchiveEntry_string_bool_System_IO_Abstractions_IFileSystem)_source'></a>
+`source` [System.IO.Compression.ZipArchiveEntry](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Compression.ZipArchiveEntry 'System.IO.Compression.ZipArchiveEntry')  
+The zip archive entry to extract a file from.
+  
+<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_ExtractToFile(System_IO_Compression_ZipArchiveEntry_string_bool_System_IO_Abstractions_IFileSystem)_destinationFileName'></a>
+`destinationFileName` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+The name of the file that will hold the contents of the entry.  
+            The path is permitted to specify relative or absolute path information.  
+            Relative path information is interpreted as relative to the current working directory.
+  
+<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_ExtractToFile(System_IO_Compression_ZipArchiveEntry_string_bool_System_IO_Abstractions_IFileSystem)_overwrite'></a>
+`overwrite` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
+True to indicate overwrite.
+  
+<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_ExtractToFile(System_IO_Compression_ZipArchiveEntry_string_bool_System_IO_Abstractions_IFileSystem)_fileSystem'></a>
+`fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
+The target fileSystem
+  
+#### Exceptions
+[System.UnauthorizedAccessException](https://docs.microsoft.com/en-us/dotnet/api/System.UnauthorizedAccessException 'System.UnauthorizedAccessException')  
+The caller does not have the required permission.
+[System.ArgumentException](https://docs.microsoft.com/en-us/dotnet/api/System.ArgumentException 'System.ArgumentException')  
+destinationFileName is a zero-length string, contains only whitespace,  
+            or contains one or more invalid characters as defined by InvalidPathChars. -or- destinationFileName specifies a directory.
+[System.ArgumentNullException](https://docs.microsoft.com/en-us/dotnet/api/System.ArgumentNullException 'System.ArgumentNullException')  
+destinationFileName is null.
+[System.IO.PathTooLongException](https://docs.microsoft.com/en-us/dotnet/api/System.IO.PathTooLongException 'System.IO.PathTooLongException')  
+The specified path, file name, or both exceed the system-defined maximum length.  
+            For example, on Windows-based platforms, paths must be less than 248 characters, and file names must be less than 260 characters.
+[System.IO.DirectoryNotFoundException](https://docs.microsoft.com/en-us/dotnet/api/System.IO.DirectoryNotFoundException 'System.IO.DirectoryNotFoundException')  
+The path specified in destinationFileName is invalid  
+            (for example, it is on an unmapped drive).
+[System.IO.IOException](https://docs.microsoft.com/en-us/dotnet/api/System.IO.IOException 'System.IO.IOException')  
+destinationFileName exists and overwrite is false.  
+            -or- An I/O error has occurred.  
+            -or- The entry is currently open for writing.  
+            -or- The entry has been deleted from the archive.
+[System.NotSupportedException](https://docs.microsoft.com/en-us/dotnet/api/System.NotSupportedException 'System.NotSupportedException')  
+destinationFileName is in an invalid format  
+            -or- The ZipArchive that this entry belongs to was opened in a write-only mode.
+[System.IO.InvalidDataException](https://docs.microsoft.com/en-us/dotnet/api/System.IO.InvalidDataException 'System.IO.InvalidDataException')  
+The entry is missing from the archive or is corrupt and cannot be read  
+            -or- The entry has been compressed using a compression method that is not supported.
+[System.ObjectDisposedException](https://docs.microsoft.com/en-us/dotnet/api/System.ObjectDisposedException 'System.ObjectDisposedException')  
+The ZipArchive that this entry belongs to has been disposed.
   
 <a name='Cmf_Common_Cli_Utilities_ExtensionMethods_GetPackageJsonFile(System_IO_Abstractions_IDirectoryInfo)'></a>
 ## ExtensionMethods.GetPackageJsonFile(IDirectoryInfo) Method
@@ -158,6 +213,30 @@ The object.
 #### Returns
 [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
 `true` if [has] [the specified object]; otherwise, `false`.  
+            
+  
+<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource__System_Func_TSource_bool_)'></a>
+## ExtensionMethods.HasAny&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource,bool&gt;) Method
+Determines whether a sequence contains any elements.  
+```csharp
+public static bool HasAny<TSource>(this System.Collections.Generic.IEnumerable<TSource> source, System.Func<TSource,bool> predicate=null);
+```
+#### Type parameters
+<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource__System_Func_TSource_bool_)_TSource'></a>
+`TSource`  
+The type of the source.
+  
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource__System_Func_TSource_bool_)_source'></a>
+`source` [System.Collections.Generic.IEnumerable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')[TSource](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource__System_Func_TSource_bool_)_TSource 'Cmf.Common.Cli.Utilities.ExtensionMethods.HasAny&lt;TSource&gt;(System.Collections.Generic.IEnumerable&lt;TSource&gt;, System.Func&lt;TSource,bool&gt;).TSource')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')  
+The source.
+  
+<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource__System_Func_TSource_bool_)_predicate'></a>
+`predicate` [System.Func&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Func-2 'System.Func`2')[TSource](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource__System_Func_TSource_bool_)_TSource 'Cmf.Common.Cli.Utilities.ExtensionMethods.HasAny&lt;TSource&gt;(System.Collections.Generic.IEnumerable&lt;TSource&gt;, System.Func&lt;TSource,bool&gt;).TSource')[,](https://docs.microsoft.com/en-us/dotnet/api/System.Func-2 'System.Func`2')[System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Func-2 'System.Func`2')  
+  
+#### Returns
+[System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
+`true` if the specified source has any; otherwise, `false`.  
             
   
 <a name='Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource_)'></a>
@@ -307,6 +386,19 @@ public static class FileSystemUtilities
 
 Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; FileSystemUtilities  
 ### Methods
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_AllFilesAndFolders(System_IO_Abstractions_IDirectoryInfo)'></a>
+## FileSystemUtilities.AllFilesAndFolders(IDirectoryInfo) Method
+Get all files and folders from a directory  
+```csharp
+private static System.Collections.Generic.IEnumerable<System.IO.Abstractions.IFileSystemInfo> AllFilesAndFolders(this System.IO.Abstractions.IDirectoryInfo dir);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_AllFilesAndFolders(System_IO_Abstractions_IDirectoryInfo)_dir'></a>
+`dir` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
+  
+#### Returns
+[System.Collections.Generic.IEnumerable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')[System.IO.Abstractions.IFileSystemInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystemInfo 'System.IO.Abstractions.IFileSystemInfo')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')  
+  
 <a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_CopyDirectory(string_string_System_IO_Abstractions_IFileSystem_System_Collections_Generic_List_string__bool_bool)'></a>
 ## FileSystemUtilities.CopyDirectory(string, string, IFileSystem, List&lt;string&gt;, bool, bool) Method
 Directories copy.  
@@ -378,6 +470,74 @@ The input.
 `output` [System.IO.Stream](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Stream 'System.IO.Stream')  
 The output.
   
+  
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetDirectory(System_Uri)'></a>
+## FileSystemUtilities.GetDirectory(Uri) Method
+Get Directory from a FileSystem dependending if Uri is UNC  
+```csharp
+public static System.IO.Abstractions.IDirectoryInfo GetDirectory(this System.Uri uri);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetDirectory(System_Uri)_uri'></a>
+`uri` [System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')  
+  
+#### Returns
+[System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
+  
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetDirectoryName(System_Uri)'></a>
+## FileSystemUtilities.GetDirectoryName(Uri) Method
+Get Directory Name from a FileSystem dependending if Uri is UNC  
+```csharp
+public static string GetDirectoryName(this System.Uri uri);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetDirectoryName(System_Uri)_uri'></a>
+`uri` [System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')  
+  
+#### Returns
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+  
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFile(System_Uri)'></a>
+## FileSystemUtilities.GetFile(Uri) Method
+Get File from a FileSystem dependending if Uri is UNC  
+```csharp
+public static System.IO.Abstractions.IFileInfo GetFile(this System.Uri uri);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFile(System_Uri)_uri'></a>
+`uri` [System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')  
+  
+#### Returns
+[System.IO.Abstractions.IFileInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileInfo 'System.IO.Abstractions.IFileInfo')  
+  
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFileContentFromPackage(string_string)'></a>
+## FileSystemUtilities.GetFileContentFromPackage(string, string) Method
+Get File Content From package  
+```csharp
+public static string GetFileContentFromPackage(string packageFile, string filename);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFileContentFromPackage(string_string)_packageFile'></a>
+`packageFile` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+  
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFileContentFromPackage(string_string)_filename'></a>
+`filename` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+  
+#### Returns
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+  
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFileName(System_Uri)'></a>
+## FileSystemUtilities.GetFileName(Uri) Method
+Get Directory Name from a FileSystem dependending if Uri is UNC  
+```csharp
+public static string GetFileName(this System.Uri uri);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFileName(System_Uri)_uri'></a>
+`uri` [System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')  
+  
+#### Returns
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
   
 <a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetFilesToPack(Cmf_Common_Cli_Objects_ContentToPack_string_string_System_IO_Abstractions_IFileSystem_System_Collections_Generic_List_string__bool_bool_System_Collections_Generic_List_Cmf_Common_Cli_Objects_FileToPack_)'></a>
 ## FileSystemUtilities.GetFilesToPack(ContentToPack, string, string, IFileSystem, List&lt;string&gt;, bool, bool, List&lt;FileToPack&gt;) Method
@@ -481,15 +641,18 @@ the underlying file system
 #### Returns
 [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
   
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageRoot(System_IO_Abstractions_IFileSystem)'></a>
-## FileSystemUtilities.GetPackageRoot(IFileSystem) Method
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageRoot(System_IO_Abstractions_IFileSystem_string)'></a>
+## FileSystemUtilities.GetPackageRoot(IFileSystem, string) Method
 Gets the package root.  
 ```csharp
-public static System.IO.Abstractions.IDirectoryInfo GetPackageRoot(System.IO.Abstractions.IFileSystem fileSystem);
+public static System.IO.Abstractions.IDirectoryInfo GetPackageRoot(System.IO.Abstractions.IFileSystem fileSystem, string workingDir=null);
 ```
 #### Parameters
-<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageRoot(System_IO_Abstractions_IFileSystem)_fileSystem'></a>
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageRoot(System_IO_Abstractions_IFileSystem_string)_fileSystem'></a>
 `fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
+  
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageRoot(System_IO_Abstractions_IFileSystem_string)_workingDir'></a>
+`workingDir` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
   
 #### Returns
 [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
@@ -506,7 +669,7 @@ public static System.IO.Abstractions.IDirectoryInfo GetPackageRootByType(string 
 #### Parameters
 <a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageRootByType(string_Cmf_Common_Cli_Enums_PackageType_System_IO_Abstractions_IFileSystem)_directoryName'></a>
 `directoryName` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
-Name of the directory.
+The current working directory
   
 <a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_GetPackageRootByType(string_Cmf_Common_Cli_Enums_PackageType_System_IO_Abstractions_IFileSystem)_packageType'></a>
 `packageType` [PackageType](Cmf_Common_Cli_Enums.md#Cmf_Common_Cli_Enums_PackageType 'Cmf.Common.Cli.Enums.PackageType')  
@@ -574,6 +737,21 @@ public static System.Text.Json.JsonDocument ReadProjectConfig(System.IO.Abstract
 #### Returns
 [System.Text.Json.JsonDocument](https://docs.microsoft.com/en-us/dotnet/api/System.Text.Json.JsonDocument 'System.Text.Json.JsonDocument')  
   
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_ReadRepositoriesConfig(System_IO_Abstractions_IFileSystem)'></a>
+## FileSystemUtilities.ReadRepositoriesConfig(IFileSystem) Method
+Read DF repositories config from filesystem  
+```csharp
+public static Cmf.Common.Cli.Objects.RepositoriesConfig ReadRepositoriesConfig(System.IO.Abstractions.IFileSystem fileSystem);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_ReadRepositoriesConfig(System_IO_Abstractions_IFileSystem)_fileSystem'></a>
+`fileSystem` [System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')  
+The filesystem object
+  
+#### Returns
+[RepositoriesConfig](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_RepositoriesConfig 'Cmf.Common.Cli.Objects.RepositoriesConfig')  
+a RepositoriesConfig object
+  
 <a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_ReadToString(System_IO_Abstractions_IFileInfo)'></a>
 ## FileSystemUtilities.ReadToString(IFileInfo) Method
 Reads to string.  
@@ -602,6 +780,19 @@ The fi.
 #### Returns
 [System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')  
   
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_ZipDirectory(string_System_IO_Abstractions_IDirectoryInfo)'></a>
+## FileSystemUtilities.ZipDirectory(string, IDirectoryInfo) Method
+```csharp
+public static void ZipDirectory(string filePath, System.IO.Abstractions.IDirectoryInfo directory);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_ZipDirectory(string_System_IO_Abstractions_IDirectoryInfo)_filePath'></a>
+`filePath` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+  
+<a name='Cmf_Common_Cli_Utilities_FileSystemUtilities_ZipDirectory(string_System_IO_Abstractions_IDirectoryInfo)_directory'></a>
+`directory` [System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')  
+  
+  
   
 <a name='Cmf_Common_Cli_Utilities_GenericUtilities'></a>
 ## GenericUtilities Class
@@ -611,9 +802,32 @@ public static class GenericUtilities
 
 Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; GenericUtilities  
 ### Methods
+<a name='Cmf_Common_Cli_Utilities_GenericUtilities_Flatten_T_(System_Collections_Generic_IEnumerable_T__System_Func_T_System_Collections_Generic_IEnumerable_T__)'></a>
+## GenericUtilities.Flatten&lt;T&gt;(IEnumerable&lt;T&gt;, Func&lt;T,IEnumerable&lt;T&gt;&gt;) Method
+Flatten a tree  
+```csharp
+public static System.Collections.Generic.IEnumerable<T> Flatten<T>(this System.Collections.Generic.IEnumerable<T> items, System.Func<T,System.Collections.Generic.IEnumerable<T>> getChildren);
+```
+#### Type parameters
+<a name='Cmf_Common_Cli_Utilities_GenericUtilities_Flatten_T_(System_Collections_Generic_IEnumerable_T__System_Func_T_System_Collections_Generic_IEnumerable_T__)_T'></a>
+`T`  
+The tree node type
+  
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_GenericUtilities_Flatten_T_(System_Collections_Generic_IEnumerable_T__System_Func_T_System_Collections_Generic_IEnumerable_T__)_items'></a>
+`items` [System.Collections.Generic.IEnumerable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')[T](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_GenericUtilities_Flatten_T_(System_Collections_Generic_IEnumerable_T__System_Func_T_System_Collections_Generic_IEnumerable_T__)_T 'Cmf.Common.Cli.Utilities.GenericUtilities.Flatten&lt;T&gt;(System.Collections.Generic.IEnumerable&lt;T&gt;, System.Func&lt;T,System.Collections.Generic.IEnumerable&lt;T&gt;&gt;).T')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')  
+The top level tree items
+  
+<a name='Cmf_Common_Cli_Utilities_GenericUtilities_Flatten_T_(System_Collections_Generic_IEnumerable_T__System_Func_T_System_Collections_Generic_IEnumerable_T__)_getChildren'></a>
+`getChildren` [System.Func&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Func-2 'System.Func`2')[T](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_GenericUtilities_Flatten_T_(System_Collections_Generic_IEnumerable_T__System_Func_T_System_Collections_Generic_IEnumerable_T__)_T 'Cmf.Common.Cli.Utilities.GenericUtilities.Flatten&lt;T&gt;(System.Collections.Generic.IEnumerable&lt;T&gt;, System.Func&lt;T,System.Collections.Generic.IEnumerable&lt;T&gt;&gt;).T')[,](https://docs.microsoft.com/en-us/dotnet/api/System.Func-2 'System.Func`2')[System.Collections.Generic.IEnumerable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')[T](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_GenericUtilities_Flatten_T_(System_Collections_Generic_IEnumerable_T__System_Func_T_System_Collections_Generic_IEnumerable_T__)_T 'Cmf.Common.Cli.Utilities.GenericUtilities.Flatten&lt;T&gt;(System.Collections.Generic.IEnumerable&lt;T&gt;, System.Func&lt;T,System.Collections.Generic.IEnumerable&lt;T&gt;&gt;).T')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Func-2 'System.Func`2')  
+a function that for each tree node returns its children
+  
+#### Returns
+[System.Collections.Generic.IEnumerable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')[T](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_GenericUtilities_Flatten_T_(System_Collections_Generic_IEnumerable_T__System_Func_T_System_Collections_Generic_IEnumerable_T__)_T 'Cmf.Common.Cli.Utilities.GenericUtilities.Flatten&lt;T&gt;(System.Collections.Generic.IEnumerable&lt;T&gt;, System.Func&lt;T,System.Collections.Generic.IEnumerable&lt;T&gt;&gt;).T')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')  
+  
 <a name='Cmf_Common_Cli_Utilities_GenericUtilities_GetCurrentPresentationVersion(string_string_string)'></a>
 ## GenericUtilities.GetCurrentPresentationVersion(string, string, string) Method
-Get current version based on string, for   
+Get current version based on string, for  
 the format 1.0.0-1234  
 where 1.0.0 will be the version  
 and the 1234 will be the build number  
@@ -683,6 +897,19 @@ the underlying file system
   
 #### Returns
 [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
+  
+<a name='Cmf_Common_Cli_Utilities_GenericUtilities_JsonObjectToUri(dynamic)'></a>
+## GenericUtilities.JsonObjectToUri(dynamic) Method
+Converts a JsonObject to an Uri  
+```csharp
+public static System.Uri? JsonObjectToUri(dynamic value);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_GenericUtilities_JsonObjectToUri(dynamic)_value'></a>
+`value` [dynamic](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/types/using-type-dynamic 'https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/types/using-type-dynamic')  
+  
+#### Returns
+[System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')  
   
 <a name='Cmf_Common_Cli_Utilities_GenericUtilities_RetrieveNewPresentationVersion(string_string_string)'></a>
 ## GenericUtilities.RetrieveNewPresentationVersion(string, string, string) Method

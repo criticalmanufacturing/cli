@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 
@@ -48,7 +49,7 @@ namespace Cmf.Common.Cli.Builders
         /// <returns></returns>
         public override ProcessBuildStep[] GetSteps()
         {
-            var args = this.Args.ToList();
+            var args = this.Args?.ToList() ?? new List<string>();
             args.Insert(0, this.Command);
             args.AddRange(new[] { "--color", "always" });
             return new[]

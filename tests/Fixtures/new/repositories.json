@@ -1,0 +1,6 @@
+{
+    "CIRepository": "\\\\share\\deployment_dir\\CIPackages\\development",
+    "Repositories": [
+        "\\\\share\\deployment_dir\\Delivered"
+    ]
+}

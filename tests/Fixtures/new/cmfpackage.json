@@ -1,0 +1,14 @@
+{
+  "packageId": "Cmf.Custom.Package",
+  "version": "1.5.3",
+  "description": "This package deploys Critical Manufacturing MES tenant Customization",
+  "packageType": "Root",
+  "isInstallable": true,
+  "isUniqueInstall": false,
+  "dependencies": [
+    {
+      "id": "Cmf.Environment",
+      "version": "9.9.9"
+    }
+  ]
+}

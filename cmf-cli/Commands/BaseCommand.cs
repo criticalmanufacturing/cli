@@ -7,6 +7,7 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Reflection;
+using Cmf.Common.Cli.Objects;
 
 namespace Cmf.Common.Cli.Commands
 {
@@ -34,6 +35,7 @@ namespace Cmf.Common.Cli.Commands
         public BaseCommand(IFileSystem fileSystem)
         {
             this.fileSystem = fileSystem;
+            ExecutionContext.Initialize(fileSystem);
         }
 
         /// <summary>
@@ -152,10 +154,11 @@ namespace Cmf.Common.Cli.Commands
         /// <returns></returns>
         private static Command FindChildCommands(Type cmd, List<Type> commandTypes)
         {
-            var cmdName = cmd.GetCustomAttribute<CmfCommandAttribute>().Name;
+            var dec = cmd.GetCustomAttribute<CmfCommandAttribute>();
+            var cmdName = dec.Name;
 
             // Create command
-            var cmdInstance = new Command(cmdName);
+            var cmdInstance = new Command(cmdName) { IsHidden = dec.IsHidden };
 
             // Call "Configure" method
             BaseCommand cmdHandler = Activator.CreateInstance(cmd) as BaseCommand;
@@ -181,15 +184,27 @@ namespace Cmf.Common.Cli.Commands
         /// <typeparam name="T">the (target) type of the argument/parameter</typeparam>
         /// <param name="argResult">the arguments to parse</param>
         /// <param name="default">the default value if no value is passed for the argument</param>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         /// <returns></returns>
-        protected T Parse<T>(ArgumentResult argResult, string @default) where T: IDirectoryInfo
+        protected T Parse<T>(ArgumentResult argResult, string @default = null)
         {
             var path = @default;
             if (argResult.Tokens.Any())
             {
                 path = argResult.Tokens.First().Value;
             }
-            return (T)this.fileSystem.DirectoryInfo.FromDirectoryName(path);
+
+            if (string.IsNullOrEmpty(path))
+            {
+                return default(T);
+            }
+
+            return typeof(T) switch
+            {
+                {} dirType when dirType == typeof(IDirectoryInfo) => (T)this.fileSystem.DirectoryInfo.FromDirectoryName(path),
+                {} fileType when fileType == typeof(IFileInfo) => (T)this.fileSystem.FileInfo.FromFileName(path),
+                _ => throw new ArgumentOutOfRangeException("This method only parses directory or file paths")
+            };
         }
     }
 }

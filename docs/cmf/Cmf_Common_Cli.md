@@ -29,6 +29,15 @@ internal static System.Globalization.CultureInfo Culture { get; set; }
 #### Property Value
 [System.Globalization.CultureInfo](https://docs.microsoft.com/en-us/dotnet/api/System.Globalization.CultureInfo 'System.Globalization.CultureInfo')
   
+<a name='Cmf_Common_Cli_CliMessages_GetPackage'></a>
+## CliMessages.GetPackage Property
+Looks up a localized string similar to Get Package {0}.{1}....  
+```csharp
+internal static string GetPackage { get; }
+```
+#### Property Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
+  
 <a name='Cmf_Common_Cli_CliMessages_InvalidManifestFile'></a>
 ## CliMessages.InvalidManifestFile Property
 Looks up a localized string similar to It was not possible to read the manifest file..  
@@ -52,6 +61,15 @@ internal static string InvalidValue { get; }
 Looks up a localized string similar to Mandatory Dependency {0}.{1} not found.  
 ```csharp
 internal static string MissingMandatoryDependency { get; }
+```
+#### Property Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
+  
+<a name='Cmf_Common_Cli_CliMessages_MissingMandatoryOption'></a>
+## CliMessages.MissingMandatoryOption Property
+Looks up a localized string similar to Missing mandatory option {0}.  
+```csharp
+internal static string MissingMandatoryOption { get; }
 ```
 #### Property Value
 [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
@@ -83,11 +101,29 @@ internal static string MissingMandatoryPropertyInFile { get; }
 #### Property Value
 [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
   
+<a name='Cmf_Common_Cli_CliMessages_NotARootPackage'></a>
+## CliMessages.NotARootPackage Property
+Looks up a localized string similar to This is not a root package.  
+```csharp
+internal static string NotARootPackage { get; }
+```
+#### Property Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
+  
 <a name='Cmf_Common_Cli_CliMessages_NotFound'></a>
 ## CliMessages.NotFound Property
 Looks up a localized string similar to {0} not found!.  
 ```csharp
 internal static string NotFound { get; }
+```
+#### Property Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
+  
+<a name='Cmf_Common_Cli_CliMessages_PackageHasNoTestPackages'></a>
+## CliMessages.PackageHasNoTestPackages Property
+Looks up a localized string similar to Package {0}.{1} has no test packages.  
+```csharp
+internal static string PackageHasNoTestPackages { get; }
 ```
 #### Property Value
 [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
@@ -109,6 +145,15 @@ internal static System.Resources.ResourceManager ResourceManager { get; }
 ```
 #### Property Value
 [System.Resources.ResourceManager](https://docs.microsoft.com/en-us/dotnet/api/System.Resources.ResourceManager 'System.Resources.ResourceManager')
+  
+<a name='Cmf_Common_Cli_CliMessages_SomePackagesNotFound'></a>
+## CliMessages.SomePackagesNotFound Property
+Looks up a localized string similar to Some packages were not found: {0}.  
+```csharp
+internal static string SomePackagesNotFound { get; }
+```
+#### Property Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
   
 <a name='Cmf_Common_Cli_CliMessages_UrlsNotSupported'></a>
 ## CliMessages.UrlsNotSupported Property

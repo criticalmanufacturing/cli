@@ -355,3 +355,6 @@ launchSettings.json
 
 !**/Commands/publish
 *.orig  
+
+# xyz.local-history vscode extension
+.history/**

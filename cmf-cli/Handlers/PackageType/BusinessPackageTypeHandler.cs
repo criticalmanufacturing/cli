@@ -5,6 +5,7 @@ using Cmf.Common.Cli.Utilities;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
+using Cmf.Common.Cli.Commands.restore;
 
 namespace Cmf.Common.Cli.Handlers
 {
@@ -23,25 +24,20 @@ namespace Cmf.Common.Cli.Handlers
             cmfPackage.SetDefaultValues(
             targetDirectory:
                 "BusinessTier",
-            steps:
-                new List<Step>()
-                {
-                        new Step(StepType.Generic)
-                        {
-                            OnExecute = "$(Agent.Root)/agent/scripts/stop_host.ps1"
-                        },
-                        new Step(StepType.DeployFiles)
-                        {
-                            ContentPath = "**/!(Cmf.Custom.*.BusinessObjects*).dll"
-                        },
-                        new Step(StepType.Generic)
-                        {
-                            OnExecute = "$(Agent.Root)/agent/scripts/start_host.ps1"
-                        }
-                 });
+            targetLayer:
+                "host");
 
             BuildSteps = new IBuildCommand[]
             {
+                new ExecuteCommand<RestoreCommand>()
+                {
+                    Command = new RestoreCommand(),
+                    DisplayName = "cmf restore",
+                    Execute = command =>
+                    {
+                        command.Execute(cmfPackage.GetFileInfo().Directory, null);
+                    }
+                },
                 new DotnetCommand()
                 {
                     Command = "restore",
@@ -56,7 +52,8 @@ namespace Cmf.Common.Cli.Handlers
                     DisplayName = "Build Business Solution",
                     Solution = this.fileSystem.FileInfo.FromFileName(Path.Join(cmfPackage.GetFileInfo().Directory.FullName, "Business.sln")),
                     Configuration = "Release",
-                    WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                    WorkingDirectory = cmfPackage.GetFileInfo().Directory,
+                    Args = new [] { "--no-restore "}
                 }
             };
         }

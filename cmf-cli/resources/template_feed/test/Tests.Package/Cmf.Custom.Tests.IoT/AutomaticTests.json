@@ -1,0 +1,53 @@
+{
+    "id": "REPLACE_IN_COMMANDLINE",
+    "cache": "%TEST_DATA_LOCATION%/Packages",
+    "monitorApplication": "C:/IoT_ASMSMT/Monitor@7.0.1-71391/src/index.js",
+    "repository": {
+      "type": "Npm",
+      "settings": {
+        "url": "http://vm-asm:4873"
+      }
+    },
+    "system": {
+      "tenantName": "ASM",
+      "address": "localhost",
+      "port": "6183",
+      "timeout": 60000,
+      "useSSL": "false",
+      "authentication": {
+        "domain": "CMF",
+        "mode": "Password",
+        "password": "qaz123WSX",
+        "username": "cmfsu"
+      }
+    },
+    "storage": {
+      "type": "Directory",
+      "settings": {
+        "path": "%TEST_DATA_LOCATION%/Persistency",
+        "retentionTime": 3600
+      }
+    },
+    "logging": [
+      {
+        "type": "Console",
+        "options": {
+          "level": "debug",
+          "prettyPrint": false
+        },
+        "applications": [
+          "*"
+        ]
+      },
+      {
+        "id": "fileTestLogger",
+        "type": "File",
+        "options": {
+          "dirname": "%TEST_DATA_LOCATION%/TESTLogs/${applicationName}/${entityName}/${componentId}/",
+          "filename": "info_${date}.log",
+          "timestampFormat": "HH:mm:ss.SSSSS",
+          "level": "debug"
+        }
+      }
+    ]
+  }

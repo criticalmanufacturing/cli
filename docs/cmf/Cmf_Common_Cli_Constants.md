@@ -9,6 +9,15 @@ public static class CliConstants
 
 Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; CliConstants  
 ### Fields
+<a name='Cmf_Common_Cli_Constants_CliConstants_CacheId'></a>
+## CliConstants.CacheId Field
+The token cache Id  
+```csharp
+public const string CacheId = $(cacheId);
+```
+#### Field Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
+  
 <a name='Cmf_Common_Cli_Constants_CliConstants_CmfPackageFileName'></a>
 ## CliConstants.CmfPackageFileName Field
 The CMF package file name  
@@ -18,11 +27,38 @@ public const string CmfPackageFileName = cmfpackage.json;
 #### Field Value
 [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
   
+<a name='Cmf_Common_Cli_Constants_CliConstants_CmfPackageHostConfig'></a>
+## CliConstants.CmfPackageHostConfig Field
+The CMF package default host configuration  
+```csharp
+public const string CmfPackageHostConfig = Cmf.Foundation.Services.HostService.dll.config;
+```
+#### Field Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
+  
 <a name='Cmf_Common_Cli_Constants_CliConstants_CmfPackagePresentationConfig'></a>
 ## CliConstants.CmfPackagePresentationConfig Field
 The CMF package default presentation configuration  
 ```csharp
 public const string CmfPackagePresentationConfig = config.json;
+```
+#### Field Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
+  
+<a name='Cmf_Common_Cli_Constants_CliConstants_DefaultOrganization'></a>
+## CliConstants.DefaultOrganization Field
+The default organization for naming new packages  
+```csharp
+public const string DefaultOrganization = Cmf;
+```
+#### Field Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
+  
+<a name='Cmf_Common_Cli_Constants_CliConstants_DefaultProduct'></a>
+## CliConstants.DefaultProduct Field
+the default product to name new packages  
+```csharp
+public const string DefaultProduct = Custom;
 ```
 #### Field Value
 [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
@@ -54,6 +90,15 @@ public const string Driver = driver;
 #### Field Value
 [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
   
+<a name='Cmf_Common_Cli_Constants_CliConstants_FileDependencies'></a>
+## CliConstants.FileDependencies Field
+Dependencies File Name  
+```csharp
+public const string FileDependencies = dependencies.json;
+```
+#### Field Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
+  
 <a name='Cmf_Common_Cli_Constants_CliConstants_FolderInstallDependencies'></a>
 ## CliConstants.FolderInstallDependencies Field
 The folder install dependencies  
@@ -72,11 +117,29 @@ public const string FolderTemplates = templateFiles;
 #### Field Value
 [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
   
+<a name='Cmf_Common_Cli_Constants_CliConstants_FolderTests'></a>
+## CliConstants.FolderTests Field
+Tests Folder  
+```csharp
+public const string FolderTests = /Tests;
+```
+#### Field Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
+  
 <a name='Cmf_Common_Cli_Constants_CliConstants_LBOsFileLocation'></a>
 ## CliConstants.LBOsFileLocation Field
 The lb os file location  
 ```csharp
 public const string LBOsFileLocation = Libs/LBOs/NetStandard/Cmf.LightBusinessObjects.dll;
+```
+#### Field Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
+  
+<a name='Cmf_Common_Cli_Constants_CliConstants_NpmJsUrl'></a>
+## CliConstants.NpmJsUrl Field
+npm.js repository url  
+```csharp
+public const string NpmJsUrl = https://registry.npmjs.com;
 ```
 #### Field Value
 [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
@@ -95,6 +158,15 @@ public const string PackageJson = package.json;
 The project config file name, located in the project root  
 ```csharp
 public const string ProjectConfigFileName = .project-config.json;
+```
+#### Field Value
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
+  
+<a name='Cmf_Common_Cli_Constants_CliConstants_RepositoriesConfigFileName'></a>
+## CliConstants.RepositoriesConfigFileName Field
+The repositories config file name, usually located in the project root  
+```csharp
+public const string RepositoriesConfigFileName = repositories.json;
 ```
 #### Field Value
 [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')

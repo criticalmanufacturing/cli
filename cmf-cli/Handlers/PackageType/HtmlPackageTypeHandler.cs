@@ -2,6 +2,7 @@
 using Cmf.Common.Cli.Enums;
 using Cmf.Common.Cli.Objects;
 using System.Collections.Generic;
+using Cmf.Common.Cli.Commands.restore;
 
 namespace Cmf.Common.Cli.Handlers
 {
@@ -21,6 +22,8 @@ namespace Cmf.Common.Cli.Handlers
             (
                 targetDirectory:
                     "UI/Html",
+                targetLayer:
+                    "ui",
                 steps:
                     new List<Step>
                     {
@@ -33,6 +36,15 @@ namespace Cmf.Common.Cli.Handlers
 
             BuildSteps = new IBuildCommand[]
             {
+                new ExecuteCommand<RestoreCommand>()
+                {
+                    Command = new RestoreCommand(),
+                    DisplayName = "cmf restore",
+                    Execute = command =>
+                    {
+                        command.Execute(cmfPackage.GetFileInfo().Directory, null);
+                    }
+                },
                 new NPMCommand()
                 {
                     DisplayName = "NPM Install",
@@ -55,7 +67,7 @@ namespace Cmf.Common.Cli.Handlers
                     Task = "build",
                     DisplayName = "Gulp Build",
                     GulpJS = "node_modules/gulp/bin/gulp.js",
-                    Args = new [] { "--production" },
+                    Args = new [] { "--production" , "--dist"},
                     WorkingDirectory = cmfPackage.GetFileInfo().Directory
                 },
             };

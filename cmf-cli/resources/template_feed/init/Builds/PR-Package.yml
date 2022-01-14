@@ -1,0 +1,106 @@
+# CM PI Continuous Integration Package Pipeline
+pool:
+  name: <%= $CLI_PARAM_AgentPool %>
+//#if (agentType == "Cloud")
+  vmImage: 'ubuntu-latest'
+//#endif
+
+# A pipeline with no CI trigger
+trigger: none
+
+# A pipeline with no PR trigger
+pr: none
+
+parameters:
+- name: PackageId
+  displayName: Package
+  type: string
+- name: PackagePath
+  displayName: Package Path
+  type: string
+
+variables:
+ - template: ../EnvironmentConfigs/GlobalVariables.yml  # Template reference to global variables
+
+workspace:
+    clean: all
+
+name: $(Build.SourceBranchName)_$(Build.DefinitionName)_${{ parameters.PackageId }}.$(Build.BuildId)
+steps:
+- checkout: self
+  persistCredentials: true
+
+# validate if the package version was already released
+- task: PowerShell@2
+  displayName: 'Validate Package Version'
+  inputs:
+    pwsh: true
+    failOnStderr: true
+    workingDirectory: ${{ parameters.PackagePath }}
+    targetType: inline
+    script: |
+      $CmfPackageJsonFile = Get-Item ".\cmfpackage.json"
+      $CmfPackageJson = Get-Content -Raw -Path $CmfPackageJsonFile | ConvertFrom-Json
+      $PackageName = ($CmfPackageJson.'packageId') + "." + ($CmfPackageJson.'version')
+
+      # Validate if the package version was already released
+      $finalPackageFile = "${{ variables.ApprovedPackages }}/" + $PackageName + ".zip"
+      if(Test-Path $finalPackageFile) {
+          throw "Package " + $PackageName + " already released"
+      }
+
+//#if (nugetRegistryUsername != "" && nugetRegistryPassword != "") {
+- task: NuGetCommand@2
+  displayName: "Remove CMF NuGet source"
+  inputs:
+    command: 'custom'
+    arguments: 'sources remove -Name "CMF" -Config NuGet.Config'
+
+- task: NuGetCommand@2
+  displayName: "Add authenticated CMF NuGet source"
+  inputs:
+    command: 'custom'
+    arguments: 'sources Add -Name "CMF" -Source "<%= $CLI_PARAM_NuGetRegistry %>" -Username $(NuGetRegistryUsername) -password $(NuGetRegistryPassword) -StorePasswordInClearText -Config NuGet.Config'
+//#endif
+
+# use Node Tool
+- task: NodeTool@0
+  displayName: 'Use Node ${{ variables.NodeVersion }}'
+  inputs:
+    versionSpec: ${{ variables.NodeVersion }}
+
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    useGlobalJson: true
+
+# Install cmf-cli
+- task: PowerShell@2
+  displayName: 'Install cmf-cli@${{ variables.CmfCliVersion }}'
+  inputs:
+    pwsh: true
+    failOnStderr: false
+    targetType: inline
+    workingDirectory: $(Agent.TempDirectory)
+    script: |
+      npm install --no-save @criticalmanufacturing/cli@${{ variables.CmfCliVersion }} --registry ${{ variables.CmfCliRepository }}
+
+# Cmf Build
+- task: PowerShell@2
+  displayName: Build ${{ parameters.PackageId }}
+  inputs:
+    pwsh: true
+    failOnStderr: true
+    workingDirectory: ${{ parameters.PackagePath }}
+    targetType: inline
+    script: |
+//#if (agentType == "Cloud")
+      $(Agent.TempDirectory)/../node_modules/.bin/cmf-cli/cmf build
+//#else
+      $(Agent.TempDirectory)/node_modules/.bin/cmf-cli/cmf build
+//#endif
+
+# Cleanup
+- task: PostBuildCleanup@3
+  displayName: 'Clean Agent Directories'
+  condition: always()

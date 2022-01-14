@@ -1,4 +1,5 @@
-﻿using Cmf.Common.Cli.Constants;
+﻿using Cmf.Common.Cli.Builders;
+using Cmf.Common.Cli.Constants;
 using Cmf.Common.Cli.Enums;
 using Cmf.Common.Cli.Objects;
 using Cmf.Common.Cli.Utilities;
@@ -21,6 +22,7 @@ namespace Cmf.Common.Cli.Handlers
         /// <param name="cmfPackage">The CMF package.</param>
         public DataPackageTypeHandler(CmfPackage cmfPackage) : base(cmfPackage)
         {
+            Log.Debug("Using Data Handler v1");
             // TargetDirectory with DateTimeStamp to avoid wrong files installation
             cmfPackage.SetDefaultValues
             (
@@ -41,6 +43,15 @@ namespace Cmf.Common.Cli.Handlers
                         }
                     }
             );
+
+            BuildSteps = new IBuildCommand[]
+            {
+                new JSONValidatorCommand()
+                {
+                    DisplayName = "JSON Validator Command",
+                    FilesToValidate = GetContentToPack(this.fileSystem.DirectoryInfo.FromDirectoryName("."))
+                }
+            };
 
             DFPackageType = PackageType.Business;
         }
