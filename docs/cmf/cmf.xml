@@ -74,37 +74,6 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="T:Cmf.Common.Cli.Builders.ConsistencyCheckCommand">
-            <summary>
-            Checks the consistency of packages under a root
-            </summary>
-            <seealso cref="T:Cmf.Common.Cli.Builders.ProcessCommand" />
-            <seealso cref="T:Cmf.Common.Cli.Builders.IBuildCommand" />
-        </member>
-        <member name="P:Cmf.Common.Cli.Builders.ConsistencyCheckCommand.FileSystem">
-            <summary>
-            Virtual File System
-            </summary>
-        </member>
-        <member name="P:Cmf.Common.Cli.Builders.ConsistencyCheckCommand.WorkingDirectory">
-            <summary>
-            Hook to start search root algorithm
-            </summary>
-        </member>
-        <member name="P:Cmf.Common.Cli.Builders.ConsistencyCheckCommand.DisplayName">
-            <summary>
-            Gets or sets the display name.
-            </summary>
-            <value>
-            The display name.
-            </value>
-        </member>
-        <member name="M:Cmf.Common.Cli.Builders.ConsistencyCheckCommand.Exec">
-            <summary>
-            Find Root Package, check dependencies, enforce consistency of package version
-            </summary>
-            <returns></returns>
-        </member>
         <member name="T:Cmf.Common.Cli.Builders.DotnetCommand">
              <summary>
             
@@ -548,11 +517,6 @@
         <member name="P:Cmf.Common.Cli.CliMessages.UrlsNotSupported">
             <summary>
               Looks up a localized string similar to Urls not supported yet.
-            </summary>
-        </member>
-        <member name="P:Cmf.Common.Cli.CliMessages.VersionFailedConsistencyCheck">
-            <summary>
-              Looks up a localized string similar to This root package dependencies must enforce version consistency. Root Version {0} Failed Package Version {1}.
             </summary>
         </member>
         <member name="T:Cmf.Common.Cli.Commands.AssembleCommand">
@@ -1884,7 +1848,6 @@
             </summary>
             <param name="file">The file.</param>
             <param name="setDefaultValues"></param>
-            <param name="fileSystem"></param>
             <returns></returns>
         </member>
         <member name="M:Cmf.Common.Cli.Factories.PackageTypeFactory.GetPackageTypeHandler(Cmf.Common.Cli.Objects.CmfPackage,System.Boolean)">
@@ -3655,25 +3618,6 @@
             Converts a JsonObject to an Uri
             </summary>
             <param name="value"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Cmf.Common.Cli.Utilities.GenericUtilities.IterateTree(Cmf.Common.Cli.Objects.CmfPackage,System.Collections.Generic.List{System.Boolean},System.Boolean,System.Boolean,System.Boolean)">
-            <summary>
-            Iterate through a dependecy tree and check the dependencies
-            </summary>
-            <param name="pkg"></param>
-            <param name="levels"></param>
-            <param name="isLast"></param>
-            <param name="isDisplay"></param>
-            <param name="isConsistencyCheck"></param>
-            <exception cref="T:Cmf.Common.Cli.Utilities.CliException"></exception>
-        </member>
-        <member name="M:Cmf.Common.Cli.Utilities.GenericUtilities.PrintBranch(System.Collections.Generic.List{System.Boolean},System.Boolean)">
-            <summary>
-            Add to string builder with print tokens
-            </summary>
-            <param name="levels"></param>
-            <param name="isLast"></param>
             <returns></returns>
         </member>
         <member name="T:Cmf.Common.Cli.Utilities.IoTUtilities">
