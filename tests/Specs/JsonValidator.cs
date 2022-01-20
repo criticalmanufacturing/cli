@@ -10,10 +10,10 @@ using System.IO.Abstractions;
 using System.CommandLine.IO;
 using tests.Objects;
 
-namespace tests
+namespace tests.Specs
 {
     [TestClass]
-    public class Validators
+    public class JsonValidator
     {
         [TestMethod]
         public void Data_JsonValidator_HappyPath()

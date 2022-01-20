@@ -854,6 +854,22 @@ public class DependencyCollection : System.Collections.Generic.List<Cmf.Common.C
 
 Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; [System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[Dependency](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_Dependency 'Cmf.Common.Cli.Objects.Dependency')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1') &#129106; DependencyCollection  
 ### Methods
+<a name='Cmf_Common_Cli_Objects_DependencyCollection_Contains(Cmf_Common_Cli_Objects_Dependency)'></a>
+## DependencyCollection.Contains(Dependency) Method
+Gets the dependency.  
+```csharp
+public bool Contains(Cmf.Common.Cli.Objects.Dependency dependency);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Objects_DependencyCollection_Contains(Cmf_Common_Cli_Objects_Dependency)_dependency'></a>
+`dependency` [Dependency](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_Dependency 'Cmf.Common.Cli.Objects.Dependency')  
+The dependency.
+  
+#### Returns
+[System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
+`true` if [contains] [the specified dependency]; otherwise, `false`.  
+            
+  
 <a name='Cmf_Common_Cli_Objects_DependencyCollection_Contains(Cmf_Common_Cli_Objects_Dependency_bool)'></a>
 ## DependencyCollection.Contains(Dependency, bool) Method
 Determines whether this instance contains the object.  
@@ -868,22 +884,6 @@ The dependency.
 <a name='Cmf_Common_Cli_Objects_DependencyCollection_Contains(Cmf_Common_Cli_Objects_Dependency_bool)_ignoreVersion'></a>
 `ignoreVersion` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
 if set to `true` [ignore version].
-  
-#### Returns
-[System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
-`true` if [contains] [the specified dependency]; otherwise, `false`.  
-            
-  
-<a name='Cmf_Common_Cli_Objects_DependencyCollection_Contains(Cmf_Common_Cli_Objects_Dependency)'></a>
-## DependencyCollection.Contains(Dependency) Method
-Gets the dependency.  
-```csharp
-public bool Contains(Cmf.Common.Cli.Objects.Dependency dependency);
-```
-#### Parameters
-<a name='Cmf_Common_Cli_Objects_DependencyCollection_Contains(Cmf_Common_Cli_Objects_Dependency)_dependency'></a>
-`dependency` [Dependency](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_Dependency 'Cmf.Common.Cli.Objects.Dependency')  
-The dependency.
   
 #### Returns
 [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
@@ -1080,6 +1080,21 @@ Initializes a new instance of the [Step](Cmf_Common_Cli_Objects.md#Cmf_Common_Cl
 public Step();
 ```
   
+<a name='Cmf_Common_Cli_Objects_Step_Step(System_Nullable_Cmf_Common_Cli_Enums_StepType_)'></a>
+## Step.Step(Nullable&lt;StepType&gt;) Constructor
+Initializes a new instance of the [Step](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_Step 'Cmf.Common.Cli.Objects.Step') class.  
+```csharp
+public Step(System.Nullable<Cmf.Common.Cli.Enums.StepType> type);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Objects_Step_Step(System_Nullable_Cmf_Common_Cli_Enums_StepType_)_type'></a>
+`type` [System.Nullable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Nullable-1 'System.Nullable`1')[StepType](Cmf_Common_Cli_Enums.md#Cmf_Common_Cli_Enums_StepType 'Cmf.Common.Cli.Enums.StepType')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Nullable-1 'System.Nullable`1')  
+The type.
+  
+#### Exceptions
+[System.ArgumentNullException](https://docs.microsoft.com/en-us/dotnet/api/System.ArgumentNullException 'System.ArgumentNullException')  
+type
+  
 <a name='Cmf_Common_Cli_Objects_Step_Step(System_Nullable_Cmf_Common_Cli_Enums_StepType__string_string_string_string_System_Nullable_bool__string_System_Nullable_Cmf_Common_Cli_Enums_MessageType_)'></a>
 ## Step.Step(Nullable&lt;StepType&gt;, string, string, string, string, Nullable&lt;bool&gt;, string, Nullable&lt;MessageType&gt;) Constructor
 Initializes a new instance of the [Step](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_Step 'Cmf.Common.Cli.Objects.Step') class.  
@@ -1118,21 +1133,6 @@ The target database.
 <a name='Cmf_Common_Cli_Objects_Step_Step(System_Nullable_Cmf_Common_Cli_Enums_StepType__string_string_string_string_System_Nullable_bool__string_System_Nullable_Cmf_Common_Cli_Enums_MessageType_)_messageType'></a>
 `messageType` [System.Nullable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Nullable-1 'System.Nullable`1')[MessageType](Cmf_Common_Cli_Enums.md#Cmf_Common_Cli_Enums_MessageType 'Cmf.Common.Cli.Enums.MessageType')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Nullable-1 'System.Nullable`1')  
 Type of the message.
-  
-#### Exceptions
-[System.ArgumentNullException](https://docs.microsoft.com/en-us/dotnet/api/System.ArgumentNullException 'System.ArgumentNullException')  
-type
-  
-<a name='Cmf_Common_Cli_Objects_Step_Step(System_Nullable_Cmf_Common_Cli_Enums_StepType_)'></a>
-## Step.Step(Nullable&lt;StepType&gt;) Constructor
-Initializes a new instance of the [Step](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_Step 'Cmf.Common.Cli.Objects.Step') class.  
-```csharp
-public Step(System.Nullable<Cmf.Common.Cli.Enums.StepType> type);
-```
-#### Parameters
-<a name='Cmf_Common_Cli_Objects_Step_Step(System_Nullable_Cmf_Common_Cli_Enums_StepType_)_type'></a>
-`type` [System.Nullable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Nullable-1 'System.Nullable`1')[StepType](Cmf_Common_Cli_Enums.md#Cmf_Common_Cli_Enums_StepType 'Cmf.Common.Cli.Enums.StepType')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Nullable-1 'System.Nullable`1')  
-The type.
   
 #### Exceptions
 [System.ArgumentNullException](https://docs.microsoft.com/en-us/dotnet/api/System.ArgumentNullException 'System.ArgumentNullException')  
