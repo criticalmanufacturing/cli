@@ -489,7 +489,7 @@ namespace Cmf.Common.Cli.Objects
         /// <param name="repoUris">the address of the package repositories (currently only folders are supported)</param>
         /// <param name="recurse">should we run recursively</param>
         /// <returns>this CmfPackage for chaining, but the method itself is mutable</returns>
-        public void LoadDependencies(IEnumerable<Uri> repoUris, bool recurse = false)
+        public void LoadDependencies(IEnumerable<Uri> repoUris, bool recurse = false, IFileSystem fileSystem = null)
         {
             List<CmfPackage> loadedPackages = new();
             loadedPackages.Add(this);
@@ -528,7 +528,7 @@ namespace Cmf.Common.Cli.Objects
                     // 3) search in the source code repository (only if this is a local package)
                     if (dependencyPackage == null && this.Location == PackageLocation.Local)
                     {
-                        dependencyPackage = FileInfo.Directory.LoadCmfPackagesFromSubDirectories(setDefaultValues: true).GetDependency(dependency);
+                        dependencyPackage = FileInfo.Directory.LoadCmfPackagesFromSubDirectories(setDefaultValues: true, fileSystem: fileSystem).GetDependency(dependency);
                         if (dependencyPackage != null)
                         {
                             dependencyPackage.Uri = new Uri(dependencyPackage.FileInfo.FullName);

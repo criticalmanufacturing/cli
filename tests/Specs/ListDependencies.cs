@@ -87,7 +87,7 @@ namespace tests
             //ls.Execute(fileSystem.DirectoryInfo.FromDirectoryName(@"c:\test"), null);
 
             CmfPackage cmfPackage = CmfPackage.Load(fileSystem.FileInfo.FromFileName("/test/cmfpackage.json"), setDefaultValues: true, fileSystem);
-            cmfPackage.LoadDependencies(null, true);
+            cmfPackage.LoadDependencies(null, true, fileSystem);
             Assert.AreEqual("Cmf.Custom.Package", cmfPackage.PackageId, "Root package name doesn't match expected");
             Assert.AreEqual(3, cmfPackage.Dependencies.Count, "Root package doesn't have expected dependencies");
 

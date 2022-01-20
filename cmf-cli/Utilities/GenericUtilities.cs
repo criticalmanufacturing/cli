@@ -1,8 +1,11 @@
-﻿using System;
+﻿using Cmf.Common.Cli.Objects;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
+using System.Linq;
 using System.Reflection;
+using System.Text;
 
 namespace Cmf.Common.Cli.Utilities
 {
@@ -159,7 +162,7 @@ namespace Cmf.Common.Cli.Utilities
 
             return packageFound;
         }
-        
+
         /// <summary>
         /// Flatten a tree
         /// </summary>
@@ -172,10 +175,10 @@ namespace Cmf.Common.Cli.Utilities
             Func<T, IEnumerable<T>> getChildren)
         {
             var stack = new Stack<T>();
-            foreach(var item in items)
+            foreach (var item in items)
                 stack.Push(item);
 
-            while(stack.Count > 0)
+            while (stack.Count > 0)
             {
                 var current = stack.Pop();
                 yield return current;
@@ -183,7 +186,7 @@ namespace Cmf.Common.Cli.Utilities
                 var children = getChildren(current);
                 if (children == null) continue;
 
-                foreach (var child in children) 
+                foreach (var child in children)
                     stack.Push(child);
             }
         }
@@ -200,6 +203,82 @@ namespace Cmf.Common.Cli.Utilities
             return string.IsNullOrEmpty(value?.Value) ? null : new Uri(value?.Value);
         }
 
+        /// <summary>
+        /// Iterate through a dependecy tree and check the dependencies
+        /// </summary>
+        /// <param name="pkg"></param>
+        /// <param name="levels"></param>
+        /// <param name="isLast"></param>
+        /// <param name="isDisplay"></param>
+        /// <param name="isConsistencyCheck"></param>
+        /// <exception cref="CliException"></exception>
+        public static void IterateTree(CmfPackage pkg, List<bool> levels = null, bool isLast = false, bool isDisplay = true, bool isConsistencyCheck = false)
+        {
+            levels ??= new();
+
+            if (isDisplay) Log.Information($"{PrintBranch(levels.ToList(), isLast)}{pkg.PackageId}@{pkg.Version} [{pkg.Location.ToString()}]");
+
+            if (pkg.Dependencies.HasAny())
+            {
+                for (int i = 0; i < pkg.Dependencies.Count; i++)
+                {
+                    Dependency dep = pkg.Dependencies[i];
+                    bool isDepLast = (i == (pkg.Dependencies.Count - 1));
+                    List<bool> l = levels.Append(isDepLast).ToList();
+
+                    if (isConsistencyCheck && !dep.IsIgnorable && pkg.Version != dep.Version)
+                    {
+                        throw new CliException(string.Format(CliMessages.VersionFailedConsistencyCheck, pkg.Version, dep.Version));
+                    }
+
+                    if (!dep.IsMissing)
+                    {
+                        IterateTree(dep.CmfPackage, l, isDepLast, isDisplay, isConsistencyCheck);
+                    }
+                    else if (dep.IsMissing && isDisplay)
+                    {
+                        if (dep.Mandatory)
+                        {
+                            Log.Error($"{PrintBranch(l, isDepLast)} MISSING {dep.Id}@{dep.Version}");
+                        }
+                        else
+                        {
+                            Log.Warning($"{PrintBranch(l, isDepLast)} MISSING {dep.Id}@{dep.Version}");
+                        }
+                    }
+                }
+            }
+        }
+
         #endregion Public Methods
+
+        #region Private Methods
+
+        /// <summary>
+        /// Add to string builder with print tokens
+        /// </summary>
+        /// <param name="levels"></param>
+        /// <param name="isLast"></param>
+        /// <returns></returns>
+        private static string PrintBranch(List<bool> levels, bool isLast = false)
+        {
+            StringBuilder? sb = new StringBuilder();
+            while (levels.Count > 0)
+            {
+                bool level = levels[0];
+                if (levels.Count > 1)
+                {
+                    sb.Append(level ? "  " : "| ");
+                }
+                else
+                {
+                    sb.Append(isLast ? "`-- " : "+-- ");
+                }
+                levels.RemoveAt(0);
+            }
+            return sb.ToString();
+        }
+
+        #endregion
     }
 }

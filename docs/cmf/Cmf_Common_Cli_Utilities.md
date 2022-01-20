@@ -898,6 +898,31 @@ the underlying file system
 #### Returns
 [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
   
+<a name='Cmf_Common_Cli_Utilities_GenericUtilities_IterateTree(Cmf_Common_Cli_Objects_CmfPackage_System_Collections_Generic_List_bool__bool_bool_bool)'></a>
+## GenericUtilities.IterateTree(CmfPackage, List&lt;bool&gt;, bool, bool, bool) Method
+Iterate through a dependecy tree and check the dependencies  
+```csharp
+public static void IterateTree(Cmf.Common.Cli.Objects.CmfPackage pkg, System.Collections.Generic.List<bool> levels=null, bool isLast=false, bool isDisplay=true, bool isConsistencyCheck=false);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_GenericUtilities_IterateTree(Cmf_Common_Cli_Objects_CmfPackage_System_Collections_Generic_List_bool__bool_bool_bool)_pkg'></a>
+`pkg` [CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')  
+  
+<a name='Cmf_Common_Cli_Utilities_GenericUtilities_IterateTree(Cmf_Common_Cli_Objects_CmfPackage_System_Collections_Generic_List_bool__bool_bool_bool)_levels'></a>
+`levels` [System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')  
+  
+<a name='Cmf_Common_Cli_Utilities_GenericUtilities_IterateTree(Cmf_Common_Cli_Objects_CmfPackage_System_Collections_Generic_List_bool__bool_bool_bool)_isLast'></a>
+`isLast` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
+  
+<a name='Cmf_Common_Cli_Utilities_GenericUtilities_IterateTree(Cmf_Common_Cli_Objects_CmfPackage_System_Collections_Generic_List_bool__bool_bool_bool)_isDisplay'></a>
+`isDisplay` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
+  
+<a name='Cmf_Common_Cli_Utilities_GenericUtilities_IterateTree(Cmf_Common_Cli_Objects_CmfPackage_System_Collections_Generic_List_bool__bool_bool_bool)_isConsistencyCheck'></a>
+`isConsistencyCheck` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
+  
+#### Exceptions
+[CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException')  
+  
 <a name='Cmf_Common_Cli_Utilities_GenericUtilities_JsonObjectToUri(dynamic)'></a>
 ## GenericUtilities.JsonObjectToUri(dynamic) Method
 Converts a JsonObject to an Uri  
@@ -910,6 +935,22 @@ public static System.Uri? JsonObjectToUri(dynamic value);
   
 #### Returns
 [System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')  
+  
+<a name='Cmf_Common_Cli_Utilities_GenericUtilities_PrintBranch(System_Collections_Generic_List_bool__bool)'></a>
+## GenericUtilities.PrintBranch(List&lt;bool&gt;, bool) Method
+Add to string builder with print tokens  
+```csharp
+private static string PrintBranch(System.Collections.Generic.List<bool> levels, bool isLast=false);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_GenericUtilities_PrintBranch(System_Collections_Generic_List_bool__bool)_levels'></a>
+`levels` [System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')  
+  
+<a name='Cmf_Common_Cli_Utilities_GenericUtilities_PrintBranch(System_Collections_Generic_List_bool__bool)_isLast'></a>
+`isLast` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
+  
+#### Returns
+[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
   
 <a name='Cmf_Common_Cli_Utilities_GenericUtilities_RetrieveNewPresentationVersion(string_string_string)'></a>
 ## GenericUtilities.RetrieveNewPresentationVersion(string, string, string) Method
