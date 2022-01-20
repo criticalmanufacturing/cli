@@ -38,7 +38,7 @@ namespace tests
                   ]
                 }}")}
             });
-
+            ExecutionContext.Initialize(fileSystem);
             IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
 
             string message = string.Empty;
@@ -46,7 +46,7 @@ namespace tests
             try
             {
                 // Reading cmfPackage
-                cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true, fileSystem);
+                cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true);
             }
             catch (Exception ex)
             {
@@ -91,7 +91,7 @@ namespace tests
             try
             {
                 // Reading cmfPackage
-                CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true, fileSystem);
+                CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true);
             }
             catch (Exception ex)
             {
@@ -127,14 +127,14 @@ namespace tests
                   }}]
                 }}")}
             });
-
+            ExecutionContext.Initialize(fileSystem);
             IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
 
             string message = string.Empty;
             try
             {
                 // Reading cmfPackage
-                CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true, fileSystem);
+                CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true);
             }
             catch (Exception ex)
             {
@@ -160,7 +160,8 @@ namespace tests
                   ""isInstallable"": true,
                   ""isUniqueInstall"": false
                 }}")}
-            });
+            }); 
+            ExecutionContext.Initialize(fileSystem);
 
             IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
 
@@ -169,7 +170,7 @@ namespace tests
             try
             {
                 // Reading cmfPackage
-                cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true, fileSystem);
+                cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true);
             }
             catch (Exception ex)
             {

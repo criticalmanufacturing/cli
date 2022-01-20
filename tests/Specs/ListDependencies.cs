@@ -82,11 +82,12 @@ namespace tests
 }") }
             });
 
+            ExecutionContext.Initialize(fileSystem);
 
             //var ls = new ListDependenciesCommand(fileSystem);
             //ls.Execute(fileSystem.DirectoryInfo.FromDirectoryName(@"c:\test"), null);
 
-            CmfPackage cmfPackage = CmfPackage.Load(fileSystem.FileInfo.FromFileName("/test/cmfpackage.json"), setDefaultValues: true, fileSystem);
+            CmfPackage cmfPackage = CmfPackage.Load(fileSystem.FileInfo.FromFileName("/test/cmfpackage.json"), setDefaultValues: true);
             cmfPackage.LoadDependencies(null, true, fileSystem);
             Assert.AreEqual("Cmf.Custom.Package", cmfPackage.PackageId, "Root package name doesn't match expected");
             Assert.AreEqual(3, cmfPackage.Dependencies.Count, "Root package doesn't have expected dependencies");
@@ -181,9 +182,11 @@ namespace tests
                           </dependencies>
                         </deploymentPackage>").ToByteArray()) }
             });
-            
-            CmfPackage cmfPackage = CmfPackage.Load(fileSystem.FileInfo.FromFileName("/test/cmfpackage.json"), setDefaultValues: true, fileSystem);
+
             ExecutionContext.Initialize(fileSystem);
+
+            CmfPackage cmfPackage = CmfPackage.Load(fileSystem.FileInfo.FromFileName("/test/cmfpackage.json"), setDefaultValues: true);
+
             cmfPackage.LoadDependencies(new []{ repoUri }, true);
             Assert.AreEqual("Cmf.Custom.Package", cmfPackage.PackageId, "Root package name doesn't match expected");
             Assert.AreEqual(3, cmfPackage.Dependencies.Count, "Root package doesn't have expected dependencies");

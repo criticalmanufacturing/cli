@@ -204,10 +204,7 @@ namespace Cmf.Common.Cli.Commands
             var cmfPackage = this.fileSystem.Path.Join(path, CliConstants.CmfPackageFileName);
             if (this.fileSystem.File.Exists(cmfPackage))
             {
-                return CmfPackage.Load(
-                    this.fileSystem.FileInfo.FromFileName(
-                        cmfPackage),
-                    fileSystem: this.fileSystem);
+                return CmfPackage.Load(this.fileSystem.FileInfo.FromFileName(cmfPackage));
             }
             return null;
         }

@@ -528,7 +528,7 @@ namespace Cmf.Common.Cli.Objects
                     // 3) search in the source code repository (only if this is a local package)
                     if (dependencyPackage == null && this.Location == PackageLocation.Local)
                     {
-                        dependencyPackage = FileInfo.Directory.LoadCmfPackagesFromSubDirectories(setDefaultValues: true, fileSystem: fileSystem).GetDependency(dependency);
+                        dependencyPackage = FileInfo.Directory.LoadCmfPackagesFromSubDirectories(setDefaultValues: true).GetDependency(dependency);
                         if (dependencyPackage != null)
                         {
                             dependencyPackage.Uri = new Uri(dependencyPackage.FileInfo.FullName);
@@ -562,9 +562,8 @@ namespace Cmf.Common.Cli.Objects
         /// <exception cref="Cmf.Common.Cli.Utilities.CliException">
         /// </exception>
         /// <exception cref="CliException"></exception>
-        public static CmfPackage Load(IFileInfo file, bool setDefaultValues = false, IFileSystem fileSystem = null)
+        public static CmfPackage Load(IFileInfo file, bool setDefaultValues = false)
         {
-            fileSystem ??= ExecutionContext.Instance.FileSystem;
             if (!file.Exists)
             {
                 throw new CliException(string.Format(CliMessages.NotFound, file.FullName));
@@ -576,7 +575,7 @@ namespace Cmf.Common.Cli.Objects
             cmfPackage.FileInfo = file;
             cmfPackage.Location = PackageLocation.Local;
             cmfPackage.ValidatePackage();
-            cmfPackage.fileSystem = fileSystem;
+            cmfPackage.fileSystem = ExecutionContext.Instance.FileSystem;
 
             return cmfPackage;
         }

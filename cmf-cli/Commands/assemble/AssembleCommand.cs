@@ -109,7 +109,7 @@ namespace Cmf.Common.Cli.Commands
 
             IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"{workingDir}/{CliConstants.CmfPackageFileName}");
 
-            CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: false, fileSystem: fileSystem);
+            CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: false);
 
             if (cmfPackage.PackageType != Enums.PackageType.Root)
             {

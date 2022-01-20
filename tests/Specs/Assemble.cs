@@ -356,11 +356,7 @@ namespace tests.Specs
             catch (Exception ex)
             {
                 Assert.IsTrue(ex.Message.Contains($"Some packages were not found: {packageTest.Key}.{packageTest.Value}.zip"), ex.Message.ToString());
-            }
-
-            
-
-            
+            }            
         }
     }
 }
