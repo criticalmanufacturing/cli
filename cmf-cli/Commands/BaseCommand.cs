@@ -16,26 +16,16 @@ namespace Cmf.Common.Cli.Commands
     /// </summary>
     public abstract class BaseCommand
     {
-        /// <summary>
-        /// The underlying filesystem
-        /// </summary>
-        protected IFileSystem fileSystem;
-
-        /// <summary>
-        /// constructor for System.IO filesystem
-        /// </summary>
-        public BaseCommand() : this(new FileSystem())
-        {
-        }
 
         /// <summary>
         /// constructor
         /// </summary>
-        /// <param name="fileSystem"></param>
-        public BaseCommand(IFileSystem fileSystem)
+        public BaseCommand()
         {
-            this.fileSystem = fileSystem;
-            ExecutionContext.Initialize(fileSystem);
+            if(ExecutionContext.Instance == null)
+            {
+                ExecutionContext.Initialize(new FileSystem());
+            }            
         }
 
         /// <summary>
@@ -201,8 +191,8 @@ namespace Cmf.Common.Cli.Commands
 
             return typeof(T) switch
             {
-                {} dirType when dirType == typeof(IDirectoryInfo) => (T)this.fileSystem.DirectoryInfo.FromDirectoryName(path),
-                {} fileType when fileType == typeof(IFileInfo) => (T)this.fileSystem.FileInfo.FromFileName(path),
+                {} dirType when dirType == typeof(IDirectoryInfo) => (T)ExecutionContext.Instance.FileSystem.DirectoryInfo.FromDirectoryName(path),
+                {} fileType when fileType == typeof(IFileInfo) => (T)ExecutionContext.Instance.FileSystem.FileInfo.FromFileName(path),
                 _ => throw new ArgumentOutOfRangeException("This method only parses directory or file paths")
             };
         }

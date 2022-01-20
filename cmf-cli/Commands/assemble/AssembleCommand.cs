@@ -35,12 +35,6 @@ namespace Cmf.Common.Cli.Commands
         /// </summary>
         public AssembleCommand() : base() { }
 
-        /// <summary>
-        /// Assemble Command
-        /// </summary>
-        /// <param name="fileSystem"></param>
-        public AssembleCommand(IFileSystem fileSystem) : base(fileSystem) { }
-
         #endregion
 
         #region Public Methods
@@ -107,7 +101,7 @@ namespace Cmf.Common.Cli.Commands
                 ExecutionContext.Instance.RepositoriesConfig.Repositories.InsertRange(0, repos);
             }
 
-            IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"{workingDir}/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = ExecutionContext.Instance.FileSystem.FileInfo.FromFileName($"{workingDir}/{CliConstants.CmfPackageFileName}");
 
             CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: false);
 
@@ -149,7 +143,7 @@ namespace Cmf.Common.Cli.Commands
 
             if (includeTestPackages)
             {
-                IDirectoryInfo outputTestDir = this.fileSystem.DirectoryInfo.FromDirectoryName(outputDir + CliConstants.FolderTests);
+                IDirectoryInfo outputTestDir = ExecutionContext.Instance.FileSystem.DirectoryInfo.FromDirectoryName(outputDir + CliConstants.FolderTests);
                 if (!outputTestDir.Exists)
                 {
                     outputTestDir.Create();
@@ -170,8 +164,8 @@ namespace Cmf.Common.Cli.Commands
 
                 // Save Dependencies File
                 // This file will be needed for CMF Internal Releases to know where the external dependencies are located
-                string depedenciesFilePath = this.fileSystem.Path.Join(outputDir.FullName, CliConstants.FileDependencies);
-                fileSystem.File.WriteAllText(depedenciesFilePath, JsonConvert.SerializeObject(packagesLocation));
+                string depedenciesFilePath = ExecutionContext.Instance.FileSystem.Path.Join(outputDir.FullName, CliConstants.FileDependencies);
+                ExecutionContext.Instance.FileSystem.File.WriteAllText(depedenciesFilePath, JsonConvert.SerializeObject(packagesLocation));
             }
             catch (Exception e)
             {
@@ -198,7 +192,7 @@ namespace Cmf.Common.Cli.Commands
             }
             else
             {
-                IDirectoryInfo testOutputDir = this.fileSystem.DirectoryInfo.FromDirectoryName(outputDir + "/Tests");
+                IDirectoryInfo testOutputDir = ExecutionContext.Instance.FileSystem.DirectoryInfo.FromDirectoryName(outputDir + "/Tests");
 
                 foreach (Dependency testPackage in cmfPackage.TestPackages)
                 {
@@ -285,9 +279,9 @@ namespace Cmf.Common.Cli.Commands
             }
 
             string destinationFile = $"{outputDir.FullName}/{cmfPackage.Uri.Segments.Last()}";
-            if (fileSystem.File.Exists(destinationFile))
+            if (ExecutionContext.Instance.FileSystem.File.Exists(destinationFile))
             {
-                fileSystem.File.Delete(destinationFile);
+                ExecutionContext.Instance.FileSystem.File.Delete(destinationFile);
             }
 
             Log.Information(string.Format(CliMessages.GetPackage, cmfPackage.PackageId, cmfPackage.Version));

@@ -251,7 +251,7 @@ namespace Cmf.Common.Cli.Utilities
         /// Relative path information is interpreted as relative to the current working directory.</param>
         /// <param name="overwrite">True to indicate overwrite.</param>
         /// <param name="fileSystem">The target fileSystem</param>
-        public static void ExtractToFile(this ZipArchiveEntry source, string destinationFileName, bool overwrite, IFileSystem fileSystem)
+        public static void ExtractsToFile(this ZipArchiveEntry source, string destinationFileName, bool overwrite)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -262,13 +262,13 @@ namespace Cmf.Common.Cli.Utilities
             // Rely on FileStream's ctor for further checking destinationFileName parameter
             FileMode fMode = overwrite ? FileMode.Create : FileMode.CreateNew;
 
-            using (Stream fs = fileSystem.FileStream.Create(destinationFileName, fMode, FileAccess.Write, FileShare.None, bufferSize: 0x1000, useAsync: false))
+            using (Stream fs = ExecutionContext.Instance.FileSystem.FileStream.Create(destinationFileName, fMode, FileAccess.Write, FileShare.None, bufferSize: 0x1000, useAsync: false))
             {
                 using (Stream es = source.Open())
                     es.CopyTo(fs);
             }
 
-            fileSystem.File.SetLastWriteTime(destinationFileName, source.LastWriteTime.DateTime);
+            ExecutionContext.Instance.FileSystem.File.SetLastWriteTime(destinationFileName, source.LastWriteTime.DateTime);
         }
 
         #region Private Methods

@@ -105,13 +105,13 @@ namespace Cmf.Common.Cli.Handlers
                 if (transformInjections.HasAny())
                 {
                     // we actually want a trailing comma here, because the inject token is in the middle of the document. If this changes we need to put more logic here.
-                    var injections = transformInjections.Select(injection => this.fileSystem.File.ReadAllText($"{cmfPackageDirectory}/{injection}") + ",");
+                    var injections = transformInjections.Select(injection => ExecutionContext.Instance.FileSystem.File.ReadAllText($"{cmfPackageDirectory}/{injection}") + ",");
                     injection = string.Join(System.Environment.NewLine, injections);
                 }
                 fileContent = fileContent.Replace(CliConstants.TokenJDTInjection, injection);
                 fileContent = fileContent.Replace(CliConstants.CacheId, DateTime.Now.ToString("yyyyMMddHHmmss"));
 
-                this.fileSystem.File.WriteAllText(path, fileContent);
+                ExecutionContext.Instance.FileSystem.File.WriteAllText(path, fileContent);
             }
         }
 
@@ -165,14 +165,14 @@ namespace Cmf.Common.Cli.Handlers
             base.Bump(version, buildNr, bumpInformation);
 
             string parentDirectory = CmfPackage.GetFileInfo().DirectoryName;
-            string[] filesToUpdate = this.fileSystem.Directory.GetFiles(parentDirectory, "package.json", SearchOption.AllDirectories);
+            string[] filesToUpdate = ExecutionContext.Instance.FileSystem.Directory.GetFiles(parentDirectory, "package.json", SearchOption.AllDirectories);
             foreach (var fileName in filesToUpdate)
             {
                 if (fileName.Contains("node_modules"))
                 {
                     continue;
                 }
-                string json = this.fileSystem.File.ReadAllText(fileName);
+                string json = ExecutionContext.Instance.FileSystem.File.ReadAllText(fileName);
                 dynamic jsonObj = Newtonsoft.Json.JsonConvert.DeserializeObject(json);
 
                 if (jsonObj["version"] == null)
@@ -182,10 +182,10 @@ namespace Cmf.Common.Cli.Handlers
 
                 jsonObj["version"] = GenericUtilities.RetrieveNewPresentationVersion(jsonObj["version"].ToString(), version, buildNr);
 
-                this.fileSystem.File.WriteAllText(fileName, Newtonsoft.Json.JsonConvert.SerializeObject(jsonObj, Newtonsoft.Json.Formatting.Indented));
+                ExecutionContext.Instance.FileSystem.File.WriteAllText(fileName, Newtonsoft.Json.JsonConvert.SerializeObject(jsonObj, Newtonsoft.Json.Formatting.Indented));
             }
 
-            filesToUpdate = this.fileSystem.Directory.GetFiles(parentDirectory, "*metadata.ts", SearchOption.AllDirectories);
+            filesToUpdate = ExecutionContext.Instance.FileSystem.Directory.GetFiles(parentDirectory, "*metadata.ts", SearchOption.AllDirectories);
             foreach (var fileName in filesToUpdate)
             {
                 if (fileName.Contains("node_modules")
@@ -193,12 +193,12 @@ namespace Cmf.Common.Cli.Handlers
                 {
                     continue;
                 }
-                string metadataFile = this.fileSystem.File.ReadAllText(fileName);
+                string metadataFile = ExecutionContext.Instance.FileSystem.File.ReadAllText(fileName);
                 string regex = @"version: \""[0-9.-]*\""";
                 var metadataVersion = Regex.Match(metadataFile, regex, RegexOptions.Singleline)?.Value?.Split("\"")[1];
                 metadataVersion = GenericUtilities.RetrieveNewPresentationVersion(metadataVersion, version, buildNr);
                 metadataFile = Regex.Replace(metadataFile, regex, string.Format("version: \"{0}\"", metadataVersion));
-                this.fileSystem.File.WriteAllText(fileName, metadataFile);
+                ExecutionContext.Instance.FileSystem.File.WriteAllText(fileName, metadataFile);
             }
         }
 

@@ -55,7 +55,7 @@ namespace tests.Specs
                 { @$"{cirepo}/{packageDep2.Key}.{packageDep2.Value}.zip", new DFPackageBuilder().CreateManifest(packageDep2.Key, packageDep2.Value).ToMockFileData() }
             });
 
-            var assembleCommand = new AssembleCommand(fileSystem);
+            var assembleCommand = new AssembleCommand();
             assembleCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName("test"), fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key), new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = cirepo }.Uri, null, false);
 
             IEnumerable<string> assembledFiles = fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key).EnumerateFiles("*.zip").Select(f => f.Name);
@@ -109,7 +109,7 @@ namespace tests.Specs
                 { @$"{cirepo1}/{packageRoot.Key}.{packageRoot.Value}.zip", new DFPackageBuilder().CreateManifest(packageRoot.Key, packageRoot.Value).ToMockFileData() },
             });
 
-            var assembleCommand = new AssembleCommand(fileSystem);
+            var assembleCommand = new AssembleCommand();
             string message = string.Empty;
             try
             {
@@ -171,7 +171,7 @@ namespace tests.Specs
                 { @$"{repo2}/{packageDep2.Key}.{packageDep2.Value}.zip", new DFPackageBuilder().CreateManifest(packageDep2.Key, packageDep2.Value).ToMockFileData() }
             });
 
-            var assembleCommand = new AssembleCommand(fileSystem);
+            var assembleCommand = new AssembleCommand();
             Uri[] repos = new[] { new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = repo1 }.Uri, new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = repo2 }.Uri };
             assembleCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName("test"), fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key), new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = cirepo }.Uri, repos, false);
 
@@ -238,7 +238,7 @@ namespace tests.Specs
                 { @$"{cirepo}/{packageTest.Key}.{packageTest.Value}.zip",  new DFPackageBuilder().CreateEntry($"{packageTest.Key}.{packageTest.Value}.zip", string.Empty).ToMockFileData() }
             });
 
-            var assembleCommand = new AssembleCommand(fileSystem);
+            var assembleCommand = new AssembleCommand();
             assembleCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName("test"), fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key), new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = cirepo }.Uri, null, true);
 
             IEnumerable<string> assembledFiles = fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key).EnumerateFiles("*.zip").Select(f => f.Name);
@@ -283,7 +283,7 @@ namespace tests.Specs
                 { @$"{cirepo}/{packageDep1.Key}.{packageDep1.Value}.zip", new DFPackageBuilder().CreateManifest(packageDep1.Key, packageDep1.Value).ToMockFileData() },
             });
 
-            var assembleCommand = new AssembleCommand(fileSystem);
+            var assembleCommand = new AssembleCommand();
 
             assembleCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName("test"), fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key), new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = cirepo }.Uri, null, false);
 
@@ -350,7 +350,7 @@ namespace tests.Specs
 
             try
             {
-                var assembleCommand = new AssembleCommand(fileSystem);
+                var assembleCommand = new AssembleCommand();
                 assembleCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName("test"), fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key), new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = cirepo }.Uri, null, true);
             }
             catch (Exception ex)

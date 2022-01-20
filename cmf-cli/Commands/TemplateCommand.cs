@@ -26,16 +26,7 @@ namespace Cmf.Common.Cli.Commands
         /// constructor
         /// </summary>
         /// <param name="commandName"></param>
-        protected TemplateCommand(string commandName) : this(commandName, new FileSystem())
-        {
-        }
-
-        /// <summary>
-        /// constructor
-        /// </summary>
-        /// <param name="commandName"></param>
-        /// <param name="fileSystem"></param>
-        protected TemplateCommand(string commandName, IFileSystem fileSystem) : base(fileSystem) => this.commandName = commandName;
+        protected TemplateCommand(string commandName) => this.commandName = commandName;
 
         /// <summary>
         /// Execute the command
@@ -113,7 +104,7 @@ namespace Cmf.Common.Cli.Commands
         protected IEnumerable<string> ParseConfigFile(IFileInfo configFile)
         {
             var args = new List<string>();
-            var configTxt = this.fileSystem.File.ReadAllText(configFile.FullName);
+            var configTxt = ExecutionContext.Instance.FileSystem.File.ReadAllText(configFile.FullName);
             dynamic configJson = JsonConvert.DeserializeObject(configTxt);
             if (configJson != null)
             {
@@ -175,7 +166,7 @@ namespace Cmf.Common.Cli.Commands
             //     "id": "Cmf.Custom.Business",
             //     "version": "4.33.0"
             // }
-            var parentPackageDir = FileSystemUtilities.GetPackageRoot(this.fileSystem, parentPath);
+            var parentPackageDir = FileSystemUtilities.GetPackageRoot(ExecutionContext.Instance.FileSystem, parentPath);
             if (parentPackageDir != null)
             {
                 var package = this.GetPackageInFolder(parentPackageDir.FullName);
@@ -201,10 +192,10 @@ namespace Cmf.Common.Cli.Commands
         /// <returns>the CmfPackage in the folder</returns>
         protected CmfPackage GetPackageInFolder(string path)
         {
-            var cmfPackage = this.fileSystem.Path.Join(path, CliConstants.CmfPackageFileName);
-            if (this.fileSystem.File.Exists(cmfPackage))
+            var cmfPackage = ExecutionContext.Instance.FileSystem.Path.Join(path, CliConstants.CmfPackageFileName);
+            if (ExecutionContext.Instance.FileSystem.File.Exists(cmfPackage))
             {
-                return CmfPackage.Load(this.fileSystem.FileInfo.FromFileName(cmfPackage));
+                return CmfPackage.Load(ExecutionContext.Instance.FileSystem.FileInfo.FromFileName(cmfPackage));
             }
             return null;
         }

@@ -4,6 +4,7 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Threading.Tasks;
+using Cmf.Common.Cli.Objects;
 using Cmf.Common.Cli.Utilities;
 
 namespace Cmf.Common.Cli.Builders
@@ -44,10 +45,6 @@ namespace Cmf.Common.Cli.Builders
     public abstract class ProcessCommand
     {
         /// <summary>
-        /// the underlying file system
-        /// </summary>
-        protected IFileSystem fileSystem = new FileSystem();
-        /// <summary>
         /// Gets or sets the working directory.
         /// </summary>
         /// <value>
@@ -64,14 +61,14 @@ namespace Cmf.Common.Cli.Builders
             foreach (var step in this.GetSteps())
             {
                 var command = step.Command;
-                if (step.Command.IndexOf(this.fileSystem.Path.PathSeparator) < 0)
+                if (step.Command.IndexOf(ExecutionContext.Instance.FileSystem.Path.PathSeparator) < 0)
                 {
                     // determine full path
                     var enviromentPath = System.Environment.GetEnvironmentVariable("PATH");
 
                     var paths = enviromentPath.Split(';');
-                    var exePath = paths.Select(x => this.fileSystem.Path.Combine(x, command))
-                        .Where(this.fileSystem.File.Exists)
+                    var exePath = paths.Select(x => ExecutionContext.Instance.FileSystem.Path.Combine(x, command))
+                        .Where(ExecutionContext.Instance.FileSystem.File.Exists)
                         .FirstOrDefault();
 
                     command = exePath ?? command;

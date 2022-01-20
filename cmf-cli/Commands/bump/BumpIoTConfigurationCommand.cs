@@ -1,4 +1,5 @@
 using Cmf.Common.Cli.Attributes;
+using Cmf.Common.Cli.Objects;
 using Cmf.Common.Cli.Utilities;
 using System;
 using System.Collections.Generic;
@@ -99,7 +100,7 @@ namespace Cmf.Common.Cli.Commands
         public void Execute(IDirectoryInfo path, string version, string buildNr, bool isToBumpMasterdata, bool isToBumpIoT, string packageNames, string root, string group, string workflowName, bool isToTag, bool onlyMdCustomization)
         {
             // Get All AutomationWorkflowFiles Folders
-            List<string> automationWorkflowDirectories = this.fileSystem.Directory.GetDirectories(path.FullName, "AutomationWorkflowFiles").ToList();
+            List<string> automationWorkflowDirectories = ExecutionContext.Instance.FileSystem.Directory.GetDirectories(path.FullName, "AutomationWorkflowFiles").ToList();
 
             if (!String.IsNullOrEmpty(root))
             {
@@ -118,14 +119,14 @@ namespace Cmf.Common.Cli.Commands
                 if (isToBumpIoT)
                 {
                     // Get All Group Folders
-                    List<string> groups = this.fileSystem.Directory.GetDirectories(automationWorkflowDirectory, "*").ToList();
+                    List<string> groups = ExecutionContext.Instance.FileSystem.Directory.GetDirectories(automationWorkflowDirectory, "*").ToList();
                     if (!String.IsNullOrEmpty(group) && groups.Any(gr => gr.Contains(group)))
                     {
                         // Get All Group Folders that are called group
                         groups = groups.Where(gr => gr.Contains(group)).ToList();
                     }
 
-                    groups.ForEach(group => IoTUtilities.BumpWorkflowFiles(group, version, buildNr, workflowName, packageNames, this.fileSystem));
+                    groups.ForEach(group => IoTUtilities.BumpWorkflowFiles(group, version, buildNr, workflowName, packageNames, ExecutionContext.Instance.FileSystem));
                 }
 
                 #endregion Bump AutomationWorkflow
@@ -134,7 +135,7 @@ namespace Cmf.Common.Cli.Commands
 
                 if (isToBumpMasterdata)
                 {
-                    IoTUtilities.BumpIoTMasterData(automationWorkflowDirectory, version, buildNr, this.fileSystem, onlyCustomization: onlyMdCustomization);
+                    IoTUtilities.BumpIoTMasterData(automationWorkflowDirectory, version, buildNr, ExecutionContext.Instance.FileSystem, onlyCustomization: onlyMdCustomization);
                 }
 
                 #endregion Bump IoT Masterdata

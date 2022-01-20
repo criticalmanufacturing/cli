@@ -36,10 +36,10 @@ namespace Cmf.Common.Cli.Handlers
         {
             base.Bump(version, buildNr, bumpInformation);
             // Get All AutomationWorkflowFiles Folders
-            List<string> automationWorkflowDirectory = this.fileSystem.Directory.GetDirectories(CmfPackage.GetFileInfo().DirectoryName, "AutomationWorkflowFiles", SearchOption.AllDirectories).ToList();
+            List<string> automationWorkflowDirectory = ExecutionContext.Instance.FileSystem.Directory.GetDirectories(CmfPackage.GetFileInfo().DirectoryName, "AutomationWorkflowFiles", SearchOption.AllDirectories).ToList();
 
             // Get Parent Root
-            IDirectoryInfo parentRootDirectory = Utils.GetPackageRootByType(CmfPackage.GetFileInfo().DirectoryName, PackageType.Root, this.fileSystem);
+            IDirectoryInfo parentRootDirectory = Utils.GetPackageRootByType(CmfPackage.GetFileInfo().DirectoryName, PackageType.Root, ExecutionContext.Instance.FileSystem);
             CmfPackageCollection cmfPackageIoT = parentRootDirectory.LoadCmfPackagesFromSubDirectories(packageType: PackageType.IoT);
 
             #region GetCustomPackages
@@ -50,9 +50,9 @@ namespace Cmf.Common.Cli.Handlers
             dynamic devTasksJsonObject;
             foreach (CmfPackage iotPackage in cmfPackageIoT)
             {
-                string devTasksFile = this.fileSystem.Directory.GetFiles(iotPackage.GetFileInfo().DirectoryName, ".dev-tasks.json")[0];
+                string devTasksFile = ExecutionContext.Instance.FileSystem.Directory.GetFiles(iotPackage.GetFileInfo().DirectoryName, ".dev-tasks.json")[0];
 
-                devTasksJson = this.fileSystem.File.ReadAllText(devTasksFile);
+                devTasksJson = ExecutionContext.Instance.FileSystem.File.ReadAllText(devTasksFile);
                 devTasksJsonObject = JsonConvert.DeserializeObject(devTasksJson);
 
                 packageNames += devTasksJsonObject["packagesBuildBump"]?.ToString();
@@ -85,15 +85,15 @@ namespace Cmf.Common.Cli.Handlers
                 #region Bump AutomationWorkflow
 
                 // Get All Group Folders
-                List<string> groups = this.fileSystem.Directory.GetDirectories(automationWorkflowFileGroup, "*").ToList();
+                List<string> groups = ExecutionContext.Instance.FileSystem.Directory.GetDirectories(automationWorkflowFileGroup, "*").ToList();
 
-                groups.ForEach(group => IoTUtilities.BumpWorkflowFiles(group, version, buildNr, null, packageNames, this.fileSystem));
+                groups.ForEach(group => IoTUtilities.BumpWorkflowFiles(group, version, buildNr, null, packageNames, ExecutionContext.Instance.FileSystem));
 
                 #endregion Bump AutomationWorkflow
 
                 #region Bump IoT Masterdata
 
-                IoTUtilities.BumpIoTMasterData(automationWorkflowFileGroup, version, buildNr, this.fileSystem, packageNames, onlyCustomization: true);
+                IoTUtilities.BumpIoTMasterData(automationWorkflowFileGroup, version, buildNr, ExecutionContext.Instance.FileSystem, packageNames, onlyCustomization: true);
 
                 #endregion Bump IoT Masterdata
             }

@@ -1,4 +1,5 @@
 using Cmf.Common.Cli.Attributes;
+using Cmf.Common.Cli.Objects;
 using Cmf.Common.Cli.Utilities;
 using System;
 using System.Collections.Generic;
@@ -29,7 +30,7 @@ namespace Cmf.Common.Cli.Commands
         /// </summary>
         public void Execute()
         {
-            var toolsPath = this.fileSystem.Path.Join(Utilities.FileSystemUtilities.GetProjectRoot(this.fileSystem).FullName, "Tools");
+            var toolsPath = ExecutionContext.Instance.FileSystem.Path.Join(Utilities.FileSystemUtilities.GetProjectRoot(ExecutionContext.Instance.FileSystem).FullName, "Tools");
             var pars = new Dictionary<string, string>
             {
                 {"PSScriptRoot", toolsPath}

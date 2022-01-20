@@ -40,7 +40,7 @@ namespace Cmf.Common.Cli.Handlers
                 new JSONValidatorCommand()
                 {
                     DisplayName = "JSON Validator Command",
-                    FilesToValidate = GetContentToPack(this.fileSystem.DirectoryInfo.FromDirectoryName("."))
+                    FilesToValidate = GetContentToPack(ExecutionContext.Instance.FileSystem.DirectoryInfo.FromDirectoryName("."))
                 }
             };
 
@@ -77,7 +77,7 @@ namespace Cmf.Common.Cli.Handlers
 
                 var steps = this.FilesToPack.Select(ftp =>
                 {
-                    var target = this.fileSystem.Path.GetRelativePath(packageOutputDir.FullName, ftp.Target.FullName).Replace('\\', '/');
+                    var target = ExecutionContext.Instance.FileSystem.Path.GetRelativePath(packageOutputDir.FullName, ftp.Target.FullName).Replace('\\', '/');
                     return ftp.ContentToPack.ContentType switch
                     {
                         ContentType.MasterData => new Step(StepType.MasterData)
@@ -126,7 +126,7 @@ namespace Cmf.Common.Cli.Handlers
 
             // Get Template
             string fileContent = GenericUtilities.GetEmbeddedResourceContent($"{CliConstants.FolderTemplates}/Data/{CliConstants.CmfPackageHostConfig}");
-            this.fileSystem.File.WriteAllText(path, fileContent);
+            ExecutionContext.Instance.FileSystem.File.WriteAllText(path, fileContent);
         }
 
         /// <summary>
@@ -135,9 +135,9 @@ namespace Cmf.Common.Cli.Handlers
         /// <param name="packageOutputDir">The package output dir.</param>
         protected override void CopyInstallDependencies(IDirectoryInfo packageOutputDir)
         {
-            IDirectoryInfo dir = fileSystem.DirectoryInfo.FromDirectoryName(fileSystem.Path.Join(AppDomain.CurrentDomain.BaseDirectory, CliConstants.FolderInstallDependencies, "Data"));
+            IDirectoryInfo dir = ExecutionContext.Instance.FileSystem.DirectoryInfo.FromDirectoryName(fileSystem.Path.Join(AppDomain.CurrentDomain.BaseDirectory, CliConstants.FolderInstallDependencies, "Data"));
             IFileInfo generateLBOsFile = dir.GetFiles("GenerateLBOs.ps1")[0];
-            string tempPath = fileSystem.Path.Combine(packageOutputDir.FullName, generateLBOsFile.Name);
+            string tempPath = ExecutionContext.Instance.FileSystem.Path.Combine(packageOutputDir.FullName, generateLBOsFile.Name);
             generateLBOsFile.CopyTo(tempPath, true);
         }
 

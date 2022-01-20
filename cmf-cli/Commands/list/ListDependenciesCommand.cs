@@ -28,14 +28,6 @@ namespace Cmf.Common.Cli.Commands
         }
 
         /// <summary>
-        /// constructor
-        /// </summary>
-        /// <param name="fileSystem"></param>
-        public ListDependenciesCommand(IFileSystem fileSystem) : base(fileSystem)
-        {
-        }
-
-        /// <summary>
         /// configure command signature
         /// </summary>
         /// <param name="cmd"></param>
@@ -65,7 +57,7 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="repos">a set of repositories for remote packages</param>
         public void Execute(IDirectoryInfo workingDir, Uri[] repos)
         {
-            IFileInfo cmfpackageFile = this.fileSystem.FileInfo.FromFileName($"{workingDir}/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = ExecutionContext.Instance.FileSystem.FileInfo.FromFileName($"{workingDir}/{CliConstants.CmfPackageFileName}");
 
             // Reading cmfPackage
             CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true);

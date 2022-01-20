@@ -76,15 +76,9 @@ namespace Cmf.Common.Cli.Handlers
         /// <summary>
         /// Initializes a new instance of the <see cref="PackageTypeHandler" /> class.
         /// </summary>
-        /// <exception cref="CliException"></exception>
-        public PackageTypeHandler(CmfPackage cmfPackage) : this(cmfPackage, cmfPackage.FileSystem) { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="PackageTypeHandler" /> class.
-        /// </summary>
         /// <param name="cmfPackage"></param>
         /// <param name="fileSystem"></param>
-        public PackageTypeHandler(CmfPackage cmfPackage, IFileSystem fileSystem)
+        public PackageTypeHandler(CmfPackage cmfPackage)
         {
             CmfPackage = cmfPackage;
             DefaultContentToIgnore = new List<string>()
@@ -99,9 +93,8 @@ namespace Cmf.Common.Cli.Handlers
 
             DFPackageType = cmfPackage.PackageType;
 
-            DependenciesFolder = fileSystem.DirectoryInfo.FromDirectoryName("./Dependencies");
+            DependenciesFolder = ExecutionContext.Instance.FileSystem.DirectoryInfo.FromDirectoryName("./Dependencies");
 
-            this.fileSystem = fileSystem;
         }
 
         #endregion
@@ -149,7 +142,7 @@ namespace Cmf.Common.Cli.Handlers
                 {
                     foreach (string xmlInjectionFile in CmfPackage.XmlInjection)
                     {
-                        IFileInfo xmlFile = this.fileSystem.FileInfo.FromFileName($"{CmfPackage.GetFileInfo().Directory}/{xmlInjectionFile}");
+                        IFileInfo xmlFile = ExecutionContext.Instance.FileSystem.FileInfo.FromFileName($"{CmfPackage.GetFileInfo().Directory}/{xmlInjectionFile}");
                         string xmlFileContent = xmlFile.ReadToString();
 
                         if (!xmlFile.Exists || string.IsNullOrEmpty(xmlFileContent))
@@ -254,7 +247,7 @@ namespace Cmf.Common.Cli.Handlers
                     IFileInfo ignoreFile = packDirectory.GetFiles(ignoreFileName).FirstOrDefault();
                     if (ignoreFile == null)
                     {
-                        string filePath = this.fileSystem.Path.Join(packDirectory.FullName, ignoreFileName);
+                        string filePath = ExecutionContext.Instance.FileSystem.Path.Join(packDirectory.FullName, ignoreFileName);
                         throw new CliException(string.Format(CliMessages.NotFound, filePath));
                     }
 
@@ -302,16 +295,16 @@ namespace Cmf.Common.Cli.Handlers
             }
 
             string tempzipPath = $"{CmfPackage.GetFileInfo().Directory.FullName}/{CmfPackage.PackageName}.zip";
-            if (this.fileSystem.File.Exists(tempzipPath))
+            if (ExecutionContext.Instance.FileSystem.File.Exists(tempzipPath))
             {
-                this.fileSystem.File.Delete(tempzipPath);
+                ExecutionContext.Instance.FileSystem.File.Delete(tempzipPath);
             }
 
             FileSystemUtilities.ZipDirectory(tempzipPath, packageOutputDir);
 
             // move to final destination
             string destZipPath = $"{outputDir.FullName}/{CmfPackage.ZipPackageName}";
-            this.fileSystem.File.Move(tempzipPath, destZipPath, true);
+            ExecutionContext.Instance.FileSystem.File.Move(tempzipPath, destZipPath, true);
         }
 
         /// <summary>
@@ -375,7 +368,7 @@ namespace Cmf.Common.Cli.Handlers
 
                                 string destPackDir = $"{packageOutputDir.FullName}/{_target}/{_packDirectoryName}";
                                 List<string> contentToIgnore = GetContentToIgnore(contentToPack, packDirectory, DefaultContentToIgnore);
-                                filesToPack.AddRange(FileSystemUtilities.GetFilesToPack(contentToPack, packDirectory.FullName, destPackDir, this.fileSystem, contentToIgnore));
+                                filesToPack.AddRange(FileSystemUtilities.GetFilesToPack(contentToPack, packDirectory.FullName, destPackDir, ExecutionContext.Instance.FileSystem, contentToIgnore));
                             }
 
                             #endregion
@@ -397,7 +390,7 @@ namespace Cmf.Common.Cli.Handlers
                                     continue;
                                 }
 
-                                IDirectoryInfo _targetFolder = this.fileSystem.DirectoryInfo.FromDirectoryName($"{packageOutputDir.FullName}/{_target}");
+                                IDirectoryInfo _targetFolder = ExecutionContext.Instance.FileSystem.DirectoryInfo.FromDirectoryName($"{packageOutputDir.FullName}/{_target}");
                                 if (!_targetFolder.Exists)
                                 {
                                     _targetFolder.Create();
@@ -407,7 +400,7 @@ namespace Cmf.Common.Cli.Handlers
                                 {
                                     ContentToPack = contentToPack,
                                     Source = packFile,
-                                    Target = this.fileSystem.FileInfo.FromFileName(destPackFile)
+                                    Target = ExecutionContext.Instance.FileSystem.FileInfo.FromFileName(destPackFile)
                                 });
                             }
 
@@ -563,7 +556,7 @@ namespace Cmf.Common.Cli.Handlers
                 Log.Debug($"Found package {identifier} at {dependency.CmfPackage.Uri.AbsoluteUri}");
                 if (dependency.CmfPackage.Uri.IsDirectory())
                 {
-                    using (Stream zipToOpen = this.fileSystem.FileStream.Create(dependency.CmfPackage.Uri.LocalPath, FileMode.Open))
+                    using (Stream zipToOpen = ExecutionContext.Instance.FileSystem.FileStream.Create(dependency.CmfPackage.Uri.LocalPath, FileMode.Open))
                     {
                         using (ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read))
                         {
@@ -573,8 +566,8 @@ namespace Cmf.Common.Cli.Handlers
 
                             foreach (var entry in entriesToExtract)
                             {
-                                var target = this.fileSystem.Path.Join(this.DependenciesFolder.FullName, identifier, entry.Item2);
-                                var targetDir = this.fileSystem.Path.GetDirectoryName(target);
+                                var target = ExecutionContext.Instance.FileSystem.Path.Join(this.DependenciesFolder.FullName, identifier, entry.Item2);
+                                var targetDir = ExecutionContext.Instance.FileSystem.Path.GetDirectoryName(target);
                                 if (target.EndsWith("/"))
                                 {
                                     // this a dotnet bug: if a folder contains a ., the library assumes it's a file and adds it as an entry
@@ -582,16 +575,16 @@ namespace Cmf.Common.Cli.Handlers
                                     continue;
                                 }
 
-                                if (!fileSystem.File.Exists(target)) // TODO: support overwriting if requested
+                                if (!ExecutionContext.Instance.FileSystem.File.Exists(target)) // TODO: support overwriting if requested
                                 {
                                     var overwrite = false;
                                     Log.Debug($"Extracting {entry.Item1.FullName} to {target}");
                                     if (!string.IsNullOrEmpty(targetDir))
                                     {
-                                        fileSystem.Directory.CreateDirectory(targetDir);
+                                        ExecutionContext.Instance.FileSystem.Directory.CreateDirectory(targetDir);
                                     }
 
-                                    entry.Item1.ExtractToFile(target, overwrite, fileSystem);
+                                    entry.Item1.ExtractsToFile(target, overwrite);
                                 }
                                 else
                                 {

@@ -33,13 +33,11 @@ namespace Cmf.Common.Cli.Objects
         /// </summary>
         private bool IsToSetDefaultValues;
 
-        private IFileSystem fileSystem;
 
         #endregion
 
         #region Internal Properties
 
-        internal IFileSystem FileSystem => fileSystem;
         
         /// <summary>
         /// Gets the name of the package.
@@ -308,7 +306,7 @@ namespace Cmf.Common.Cli.Objects
         public CmfPackage(string name, string packageId, string version, string description, PackageType packageType,
                           string targetDirectory, string targetLayer, bool? isInstallable, bool? isUniqueInstall, string keywords,
                           bool? isToSetDefaultSteps, DependencyCollection dependencies, List<Step> steps,
-                          List<ContentToPack> contentToPack, List<string> xmlInjection, bool? waitForIntegrationEntries, DependencyCollection testPackages = null) : this()
+                          List<ContentToPack> contentToPack, List<string> xmlInjection, bool? waitForIntegrationEntries, DependencyCollection testPackages = null) 
         {
             Name = name;
             PackageId = packageId ?? throw new ArgumentNullException(nameof(packageId));
@@ -333,20 +331,9 @@ namespace Cmf.Common.Cli.Objects
         }
 
         /// <summary>
-        /// initialize an empty CmfPackage
-        /// </summary>
-        public CmfPackage() : this(fileSystem: new FileSystem()) 
-        {    
-        }
-
-        /// <summary>
         /// Initialize an empty CmfPackage with a specific file system
         /// </summary>
         /// <param name="fileSystem"></param>
-        public CmfPackage(IFileSystem fileSystem) 
-        {
-            this.fileSystem = fileSystem;
-        }
 
         /// <summary>
         /// Initialize CmfPackage with PackageId, Version and Uri
@@ -575,7 +562,6 @@ namespace Cmf.Common.Cli.Objects
             cmfPackage.FileInfo = file;
             cmfPackage.Location = PackageLocation.Local;
             cmfPackage.ValidatePackage();
-            cmfPackage.fileSystem = ExecutionContext.Instance.FileSystem;
 
             return cmfPackage;
         }
@@ -634,9 +620,8 @@ namespace Cmf.Common.Cli.Objects
         /// <param name="setDefaultValues">should set default values</param>
         /// <param name="fileSystem">the underlying file system</param>
         /// <returns>a CmfPackage</returns>
-        public static CmfPackage FromManifest(string manifest, bool setDefaultValues = false, IFileSystem fileSystem = null)
+        public static CmfPackage FromManifest(string manifest, bool setDefaultValues = false)
         {
-            fileSystem ??= new FileSystem();
             StringReader dFManifestReader = new(manifest);
             XDocument dFManifestTemplate = XDocument.Load(dFManifestReader);
             var tokens = new Dictionary<string, string>();
@@ -695,7 +680,6 @@ namespace Cmf.Common.Cli.Objects
                 );
 
             cmfPackage.Location = PackageLocation.Repository;
-            cmfPackage.fileSystem = fileSystem;
 
             return cmfPackage;
         }
@@ -735,7 +719,7 @@ namespace Cmf.Common.Cli.Objects
             string cmfPackageJson = JsonConvert.SerializeObject(this, jsonSerializerSettings);
 
             IFileInfo file = GetFileInfo();
-            this.fileSystem.File.WriteAllText(file.FullName, cmfPackageJson);
+            ExecutionContext.Instance.FileSystem.File.WriteAllText(file.FullName, cmfPackageJson);
         }
 
         /// <summary>

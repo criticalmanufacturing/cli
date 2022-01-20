@@ -4,6 +4,7 @@ using System.CommandLine.Invocation;
 using System.IO.Abstractions;
 using System.Text.Json;
 using Cmf.Common.Cli.Attributes;
+using Cmf.Common.Cli.Objects;
 using Cmf.Common.Cli.Utilities;
 
 namespace Cmf.Common.Cli.Commands.New
@@ -16,11 +17,6 @@ namespace Cmf.Common.Cli.Commands.New
     {
         /// <inheritdoc />
         public TestCommand() : base("test", Enums.PackageType.Tests)
-        {
-        }
-
-        /// <inheritdoc />
-        public TestCommand(IFileSystem fileSystem) : base("test", Enums.PackageType.Tests, fileSystem)
         {
         }
 
@@ -50,8 +46,8 @@ namespace Cmf.Common.Cli.Commands.New
         public void Execute(string version)
         {
             var packageName = "Cmf.Custom.Tests";
-            var projectRoot = FileSystemUtilities.GetProjectRoot(this.fileSystem);
-            var projectConfig = FileSystemUtilities.ReadProjectConfig(this.fileSystem);
+            var projectRoot = FileSystemUtilities.GetProjectRoot(ExecutionContext.Instance.FileSystem);
+            var projectConfig = FileSystemUtilities.ReadProjectConfig(ExecutionContext.Instance.FileSystem);
             var tenant = projectConfig.RootElement.GetProperty("Tenant").GetString();
             var args = new List<string>()
             {

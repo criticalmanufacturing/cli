@@ -42,15 +42,15 @@ namespace Cmf.Common.Cli.Handlers
                 {
                     Command = "restore",
                     DisplayName = "NuGet restore",
-                    Solution = this.fileSystem.FileInfo.FromFileName(Path.Join(cmfPackage.GetFileInfo().Directory.FullName, "Business.sln")),
-                    NuGetConfig = this.fileSystem.FileInfo.FromFileName(Path.Join(FileSystemUtilities.GetProjectRoot(this.fileSystem, throwException: true).FullName, "NuGet.Config")),
+                    Solution = ExecutionContext.Instance.FileSystem.FileInfo.FromFileName(Path.Join(cmfPackage.GetFileInfo().Directory.FullName, "Business.sln")),
+                    NuGetConfig = ExecutionContext.Instance.FileSystem.FileInfo.FromFileName(Path.Join(FileSystemUtilities.GetProjectRoot(ExecutionContext.Instance.FileSystem, throwException: true).FullName, "NuGet.Config")),
                     WorkingDirectory = cmfPackage.GetFileInfo().Directory
                 },
                 new DotnetCommand()
                 {
                     Command = "build",
                     DisplayName = "Build Business Solution",
-                    Solution = this.fileSystem.FileInfo.FromFileName(Path.Join(cmfPackage.GetFileInfo().Directory.FullName, "Business.sln")),
+                    Solution = ExecutionContext.Instance.FileSystem.FileInfo.FromFileName(Path.Join(cmfPackage.GetFileInfo().Directory.FullName, "Business.sln")),
                     Configuration = "Release",
                     WorkingDirectory = cmfPackage.GetFileInfo().Directory,
                     Args = new [] { "--no-restore "}
@@ -75,11 +75,11 @@ namespace Cmf.Common.Cli.Handlers
             }
 
             // Assembly Info
-            string[] filesToUpdate = this.fileSystem.Directory.GetFiles(".", "AssemblyInfo.cs", SearchOption.AllDirectories);
+            string[] filesToUpdate = ExecutionContext.Instance.FileSystem.Directory.GetFiles(".", "AssemblyInfo.cs", SearchOption.AllDirectories);
             string pattern = @"Version\(\""[0-9.]*\""\)";
             foreach (var filePath in filesToUpdate)
             {
-                string text = this.fileSystem.File.ReadAllText(filePath);
+                string text = ExecutionContext.Instance.FileSystem.File.ReadAllText(filePath);
                 var metadataVersionInfo = Regex.Match(text, pattern, RegexOptions.Singleline)?.Value?.Split("\"")[1].Split('.');
                 string major = versionTags != null && versionTags.Length > 0 ? versionTags[0] : metadataVersionInfo[0];
                 string minor = versionTags != null && versionTags.Length > 1 ? versionTags[1] : metadataVersionInfo[1];
@@ -87,7 +87,7 @@ namespace Cmf.Common.Cli.Handlers
                 string build = !string.IsNullOrEmpty(buildNr) ? buildNr : "0";
                 string newVersion = string.Format(@"Version(""{0}.{1}.{2}.{3}"")", major, minor, patch, build);
                 text = Regex.Replace(text, pattern, newVersion, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                this.fileSystem.File.WriteAllText(filePath, text);
+                ExecutionContext.Instance.FileSystem.File.WriteAllText(filePath, text);
             }
         }
     }

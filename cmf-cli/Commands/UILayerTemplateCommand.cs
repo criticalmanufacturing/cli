@@ -4,6 +4,7 @@ using System.IO.Abstractions;
 using System.Linq;
 using Cmf.Common.Cli.Builders;
 using Cmf.Common.Cli.Enums;
+using Cmf.Common.Cli.Objects;
 
 namespace Cmf.Common.Cli.Commands
 {
@@ -18,10 +19,6 @@ namespace Cmf.Common.Cli.Commands
         {
         }
 
-        /// <inheritdoc />
-        protected UILayerTemplateCommand(string commandName, PackageType packageType, IFileSystem fileSystem) : base(commandName, packageType, fileSystem)
-        {
-        }
 
         /// <summary>
         /// Clones HTML Starter from github, checkout desired target version
@@ -59,12 +56,12 @@ namespace Cmf.Common.Cli.Commands
             {
                 try
                 {
-                    this.fileSystem.Directory.GetFiles(folder?.FullName,
+                    ExecutionContext.Instance.FileSystem.Directory.GetFiles(folder?.FullName,
                         "*.*",
                         SearchOption.AllDirectories).ToList().ForEach(file =>
                     {
-                        this.fileSystem.File.SetAttributes(file, FileAttributes.Normal); // remove read-only bits
-                        this.fileSystem.File.Delete(file);
+                        ExecutionContext.Instance.FileSystem.File.SetAttributes(file, FileAttributes.Normal); // remove read-only bits
+                        ExecutionContext.Instance.FileSystem.File.Delete(file);
                     });
                     folder?.Delete(true);
                     break;
