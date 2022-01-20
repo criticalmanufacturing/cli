@@ -564,7 +564,7 @@ namespace Cmf.Common.Cli.Objects
         /// <exception cref="CliException"></exception>
         public static CmfPackage Load(IFileInfo file, bool setDefaultValues = false, IFileSystem fileSystem = null)
         {
-            fileSystem ??= new FileSystem();
+            fileSystem ??= ExecutionContext.Instance.FileSystem;
             if (!file.Exists)
             {
                 throw new CliException(string.Format(CliMessages.NotFound, file.FullName));
