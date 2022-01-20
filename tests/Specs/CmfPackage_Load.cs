@@ -46,7 +46,7 @@ namespace tests
             try
             {
                 // Reading cmfPackage
-                cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true, fileSystem);
+                cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true);
             }
             catch (Exception ex)
             {
@@ -91,7 +91,7 @@ namespace tests
             try
             {
                 // Reading cmfPackage
-                CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true, fileSystem);
+                CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true);
             }
             catch (Exception ex)
             {
@@ -134,7 +134,7 @@ namespace tests
             try
             {
                 // Reading cmfPackage
-                CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true, fileSystem);
+                CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true);
             }
             catch (Exception ex)
             {
