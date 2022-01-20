@@ -40,7 +40,7 @@ namespace Cmf.Common.Cli.Objects
         #region Internal Properties
 
         internal IFileSystem FileSystem => fileSystem;
-        
+
         /// <summary>
         /// Gets the name of the package.
         /// </summary>
@@ -118,7 +118,7 @@ namespace Cmf.Common.Cli.Objects
         /// </value>
         [JsonProperty(Order = 5)]
         public string TargetDirectory { get; private set; }
-        
+
         /// <summary>
         /// Gets or sets the target layer, which means the container in which the packages contents should be installed.
         /// This is used when the package is installed using Environment Manager and ignored when it is installed using Deployment Framework.
@@ -224,7 +224,7 @@ namespace Cmf.Common.Cli.Objects
         /// </summary>
         [JsonProperty(Order = 17)]
         public int HandlerVersion { get; private set; }
-        
+
         /// <summary>
         /// Should the Deployment Framework wait for the Integration Entries created by the package
         /// This fails the package installation if any Integration Entry fails
@@ -335,15 +335,15 @@ namespace Cmf.Common.Cli.Objects
         /// <summary>
         /// initialize an empty CmfPackage
         /// </summary>
-        public CmfPackage() : this(fileSystem: new FileSystem()) 
-        {    
+        public CmfPackage() : this(fileSystem: new FileSystem())
+        {
         }
 
         /// <summary>
         /// Initialize an empty CmfPackage with a specific file system
         /// </summary>
         /// <param name="fileSystem"></param>
-        public CmfPackage(IFileSystem fileSystem) 
+        public CmfPackage(IFileSystem fileSystem)
         {
             this.fileSystem = fileSystem;
         }
@@ -438,7 +438,7 @@ namespace Cmf.Common.Cli.Objects
                 Name = string.IsNullOrEmpty(Name) ? string.IsNullOrEmpty(name) ? $"{PackageId.Replace(".", " ")}" : name : Name;
 
                 TargetDirectory = string.IsNullOrEmpty(TargetDirectory) ? targetDirectory : TargetDirectory;
-                
+
                 TargetLayer = string.IsNullOrEmpty(TargetLayer) ? targetLayer : TargetLayer;
 
                 IsInstallable ??= isInstallable;
@@ -489,7 +489,7 @@ namespace Cmf.Common.Cli.Objects
         /// <param name="repoUris">the address of the package repositories (currently only folders are supported)</param>
         /// <param name="recurse">should we run recursively</param>
         /// <returns>this CmfPackage for chaining, but the method itself is mutable</returns>
-        public void LoadDependencies(IEnumerable<Uri> repoUris, bool recurse = false, IFileSystem fileSystem = null)
+        public void LoadDependencies(IEnumerable<Uri> repoUris, bool recurse = false)
         {
             List<CmfPackage> loadedPackages = new();
             loadedPackages.Add(this);
@@ -503,7 +503,7 @@ namespace Cmf.Common.Cli.Objects
                     Log.Error(CliMessages.UrlsNotSupported);
                     return;
                 }
-                
+
                 IDirectoryInfo[] repoDirectories = repoUris?.Select(r => r.GetDirectory()).ToArray();
                 var missingRepoDirectories = repoDirectories?.Where(r => r.Exists == false).ToArray();
                 if (missingRepoDirectories.HasAny())
@@ -523,12 +523,12 @@ namespace Cmf.Common.Cli.Objects
                     if (dependencyPackage == null)
                     {
                         dependencyPackage = LoadFromRepo(repoDirectories, dependency.Id, dependency.Version);
-                            }
+                    }
 
                     // 3) search in the source code repository (only if this is a local package)
                     if (dependencyPackage == null && this.Location == PackageLocation.Local)
                     {
-                        dependencyPackage = FileInfo.Directory.LoadCmfPackagesFromSubDirectories(setDefaultValues: true, fileSystem: fileSystem).GetDependency(dependency);
+                        dependencyPackage = FileInfo.Directory.LoadCmfPackagesFromSubDirectories(setDefaultValues: true).GetDependency(dependency);
                         if (dependencyPackage != null)
                         {
                             dependencyPackage.Uri = new Uri(dependencyPackage.FileInfo.FullName);

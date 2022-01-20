@@ -39,6 +39,7 @@ namespace tests
                 }}")}
             });
 
+            ExecutionContext.Initialize(fileSystem);
             IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
 
             string message = string.Empty;
@@ -85,6 +86,7 @@ namespace tests
                 }}")}
             });
 
+            ExecutionContext.Initialize(fileSystem);
             IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
 
             string message = string.Empty;
@@ -128,6 +130,7 @@ namespace tests
                 }}")}
             });
 
+            ExecutionContext.Initialize(fileSystem);
             IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
 
             string message = string.Empty;
@@ -161,6 +164,7 @@ namespace tests
                   ""isUniqueInstall"": false
                 }}")}
             });
+            ExecutionContext.Initialize(fileSystem);
 
             IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
 
@@ -169,7 +173,7 @@ namespace tests
             try
             {
                 // Reading cmfPackage
-                cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true, fileSystem);
+                cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true);
             }
             catch (Exception ex)
             {
