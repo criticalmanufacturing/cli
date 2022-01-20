@@ -1,4 +1,5 @@
 ﻿using Cmf.Common.Cli.Attributes;
+using Cmf.Common.Cli.Objects;
 using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
@@ -22,17 +23,11 @@ namespace Cmf.Common.Cli.Commands.New
         }
 
         /// <inheritdoc />
-        public DatabaseCommand(IFileSystem fileSystem) : base("database", Enums.PackageType.Database, fileSystem)
-        {
-            this.registerInParent = false;
-        }
-
-        /// <inheritdoc />
         protected override List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args, JsonDocument projectConfig)
         {
             var relativePathToRoot =
-                this.fileSystem.Path.Join("..", "..", //always two levels deeper
-                    this.fileSystem.Path.GetRelativePath(
+                ExecutionContext.Instance.FileSystem.Path.Join("..", "..", //always two levels deeper
+                    ExecutionContext.Instance.FileSystem.Path.GetRelativePath(
                         workingDir.FullName,
                         projectRoot.FullName)
                 ).Replace("\\", "/");

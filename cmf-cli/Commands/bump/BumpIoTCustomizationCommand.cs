@@ -64,7 +64,7 @@ namespace Cmf.Common.Cli.Commands
         /// <exception cref="CliException"></exception>
         public void Execute(IDirectoryInfo packagePath, string version, string buildNr, string packageNames, bool isToTag)
         {
-            IFileInfo cmfpackageFile = this.fileSystem.FileInfo.FromFileName($"{packagePath}/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = ExecutionContext.Instance.FileSystem.FileInfo.FromFileName($"{packagePath}/{CliConstants.CmfPackageFileName}");
 
             if (string.IsNullOrEmpty(version))
             {
@@ -96,12 +96,12 @@ namespace Cmf.Common.Cli.Commands
                 foreach (var iotPackage in iotPackages)
                 {
                     // IoT -> src -> Package XPTO
-                    IoTUtilities.BumpIoTCustomPackages(iotPackage.GetFileInfo().DirectoryName, version, buildNr, packageNames, this.fileSystem);
+                    IoTUtilities.BumpIoTCustomPackages(iotPackage.GetFileInfo().DirectoryName, version, buildNr, packageNames, ExecutionContext.Instance.FileSystem);
                 }
             }
             else
             {
-                IoTUtilities.BumpIoTCustomPackages(cmfPackage.GetFileInfo().DirectoryName, version, buildNr, packageNames, this.fileSystem);
+                IoTUtilities.BumpIoTCustomPackages(cmfPackage.GetFileInfo().DirectoryName, version, buildNr, packageNames, ExecutionContext.Instance.FileSystem);
             }
         }
     }

@@ -57,7 +57,7 @@ namespace Cmf.Common.Cli.Commands
         /// <exception cref="CliException"></exception>
         public void Execute(DirectoryInfo packagePath, string version, string buildNr, string root)
         {
-            IFileInfo cmfpackageFile = this.fileSystem.FileInfo.FromFileName($"{packagePath}/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = ExecutionContext.Instance.FileSystem.FileInfo.FromFileName($"{packagePath}/{CliConstants.CmfPackageFileName}");
 
             if (string.IsNullOrEmpty(version) && string.IsNullOrEmpty(buildNr))
             {

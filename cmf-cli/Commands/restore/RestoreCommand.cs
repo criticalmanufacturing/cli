@@ -29,7 +29,7 @@ namespace Cmf.Common.Cli.Commands.restore
                 aliases: new string[] { "-r", "--repos", "--repo" },
                 description: "Repositories where dependencies are located (folder)"));
             
-            var packageRoot = FileSystemUtilities.GetPackageRoot(this.fileSystem);
+            var packageRoot = FileSystemUtilities.GetPackageRoot(ExecutionContext.Instance.FileSystem);
             var arg = new Argument<IDirectoryInfo>(
                 name: "packagePath",
                 description: "Package path");
@@ -37,8 +37,8 @@ namespace Cmf.Common.Cli.Commands.restore
 
             if (packageRoot != null)
             {
-                var packagePath = this.fileSystem.Path.GetRelativePath(this.fileSystem.Directory.GetCurrentDirectory(), packageRoot.FullName);
-                arg.SetDefaultValue(this.fileSystem.DirectoryInfo.FromDirectoryName(packagePath));
+                var packagePath = ExecutionContext.Instance.FileSystem.Path.GetRelativePath(ExecutionContext.Instance.FileSystem.Directory.GetCurrentDirectory(), packageRoot.FullName);
+                arg.SetDefaultValue(ExecutionContext.Instance.FileSystem.DirectoryInfo.FromDirectoryName(packagePath));
             }
             cmd.Handler = CommandHandler.Create<IDirectoryInfo, Uri[]>(Execute);
         }
@@ -50,7 +50,7 @@ namespace Cmf.Common.Cli.Commands.restore
         /// <param name="repos">The package repositories URI/path</param>
         public void Execute(IDirectoryInfo packagePath, Uri[] repos)
         {
-            IFileInfo cmfpackageFile = this.fileSystem.FileInfo.FromFileName($"{packagePath}/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = ExecutionContext.Instance.FileSystem.FileInfo.FromFileName($"{packagePath}/{CliConstants.CmfPackageFileName}");
 
             if (repos != null)
             {

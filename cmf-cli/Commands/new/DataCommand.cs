@@ -6,6 +6,7 @@ using System.IO.Abstractions;
 using System.Text.Json;
 using Cmf.Common.Cli.Attributes;
 using Cmf.Common.Cli.Builders;
+using Cmf.Common.Cli.Objects;
 
 namespace Cmf.Common.Cli.Commands.New
 {
@@ -17,11 +18,6 @@ namespace Cmf.Common.Cli.Commands.New
     {
         /// <inheritdoc />
         public DataCommand() : base("data", Enums.PackageType.Data)
-        {
-        }
-
-        /// <inheritdoc />
-        public DataCommand(IFileSystem fileSystem) : base("data", Enums.PackageType.Data, fileSystem)
         {
         }
 
@@ -42,8 +38,8 @@ namespace Cmf.Common.Cli.Commands.New
         protected override List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args, JsonDocument projectConfig)
         {
             var relativePathToRoot =
-                this.fileSystem.Path.Join("..", //always one level deeper
-                    this.fileSystem.Path.GetRelativePath(
+                ExecutionContext.Instance.FileSystem.Path.Join("..", //always one level deeper
+                    ExecutionContext.Instance.FileSystem.Path.GetRelativePath(
                         workingDir.FullName,
                         projectRoot.FullName)
                 ).Replace("\\", "/");
@@ -74,18 +70,18 @@ namespace Cmf.Common.Cli.Commands.New
             if (businessPackage != null)
             {
                 // add the new project to the business solution
-                var businessSlnPath = this.fileSystem.Path.Join(businessPackage.FullName, "Business.sln");
-                if (this.fileSystem.File.Exists(businessSlnPath))
+                var businessSlnPath = ExecutionContext.Instance.FileSystem.Path.Join(businessPackage.FullName, "Business.sln");
+                if (ExecutionContext.Instance.FileSystem.File.Exists(businessSlnPath))
                 {
                     var nameIdx = Array.FindIndex(base.executedArgs, item => string.Equals(item, "--name"));
                     var tenantIdx = Array.FindIndex(base.executedArgs, item => string.Equals(item, "--Tenant"));
-                    var csproj = this.fileSystem.Path.Join(
+                    var csproj = ExecutionContext.Instance.FileSystem.Path.Join(
                         workingDir.FullName, 
                         base.executedArgs[nameIdx + 1],
-                        this.fileSystem.Path.Join(
+                        ExecutionContext.Instance.FileSystem.Path.Join(
                             "DEEs",
                             $"Cmf.Custom.{base.executedArgs[tenantIdx + 1]}.Actions.csproj"));
-                    if (!this.fileSystem.File.Exists(csproj))
+                    if (!ExecutionContext.Instance.FileSystem.File.Exists(csproj))
                     {
                         Log.Warning($"Tried to inject project {csproj} into solution {businessSlnPath} but failed, project does not exist.");
                         return;
@@ -95,7 +91,7 @@ namespace Cmf.Common.Cli.Commands.New
                     var slnAddCmd = new DotnetCommand()
                     {
                         Command = "sln",
-                        Solution = this.fileSystem.FileInfo.FromFileName(businessSlnPath),
+                        Solution = ExecutionContext.Instance.FileSystem.FileInfo.FromFileName(businessSlnPath),
                         Args = new[]
                         {
                             "add",

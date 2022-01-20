@@ -87,7 +87,7 @@ namespace tests.Specs
             ExecutionContext.Initialize(fileSystem);
             fileSystem.Directory.SetCurrentDirectory(MockUnixSupport.Path(@"c:\test"));
             
-            CmfPackage cmfpackageFile = CmfPackage.Load(fileSystem.FileInfo.FromFileName("/test/cmfpackage.json"), setDefaultValues: true, fileSystem);
+            CmfPackage cmfpackageFile = CmfPackage.Load(fileSystem.FileInfo.FromFileName("/test/cmfpackage.json"), setDefaultValues: true);
             IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile, setDefaultValues: false);
 
             var repo = new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = ciRepo }.Uri;
@@ -177,7 +177,7 @@ namespace tests.Specs
             ExecutionContext.Initialize(fileSystem);
             fileSystem.Directory.SetCurrentDirectory(MockUnixSupport.Path(@"c:\test"));
             
-            CmfPackage cmfpackageFile = CmfPackage.Load(fileSystem.FileInfo.FromFileName("/test/cmfpackage.json"), setDefaultValues: true, fileSystem);
+            CmfPackage cmfpackageFile = CmfPackage.Load(fileSystem.FileInfo.FromFileName("/test/cmfpackage.json"), setDefaultValues: true);
             IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile, setDefaultValues: false);
 
             var repo = new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = MockUnixSupport.Path(@"c:\missingRepo")}.Uri;

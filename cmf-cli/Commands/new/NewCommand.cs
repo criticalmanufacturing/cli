@@ -50,12 +50,5 @@ namespace Cmf.Common.Cli.Commands
         {
         }
 
-        /// <summary>
-        /// constructor
-        /// </summary>
-        /// <param name="fileSystem"></param>
-        public NewCommand(IFileSystem fileSystem) : base("new", fileSystem)
-        {
-        }
     }
 }

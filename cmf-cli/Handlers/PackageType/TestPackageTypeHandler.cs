@@ -53,15 +53,15 @@ namespace Cmf.Common.Cli.Handlers
                 {
                     Command = "restore",
                     DisplayName = "NuGet restore",
-                    Solution = this.fileSystem.FileInfo.FromFileName(this.fileSystem.Path.Join(cmfPackage.GetFileInfo().Directory.FullName, "Tests.sln")),
-                    NuGetConfig = this.fileSystem.FileInfo.FromFileName(this.fileSystem.Path.Join(FileSystemUtilities.GetProjectRoot(this.fileSystem, throwException: true).FullName, "NuGet.Config")),
+                    Solution = ExecutionContext.Instance.FileSystem.FileInfo.FromFileName(ExecutionContext.Instance.FileSystem.Path.Join(cmfPackage.GetFileInfo().Directory.FullName, "Tests.sln")),
+                    NuGetConfig = ExecutionContext.Instance.FileSystem.FileInfo.FromFileName(ExecutionContext.Instance.FileSystem.Path.Join(FileSystemUtilities.GetProjectRoot(ExecutionContext.Instance.FileSystem, throwException: true).FullName, "NuGet.Config")),
                     WorkingDirectory = cmfPackage.GetFileInfo().Directory
                 },
                 new DotnetCommand()
                 {
                     Command = "build",
                     DisplayName = "Build Tests Solution",
-                    Solution = this.fileSystem.FileInfo.FromFileName(this.fileSystem.Path.Join(cmfPackage.GetFileInfo().Directory.FullName, "Tests.sln")),
+                    Solution = ExecutionContext.Instance.FileSystem.FileInfo.FromFileName(ExecutionContext.Instance.FileSystem.Path.Join(cmfPackage.GetFileInfo().Directory.FullName, "Tests.sln")),
                     Configuration = "Release",
                     WorkingDirectory = cmfPackage.GetFileInfo().Directory
                 }

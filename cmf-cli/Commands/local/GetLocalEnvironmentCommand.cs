@@ -1,4 +1,5 @@
 using Cmf.Common.Cli.Attributes;
+using Cmf.Common.Cli.Objects;
 using Cmf.Common.Cli.Utilities;
 using System;
 using System.Collections.Generic;
@@ -23,7 +24,7 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="cmd"></param>
         public override void Configure(Command cmd)
         {
-            var root = Utils.GetProjectRoot(this.fileSystem);
+            var root = Utils.GetProjectRoot(ExecutionContext.Instance.FileSystem);
             var arg = new Argument<DirectoryInfo>(
                 name: "target",
                 description: "Where to place to fetched environment");
@@ -44,7 +45,7 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="target">The target.</param>
         public void Execute(DirectoryInfo target)
         {
-            var config = Utils.ReadProjectConfig(this.fileSystem);
+            var config = Utils.ReadProjectConfig(ExecutionContext.Instance.FileSystem);
             var x = config.RootElement.EnumerateObject();
             var hostname = x.FirstOrDefault(y => y.NameEquals("vmHostname"));
             var installationPath = x.FirstOrDefault(y => y.NameEquals("InstallationPath"));

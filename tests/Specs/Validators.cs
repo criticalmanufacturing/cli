@@ -71,7 +71,7 @@ namespace tests
                 }
             });
 
-            BuildCommand buildCommand = new BuildCommand(fileSystem.FileSystem);
+            BuildCommand buildCommand = new BuildCommand();
 
             var cmd = new Command("build");
             buildCommand.Configure(cmd);
@@ -140,7 +140,7 @@ namespace tests
                 }
             });
 
-            BuildCommand buildCommand = new BuildCommand(fileSystem.FileSystem);
+            BuildCommand buildCommand = new BuildCommand();
 
             var cmd = new Command("build");
             buildCommand.Configure(cmd);
@@ -247,7 +247,7 @@ namespace tests
                 }
             });
 
-            BuildCommand buildCommand = new BuildCommand(fileSystem.FileSystem);
+            BuildCommand buildCommand = new BuildCommand();
 
             var cmd = new Command("build");
             buildCommand.Configure(cmd);
@@ -354,7 +354,7 @@ namespace tests
                 }
             });
 
-            BuildCommand buildCommand = new BuildCommand(fileSystem.FileSystem);
+            BuildCommand buildCommand = new BuildCommand();
 
             var cmd = new Command("build");
             buildCommand.Configure(cmd);

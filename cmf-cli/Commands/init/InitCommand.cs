@@ -7,6 +7,7 @@ using System.IO.Abstractions;
 using Cmf.Common.Cli.Utilities;
 using Newtonsoft.Json;
 using Cmf.Common.Cli.Constants;
+using Cmf.Common.Cli.Objects;
 
 namespace Cmf.Common.Cli.Commands
 {
@@ -75,14 +76,6 @@ namespace Cmf.Common.Cli.Commands
         /// constructor
         /// </summary>
         public InitCommand() : base("init")
-        {
-        }
-
-        /// <summary>
-        /// constructor
-        /// </summary>
-        /// <param name="fileSystem"></param>
-        public InitCommand(IFileSystem fileSystem) : base("init", fileSystem)
         {
         }
 
@@ -308,7 +301,7 @@ namespace Cmf.Common.Cli.Commands
 
             if (x.infrastructure != null)
             {
-                var infraTxt = this.fileSystem.File.ReadAllText(x.infrastructure.FullName);
+                var infraTxt = ExecutionContext.Instance.FileSystem.File.ReadAllText(x.infrastructure.FullName);
                 dynamic infraJson = JsonConvert.DeserializeObject(infraTxt);
                 if (infraJson != null)
                 {
@@ -427,8 +420,8 @@ namespace Cmf.Common.Cli.Commands
 
             if (x.config != null)
             {
-                var envConfigPath = this.fileSystem.Path.Join(FileSystemUtilities.GetProjectRoot(this.fileSystem, throwException: true).FullName, "EnvironmentConfigs");
-                x.config.CopyTo(this.fileSystem.Path.Join(envConfigPath, x.config.Name));
+                var envConfigPath = ExecutionContext.Instance.FileSystem.Path.Join(FileSystemUtilities.GetProjectRoot(ExecutionContext.Instance.FileSystem, throwException: true).FullName, "EnvironmentConfigs");
+                x.config.CopyTo(ExecutionContext.Instance.FileSystem.Path.Join(envConfigPath, x.config.Name));
             }
         }
     }

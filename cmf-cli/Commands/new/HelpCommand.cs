@@ -10,6 +10,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using Cmf.Common.Cli.Attributes;
 using Cmf.Common.Cli.Builders;
+using Cmf.Common.Cli.Objects;
 using Cmf.Common.Cli.Utilities;
 using Newtonsoft.Json;
 
@@ -25,11 +26,6 @@ namespace Cmf.Common.Cli.Commands.New
 
         /// <inheritdoc />
         public HelpCommand() : base("help", Enums.PackageType.Help)
-        {
-        }
-
-        /// <inheritdoc />
-        public HelpCommand(IFileSystem fileSystem) : base("help", Enums.PackageType.Help, fileSystem)
         {
         }
         
@@ -50,8 +46,8 @@ namespace Cmf.Common.Cli.Commands.New
         protected override List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args, JsonDocument projectConfig)
         {
             var relativePathToRoot =
-                this.fileSystem.Path.Join("..", //always one level deeper
-                    this.fileSystem.Path.GetRelativePath(
+                ExecutionContext.Instance.FileSystem.Path.Join("..", //always one level deeper
+                    ExecutionContext.Instance.FileSystem.Path.GetRelativePath(
                         workingDir.FullName,
                         projectRoot.FullName)
                 ).Replace("\\", "/");
@@ -87,8 +83,8 @@ namespace Cmf.Common.Cli.Commands.New
             this.CloneHTMLStarter(htmlStarterVersion, pkgFolder);
             
             // root package.json
-            var rootPkgJsonPath = this.fileSystem.Path.Join(pkgFolder.FullName, "package.json");
-            var json = fileSystem.File.ReadAllText(rootPkgJsonPath);
+            var rootPkgJsonPath = ExecutionContext.Instance.FileSystem.Path.Join(pkgFolder.FullName, "package.json");
+            var json = ExecutionContext.Instance.FileSystem.File.ReadAllText(rootPkgJsonPath);
             dynamic rootPkgJson = JsonConvert.DeserializeObject(json);
             if (rootPkgJson == null)
             {
@@ -104,12 +100,12 @@ namespace Cmf.Common.Cli.Commands.New
             rootPkgJson.description = $"Help customization package for {projectName}";
             rootPkgJson.repository.url = repositoryURL;
             json = JsonConvert.SerializeObject(rootPkgJson, Formatting.Indented);
-            this.fileSystem.File.WriteAllText(rootPkgJsonPath, json);
+            ExecutionContext.Instance.FileSystem.File.WriteAllText(rootPkgJsonPath, json);
             Log.Verbose("Updated package.json");
             
             // .dev-tasks.json
-            var devTasksPath = this.fileSystem.Path.Join(pkgFolder.FullName, ".dev-tasks.json");
-            var devTasksStr = fileSystem.File.ReadAllText(devTasksPath);
+            var devTasksPath = ExecutionContext.Instance.FileSystem.Path.Join(pkgFolder.FullName, ".dev-tasks.json");
+            var devTasksStr = ExecutionContext.Instance.FileSystem.File.ReadAllText(devTasksPath);
             dynamic devTasksJson = JsonConvert.DeserializeObject(devTasksStr);
             if (devTasksJson == null)
             {
@@ -122,14 +118,14 @@ namespace Cmf.Common.Cli.Commands.New
             devTasksJson.registry = npmRegistry;
             devTasksJson.channel = $"release-{mesVersion?.Replace(".", "")}";
             devTasksStr = JsonConvert.SerializeObject(devTasksJson, Formatting.Indented);
-            this.fileSystem.File.WriteAllText(devTasksPath, devTasksStr);
+            ExecutionContext.Instance.FileSystem.File.WriteAllText(devTasksPath, devTasksStr);
             Log.Verbose("Updated .dev-tasks.json");
 
             // install dev dependencies/tooling
             Log.Verbose("Executing npm install, this will take a while...");
             (new NPMCommand() { Command = "install", WorkingDirectory = pkgFolder }).Exec();
 
-            var helpDevTasksConfigPath = this.fileSystem.Path.GetTempFileName();
+            var helpDevTasksConfigPath = ExecutionContext.Instance.FileSystem.Path.GetTempFileName();
             var helpDevTasksConfigJson = 
 $@"{{
     ""answers"": {{
@@ -139,8 +135,8 @@ $@"{{
         ""channel"": ""release-{mesVersion?.Replace(".", "")}""
     }}
 }}";
-            this.fileSystem.File.WriteAllText(helpDevTasksConfigPath, helpDevTasksConfigJson);
-            var helpWebAppConfigPath = this.fileSystem.Path.GetTempFileName();
+            ExecutionContext.Instance.FileSystem.File.WriteAllText(helpDevTasksConfigPath, helpDevTasksConfigJson);
+            var helpWebAppConfigPath = ExecutionContext.Instance.FileSystem.Path.GetTempFileName();
             var helpWebAppConfigJson = 
 @"{
     ""answers"": {
@@ -149,7 +145,7 @@ $@"{{
         ""otherPackage"": ""cmf.docs.web""
     }
 }";
-            this.fileSystem.File.WriteAllText(helpWebAppConfigPath, helpWebAppConfigJson);
+            ExecutionContext.Instance.FileSystem.File.WriteAllText(helpWebAppConfigPath, helpWebAppConfigJson);
             
             // create web app
             // npx yeoman-gen-run --name @criticalmanufacturing/html --config "$pathHTMLConfig"
@@ -184,9 +180,9 @@ $@"{{
             var docPkgIndexHtml = FileSystemUtilities.GetFileContentFromPackage(documentationPackage.FullName, "index.html");
             
             // config.json
-            var configJsonPath = this.fileSystem.Path.Join(pkgFolder.FullName, "apps", 
-                this.fileSystem.Path.Join("cmf.docs.area.web", "config.json"));
-            var configJsonStr = fileSystem.File.ReadAllText(configJsonPath);
+            var configJsonPath = ExecutionContext.Instance.FileSystem.Path.Join(pkgFolder.FullName, "apps", 
+                ExecutionContext.Instance.FileSystem.Path.Join("cmf.docs.area.web", "config.json"));
+            var configJsonStr = ExecutionContext.Instance.FileSystem.File.ReadAllText(configJsonPath);
             configJsonStr = Regex.Replace(configJsonStr, @"\$\([^\)]+\)", "0", RegexOptions.Multiline);
             dynamic configJsonJson = JsonConvert.DeserializeObject(configJsonStr);
             if (configJsonJson == null)
@@ -209,19 +205,19 @@ $@"{{
                 configJsonJson.packages.bundles.i18n = false;
             }
             configJsonStr = JsonConvert.SerializeObject(configJsonJson, Formatting.Indented);
-            this.fileSystem.File.WriteAllText(configJsonPath, configJsonStr);
+            ExecutionContext.Instance.FileSystem.File.WriteAllText(configJsonPath, configJsonStr);
             Log.Verbose("Updated config.json");
             
             //index.html (copied from Documentation package)
-            var indexHtmlPath = this.fileSystem.Path.Join(pkgFolder.FullName, "apps", 
-                this.fileSystem.Path.Join("cmf.docs.area.web", "index.html"));
-            this.fileSystem.File.WriteAllText(indexHtmlPath, docPkgIndexHtml.Replace("<base href=\"/Help/\">", "<base href=\"/\">"));
+            var indexHtmlPath = ExecutionContext.Instance.FileSystem.Path.Join(pkgFolder.FullName, "apps", 
+                ExecutionContext.Instance.FileSystem.Path.Join("cmf.docs.area.web", "index.html"));
+            ExecutionContext.Instance.FileSystem.File.WriteAllText(indexHtmlPath, docPkgIndexHtml.Replace("<base href=\"/Help/\">", "<base href=\"/\">"));
 
             // generate doc package
             Log.Verbose("Generating documentation package. This will take a while...");
             var tenant = projectConfig.RootElement.GetProperty("Tenant").GetString();
             var assetsPkgName = $"cmf.docs.area.{tenant?.ToLowerInvariant()}";
-            var helpPkgConfigPath = this.fileSystem.Path.GetTempFileName();
+            var helpPkgConfigPath = ExecutionContext.Instance.FileSystem.Path.GetTempFileName();
             var helpPkgConfigJson = 
 $@"{{
     ""answers"": {{
@@ -229,7 +225,7 @@ $@"{{
         ""dependencies"": ""{assetsPkgName}""
     }}
 }}";
-            this.fileSystem.File.WriteAllText(helpPkgConfigPath, helpPkgConfigJson);
+            ExecutionContext.Instance.FileSystem.File.WriteAllText(helpPkgConfigPath, helpPkgConfigJson);
             (new NPXCommand()
             {
                 Command = "yeoman-gen-run",
@@ -247,7 +243,7 @@ $@"{{
             Log.Verbose("Generating assets...");
             base.ExecuteTemplate("helpSrcPkg", new []
             {
-                "--output", this.fileSystem.Path.Join(pkgFolder.FullName, "src", "packages"),
+                "--output", ExecutionContext.Instance.FileSystem.Path.Join(pkgFolder.FullName, "src", "packages"),
                 "--name", assetsPkgName,
                 "--Tenant", tenant,
                 "--force"
@@ -255,15 +251,15 @@ $@"{{
             
             Log.Verbose("Changing web app port and package type...");
             // replace type of package gulpfile
-            var assetsPkgGulpFilePath = this.fileSystem.Path.Join(pkgFolder.FullName, "src", 
-                this.fileSystem.Path.Join("packages", assetsPkgName, "gulpfile.js"));
-            var assetsPkgGulpFile= fileSystem.File.ReadAllText(assetsPkgGulpFilePath);
-            this.fileSystem.File.WriteAllText(assetsPkgGulpFilePath, assetsPkgGulpFile.Replace("type: 'module'", "type: 'documentation'"));
+            var assetsPkgGulpFilePath = ExecutionContext.Instance.FileSystem.Path.Join(pkgFolder.FullName, "src", 
+                ExecutionContext.Instance.FileSystem.Path.Join("packages", assetsPkgName, "gulpfile.js"));
+            var assetsPkgGulpFile= ExecutionContext.Instance.FileSystem.File.ReadAllText(assetsPkgGulpFilePath);
+            ExecutionContext.Instance.FileSystem.File.WriteAllText(assetsPkgGulpFilePath, assetsPkgGulpFile.Replace("type: 'module'", "type: 'documentation'"));
             // replace port of webapp gulpfile
-            var webAppGulpFilePath = this.fileSystem.Path.Join(pkgFolder.FullName, 
-                this.fileSystem.Path.Join("apps", "cmf.docs.area.web", "gulpfile.js"));
-            var webAppGulpFile= fileSystem.File.ReadAllText(webAppGulpFilePath);
-            this.fileSystem.File.WriteAllText(webAppGulpFilePath, webAppGulpFile.Replace("defaultPort: 7000", "defaultPort: 7001"));
+            var webAppGulpFilePath = ExecutionContext.Instance.FileSystem.Path.Join(pkgFolder.FullName, 
+                ExecutionContext.Instance.FileSystem.Path.Join("apps", "cmf.docs.area.web", "gulpfile.js"));
+            var webAppGulpFile= ExecutionContext.Instance.FileSystem.File.ReadAllText(webAppGulpFilePath);
+            ExecutionContext.Instance.FileSystem.File.WriteAllText(webAppGulpFilePath, webAppGulpFile.Replace("defaultPort: 7000", "defaultPort: 7001"));
             Log.Information("Help package generated");
         }
     }

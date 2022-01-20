@@ -116,7 +116,7 @@ namespace Cmf.Common.Cli.Handlers
         /// <param name="packageOutputDir">The package output dir.</param>
         protected override void CopyInstallDependencies(IDirectoryInfo packageOutputDir)
         {
-            FileSystemUtilities.CopyInstallDependenciesFiles(packageOutputDir, PackageType.IoT, this.fileSystem);
+            FileSystemUtilities.CopyInstallDependenciesFiles(packageOutputDir, PackageType.IoT, ExecutionContext.Instance.FileSystem);
         }
 
         /// <summary>
@@ -134,9 +134,9 @@ namespace Cmf.Common.Cli.Handlers
 
             // Get Dev Tasks
             string parentDirectory = CmfPackage.GetFileInfo().DirectoryName;
-            string devTasksFile = this.fileSystem.Directory.GetFiles(parentDirectory, ".dev-tasks.json")[0];
+            string devTasksFile = ExecutionContext.Instance.FileSystem.Directory.GetFiles(parentDirectory, ".dev-tasks.json")[0];
 
-            string devTasksJson = this.fileSystem.File.ReadAllText(devTasksFile);
+            string devTasksJson = ExecutionContext.Instance.FileSystem.File.ReadAllText(devTasksFile);
             dynamic devTasksJsonObject = JsonConvert.DeserializeObject(devTasksJson);
 
             string packageNames = devTasksJsonObject["packagesBuildBump"]?.ToString();
@@ -154,7 +154,7 @@ namespace Cmf.Common.Cli.Handlers
             #endregion GetCustomPackages
 
             // IoT -> src -> Package XPTO
-            IoTUtilities.BumpIoTCustomPackages(CmfPackage.GetFileInfo().DirectoryName, version, buildNr, packageNames, this.fileSystem);
+            IoTUtilities.BumpIoTCustomPackages(CmfPackage.GetFileInfo().DirectoryName, version, buildNr, packageNames, ExecutionContext.Instance.FileSystem);
         }
 
         /// <summary>
@@ -173,7 +173,7 @@ namespace Cmf.Common.Cli.Handlers
                     foreach (IDirectoryInfo packDirectory in packDirectories)
                     {
                         string inputDirPath = packDirectory.FullName;
-                        IFileInfo packConfig = this.fileSystem.FileInfo.FromFileName($"{inputDirPath}/packconfig.json");
+                        IFileInfo packConfig = ExecutionContext.Instance.FileSystem.FileInfo.FromFileName($"{inputDirPath}/packconfig.json");
                         if (!packConfig.Exists)
                         {
                             Log.Warning("packconfig.json doesn't exist! packagePacker will not run.");
@@ -205,7 +205,7 @@ namespace Cmf.Common.Cli.Handlers
                 }
                 else if (contentToPack.Action == PackAction.Untar)
                 {
-                    IFileInfo tgzFile = this.fileSystem.FileInfo.FromFileName($"{CmfPackage.GetFileInfo().Directory.FullName}/{contentToPack.Source}");
+                    IFileInfo tgzFile = ExecutionContext.Instance.FileSystem.FileInfo.FromFileName($"{CmfPackage.GetFileInfo().Directory.FullName}/{contentToPack.Source}");
                     CmdCommand cmdCommand = new CmdCommand()
                     {
                         DisplayName = "tar -xzvf",
@@ -220,8 +220,8 @@ namespace Cmf.Common.Cli.Handlers
 
                     string packDirectoryName = packageJson == null ? tgzFile.Directory.Name : packageJson.name;
 
-                    IDirectoryInfo packageDirectory = this.fileSystem.DirectoryInfo.FromDirectoryName($"{packageOutputDir}/package");
-                    IDirectoryInfo destinationDirectory = this.fileSystem.DirectoryInfo.FromDirectoryName($"{packageOutputDir}/{contentToPack.Target}/{packDirectoryName}");
+                    IDirectoryInfo packageDirectory = ExecutionContext.Instance.FileSystem.DirectoryInfo.FromDirectoryName($"{packageOutputDir}/package");
+                    IDirectoryInfo destinationDirectory = ExecutionContext.Instance.FileSystem.DirectoryInfo.FromDirectoryName($"{packageOutputDir}/{contentToPack.Target}/{packDirectoryName}");
                     destinationDirectory.Parent.Create();
                     packageDirectory.MoveTo(destinationDirectory.FullName);
                 }

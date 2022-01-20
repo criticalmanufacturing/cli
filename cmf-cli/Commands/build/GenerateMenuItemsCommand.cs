@@ -6,6 +6,7 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
 using Cmf.Common.Cli.Enums;
+using Cmf.Common.Cli.Objects;
 
 namespace Cmf.Common.Cli.Commands
 {
@@ -30,8 +31,8 @@ namespace Cmf.Common.Cli.Commands
         /// </summary>
         public void Execute()
         {
-            var helpRoot = FileSystemUtilities.GetPackageRootByType(Environment.CurrentDirectory, PackageType.Help, this.fileSystem).FullName;
-            var project = FileSystemUtilities.ReadProjectConfig(this.fileSystem).RootElement.GetProperty("Tenant").GetString();
+            var helpRoot = FileSystemUtilities.GetPackageRootByType(Environment.CurrentDirectory, PackageType.Help, ExecutionContext.Instance.FileSystem).FullName;
+            var project = FileSystemUtilities.ReadProjectConfig(ExecutionContext.Instance.FileSystem).RootElement.GetProperty("Tenant").GetString();
             var pars = new Dictionary<string, string>
             {
                 {"basePath", helpRoot},

@@ -2,6 +2,7 @@ using Cmf.Common.Cli.Attributes;
 using Cmf.Common.Cli.Constants;
 using Cmf.Common.Cli.Factories;
 using Cmf.Common.Cli.Interfaces;
+using Cmf.Common.Cli.Objects;
 using Cmf.Common.Cli.Utilities;
 using System.CommandLine;
 using System.CommandLine.Invocation;
@@ -23,14 +24,6 @@ namespace Cmf.Common.Cli.Commands
         public BuildCommand()
         {
         }
-        /// <summary>
-        /// Build Command Constructor specify fileSystem
-        /// Must have this for tests
-        /// </summary>
-        /// <param name="fileSystem"></param>
-        public BuildCommand(IFileSystem fileSystem) : base(fileSystem)
-        {
-        }
 
         /// <summary>
         /// Configure command
@@ -38,11 +31,11 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="cmd"></param>
         public override void Configure(Command cmd)
         {
-            var packageRoot = FileSystemUtilities.GetPackageRoot(this.fileSystem);
+            var packageRoot = FileSystemUtilities.GetPackageRoot(ExecutionContext.Instance.FileSystem);
             var packagePath = ".";
             if (packageRoot != null)
             {
-                packagePath = this.fileSystem.Path.GetRelativePath(this.fileSystem.Directory.GetCurrentDirectory(), packageRoot.FullName);
+                packagePath = ExecutionContext.Instance.FileSystem.Path.GetRelativePath(ExecutionContext.Instance.FileSystem.Directory.GetCurrentDirectory(), packageRoot.FullName);
             }
             var arg = new Argument<IDirectoryInfo>(
                 name: "packagePath",
@@ -63,7 +56,7 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="packagePath">The package path.</param>
         public void Execute(IDirectoryInfo packagePath)
         {
-            IFileInfo cmfpackageFile = this.fileSystem.FileInfo.FromFileName($"{packagePath}/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = ExecutionContext.Instance.FileSystem.FileInfo.FromFileName($"{packagePath}/{CliConstants.CmfPackageFileName}");
 
             IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile, setDefaultValues: false);
 

@@ -56,7 +56,7 @@ namespace Cmf.Common.Cli.Commands
         /// <returns></returns>
         public void Execute(IDirectoryInfo workingDir, IDirectoryInfo outputDir, bool force)
         {
-            IFileInfo cmfpackageFile = this.fileSystem.FileInfo.FromFileName($"{workingDir}/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = ExecutionContext.Instance.FileSystem.FileInfo.FromFileName($"{workingDir}/{CliConstants.CmfPackageFileName}");
 
             // Reading cmfPackage
             CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true);
@@ -88,7 +88,7 @@ namespace Cmf.Common.Cli.Commands
                 return;
             }
 
-            IDirectoryInfo packageOutputDir = FileSystemUtilities.GetPackageOutputDir(cmfPackage, packageDirectory, this.fileSystem);
+            IDirectoryInfo packageOutputDir = FileSystemUtilities.GetPackageOutputDir(cmfPackage, packageDirectory, ExecutionContext.Instance.FileSystem);
 
             #endregion
 

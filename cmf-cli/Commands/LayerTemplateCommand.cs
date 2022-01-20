@@ -6,6 +6,7 @@ using System.Text.Json;
 using Cmf.Common.Cli.Enums;
 using Cmf.Common.Cli.Utilities;
 using System.Linq;
+using Cmf.Common.Cli.Objects;
 
 namespace Cmf.Common.Cli.Commands
 {
@@ -35,17 +36,6 @@ namespace Cmf.Common.Cli.Commands
         {
             this.packageType = packageType;
         }
-
-        /// <summary>
-        /// constructor
-        /// </summary>
-        /// <param name="commandName">the name of the command</param>
-        /// <param name="packageType">the package type</param>
-        /// <param name="fileSystem">the filesystem implementation</param>
-        protected LayerTemplateCommand(string commandName, PackageType packageType, IFileSystem fileSystem) : base(commandName, fileSystem)
-        {
-            this.packageType = packageType;
-        }
         
         /// <summary>
         /// configure the command
@@ -64,9 +54,9 @@ namespace Cmf.Common.Cli.Commands
         protected void GetBaseCommandConfig(Command cmd)
         {
             var nearestRootPackage = FileSystemUtilities.GetPackageRootByType(
-                this.fileSystem.Directory.GetCurrentDirectory(),
+                ExecutionContext.Instance.FileSystem.Directory.GetCurrentDirectory(),
                 PackageType.Root,
-                this.fileSystem
+                ExecutionContext.Instance.FileSystem
             );
 
             cmd.AddArgument(new Argument<IDirectoryInfo>(
@@ -88,10 +78,10 @@ namespace Cmf.Common.Cli.Commands
         {
             
             string featureName = null;
-            var projectRoot = FileSystemUtilities.GetProjectRoot(this.fileSystem, throwException: true);
+            var projectRoot = FileSystemUtilities.GetProjectRoot(ExecutionContext.Instance.FileSystem, throwException: true);
 
             //load .project-config
-            var projectConfig = FileSystemUtilities.ReadProjectConfig(this.fileSystem);
+            var projectConfig = FileSystemUtilities.ReadProjectConfig(ExecutionContext.Instance.FileSystem);
             var organization = Constants.CliConstants.DefaultOrganization;
             var product = Constants.CliConstants.DefaultProduct;
             if (projectConfig.RootElement.TryGetProperty("Organization", out JsonElement element)) 
@@ -107,8 +97,8 @@ namespace Cmf.Common.Cli.Commands
             if (string.Equals(projectRoot.FullName, workingDir.FullName))
             {
                 // is a root-level package.
-                var featuresPath = this.fileSystem.Path.Join(projectRoot.FullName, "Features");
-                if (this.fileSystem.Directory.Exists(featuresPath))
+                var featuresPath = ExecutionContext.Instance.FileSystem.Path.Join(projectRoot.FullName, "Features");
+                if (ExecutionContext.Instance.FileSystem.Directory.Exists(featuresPath))
                 {
                     Log.Error($"Cannot create a root-level layer package when features already exist.");
                     return null;
@@ -153,7 +143,7 @@ namespace Cmf.Common.Cli.Commands
             var (packageName, featureName) = names.Value;
             
             //load .project-config
-            var projectConfig = FileSystemUtilities.ReadProjectConfig(this.fileSystem);
+            var projectConfig = FileSystemUtilities.ReadProjectConfig(ExecutionContext.Instance.FileSystem);
             var tenant = projectConfig.RootElement.GetProperty("Tenant").GetString();
             var args = new List<string>()
             {
@@ -167,7 +157,7 @@ namespace Cmf.Common.Cli.Commands
                 "--Tenant", tenant
             };
 
-            var projectRoot = FileSystemUtilities.GetProjectRoot(this.fileSystem);
+            var projectRoot = FileSystemUtilities.GetProjectRoot(ExecutionContext.Instance.FileSystem);
             args = this.GenerateArgs(projectRoot, workingDir, args, projectConfig);
             this.executedArgs = args.ToArray();
             base.RunCommand(args);

@@ -23,20 +23,12 @@ namespace Cmf.Common.Cli.Commands.New
         }
 
         /// <summary>
-        /// constructor
-        /// </summary>
-        /// <param name="fileSystem"></param>
-        public FeatureCommand(IFileSystem fileSystem) : base("feature", fileSystem)
-        {
-        }
-
-        /// <summary>
         /// configure the command
         /// </summary>
         /// <param name="cmd"></param>
         public override void Configure(Command cmd)
         {
-            var root = FileSystemUtilities.GetProjectRoot(this.fileSystem);
+            var root = FileSystemUtilities.GetProjectRoot(ExecutionContext.Instance.FileSystem);
             cmd.AddArgument(new Argument<string>(
                 name: "packageName",
                 description: "The Feature package name"
@@ -70,7 +62,7 @@ namespace Cmf.Common.Cli.Commands.New
                 Log.Error("This command needs to run inside a project. Run `cmf init` to create a new project.");
                 return;
             }
-            var featurePath = this.fileSystem.Path.Join(workingDir.FullName, "Features");
+            var featurePath = ExecutionContext.Instance.FileSystem.Path.Join(workingDir.FullName, "Features");
             var args = new List<string>()
             {
                 // engine options

@@ -26,14 +26,6 @@ namespace Cmf.Common.Cli.Commands.New
         {
         }
 
-        /// <summary>
-        /// constructor
-        /// </summary>
-        /// <param name="fileSystem"></param>
-        public BusinessCommand(IFileSystem fileSystem) : base("business", Enums.PackageType.Business, fileSystem)
-        {
-        }
-
         /// <inheritdoc />
         protected override List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args, JsonDocument projectConfig)
         {
@@ -41,16 +33,16 @@ namespace Cmf.Common.Cli.Commands.New
             
             // calculate relative path to local environment and create a new symbol for it
             var relativePathToLocalEnv =
-                this.fileSystem.Path.Join("..", "..", //always two levels deep, this is the depth of the business solution projects
-                    this.fileSystem.Path.GetRelativePath(
+                ExecutionContext.Instance.FileSystem.Path.Join("..", "..", //always two levels deep, this is the depth of the business solution projects
+                    ExecutionContext.Instance.FileSystem.Path.GetRelativePath(
                         workingDir.FullName,
-                        this.fileSystem.Path.Join(projectRoot.FullName, "LocalEnvironment"))
+                        ExecutionContext.Instance.FileSystem.Path.Join(projectRoot.FullName, "LocalEnvironment"))
                 );
             var relativePathToDeploymentMetadata =
-                this.fileSystem.Path.Join("..", //always one levels deep, this is the depth of the business solution cmfpackage.json
-                    this.fileSystem.Path.GetRelativePath(
+                ExecutionContext.Instance.FileSystem.Path.Join("..", //always one levels deep, this is the depth of the business solution cmfpackage.json
+                    ExecutionContext.Instance.FileSystem.Path.GetRelativePath(
                         workingDir.FullName,
-                        this.fileSystem.Path.Join(projectRoot.FullName, "DeploymentMetadata"))
+                        ExecutionContext.Instance.FileSystem.Path.Join(projectRoot.FullName, "DeploymentMetadata"))
                 ).Replace("\\", "/");
 
             args.AddRange(new []

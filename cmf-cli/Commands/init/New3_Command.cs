@@ -33,14 +33,6 @@ namespace Cmf.Common.Cli.Commands
         }
 
         /// <summary>
-        /// constructor
-        /// </summary>
-        /// <param name="fileSystem"></param>
-        public New3_Command(IFileSystem fileSystem) : base(fileSystem)
-        {
-        }
-
-        /// <summary>
         /// configure command signature
         /// </summary>
         /// <param name="cmd"></param>

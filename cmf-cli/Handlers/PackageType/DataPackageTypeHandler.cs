@@ -49,7 +49,7 @@ namespace Cmf.Common.Cli.Handlers
                 new JSONValidatorCommand()
                 {
                     DisplayName = "JSON Validator Command",
-                    FilesToValidate = GetContentToPack(this.fileSystem.DirectoryInfo.FromDirectoryName("."))
+                    FilesToValidate = GetContentToPack(ExecutionContext.Instance.FileSystem.DirectoryInfo.FromDirectoryName("."))
                 }
             };
 
@@ -62,21 +62,21 @@ namespace Cmf.Common.Cli.Handlers
         /// <param name="packageOutputDir">The package output dir.</param>
         protected override void CopyInstallDependencies(IDirectoryInfo packageOutputDir)
         {
-            FileSystemUtilities.CopyInstallDependenciesFiles(packageOutputDir, PackageType.Data, this.fileSystem);
+            FileSystemUtilities.CopyInstallDependenciesFiles(packageOutputDir, PackageType.Data, ExecutionContext.Instance.FileSystem);
 
-            string globalVariablesPath = this.fileSystem.Path.Join(packageOutputDir.FullName, "EnvironmentConfigs", "GlobalVariables.yml");
+            string globalVariablesPath = ExecutionContext.Instance.FileSystem.Path.Join(packageOutputDir.FullName, "EnvironmentConfigs", "GlobalVariables.yml");
 
-            string globalVariablesFile = this.fileSystem.File.ReadAllText(globalVariablesPath);
+            string globalVariablesFile = ExecutionContext.Instance.FileSystem.File.ReadAllText(globalVariablesPath);
             globalVariablesFile = globalVariablesFile.Replace(CliConstants.TokenVersion, CmfPackage.Version);
-            this.fileSystem.File.WriteAllText(globalVariablesPath, globalVariablesFile);
+            ExecutionContext.Instance.FileSystem.File.WriteAllText(globalVariablesPath, globalVariablesFile);
 
-            IFileInfo runCustomizationInstallDF = this.fileSystem.FileInfo.FromFileName(this.fileSystem.Path.Join(packageOutputDir.FullName, "RunCustomizationInstallDF.ps1"));
+            IFileInfo runCustomizationInstallDF = ExecutionContext.Instance.FileSystem.FileInfo.FromFileName(ExecutionContext.Instance.FileSystem.Path.Join(packageOutputDir.FullName, "RunCustomizationInstallDF.ps1"));
 
             string fileContent = runCustomizationInstallDF.ReadToString();
 
             fileContent = fileContent.Replace(CliConstants.TokenPackageId, CmfPackage.PackageId);
 
-            this.fileSystem.File.WriteAllText(runCustomizationInstallDF.FullName, fileContent);
+            ExecutionContext.Instance.FileSystem.File.WriteAllText(runCustomizationInstallDF.FullName, fileContent);
         }
     }
 }
