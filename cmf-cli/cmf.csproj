@@ -79,6 +79,7 @@
 
   <ItemGroup>
     <Folder Include="Properties\" />
+    <Folder Include="resources\template_feed\securityPortal\" />
   </ItemGroup>
 
   <ItemGroup>
