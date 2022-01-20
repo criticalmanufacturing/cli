@@ -68,7 +68,7 @@ namespace Cmf.Common.Cli.Commands
             IFileInfo cmfpackageFile = this.fileSystem.FileInfo.FromFileName($"{workingDir}/{CliConstants.CmfPackageFileName}");
 
             // Reading cmfPackage
-            CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true);
+            CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true, this.fileSystem);
             
             if (repos != null)
             {
