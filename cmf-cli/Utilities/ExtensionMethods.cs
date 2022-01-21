@@ -186,11 +186,11 @@ namespace Cmf.Common.Cli.Utilities
         /// </summary>
         /// <param name="packDirectory">The pack directory.</param>
         /// <returns></returns>
-        public static object GetPackageJsonFile(this IDirectoryInfo packDirectory)
+        public static object GetFile(this IDirectoryInfo packDirectory, string fileName)
         {
             dynamic obj = null;
 
-            IFileInfo packageJsonFile = packDirectory.GetFiles(CliConstants.PackageJson).FirstOrDefault();
+            IFileInfo packageJsonFile = packDirectory.GetFiles(fileName).FirstOrDefault();
 
             if (packageJsonFile != null)
             {

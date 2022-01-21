@@ -697,6 +697,24 @@ namespace tests.Specs
             return console;
         }
 
+        [TestMethod]
+        public void SecurityPortal()
+        {
+            string dir = GetTmpDirectory();
+            CopyFixture("new", new DirectoryInfo(dir));
+
+            Random rnd = new Random();
+            string pkgVersion = $"{rnd.Next(10)}.{rnd.Next(10)}.{rnd.Next(10)}";
+
+            string cur = Directory.GetCurrentDirectory();
+
+            const string packageId = "Cmf.Custom.SecurityPortal";
+            TestConsole console = RunNew(new Cmf.Common.Cli.Commands.New.SecurityPortalCommand(), packageId, scaffoldingDir: dir);
+
+            Assert.IsTrue(File.Exists($"{dir}/Cmf.Custom.SecurityPortal/cmfpackage.json"), "Package cmfpackage.json is missing");
+            Assert.IsTrue(File.Exists($"{dir}/Cmf.Custom.SecurityPortal/config.json"), "Package config.json is missing");
+        }
+
         #region helpers
         private string GetTmpDirectory()
         {

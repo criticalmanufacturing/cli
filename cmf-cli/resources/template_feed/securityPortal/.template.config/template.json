@@ -5,7 +5,7 @@
     "cli"
   ],
   "description": "Generate a new security portal package",
-  "name": "New Feature",
+  "name": "New Security Portal",
   "identity": "cmf-cli.new.securityPortal",
   "groupIdentity": "cmf-cli.new.securityPortal",
   "shortName": "securityPortal",
@@ -25,14 +25,31 @@
       "description": "The custom package name",
       "displayName": "Package Name",
       "replaces": "<%= $CLI_PARAM_CustomPackageName %>"
-      //"fileRename": "Feature.Package"
     },
     "packageVersion": {
       "type": "parameter",
       "datatype": "string",
       "description": "The custom package version",
       "displayName": "Package Version",
-      "replaces": "<%= $CLI_PARAM_CustomPackageVersion %>"
+      "replaces": "<%= $CLI_PARAM_CustomPackageVersion %>",
+      "fileRename": "%version%"
+    },
+    "Tenant": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_Tenant %>",
+      "fileRename": "%Tenant%"
+    },
+    "idSegment": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_idSegment %>",
+      "fileRename": "%idSegment%"
+    },
+    "rootInnerRelativePath": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_rootInnerRelativePath %>"
     }
   }
 }

@@ -5,6 +5,12 @@
   "packageType": "SecurityPortal",
   "isInstallable": true,
   "isUniqueInstall": false,
+  "<keywords>cmf-root-package</keywords>": null,
   "dependencies": [
+  ],
+  "contentToPack": [
+    {
+      "source": "config.json"
+    }
   ]
 }

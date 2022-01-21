@@ -105,6 +105,11 @@
         /// </summary>
         public const string DefaultProduct = "Custom";
 
+        /// <summary>
+        /// Security Portal Path for deployment of strategies
+        /// </summary>
+        public const string DefaultStrategyPath = "$.tenants.config.$(tenant).strategies";
+
         #endregion
 
         #region Tokens
@@ -153,6 +158,39 @@
         /// The token cache Id
         /// </summary>
         public const string CacheId = "$(cacheId)";
+
+        #region Security Portal
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public const string Strategy = "$(strategy)";
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public const string StrategyPath = "$(strategyPath)";
+
+        /// <summary>
+        /// The token cache Id
+        /// </summary>
+        public const string MetadataUrl = "$(metadataUrl)";
+
+        /// <summary>
+        /// The token cache Id
+        /// </summary>
+        public const string RedirectUrl = "$(redirectUrl)";
+
+        /// <summary>
+        /// The token cache Id
+        /// </summary>
+        public const string ClientId = "$(clientId)";
+
+        /// <summary>
+        /// The token cache Id
+        /// </summary>
+        public const string Tenant = "$(tenant)";
+        #endregion
 
         #endregion
     }

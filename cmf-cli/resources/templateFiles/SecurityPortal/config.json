@@ -1,0 +1,18 @@
+﻿{
+  "@jdt.merge": [
+    {
+      "@jdt.path": "$(strategyPath)",
+      "@jdt.value": [
+        {
+          "id": "$(packageId)",
+          "type": "$(strategy)",
+          "config": {
+            "metadataUrl": "$(metadataUrl)",
+            "redirectUrl": "$(redirectUrl)",
+            "clientId": "$(clientId)"
+          }
+        }
+      ]
+    }
+  ]
+}

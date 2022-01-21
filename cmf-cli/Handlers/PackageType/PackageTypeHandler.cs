@@ -369,7 +369,7 @@ namespace Cmf.Common.Cli.Handlers
                             foreach (IDirectoryInfo packDirectory in _directoriesToPack)
                             {
                                 // If a package.json exists the packDirectoryName needs to change to the name in the package.json
-                                dynamic _packageJson = packDirectory.GetPackageJsonFile();
+                                dynamic _packageJson = packDirectory.GetFile(CliConstants.PackageJson);
 
                                 string _packDirectoryName = _packageJson == null ? packDirectory.Name : _packageJson.name;
 

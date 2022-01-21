@@ -1,0 +1,9 @@
+{
+	"id": "<%= $CLI_PARAM_CustomPackageName %>",
+	"type": "open-id-connect",
+	"config": {
+		"metadataUrl": "https://{{SSOApplicationServerURL}}/.well-known/openid-configuration",
+		"redirectUrl": "https://{{SecurityPortalBaseURL}}/tenant/<%= $CLI_PARAM_Tenant %>/login/callback",
+		"clientId": "{{SSOApplicationGeneratedClientId}}"
+	}
+}

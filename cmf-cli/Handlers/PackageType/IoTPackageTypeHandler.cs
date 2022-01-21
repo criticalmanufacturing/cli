@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using Cmf.Common.Cli.Commands.restore;
+using Cmf.Common.Cli.Constants;
 
 namespace Cmf.Common.Cli.Handlers
 {
@@ -222,7 +223,7 @@ namespace Cmf.Common.Cli.Handlers
 
                     cmdCommand.Exec();
 
-                    dynamic packageJson = tgzFile.Directory.GetPackageJsonFile();
+                    dynamic packageJson = tgzFile.Directory.GetFile(CliConstants.PackageJson);
 
                     string packDirectoryName = packageJson == null ? tgzFile.Directory.Name : packageJson.name;
 

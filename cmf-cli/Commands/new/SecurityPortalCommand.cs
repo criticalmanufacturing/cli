@@ -2,6 +2,7 @@
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO.Abstractions;
+using System.Text.Json;
 using Cmf.Common.Cli.Attributes;
 using Cmf.Common.Cli.Constants;
 using Cmf.Common.Cli.Objects;
@@ -13,12 +14,12 @@ namespace Cmf.Common.Cli.Commands.New
     /// 
     /// </summary>
     [CmfCommand("securityPortal", Parent = "new")]
-    public class SecurityPortalCommand : TemplateCommand
+    public class SecurityPortalCommand : LayerTemplateCommand
     {
         /// <summary>
         /// constructor
         /// </summary>
-        public SecurityPortalCommand() : base("securityPortal")
+        public SecurityPortalCommand() : base("securityPortal", Enums.PackageType.SecurityPortal)
         {
         }
 
@@ -26,63 +27,20 @@ namespace Cmf.Common.Cli.Commands.New
         /// constructor
         /// </summary>
         /// <param name="fileSystem"></param>
-        public SecurityPortalCommand(IFileSystem fileSystem) : base("securityPortal", fileSystem)
+        public SecurityPortalCommand(IFileSystem fileSystem) : base("securityPortal", Enums.PackageType.SecurityPortal, fileSystem)
         {
         }
 
-        /// <summary>
-        /// configure the command
-        /// </summary>
-        /// <param name="cmd"></param>
+        /// <inheritdoc />
         public override void Configure(Command cmd)
         {
-            var root = FileSystemUtilities.GetProjectRoot(this.fileSystem);
-            cmd.AddArgument(new Argument<string>(
-                name: "packageName",
-                description: "The Feature package name"
-            ));
-            cmd.AddArgument(new Argument<IDirectoryInfo>(
-                name: "workingDir",
-                parse: (argResult) => Parse<IDirectoryInfo>(argResult, root?.FullName),
-                isDefault: true
-            )
-            {
-                Description = "Working Directory"
-            });
-            cmd.AddOption(new Option<string>(
-                aliases: new[] { "--version" },
-                description: "Package Version",
-                getDefaultValue: () => "1.0.0"
-            ));
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, string, string>(Execute);
+            base.Configure(cmd);
         }
 
-        /// <summary>
-        /// execute the command
-        /// </summary>
-        /// <param name="workingDir"></param>
-        /// <param name="packageName"></param>
-        /// <param name="version"></param>
-        public void Execute(IDirectoryInfo workingDir, string packageName, string version)
+        /// <inheritdoc />
+        protected override List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args, JsonDocument projectConfig)
         {
-            if (workingDir == null)
-            {
-                Log.Error("This command needs to run inside a project. Run `cmf init` to create a new project.");
-                return;
-            }
-            var featurePath = this.fileSystem.Path.Join(workingDir.FullName, "Features");
-            var args = new List<string>()
-            {
-                // engine options
-                "--output", featurePath,
-                
-                // template symbols
-                "--name", packageName,
-                "--packageVersion", version
-            };
-
-            base.RunCommand(args);
-            base.RegisterAsDependencyInParent(packageName, version, featurePath);
+            return args;
         }
     }
 }

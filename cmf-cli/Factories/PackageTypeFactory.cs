@@ -63,6 +63,7 @@ namespace Cmf.Common.Cli.Factories
                 PackageType.ExportedObjects => new ExportedObjectsPackageTypeHandler(cmfPackage),
                 PackageType.Database => new DatabasePackageTypeHandler(cmfPackage),
                 PackageType.Tests => new TestPackageTypeHandler(cmfPackage),
+                PackageType.SecurityPortal => new SecurityPortalPackageTypeHandler(cmfPackage),
                 _ => throw new NotImplementedException()
             };
 
