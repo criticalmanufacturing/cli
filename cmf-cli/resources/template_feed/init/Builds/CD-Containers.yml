@@ -322,8 +322,7 @@ stages:
                 --site "${{ variables.SiteName }}" `
                 --target "${{ variables.DeploymentTarget }}" `
                 --package="${{ variables.DeploymentPackage }}" `
-                --replace-tokens TargetVersion=${{ variables.MESVersion }} --verbose `
-                --terminateOtherVersions
+                --terminateOtherVersions --verbose
 
         # Clean
         - task: PostBuildCleanup@3
@@ -613,8 +612,10 @@ stages:
             script: |
               Remove-Item -Path $(DATABASE_NETWORK_SHARE)/Cmf.FullBackup.*.zip -Force -Verbose
               Remove-Item -Path $(DATABASE_NETWORK_SHARE)/*.bak -Force -Verbose
+              New-Item -ItemType Directory -Path "$(DATABASE_NETWORK_SHARE)" -Name "DailyBackup" -Force
               & tools\CmfDeploy.exe backup --parameters $env:AGENT_TEMPDIRECTORY/backup_parameters.json --packageSources .\DFPackages
               Move-Item -Path $(DATABASE_NETWORK_SHARE)/Cmf.FullBackup.*.zip -Destination $(DATABASE_NETWORK_SHARE)/DailyBackup  -Force
+              Move-Item -Path $(DATABASE_NETWORK_SHARE)/*.bak -Destination $(DATABASE_NETWORK_SHARE)/DailyBackup  -Force
             pwsh: true
             workingDirectory: 'C:\tools\Cmf.Deployment.Framework'
 
