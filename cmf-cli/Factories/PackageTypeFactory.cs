@@ -18,7 +18,6 @@ namespace Cmf.Common.Cli.Factories
         /// </summary>
         /// <param name="file">The file.</param>
         /// <param name="setDefaultValues"></param>
-        /// <param name="fileSystem"></param>
         /// <returns></returns>
         public static IPackageTypeHandler GetPackageTypeHandler(IFileInfo file, bool setDefaultValues = false)
         {
