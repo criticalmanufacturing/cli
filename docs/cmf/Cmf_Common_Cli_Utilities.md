@@ -16,18 +16,6 @@ Initializes a new instance of the [CliException](Cmf_Common_Cli_Utilities.md#Cmf
 public CliException();
 ```
   
-<a name='Cmf_Common_Cli_Utilities_CliException_CliException(string)'></a>
-## CliException.CliException(string) Constructor
-Initializes a new instance of the [CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException') class.  
-```csharp
-public CliException(string message);
-```
-#### Parameters
-<a name='Cmf_Common_Cli_Utilities_CliException_CliException(string)_message'></a>
-`message` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
-The message that describes the error.
-  
-  
 <a name='Cmf_Common_Cli_Utilities_CliException_CliException(string_System_Exception)'></a>
 ## CliException.CliException(string, Exception) Constructor
 Initializes a new instance of the [CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException') class.  
@@ -42,6 +30,18 @@ The error message that explains the reason for the exception.
 <a name='Cmf_Common_Cli_Utilities_CliException_CliException(string_System_Exception)_innerException'></a>
 `innerException` [System.Exception](https://docs.microsoft.com/en-us/dotnet/api/System.Exception 'System.Exception')  
 The exception that is the cause of the current exception, or a null reference ([Nothing](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/Nothing 'https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/Nothing') in Visual Basic) if no inner exception is specified.
+  
+  
+<a name='Cmf_Common_Cli_Utilities_CliException_CliException(string)'></a>
+## CliException.CliException(string) Constructor
+Initializes a new instance of the [CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException') class.  
+```csharp
+public CliException(string message);
+```
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_CliException_CliException(string)_message'></a>
+`message` [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
+The message that describes the error.
   
   
 <a name='Cmf_Common_Cli_Utilities_CliException_CliException(System_Runtime_Serialization_SerializationInfo_System_Runtime_Serialization_StreamingContext)'></a>
@@ -215,27 +215,6 @@ The object.
 `true` if [has] [the specified object]; otherwise, `false`.  
             
   
-<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource_)'></a>
-## ExtensionMethods.HasAny&lt;TSource&gt;(IEnumerable&lt;TSource&gt;) Method
-Determines whether a sequence contains any elements.  
-```csharp
-public static bool HasAny<TSource>(this System.Collections.Generic.IEnumerable<TSource> source);
-```
-#### Type parameters
-<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource_)_TSource'></a>
-`TSource`  
-The type of the source.
-  
-#### Parameters
-<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource_)_source'></a>
-`source` [System.Collections.Generic.IEnumerable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')[TSource](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource_)_TSource 'Cmf.Common.Cli.Utilities.ExtensionMethods.HasAny&lt;TSource&gt;(System.Collections.Generic.IEnumerable&lt;TSource&gt;).TSource')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')  
-The source.
-  
-#### Returns
-[System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
-`true` if the specified source has any; otherwise, `false`.  
-            
-  
 <a name='Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource__System_Func_TSource_bool_)'></a>
 ## ExtensionMethods.HasAny&lt;TSource&gt;(IEnumerable&lt;TSource&gt;, Func&lt;TSource,bool&gt;) Method
 Determines whether a sequence contains any elements.  
@@ -254,6 +233,27 @@ The source.
   
 <a name='Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource__System_Func_TSource_bool_)_predicate'></a>
 `predicate` [System.Func&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Func-2 'System.Func`2')[TSource](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource__System_Func_TSource_bool_)_TSource 'Cmf.Common.Cli.Utilities.ExtensionMethods.HasAny&lt;TSource&gt;(System.Collections.Generic.IEnumerable&lt;TSource&gt;, System.Func&lt;TSource,bool&gt;).TSource')[,](https://docs.microsoft.com/en-us/dotnet/api/System.Func-2 'System.Func`2')[System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Func-2 'System.Func`2')  
+  
+#### Returns
+[System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
+`true` if the specified source has any; otherwise, `false`.  
+            
+  
+<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource_)'></a>
+## ExtensionMethods.HasAny&lt;TSource&gt;(IEnumerable&lt;TSource&gt;) Method
+Determines whether a sequence contains any elements.  
+```csharp
+public static bool HasAny<TSource>(this System.Collections.Generic.IEnumerable<TSource> source);
+```
+#### Type parameters
+<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource_)_TSource'></a>
+`TSource`  
+The type of the source.
+  
+#### Parameters
+<a name='Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource_)_source'></a>
+`source` [System.Collections.Generic.IEnumerable&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')[TSource](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_ExtensionMethods_HasAny_TSource_(System_Collections_Generic_IEnumerable_TSource_)_TSource 'Cmf.Common.Cli.Utilities.ExtensionMethods.HasAny&lt;TSource&gt;(System.Collections.Generic.IEnumerable&lt;TSource&gt;).TSource')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.IEnumerable-1 'System.Collections.Generic.IEnumerable`1')  
+The source.
   
 #### Returns
 [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
@@ -898,31 +898,6 @@ the underlying file system
 #### Returns
 [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
   
-<a name='Cmf_Common_Cli_Utilities_GenericUtilities_IterateTree(Cmf_Common_Cli_Objects_CmfPackage_System_Collections_Generic_List_bool__bool_bool_bool)'></a>
-## GenericUtilities.IterateTree(CmfPackage, List&lt;bool&gt;, bool, bool, bool) Method
-Iterate through a dependecy tree and check the dependencies  
-```csharp
-public static void IterateTree(Cmf.Common.Cli.Objects.CmfPackage pkg, System.Collections.Generic.List<bool> levels=null, bool isLast=false, bool isDisplay=true, bool isConsistencyCheck=false);
-```
-#### Parameters
-<a name='Cmf_Common_Cli_Utilities_GenericUtilities_IterateTree(Cmf_Common_Cli_Objects_CmfPackage_System_Collections_Generic_List_bool__bool_bool_bool)_pkg'></a>
-`pkg` [CmfPackage](Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_CmfPackage 'Cmf.Common.Cli.Objects.CmfPackage')  
-  
-<a name='Cmf_Common_Cli_Utilities_GenericUtilities_IterateTree(Cmf_Common_Cli_Objects_CmfPackage_System_Collections_Generic_List_bool__bool_bool_bool)_levels'></a>
-`levels` [System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')  
-  
-<a name='Cmf_Common_Cli_Utilities_GenericUtilities_IterateTree(Cmf_Common_Cli_Objects_CmfPackage_System_Collections_Generic_List_bool__bool_bool_bool)_isLast'></a>
-`isLast` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
-  
-<a name='Cmf_Common_Cli_Utilities_GenericUtilities_IterateTree(Cmf_Common_Cli_Objects_CmfPackage_System_Collections_Generic_List_bool__bool_bool_bool)_isDisplay'></a>
-`isDisplay` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
-  
-<a name='Cmf_Common_Cli_Utilities_GenericUtilities_IterateTree(Cmf_Common_Cli_Objects_CmfPackage_System_Collections_Generic_List_bool__bool_bool_bool)_isConsistencyCheck'></a>
-`isConsistencyCheck` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
-  
-#### Exceptions
-[CliException](Cmf_Common_Cli_Utilities.md#Cmf_Common_Cli_Utilities_CliException 'Cmf.Common.Cli.Utilities.CliException')  
-  
 <a name='Cmf_Common_Cli_Utilities_GenericUtilities_JsonObjectToUri(dynamic)'></a>
 ## GenericUtilities.JsonObjectToUri(dynamic) Method
 Converts a JsonObject to an Uri  
@@ -935,22 +910,6 @@ public static System.Uri? JsonObjectToUri(dynamic value);
   
 #### Returns
 [System.Uri](https://docs.microsoft.com/en-us/dotnet/api/System.Uri 'System.Uri')  
-  
-<a name='Cmf_Common_Cli_Utilities_GenericUtilities_PrintBranch(System_Collections_Generic_List_bool__bool)'></a>
-## GenericUtilities.PrintBranch(List&lt;bool&gt;, bool) Method
-Add to string builder with print tokens  
-```csharp
-private static string PrintBranch(System.Collections.Generic.List<bool> levels, bool isLast=false);
-```
-#### Parameters
-<a name='Cmf_Common_Cli_Utilities_GenericUtilities_PrintBranch(System_Collections_Generic_List_bool__bool)_levels'></a>
-`levels` [System.Collections.Generic.List&lt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')[System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')[&gt;](https://docs.microsoft.com/en-us/dotnet/api/System.Collections.Generic.List-1 'System.Collections.Generic.List`1')  
-  
-<a name='Cmf_Common_Cli_Utilities_GenericUtilities_PrintBranch(System_Collections_Generic_List_bool__bool)_isLast'></a>
-`isLast` [System.Boolean](https://docs.microsoft.com/en-us/dotnet/api/System.Boolean 'System.Boolean')  
-  
-#### Returns
-[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')  
   
 <a name='Cmf_Common_Cli_Utilities_GenericUtilities_RetrieveNewPresentationVersion(string_string_string)'></a>
 ## GenericUtilities.RetrieveNewPresentationVersion(string, string, string) Method

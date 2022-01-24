@@ -30,6 +30,10 @@ namespace tests.Specs
                         ""isUniqueInstall"": false,
                         ""dependencies"": [
                             {
+                                ""id"": ""CriticalManufacturing.DeploymentMetadata"",
+                                ""version"": ""8.3.0""
+                            },
+                            {
                                 ""id"": ""Cmf.Custom.Data"",
                                 ""version"": ""1.1.0""
                             },
@@ -69,13 +73,13 @@ namespace tests.Specs
                         {
                             ""source"": ""src/*"",
                             ""target"": ""node_modules"",
-                            ""ignoreFiles"": "".npmignore""
+                            ""ignoreFiles"": ["".npmignore""]
                         }
                       ]
                     }")
                 }
             });
-
+            ExecutionContext.Initialize(fileSystem);
             BuildCommand buildCommand = new BuildCommand(fileSystem.FileSystem);
 
             Command cmd = new Command("build");
@@ -103,6 +107,10 @@ namespace tests.Specs
                         ""isInstallable"": true,
                         ""isUniqueInstall"": false,
                         ""dependencies"": [
+                            {
+                                ""id"": ""CriticalManufacturing.DeploymentMetadata"",
+                                ""version"": ""8.3.0""
+                            },
                             {
                                 ""id"": ""Cmf.Custom.Data"",
                                 ""version"": ""1.2.0""
@@ -143,13 +151,13 @@ namespace tests.Specs
                         {
                             ""source"": ""src/*"",
                             ""target"": ""node_modules"",
-                            ""ignoreFiles"": "".npmignore""
+                            ""ignoreFiles"": ["".npmignore""]
                         }
                       ]
                     }")
                 }
             });
-
+            ExecutionContext.Initialize(fileSystem);
             BuildCommand buildCommand = new BuildCommand(fileSystem.FileSystem);
 
             Command cmd = new Command("build");
@@ -160,222 +168,8 @@ namespace tests.Specs
                 "test/Data/"
             }, console);
 
-            Assert.IsTrue(console.Error == null || string.IsNullOrEmpty(console.Error.ToString()), $"Consistency Check failed {console.Error.ToString()}");
+            Assert.IsTrue(console.Error != null && console.Error.ToString().Contains("This root package dependencies must enforce version consistency. Root Version 1.1.0 Failed Package Version 1.2.0"), $"Consistency Check failed {console.Error.ToString()}");
 
-        }
-
-        [TestMethod]
-        public void IoTData_JsonValidator_FailData()
-        {
-            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
-            {
-                { "/test/cmfpackage.json", new CmfMockJsonData(
-                    @"{
-                        ""packageId"": ""Cmf.Custom.Package"",
-                        ""version"": ""1.1.0"",
-                        ""description"": ""This package deploys Critical Manufacturing Customization"",
-                        ""packageType"": ""Root"",
-                        ""isInstallable"": true,
-                        ""isUniqueInstall"": false,
-                        ""dependencies"": [
-                            {
-                                ""id"": ""Cmf.Custom.Data"",
-                                ""version"": ""1.1.0""
-                            },
-                            {
-                                ""id"": ""Cmf.Custom.IoT"",
-                                ""version"": ""1.1.0""
-                            }
-                        ]
-                    }")
-                },
-                { "/test/IoT/cmfpackage.json", new CmfMockJsonData(
-                    @"{
-                      ""packageId"": ""Cmf.Custom.IoT"",
-                      ""version"": ""1.1.0"",
-                      ""description"": ""Cmf Custom Foxconn IoT Package"",
-                      ""packageType"": ""Root"",
-                      ""isInstallable"": true,
-                      ""isUniqueInstall"": false,
-                      ""dependencies"": [
-	                    {
-                          ""id"": ""Cmf.Custom.IoTData"",
-                          ""version"": ""1.1.0""
-                        }
-                      ]
-                    }")
-                },
-                { "/test/IoTData/cmfpackage.json", new CmfMockJsonData(
-                    @"{
-                      ""packageId"": ""Cmf.Custom.IoTData"",
-                      ""version"": ""1.1.0"",
-                      ""description"": ""Cmf Custom Foxconn IoTData Package"",
-                      ""packageType"": ""IoTData"",
-                      ""isInstallable"": true,
-                      ""isUniqueInstall"": false,
-                      ""contentToPack"": [
-                        {
-                            {
-                              ""source"": ""MasterData/$(version)/*"",
-                              ""target"": ""MasterData /$(version)/"",
-                                ""contentType"": ""MasterData""
-                            },
-                      ]
-                    }")
-                },
-                { "/test/IoTData/MasterData/1.0.0IoT.json", new CmfMockJsonData(
-                    @"{
-                        ""<DM>AutomationProtocol"": {
-                        ""1"": {
-                            ""Name"": ""TEST_Protocol"",
-                            ""Description"": ""TEST_Protocol"",
-                            ""Type"":"" ""General"",
-                            ""Package"": ""@criticalmanufacturing/connect-iot-driver-test"",
-                            ""PackageVersion"": ""test""
-                }")
-                },
-                { "/test/IoTData/AutomationWorkflowFiles/MasterData/1.0.0/TestWorkflowIoT.json", new CmfMockJsonData(
-                    @"{
-	                    ""tasks"": [
-                            {
-                            }
-	                    ],
-                        ""converters"": [
-                            {
-                            }
-                        ],
-	                    ""links"": [
-                            {
-                            }
-                        ],
-	                    ""layout"": {
-                            ""general"": {
-                            },
-		                    ""drawers"": {
-                            }
-                        }
-                    }")
-                }
-            });
-
-            BuildCommand buildCommand = new BuildCommand(fileSystem.FileSystem);
-
-            var cmd = new Command("build");
-            buildCommand.Configure(cmd);
-
-            var console = new TestConsole();
-            cmd.Invoke(new string[] {
-                "test/Data/"
-            }, console);
-
-            Assert.IsTrue(console.Error != null && !string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator failed for IoT Data Package: {console.Error.ToString()}");
-        }
-
-        [TestMethod]
-        public void IoTData_Workflow_JsonValidator_FailData()
-        {
-            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
-            {
-                { "/test/cmfpackage.json", new CmfMockJsonData(
-                    @"{
-                        ""packageId"": ""Cmf.Custom.Package"",
-                        ""version"": ""1.1.0"",
-                        ""description"": ""This package deploys Critical Manufacturing Customization"",
-                        ""packageType"": ""Root"",
-                        ""isInstallable"": true,
-                        ""isUniqueInstall"": false,
-                        ""dependencies"": [
-                            {
-                                ""id"": ""Cmf.Custom.Data"",
-                                ""version"": ""1.1.0""
-                            },
-                            {
-                                ""id"": ""Cmf.Custom.IoT"",
-                                ""version"": ""1.1.0""
-                            }
-                        ]
-                    }")
-                },
-                { "/test/IoT/cmfpackage.json", new CmfMockJsonData(
-                    @"{
-                      ""packageId"": ""Cmf.Custom.IoT"",
-                      ""version"": ""1.1.0"",
-                      ""description"": ""Cmf Custom Foxconn IoT Package"",
-                      ""packageType"": ""Root"",
-                      ""isInstallable"": true,
-                      ""isUniqueInstall"": false,
-                      ""dependencies"": [
-	                    {
-                          ""id"": ""Cmf.Custom.IoTData"",
-                          ""version"": ""1.1.0""
-                        }
-                      ]
-                    }")
-                },
-                { "/test/IoTData/cmfpackage.json", new CmfMockJsonData(
-                    @"{
-                      ""packageId"": ""Cmf.Custom.IoTData"",
-                      ""version"": ""1.1.0"",
-                      ""description"": ""Cmf Custom Foxconn IoTData Package"",
-                      ""packageType"": ""IoTData"",
-                      ""isInstallable"": true,
-                      ""isUniqueInstall"": false,
-                      ""contentToPack"": [
-                        {
-                            {
-                              ""source"": ""MasterData/$(version)/*"",
-                              ""target"": ""MasterData /$(version)/"",
-                                ""contentType"": ""MasterData""
-                            },
-                      ]
-                    }")
-                },
-                { "/test/IoTData/MasterData/1.0.0IoT.json", new CmfMockJsonData(
-                    @"{
-                        ""<DM>AutomationProtocol"": {
-                        ""1"": {
-                            ""Name"": ""TEST_Protocol"",
-                            ""Description"": ""TEST_Protocol"",
-                            ""Type"":"" ""General"",
-                            ""Package"": ""@criticalmanufacturing/connect-iot-driver-test"",
-                            ""PackageVersion"": ""test""
-                        }
-                    }
-                }")
-                },
-                { "/test/IoTData/AutomationWorkflowFiles/MasterData/1.0.0/AutomationWorkflowFiles/TestWorkflowIoT.json", new CmfMockJsonData(
-                    @"{
-	                    ""tasks"": [
-                            {
-                            }
-	                    ],
-                        ""converters"": [
-                            {
-                            }
-                        ],
-	                    ""links"": [
-                            {
-                            }
-                        ],
-	                    ""layout"": {
-                            ""general"": {
-                            },
-		                    ""drawers"": {
-                    }")
-                }
-            });
-
-            BuildCommand buildCommand = new BuildCommand(fileSystem.FileSystem);
-
-            var cmd = new Command("build");
-            buildCommand.Configure(cmd);
-
-            var console = new TestConsole();
-            cmd.Invoke(new string[] {
-                "test/Data/"
-            }, console);
-
-            Assert.IsTrue(console.Error != null && !string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator failed for IoT Data Workflow Package: {console.Error.ToString()}");
         }
     }
 }

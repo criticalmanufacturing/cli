@@ -104,7 +104,7 @@ namespace Cmf.Common.Cli.Utilities
         /// <param name="packageType">Type of the package.</param>
         /// <param name="setDefaultValues"></param>
         /// <returns></returns>
-        public static CmfPackageCollection LoadCmfPackagesFromSubDirectories(this IDirectoryInfo directory, PackageType packageType = PackageType.None, bool setDefaultValues = false, IFileSystem fileSystem = null)
+        public static CmfPackageCollection LoadCmfPackagesFromSubDirectories(this IDirectoryInfo directory, PackageType packageType = PackageType.None, bool setDefaultValues = false)
         {
             CmfPackageCollection cmfPackages = new();
 
@@ -115,7 +115,7 @@ namespace Cmf.Common.Cli.Utilities
                 IFileInfo[] cmfPackageFiles = subDirectory.GetFiles(CliConstants.CmfPackageFileName, SearchOption.AllDirectories);
                 foreach (IFileInfo cmfPackageFile in cmfPackageFiles)
                 {
-                    CmfPackage cmfPackage = CmfPackage.Load(cmfPackageFile, setDefaultValues, fileSystem);
+                    CmfPackage cmfPackage = CmfPackage.Load(cmfPackageFile, setDefaultValues);
 
                     if (packageType == PackageType.None || (packageType != PackageType.None && cmfPackage.PackageType == packageType))
                     {

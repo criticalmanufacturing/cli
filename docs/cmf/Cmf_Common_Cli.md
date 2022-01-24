@@ -164,15 +164,6 @@ internal static string UrlsNotSupported { get; }
 #### Property Value
 [System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
   
-<a name='Cmf_Common_Cli_CliMessages_VersionFailedConsistencyCheck'></a>
-## CliMessages.VersionFailedConsistencyCheck Property
-Looks up a localized string similar to This root package dependencies must enforce version consistency. Root Version {0} Failed Package Version {1}.  
-```csharp
-internal static string VersionFailedConsistencyCheck { get; }
-```
-#### Property Value
-[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
-  
   
 <a name='Cmf_Common_Cli_Log'></a>
 ## Log Class

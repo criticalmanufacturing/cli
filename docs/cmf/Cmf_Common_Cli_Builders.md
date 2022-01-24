@@ -58,64 +58,6 @@ public override Cmf.Common.Cli.Builders.ProcessBuildStep[] GetSteps();
 - [ProcessCommand](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_ProcessCommand 'Cmf.Common.Cli.Builders.ProcessCommand')
 - [IBuildCommand](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_IBuildCommand 'Cmf.Common.Cli.Builders.IBuildCommand')
   
-<a name='Cmf_Common_Cli_Builders_ConsistencyCheckCommand'></a>
-## ConsistencyCheckCommand Class
-Checks the consistency of packages under a root  
-```csharp
-public class ConsistencyCheckCommand :
-Cmf.Common.Cli.Builders.IBuildCommand
-```
-
-Inheritance [System.Object](https://docs.microsoft.com/en-us/dotnet/api/System.Object 'System.Object') &#129106; ConsistencyCheckCommand  
-
-Implements [IBuildCommand](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_IBuildCommand 'Cmf.Common.Cli.Builders.IBuildCommand')  
-### Properties
-<a name='Cmf_Common_Cli_Builders_ConsistencyCheckCommand_DisplayName'></a>
-## ConsistencyCheckCommand.DisplayName Property
-Gets or sets the display name.  
-```csharp
-public string DisplayName { get; set; }
-```
-#### Property Value
-[System.String](https://docs.microsoft.com/en-us/dotnet/api/System.String 'System.String')
-The display name.  
-
-Implements [DisplayName](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_IBuildCommand_DisplayName 'Cmf.Common.Cli.Builders.IBuildCommand.DisplayName')  
-  
-<a name='Cmf_Common_Cli_Builders_ConsistencyCheckCommand_FileSystem'></a>
-## ConsistencyCheckCommand.FileSystem Property
-Virtual File System  
-```csharp
-public System.IO.Abstractions.IFileSystem FileSystem { get; set; }
-```
-#### Property Value
-[System.IO.Abstractions.IFileSystem](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IFileSystem 'System.IO.Abstractions.IFileSystem')
-  
-<a name='Cmf_Common_Cli_Builders_ConsistencyCheckCommand_WorkingDirectory'></a>
-## ConsistencyCheckCommand.WorkingDirectory Property
-Hook to start search root algorithm  
-```csharp
-public System.IO.Abstractions.IDirectoryInfo WorkingDirectory { get; set; }
-```
-#### Property Value
-[System.IO.Abstractions.IDirectoryInfo](https://docs.microsoft.com/en-us/dotnet/api/System.IO.Abstractions.IDirectoryInfo 'System.IO.Abstractions.IDirectoryInfo')
-  
-### Methods
-<a name='Cmf_Common_Cli_Builders_ConsistencyCheckCommand_Exec()'></a>
-## ConsistencyCheckCommand.Exec() Method
-Find Root Package, check dependencies, enforce consistency of package version  
-```csharp
-public System.Threading.Tasks.Task Exec();
-```
-#### Returns
-[System.Threading.Tasks.Task](https://docs.microsoft.com/en-us/dotnet/api/System.Threading.Tasks.Task 'System.Threading.Tasks.Task')  
-
-Implements [Exec()](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_IBuildCommand_Exec() 'Cmf.Common.Cli.Builders.IBuildCommand.Exec()')  
-  
-#### See Also
-- [ProcessCommand](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_ProcessCommand 'Cmf.Common.Cli.Builders.ProcessCommand')
-- [IBuildCommand](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_IBuildCommand 'Cmf.Common.Cli.Builders.IBuildCommand')
-  
 <a name='Cmf_Common_Cli_Builders_DotnetCommand'></a>
 ## DotnetCommand Class
 ```csharp
@@ -659,7 +601,6 @@ public interface IBuildCommand
 
 Derived  
 &#8627; [CmdCommand](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_CmdCommand 'Cmf.Common.Cli.Builders.CmdCommand')  
-&#8627; [ConsistencyCheckCommand](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_ConsistencyCheckCommand 'Cmf.Common.Cli.Builders.ConsistencyCheckCommand')  
 &#8627; [DotnetCommand](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_DotnetCommand 'Cmf.Common.Cli.Builders.DotnetCommand')  
 &#8627; [ExecuteCommand&lt;T&gt;](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_ExecuteCommand_T_ 'Cmf.Common.Cli.Builders.ExecuteCommand&lt;T&gt;')  
 &#8627; [GulpCommand](Cmf_Common_Cli_Builders.md#Cmf_Common_Cli_Builders_GulpCommand 'Cmf.Common.Cli.Builders.GulpCommand')  
