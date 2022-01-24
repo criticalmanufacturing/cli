@@ -23,5 +23,5 @@ to get more information. Feature sets also have help menus, e.g.:
 cmf -h
 ```
 
-Full documentation in [docs](https://github.com/criticalmanufacturing/cli/tree/main/docs)
+Full documentation in [docs](https://criticalmanufacturing.github.io/cli)
 
