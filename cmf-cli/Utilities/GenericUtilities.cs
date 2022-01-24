@@ -212,7 +212,7 @@ namespace Cmf.Common.Cli.Utilities
         /// <param name="isDisplay"></param>
         /// <param name="isConsistencyCheck"></param>
         /// <exception cref="CliException"></exception>
-        public static void IterateTree(CmfPackage pkg, List<bool> levels = null, bool isLast = false, bool isDisplay = true, bool isConsistencyCheck = false)
+        public static void IterateTree(CmfPackage pkg, List<bool>? levels = null, bool isLast = false, bool isDisplay = true, bool isConsistencyCheck = false)
         {
             levels ??= new();
 
