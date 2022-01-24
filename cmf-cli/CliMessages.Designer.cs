@@ -194,5 +194,14 @@ namespace Cmf.Common.Cli {
                 return ResourceManager.GetString("UrlsNotSupported", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This root package dependencies must enforce version consistency. Root Version {0} Failed Package Version {1}.
+        /// </summary>
+        internal static string VersionFailedConsistencyCheck {
+            get {
+                return ResourceManager.GetString("VersionFailedConsistencyCheck", resourceCulture);
+            }
+        }
     }
 }

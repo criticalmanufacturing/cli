@@ -104,6 +104,12 @@ namespace Cmf.Common.Cli.Handlers
                     DisplayName = "Gulp Build",
                     GulpJS = "node_modules/gulp/bin/gulp.js",
                     WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                },
+                new ConsistencyCheckCommand()
+                {
+                    DisplayName = "Consistency Check Validator Command",
+                    FileSystem = this.fileSystem,
+                    WorkingDirectory = cmfPackage.GetFileInfo().Directory
                 }
             };
 
