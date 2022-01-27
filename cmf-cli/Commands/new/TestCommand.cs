@@ -38,8 +38,6 @@ namespace Cmf.Common.Cli.Commands.New
         /// <inheritdoc />
         protected override List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args, JsonDocument projectConfig)
         {
-            
-
             return args;
         }
 
@@ -57,21 +55,21 @@ namespace Cmf.Common.Cli.Commands.New
             {
                 // engine options
                 "--output", projectRoot.FullName,
-                
+
                 // template symbols
                 "--name", packageName,
                 "--packageVersion", version,
                 "--idSegment", tenant,
                 "--Tenant", tenant
             };
-            
+
             var restPort = projectConfig.RootElement.GetProperty("RESTPort").GetString();
             var mesVersion = projectConfig.RootElement.GetProperty("MESVersion").GetString();
             var htmlPort = projectConfig.RootElement.GetProperty("HTMLPort").GetString();
             var vmHostname = projectConfig.RootElement.GetProperty("vmHostname").GetString();
             var testScenariosNugetVersion = projectConfig.RootElement.GetProperty("TestScenariosNugetVersion").GetString();
             var isSslEnabled = projectConfig.RootElement.GetProperty("IsSslEnabled").GetString();
-            args.AddRange(new []
+            args.AddRange(new[]
             {
                 "--vmHostname", vmHostname,
                 "--RESTPort", restPort,
@@ -84,10 +82,11 @@ namespace Cmf.Common.Cli.Commands.New
             {
                 args.Add("--IsSslEnabled");
             }
-            
+
             this.executedArgs = args.ToArray();
             base.RunCommand(args);
             base.RegisterAsDependencyInParent(packageName, version, projectRoot.FullName, isTestPackage: true);
+            base.RegisterAsDependencyInParent("Cmf.Custom.Tests.MasterData", version, projectRoot.FullName, isTestPackage: true);
         }
     }
 }

@@ -27,7 +27,7 @@ namespace tests.Specs
                 "--reset"
             }, console);
         }
-        
+
         [TestMethod]
         public void Init()
         {
@@ -70,15 +70,15 @@ namespace tests.Specs
                 }, console);
 
                 var extractFileName = new Func<string, string>(s => s.Split(Path.DirectorySeparatorChar).LastOrDefault());
-                
+
                 Assert.IsTrue(File.Exists(".project-config.json"), "project config is missing");
                 Assert.IsTrue(File.Exists("cmfpackage.json"), "root cmfpackage is missing");
                 Assert.IsTrue(File.Exists("global.json"), "global .NET versioning is missing");
                 Assert.IsTrue(File.Exists("NuGet.Config"), "global NuGet feeds config is missing");
-                
+
                 Assert.IsTrue(Directory.Exists(Path.Join(tmp, "Builds")), "pipelines are missing");
                 Assert.IsTrue(
-                    new []{ "CI-Changes.json",
+                    new[]{ "CI-Changes.json",
                         "CI-Package.json",
                         "CI-Publish.json",
                         "CI-Release.json",
@@ -90,7 +90,7 @@ namespace tests.Specs
                                 .Select(extractFileName)
                                 .Contains(f)), "Missing pipeline metadata");
                 Assert.IsTrue(
-                    new []{ "CI-Changes.yml",
+                    new[]{ "CI-Changes.yml",
                             "CI-Package.yml",
                             "CI-Publish.yml",
                             "CI-Release.yml",
@@ -102,7 +102,7 @@ namespace tests.Specs
                             .Select(extractFileName)
                             .Contains(f)), "Missing pipeline source");
                 Assert.IsTrue(
-                    new []{ "policies-master.json",
+                    new[]{ "policies-master.json",
                             "policies-development.json" }
                         .ToList()
                         .All(f => Directory
@@ -111,21 +111,21 @@ namespace tests.Specs
                             .Contains(f)), "Missing policy metadata");
                 Assert.IsTrue(Directory.Exists(Path.Join(tmp, "EnvironmentConfigs")), "environment configs are missing");
                 Assert.IsTrue(
-                    new []{ "GlobalVariables.yml" }
+                    new[] { "GlobalVariables.yml" }
                         .ToList()
                         .All(f => Directory
                             .GetFiles("EnvironmentConfigs")
                             .Select(extractFileName)
                             .Contains(f)), "Missing global variables");
                 Assert.IsTrue(
-                    new []{ "config.json" } // this should be a constant when moving to a mock
+                    new[] { "config.json" } // this should be a constant when moving to a mock
                         .ToList()
                         .All(f => Directory
                             .GetFiles("EnvironmentConfigs")
                             .Select(extractFileName)
                             .Contains(f)), "Missing environment configuration");
                 Assert.IsTrue(Directory.Exists(Path.Join(tmp, "Libs")), "Libs are missing");
-            } 
+            }
             finally
             {
                 Directory.SetCurrentDirectory(cur);
@@ -258,6 +258,7 @@ namespace tests.Specs
                 Assert.IsTrue(File.ReadAllText("Cmf.Custom.Business/Cmf.Custom.Common/Cmf.Custom.tenant.Common.csproj").Contains("<AssemblyName>Cmf.Custom.tenant.Common</AssemblyName>"), "Constants assembly name is wrong name");
             });
         }
+
         [TestMethod]
         public void Data()
         {
@@ -318,6 +319,7 @@ namespace tests.Specs
         {
             RunNew(new IoTCommand(), "Cmf.Custom.IoT");
         }
+
         [TestMethod]
         public void Database()
         {
@@ -381,6 +383,8 @@ namespace tests.Specs
                 Assert.AreEqual(pkgVersion, GetPackageProperty("version", $"{packageId}/cmfpackage.json"), "Package version does not match expected");
                 var pkg = GetPackage("cmfpackage.json");
                 Assert.IsNotNull(pkg.GetProperty("testPackages").EnumerateArray().ToArray().FirstOrDefault(d => d.GetProperty("id").GetString() == packageId), "Package not found in root package dependencies");
+                var masterDataPackageId = "Cmf.Custom.Tests.MasterData";
+                Assert.IsNotNull(pkg.GetProperty("testPackages").EnumerateArray().ToArray().FirstOrDefault(d => d.GetProperty("id").GetString() == masterDataPackageId), "Package not found in root package dependencies");
             }
             catch (Exception ex)
             {
@@ -624,7 +628,8 @@ namespace tests.Specs
             }
         }
 
-        private TestConsole RunNew<T>(T newCommand, string packageId, string scaffoldingDir = null, string[] extraArguments = null, bool defaultAsserts = true, Action<(string, string)> extraAsserts = null) where T: TemplateCommand {
+        private TestConsole RunNew<T>(T newCommand, string packageId, string scaffoldingDir = null, string[] extraArguments = null, bool defaultAsserts = true, Action<(string, string)> extraAsserts = null) where T : TemplateCommand
+        {
             var dir = scaffoldingDir ?? GetTmpDirectory();
 
             var rnd = new Random();
@@ -688,7 +693,9 @@ namespace tests.Specs
                         {
                             Directory.Delete(dir, true);
                             break;
-                        } catch {
+                        }
+                        catch
+                        {
                             tries--;
                         }
                     }
@@ -698,9 +705,9 @@ namespace tests.Specs
         }
 
         #region helpers
+
         private string GetTmpDirectory()
         {
-
             var tmp = Path.Join(Path.GetTempPath(), Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8));
             Directory.CreateDirectory(tmp);
 
@@ -755,6 +762,7 @@ namespace tests.Specs
             var json = File.ReadAllText(cmfpackageJsonPath);
             return JsonDocument.Parse(json).RootElement;
         }
+
         #endregion
     }
 }
