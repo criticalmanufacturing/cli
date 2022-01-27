@@ -69,9 +69,15 @@
         /// The IoT Data
         /// </summary>
         IoTData = 12,
+
         /// <summary>
         /// The test
         /// </summary>
-        Tests = 13
+        Tests = 13,
+
+        /// <summary>
+        /// The test
+        /// </summary>
+        SecurityPortal = 14
     }
 }
