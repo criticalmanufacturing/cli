@@ -1,0 +1,16 @@
+﻿{
+  "packageId": "<%= $CLI_PARAM_CustomPackageName %>",
+  "version": "<%= $CLI_PARAM_CustomPackageVersion %>",
+  "description": "This package deploys <%= $CLI_PARAM_CustomPackageName %> in Critical Manufacturing MES",
+  "packageType": "SecurityPortal",
+  "isInstallable": true,
+  "isUniqueInstall": false,
+  "<keywords>cmf-root-package</keywords>": null,
+  "dependencies": [
+  ],
+  "contentToPack": [
+    {
+      "source": "config.json"
+    }
+  ]
+}

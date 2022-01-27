@@ -1,0 +1,55 @@
+﻿{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Critical Manufacturing",
+  "classifications": [
+    "cli"
+  ],
+  "description": "Generate a new security portal package",
+  "name": "New Security Portal",
+  "identity": "cmf-cli.new.securityPortal",
+  "groupIdentity": "cmf-cli.new.securityPortal",
+  "shortName": "securityPortal",
+  // You can create the project using this short name instead of the one above.
+  "tags": {
+    "language": "C#",
+    // Specify that this template is in C#.
+    "type": "project"
+  },
+  "sourceName": "SecurityPortal.Package",
+  // Will replace the string 'MyProject.StarterWeb' with the value provided via -n.
+  "preferNameDirectory": true,
+  "symbols": {
+    "name": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The custom package name",
+      "displayName": "Package Name",
+      "replaces": "<%= $CLI_PARAM_CustomPackageName %>"
+    },
+    "packageVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The custom package version",
+      "displayName": "Package Version",
+      "replaces": "<%= $CLI_PARAM_CustomPackageVersion %>",
+      "fileRename": "%version%"
+    },
+    "Tenant": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_Tenant %>",
+      "fileRename": "%Tenant%"
+    },
+    "idSegment": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_idSegment %>",
+      "fileRename": "%idSegment%"
+    },
+    "rootInnerRelativePath": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_rootInnerRelativePath %>"
+    }
+  }
+}

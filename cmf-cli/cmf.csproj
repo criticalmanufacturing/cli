@@ -65,6 +65,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="resources\templateFiles\SecurityPortal\config.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Include="CliMessages.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
