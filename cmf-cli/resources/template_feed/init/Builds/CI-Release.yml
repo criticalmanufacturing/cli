@@ -206,7 +206,7 @@ stages:
               downloadType: 'single'
               artifactName: 'Package'
               downloadPath: '${{ variables.CandidatePackages }}'
-          
+
           # Download Configurations Artifacts
           - task: DownloadBuildArtifacts@0
             displayName: "Download Configurations Artifacts"
@@ -243,9 +243,10 @@ stages:
             displayName: "cmf-pipeline copyDependencies"
             inputs:
               targetType: 'inline'
+              pwsh: true
+              failOnStderr: false
               script: |
                 $(Agent.TempDirectory)/node_modules/@criticalmanufacturing/cmf-pipeline/dist/win-x64/cmf-pipeline copyDependencies Configurations/dependencies.json ${{ variables.CandidatePackages }}/Package
-              pwsh: true
 
           # Copy EnvironmentConfig to Server
           - task: CopyFiles@2
@@ -255,55 +256,48 @@ stages:
               Contents: '${{ variables.EnvironmentConfigName }}'
               TargetFolder: ${{ variables.CandidatePackages }}
 
-          # Customization Installation
           - task: PowerShell@2
-            displayName: "Customization Installation"
+            displayName: "Load configs and mount iso"
             inputs:
-              pwsh: false
-              arguments: "-ImagePath '${{ variables.ISOImagePath }}' -EnvironmentConfigName '${{ variables.EnvironmentConfigName }}' -PackageSource '${{ variables.CandidatePackages }}'"
               targetType: 'inline'
+              pwsh: true
+              failOnStderr: false
               script: |
-                $ImagePath = '${{ variables.ISOImagePath }}';
-                $EnvironmentConfigName = '${{ variables.EnvironmentConfigName }}';
-                $PackageSource = '${{ variables.CandidatePackages }}';
-
                 # Assuming repository Checkout
-                $EnvironmentConfig = "$EnvironmentConfigName";
-                $EnvConfigFile = Get-Item "./Configurations/EnvironmentConfigs/$EnvironmentConfig"
+                $EnvConfigFile = Get-Item "./Configurations/EnvironmentConfigs/${{ variables.EnvironmentConfigName }}"
                 $EnvConfigJson = Get-Content -Raw -Path $EnvConfigFile | ConvertFrom-Json
                 $ServerAddress = $EnvConfigJson.'Product.ApplicationServer.Address'
+                Write-Output "##vso[task.setvariable variable=$("ServerAddress")]$ServerAddress"
+
                 $CmfPackageJsonFile = Get-Item "./Configurations/cmfpackage.json"
                 $CmfPackageJson = Get-Content -Raw -Path $CmfPackageJsonFile | ConvertFrom-Json
-
                 $PackageId = $CmfPackageJson.'packageId'
                 $PackageVersion = $CmfPackageJson.'version'
+                $PackageToInstall = "$PackageId@$PackageVersion"
+                Write-Output "##vso[task.setvariable variable=$("PackageToInstall")]$PackageToInstall"
 
                 $sc =
                 {
-                  param ($ImagePath, $PackageId, $PackageVersion, $PackageSource, $EnvironmentConfig)
+                  param ($ImagePath)
 
-                  $parameters = "$PackageSource\$EnvironmentConfig"
-                  $package = "$PackageId@$PackageVersion"
+                    # Mount the ISO, without having a drive letter auto-assigned
+                    if (!(Get-DiskImage -ImagePath $ImagePath).Attached) {
+                        Mount-DiskImage -ImagePath $ImagePath -PassThru
+                    }
 
-                  # Mount the ISO, without having a drive letter auto-assigned
-                  if (!(Get-DiskImage -ImagePath $ImagePath).Attached) {
-                      Mount-DiskImage -ImagePath $ImagePath -PassThru  | Out-Null
-                  }
-                    $driveLetter = (Get-DiskImage -ImagePath $ImagePath | Get-Volume).DriveLetter
-                    $PackageSource = $PackageSource #+ '\' + $PackageVersion
-                    Set-Location -Path $driveLetter':\'
-                    $scriptPath = '.\tools\CmfDeploy.exe install ' + $package + ' --parameters="' + $parameters + '" --packageSources="' + $driveLetter + ':\,' + $PackageSource + '" -logFileLocation "' + $PackageSource + '"'
-                    Write-Host("Script to run: " + $scriptPath)
-                    Invoke-Expression $scriptPath | Out-Host
-                    Dismount-DiskImage -ImagePath $ImagePath | Out-Null
+                    $driveLetter = (Get-DiskImage -ImagePath $ImagePath | Get-Volume).DriveLetter + ':\'
+                    Set-Location -Path $driveLetter
+
+                    Write-Output "##vso[task.setvariable variable=$("DriveLetter")]$driveLetter"
+
                     if($LASTEXITCODE)
                     {
-                        throw "Installation Failed!"
+                        throw "Failed Mount-DiskImage"
                     }
                 }
 
                 try {
-                  $iso = Get-Item $ImagePath
+                  $iso = Get-Item "${{ variables.ISOImagePath }}"
                   $destPath = "${{ variables.CandidatePackages }}/../isos/"
                   $destIso = "$destPath/" + $iso.Name
 
@@ -312,7 +306,133 @@ stages:
                       Copy-Item -Path $iso -Destination $destIso -Force -Verbose
                   }
 
-                  Invoke-Command -ComputerName $ServerAddress -ScriptBlock $sc -ArgumentList @($destIso, $PackageId, $PackageVersion, $PackageSource, $EnvironmentConfig) | Out-Host
+                  Invoke-Command -ComputerName $ServerAddress -ScriptBlock $sc -ArgumentList @($destIso) | Out-Host
+                }
+                catch { throw (" *  Invoke-Command ERROR " + $_) }
+
+          - task: PowerShell@2
+            displayName: "Enable maintenance mode"
+            inputs:
+              targetType: 'inline'
+              pwsh: true
+              failOnStderr: false
+              script: |
+                $sc =
+                {
+                  $parameters = "${{ variables.CandidatePackages }}\${{ variables.EnvironmentConfigName }}"
+                  $maintenanceModePackageFolder = "$env:TEMP\Cmf";
+                  $maintenanceModeDFRun = ".\tools\CmfDeploy.exe install --packageToInstall=Cmf.Configuration.MaintenanceMode@1.0.0 --parameters=$parameters --packageSource=$maintenanceModePackageFolder -logFileLocation ""${{ variables.CandidatePackages }}"""
+                  $manifest =
+                    ('<?xml version="1.0" encoding="utf-8"?>
+                    <deploymentPackage>
+                        <packageId>Cmf.Configuration.MaintenanceMode</packageId>
+                        <name>Cmf SetMaintenanceMode</name>
+                        <packageType>Generic</packageType>
+                        <description>Cmf SetMaintenanceMode</description>
+                        <version>1.0.0</version>
+                        <isInstallable>True</isInstallable>
+                        <isToForceInstall>True</isToForceInstall>
+                        <steps>
+                            <step type="UpdateConfiguration" configPath="/Cmf/System/Configuration/MaintenanceMode/IsEnabled/" value="True"/>
+                        </steps>
+                    </deploymentPackage>')
+
+                    $manifestPath = "$maintenanceModePackageFolder\Cmf.Configuration.MaintenanceMode\manifest.xml"
+                    New-Item -Type Directory -Path $maintenanceModePackageFolder -Force -Verbose
+                    New-Item -Path $manifestPath -ItemType File -Value $manifest -Force -Verbose
+
+                    Set-Location -Path $(DriveLetter)
+
+                    # Enable MaintenanceMode
+                    Write-Host("Script to run: " + $maintenanceModeDFRun)
+                    Invoke-Expression $maintenanceModeDFRun | Out-Host
+                    if($LASTEXITCODE)
+                    {
+                        throw "Installation Failed on Run MaintenanceMode ON"
+                    }
+                    Write-Host "MaintenanceMode ON"
+                }
+
+                try
+                {
+                  Invoke-Command -ComputerName $(ServerAddress) -ScriptBlock $sc | Out-Host
+                }
+                catch { throw (" *  Invoke-Command ERROR " + $_) }
+
+          # Customization Installation
+          - task: PowerShell@2
+            displayName: "Customization Installation"
+            inputs:
+              targetType: 'inline'
+              pwsh: true
+              failOnStderr: false
+              script: |
+                $sc =
+                {
+                    $parameters = "${{ variables.CandidatePackages }}\${{ variables.EnvironmentConfigName }}"
+                    Set-Location -Path $(DriveLetter)
+
+                    $scriptPath = ".\tools\CmfDeploy.exe install --packageToInstall=$(PackageToInstall) --parameters=$parameters --packageSources=$(DriveLetter),""${{ variables.CandidatePackages }}"" -logFileLocation ""${{ variables.CandidatePackages }}"""
+                    Write-Host("Script to run: " + $scriptPath)
+                    Invoke-Expression $scriptPath | Out-Host
+                    if($LASTEXITCODE)
+                    {
+                        throw "Installation Failed on Run CmfDeploy.exe install"
+                    }
+                }
+
+                try
+                {
+                  Invoke-Command -ComputerName $(ServerAddress) -ScriptBlock $sc | Out-Host
+                }
+                catch { throw (" *  Invoke-Command ERROR " + $_) }
+
+          - task: PowerShell@2
+            displayName: "Disable maintenance mode"
+            inputs:
+              targetType: 'inline'
+              pwsh: true
+              failOnStderr: false
+              script: |
+                $sc =
+                {
+                  $parameters = "${{ variables.CandidatePackages }}\${{ variables.EnvironmentConfigName }}"
+                  $maintenanceModePackageFolder = "$env:TEMP\Cmf";
+                  $maintenanceModeDFRun = ".\tools\CmfDeploy.exe install --packageToInstall=Cmf.Configuration.MaintenanceMode@1.0.0 --parameters=$parameters --packageSource=$maintenanceModePackageFolder -logFileLocation ""${{ variables.CandidatePackages }}"""
+                  $manifest =
+                    ('<?xml version="1.0" encoding="utf-8"?>
+                    <deploymentPackage>
+                        <packageId>Cmf.Configuration.MaintenanceMode</packageId>
+                        <name>Cmf SetMaintenanceMode</name>
+                        <packageType>Generic</packageType>
+                        <description>Cmf SetMaintenanceMode</description>
+                        <version>1.0.0</version>
+                        <isInstallable>True</isInstallable>
+                        <isToForceInstall>True</isToForceInstall>
+                        <steps>
+                            <step type="UpdateConfiguration" configPath="/Cmf/System/Configuration/MaintenanceMode/IsEnabled/" value="False"/>
+                        </steps>
+                    </deploymentPackage>')
+
+                    $manifestPath = "$maintenanceModePackageFolder\Cmf.Configuration.MaintenanceMode\manifest.xml"
+                    New-Item -Type Directory -Path $maintenanceModePackageFolder -Force -Verbose
+                    New-Item -Path $manifestPath -ItemType File -Value $manifest -Force -Verbose
+
+                    Set-Location -Path $(DriveLetter)
+
+                    # Disable MaintenanceMode
+                    Write-Host("Script to run: " + $maintenanceModeDFRun)
+                    Invoke-Expression $maintenanceModeDFRun | Out-Host
+                    if($LASTEXITCODE)
+                    {
+                        throw "Installation Failed on Run MaintenanceMode OFF"
+                    }
+                    Write-Host "MaintenanceMode OFF"
+                }
+
+                try
+                {
+                  Invoke-Command -ComputerName $(ServerAddress) -ScriptBlock $sc | Out-Host
                 }
                 catch { throw (" *  Invoke-Command ERROR " + $_) }
 
