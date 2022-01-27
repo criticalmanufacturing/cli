@@ -42,7 +42,7 @@ namespace Cmf.Common.Cli.Handlers
 
                     foreach (IDirectoryInfo packDirectory in packDirectories)
                     {
-                        dynamic packageJson = packDirectory.GetPackageJsonFile();
+                        dynamic packageJson = packDirectory.GetFile(CliConstants.PackageJson);
                         if (packageJson != null)
                         {
                             string packageName = packageJson.name;
