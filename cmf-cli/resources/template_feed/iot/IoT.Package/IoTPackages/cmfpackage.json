@@ -15,6 +15,6 @@
     }
   ],
   "xmlInjection": [
-    "<%= $CLI_PARAM_rootInnerRelativePath %>/DeploymentMetadata/ui.xml"
+    "ui.xml"
   ]
 }
