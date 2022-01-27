@@ -21,7 +21,7 @@ Below are some tailoring options for specific targets. It's recommended that the
         ```
 
 ## Deployment Framework:
- - **Root Package**
+ - **Root and IoT Root Package**
    - Add to dependencies
         ```json
         "dependencies": [
@@ -37,7 +37,7 @@ Below are some tailoring options for specific targets. It's recommended that the
             { "order": "3", "type": "Generic", "onExecute": "$(Agent.Root)/agent/scripts/start_host.ps1" }
         ]
         ```
-  - **Data and IoTData Package**
+  - **Data, IoTData and Tests MasterData Package**
     - Add to steps:
         ```json
         "steps": [
