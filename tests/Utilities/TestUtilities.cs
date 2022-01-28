@@ -13,15 +13,19 @@ using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
 
-namespace Cmf.Common.Cli.Utilities
+namespace Cmf.Common.Cli.TestUtilities
 {
     /// <summary>
-    ///
+    /// Utilities for tests
     /// </summary>
     public static class TestUtilities
     {
         #region Public Methods
 
+        /// <summary>
+        /// Retrieves temp directory adds a guid and creates a dir
+        /// </summary>
+        /// <returns></returns>
         public static string GetTmpDirectory()
         {
             var tmp = Path.Join(Path.GetTempPath(), Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8));
@@ -31,6 +35,12 @@ namespace Cmf.Common.Cli.Utilities
             return tmp;
         }
 
+        /// <summary>
+        /// Resolves default fixture path 
+        /// </summary>
+        /// <param name="fixture"></param>
+        /// <param name="item"></param>
+        /// <returns></returns>
         public static string GetFixturePath(string fixture, string item)
         {
             return System.IO.Path.GetFullPath(
@@ -39,6 +49,11 @@ namespace Cmf.Common.Cli.Utilities
                         "..", "..", "..", "Fixtures", fixture, item));
         }
 
+        /// <summary>
+        /// Copies the fixture to a directory
+        /// </summary>
+        /// <param name="fixtureName"></param>
+        /// <param name="target"></param>
         public static void CopyFixture(string fixtureName, DirectoryInfo target)
         {
             Directory.CreateDirectory(target.FullName);
@@ -49,6 +64,11 @@ namespace Cmf.Common.Cli.Utilities
             CopyAll(source, target);
         }
 
+        /// <summary>
+        /// Copies all files from a source directory to a target directory
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="target"></param>
         public static void CopyAll(DirectoryInfo source, DirectoryInfo target)
         {
             // Copy each file into the new directory.
@@ -67,18 +87,34 @@ namespace Cmf.Common.Cli.Utilities
             }
         }
 
+        /// <summary>
+        /// Retrieves a property from a cmfpackage.json file
+        /// </summary>
+        /// <param name="property"></param>
+        /// <param name="cmfpackageJsonPath"></param>
+        /// <returns></returns>
         public static string GetPackageProperty(string property, string cmfpackageJsonPath)
         {
             var pkg = GetPackage(cmfpackageJsonPath);
             return pkg.GetProperty(property).GetString();
         }
 
+        /// <summary>
+        /// Retrieves the content from a cmfpackage.json file
+        /// </summary>
+        /// <param name="cmfpackageJsonPath"></param>
+        /// <returns></returns>
         public static JsonElement GetPackage(string cmfpackageJsonPath)
         {
             var json = File.ReadAllText(cmfpackageJsonPath);
             return JsonDocument.Parse(json).RootElement;
         }
 
+        /// <summary>
+        /// Lists all the files inside a zip file
+        /// </summary>
+        /// <param name="packageFile"></param>
+        /// <returns></returns>
         public static List<string> GetFileEntriesFromZip(string packageFile)
         {
             using (FileStream zipToOpen = new(packageFile, FileMode.Open))

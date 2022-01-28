@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO.Abstractions;
 using System.Text.Json;
@@ -11,7 +10,7 @@ using Cmf.Common.Cli.Utilities;
 namespace Cmf.Common.Cli.Commands.New
 {
     /// <summary>
-    /// 
+    /// Generator for Security Portal package
     /// </summary>
     [CmfCommand("securityPortal", Parent = "new")]
     public class SecurityPortalCommand : LayerTemplateCommand
@@ -29,12 +28,6 @@ namespace Cmf.Common.Cli.Commands.New
         /// <param name="fileSystem"></param>
         public SecurityPortalCommand(IFileSystem fileSystem) : base("securityPortal", Enums.PackageType.SecurityPortal, fileSystem)
         {
-        }
-
-        /// <inheritdoc />
-        public override void Configure(Command cmd)
-        {
-            base.Configure(cmd);
         }
 
         /// <inheritdoc />

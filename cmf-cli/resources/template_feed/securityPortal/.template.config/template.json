@@ -45,11 +45,6 @@
       "datatype": "string",
       "replaces": "<%= $CLI_PARAM_idSegment %>",
       "fileRename": "%idSegment%"
-    },
-    "rootInnerRelativePath": {
-      "type": "parameter",
-      "datatype": "string",
-      "replaces": "<%= $CLI_PARAM_rootInnerRelativePath %>"
     }
   }
 }

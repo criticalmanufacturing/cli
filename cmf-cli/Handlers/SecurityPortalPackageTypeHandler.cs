@@ -11,7 +11,7 @@ namespace Cmf.Common.Cli.Handlers
 {
 
     /// <summary>
-    /// 
+    /// Handler for SecurityPortal packages
     /// </summary>
     public class SecurityPortalPackageTypeHandler : PackageTypeHandler
     {
@@ -24,7 +24,7 @@ namespace Cmf.Common.Cli.Handlers
             cmfPackage.SetDefaultValues
             (
                 targetDirectory:
-                    "/app",
+                    "SecurityPortal",
                 targetLayer:
                     "securityportal",
                 steps:
@@ -38,11 +38,7 @@ namespace Cmf.Common.Cli.Handlers
                     }
             );
 
-            BuildSteps = new IBuildCommand[]
-            {
-            };
-
-            DFPackageType = PackageType.Generic;
+            cmfPackage.DFPackageType = PackageType.Business;
         }
 
 
