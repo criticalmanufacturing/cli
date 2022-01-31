@@ -1,5 +1,6 @@
-﻿using Cmf.Common.Cli.Enums;
+using Cmf.Common.Cli.Enums;
 using Cmf.Common.Cli.Objects;
+using Spectre.Console;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -205,83 +206,71 @@ namespace Cmf.Common.Cli.Utilities
         }
 
         /// <summary>
-        /// Iterate through a dependecy tree and check the dependencies
+        /// Builds a tree representation of a CmfPackage dependency tree
         /// </summary>
-        /// <param name="pkg"></param>
-        /// <param name="levels"></param>
-        /// <param name="isLast"></param>
-        /// <param name="isDisplay"></param>
-        /// <param name="isConsistencyCheck"></param>
-        /// <exception cref="CliException"></exception>
-        public static void IterateTree(CmfPackage pkg, List<bool>? levels = null, bool isLast = false, bool isDisplay = true, bool isConsistencyCheck = false)
+        /// <param name="pkg">the root package</param>
+        public static Tree BuildTree(CmfPackage pkg)
         {
-            levels ??= new();
-
-            if (isDisplay) Log.Information($"{PrintBranch(levels.ToList(), isLast)}{pkg.PackageId}@{pkg.Version} [{pkg.Location.ToString()}]");
-
+            var tree = new Tree($"{pkg.PackageId}@{pkg.Version} [[{pkg.Location.ToString()}]]");
             if (pkg.Dependencies.HasAny())
             {
                 for (int i = 0; i < pkg.Dependencies.Count; i++)
                 {
                     Dependency dep = pkg.Dependencies[i];
-                    bool isDepLast = (i == (pkg.Dependencies.Count - 1));
-                    List<bool> l = levels.Append(isDepLast).ToList();
-
-                    if (isConsistencyCheck && !dep.IsIgnorable &&
-                        dep.CmfPackage != null && dep.CmfPackage.Location == PackageLocation.Local && 
-                            pkg.Version != dep.Version)
-                    {
-                        throw new CliException(string.Format(CliMessages.VersionFailedConsistencyCheck, pkg.Version, dep.Version));
-                    }
 
                     if (!dep.IsMissing)
                     {
-                        IterateTree(dep.CmfPackage, l, isDepLast, isDisplay, isConsistencyCheck);
+                        var curNode = tree.AddNode($"{pkg.PackageId}@{pkg.Version} [[{pkg.Location.ToString()}]]");
+                        BuildTreeNodes(dep.CmfPackage, curNode);
                     }
-                    else if (dep.IsMissing && isDisplay)
+                    else if (dep.IsMissing)
                     {
                         if (dep.Mandatory)
                         {
-                            Log.Error($"{PrintBranch(l, isDepLast)} MISSING {dep.Id}@{dep.Version}");
+                            tree.AddNode($"[red]MISSING {dep.Id}@{dep.Version}[/]");
                         }
                         else
                         {
-                            Log.Warning($"{PrintBranch(l, isDepLast)} MISSING {dep.Id}@{dep.Version}");
+                            tree.AddNode($"[yellow]MISSING {dep.Id}@{dep.Version}[/]");
                         }
                     }
                 }
             }
+            return tree;
         }
+
 
         #endregion Public Methods
 
         #region Private Methods
 
-        /// <summary>
-        /// Add to string builder with print tokens
-        /// </summary>
-        /// <param name="levels"></param>
-        /// <param name="isLast"></param>
-        /// <returns></returns>
-        private static string PrintBranch(List<bool> levels, bool isLast = false)
+        private static void BuildTreeNodes(CmfPackage pkg, TreeNode node)
         {
-            StringBuilder? sb = new StringBuilder();
-            while (levels.Count > 0)
+            if (pkg.Dependencies.HasAny())
             {
-                bool level = levels[0];
-                if (levels.Count > 1)
+                for (int i = 0; i < pkg.Dependencies.Count; i++)
                 {
-                    sb.Append(level ? "  " : "| ");
+                    Dependency dep = pkg.Dependencies[i];
+
+                    if (!dep.IsMissing)
+        {
+                        var curNode = node.AddNode($"{pkg.PackageId}@{pkg.Version} [[{pkg.Location.ToString()}]]");
+                        BuildTreeNodes(dep.CmfPackage, curNode);
+                    }
+                    else if (dep.IsMissing)
+            {
+                        if (dep.Mandatory)
+                {
+                            node.AddNode($"[red]MISSING {dep.Id}@{dep.Version}[/]");
                 }
                 else
                 {
-                    sb.Append(isLast ? "`-- " : "+-- ");
+                            node.AddNode($"[yellow]MISSING {dep.Id}@{dep.Version}[/]");
+                        }
+                    }
                 }
-                levels.RemoveAt(0);
             }
-            return sb.ToString();
         }
-
         #endregion
     }
 }

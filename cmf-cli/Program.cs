@@ -37,7 +37,7 @@ namespace Cmf.Common.Cli
             }
             catch (Exception e)
             {
-                Log.Error(e.Message);
+                Log.Exception(e);
                 return -1; // TODO: set exception error codes
             }
         }
