@@ -21,7 +21,7 @@ namespace Cmf.Common.Cli
         //public static void SetConsole(IConsole console) => Log.console = console;
 
         /// <summary>
-        /// The level
+        /// The default log level
         /// </summary>
         public static LogLevel Level = LogLevel.Verbose;
 
@@ -31,7 +31,8 @@ namespace Cmf.Common.Cli
         /// <param name="msg">The MSG.</param>
         public static void Debug(string msg)
         {
-            Write($"[gray]{EscapeMarkup(msg)}[/]");
+            if (Level <= LogLevel.Debug)
+                Write($"[gray]{EscapeMarkup(msg)}[/]");
         }
 
         /// <summary>
@@ -40,7 +41,8 @@ namespace Cmf.Common.Cli
         /// <param name="msg">The MSG.</param>
         public static void Verbose(string msg)
         {
-            Write($"[white]{EscapeMarkup(msg)}[/]");
+            if (Level <= LogLevel.Verbose)
+                Write($"[white]{EscapeMarkup(msg)}[/]");
         }
 
         /// <summary>
@@ -49,7 +51,8 @@ namespace Cmf.Common.Cli
         /// <param name="msg">The MSG.</param>
         public static void Information(string msg)
         {
-            Write($"[green]{EscapeMarkup(msg)}[/]");
+            if (Level <= LogLevel.Information)
+                Write($"[green]{EscapeMarkup(msg)}[/]");
         }
 
         /// <summary>
@@ -58,7 +61,8 @@ namespace Cmf.Common.Cli
         /// <param name="msg">The MSG.</param>
         public static void Warning(string msg)
         {
-            Write($"[yellow]{EscapeMarkup(msg)}[/]");
+            if (Level <= LogLevel.Warning)
+                Write($"[yellow]{EscapeMarkup(msg)}[/]");
         }
 
         /// <summary>
@@ -67,7 +71,8 @@ namespace Cmf.Common.Cli
         /// <param name="msg">The MSG.</param>
         public static void Error(string msg)
         {
-            Write($"[red]{EscapeMarkup(msg)}[/]");
+            if (Level <= LogLevel.Error)
+                Write($"[red]{EscapeMarkup(msg)}[/]");
         }
 
         /// <summary>
