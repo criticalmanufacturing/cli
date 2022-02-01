@@ -223,6 +223,7 @@ namespace Cmf.Common.Cli.Objects
         /// Handler Version
         /// </summary>
         [JsonProperty(Order = 17)]
+        [JsonIgnore]
         public int HandlerVersion { get; private set; }
 
         /// <summary>

@@ -1,5 +1,7 @@
 ﻿using Cmf.Common.Cli.Enums;
 using Cmf.Common.Cli.Utilities;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System;
 using System.Xml.Serialization;
 
@@ -19,6 +21,8 @@ namespace Cmf.Common.Cli.Objects
         /// <value>
         /// The type.
         /// </value>
+        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonProperty(Order = 2)]
         public StepType? Type { get; set; }
 
         /// <summary>
@@ -27,6 +31,7 @@ namespace Cmf.Common.Cli.Objects
         /// <value>
         /// The title.
         /// </value>
+        [JsonProperty(Order = 4)]
         public string Title { get; set; }
 
         /// <summary>
@@ -35,6 +40,7 @@ namespace Cmf.Common.Cli.Objects
         /// <value>
         /// The on execute.
         /// </value>
+        [JsonProperty(Order = 6)]
         public string OnExecute { get; set; }
 
         /// <summary>
@@ -43,6 +49,7 @@ namespace Cmf.Common.Cli.Objects
         /// <value>
         /// The content path.
         /// </value>
+        [JsonProperty(Order = 5)]
         public string ContentPath { get; set; }
 
         /// <summary>
@@ -51,6 +58,7 @@ namespace Cmf.Common.Cli.Objects
         /// <value>
         /// The file.
         /// </value>
+        [JsonProperty(Order = 7)]
         public string File { get; set; }
 
         /// <summary>
@@ -59,6 +67,7 @@ namespace Cmf.Common.Cli.Objects
         /// <value>
         ///   <c>true</c> if [tag file]; otherwise, <c>false</c>.
         /// </value>
+        [JsonProperty(Order = 8)]
         public bool? TagFile { get; set; }
 
         /// <summary>
@@ -67,6 +76,7 @@ namespace Cmf.Common.Cli.Objects
         /// <value>
         /// The target database.
         /// </value>
+        [JsonProperty(Order = 9)]
         public string TargetDatabase { get; set; }
 
         /// <summary>
@@ -75,8 +85,10 @@ namespace Cmf.Common.Cli.Objects
         /// <value>
         /// The type of the message.
         /// </value>
+        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonProperty(Order = 3)]
         public MessageType? MessageType { get; set; }
-        
+
         /// <summary>
         /// the path of the file to load via masterdata
         /// </summary>
@@ -121,6 +133,7 @@ namespace Cmf.Common.Cli.Objects
         /// the order of the steps
         /// </summary>
         [XmlIgnore]
+        [JsonProperty(Order = 1)]
         public int Order { get; set; }
 
         #endregion
