@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.1.0](https://github.com/criticalmanufacturing/cli/compare/2.0.0...2.1.0) (2022-02-07)
+
+
+### Features
+
+* consistencyCheck Validator ([b0b3e34](https://github.com/criticalmanufacturing/cli/commits/b0b3e34c4d08ebcab7f6d17c0ac9c3661263ae73))
+
+
+### Bug Fixes
+
+* add StringEnumConverter and Order to Step class ([d377acd](https://github.com/criticalmanufacturing/cli/commits/d377acda999a9485fe54257323da8d2ed15bdad5))
+* cd-containers create folder dailybackup before move file ([e93fa3f](https://github.com/criticalmanufacturing/cli/commits/e93fa3f841a2e3aedf97220cee31e6289c046f1a))
+* copy runsettings folder independent ([33e15dd](https://github.com/criticalmanufacturing/cli/commits/33e15dd0af920007454d5f7b17f278f068c4a8e8))
+* fix test ([61617e8](https://github.com/criticalmanufacturing/cli/commits/61617e826ca3e595f69ffdd35c04a0aee26ab7d7))
+* ignore HandlerVersion on serialize ([419dde4](https://github.com/criticalmanufacturing/cli/commits/419dde41e2e59db5e3c4f989f1df08102933490a))
+* levels as nullable ([8633aea](https://github.com/criticalmanufacturing/cli/commits/8633aeac82f6a9ac77dcd25926cf4c75257b1471))
+* **pipeline:** ci-release add maintenance mode ([c10660e](https://github.com/criticalmanufacturing/cli/commits/c10660e339a4391b8477bbd61ff92b8cdb9c81da))
+* register MasterData package in root ([99ce085](https://github.com/criticalmanufacturing/cli/commits/99ce085a0231efe41935ef034610464ea52a4977))
+* remove changes ([017f947](https://github.com/criticalmanufacturing/cli/commits/017f9472c5c7d206a4d9dffb1eaf91da315bd01f))
+* remove doc ([d4ac3f4](https://github.com/criticalmanufacturing/cli/commits/d4ac3f453caddfc7bc77023078175b11a0f9e7fa))
+* remove documentation ([a162af5](https://github.com/criticalmanufacturing/cli/commits/a162af5290217ce8d54def1c5e74a202ed95c95d))
+* remove typo ([58f7e70](https://github.com/criticalmanufacturing/cli/commits/58f7e70b6a7058e9ba0bf055e6cc03434f5500d9))
+* **templates:** iot, html and tests ([29ebd47](https://github.com/criticalmanufacturing/cli/commits/29ebd47638896aeb050e8b2ded67abb8ec20f660))
+* use fileSystem singleton throughout the code ([54f72e6](https://github.com/criticalmanufacturing/cli/commits/54f72e60ec54a8861cb0c612165677b578e1b8eb))
+
 ## [2.0.0](https://github.com/criticalmanufacturing/cli/compare/2.0.0-14...2.0.0) (2022-01-10)
 
 
