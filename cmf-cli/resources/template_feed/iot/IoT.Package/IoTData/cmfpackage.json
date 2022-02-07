@@ -7,7 +7,7 @@
   "isUniqueInstall": true,
   "contentToPack": [
     {
-      "source": "$(version)/MasterData/*",
+      "source": "MasterData/$(version)/*",
       "target": "MasterData/$(version)",
       "contentType": "MasterData"
     },
