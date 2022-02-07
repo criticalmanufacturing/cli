@@ -173,4 +173,8 @@
   <data name="UrlsNotSupported" xml:space="preserve">
     <value>Urls not supported yet</value>
   </data>
+  <data name="VersionFailedConsistencyCheck" xml:space="preserve">
+    <value>This root package dependencies must enforce version consistency. Root Version {0} Failed Package Version {1}</value>
+    <comment>0 - Root Version; 1 - Failed Package Version</comment>
+  </data>
 </root>

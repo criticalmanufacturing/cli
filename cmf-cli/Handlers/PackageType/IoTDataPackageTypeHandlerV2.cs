@@ -1,4 +1,5 @@
-﻿using Cmf.Common.Cli.Enums;
+﻿using Cmf.Common.Cli.Builders;
+using Cmf.Common.Cli.Enums;
 using Cmf.Common.Cli.Objects;
 using Cmf.Common.Cli.Utilities;
 using Newtonsoft.Json;
@@ -23,6 +24,17 @@ namespace Cmf.Common.Cli.Handlers
         /// <param name="cmfPackage">The CMF package.</param>
         public IoTDataPackageTypeHandlerV2(CmfPackage cmfPackage) : base(cmfPackage)
         {
+            IBuildCommand[] BuildStepsIoTData = new IBuildCommand[]
+            {
+                new ConsistencyCheckCommand()
+                {
+                    DisplayName = "Consistency Check Validator Command",
+                    FileSystem = this.fileSystem,
+                    WorkingDirectory = cmfPackage.GetFileInfo().Directory
+        }
+            }; 
+
+            BuildSteps = BuildSteps.Concat(BuildStepsIoTData).ToArray();
         }
 
         /// <summary>

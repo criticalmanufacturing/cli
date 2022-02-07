@@ -1,6 +1,6 @@
 {
   "name": "@criticalmanufacturing/cli",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Critical Manufacturing command line client",
   "bin": {
     "cmf": "./run.js"
@@ -29,7 +29,7 @@
   ],
   "dependencies": {
     "adm-zip": "^0.5.5",
-    "axios": "^0.21.1",
+    "axios": "^0.21.4",
     "debug": "^4.3.1",
     "env-paths": "^2.2.1",
     "is-installed-globally": "^0.4.0",
