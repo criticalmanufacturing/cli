@@ -20,6 +20,8 @@ namespace Cmf.Common.Cli
 
         //public static void SetConsole(IConsole console) => Log.console = console;
 
+        public static IAnsiConsole AnsiConsole = Spectre.Console.AnsiConsole.Console;
+
         /// <summary>
         /// The default log level
         /// </summary>
@@ -123,7 +125,7 @@ namespace Cmf.Common.Cli
         /// </summary>
         /// <param name="msg">message to be escaped</param>
         /// <returns>escaped message</returns>
-        private static string EscapeMarkup(string msg) => msg.Replace("[", "[[").Replace("]", "]]");
+        private static string EscapeMarkup(string msg) => msg?.Replace("[", "[[").Replace("]", "]]");
     }
 
     /// <summary>
