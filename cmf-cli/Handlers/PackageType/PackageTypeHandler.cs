@@ -397,12 +397,8 @@ namespace Cmf.Common.Cli.Handlers
                                     continue;
                                 }
 
-                                IDirectoryInfo _targetFolder = this.fileSystem.DirectoryInfo.FromDirectoryName($"{packageOutputDir.FullName}/{_target}");
-                                if (!_targetFolder.Exists)
-                                {
-                                    _targetFolder.Create();
-                                }
-                                string destPackFile = $"{_targetFolder.FullName}/{packFile.Name}";
+                                string destPackFile = $"{packageOutputDir.FullName}/{_target}/{packFile.Name}";
+
                                 filesToPack.Add(new()
                                 {
                                     ContentToPack = contentToPack,
@@ -487,11 +483,20 @@ namespace Cmf.Common.Cli.Handlers
         /// <param name="packageOutputDir">The package output dir.</param>
         /// <param name="outputDir">The output dir.</param>
         public virtual void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir)
-            {
+        {
             var filesToPack = GetContentToPack(packageOutputDir);
             if (filesToPack != null)
             {
                 FilesToPack.AddRange(filesToPack);
+
+                FilesToPack.ForEach(fileToPack =>
+                {
+                    IDirectoryInfo _targetFolder = this.fileSystem.DirectoryInfo.FromDirectoryName(fileToPack.Target.Directory.FullName);
+                    if (!_targetFolder.Exists)
+                    {
+                        _targetFolder.Create();
+                    }
+                });
             }
 
             // TODO: To be removed? Install dependencies
