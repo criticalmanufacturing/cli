@@ -23,9 +23,9 @@ namespace Cmf.Common.Cli
             {
                 loglevelStr = argResult.Tokens.First().Value;
             }
-            else if (System.Environment.GetEnvironmentVariable("cmf:cli:loglevel") != null)
+            else if (System.Environment.GetEnvironmentVariable("cmf_cli_loglevel") != null)
             {
-                loglevelStr = System.Environment.GetEnvironmentVariable("cmf:cli:loglevel");
+                loglevelStr = System.Environment.GetEnvironmentVariable("cmf_cli_loglevel");
             }
 
             if (LogLevel.TryParse(typeof(LogLevel), loglevelStr, ignoreCase: true, out object? loglevelObj))
