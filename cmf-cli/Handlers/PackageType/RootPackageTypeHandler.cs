@@ -24,7 +24,7 @@ namespace Cmf.Common.Cli.Handlers
                     CliConstants.RootPackageDefaultKeyword
             );
 
-            DFPackageType = PackageType.Generic;
+            cmfPackage.DFPackageType = PackageType.Generic;
         }
     }
 }
