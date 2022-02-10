@@ -46,6 +46,6 @@
   <ItemGroup>
 	  <PackageReference Include="Cmf.Common.TestUtilities" Version="2.3.157590" />
     <PackageReference Include="Cmf.Dev.Mes.TestScenarios" Version="<%= $CLI_PARAM_TestScenariosNugetVersion %>"/>
-	  <PackageReference Include="SharpZipLib" Version="1.3.1" />
+	  <PackageReference Include="SharpZipLib" Version="1.3.3" />
   </ItemGroup>
 </Project>
