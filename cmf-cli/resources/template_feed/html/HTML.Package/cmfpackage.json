@@ -28,10 +28,6 @@
     {
       "source": "../Libs/LBOs/TypeScript/package.json",
       "target": "node_modules/cmf.lbos"
-    },
-    {
-      "source": "config.json",
-      "action": "Transform"
     }
   ]
 }
