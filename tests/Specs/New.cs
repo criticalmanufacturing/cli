@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text.Json;
 using Cmf.Common.Cli.Commands;
 using Cmf.Common.Cli.Commands.New;
+using Cmf.Common.Cli.Enums;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace tests.Specs
@@ -318,6 +319,51 @@ namespace tests.Specs
         public void IoT()
         {
             RunNew(new IoTCommand(), "Cmf.Custom.IoT");
+        }
+
+        [TestMethod]
+        public void IoTData()
+        {
+            string dir = GetTmpDirectory();
+            string packageId = "Cmf.Custom.IoT";
+            string packageIdData = "Cmf.Custom.IoT.Data";
+            string packageFolder = "IoTData";
+
+            CopyFixture("new", new DirectoryInfo(dir));
+            RunNew(new IoTCommand(), packageId, dir);
+
+            // Validate IoT Data
+            Assert.IsTrue(Directory.Exists($"{packageId}/{packageFolder}"), "Package folder is missing");
+            Assert.IsTrue(Directory.Exists($"{packageId}/{packageFolder}/MasterData"), "Folder MasterData is missing");
+            Assert.IsTrue(Directory.Exists($"{packageId}/{packageFolder}/AutomationWorkFlows"), "Folder AutomationWorkFlows is missing");
+            
+            Assert.AreEqual(packageIdData, GetPackageProperty("packageId", $"{packageId}/{packageFolder}/cmfpackage.json"), "Package Id does not match expected");
+            Assert.AreEqual(PackageType.IoTData.ToString(), GetPackageProperty("packageType", $"{packageId}/{packageFolder}/cmfpackage.json"), "Package Type does not match expected");
+            Assert.AreEqual(GetPackageProperty("version", $"{packageId}/cmfpackage.json"), 
+                GetPackageProperty("version", $"{packageId}/{packageFolder}/cmfpackage.json"), "Version does not match expected");
+        }
+
+        [TestMethod]
+        public void IoTPackage()
+        {
+            string dir = GetTmpDirectory();
+            string packageId = "Cmf.Custom.IoT";
+            string packageIdData = "Cmf.Custom.IoT.Packages";
+            string packageFolder = "IoTPackages";
+
+            CopyFixture("new", new DirectoryInfo(dir));
+            RunNew(new IoTCommand(), packageId, dir);
+
+            // Validate IoT Package
+            Assert.IsTrue(Directory.Exists($"{packageId}/{packageFolder}"), "Package folder is missing");
+            Assert.IsTrue(Directory.Exists($"{packageId}/{packageFolder}/src"), "Folder MasterData is missing");
+            Assert.IsTrue(File.Exists($"{packageId}/{packageFolder}/.dev-tasks.json"), "Folder AutomationWorkFlows is missing");
+            Assert.IsTrue(File.Exists($"{packageId}/{packageFolder}/package.json"), "Folder AutomationWorkFlows is missing");
+
+            Assert.AreEqual(packageIdData, GetPackageProperty("packageId", $"{packageId}/{packageFolder}/cmfpackage.json"), "Package Id does not match expected");
+            Assert.AreEqual(PackageType.IoT.ToString(), GetPackageProperty("packageType", $"{packageId}/{packageFolder}/cmfpackage.json"), "Package Type does not match expected");
+            Assert.AreEqual(GetPackageProperty("version", $"{packageId}/cmfpackage.json"),
+                GetPackageProperty("version", $"{packageId}/{packageFolder}/cmfpackage.json"), "Version does not match expected");
         }
 
         [TestMethod]
