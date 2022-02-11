@@ -524,7 +524,7 @@ stages:
               $masterDataFiles = "${{ variables.CandidatePackages }}/Tests/*MasterData*.zip"
 
               Get-ChildItem $masterDataFiles | foreach {
-                  $PackageId = [regex]::split($_.BaseName, ".[0-9].[0-9].[0-9]")[0];
+                  $PackageId = [regex]::split($_.BaseName, ".[0-9]+.[0-9]+.[0-9]+")[0];
                   $PackageVersion = ($_.BaseName-replace "$PackageId." );
 
                   $PackageIdentifier = $PackageId + '@' + $PackageVersion
