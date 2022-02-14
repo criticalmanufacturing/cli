@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Compression;
+using System.IO.IsolatedStorage;
 using System.Linq;
 using System.Reflection;
 using System.Xml.Linq;
@@ -217,7 +218,7 @@ namespace Cmf.Common.Cli.Handlers
                 elementToRemove.Remove();
             }
 
-            dFManifestTemplate.Save(path);
+            fileSystem.File.WriteAllText(path, dFManifestTemplate.ToString());
         }
 
         /// <summary>
@@ -298,7 +299,7 @@ namespace Cmf.Common.Cli.Handlers
                 this.fileSystem.File.Delete(tempzipPath);
             }
 
-            FileSystemUtilities.ZipDirectory(tempzipPath, packageOutputDir);
+            FileSystemUtilities.ZipDirectory(fileSystem, tempzipPath, packageOutputDir);
 
             // move to final destination
             string destZipPath = $"{outputDir.FullName}/{CmfPackage.ZipPackageName}";
@@ -439,14 +440,14 @@ namespace Cmf.Common.Cli.Handlers
         /// <param name="buildNr">The version for build Nr.</param>
         /// <param name="bumpInformation">The bump information.</param>
         public virtual void Bump(string version, string buildNr, Dictionary<string, object> bumpInformation = null)
-            {
+        {
             // TODO: create "transaction" to rollback if anything fails
             // NOTE: Check pack strategy. Collect all packages to bump before bump.
 
             var currentVersion = CmfPackage.Version.Split("-")[0];
             var currentBuildNr = CmfPackage.Version.Split("-").Length > 1 ? CmfPackage.Version.Split("-")[1] : null;
             if (!currentVersion.IgnoreCaseEquals(version))
-                {
+            {
                 // TODO :: Uncomment if the cmfpackage.json support build number
                 // cmfPackage.SetVersion(GenericUtilities.RetrieveNewVersion(currentVersion, version, buildNr));
 
@@ -454,7 +455,7 @@ namespace Cmf.Common.Cli.Handlers
 
                 Log.Information($"Will bump {CmfPackage.PackageId} from version {currentVersion} to version {CmfPackage.Version}");
             }
-                }
+        }
 
         /// <summary>
         /// Builds this instance.
@@ -466,7 +467,7 @@ namespace Cmf.Common.Cli.Handlers
                 Log.Information($"Executing '{step.DisplayName}'");
                 step.Exec();
             }
-            }
+        }
 
         /// <summary>
         /// Packs the specified package output dir.
