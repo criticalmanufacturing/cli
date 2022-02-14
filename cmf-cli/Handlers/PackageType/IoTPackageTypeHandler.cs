@@ -87,24 +87,32 @@ namespace Cmf.CLI.Handlers
                 },
                 new NPMCommand()
                 {
-                    DisplayName = "NPM Install",
-                    Command = "install",
-                    Args = new[] {"--force"},
-                    WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                   DisplayName = "NPM Install",
+                   Command = "install",
+                   Args = new[] {"--force"},
+                   WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                },
+                new GulpCommand()
+                {
+                   GulpFile = "gulpfile.js",
+                   Task = "install",
+                   DisplayName = "Gulp Install",
+                   GulpJS = "node_modules/gulp/bin/gulp.js",
+                   WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                },
+                new GulpCommand()
+                {
+                   GulpFile = "gulpfile.js",
+                   Task = "build",
+                   DisplayName = "Gulp Build",
+                   GulpJS = "node_modules/gulp/bin/gulp.js",
+                   WorkingDirectory = cmfPackage.GetFileInfo().Directory
                 },
                 new GulpCommand()
                 {
                     GulpFile = "gulpfile.js",
-                    Task = "install",
-                    DisplayName = "Gulp Install",
-                    GulpJS = "node_modules/gulp/bin/gulp.js",
-                    WorkingDirectory = cmfPackage.GetFileInfo().Directory
-                },
-                new GulpCommand()
-                {
-                    GulpFile = "gulpfile.js",
-                    Task = "build",
-                    DisplayName = "Gulp Build",
+                    Task = "cliTest",
+                    DisplayName = "Gulp Test",
                     GulpJS = "node_modules/gulp/bin/gulp.js",
                     WorkingDirectory = cmfPackage.GetFileInfo().Directory
                 },
@@ -238,5 +246,6 @@ namespace Cmf.CLI.Handlers
 
             base.Pack(packageOutputDir, outputDir);
         }
+
     }
 }
