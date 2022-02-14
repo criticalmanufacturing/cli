@@ -10,12 +10,12 @@ build:
     RUN apt update && apt install -y python3-pip python3-cffi python3-brotli libpango-1.0-0 libpangoft2-1.0-0
     COPY . .
     RUN mkdocs build
+    RUN touch /app/book/.nojekyll # disable GitHub pages parsing
     SAVE ARTIFACT /app/book /dist AS LOCAL dist
     SAVE ARTIFACT /output /output AS LOCAL dist/output
 
 image:
     FROM nginx
-    RUN touch /usr/share/nginx/html/.nojekyll # disable GitHub pages parsing
     COPY +build/dist /usr/share/nginx/html
     COPY +build/output /usr/share/nginx/html/output
     EXPOSE 80

@@ -48,3 +48,24 @@ This will ensure the PR pipelines will run each time code is pushed to a Pull Re
 
 ## Remaining pipelines
 We do not support running the Continuous Delivery pipelines in a client setting. These pipelines are strongly opinionated on the environment in which they run and require virtual machines configured specifically for them. They are still provided as an example and guide so that each client or partner can create their own pipelines. However, they will not work out of the box and will hang on permissions issues if attempted to run.
+
+## Secrets
+The **CD-Containers** pipeline requires that a secret is specified in a variable group to run successfully. The most important one is the Customer Portal PAT (Personal Access Token). 
+
+![Docker Variables group](../images/pipelines/variable-group.png "Docker Variables group")
+
+1. In Azure DevOps, go to Pipelines > Library and create a new Variable Group
+
+1. Name the variable group "Docker Variables"
+
+1. Check "Allow access to all pipelines"
+
+1. Add a new variable named **CustomerPortalPAT** and paste your Customer Portal PAT as the value
+
+1. Click the lock icon to turn the variable into a secret
+
+1. Save the variable group
+
+The pipeline will automatically use the variable group.
+
+It is possible to add extra secrets or varibles into this group, to preserve some secrets from the environment settings. Any token in the format e.g. `#{aToken}#` will be replaced with the value of the **aToken** variable.
