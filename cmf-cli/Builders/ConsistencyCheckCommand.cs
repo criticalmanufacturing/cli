@@ -1,4 +1,5 @@
 using Cmf.Common.Cli.Constants;
+using Cmf.Common.Cli.Enums;
 using Cmf.Common.Cli.Objects;
 using Cmf.Common.Cli.Utilities;
 using System.IO.Abstractions;
@@ -44,7 +45,15 @@ namespace Cmf.Common.Cli.Builders
 
             cmfPackage.LoadDependencies(ExecutionContext.Instance.RepositoriesConfig.Repositories.ToArray(), true);
 
-            GenericUtilities.IterateTree(cmfPackage, isDisplay: false, isConsistencyCheck: true);
+            GenericUtilities.IterateTree(cmfPackage, (pkgNode, depNode) =>
+            {
+                if (!depNode.IsIgnorable &&
+                        depNode.CmfPackage != null && depNode.CmfPackage.Location == PackageLocation.Local &&
+                            pkgNode.Version != depNode.Version)
+                {
+                    throw new CliException(string.Format(CliMessages.VersionFailedConsistencyCheck, pkgNode.Version, depNode.Version));
+                }
+            });
 
             return null;
         }

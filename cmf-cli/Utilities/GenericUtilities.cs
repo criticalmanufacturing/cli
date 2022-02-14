@@ -250,6 +250,38 @@ namespace Cmf.Common.Cli.Utilities
             }
         }
 
+        /// <summary>
+        /// Iterate through a dependecy tree and check the dependencies
+        /// </summary>
+        /// <param name="pkg"></param>
+        /// <param name="levels"></param>
+        /// <param name="isLast"></param>
+        /// <param name="isDisplay"></param>
+        /// <param name="isConsistencyCheck"></param>
+        /// <exception cref="CliException"></exception>
+        public static void IterateTree(CmfPackage pkg, Action<CmfPackage, Dependency> action, List<bool>? levels = null, bool isLast = false)
+        {
+            levels ??= new();
+
+            if (pkg.Dependencies.HasAny())
+            {
+                for (int i = 0; i < pkg.Dependencies.Count; i++)
+                {
+                    Dependency dep = pkg.Dependencies[i];
+                    bool isDepLast = (i == (pkg.Dependencies.Count - 1));
+                    List<bool> l = levels.Append(isDepLast).ToList();
+
+                    // for each node execute an action
+                    action(pkg, dep);
+
+                    if (!dep.IsMissing)
+                    {
+                        IterateTree(dep.CmfPackage, action, l);
+                    }
+                }
+            }
+        }
+
         #endregion Public Methods
 
         #region Private Methods
