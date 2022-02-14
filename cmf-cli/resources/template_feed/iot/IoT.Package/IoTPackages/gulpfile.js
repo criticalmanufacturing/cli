@@ -100,6 +100,37 @@ gulp.task('build', function (callback) {
 });
 
 /*
+ * start running the tests
+ */
+gulp.task('cliTest', function (callback) { 
+
+  let pkgPromises = _packages.map(pkg => {
+    return new Promise((resolve, reject) => {
+      try {
+        execSync("npm run test", {stdio: ['inherit', 'inherit','pipe' ], cwd: `src\\${pkg}`});        
+        resolve();
+      } catch (e) {
+        reject(e);
+      }
+    })
+  });
+
+  Promise.allSettled(pkgPromises).then((results) => {
+
+    let stacks = "";
+    for(const result of results){
+      if(result.status === "rejected" && typeof(result.reason.stderr) != "undefined" && 
+          !result.reason.stderr.toString().includes("Error: No test files found")) {
+        stacks = stacks + result.reason.stack;
+      }
+    }      
+    if(stacks !== "") {
+      throw new Error(stacks);
+    }    
+  });
+ });
+
+/*
  * Install all
  */
 gulp.task('install', function (callback) {
