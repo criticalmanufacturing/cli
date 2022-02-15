@@ -1,4 +1,5 @@
-﻿using Cmf.Common.Cli.Objects;
+﻿using Cmf.Common.Cli.Enums;
+using Cmf.Common.Cli.Objects;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -226,7 +227,9 @@ namespace Cmf.Common.Cli.Utilities
                     bool isDepLast = (i == (pkg.Dependencies.Count - 1));
                     List<bool> l = levels.Append(isDepLast).ToList();
 
-                    if (isConsistencyCheck && !dep.IsIgnorable && pkg.Version != dep.Version)
+                    if (isConsistencyCheck && !dep.IsIgnorable &&
+                        dep.CmfPackage != null && dep.CmfPackage.Location == PackageLocation.Local && 
+                            pkg.Version != dep.Version)
                     {
                         throw new CliException(string.Format(CliMessages.VersionFailedConsistencyCheck, pkg.Version, dep.Version));
                     }
