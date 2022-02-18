@@ -1,10 +1,16 @@
-﻿using Cmf.Common.Cli.Commands;
+﻿using System;
+using System.Collections.Generic;
+using Cmf.Common.Cli.Commands;
 using Xunit;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.IO;
 using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
+using System.IO.Compression;
+using System.Linq;
+using tests.Objects;
 
 namespace tests.Specs
 {
@@ -130,6 +136,41 @@ namespace tests.Specs
             Assert.Equal("Package", _outputDir);
             Assert.NotNull(_force);
             Assert.False(_force ?? true);
+        }
+
+        [Fact]
+        public void HTML()
+        {
+            var fileSystem = MockPackage.Html;
+
+            var packCommand = new PackCommand(fileSystem);
+            packCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.FromDirectoryName("output"), false);
+
+            IEnumerable<IFileInfo> assembledFiles = fileSystem.DirectoryInfo.FromDirectoryName("output").EnumerateFiles("Cmf.Custom.HTML.1.1.0.zip").ToList();
+            Assert.Single(assembledFiles);
+
+            using (Stream zipToOpen = fileSystem.FileStream.Create(assembledFiles.First().FullName, FileMode.Open))
+            {
+                using (ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read))
+                {
+                    // these tuples allow us to rewrite entry paths
+                    var entriesToExtract = new List<Tuple<ZipArchiveEntry, string>>();
+                    entriesToExtract.AddRange(zip.Entries.Select(selector: entry => new Tuple<ZipArchiveEntry, string>(entry, entry.FullName)));
+
+                    List<string> expectedFiles = new()
+                    {
+                        "config.json",
+                        "manifest.xml",
+                        MockUnixSupport.Path(@"node_modules\customization.package\package.json"),
+                        MockUnixSupport.Path(@"node_modules\customization.package\customization.common.js")
+                    };
+                    Assert.Equal(expectedFiles.Count, entriesToExtract.Count);
+                    foreach (var expectedFile in expectedFiles)
+                    {
+                        Assert.NotNull(entriesToExtract.FirstOrDefault(x => x.Item2.Equals(expectedFile)));
+                    }
+                }
+            }
         }
     }
 }

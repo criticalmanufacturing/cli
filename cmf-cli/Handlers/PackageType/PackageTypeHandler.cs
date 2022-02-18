@@ -390,12 +390,7 @@ namespace Cmf.Common.Cli.Handlers
                                 continue;
                             }
 
-                            IDirectoryInfo _targetFolder = this.fileSystem.DirectoryInfo.FromDirectoryName($"{packageOutputDir.FullName}/{_target}");
-                            if (!_targetFolder.Exists)
-                            {
-                                _targetFolder.Create();
-                            }
-                            string destPackFile = $"{_targetFolder.FullName}/{packFile.Name}";
+                            string destPackFile = $"{packageOutputDir.FullName}/{_target}/{packFile.Name}";
                             filesToPack.Add(new()
                             {
                                 ContentToPack = contentToPack,
