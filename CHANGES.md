@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.1.1](https://github.com/criticalmanufacturing/cli/compare/2.1.1-0...2.1.1) (2022-02-17)
+
+### Bug Fixes
+
+* only validate if is local pkg ([3586f53](https://github.com/criticalmanufacturing/cli/commits/3586f53bd5fd180dec330faab2318275d055b419))
+* **pipelines:** regex for PackageId ([7a8a146](https://github.com/criticalmanufacturing/cli/commits/7a8a14644b51d876ed00134d4f082486c3e059b3))
+
+## [2.1.1-0](https://github.com/criticalmanufacturing/cli/compare/2.1.0...2.1.1-0) (2022-02-10)
+
+### Bug Fixes
+
+* rename resource Html to HTML ([7b8f5d4](https://github.com/criticalmanufacturing/cli/commits/7b8f5d4c2eeff8bff55994018e007ff641e6046c))
+* template IoTData ([36456b6](https://github.com/criticalmanufacturing/cli/commits/36456b601cbfd9440e79bb8fdcbd1a655938befb))
+* remove config from html template ([11cb2c5](https://github.com/criticalmanufacturing/cli/commits/11cb2c563b11e2f5a6d00bd43875c7c8a48e64d1))
+* getContentToPack to not create target folder ([b78fbae](https://github.com/criticalmanufacturing/cli/commits/b78fbae7f0efb2963dac0dc766d3cd9aebbeb4a9))
+
 ## [2.1.0](https://github.com/criticalmanufacturing/cli/compare/2.0.0...2.1.0) (2022-02-07)
 
 
@@ -223,7 +239,7 @@ All notable changes to this project will be documented in this file. See [standa
 * **build:** add nuget.config ([4669fc3](https://github.com/criticalmanufacturing/cli/commits/4669fc37c0126a34125a90d6de44aec53183db05))
 * **init template:** add missing content. fix nuget url path ([cc772a0](https://github.com/criticalmanufacturing/cli/commits/cc772a05ad13333ba6845609b20bf030f3436113))
 * **init:** lbo script had unreplaced tokens ([3aae846](https://github.com/criticalmanufacturing/cli/commits/3aae846850b49fe1bc62ff9a9014c603adf49b43))
-* make HTML and Help templates more resistent to config.json variations (introduced by generator-heml 8.1.1) ([79c961a](https://github.com/criticalmanufacturing/cli/commits/79c961a43d84d4c6ea781a4b93ad58fbdfe5e550))
+* make HTML and Help templates more resistant to config.json variations (introduced by generator-heml 8.1.1) ([79c961a](https://github.com/criticalmanufacturing/cli/commits/79c961a43d84d4c6ea781a4b93ad58fbdfe5e550))
 * **pipelines:** fix wrong path ([995a71c](https://github.com/criticalmanufacturing/cli/commits/995a71c97b9bdf701c7f2096fce72d05d952ca8e))
 * prevent object reference error when run outside a project ([abab000](https://github.com/criticalmanufacturing/cli/commits/abab000f41a0b3ebe50200215a23a6f3f9f4e034))
 * stray quotes ([584d191](https://github.com/criticalmanufacturing/cli/commits/584d19102242837a0a64854aed2e7a9a00a3bd5a))
