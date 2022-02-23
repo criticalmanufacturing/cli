@@ -40,7 +40,7 @@ namespace Cmf.CLI.Commands
             target.GetFiles(".gitkeep").FirstOrDefault()?.Delete();
             Log.Verbose("cloning html starter");
             // git init
-            (new GitCommand() { Command = "init", WorkingDirectory = target}).Exec();
+            (new GitCommand() { Command = "init", WorkingDirectory = target }).Exec();
             // git remote add origin https://github.com/criticalmanufacturing/html-starter
             (new GitCommand() { Command = "remote", WorkingDirectory = target, Args = new[] { "add", "origin", "https://github.com/criticalmanufacturing/html-starter" } }).Exec();
             // git fetch

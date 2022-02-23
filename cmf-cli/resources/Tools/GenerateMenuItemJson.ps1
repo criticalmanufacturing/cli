@@ -12,7 +12,9 @@ write-verbose ('packageDir ' + $packageDir)
 $projectName = $project
 write-verbose ('projectName ' + $projectName)
 $projectName = $projectName.ToLower()
-$assetsPath = "$packagesPath\cmf.docs.area.${projectName}\assets"
+$pkgName = "cmf.docs.area.${projectName}"
+$assetsPath = "$packagesPath\${pkgName}\assets"
+$pkgName = ${pkgName}.ToLower()
 
 function Get-MetadataFromFolder {
 	param (
@@ -55,7 +57,7 @@ function Get-MetadataFromFolder {
 
 			$metadata += "{" + [Environment]::NewLine
 			$metadata += "   ""id"": ""$fileNameLower""," + [Environment]::NewLine
-			$metadata += "   ""menuGroupId"": ""$parentFolderLower""," + [Environment]::NewLine
+			$metadata += "   ""menuGroupId"": ""${pkgName}.${parentFolderLower}""," + [Environment]::NewLine
 			$metadata += "   ""title"": ""$title""," + [Environment]::NewLine
 			$metadata += "   ""actionId"": """"" + [Environment]::NewLine
 			$metadata += "}"

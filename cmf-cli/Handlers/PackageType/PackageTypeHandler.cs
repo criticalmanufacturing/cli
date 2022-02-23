@@ -478,9 +478,9 @@ namespace Cmf.CLI.Handlers
             {
                 if(!step.Test || step.Test == test)
                 {
-                    Log.Information($"Executing '{step.DisplayName}'");
-                    step.Exec();
-                }
+                Log.Information($"Executing '{step.DisplayName}'");
+                step.Exec();
+            }
             }
         }
 
@@ -535,91 +535,91 @@ namespace Cmf.CLI.Handlers
             {
                 this.CmfPackage.LoadDependencies(repoUris, ctx, true);
                 ctx.Status($"Restoring {rootIdentifier} dependency tree...");
-                if (this.CmfPackage.Dependencies == null)
-                {
-                    Log.Information($"No dependencies declared for package {rootIdentifier}");
-                    return;
-                }
+            if (this.CmfPackage.Dependencies == null)
+            {
+                Log.Information($"No dependencies declared for package {rootIdentifier}");
+                return;
+            }
 
-                // flatten dependency tree. We need to obtain all dependencies
-                var allDependencies = this.CmfPackage.Dependencies.Flatten(
-                    dependency => dependency.IsMissing || dependency.IsIgnorable ?
-                        new DependencyCollection() :
-                        dependency.CmfPackage.Dependencies).ToArray();
+            // flatten dependency tree. We need to obtain all dependencies
+            var allDependencies = this.CmfPackage.Dependencies.Flatten(
+                dependency => dependency.IsMissing || dependency.IsIgnorable ?
+                    new DependencyCollection() :
+                    dependency.CmfPackage.Dependencies).ToArray();
 
-                var missingDependencies = allDependencies.Where(d => d.IsMissing).ToArray();
-                if (missingDependencies.Any())
-                {
-                    Log.Warning($"Dependencies missing:{Environment.NewLine}{string.Join(Environment.NewLine, missingDependencies.Select(d => $"{d.Id}@{d.Version}"))}");
-                }
+            var missingDependencies = allDependencies.Where(d => d.IsMissing).ToArray();
+            if (missingDependencies.Any())
+            {
+                Log.Warning($"Dependencies missing:{Environment.NewLine}{string.Join(Environment.NewLine, missingDependencies.Select(d => $"{d.Id}@{d.Version}"))}");
+            }
 
-                var foundDependencies = allDependencies.Where(d => !d.IsMissing && d.CmfPackage.Location == PackageLocation.Repository).ToArray();
-                if (!foundDependencies.Any())
-                {
-                    Log.Information("No present remote dependencies to restore. Exiting...");
-                    return;
-                }
-                else
-                {
-                    Log.Verbose($"Found {foundDependencies.Length} actionable dependencies in the {rootIdentifier} dependency tree. Restoring...");
-                }
+            var foundDependencies = allDependencies.Where(d => !d.IsMissing && d.CmfPackage.Location == PackageLocation.Repository).ToArray();
+            if (!foundDependencies.Any())
+            {
+                Log.Information("No present remote dependencies to restore. Exiting...");
+                return;
+            }
+            else
+            {
+                Log.Verbose($"Found {foundDependencies.Length} actionable dependencies in the {rootIdentifier} dependency tree. Restoring...");
+            }
 
-                if (this.DependenciesFolder.Exists)
+            if (this.DependenciesFolder.Exists)
+            {
+                Log.Debug($"Deleting directory {this.DependenciesFolder.FullName} and all its contents");
+                this.DependenciesFolder.Delete(true);
+            }
+            if (!this.DependenciesFolder.Exists)
+            {
+                this.DependenciesFolder.Create();
+                Log.Debug($"Created Dependencies directory at {this.DependenciesFolder.FullName}");
+            }
+            foreach (var dependency in foundDependencies)
+            {
+                var identifier = $"{dependency.Id}@{dependency.Version}";
+                Log.Debug($"Processing dependency {identifier}...");
+                Log.Debug($"Found package {identifier} at {dependency.CmfPackage.Uri.AbsoluteUri}");
+                if (dependency.CmfPackage.Uri.IsDirectory())
                 {
-                    Log.Debug($"Deleting directory {this.DependenciesFolder.FullName} and all its contents");
-                    this.DependenciesFolder.Delete(true);
-                }
-                if (!this.DependenciesFolder.Exists)
-                {
-                    this.DependenciesFolder.Create();
-                    Log.Debug($"Created Dependencies directory at {this.DependenciesFolder.FullName}");
-                }
-                foreach (var dependency in foundDependencies)
-                {
-                    var identifier = $"{dependency.Id}@{dependency.Version}";
-                    Log.Debug($"Processing dependency {identifier}...");
-                    Log.Debug($"Found package {identifier} at {dependency.CmfPackage.Uri.AbsoluteUri}");
-                    if (dependency.CmfPackage.Uri.IsDirectory())
-                    {
                         using (Stream zipToOpen = this.fileSystem.FileInfo.FromFileName(dependency.CmfPackage.Uri.LocalPath).OpenRead())
+                    {
+                        using (ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read))
                         {
-                            using (ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read))
+                            // these tuples allow us to rewrite entry paths
+                            var entriesToExtract = new List<Tuple<ZipArchiveEntry, string>>();
+                            entriesToExtract.AddRange(zip.Entries.Select(entry => new Tuple<ZipArchiveEntry, string>(entry, entry.FullName)));
+
+                            foreach (var entry in entriesToExtract)
                             {
-                                // these tuples allow us to rewrite entry paths
-                                var entriesToExtract = new List<Tuple<ZipArchiveEntry, string>>();
-                                entriesToExtract.AddRange(zip.Entries.Select(entry => new Tuple<ZipArchiveEntry, string>(entry, entry.FullName)));
-
-                                foreach (var entry in entriesToExtract)
+                                var target = this.fileSystem.Path.Join(this.DependenciesFolder.FullName, identifier, entry.Item2);
+                                var targetDir = this.fileSystem.Path.GetDirectoryName(target);
+                                if (target.EndsWith("/"))
                                 {
-                                    var target = this.fileSystem.Path.Join(this.DependenciesFolder.FullName, identifier, entry.Item2);
-                                    var targetDir = this.fileSystem.Path.GetDirectoryName(target);
-                                    if (target.EndsWith("/"))
+                                    // this a dotnet bug: if a folder contains a ., the library assumes it's a file and adds it as an entry
+                                    // however, afterwards all folder contents are separate entries, so we can just skip these
+                                    continue;
+                                }
+
+                                if (!fileSystem.File.Exists(target)) // TODO: support overwriting if requested
+                                {
+                                    var overwrite = false;
+                                    Log.Debug($"Extracting {entry.Item1.FullName} to {target}");
+                                    if (!string.IsNullOrEmpty(targetDir))
                                     {
-                                        // this a dotnet bug: if a folder contains a ., the library assumes it's a file and adds it as an entry
-                                        // however, afterwards all folder contents are separate entries, so we can just skip these
-                                        continue;
+                                        fileSystem.Directory.CreateDirectory(targetDir);
                                     }
 
-                                    if (!fileSystem.File.Exists(target)) // TODO: support overwriting if requested
-                                    {
-                                        var overwrite = false;
-                                        Log.Debug($"Extracting {entry.Item1.FullName} to {target}");
-                                        if (!string.IsNullOrEmpty(targetDir))
-                                        {
-                                            fileSystem.Directory.CreateDirectory(targetDir);
-                                        }
-
-                                        entry.Item1.ExtractToFile(target, overwrite, fileSystem);
-                                    }
-                                    else
-                                    {
-                                        Log.Debug($"Skipping {target}, file exists");
-                                    }
+                                    entry.Item1.ExtractToFile(target, overwrite, fileSystem);
+                                }
+                                else
+                                {
+                                    Log.Debug($"Skipping {target}, file exists");
                                 }
                             }
                         }
                     }
                 }
+            }
             });
         }
 

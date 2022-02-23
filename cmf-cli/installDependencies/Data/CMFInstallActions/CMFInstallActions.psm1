@@ -118,7 +118,7 @@ if( !($CMFFoldersLoaded))
 		- ODSReplicas			list of database replicas used in HADR cluster for ODS database
 		- DWHReplicas			list of database replicas used in HADR cluster for DWH database
         - NavigoServiceName     name of the windows service running the application hosts in each app server
-        - BackupLocation        location of the database backups (can be overriden by specific locations per database)
+        - BackupLocation        location of the database backups (can be overridden by specific locations per database)
         - OnlineBackupLocation: location of the database backups for the online database
         - ODSBackupLocation:    location of the ODS database backups
         - DWHBackupLocation:    location of the DWH database backups
@@ -133,7 +133,7 @@ if( !($CMFFoldersLoaded))
 		- SQLDWHPassword:		The SQL DataWareHouse Password for selected user
 		- SQLBackupCompression  Flag to compress  database backups
 		- ReportServerUri:		The ReportServer Uri of Reports
-		- ReportUseDefaultCredential:	Set if the connection to the Report Server is using the default credentails, or if need to set credentials
+		- ReportUseDefaultCredential:	Set if the connection to the Report Server is using the default credentials, or if need to set credentials
 		- ReportServerUser:		 The Username to access to reportserver
 		- ReportServerPassword:	 The password to access to reportserver for selected user
 		- ReportsOnlineDataSource:	The name (and path) of the ReportServer Datasource to database Online 
@@ -756,7 +756,7 @@ function Install-CMFPresentationAssemblies()
         Register-CMFAddins $env -addinsToRegister @('MyCustomGUIS')
 
     .NOTES
-        If the addins are already registed, they won't be added again.
+        If the addins are already registered, they won't be added again.
         Requires administrative privileges on the application servers.
 #>
 function Register-CMFAddins()
@@ -1690,7 +1690,7 @@ function Get-MasterDataAvailableTypes()
     .NOTES
         Master data logic uses LBOs to load data into cmNavigo. The LBOs assenmbly used is located on the References folder.
         Master data loading errors are shown on the console but not actually treated as execution errors or exceptions,
-        since they are a common occurence in deployment procedures.
+        since they are a common occurrence in deployment procedures.
 #>
 function Invoke-MasterDataLoader()
 {
@@ -1884,7 +1884,7 @@ function Invoke-MasterDataLoader()
     .NOTES
         Master data logic uses LBOs to load data into cmNavigo. The LBOs assenmbly used is located on the References folder.
         Master data loading errors are shown on the console but not actually treated as execution errors or exceptions,
-        since they are a common occurence in deployment procedures.
+        since they are a common occurrence in deployment procedures.
 #>
 function Invoke-MasterDataLoaderByFolder()
 {
@@ -2898,7 +2898,7 @@ function Remove-DEEActionTrigger()
        LogWrite  'The message to display'
 
     .EXAMPLE
-       LogWrite  ("The message to display with parameters " + paramter[0] + "_" + parameter[b] + ".")
+       LogWrite  ("The message to display with parameters " + parameter[0] + "_" + parameter[b] + ".")
 
     .EXAMPLE
        LogWrite  'The message to display' -foregroundColor Green
@@ -3299,7 +3299,7 @@ function Install-Reports
                         $true,            # Overwrite report if it exists?
                         $bytes,           # .rdl file contents
                         $null,            # Properties to set.
-                        [ref]$warnings    # Warnings that occured while uploading.
+                        [ref]$warnings    # Warnings that occurred while uploading.
                     )
 
 
@@ -3689,7 +3689,7 @@ function Install-ReportServerResources
 							$true,													# Overwrite resource if it exists?
 							$bytes,													# file content
 							@{'Name'='MimeType'; 'Value'=$fileMimeType},            # Properties to set.
-							[ref]$warnings											# Warnings that occured while uploading.
+							[ref]$warnings											# Warnings that occurred while uploading.
 						)
 
                             $uploadSuccess = $uploadSuccess + 1
@@ -4467,7 +4467,7 @@ function Install-CMFHTMLPackages()
         - ParentPath:	The config parent path
 		- Name:			Name of the Config
 		- Value:		The value of the config
-		- ValueType:	Teh data type of the config
+		- ValueType:	The data type of the config
 #>
 function New-Config()
 {

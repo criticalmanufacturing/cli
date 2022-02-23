@@ -62,7 +62,7 @@ namespace Cmf.CLI.Builders
                 {
                     var json = JsonDocument.Parse(fileContent);
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     throw new Exception($"File {file.Source.FullName} is not a valid json");
                 }

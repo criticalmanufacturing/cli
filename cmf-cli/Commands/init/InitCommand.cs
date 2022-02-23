@@ -346,8 +346,8 @@ namespace Cmf.CLI.Commands
                     {
                         x.cmfPipelineRepository ??= infraJson["CmfPipelineRepository"]?.Value;
                     }
+                    }
                 }
-            }
 
             if (x.nugetRegistry == null ||
                 x.npmRegistry == null ||
@@ -415,8 +415,8 @@ namespace Cmf.CLI.Commands
                 // we need to escape the @ symbol to avoid that commandline lib parses it as a file
                 // https://github.com/dotnet/command-line-api/issues/816
                 x.releaseDeploymentPackage = x.releaseDeploymentPackage.Length > 1 && x.releaseDeploymentPackage[0] == '\\'
-                    ? x.releaseDeploymentPackage[1..]
-                    : x.releaseDeploymentPackage;
+                ? x.releaseDeploymentPackage[1..]
+                : x.releaseDeploymentPackage;
 
                 args.AddRange(new[] { "--releaseDeploymentPackage", $"{x.releaseDeploymentPackage}" });
             }

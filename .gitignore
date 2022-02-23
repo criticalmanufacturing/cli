@@ -358,3 +358,5 @@ launchSettings.json
 
 # xyz.local-history vscode extension
 .history/**
+
+report/
