@@ -1,23 +1,22 @@
-$invocation = (Get-Variable MyInvocation).Value
-$pwd = Split-Path $invocation.MyCommand.Path
-$lbosPath = "$PSScriptRoot\..\LBOs"
+Clear-Host
 
-# Create a new session remotely to wait for process
-$sess = New-PSSession -ComputerName "<%= $CLI_PARAM_vmHostname %>"
-Enter-PSSession -Session $sess
-Write-Host "Deal with host config file"
+# Set Variables to later copy LBO's
+$businessPath = "$PSScriptRoot\..\..\LocalEnvironment\BusinessTier"
+$masterDataPath = "$PSScriptRoot\..\..\LocalEnvironment\MasterDataLoader"
+$lbosPath = "$PSScriptRoot"
 
-Invoke-Command -Session $sess -Scriptblock {$protectUnprotectConfigFilePath = '<%= $CLI_PARAM_InstallationPath %>\ProtectUnprotectConfigFile'}
-Invoke-Command -Session $sess -Scriptblock {$lboGeneratorPath = '<%= $CLI_PARAM_InstallationPath %>\LBOGenerator'}
-Invoke-Command -Session $sess -Scriptblock {$pathBiz = '<%= $CLI_PARAM_InstallationPath %>\BusinessTier'}
-Invoke-Command -Session $sess -Scriptblock {$arguments = "/Mode:2 /InstallPath:""$pathBiz"""}
-Invoke-Command -Session $sess -Scriptblock {Set-Location -Path $protectUnprotectConfigFilePath}
-Invoke-Command -Session $sess -Scriptblock {Start-Process Cmf.Tools.ProtectUnprotectConfigFile.exe $arguments -Wait}
-Invoke-Command -Session $sess -Scriptblock {Set-Location -Path $lboGeneratorPath}
-Invoke-Command -Session $sess -ScriptBlock {.\LBOUpdater.ps1}
 
-Remove-PSSession -Session $sess
-Exit-PSSession
+
+# Generate LBOs
+Write-Host "Generate .Net LBOs"
+$installation = "$PSScriptRoot\..\..\LocalEnvironment"
+$lboGeneratorExe = "$installation\LBOGenerator\LboGenerator.exe"
+& $lboGeneratorExe --hostdir="$businessPath" --nobanner
+
+# Copy LBOs to folders
+Write-Host "Copy to master data loader"
+Copy-Item "$installation\LBOGenerator\out\NetStandard\Cmf.LightBusinessObjects.*" -Destination $masterDataPath -force
+Write-Host "Copy to LBOs Dir"
 
 if((Test-Path "$lbosPath\NetStandard" -PathType Container)) { 
     Remove-Item "$lbosPath\NetStandard" -Recurse -Force
@@ -27,8 +26,5 @@ if((Test-Path "$lbosPath\TypeScript" -PathType Container)) {
     Remove-Item "$lbosPath\TypeScript" -Recurse -Force
 }
 
-$SOURCE = "<%= $CLI_PARAM_InstallationPath %>"
-$installation = '\\<%= $CLI_PARAM_vmHostname %>\' + $SOURCE -replace ':', '$'
-Remove-Item -Path $pwd\* -Recurse -Force -Exclude "generateLBOs.ps1"
 Copy-Item "$installation\LBOGenerator\out\NetStandard" -Destination "$lbosPath" -Recurse -Force -Filter '*.dll'
 Copy-Item "$installation\LBOGenerator\out\TypeScript" -Destination "$lbosPath" -Recurse -Force
