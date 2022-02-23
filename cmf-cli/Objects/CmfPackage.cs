@@ -490,11 +490,11 @@ namespace Cmf.Common.Cli.Objects
         /// <param name="repoUris">the address of the package repositories (currently only folders are supported)</param>
         /// <param name="recurse">should we run recursively</param>
         /// <returns>this CmfPackage for chaining, but the method itself is mutable</returns>
-        public void LoadDependencies(IEnumerable<Uri> repoUris, bool recurse = false)
+        public void LoadDependencies(IEnumerable<Uri> repoUris, StatusContext ctx, bool recurse = false)
         {
             List<CmfPackage> loadedPackages = new();
             loadedPackages.Add(this);
-            Log.Progress($"Working on {this.Name ?? (this.PackageId + "@" + this.Version)}");
+            ctx?.Status($"Working on {this.Name ?? (this.PackageId + "@" + this.Version)}");
 
             if (this.Dependencies.HasAny())
             {
@@ -513,7 +513,7 @@ namespace Cmf.Common.Cli.Objects
                 }
                 foreach (var dependency in this.Dependencies)
                 {
-                    Log.Progress($"Working on dependency {dependency.Id}@{dependency.Version}");
+                    ctx?.Status($"Working on dependency {dependency.Id}@{dependency.Version}");
 
                     #region Get Dependencies from Dependencies Directory
 
@@ -542,7 +542,7 @@ namespace Cmf.Common.Cli.Objects
                         dependency.CmfPackage = dependencyPackage;
                         if (recurse)
                         {
-                            dependencyPackage.LoadDependencies(repoUris, recurse);
+                            dependencyPackage.LoadDependencies(repoUris, ctx, recurse);
                         }
                     }
                 }

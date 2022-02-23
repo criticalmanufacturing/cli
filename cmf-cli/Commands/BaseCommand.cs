@@ -103,7 +103,18 @@ namespace Cmf.Common.Cli.Commands
                 DirectoryInfo d = new(path);
                 if (d.Exists) // we may have some trash in PATH
                 {
-                    foreach (var file in d.GetFiles($"{pluginsPrefix}*"))
+                    FileInfo[] commands = null;
+                    try
+                    {
+                        commands = d.GetFiles($"{pluginsPrefix}*");
+                    }
+                    catch (Exception ex)
+                    {
+                        /* ignore paths we cannot access (this is very common in WSL) */
+                        Log.Debug($"Cannot fetch commands in {d.FullName}: {ex.Message}");
+                        continue;
+                    }
+                    foreach (var file in commands)
                     {
                         var commandName = !string.IsNullOrEmpty(file.Extension) ? file.Name[0..^file.Extension.Length] : file.Name;
                         commandName = commandName[pluginsPrefix.Length..];

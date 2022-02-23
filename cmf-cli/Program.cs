@@ -1,7 +1,11 @@
 ﻿using Cmf.Common.Cli.Commands;
+using Cmf.Common.Cli.Objects;
 using Cmf.Common.Cli.Utilities;
 using System;
 using System.CommandLine;
+using System.CommandLine.Invocation;
+using System.IO.Abstractions;
+using System.Linq;
 using System.Reflection;
 
 namespace Cmf.Common.Cli
@@ -11,6 +15,37 @@ namespace Cmf.Common.Cli
     /// </summary>
     public static class Program
     {
+        private static System.CommandLine.Parsing.ParseArgument<LogLevel> parseLogLevel = argResult =>
+        {
+            var loglevel = LogLevel.Verbose;
+            string loglevelStr = "verbose";
+            if (argResult.Tokens.Any())
+            {
+                loglevelStr = argResult.Tokens.First().Value;
+            }
+            else if (System.Environment.GetEnvironmentVariable("cmf_cli_loglevel") != null)
+            {
+                loglevelStr = System.Environment.GetEnvironmentVariable("cmf_cli_loglevel");
+            }
+
+            if (LogLevel.TryParse(typeof(LogLevel), loglevelStr, ignoreCase: true, out object? loglevelObj))
+            {
+                loglevel = (LogLevel)loglevelObj;
+            }
+            Log.Level = loglevel;
+            return loglevel;
+        };
+
+        /// <summary>
+        /// Root Command log verbosity option
+        /// </summary>
+        public static Option<LogLevel> logLevelOption = new Option<LogLevel>(
+                aliases: new[] { "--loglevel", "-l" },
+                description: "Log Verbosity",
+                parseArgument: parseLogLevel,
+                isDefault: true
+            );
+
         /// <summary>
         /// program entry point
         /// </summary>
@@ -25,6 +60,8 @@ namespace Cmf.Common.Cli
                     Description = "Critical Manufacturing CLI"
                 };
 
+                rootCommand.AddOption(logLevelOption);
+
                 if (args.Length == 1 && args.Has("-v"))
                 {
                     return rootCommand.Invoke(new[] { "--version" });
@@ -37,7 +74,7 @@ namespace Cmf.Common.Cli
             }
             catch (Exception e)
             {
-                Log.Error(e.Message);
+                Log.Exception(e);
                 return -1; // TODO: set exception error codes
             }
         }

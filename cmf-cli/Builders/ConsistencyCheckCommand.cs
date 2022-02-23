@@ -3,6 +3,7 @@ using Cmf.Common.Cli.Objects;
 using Cmf.Common.Cli.Utilities;
 using System.IO.Abstractions;
 using System.Threading.Tasks;
+using Cmf.Common.Cli.Enums;
 
 namespace Cmf.Common.Cli.Builders
 {
@@ -42,11 +43,44 @@ namespace Cmf.Common.Cli.Builders
 
             CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true);
 
-            cmfPackage.LoadDependencies(ExecutionContext.Instance.RepositoriesConfig.Repositories.ToArray(), true);
-
-            GenericUtilities.IterateTree(cmfPackage, isDisplay: false, isConsistencyCheck: true);
+            Log.Status($"Loading {cmfPackage.PackageId} dependency tree...", ctx => {
+                cmfPackage.LoadDependencies(ExecutionContext.Instance.RepositoriesConfig.Repositories.ToArray(), ctx, true);
+                ctx.Status("Checking dependency tree consistency...");
+                IterateTree(cmfPackage);
+                ctx.Status("Done!");
+            });
 
             return null;
+        }
+
+
+        /// <summary>
+        /// Iterate through a dependency tree and check the dependencies
+        /// </summary>
+        /// <param name="pkg"></param>
+        /// <exception cref="CliException"></exception>
+        private static void IterateTree(CmfPackage pkg)
+        {
+            if (pkg.Dependencies.HasAny())
+            {
+                for (int i = 0; i < pkg.Dependencies.Count; i++)
+                {
+                    Dependency dep = pkg.Dependencies[i];
+
+                    if (!dep.IsIgnorable && 
+                        dep.CmfPackage != null &&
+                        dep.CmfPackage.Location == PackageLocation.Local &&
+                        pkg.Version != dep.Version)
+                    {
+                        throw new CliException(string.Format(CliMessages.VersionFailedConsistencyCheck, pkg.Version, dep.Version));
+                    }
+
+                    if (!dep.IsMissing)
+                    {
+                        IterateTree(dep.CmfPackage);
+                    }
+                }
+            }
         }
     }
 }
