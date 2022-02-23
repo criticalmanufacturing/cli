@@ -36,7 +36,7 @@ namespace Cmf.CLI.Commands.New
         {
             var npmRegistry = projectConfig.RootElement.GetProperty("NPMRegistry").GetString();
             var devTasksVersion = projectConfig.RootElement.GetProperty("DevTasksVersion").GetString();
-            
+
             // calculate relative path to local environment and create a new symbol for it
             var relativePathToRoot =
                 this.fileSystem.Path.Join("..", "..", //always two levels deeper, because we are targeting the inner cmfpackage.json, which is one level down from the IoT root
@@ -44,8 +44,8 @@ namespace Cmf.CLI.Commands.New
                         workingDir.FullName,
                         projectRoot.FullName)
                 ).Replace("\\", "/");
-            
-            args.AddRange(new []
+
+            args.AddRange(new[]
             {
                 "--rootInnerRelativePath", relativePathToRoot,
                 "--DevTasksVersion", devTasksVersion,

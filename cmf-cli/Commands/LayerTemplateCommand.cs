@@ -47,7 +47,7 @@ namespace Cmf.CLI.Commands
         {
             this.packageType = packageType;
         }
-        
+
         /// <summary>
         /// configure the command
         /// </summary>
@@ -87,7 +87,7 @@ namespace Cmf.CLI.Commands
 
         private (string, string)? GeneratePackageName(IDirectoryInfo workingDir)
         {
-            
+
             string featureName = null;
             var projectRoot = FileSystemUtilities.GetProjectRoot(this.fileSystem, throwException: true);
 
@@ -95,7 +95,7 @@ namespace Cmf.CLI.Commands
             var projectConfig = FileSystemUtilities.ReadProjectConfig(this.fileSystem);
             var organization = Constants.CliConstants.DefaultOrganization;
             var product = Constants.CliConstants.DefaultProduct;
-            if (projectConfig.RootElement.TryGetProperty("Organization", out JsonElement element)) 
+            if (projectConfig.RootElement.TryGetProperty("Organization", out JsonElement element))
             {
                 organization = element.GetString();
             }
@@ -148,11 +148,12 @@ namespace Cmf.CLI.Commands
             }
 
             var names = this.GeneratePackageName(workingDir);
-            if (names == null) {
+            if (names == null)
+            {
                 return;
             }
             var (packageName, featureName) = names.Value;
-            
+
             //load .project-config
             var projectConfig = FileSystemUtilities.ReadProjectConfig(this.fileSystem);
             var tenant = projectConfig.RootElement.GetProperty("Tenant").GetString();

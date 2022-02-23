@@ -35,11 +35,11 @@ namespace Cmf.CLI.Commands
         {
             if (reset)
             {
-                RunCommand(new []{ "--debug:reinit" });
+                RunCommand(new[] { "--debug:reinit" });
             }
             else
             {
-                this._cmd.Invoke(new [] { "-h" });
+                this._cmd.Invoke(new[] { "-h" });
             }
         }
 

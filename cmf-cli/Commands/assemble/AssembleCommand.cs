@@ -131,7 +131,7 @@ namespace Cmf.CLI.Commands
             List<string> missingPackages = new();
             foreach (Dependency dependency in cmfPackage.Dependencies.Where(x => x.IsMissing))
             {
-                if (!dependency.IsIgnorable)
+                if(!dependency.IsIgnorable)
                 {
                     missingPackages.Add($"{dependency.Id}@{dependency.Version}");
                 }
@@ -272,7 +272,7 @@ namespace Cmf.CLI.Commands
                         }
 
                         AssembleDependencies(outputDir, ciRepo, repoDirectories, dependency.CmfPackage, assembledDependencies, includeTestPackages);
-                    }
+                    }                    
                 }
             }
         }
