@@ -47,10 +47,6 @@ namespace Cmf.Common.Cli.Handlers
         /// </summary>
         protected List<FileToPack> FilesToPack = new List<FileToPack>();
 
-        /// <summary>
-        /// The df package type
-        /// </summary>
-        protected PackageType DFPackageType;
 
         #endregion
 
@@ -97,7 +93,7 @@ namespace Cmf.Common.Cli.Handlers
 
             BuildSteps = Array.Empty<IBuildCommand>();
 
-            DFPackageType = cmfPackage.PackageType;
+            cmfPackage.DFPackageType = cmfPackage.PackageType;
 
             DependenciesFolder = fileSystem.DirectoryInfo.FromDirectoryName("./Dependencies");
 
@@ -181,11 +177,6 @@ namespace Cmf.Common.Cli.Handlers
                     // If the Property is not a List we just need to set the Element Value with the Property Value
                     if (!propertyValue.IsList())
                     {
-                        if (propertyValue is PackageType type)
-                        {
-                            propertyValue = DFPackageType;
-                        }
-
                         element.Value = propertyValue.ToString();
                     }
                     else

@@ -44,7 +44,7 @@ namespace Cmf.Common.Cli.Handlers
                 }
             };
 
-            DFPackageType = PackageType.Business; // necessary because we restart the host during installation
+            cmfPackage.DFPackageType = PackageType.Business; // necessary because we restart the host during installation
 
         }
 

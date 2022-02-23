@@ -240,6 +240,12 @@ namespace Cmf.Common.Cli.Objects
         [JsonIgnore]
         public Uri Uri { get; private set; }
 
+        /// <summary>
+        /// The df package type
+        /// </summary>
+        [JsonIgnore]
+        public PackageType DFPackageType { get; set; }
+
         #endregion
 
         #region Private Methods

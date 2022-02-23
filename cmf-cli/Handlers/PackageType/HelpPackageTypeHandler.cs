@@ -76,7 +76,7 @@ namespace Cmf.Common.Cli.Handlers
                 },
             };
 
-            DFPackageType = PackageType.Presentation;
+            cmfPackage.DFPackageType = PackageType.Presentation;
         }
     }
 }

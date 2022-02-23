@@ -29,7 +29,7 @@ namespace Cmf.Common.Cli.Handlers
                     }
             );
 
-            DFPackageType = PackageType.Generic;
+            cmfPackage.DFPackageType = PackageType.Generic;
         }
     }
 }
