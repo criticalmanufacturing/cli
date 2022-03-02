@@ -7,15 +7,23 @@ using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Utilities;
 
-namespace Cmf.CLI.Commands
 {
     /// <summary>
-    ///
+    /// This command generates the menu metadata for the documentation packages
+    /// This algo is based in an internal PowerShell implementation
     /// </summary>
     /// <seealso cref="PowershellCommand" />
     [CmfCommand(name: "generateMenuItems", Parent = "help")]
-    public class GenerateMenuItemsCommand : PowershellCommand
+    public class GenerateMenuItemsCommand : BaseCommand
     {
+        public GenerateMenuItemsCommand()
+        {
+        }
+        
+        public GenerateMenuItemsCommand(IFileSystem fileSystem) : base(fileSystem)
+    {
+        }
+        
         /// <summary>
         /// Configure command
         /// </summary>
@@ -32,22 +40,79 @@ namespace Cmf.CLI.Commands
         {
             var helpRoot = FileSystemUtilities.GetPackageRootByType(Environment.CurrentDirectory, PackageType.Help, this.fileSystem).FullName;
             var project = FileSystemUtilities.ReadProjectConfig(this.fileSystem).RootElement.GetProperty("Tenant").GetString();
-            var pars = new Dictionary<string, string>
+
+            if (project == null)
             {
-                {"basePath", helpRoot},
-                {"project", project}
-            };
-            var result = this.ExecutePwshScriptSync(pars);
-            Console.WriteLine(String.Join(Environment.NewLine, result));
+                throw new ArgumentException("Can't find project name, is your repository correctly configured?");
+            }
+            if (helpRoot == null)
+            {
+                throw new CliException("Can't find Help package root, please run this command inside a Help package");
+            }
+
+            var projectName = project.ToLowerInvariant();
+
+            var packagesDir = this.fileSystem.DirectoryInfo.FromDirectoryName(this.fileSystem.Path.Join(helpRoot, "src", "packages"));
+            var helpPackages = packagesDir.GetDirectories("cmf.docs.area.*");
+
+            
+
+            void GetMetadataFromFolder(IDirectoryInfo current, List<object> metadata, IDirectoryInfo parent = null)
+            {
+                
+                
+                if (parent != null)
+                {
+                    Log.Verbose($"Searching folder: {current.FullName}");
+                    var files = current.GetFiles("*.md", SearchOption.TopDirectoryOnly);
+
+                    foreach (var file in files)
+                    {
+                        Log.Verbose($"File: {file.Name}");
+                        // get document title
+                        var title = file.ReadToStringList()?.FirstOrDefault()?.TrimStart('#').Trim();
+
+                        metadata.Add(new
+                        {
+                            id = this.fileSystem.Path.GetFileNameWithoutExtension(file.FullName).ToLowerInvariant(),
+                            menuGroupId = parent.Name.ToLowerInvariant(),
+                            title = title,
+                            actionId = ""
+                        });
+                    }
+                }
+
+                var folders = current.GetDirectories("*", SearchOption.TopDirectoryOnly)
+                    .Where(d => d.Name != "images");
+                foreach (var folder in folders)
+            {
+                    Log.Verbose($"Getting metadata from folder: {folder.FullName}");
+                    GetMetadataFromFolder(folder, metadata, folder);
+                }
         }
 
-        /// <summary>
-        /// Gets the powershell script.
-        /// </summary>
-        /// <returns></returns>
-        protected override string GetPowershellScript()
+            foreach (var helpPackage in helpPackages)
+            {
+                var helpPackageMetadata = new List<object>();
+                
+                var pkgName = helpPackage.Name.ToLowerInvariant();
+                var assetsPath = helpPackage.GetDirectories("assets").FirstOrDefault();
+                if (assetsPath == null)
         {
-            return ResourceUtilities.GetEmbeddedResourceContent("Tools/GenerateMenuItemJson.ps1");
+                    Log.Warning($"Help package {helpPackage.Name} does not contain an assets folder, which means it is not correctly formatted. Skipping...");
+                    continue;
+                }
+                
+                // TODO: check metadata file for menuGroupIds, to see if they are fully qualified or not
+                // helpPackage.GetFiles("assets/src/*.metadata.ts").FirstOrDefault();
+                GetMetadataFromFolder(assetsPath, helpPackageMetadata);
+
+                var menuItemsJson = this.fileSystem.Path.Join(assetsPath.FullName, "__generatedMenuItems.json");
+                // using Stream file = this.fileSystem.File.Create(menuItemsJson);
+                var jsonOut = System.Text.Json.JsonSerializer.Serialize(helpPackageMetadata, new JsonSerializerOptions() { WriteIndented = true });
+                this.fileSystem.File.WriteAllText(menuItemsJson, jsonOut);
+                Log.Verbose($"File '{menuItemsJson}' updated");
+            }
         }
     }
 }
