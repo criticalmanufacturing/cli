@@ -1,22 +1,22 @@
 {
-  "types": [
-    { "type": "feat", "section": "Features" },
-    { "type": "fix", "section": "Bug Fixes" },
-    { "type": "chore", "hidden": true },
-    { "type": "docs", "hidden": true },
-    { "type": "style", "hidden": true },
-    { "type": "refactor", "section": "Under the hood" },
-    { "type": "perf", "hidden": true },
-    { "type": "test", "hidden": true }
-  ],
-  "commitUrlFormat": "https://github.com/criticalmanufacturing/cli/commits/{{hash}}",
-  "compareUrlFormat": "https://github.com/criticalmanufacturing/cli/compare/{{previousTag}}...{{currentTag}}",
-  "skip": {
-    "tag": true,
-    "bump": false,
-    "commit": true
-  },
-  "bumpFiles": [],
-  "tagPrefix": "",
-  "infile": "../CHANGES.md"
-}
+    "types": [
+      {"type": "feat", "section": "Features"},
+      {"type": "fix", "section": "Bug Fixes"},
+      {"type": "chore", "hidden": true},
+      {"type": "docs", "hidden": true},
+      {"type": "style", "hidden": true},
+      {"type": "refactor", "section": "Under the hood"},
+      {"type": "perf", "hidden": true},
+      {"type": "test", "hidden": true}
+    ],
+    "commitUrlFormat": "https://github.com/criticalmanufacturing/cli/commits/{{hash}}",
+    "compareUrlFormat": "https://github.com/criticalmanufacturing/cli/compare/{{previousTag}}...{{currentTag}}",
+    "skip": {
+        "tag": true,
+        "bump": true,
+        "commit": true
+    },
+    "bumpFiles": [],
+    "tagPrefix": "",
+    "infile": "../CHANGES.md"
+  }

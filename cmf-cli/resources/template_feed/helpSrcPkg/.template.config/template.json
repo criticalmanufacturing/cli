@@ -24,7 +24,16 @@
       "datatype": "string",
       "description": "The custom package name",
       "displayName": "Package Name",
-      "replaces": "<%= $CLI_PARAM_CustomPackageName %>"
+      "replaces": "<%= $CLI_PARAM_CustomPackageName %>",
+      "fileRename": "%packageName%"
+    },
+    "dfPackageName": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The DF custom package name",
+      "displayName": "DF Package Name",
+      "replaces": "<%= $CLI_PARAM_DFPackageName %>",
+      "fileRename": "%dfPackageName%"
     },
     "packageVersion": {
       "type": "parameter",

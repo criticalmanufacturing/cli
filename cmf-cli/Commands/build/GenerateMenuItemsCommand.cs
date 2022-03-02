@@ -3,10 +3,18 @@ using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
+using System.IO.Abstractions;
+using System.Linq;
+using System.Text.Json;
+using System.Text.RegularExpressions;
+using Cmf.CLI.Commands;
+using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 
+namespace Cmf.CLI.Commands 
 {
     /// <summary>
     /// This command generates the menu metadata for the documentation packages
@@ -21,7 +29,7 @@ using Cmf.CLI.Utilities;
         }
         
         public GenerateMenuItemsCommand(IFileSystem fileSystem) : base(fileSystem)
-    {
+        {
         }
         
         /// <summary>
@@ -50,17 +58,15 @@ using Cmf.CLI.Utilities;
                 throw new CliException("Can't find Help package root, please run this command inside a Help package");
             }
 
+            var regex = new Regex("\"id\":\\s+\"(.*)\"");
+
             var projectName = project.ToLowerInvariant();
 
             var packagesDir = this.fileSystem.DirectoryInfo.FromDirectoryName(this.fileSystem.Path.Join(helpRoot, "src", "packages"));
             var helpPackages = packagesDir.GetDirectories("cmf.docs.area.*");
 
-            
-
-            void GetMetadataFromFolder(IDirectoryInfo current, List<object> metadata, IDirectoryInfo parent = null)
+            void GetMetadataFromFolder(IDirectoryInfo current, List<object> metadata, IDirectoryInfo parent = null, string prefix = null)
             {
-                
-                
                 if (parent != null)
                 {
                     Log.Verbose($"Searching folder: {current.FullName}");
@@ -72,10 +78,11 @@ using Cmf.CLI.Utilities;
                         // get document title
                         var title = file.ReadToStringList()?.FirstOrDefault()?.TrimStart('#').Trim();
 
+                        var basename = this.fileSystem.Path.GetFileNameWithoutExtension(file.FullName).ToLowerInvariant();
                         metadata.Add(new
                         {
-                            id = this.fileSystem.Path.GetFileNameWithoutExtension(file.FullName).ToLowerInvariant(),
-                            menuGroupId = parent.Name.ToLowerInvariant(),
+                            id = /*prefix == null ? */basename/* : $"{prefix}.{basename}"*/,
+                            menuGroupId = /*prefix == null ? */parent.Name.ToLowerInvariant()/* : $"{prefix}.{parent.Name.ToLowerInvariant()}"*/,
                             title = title,
                             actionId = ""
                         });
@@ -85,30 +92,38 @@ using Cmf.CLI.Utilities;
                 var folders = current.GetDirectories("*", SearchOption.TopDirectoryOnly)
                     .Where(d => d.Name != "images");
                 foreach (var folder in folders)
-            {
+                {
                     Log.Verbose($"Getting metadata from folder: {folder.FullName}");
-                    GetMetadataFromFolder(folder, metadata, folder);
+                    GetMetadataFromFolder(folder, metadata, folder, prefix);
                 }
-        }
+            }
 
             foreach (var helpPackage in helpPackages)
             {
                 var helpPackageMetadata = new List<object>();
                 
-                var pkgName = helpPackage.Name.ToLowerInvariant();
+                //var pkgName = helpPackage.Name.ToLowerInvariant();
+                var pkgName = CmfPackage.Load(this.fileSystem.FileInfo.FromFileName(this.fileSystem.Path.Join(helpRoot, "cmfpackage.json"))).PackageId.ToLowerInvariant();
                 var assetsPath = helpPackage.GetDirectories("assets").FirstOrDefault();
                 if (assetsPath == null)
-        {
+                {
                     Log.Warning($"Help package {helpPackage.Name} does not contain an assets folder, which means it is not correctly formatted. Skipping...");
                     continue;
                 }
                 
-                // TODO: check metadata file for menuGroupIds, to see if they are fully qualified or not
-                // helpPackage.GetFiles("assets/src/*.metadata.ts").FirstOrDefault();
-                GetMetadataFromFolder(assetsPath, helpPackageMetadata);
+                // check metadata file for menuGroupIds, to see if they are fully qualified or not
+                var metadataFile = helpPackage.GetFiles("src/*.metadata.ts").FirstOrDefault();
+                var metadataContent = metadataFile.ReadToString();
+                var matchedIds = regex.Matches(metadataContent);
+                var isLegacy = false; 
+                if (matchedIds.Any(m => m.Captures.Any(id => !id.Value.Contains("."))))
+                {
+                    Log.Warning($"Using legacy menu item IDs! This package will not be deployable with other packages using legacy IDs, as collisions will happen!");
+                    isLegacy = true;
+                }
+                GetMetadataFromFolder(assetsPath, helpPackageMetadata, prefix: isLegacy ? null : pkgName);
 
                 var menuItemsJson = this.fileSystem.Path.Join(assetsPath.FullName, "__generatedMenuItems.json");
-                // using Stream file = this.fileSystem.File.Create(menuItemsJson);
                 var jsonOut = System.Text.Json.JsonSerializer.Serialize(helpPackageMetadata, new JsonSerializerOptions() { WriteIndented = true });
                 this.fileSystem.File.WriteAllText(menuItemsJson, jsonOut);
                 Log.Verbose($"File '{menuItemsJson}' updated");
