@@ -5,6 +5,7 @@ using System.CommandLine.Invocation;
 using System.IO;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 
 namespace Cmf.CLI.Commands
@@ -34,13 +35,14 @@ namespace Cmf.CLI.Commands
             var project = FileSystemUtilities.ReadProjectConfig(this.fileSystem).RootElement.GetProperty("Tenant").GetString();
             var helpPackagesRoot = this.fileSystem.Path.Join(helpRoot, "src", "packages");
             var helpPackages = this.fileSystem.Directory.GetDirectories(helpPackagesRoot);
+            var pkgName = CmfPackage.Load(this.fileSystem.FileInfo.FromFileName(this.fileSystem.Path.Join(helpRoot, "cmfpackage.json"))).PackageId.ToLowerInvariant();
             foreach (var helpPackagePath in helpPackages)
             {
                 var pars = new Dictionary<string, string>
                 {
                     {"basePath", helpRoot},
                     {"path", helpPackagePath},
-                    {"project", project}
+                    {"project", pkgName}
                 };
                 var result = this.ExecutePwshScriptSync(pars);
                 Console.WriteLine(String.Join(Environment.NewLine, result));

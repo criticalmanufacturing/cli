@@ -60,12 +60,12 @@ function applyConfig (packageName: string) {
       menuGroups: [
         {
           position: 2000,
-          id: 'Shell.<%= $CLI_PARAM_CustomPackageName %>',
+          id: 'Shell.<%= $CLI_PARAM_DFPackageName %>',
           iconClass: 'icon-docs-st-lg-userguide',
-          route: '<%= $CLI_PARAM_CustomPackageName %>',
+          route: '<%= $CLI_PARAM_DFPackageName %>',
           itemsGenerator: class MenuGen {
             public items (framework: Framework): Promise<MenuItem[]> {
-              return SystemJS.import('./node_modules/cmf.docs.area.<%= $CLI_PARAM_Tenant %>/assets/__generatedMenuItems.json').then((jsonContent) => {
+              return SystemJS.import('./node_modules/<%= $CLI_PARAM_CustomPackageName %>/assets/__generatedMenuItems.json').then((jsonContent) => {
                 return jsonContent
               })
             }
@@ -74,32 +74,32 @@ function applyConfig (packageName: string) {
         }],
       menuItems: [
         {
-          id: '<%= $CLI_PARAM_CustomPackageName %>.index',
-          menuGroupId: 'Shell.<%= $CLI_PARAM_CustomPackageName %>',
+          id: '<%= $CLI_PARAM_DFPackageName %>.index',
+          menuGroupId: 'Shell.<%= $CLI_PARAM_DFPackageName %>',
           title: 'Index',
           actionId: ''
         },
         {
-          id: '<%= $CLI_PARAM_CustomPackageName %>.techspec',
-          menuGroupId: 'Shell.<%= $CLI_PARAM_CustomPackageName %>',
+          id: '<%= $CLI_PARAM_DFPackageName %>.techspec',
+          menuGroupId: 'Shell.<%= $CLI_PARAM_DFPackageName %>',
           title: 'Technical Specification',
           actionId: ''
         },
         {
-          id: '<%= $CLI_PARAM_CustomPackageName %>.userguide',
-          menuGroupId: 'Shell.<%= $CLI_PARAM_CustomPackageName %>',
+          id: '<%= $CLI_PARAM_DFPackageName %>.userguide',
+          menuGroupId: 'Shell.<%= $CLI_PARAM_DFPackageName %>',
           title: 'User Guide',
           actionId: ''
         },
         {
-          id: '<%= $CLI_PARAM_CustomPackageName %>.releasenotes',
-          menuGroupId: 'Shell.<%= $CLI_PARAM_CustomPackageName %>',
+          id: '<%= $CLI_PARAM_DFPackageName %>.releasenotes',
+          menuGroupId: 'Shell.<%= $CLI_PARAM_DFPackageName %>',
           title: 'Release Notes',
           actionId: ''
         },
         {
-          id: '<%= $CLI_PARAM_CustomPackageName %>.faq',
-          menuGroupId: 'Shell.<%= $CLI_PARAM_CustomPackageName %>',
+          id: '<%= $CLI_PARAM_DFPackageName %>.faq',
+          menuGroupId: 'Shell.<%= $CLI_PARAM_DFPackageName %>',
           title: 'FAQ',
           actionId: ''
         }

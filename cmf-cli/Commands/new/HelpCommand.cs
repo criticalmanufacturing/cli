@@ -222,7 +222,7 @@ $@"{{
             // generate doc package
             Log.Verbose("Generating documentation package. This will take a while...");
             var tenant = projectConfig.RootElement.GetProperty("Tenant").GetString();
-            var assetsPkgName = $"cmf.docs.area.{tenant?.ToLowerInvariant()}";
+            var assetsPkgName = $"cmf.docs.area.{pkgName.ToLowerInvariant()}";
             var helpPkgConfigPath = this.fileSystem.Path.GetTempFileName();
             var helpPkgConfigJson = 
 $@"{{
@@ -241,7 +241,7 @@ $@"{{
                     // the package name must be in the same argument as the generator name: this is a yeoman-gen-run limitation:
                     // when yeoman-gen-run runs env.run(genName, doneFunc), genName gets split into [name, ...args] which causes args to be empty
                     // the actual invocation should be env.run([genName, ...config.cli.args], doneFunc) 
-                    "--name", $@"""@criticalmanufacturing/html:package {tenant?.ToLowerInvariant()}""", "--config", helpPkgConfigPath
+                    "--name", $@"""@criticalmanufacturing/html:package {assetsPkgName}""", "--config", helpPkgConfigPath
                 }
             }).Exec();
             Log.Verbose("Generated documentation package");
@@ -251,6 +251,7 @@ $@"{{
             {
                 "--output", this.fileSystem.Path.Join(pkgFolder.FullName, "src", "packages"),
                 "--name", assetsPkgName,
+                "--dfPackageName", pkgName.ToLowerInvariant(),
                 "--Tenant", tenant,
                 "--force"
             });
