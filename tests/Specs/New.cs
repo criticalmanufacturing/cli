@@ -135,6 +135,72 @@ namespace tests.Specs
         }
 
         [TestMethod]
+        public void Init_Fail_MissingMandatoryArgumentsAndOptions()
+        {
+            var console = new TestConsole();
+
+            var initCommand = new InitCommand();
+            var cmd = new Command("x"); // this is the command name used in help text
+            initCommand.Configure(cmd);
+
+            cmd.Invoke(Array.Empty<string>(), console);
+            
+            Assert.IsTrue(console.Error.ToString()!.Contains("Required argument missing for command: x"));
+            foreach (var optionName in new[]
+                 {
+                     "repositoryUrl", "MESVersion", "DevTasksVersion", "HTMLStarterVersion", "yoGeneratorVersion",
+                     "nugetVersion", "testScenariosNugetVersion", "deploymentDir"
+                 })
+            {
+                Assert.IsTrue(console.Error.ToString()!.Contains($"Option '--{optionName}' is required."));
+            }
+        }
+        
+        [TestMethod]
+        public void Init_Fail_MissingInfra()
+        {
+            var console = new TestConsole();
+            var rnd = new Random();
+            var tmp = GetTmpDirectory();
+            
+            var projectName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
+            var repoUrl = "https://repo_url/collection/project/_git/repo";
+            var deploymentDir = "\\\\share\\deployment_dir";
+
+            var cur = Directory.GetCurrentDirectory();
+            try
+            {
+                Directory.SetCurrentDirectory(tmp);
+            
+                var initCommand = new InitCommand();
+                var cmd = new Command("x"); // this is the command name used in help text
+                initCommand.Configure(cmd);
+
+                cmd.Invoke(new[]
+                {
+                    projectName,
+                    "-c", GetFixturePath("init", "config.json"),
+                    "--repositoryUrl", repoUrl,
+                    "--MESVersion", "8.2.0",
+                    "--DevTasksVersion", "8.1.0",
+                    "--HTMLStarterVersion", "8.0.0",
+                    "--yoGeneratorVersion", "8.1.0",
+                    "--nugetVersion", "8.2.0",
+                    "--testScenariosNugetVersion", "8.2.0",
+                    "--deploymentDir", deploymentDir,
+                }, console);
+                
+                Assert.IsTrue(console.Error.ToString()!.Contains("Missing infrastructure options"));
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                Directory.Delete(tmp, true);
+            }
+        }
+        
+        
+        [TestMethod]
         public void Init_Containers()
         {
             var initCommand = new InitCommand();
