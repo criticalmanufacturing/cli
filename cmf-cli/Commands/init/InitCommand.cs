@@ -116,44 +116,44 @@ namespace Cmf.Common.Cli.Commands
                 aliases: new[] { "-c", "--config" },
                 parseArgument: argResult => Parse<IFileInfo>(argResult),
                 isDefault: true,
-                description: "Configuration file exported from Setup"));
+                description: "Configuration file exported from Setup")
+                { IsRequired = true });
             
             // template-time options. These are all mandatory
             cmd.AddOption(new Option<Uri>(
                 aliases: new[] { "--repositoryUrl" },
                 description: "Git repository URL"
-            ));
+            ) { IsRequired = true });
             cmd.AddOption(new Option<IDirectoryInfo>(
                 aliases: new[] { "--deploymentDir" },
                 parseArgument: argResult => Parse<IDirectoryInfo>(argResult),
-                isDefault: true,
-                description: "Deployments directory (for releases). Don't specify if not using CI-Release."
-            ));
+                description: "Deployments directory"
+            ){ IsRequired = true });
             cmd.AddOption(new Option<string>(
                 aliases: new[] { "--MESVersion" },
                 description: "Target MES version"
-            ));
+            ) { IsRequired = true });
             cmd.AddOption(new Option<string>(
                 aliases: new[] { "--DevTasksVersion" },
                 description: "Critical Manufacturing dev-tasks version"
-            ));
+            ) { IsRequired = true });
             cmd.AddOption(new Option<string>(
                 aliases: new[] { "--HTMLStarterVersion" },
                 description: "HTML Starter version"
-            ));
+            ) { IsRequired = true });
             cmd.AddOption(new Option<string>(
                 aliases: new[] { "--yoGeneratorVersion" },
                 description: "@criticalmanufacturing/html Yeoman generator version"
-            ));
+            ) { IsRequired = true });
             cmd.AddOption(new Option<string>(
                 aliases: new[] { "--nugetVersion" },
                 description: "NuGet versions to target. This is usually the MES version"
-            ));
+            ) { IsRequired = true });
             // TODO: remove this one?
             cmd.AddOption(new Option<string>(
                 aliases: new[] { "--testScenariosNugetVersion" },
                 description: "Test Scenarios Nuget Version"
-            ));
+            ) { IsRequired = true });
 
             // infra options
             cmd.AddOption(new Option<IFileInfo>(
@@ -196,6 +196,16 @@ namespace Cmf.Common.Cli.Commands
                 aliases: new[] { "--nugetRegistryPassword" },
                 description: "NuGet registry password"
             ));
+            cmd.AddOption(new Option<Uri>(
+                aliases: new[] { "--cmfCliRepository" },
+                description: "NPM registry that contains the CLI"
+            ));
+            cmd.AddOption(new Option<Uri>(
+                aliases: new[] { "--cmfPipelineRepository" },
+                description: "NPM registry that contains the CLI Pipeline Plugin"
+            ));
+            
+            // container-specific switches
             cmd.AddOption(new Option<string>(
                 aliases: new[] { "--releaseCustomerEnvironment" },
                 description: "Customer Environment Name defined in DevOpsCenter"
@@ -332,19 +342,20 @@ namespace Cmf.Common.Cli.Commands
                     {
                         x.cmfCliRepository ??= infraJson["CmfCliRepository"]?.Value;
                     }
-                    else
-                    {
-                        x.cmfCliRepository = CliConstants.NpmJsUrl;
-                    }
                     if (!string.IsNullOrEmpty(infraJson["CmfPipelineRepository"]?.Value))
                     {
                         x.cmfPipelineRepository ??= infraJson["CmfPipelineRepository"]?.Value;
                     }
-                    else
-                    {
-                        x.cmfPipelineRepository = CliConstants.NpmJsUrl;
-                    }
                 }
+            }
+
+            if (x.nugetRegistry == null ||
+                x.npmRegistry == null ||
+                x.azureDevOpsCollectionUrl == null ||
+                x.ISOLocation == null ||
+                x.agentPool == null)
+            {
+                throw new CliException("Missing infrastructure options. Either specify an infrastructure file with [--infrastructure] or specify each infrastructure option separately.");
             }
 
             if (x.nugetRegistry != null)
@@ -371,20 +382,24 @@ namespace Cmf.Common.Cli.Commands
             {
                 args.AddRange(new[] { "--nugetRegistryPassword", x.nugetRegistryPassword });
             }
-            if (x.cmfCliRepository != null)
-            {
-                args.AddRange(new[] { "--cmfCliRepository", x.cmfCliRepository });
-            }
-            if (x.cmfPipelineRepository != null)
-            {
-                args.AddRange(new[] { "--cmfPipelineRepository", x.cmfPipelineRepository });
-            }
+
+            args.AddRange(x.cmfCliRepository != null
+                ? new[] { "--cmfCliRepository", x.cmfCliRepository }
+                : new[] { "--cmfCliRepository", CliConstants.NpmJsUrl });
+            args.AddRange(x.cmfPipelineRepository != null
+                ? new[] { "--cmfPipelineRepository", x.cmfPipelineRepository }
+                : new[] { "--cmfPipelineRepository", CliConstants.NpmJsUrl });
+            
             if (!string.IsNullOrEmpty(x.agentPool))
             {
                 args.AddRange(new [] {"--agentPool", x.agentPool});
             }
             args.AddRange(new [] {"--agentType", (x.agentType ??= AgentType.Hosted).ToString()});
 
+            
+            #endregion
+            
+            #region container-specific switches
             if (!string.IsNullOrEmpty(x.releaseCustomerEnvironment))
             {
                 args.AddRange(new[] { "--releaseCustomerEnvironment", x.releaseCustomerEnvironment });
@@ -400,8 +415,8 @@ namespace Cmf.Common.Cli.Commands
                 // we need to escape the @ symbol to avoid that commandline lib parses it as a file
                 // https://github.com/dotnet/command-line-api/issues/816
                 x.releaseDeploymentPackage = x.releaseDeploymentPackage.Length > 1 && x.releaseDeploymentPackage[0] == '\\'
-                ? x.releaseDeploymentPackage[1..]
-                : x.releaseDeploymentPackage;
+                    ? x.releaseDeploymentPackage[1..]
+                    : x.releaseDeploymentPackage;
 
                 args.AddRange(new[] { "--releaseDeploymentPackage", $"{x.releaseDeploymentPackage}" });
             }
@@ -415,7 +430,6 @@ namespace Cmf.Common.Cli.Commands
             {
                 args.AddRange(new[] { "--releaseDeploymentTarget", x.releaseDeploymentTarget });
             }
-
             #endregion
 
             if (x.config != null)
