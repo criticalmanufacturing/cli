@@ -87,7 +87,7 @@ namespace Cmf.Common.Cli.Builders
             var args = new List<string>
             {
                 this.Command,
-                this.Solution.FullName
+                this.Solution?.FullName
             };
             if (this.NuGetConfig != null)
             {

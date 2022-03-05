@@ -54,6 +54,12 @@ namespace Cmf.Common.Cli.Handlers
                     Configuration = "Release",
                     WorkingDirectory = cmfPackage.GetFileInfo().Directory,
                     Args = new [] { "--no-restore "}
+                },
+                new DotnetCommand()
+                {
+                    Command = "test",
+                    DisplayName = "Run Business Unit Tests",
+                    WorkingDirectory = cmfPackage.GetFileInfo().Directory
                 }
             };
         }
