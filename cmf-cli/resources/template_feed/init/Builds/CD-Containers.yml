@@ -941,7 +941,7 @@ stages:
             targetType: inline
             failOnStderr: true
             script: |
-                Copy-Item -Path $(DATABASE_NETWORK_SHARE)/FullBackup/Cmf.FullBackup.*.zip Copy-Item -Path $(DATABASE_NETWORK_SHARE)/Approved -Verbose -Force -Recurse
+                Copy-Item -Path $(DATABASE_NETWORK_SHARE)/FullBackup/Cmf.FullBackup.*.zip -Destination $(DATABASE_NETWORK_SHARE)/Approved -Verbose -Force -Recurse
           continueOnError: false
 
         # Clean
