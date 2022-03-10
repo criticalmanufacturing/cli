@@ -1,27 +1,20 @@
 ﻿using Cmf.Common.Cli;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Spectre.Console;
-using Spectre.Console.Advanced;
-using Spectre.Console.Testing;
 using System;
-using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.Parsing;
+using System.Diagnostics;
 using System.IO;
-using System.IO.Abstractions.TestingHelpers;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Xunit;
+using Assert = tests.AssertWithMessage;
 
 namespace tests.Specs
 {
-    [TestClass]
     public class Logging
     {
         private AnsiConsoleFactory factory = new AnsiConsoleFactory();
         private StringWriter _writer = null;
-        [TestInitialize]
-        public void Setup_Logging()
+        
+        public Logging()
         {
             GetLogStringWriter();
         }
@@ -51,16 +44,16 @@ namespace tests.Specs
             return _writer;
         }
 
-        [TestMethod]
+        [Fact]
         public void LogDebug_WhenVerbose()
         {
-            Assert.AreEqual(LogLevel.Verbose, Log.Level, "Default log level is not Verbose");
+            Assert.Equal(LogLevel.Verbose, Log.Level, "Default log level is not Verbose");
             Log.Debug("testing");
             var text = _writer.ToString();
-            Assert.AreEqual(string.Empty, text.Trim(), "Debug statement should not have been printed");
+            Assert.Equal(string.Empty, text.Trim(), "Debug statement should not have been printed");
         }
 
-        [TestMethod]
+        [Fact]
         public void LogDebug_WhenDebug_Assign()
         {
             // System.Environment.SetEnvironmentVariable("cmf:cli:loglevel", "debug");
@@ -68,13 +61,13 @@ namespace tests.Specs
             Log.Level = LogLevel.Debug;
 
             // var root = Program.Main(new string[] { "--loglevel", "debug", "ls" });
-            Assert.AreEqual(LogLevel.Debug, Log.Level, "Log level is not Debug");
+            Assert.Equal(LogLevel.Debug, Log.Level, "Log level is not Debug");
             Log.Debug("testing");
             var text = _writer.ToString();
-            Assert.AreEqual("testing", text.Trim(), "Debug statement should not have been printed");
+            Assert.Equal("testing", text.Trim(), "Debug statement should not have been printed");
         }
 
-        [TestMethod]
+        [Fact]
         public void LogDebug_WhenDebug_Option()
         {
             // System.Environment.SetEnvironmentVariable("cmf:cli:loglevel", "debug");
@@ -82,13 +75,13 @@ namespace tests.Specs
             // Log.Level = LogLevel.Debug;
 
             // var root = Program.Main(new string[] { "--loglevel", "debug", "ls" });
-            Assert.AreEqual(LogLevel.Debug, Log.Level, "Log level is not Debug");
+            Assert.Equal(LogLevel.Debug, Log.Level, "Log level is not Debug");
             Log.Debug("testing");
             var text = _writer.ToString();
-            Assert.AreEqual("testing", text.Trim(), "Debug statement should not have been printed");
+            Assert.Equal("testing", text.Trim(), "Debug statement should not have been printed");
         }
 
-        [TestMethod]
+        [Fact]
         public void LogDebug_WhenDebug_Environment()
         {
             System.Environment.SetEnvironmentVariable("cmf_cli_loglevel", "debug");
@@ -97,48 +90,18 @@ namespace tests.Specs
             // Log.Level = LogLevel.Debug;
 
             // var root = Program.Main(new string[] { "--loglevel", "debug", "ls" });
-            Assert.AreEqual(LogLevel.Debug, Log.Level, "Log level is not Debug");
+            Assert.Equal(LogLevel.Debug, Log.Level, "Log level is not Debug");
             Log.Debug("testing");
             var text = _writer.ToString();
-            Assert.AreEqual("testing", text.Trim(), "Debug statement should not have been printed");
+            Assert.Equal("testing", text.Trim(), "Debug statement should not have been printed");
         }
 
-        [TestMethod]
-        public void LogDebug()
-        {
-            LogLevelTest(LogLevel.Debug, new string[] { "debug", "verbose", "information", "warning", "error" }, new string[0]);
-        }
-
-        [TestMethod]
-        public void LogVerbose()
-        {
-            LogLevelTest(LogLevel.Verbose, new string[] { "verbose", "information", "warning", "error" }, new string[] { "debug" });
-        }
-
-        [TestMethod]
-        public void LogInformation()
-        {
-            LogLevelTest(LogLevel.Information, new string[] { "information", "warning", "error" }, new string[] { "debug", "verbose" });
-        }
-
-        [TestMethod]
-        public void LogWarning()
-        {
-            LogLevelTest(LogLevel.Warning, new string[] { "warning", "error" }, new string[] { "debug", "verbose", "information" });
-        }
-
-        [TestMethod]
-        public void LogError()
-        {
-            LogLevelTest(LogLevel.Error, new[] { "error" }, new string[] { "debug", "verbose", "information", "warning" });
-        }
-
-        //[Theory]
-        //[InlineData(LogLevel.Debug, new string[] { "debug", "verbose", "information", "warning", "error" }, new string[0])]
-        //[InlineData(LogLevel.Verbose, new string[] { "verbose", "information", "warning", "error" }, new string[] { "debug" })]
-        //[InlineData(LogLevel.Information, new string[] { "information", "warning", "error" }, new string[] { "debug", "verbose" })]
-        //[InlineData(LogLevel.Warning, new string[] { "warning", "error" }, new string[] { "debug", "verbose", "information" })]
-        //[InlineData(LogLevel.Error, new[] { "error" }, new string[] { "debug", "verbose", "information", "warning" })]
+        [Theory]
+        [InlineData(LogLevel.Debug, new string[] { "debug", "verbose", "information", "warning", "error" }, new string[0])]
+        [InlineData(LogLevel.Verbose, new string[] { "verbose", "information", "warning", "error" }, new string[] { "debug" })]
+        [InlineData(LogLevel.Information, new string[] { "information", "warning", "error" }, new string[] { "debug", "verbose" })]
+        [InlineData(LogLevel.Warning, new string[] { "warning", "error" }, new string[] { "debug", "verbose", "information" })]
+        [InlineData(LogLevel.Error, new[] { "error" }, new string[] { "debug", "verbose", "information", "warning" })]
         public void LogLevelTest(LogLevel level, string[] expected, string[] notExpected)
         {
             Log.Level = level;
@@ -152,11 +115,11 @@ namespace tests.Specs
             var text = _writer.ToString();
             foreach (var exp in expected)
             {
-                Assert.IsTrue(text.Contains(exp));
+                Assert.Contains(exp, text);
             }
             foreach (var exp in notExpected)
             {
-                Assert.IsFalse(text.Contains(exp));
+                Assert.DoesNotContain(exp, text);
             }
         }
     }

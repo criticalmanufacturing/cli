@@ -1,5 +1,5 @@
 ﻿using Cmf.Common.Cli.Commands;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
@@ -8,10 +8,9 @@ using System.IO.Abstractions;
 
 namespace tests.Specs
 {
-    [TestClass]
     public class Pack
     {
-        [TestMethod]
+        [Fact]
         public void Args_Paths_BothSpecified()
         {
             string _workingDir = null;
@@ -35,13 +34,13 @@ namespace tests.Specs
                 "-o", "test_package_dir", "working_dir"
             }, console);
 
-            Assert.AreEqual("working_dir", _workingDir);
-            Assert.AreEqual("test_package_dir", _outputDir);
-            Assert.IsNotNull(_force);
-            Assert.IsFalse(_force ?? true);
+            Assert.Equal("working_dir", _workingDir);
+            Assert.Equal("test_package_dir", _outputDir);
+            Assert.NotNull(_force);
+            Assert.False(_force ?? true);
         }
 
-        [TestMethod]
+        [Fact]
         public void Args_Paths_WorkDirSpecified()
         {
             string _workingDir = null;
@@ -65,13 +64,13 @@ namespace tests.Specs
                 "working_dir"
             }, console);
 
-            Assert.AreEqual("working_dir", _workingDir);
-            Assert.AreEqual("Package", _outputDir);
-            Assert.IsNotNull(_force);
-            Assert.IsFalse(_force ?? true);
+            Assert.Equal("working_dir", _workingDir);
+            Assert.Equal("Package", _outputDir);
+            Assert.NotNull(_force);
+            Assert.False(_force ?? true);
         }
 
-        [TestMethod]
+        [Fact]
         public void Args_Paths_OutDirSpecified()
         {
             string _workingDir = null;
@@ -96,13 +95,13 @@ namespace tests.Specs
             }, console);
 
             var curDir = new DirectoryInfo(System.IO.Directory.GetCurrentDirectory());
-            Assert.AreEqual(curDir.Name, _workingDir);
-            Assert.AreEqual("test_package_dir", _outputDir);
-            Assert.IsNotNull(_force);
-            Assert.IsFalse(_force ?? true);
+            Assert.Equal(curDir.Name, _workingDir);
+            Assert.Equal("test_package_dir", _outputDir);
+            Assert.NotNull(_force);
+            Assert.False(_force ?? true);
         }
 
-        [TestMethod]
+        [Fact]
         public void Args_Paths_NoneSpecified()
         {
             string _workingDir = null;
@@ -127,10 +126,10 @@ namespace tests.Specs
 
             var curDir = new DirectoryInfo(System.IO.Directory.GetCurrentDirectory());
 
-            Assert.AreEqual(curDir.Name, _workingDir);
-            Assert.AreEqual("Package", _outputDir);
-            Assert.IsNotNull(_force);
-            Assert.IsFalse(_force ?? true);
+            Assert.Equal(curDir.Name, _workingDir);
+            Assert.Equal("Package", _outputDir);
+            Assert.NotNull(_force);
+            Assert.False(_force ?? true);
         }
     }
 }

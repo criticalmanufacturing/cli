@@ -1,11 +1,12 @@
 using System.Threading.Tasks;
 using Cmf.Common.Cli.Objects;
+using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
+[assembly: CollectionBehavior(CollectionBehavior.CollectionPerAssembly)]
 namespace tests.Specs
 {
-    [TestClass]
     public class Startup
     {
         #region mock services
@@ -36,7 +37,7 @@ namespace tests.Specs
         }
         #endregion
 
-        [TestMethod]
+        [Fact]
         public async Task NotAtLatestVersion()
         {
             ExecutionContext.ServiceProvider = (new ServiceCollection())
@@ -48,10 +49,10 @@ namespace tests.Specs
             
             await Cmf.Common.Cli.Program.VersionChecks();
             
-            Assert.IsTrue(logWriter.ToString().Contains("Please update"));
+            logWriter.ToString().Should().Contain("Please update");
         }
         
-        [TestMethod]
+        [Fact]
         public async Task AtLatestVersion()
         {
             ExecutionContext.ServiceProvider = (new ServiceCollection())
@@ -63,10 +64,10 @@ namespace tests.Specs
             
             await Cmf.Common.Cli.Program.VersionChecks();
             
-            Assert.IsFalse(logWriter.ToString().Contains("Please update"));
+            logWriter.ToString().Should().NotContain("Please update");
         }
 
-        [TestMethod]
+        [Fact]
         public async Task InDevVersion()
         {
             ExecutionContext.ServiceProvider = (new ServiceCollection())
@@ -78,10 +79,10 @@ namespace tests.Specs
             
             await Cmf.Common.Cli.Program.VersionChecks();
             
-            Assert.IsTrue(logWriter.ToString().Contains("You are using development version"));
+            logWriter.ToString().Should().Contain("You are using development version");
         }
         
-        [TestMethod]
+        [Fact]
         public async Task InStableVersion()
         {
             ExecutionContext.ServiceProvider = (new ServiceCollection())
@@ -93,7 +94,7 @@ namespace tests.Specs
             
             await Cmf.Common.Cli.Program.VersionChecks();
             
-            Assert.IsFalse(logWriter.ToString().Contains("You are using development version"));
+            logWriter.ToString().Should().NotContain("You are using development version");
         }
     }
 }

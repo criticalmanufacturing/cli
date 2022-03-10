@@ -1,20 +1,16 @@
 ﻿using Cmf.Common.Cli.Constants;
 using Cmf.Common.Cli.Objects;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Xunit;
 
 namespace tests
 {
-    [TestClass]
     public class CmfPackage_Load
     {
-        [TestMethod]
+        [Fact]
         public void Root_HappyPath()
         {
             KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.1.0");
@@ -54,14 +50,14 @@ namespace tests
                 message = ex.Message;
             }
 
-            Assert.AreEqual(string.Empty, message);
-            Assert.IsNotNull(cmfPackage);
-            Assert.AreEqual(packageDep1.Value, cmfPackage.Dependencies[0].Version);
-            Assert.AreEqual(packageDep1.Value, cmfPackage.Dependencies[0].Version);
-            Assert.AreEqual(true, cmfPackage.Dependencies[0].IsMissing);
+            Assert.Equal(string.Empty, message);
+            Assert.NotNull(cmfPackage);
+            Assert.Equal(packageDep1.Value, cmfPackage.Dependencies[0].Version);
+            Assert.Equal(packageDep1.Value, cmfPackage.Dependencies[0].Version);
+            Assert.True(cmfPackage.Dependencies[0].IsMissing);
         }
 
-        [TestMethod]
+        [Fact]
         public void Root_WithoutMandatoryDependencies()
         {
             KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.1.0");
@@ -100,11 +96,10 @@ namespace tests
                 message = ex.Message;
             }
 
-            Assert.AreEqual("Mandatory Dependency criticalmanufacturing.deploymentmetadata or cmf.environment. not found", message);
+            Assert.Equal("Mandatory Dependency criticalmanufacturing.deploymentmetadata or cmf.environment. not found", message);
         }
-
-        // When is fixed by the product team, ignore can be removed
-        [TestMethod, Ignore]
+        
+        [Fact(Skip = "awaiting product fix")]
         public void IoT_WithoutMandatoryDependencies()
         {
             KeyValuePair<string, string> packageIoT = new("Cmf.Custom.IoT", "1.1.0");
@@ -144,10 +139,10 @@ namespace tests
                 message = ex.Message;
             }
 
-            Assert.AreEqual("Mandatory Dependency cmf.connectiot.packages. not found", message);
+            Assert.Equal("Mandatory Dependency cmf.connectiot.packages. not found", message);
         }
 
-        [TestMethod]
+        [Fact]
         public void Business_WithoutContentToPack()
         {
             KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Business", "1.1.0");
@@ -181,7 +176,7 @@ namespace tests
             }
             string fileLocation = fileSystem.FileInfo.FromFileName("/repo/cmfpackage.json").FullName;
 
-            Assert.AreEqual(@$"Missing mandatory property ContentToPack in file { fileLocation }", message);
+            Assert.Equal(@$"Missing mandatory property ContentToPack in file { fileLocation }", message);
         }
     }
 }
