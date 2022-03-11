@@ -3,10 +3,9 @@ using Cmf.Common.Cli.Objects;
 using Cmf.Common.Cli.Utilities;
 using System;
 using System.CommandLine;
-using System.CommandLine.Invocation;
-using System.IO.Abstractions;
 using System.Linq;
-using System.Reflection;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Cmf.Common.Cli
 {
@@ -28,9 +27,9 @@ namespace Cmf.Common.Cli
                 loglevelStr = System.Environment.GetEnvironmentVariable("cmf_cli_loglevel");
             }
 
-            if (LogLevel.TryParse(typeof(LogLevel), loglevelStr, ignoreCase: true, out object? loglevelObj))
+            if (Enum.TryParse(typeof(LogLevel), loglevelStr, ignoreCase: true, out var loglevelObj))
             {
-                loglevel = (LogLevel)loglevelObj;
+                loglevel = (LogLevel)loglevelObj!;
             }
             Log.Level = loglevel;
             return loglevel;
@@ -51,10 +50,14 @@ namespace Cmf.Common.Cli
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
-        public static int Main(string[] args)
+        public static async Task<int> Main(string[] args)
         {
             try
             {
+                RegisterServices();
+                
+                await VersionChecks();
+
                 var rootCommand = new RootCommand
                 {
                     Description = "Critical Manufacturing CLI"
@@ -77,6 +80,41 @@ namespace Cmf.Common.Cli
                 Log.Exception(e);
                 return -1; // TODO: set exception error codes
             }
+        }
+
+        private static void RegisterServices()
+        {
+            var sp = new ServiceCollection()
+                .AddSingleton<INPMClient, NPMClient>()
+                .AddSingleton<IVersionService, VersionService>()
+                .BuildServiceProvider();
+
+            ExecutionContext.ServiceProvider = sp;
+        }
+
+        /// <summary>
+        /// Version Checker. Logs if we are running an unstable version and/or if we are outdated
+        /// </summary>
+        public static async Task VersionChecks()
+        {
+            #region version checks
+
+            var npmClient = ExecutionContext.ServiceProvider.GetService<INPMClient>();
+            
+            if (ExecutionContext.IsDevVersion)
+            {
+                Log.Information(
+                    $"You are using development version {ExecutionContext.CurrentVersion}. This in unsupported in production and should only be used for testing.");
+            }
+
+            var latestVersion = await npmClient.GetLatestVersion(ExecutionContext.IsDevVersion);
+            if (latestVersion != ExecutionContext.CurrentVersion)
+            {
+                Log.Warning(
+                    $"Using version {ExecutionContext.CurrentVersion} while {latestVersion} is available. Please update.");
+            }
+
+            #endregion
         }
     }
 }

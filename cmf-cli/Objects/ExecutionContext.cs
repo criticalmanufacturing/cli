@@ -1,5 +1,7 @@
 using Cmf.Common.Cli.Utilities;
 using System.IO.Abstractions;
+using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Cmf.Common.Cli.Objects
 {
@@ -25,6 +27,22 @@ namespace Cmf.Common.Cli.Objects
         /// The current execution RepositoriesConfig object
         /// </summary>
         public RepositoriesConfig RepositoriesConfig { get; set; }
+
+        /// <summary>
+        /// Get the current (executing) version of the CLI
+        /// </summary>
+        public static string CurrentVersion => (ServiceProvider.GetService<IVersionService>()!.CurrentVersion) ?? "dev";
+
+        /// <summary>
+        /// true if we're running a development/unstable version 
+        /// </summary>
+        public static bool IsDevVersion => CurrentVersion.Contains("-");
+        
+        /// <summary>
+        /// IoC container for services
+        /// NOTE: As we already have this ExecutionContext object, we're not enabling Hosting, but instead we are hosting the container in the execution context
+        /// </summary>
+        public static ServiceProvider ServiceProvider { get; set; }
 
         private ExecutionContext(IFileSystem fileSystem)
         {
