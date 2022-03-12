@@ -21,7 +21,16 @@ namespace tests.Specs
         private AnsiConsoleFactory factory = new AnsiConsoleFactory();
         private StringWriter _writer = null;
         [TestInitialize]
-        public void Setup_Logging() 
+        public void Setup_Logging()
+        {
+            GetLogStringWriter();
+        }
+
+        /// <summary>
+        /// create a test console and return its string writer, which will contain all the console content
+        /// </summary>
+        /// <returns></returns>
+        public StringWriter GetLogStringWriter()
         {
             _writer = new StringWriter();
             Environment.SetEnvironmentVariable("cmf_cli_loglevel", null);
@@ -38,6 +47,8 @@ namespace tests.Specs
                     UseDefaultEnrichers = false,
                 },
             });
+
+            return _writer;
         }
 
         [TestMethod]
