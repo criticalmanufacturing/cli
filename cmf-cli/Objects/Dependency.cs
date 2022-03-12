@@ -39,7 +39,6 @@ namespace Cmf.Common.Cli.Objects
         ///   <c>true</c> if mandatory; otherwise, <c>false</c>.
         /// </value>
         [JsonProperty(Order = 2)]
-        [JsonIgnore]
         public bool Mandatory { get; set; }
 
         /// <summary>
@@ -57,7 +56,7 @@ namespace Cmf.Common.Cli.Objects
         [XmlIgnore]
         public bool IsMissing => this.CmfPackage == null;
 
-        #endregion
+        #endregion Public Properties
 
         #region Internal Properties
 
@@ -73,7 +72,7 @@ namespace Cmf.Common.Cli.Objects
         [JsonIgnore]
         internal bool IsIgnorable => DefaultDependenciesToIgnore.Contains(Id.ToLower());
 
-        #endregion
+        #endregion Internal Properties
 
         #region Constructors
 
@@ -99,7 +98,7 @@ namespace Cmf.Common.Cli.Objects
             Mandatory = true;
         }
 
-        #endregion
+        #endregion Constructors
 
         #region Public Methods
 
@@ -117,6 +116,15 @@ namespace Cmf.Common.Cli.Objects
                    Version.IgnoreCaseEquals(other.Version);
         }
 
-        #endregion
+        /// <summary>
+        /// Should Serialize Is Mandatory
+        /// </summary>
+        /// <returns>returns false always</returns>
+        public bool ShouldSerializeMandatory()
+        {
+            return this.Mandatory == false;
+        }
+
+        #endregion Public Methods
     }
 }
