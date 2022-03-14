@@ -97,8 +97,82 @@ namespace tests.Specs
 
             cmfPackageObj.SaveCmfPackage();
 
-            dynamic cmfpackageFileContent = JsonConvert.DeserializeObject(fileSystem.File.ReadAllText(cmfpackageFile.FullName));
-            Assert.Null(cmfpackageFileContent.handlerVersion);
+            var cmfpackageFileContent = fileSystem.File.ReadAllText(cmfpackageFile.FullName);
+            Assert.False(cmfpackageFileContent.Contains("handlerVersion"), "Package.json should not have handler version");
+        }
+
+        /// <summary>
+        /// Validates that the handler version is kept during serialization if value is one
+        /// </summary>
+        [Fact]
+        public void KeepHandlerVersionIfHasValueOne()
+        {
+            KeyValuePair<string, string> package = new("Cmf.Custom.Data", "1.1.0");
+
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { "/repo/cmfpackage.json", new MockFileData(
+                @$"{{
+                      ""packageId"": ""{ package.Key }"",
+                      ""version"": ""{ package.Value }"",
+                      ""description"": ""Data Package"",
+                      ""packageType"": ""Data"",
+                      ""isInstallable"": true,
+                      ""isUniqueInstall"": true,
+                      ""contentToPack"": [
+                        {{
+                            ""source"": ""*"",
+                            ""target"": """"
+                        }}
+                        ],
+                      ""handlerVersion"": 1
+                }}")}
+            });
+
+            IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
+            CmfPackage cmfPackageObj = CmfPackage.Load(cmfpackageFile, fileSystem: fileSystem);
+
+            cmfPackageObj.SaveCmfPackage();
+
+            var cmfpackageFileContent = fileSystem.File.ReadAllText(cmfpackageFile.FullName);
+            Assert.True(cmfpackageFileContent.Contains("handlerVersion"), "Package.json should have handler version");
+        }
+
+        /// <summary>
+        /// Validates that the handler version is kept during serialization if value is two
+        /// </summary>
+        [Fact]
+        public void KeepHandlerVersionIfHasValueTwo()
+        {
+            KeyValuePair<string, string> package = new("Cmf.Custom.Data", "1.1.0");
+
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { "/repo/cmfpackage.json", new MockFileData(
+                @$"{{
+                      ""packageId"": ""{ package.Key }"",
+                      ""version"": ""{ package.Value }"",
+                      ""description"": ""Data Package"",
+                      ""packageType"": ""Data"",
+                      ""isInstallable"": true,
+                      ""isUniqueInstall"": true,
+                      ""contentToPack"": [
+                        {{
+                            ""source"": ""*"",
+                            ""target"": """"
+                        }}
+                        ],
+                      ""handlerVersion"": 2
+                }}")}
+            });
+
+            IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
+            CmfPackage cmfPackageObj = CmfPackage.Load(cmfpackageFile, fileSystem: fileSystem);
+
+            cmfPackageObj.SaveCmfPackage();
+
+            var cmfpackageFileContent = fileSystem.File.ReadAllText(cmfpackageFile.FullName);
+            Assert.True(cmfpackageFileContent.Contains("handlerVersion"), "Package.json should have handler version");
         }
     }
 }

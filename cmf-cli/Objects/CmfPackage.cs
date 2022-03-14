@@ -35,7 +35,7 @@ namespace Cmf.Common.Cli.Objects
 
         private IFileSystem fileSystem;
 
-        #endregion
+        #endregion Private Properties
 
         #region Internal Properties
 
@@ -59,7 +59,7 @@ namespace Cmf.Common.Cli.Objects
         [JsonIgnore]
         internal string ZipPackageName { get; private set; }
 
-        #endregion
+        #endregion Internal Properties
 
         #region Public Properties
 
@@ -223,7 +223,6 @@ namespace Cmf.Common.Cli.Objects
         /// Handler Version
         /// </summary>
         [JsonProperty(Order = 17)]
-        [JsonIgnore]
         public int HandlerVersion { get; private set; }
 
         /// <summary>
@@ -246,7 +245,7 @@ namespace Cmf.Common.Cli.Objects
         [JsonIgnore]
         public PackageType DFPackageType { get; set; }
 
-        #endregion
+        #endregion Public Properties
 
         #region Private Methods
 
@@ -287,7 +286,7 @@ namespace Cmf.Common.Cli.Objects
             //}
         }
 
-        #endregion
+        #endregion Private Methods
 
         #region Constructors
 
@@ -368,7 +367,7 @@ namespace Cmf.Common.Cli.Objects
             ZipPackageName = $"{PackageName}.zip";
         }
 
-        #endregion
+        #endregion Constructors
 
         #region Public Methods
 
@@ -553,8 +552,17 @@ namespace Cmf.Common.Cli.Objects
                     }
                 }
 
-                #endregion
+                #endregion Get Dependencies from Dependencies Directory
             }
+        }
+
+        /// <summary>
+        /// Should Serialize Handler Version
+        /// </summary>
+        /// <returns>returns false if handler version is 0 otherwise true</returns>
+        public bool ShouldSerializeHandlerVersion()
+        {
+            return this.HandlerVersion != 0;
         }
 
         #region Static Methods
@@ -708,7 +716,7 @@ namespace Cmf.Common.Cli.Objects
             return cmfPackage;
         }
 
-        #endregion
+        #endregion Static Methods
 
         #region Utilities
 
@@ -766,8 +774,8 @@ namespace Cmf.Common.Cli.Objects
             throw new NotImplementedException();
         }
 
-        #endregion
+        #endregion Utilities
 
-        #endregion
+        #endregion Public Methods
     }
 }
