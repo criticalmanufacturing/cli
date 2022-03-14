@@ -3,6 +3,7 @@ using Cmf.Common.Cli.Objects;
 using Spectre.Console;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
@@ -239,6 +240,33 @@ namespace Cmf.Common.Cli.Utilities
             return tree;
         }
 
+        /// <summary>
+        /// Get Temporary Directory
+        /// </summary>
+        /// <returns></returns>
+        public static string GetTmpDirectory()
+        {
+            var tmp = Path.Join(Path.GetTempPath(), Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8));
+            Directory.CreateDirectory(tmp);
+
+            Debug.WriteLine("Generating at " + tmp);
+            return tmp;
+        }
+
+        /// <summary>
+        /// Copy Fixture in test execution
+        /// </summary>
+        /// <param name="fixtureName"></param>
+        /// <param name="target"></param>
+        public static void CopyFixture(string fixtureName, DirectoryInfo target)
+        {
+            Directory.CreateDirectory(target.FullName);
+            var source = new DirectoryInfo(System.IO.Path.GetFullPath(
+                System.IO.Path.Join(
+            AppDomain.CurrentDomain.BaseDirectory,
+                        "..", "..", "..", "Fixtures", fixtureName)));
+            CopyAll(source, target);
+        }
 
         #endregion Public Methods
 
@@ -253,24 +281,48 @@ namespace Cmf.Common.Cli.Utilities
                     Dependency dep = pkg.Dependencies[i];
 
                     if (!dep.IsMissing)
-        {
+                    {
                         var curNode = node.AddNode($"{pkg.PackageId}@{pkg.Version} [[{pkg.Location.ToString()}]]");
                         BuildTreeNodes(dep.CmfPackage, curNode);
                     }
                     else if (dep.IsMissing)
-            {
+                    {
                         if (dep.Mandatory)
-                {
+                        {
                             node.AddNode($"[red]MISSING {dep.Id}@{dep.Version}[/]");
-                }
-                else
-                {
+                        }
+                        else
+                        {
                             node.AddNode($"[yellow]MISSING {dep.Id}@{dep.Version}[/]");
                         }
                     }
                 }
             }
         }
-        #endregion
+
+        /// <summary>
+        /// Copy all files from one folder to another
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="target"></param>
+        private static void CopyAll(DirectoryInfo source, DirectoryInfo target)
+        {
+            // Copy each file into the new directory.
+            foreach (FileInfo fi in source.GetFiles())
+            {
+                Console.WriteLine(@"Copying {0}\{1}", target.FullName, fi.Name);
+                fi.CopyTo(Path.Combine(target.FullName, fi.Name), true);
+            }
+
+            // Copy each subdirectory using recursion.
+            foreach (DirectoryInfo diSourceSubDir in source.GetDirectories())
+            {
+                DirectoryInfo nextTargetSubDir =
+                    target.CreateSubdirectory(diSourceSubDir.Name);
+                CopyAll(diSourceSubDir, nextTargetSubDir);
+            }
+        }
+
+        #endregion Private Methods
     }
 }

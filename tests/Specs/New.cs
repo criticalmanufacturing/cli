@@ -9,6 +9,7 @@ using System.Text.Json;
 using Cmf.Common.Cli.Commands;
 using Cmf.Common.Cli.Commands.New;
 using Cmf.Common.Cli.Enums;
+using Cmf.Common.Cli.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace tests.Specs
@@ -33,7 +34,7 @@ namespace tests.Specs
         public void Init()
         {
             var rnd = new Random();
-            var tmp = GetTmpDirectory();
+            var tmp = GenericUtilities.GetTmpDirectory();
 
             var projectName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
             var repoUrl = "https://repo_url/collection/project/_git/repo";
@@ -144,7 +145,7 @@ namespace tests.Specs
             initCommand.Configure(cmd);
 
             cmd.Invoke(Array.Empty<string>(), console);
-            
+
             Assert.IsTrue(console.Error.ToString()!.Contains("Required argument missing for command: x"));
             foreach (var optionName in new[]
                  {
@@ -155,14 +156,14 @@ namespace tests.Specs
                 Assert.IsTrue(console.Error.ToString()!.Contains($"Option '--{optionName}' is required."));
             }
         }
-        
+
         [TestMethod]
         public void Init_Fail_MissingInfra()
         {
             var console = new TestConsole();
             var rnd = new Random();
-            var tmp = GetTmpDirectory();
-            
+            var tmp = GenericUtilities.GetTmpDirectory();
+
             var projectName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
             var repoUrl = "https://repo_url/collection/project/_git/repo";
             var deploymentDir = "\\\\share\\deployment_dir";
@@ -171,7 +172,7 @@ namespace tests.Specs
             try
             {
                 Directory.SetCurrentDirectory(tmp);
-            
+
                 var initCommand = new InitCommand();
                 var cmd = new Command("x"); // this is the command name used in help text
                 initCommand.Configure(cmd);
@@ -189,7 +190,7 @@ namespace tests.Specs
                     "--testScenariosNugetVersion", "8.2.0",
                     "--deploymentDir", deploymentDir,
                 }, console);
-                
+
                 Assert.IsTrue(console.Error.ToString()!.Contains("Missing infrastructure options"));
             }
             finally
@@ -198,8 +199,7 @@ namespace tests.Specs
                 Directory.Delete(tmp, true);
             }
         }
-        
-        
+
         [TestMethod]
         public void Init_Containers()
         {
@@ -390,34 +390,34 @@ namespace tests.Specs
         [TestMethod]
         public void IoTData()
         {
-            string dir = GetTmpDirectory();
+            string dir = GenericUtilities.GetTmpDirectory();
             string packageId = "Cmf.Custom.IoT";
             string packageIdData = "Cmf.Custom.IoT.Data";
             string packageFolder = "IoTData";
 
-            CopyFixture("new", new DirectoryInfo(dir));
+            GenericUtilities.CopyFixture("new", new DirectoryInfo(dir));
             RunNew(new IoTCommand(), packageId, dir);
 
             // Validate IoT Data
             Assert.IsTrue(Directory.Exists($"{packageId}/{packageFolder}"), "Package folder is missing");
             Assert.IsTrue(Directory.Exists($"{packageId}/{packageFolder}/MasterData"), "Folder MasterData is missing");
             Assert.IsTrue(Directory.Exists($"{packageId}/{packageFolder}/AutomationWorkFlows"), "Folder AutomationWorkFlows is missing");
-            
+
             Assert.AreEqual(packageIdData, GetPackageProperty("packageId", $"{packageId}/{packageFolder}/cmfpackage.json"), "Package Id does not match expected");
             Assert.AreEqual(PackageType.IoTData.ToString(), GetPackageProperty("packageType", $"{packageId}/{packageFolder}/cmfpackage.json"), "Package Type does not match expected");
-            Assert.AreEqual(GetPackageProperty("version", $"{packageId}/cmfpackage.json"), 
+            Assert.AreEqual(GetPackageProperty("version", $"{packageId}/cmfpackage.json"),
                 GetPackageProperty("version", $"{packageId}/{packageFolder}/cmfpackage.json"), "Version does not match expected");
         }
 
         [TestMethod]
         public void IoTPackage()
         {
-            string dir = GetTmpDirectory();
+            string dir = GenericUtilities.GetTmpDirectory();
             string packageId = "Cmf.Custom.IoT";
             string packageIdData = "Cmf.Custom.IoT.Packages";
             string packageFolder = "IoTPackages";
 
-            CopyFixture("new", new DirectoryInfo(dir));
+            GenericUtilities.CopyFixture("new", new DirectoryInfo(dir));
             RunNew(new IoTCommand(), packageId, dir);
 
             // Validate IoT Package
@@ -464,7 +464,7 @@ namespace tests.Specs
         public void Tests()
         {
             var packageId = "Cmf.Custom.Tests";
-            var dir = GetTmpDirectory();
+            var dir = GenericUtilities.GetTmpDirectory();
 
             var rnd = new Random();
             var pkgVersion = $"{rnd.Next(10)}.{rnd.Next(10)}.{rnd.Next(10)}";
@@ -476,7 +476,7 @@ namespace tests.Specs
                 Directory.SetCurrentDirectory(dir);
 
                 // place new fixture: an init'd repository
-                CopyFixture("new", new DirectoryInfo(dir));
+                GenericUtilities.CopyFixture("new", new DirectoryInfo(dir));
 
                 var newCommand = new TestCommand();
                 var cmd = new Command("x");
@@ -524,7 +524,7 @@ namespace tests.Specs
         [TestMethod]
         public void Traditional()
         {
-            var dir = GetTmpDirectory();
+            var dir = GenericUtilities.GetTmpDirectory();
 
             var rnd = new Random();
             var pkgVersion = $"{rnd.Next(10)}.{rnd.Next(10)}.{rnd.Next(10)}";
@@ -534,7 +534,7 @@ namespace tests.Specs
             try
             {
                 Directory.SetCurrentDirectory(dir);
-                CopyFixture("new", new DirectoryInfo(dir));
+                GenericUtilities.CopyFixture("new", new DirectoryInfo(dir));
 
                 RunNew(new BusinessCommand(), "Cmf.Custom.Business", scaffoldingDir: dir);
                 RunNew(new DataCommand(), "Cmf.Custom.Data", scaffoldingDir: dir);
@@ -591,7 +591,7 @@ namespace tests.Specs
         [TestMethod]
         public void Features_RootPackageWithFeature()
         {
-            var dir = GetTmpDirectory();
+            var dir = GenericUtilities.GetTmpDirectory();
 
             var rnd = new Random();
             var pkgVersion = $"{rnd.Next(10)}.{rnd.Next(10)}.{rnd.Next(10)}";
@@ -601,7 +601,7 @@ namespace tests.Specs
             try
             {
                 Directory.SetCurrentDirectory(dir);
-                CopyFixture("new", new DirectoryInfo(dir));
+                GenericUtilities.CopyFixture("new", new DirectoryInfo(dir));
 
                 RunFeature_WithoutPrefix(scaffoldingDir: dir);
                 var console = RunNew(new BusinessCommand(), "Cmf.Custom.Business", scaffoldingDir: dir, defaultAsserts: false);
@@ -621,7 +621,7 @@ namespace tests.Specs
         [TestMethod]
         public void Features_Business()
         {
-            var dir = GetTmpDirectory();
+            var dir = GenericUtilities.GetTmpDirectory();
 
             var rnd = new Random();
             var pkgVersion = $"{rnd.Next(10)}.{rnd.Next(10)}.{rnd.Next(10)}";
@@ -631,8 +631,8 @@ namespace tests.Specs
             try
             {
                 Directory.SetCurrentDirectory(dir);
-                CopyFixture("new", new DirectoryInfo(dir));
-                CopyFixture("featureBase", new DirectoryInfo(dir));
+                GenericUtilities.CopyFixture("new", new DirectoryInfo(dir));
+                GenericUtilities.CopyFixture("featureBase", new DirectoryInfo(dir));
 
                 var pkgDir = Path.Join(dir, "Features", "TestFeature");
                 const string packageId = "Cmf.Custom.TestFeature.Business";
@@ -657,7 +657,7 @@ namespace tests.Specs
         [TestMethod, TestCategory("LongRunning")]
         public void Features_Help()
         {
-            var dir = GetTmpDirectory();
+            var dir = GenericUtilities.GetTmpDirectory();
 
             var rnd = new Random();
             var pkgVersion = $"{rnd.Next(10)}.{rnd.Next(10)}.{rnd.Next(10)}";
@@ -667,8 +667,8 @@ namespace tests.Specs
             try
             {
                 Directory.SetCurrentDirectory(dir);
-                CopyFixture("new", new DirectoryInfo(dir));
-                CopyFixture("featureBase", new DirectoryInfo(dir));
+                GenericUtilities.CopyFixture("new", new DirectoryInfo(dir));
+                GenericUtilities.CopyFixture("featureBase", new DirectoryInfo(dir));
 
                 var pkgDir = Path.Join(dir, "Features", "TestFeature");
                 const string packageId = "Cmf.Custom.TestFeature.Help";
@@ -702,7 +702,7 @@ namespace tests.Specs
         [TestMethod, TestCategory("LongRunning")]
         public void Features_HTML()
         {
-            var dir = GetTmpDirectory();
+            var dir = GenericUtilities.GetTmpDirectory();
 
             var rnd = new Random();
             var pkgVersion = $"{rnd.Next(10)}.{rnd.Next(10)}.{rnd.Next(10)}";
@@ -712,8 +712,8 @@ namespace tests.Specs
             try
             {
                 Directory.SetCurrentDirectory(dir);
-                CopyFixture("new", new DirectoryInfo(dir));
-                CopyFixture("featureBase", new DirectoryInfo(dir));
+                GenericUtilities.CopyFixture("new", new DirectoryInfo(dir));
+                GenericUtilities.CopyFixture("featureBase", new DirectoryInfo(dir));
 
                 var pkgDir = Path.Join(dir, "Features", "TestFeature");
                 const string packageId = "Cmf.Custom.TestFeature.HTML";
@@ -742,7 +742,7 @@ namespace tests.Specs
 
         private TestConsole RunNew<T>(T newCommand, string packageId, string scaffoldingDir = null, string[] extraArguments = null, bool defaultAsserts = true, Action<(string, string)> extraAsserts = null) where T : TemplateCommand
         {
-            var dir = scaffoldingDir ?? GetTmpDirectory();
+            var dir = scaffoldingDir ?? GenericUtilities.GetTmpDirectory();
 
             var rnd = new Random();
             var pkgVersion = $"{rnd.Next(10)}.{rnd.Next(10)}.{rnd.Next(10)}";
@@ -756,7 +756,7 @@ namespace tests.Specs
                 // place new fixture: an init'd repository
                 if (scaffoldingDir == null)
                 {
-                    CopyFixture("new", new DirectoryInfo(dir));
+                    GenericUtilities.CopyFixture("new", new DirectoryInfo(dir));
                 }
 
                 var cmd = new Command("x");
@@ -818,49 +818,12 @@ namespace tests.Specs
 
         #region helpers
 
-        private string GetTmpDirectory()
-        {
-            var tmp = Path.Join(Path.GetTempPath(), Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8));
-            Directory.CreateDirectory(tmp);
-
-            Debug.WriteLine("Generating at " + tmp);
-            return tmp;
-        }
-
         private static string GetFixturePath(string fixture, string item)
         {
             return System.IO.Path.GetFullPath(
                 System.IO.Path.Join(
             AppDomain.CurrentDomain.BaseDirectory,
                         "..", "..", "..", "Fixtures", fixture, item));
-        }
-
-        private static void CopyFixture(string fixtureName, DirectoryInfo target)
-        {
-            Directory.CreateDirectory(target.FullName);
-            var source = new DirectoryInfo(System.IO.Path.GetFullPath(
-                System.IO.Path.Join(
-            AppDomain.CurrentDomain.BaseDirectory,
-                        "..", "..", "..", "Fixtures", fixtureName)));
-            CopyAll(source, target);
-        }
-
-        private static void CopyAll(DirectoryInfo source, DirectoryInfo target)
-        {
-            // Copy each file into the new directory.
-            foreach (FileInfo fi in source.GetFiles())
-            {
-                Console.WriteLine(@"Copying {0}\{1}", target.FullName, fi.Name);
-                fi.CopyTo(Path.Combine(target.FullName, fi.Name), true);
-            }
-
-            // Copy each subdirectory using recursion.
-            foreach (DirectoryInfo diSourceSubDir in source.GetDirectories())
-            {
-                DirectoryInfo nextTargetSubDir =
-                    target.CreateSubdirectory(diSourceSubDir.Name);
-                CopyAll(diSourceSubDir, nextTargetSubDir);
-            }
         }
 
         private static string GetPackageProperty(string property, string cmfpackageJsonPath)
@@ -875,6 +838,6 @@ namespace tests.Specs
             return JsonDocument.Parse(json).RootElement;
         }
 
-        #endregion
+        #endregion helpers
     }
 }

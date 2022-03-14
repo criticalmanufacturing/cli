@@ -1,0 +1,27 @@
+{
+  "packageId": "Cmf.Custom.Package",
+  "version": "1.0.0",
+  "description": "This package deploys Critical Manufacturing MES  Customization",
+  "packageType": "Root",
+  "isInstallable": true,
+  "isUniqueInstall": false,
+  "dependencies": [
+    {
+      "id": "CriticalManufacturing.DeploymentMetadata",
+      "version": "8.1.1"
+    },
+    {
+      "id": "Cmf.Custom.Business",
+      "version": "1.0.0"
+    },
+    {
+      "id": "Generic",
+      "version": "1.0.0"
+    },
+    {
+      "id": "Cmf.Custom.Data",
+      "version": "1.0.0"
+    }
+  ],
+  "handlerVersion": 0
+}
