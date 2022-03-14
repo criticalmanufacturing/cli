@@ -1,7 +1,6 @@
 ﻿using Cmf.Common.Cli.Commands;
 using Cmf.Common.Cli.Constants;
 using Cmf.Common.Cli.Objects;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -12,19 +11,19 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace tests.Specs
 {
     /// <summary>
     /// The cmf package_ save.
     /// </summary>
-    [TestClass]
     public class CmfPackage_Save
     {
         /// <summary>
         /// Validates that the enums are serialized as string and not as int
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void KeepEnumStrings()
         {
             KeyValuePair<string, string> package = new("Cmf.Custom.Data", "1.1.0");
@@ -59,17 +58,17 @@ namespace tests.Specs
             cmfPackageObj.SaveCmfPackage();
 
             dynamic cmfpackageFileContent = JsonConvert.DeserializeObject(fileSystem.File.ReadAllText(cmfpackageFile.FullName));
-            Assert.AreEqual("Data", cmfpackageFileContent.packageType.ToString());
-            Assert.AreEqual("CreateIntegrationEntries", cmfpackageFileContent.steps[0].type.ToString());
-            Assert.AreEqual("ImportObject", cmfpackageFileContent.steps[0].messageType.ToString());
-            Assert.AreEqual("Generic", cmfpackageFileContent.contentToPack[0].contentType.ToString());
-            Assert.AreEqual("Pack", cmfpackageFileContent.contentToPack[0].action.ToString());
+            Assert.Equal("Data", cmfpackageFileContent.packageType.ToString());
+            Assert.Equal("CreateIntegrationEntries", cmfpackageFileContent.steps[0].type.ToString());
+            Assert.Equal("ImportObject", cmfpackageFileContent.steps[0].messageType.ToString());
+            Assert.Equal("Generic", cmfpackageFileContent.contentToPack[0].contentType.ToString());
+            Assert.Equal("Pack", cmfpackageFileContent.contentToPack[0].action.ToString());
         }
 
         /// <summary>
         /// Validates that the handler version is not serialized
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void IgnoreHandlerVersion()
         {
             KeyValuePair<string, string> package = new("Cmf.Custom.Data", "1.1.0");
@@ -96,18 +95,16 @@ namespace tests.Specs
             IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
             CmfPackage cmfPackageObj = CmfPackage.Load(cmfpackageFile, fileSystem: fileSystem);
 
-            Assert.IsNotNull(cmfPackageObj.HandlerVersion);
-
             cmfPackageObj.SaveCmfPackage();
 
             var cmfpackageFileContent = fileSystem.File.ReadAllText(cmfpackageFile.FullName);
-            Assert.IsFalse(cmfpackageFileContent.Contains("handlerVersion"), "Package.json should not have handler version");
+            Assert.False(cmfpackageFileContent.Contains("handlerVersion"), "Package.json should not have handler version");
         }
 
         /// <summary>
         /// Validates that the handler version is kept during serialization if value is one
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void KeepHandlerVersionIfHasValueOne()
         {
             KeyValuePair<string, string> package = new("Cmf.Custom.Data", "1.1.0");
@@ -135,18 +132,16 @@ namespace tests.Specs
             IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
             CmfPackage cmfPackageObj = CmfPackage.Load(cmfpackageFile, fileSystem: fileSystem);
 
-            Assert.IsNotNull(cmfPackageObj.HandlerVersion);
-
             cmfPackageObj.SaveCmfPackage();
 
             var cmfpackageFileContent = fileSystem.File.ReadAllText(cmfpackageFile.FullName);
-            Assert.IsTrue(cmfpackageFileContent.Contains("handlerVersion"), "Package.json should have handler version");
+            Assert.True(cmfpackageFileContent.Contains("handlerVersion"), "Package.json should have handler version");
         }
 
         /// <summary>
         /// Validates that the handler version is kept during serialization if value is two
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void KeepHandlerVersionIfHasValueTwo()
         {
             KeyValuePair<string, string> package = new("Cmf.Custom.Data", "1.1.0");
@@ -174,12 +169,10 @@ namespace tests.Specs
             IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
             CmfPackage cmfPackageObj = CmfPackage.Load(cmfpackageFile, fileSystem: fileSystem);
 
-            Assert.IsNotNull(cmfPackageObj.HandlerVersion);
-
             cmfPackageObj.SaveCmfPackage();
 
             var cmfpackageFileContent = fileSystem.File.ReadAllText(cmfpackageFile.FullName);
-            Assert.IsTrue(cmfpackageFileContent.Contains("handlerVersion"), "Package.json should have handler version");
+            Assert.True(cmfpackageFileContent.Contains("handlerVersion"), "Package.json should have handler version");
         }
     }
 }

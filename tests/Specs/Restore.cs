@@ -7,15 +7,15 @@ using Cmf.Common.Cli.Factories;
 using Cmf.Common.Cli.Interfaces;
 using Cmf.Common.Cli.Objects;
 using Cmf.Common.Cli.Utilities;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using tests.Objects;
+using Assert = tests.AssertWithMessage;
 
 namespace tests.Specs
 {
-    [TestClass]
     public class Restore
     {
-        [TestMethod]
+        [Fact]
         public void RestoreDependencies()
         {
             var gitRepo = MockUnixSupport.Path(@"c:\test");
@@ -92,20 +92,20 @@ namespace tests.Specs
 
             var repo = new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = ciRepo }.Uri;
             
-            Assert.IsFalse(fileSystem.DirectoryInfo.FromDirectoryName(MockUnixSupport.Path("c:\\Dependencies")).Exists, "Dependencies folder already exists!");
+            Assert.False(fileSystem.DirectoryInfo.FromDirectoryName(MockUnixSupport.Path("c:\\Dependencies")).Exists, "Dependencies folder already exists!");
             
             packageTypeHandler.RestoreDependencies(new []{ repo });
             
-            Assert.IsTrue(fileSystem.DirectoryInfo.FromDirectoryName(MockUnixSupport.Path("c:\\test\\Dependencies")).Exists, "Dependencies folder not found");
-            Assert.IsTrue(fileSystem.DirectoryInfo.FromDirectoryName(MockUnixSupport.Path("c:\\test\\Dependencies\\Cmf.Custom.HTML@1.1.0")).Exists, "HTML Dependency folder not found");
-            Assert.IsTrue(fileSystem.DirectoryInfo.FromDirectoryName(MockUnixSupport.Path("c:\\test\\Dependencies\\Cmf.Custom.Business@1.1.0")).Exists, "Business Dependency folder not found");
-            Assert.IsTrue(fileSystem.FileInfo.FromFileName(MockUnixSupport.Path("c:\\test\\Dependencies\\Cmf.Custom.Business@1.1.0\\content.txt")).Exists, "Business Dependency content not found");
-            Assert.IsTrue(fileSystem.FileInfo.FromFileName(MockUnixSupport.Path("c:\\test\\Dependencies\\Cmf.Custom.HTML@1.1.0\\content.txt")).Exists, "HTML Dependency content not found");
-            Assert.AreEqual("business", fileSystem.FileInfo.FromFileName(MockUnixSupport.Path("c:\\test\\Dependencies\\Cmf.Custom.Business@1.1.0\\content.txt")).OpenText().ReadToEnd(), "Business Dependency content does not match");
-            Assert.AreEqual("HTML", fileSystem.FileInfo.FromFileName(MockUnixSupport.Path("c:\\test\\Dependencies\\Cmf.Custom.HTML@1.1.0\\content.txt")).OpenText().ReadToEnd(), "HTML Dependency content does not match");
+            Assert.True(fileSystem.DirectoryInfo.FromDirectoryName(MockUnixSupport.Path("c:\\test\\Dependencies")).Exists, "Dependencies folder not found");
+            Assert.True(fileSystem.DirectoryInfo.FromDirectoryName(MockUnixSupport.Path("c:\\test\\Dependencies\\Cmf.Custom.HTML@1.1.0")).Exists, "HTML Dependency folder not found");
+            Assert.True(fileSystem.DirectoryInfo.FromDirectoryName(MockUnixSupport.Path("c:\\test\\Dependencies\\Cmf.Custom.Business@1.1.0")).Exists, "Business Dependency folder not found");
+            Assert.True(fileSystem.FileInfo.FromFileName(MockUnixSupport.Path("c:\\test\\Dependencies\\Cmf.Custom.Business@1.1.0\\content.txt")).Exists, "Business Dependency content not found");
+            Assert.True(fileSystem.FileInfo.FromFileName(MockUnixSupport.Path("c:\\test\\Dependencies\\Cmf.Custom.HTML@1.1.0\\content.txt")).Exists, "HTML Dependency content not found");
+            Assert.Equal("business", fileSystem.FileInfo.FromFileName(MockUnixSupport.Path("c:\\test\\Dependencies\\Cmf.Custom.Business@1.1.0\\content.txt")).OpenText().ReadToEnd(), "Business Dependency content does not match");
+            Assert.Equal("HTML", fileSystem.FileInfo.FromFileName(MockUnixSupport.Path("c:\\test\\Dependencies\\Cmf.Custom.HTML@1.1.0\\content.txt")).OpenText().ReadToEnd(), "HTML Dependency content does not match");
         }
         
-        [TestMethod]
+        [Fact]
         public void RestoreDependencies_RepoNotFound()
         {
             var gitRepo = MockUnixSupport.Path(@"c:\test");
@@ -182,9 +182,9 @@ namespace tests.Specs
 
             var repo = new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = MockUnixSupport.Path(@"c:\missingRepo")}.Uri;
             
-            Assert.IsFalse(fileSystem.DirectoryInfo.FromDirectoryName(MockUnixSupport.Path("c:\\Dependencies")).Exists, "Dependencies folder already exists!");
+            Assert.False(fileSystem.DirectoryInfo.FromDirectoryName(MockUnixSupport.Path("c:\\Dependencies")).Exists, "Dependencies folder already exists!");
 
-            Assert.ThrowsException<CliException>(() => packageTypeHandler.RestoreDependencies(new[] { repo }));
+            Assert.Throws<CliException>(() => packageTypeHandler.RestoreDependencies(new[] { repo }));
         }
     }
 }
