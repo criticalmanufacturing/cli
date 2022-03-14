@@ -1,20 +1,20 @@
 ﻿using Cmf.Common.Cli.Commands;
 using Cmf.Common.Cli.Constants;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
+using Cmf.Common.Cli.Objects;
 using tests.Objects;
+using Xunit;
 
 namespace tests.Specs
 {
-    [TestClass]
     public class Assemble
     {
-        [TestMethod]
+        [Fact]
         public void Assemble_FromCIRepo()
         {
             string cirepo = @"/cirepo";
@@ -58,20 +58,20 @@ namespace tests.Specs
             var assembleCommand = new AssembleCommand(fileSystem);
             assembleCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName("test"), fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key), new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = cirepo }.Uri, null, false);
 
-            IEnumerable<string> assembledFiles = fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key).EnumerateFiles("*.zip").Select(f => f.Name);
-            Assert.AreEqual(3, assembledFiles.Count());
+            IEnumerable<string> assembledFiles = fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key).EnumerateFiles("*.zip").Select(f => f.Name).ToList();
+            Assert.Equal(3, assembledFiles.Count());
 
-            Assert.IsTrue(assembledFiles.Contains($"{packageRoot.Key}.{packageRoot.Value}.zip"));
-            Assert.IsTrue(assembledFiles.Contains($"{packageDep1.Key}.{packageDep1.Value}.zip"));
-            Assert.IsTrue(assembledFiles.Contains($"{packageDep2.Key}.{packageDep2.Value}.zip"));
+            Assert.Contains($"{packageRoot.Key}.{packageRoot.Value}.zip", assembledFiles);
+            Assert.Contains($"{packageDep1.Key}.{packageDep1.Value}.zip", assembledFiles);
+            Assert.Contains($"{packageDep2.Key}.{packageDep2.Value}.zip", assembledFiles);
 
             IFileInfo dependenciesJsonFile = fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key).EnumerateFiles(CliConstants.FileDependencies).FirstOrDefault();
-            Assert.IsNotNull(dependenciesJsonFile);
-            Assert.IsTrue(dependenciesJsonFile.Exists);
-            Assert.AreEqual("{}", dependenciesJsonFile.OpenText().ReadToEnd());
+            Assert.NotNull(dependenciesJsonFile);
+            Assert.True(dependenciesJsonFile?.Exists ?? false, "Dependencies file does not exist");
+            Assert.Equal("{}", dependenciesJsonFile.OpenText().ReadToEnd());
         }
 
-        [TestMethod]
+        [Fact]
         public void Assemble_WithMissingPackages()
         {
             string cirepo1 = @"/cirepo";
@@ -125,10 +125,10 @@ namespace tests.Specs
             missingPackages.Add($"{packageDep2.Key}@{packageDep2.Value}");
 
             string expectedErrorMessage = string.Format("Some packages were not found: {0}", string.Join(", ", missingPackages));
-            Assert.AreEqual(expectedErrorMessage, message);
+            Assert.Equal(expectedErrorMessage, message);
         }
 
-        [TestMethod]
+        [Fact]
         public void Assemble_WithMultipleRepos()
         {
             string cirepo = @"/cirepo";
@@ -176,20 +176,20 @@ namespace tests.Specs
             assembleCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName("test"), fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key), new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = cirepo }.Uri, repos, false);
 
             IEnumerable<string> assembledFiles = fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key).EnumerateFiles("*.zip").Select(f => f.Name);
-            Assert.AreEqual(1, assembledFiles.Count());
+            Assert.Single(assembledFiles);
 
-            Assert.IsTrue(assembledFiles.Contains($"{packageRoot.Key}.{packageRoot.Value}.zip"));
-            Assert.IsFalse(assembledFiles.Contains($"{packageDep1.Key}.{packageDep1.Value}.zip"));
-            Assert.IsFalse(assembledFiles.Contains($"{packageDep2.Key}.{packageDep2.Value}.zip"));
+            Assert.Contains($"{packageRoot.Key}.{packageRoot.Value}.zip", assembledFiles);
+            Assert.DoesNotContain($"{packageDep1.Key}.{packageDep1.Value}.zip", assembledFiles);
+            Assert.DoesNotContain($"{packageDep2.Key}.{packageDep2.Value}.zip", assembledFiles);
 
             IFileInfo dependenciesJsonFile = fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key).EnumerateFiles(CliConstants.FileDependencies).FirstOrDefault();
-            Assert.IsNotNull(dependenciesJsonFile);
-            Assert.IsTrue(dependenciesJsonFile.Exists);
+            Assert.NotNull(dependenciesJsonFile);
+            Assert.True(dependenciesJsonFile.Exists);
             string expectedContent = @$"{{""{packageDep1.Key}@{packageDep1.Value}"":""{MockUnixSupport.Path($@"{repo1}\{packageDep1.Key}.{packageDep1.Value}.zip").Replace("\\", "\\\\")}"",""{packageDep2.Key}@{packageDep2.Value}"":""{MockUnixSupport.Path($@"{repo2}\{packageDep2.Key}.{packageDep2.Value}.zip").Replace("\\", "\\\\")}""}}";
-            Assert.AreEqual(expectedContent, dependenciesJsonFile.OpenText().ReadToEnd());
+            Assert.Equal(expectedContent, dependenciesJsonFile.OpenText().ReadToEnd());
         }
 
-        [TestMethod]
+        [Fact]
         public void Assemble_FromCIRepo_WithTestPackage()
         {
             string cirepo = @"/cirepo";
@@ -241,20 +241,20 @@ namespace tests.Specs
             var assembleCommand = new AssembleCommand(fileSystem);
             assembleCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName("test"), fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key), new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = cirepo }.Uri, null, true);
 
-            IEnumerable<string> assembledFiles = fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key).EnumerateFiles("*.zip").Select(f => f.Name);
-            Assert.AreEqual(3, assembledFiles.Count());
+            IEnumerable<string> assembledFiles = fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key).EnumerateFiles("*.zip").Select(f => f.Name).ToList();
+            Assert.Equal(3, assembledFiles.Count());
 
-            Assert.IsTrue(assembledFiles.Contains($"{packageRoot.Key}.{packageRoot.Value}.zip"));
-            Assert.IsTrue(assembledFiles.Contains($"{packageDep1.Key}.{packageDep1.Value}.zip"));
-            Assert.IsTrue(assembledFiles.Contains($"{packageDep2.Key}.{packageDep2.Value}.zip"));
+            Assert.Contains($"{packageRoot.Key}.{packageRoot.Value}.zip", assembledFiles);
+            Assert.Contains($"{packageDep1.Key}.{packageDep1.Value}.zip", assembledFiles);
+            Assert.Contains($"{packageDep2.Key}.{packageDep2.Value}.zip", assembledFiles);
 
-            IEnumerable<string> assembledTestFiles = fileSystem.DirectoryInfo.FromDirectoryName(@$"{assembleOutputDir.Key}/Tests").EnumerateFiles("*.zip").Select(f => f.Name);
-            Assert.AreEqual(1, assembledTestFiles.Count());
+            IEnumerable<string> assembledTestFiles = fileSystem.DirectoryInfo.FromDirectoryName(@$"{assembleOutputDir.Key}/Tests").EnumerateFiles("*.zip").Select(f => f.Name).ToList();
+            Assert.Single(assembledTestFiles);
 
-            Assert.IsTrue(assembledTestFiles.Contains($"{packageTest.Key}.{packageTest.Value}.zip"));
+            Assert.Contains($"{packageTest.Key}.{packageTest.Value}.zip", assembledTestFiles);
         }
 
-        [TestMethod]
+        [Fact]
         public void Assemble_WithDefaultDependenciesToIgnore()
         {
             string cirepo = @"/cirepo";
@@ -287,19 +287,19 @@ namespace tests.Specs
 
             assembleCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName("test"), fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key), new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = cirepo }.Uri, null, false);
 
-            IEnumerable<string> assembledFiles = fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key).EnumerateFiles("*.zip").Select(f => f.Name);
-            Assert.AreEqual(1, assembledFiles.Count());
+            IEnumerable<string> assembledFiles = fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key).EnumerateFiles("*.zip").Select(f => f.Name).ToList();
+            Assert.Single(assembledFiles);
 
-            Assert.IsTrue(assembledFiles.Contains($"{packageRoot.Key}.{packageRoot.Value}.zip"));
-            Assert.IsFalse(assembledFiles.Contains($"{packageDep1.Key}.{packageDep1.Value}.zip"));
+            Assert.Contains($"{packageRoot.Key}.{packageRoot.Value}.zip", assembledFiles);
+            Assert.DoesNotContain($"{packageDep1.Key}.{packageDep1.Value}.zip", assembledFiles);
 
             IFileInfo dependenciesJsonFile = fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key).EnumerateFiles(CliConstants.FileDependencies).FirstOrDefault();
-            Assert.IsNotNull(dependenciesJsonFile);
-            Assert.IsTrue(dependenciesJsonFile.Exists);
-            Assert.AreEqual("{}", dependenciesJsonFile.OpenText().ReadToEnd());
+            Assert.NotNull(dependenciesJsonFile);
+            Assert.True(dependenciesJsonFile!.Exists);
+            Assert.Equal("{}", dependenciesJsonFile.OpenText().ReadToEnd());
         }
 
-        [TestMethod]
+        [Fact]
         public void Assemble_FromCIRepo_WithoutTestPackage()
         {
             string cirepo = @"/cirepo";
@@ -346,7 +346,7 @@ namespace tests.Specs
                 { @$"{cirepo}/{packageDep1.Key}.{packageDep1.Value}.zip", new DFPackageBuilder().CreateManifest(packageDep1.Key, packageDep1.Value).ToMockFileData() },
                 { @$"{cirepo}/{packageDep2.Key}.{packageDep2.Value}.zip", new DFPackageBuilder().CreateManifest(packageDep2.Key, packageDep2.Value).ToMockFileData() }
             });
-
+            ExecutionContext.Initialize(fileSystem);
 
             try
             {
@@ -355,7 +355,7 @@ namespace tests.Specs
             }
             catch (Exception ex)
             {
-                Assert.IsTrue(ex.Message.Contains($"Some packages were not found: {packageTest.Key}.{packageTest.Value}.zip"), ex.Message.ToString());
+                Assert.Contains($"Some packages were not found: {packageTest.Key}.{packageTest.Value}.zip", ex.Message.ToString());
             }
 
             

@@ -1,24 +1,18 @@
+using Cmf.Common.Cli.Commands;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.IO;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text.Json;
-using Cmf.Common.Cli.Commands;
-using Cmf.Common.Cli.Commands.New;
-using Cmf.Common.Cli.Enums;
-using Cmf.Common.Cli.Utilities;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
+using Assert = tests.AssertWithMessage;
 
 namespace tests.Specs
 {
-    [TestClass]
     public class Build
     {
-        [TestInitialize]
-        public void Reset()
+        public Build()
         {
             var newCommand = new NewCommand();
             var cmd = new Command("x");
@@ -30,25 +24,25 @@ namespace tests.Specs
             }, console);
         }
 
-        [TestMethod]
+        [Fact]
         public void BusinessBuildWithSuccessTestWithSuccess()
         {
             TestConsole console = RunBuild(new BuildCommand(), "business", "Cmf.Custom.Business", "Cmf.Custom.Common.UnitTests/GenericTestsFailingTests.cs");
 
-            Assert.IsNotNull(console);
+            Assert.NotNull(console);
             string errors = console.Error.ToString().Trim();
-            Assert.AreEqual(0, errors.Length, "Errors found in console: {0}", errors);
+            Assert.True(0 == errors.Length, String.Format("Errors found in console: {0}", errors));
         }
 
-        [TestMethod]
+        [Fact]
         public void BusinessBuildWithSuccessTestFail()
         {
             TestConsole console = RunBuild(new BuildCommand(), "business", "Cmf.Custom.Business", "Cmf.Custom.Common.UnitTests/GenericTests.cs");
 
-            Assert.IsNotNull(console);
+            Assert.NotNull(console);
             string errors = console.Error.ToString().Trim();
-            Assert.AreNotEqual(0, errors.Length, "No errors found in console");
-            Assert.IsTrue(errors.Contains($"Command 'dotnet test ' did not finished successfully"), "Wrong errors found in console: {0}", errors);
+            Assert.False(0 == errors.Length, "No errors found in console");
+            Assert.True(errors.Contains($"Command 'dotnet test ' did not finished successfully"), String.Format("Wrong errors found in console: {0}", errors));
         }
 
         /// <summary>
@@ -66,7 +60,7 @@ namespace tests.Specs
                                    , string fileToDelete = null
                                    , string scaffoldingDir = null)
         {
-            var dir = scaffoldingDir ?? GenericUtilities.GetTmpDirectory();
+            var dir = scaffoldingDir ?? GetTmpDirectory();
             var console = new TestConsole();
             var cur = Directory.GetCurrentDirectory();
 
@@ -75,7 +69,7 @@ namespace tests.Specs
                 // place new fixture: an init'd repository
                 if (scaffoldingDir == null)
                 {
-                    GenericUtilities.CopyFixture($"build/{fixtureSubFolder}", new DirectoryInfo(dir));
+                    CopyFixture($"build/{fixtureSubFolder}", new DirectoryInfo(dir));
                 }
 
                 Directory.SetCurrentDirectory($"{dir}/{packageName}");
@@ -92,10 +86,6 @@ namespace tests.Specs
                 };
 
                 cmd.Invoke(args.ToArray(), console);
-            }
-            catch (Exception ex)
-            {
-                Assert.Fail(ex.ToString());
             }
             finally
             {
@@ -119,5 +109,46 @@ namespace tests.Specs
             }
             return console;
         }
+
+        #region helpers
+
+        private static string GetTmpDirectory()
+        {
+            var tmp = Path.Join(Path.GetTempPath(), Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8));
+            Directory.CreateDirectory(tmp);
+
+            Debug.WriteLine("Generating at " + tmp);
+            return tmp;
+        }
+
+        private static void CopyFixture(string fixtureName, DirectoryInfo target)
+        {
+            Directory.CreateDirectory(target.FullName);
+            var source = new DirectoryInfo(System.IO.Path.GetFullPath(
+                System.IO.Path.Join(
+            AppDomain.CurrentDomain.BaseDirectory,
+                        "..", "..", "..", "Fixtures", fixtureName)));
+            CopyAll(source, target);
+        }
+
+        private static void CopyAll(DirectoryInfo source, DirectoryInfo target)
+        {
+            // Copy each file into the new directory.
+            foreach (FileInfo fi in source.GetFiles())
+            {
+                Console.WriteLine(@"Copying {0}\{1}", target.FullName, fi.Name);
+                fi.CopyTo(Path.Combine(target.FullName, fi.Name), true);
+            }
+
+            // Copy each subdirectory using recursion.
+            foreach (DirectoryInfo diSourceSubDir in source.GetDirectories())
+            {
+                DirectoryInfo nextTargetSubDir =
+                    target.CreateSubdirectory(diSourceSubDir.Name);
+                CopyAll(diSourceSubDir, nextTargetSubDir);
+            }
+        }
+
+        #endregion helpers
     }
 }

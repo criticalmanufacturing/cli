@@ -1,4 +1,4 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System.IO.Abstractions.TestingHelpers;
 using System.Collections.Generic;
 using Cmf.Common.Cli.Objects;
@@ -8,14 +8,14 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO.Abstractions;
 using System.CommandLine.IO;
+using FluentAssertions;
 using tests.Objects;
 
 namespace tests.Specs
 {
-    [TestClass]
     public class ConsistencyCheckValidator
     {
-        [TestMethod]
+        [Fact]
         public void ConsistencyCheckValidator_HappyPath()
         {
             MockFileSystem fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
@@ -90,10 +90,10 @@ namespace tests.Specs
                 "test/Data/"
             }, console);
 
-            Assert.IsTrue(console.Error == null || string.IsNullOrEmpty(console.Error.ToString()), $"Consistency Check failed {console.Error.ToString()}");
+            Assert.True(console.Error == null || string.IsNullOrEmpty(console.Error.ToString()), $"Consistency Check failed {console.Error.ToString()}");
 
         }
-        [TestMethod]
+        [Fact]
         public void ConsistencyCheckValidator_FailData()
         {
             MockFileSystem fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
@@ -168,7 +168,7 @@ namespace tests.Specs
                 "test/Data/"
             }, console);
 
-            Assert.IsTrue(console.Error != null && console.Error.ToString().Contains("This root package dependencies must enforce version consistency. Root Version 1.1.0 Failed Package Version 1.2.0"), $"Consistency Check failed {console.Error.ToString()}");
+            console.Error.ToString().Should().Contain("This root package dependencies must enforce version consistency. Root Version 1.1.0 Failed Package Version 1.2.0", $"Consistency Check failed {console.Error.ToString()}");
 
         }
     }
