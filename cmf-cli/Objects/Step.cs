@@ -16,6 +16,13 @@ namespace Cmf.Common.Cli.Objects
         #region Public Properties
 
         /// <summary>
+        /// the order of the steps
+        /// </summary>
+        [XmlIgnore]
+        [JsonProperty(Order = 1)]
+        public int Order { get; set; }
+
+        /// <summary>
         /// Gets or sets the type.
         /// </summary>
         /// <value>
@@ -24,6 +31,16 @@ namespace Cmf.Common.Cli.Objects
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty(Order = 2)]
         public StepType? Type { get; set; }
+
+        /// <summary>
+        /// Gets or sets the type of the message.
+        /// </summary>
+        /// <value>
+        /// The type of the message.
+        /// </value>
+        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonProperty(Order = 3)]
+        public MessageType? MessageType { get; set; }
 
         /// <summary>
         /// Gets or sets the title.
@@ -35,15 +52,6 @@ namespace Cmf.Common.Cli.Objects
         public string Title { get; set; }
 
         /// <summary>
-        /// Gets or sets the on execute.
-        /// </summary>
-        /// <value>
-        /// The on execute.
-        /// </value>
-        [JsonProperty(Order = 6)]
-        public string OnExecute { get; set; }
-
-        /// <summary>
         /// Gets or sets the content path.
         /// </summary>
         /// <value>
@@ -51,6 +59,15 @@ namespace Cmf.Common.Cli.Objects
         /// </value>
         [JsonProperty(Order = 5)]
         public string ContentPath { get; set; }
+
+        /// <summary>
+        /// Gets or sets the on execute.
+        /// </summary>
+        /// <value>
+        /// The on execute.
+        /// </value>
+        [JsonProperty(Order = 6)]
+        public string OnExecute { get; set; }
 
         /// <summary>
         /// Gets or sets the file.
@@ -80,15 +97,41 @@ namespace Cmf.Common.Cli.Objects
         public string TargetDatabase { get; set; }
 
         /// <summary>
-        /// Gets or sets the type of the message.
+        /// Gets or sets the target directory.
         /// </summary>
         /// <value>
-        /// The type of the message.
+        /// The target directory.
         /// </value>
-        [JsonConverter(typeof(StringEnumConverter))]
-        [JsonProperty(Order = 3)]
-        public MessageType? MessageType { get; set; }
+        [JsonProperty(Order = 10)]
+        public string TargetDirectory { get; set; }
 
+        /// <summary>
+        /// Gets or sets the target directory.
+        /// </summary>
+        /// <value>
+        /// The target directory.
+        /// </value>
+        [JsonProperty(Order = 11)]
+        public string TargetFile { get; set; }
+
+        /// <summary>
+        /// Value
+        /// </summary>
+        /// <value>
+        /// Value.
+        /// </value>
+        [JsonProperty(Order = 12)]
+        public string Value { get; set; }
+
+        /// <summary>
+        /// ConfigPath
+        /// </summary>
+        /// <value>
+        /// ConfigPath.
+        /// </value>
+        [JsonProperty(Order = 13)]
+        public string ConfigPath { get; set; }
+               
         /// <summary>
         /// the path of the file to load via masterdata
         /// </summary>
@@ -129,12 +172,6 @@ namespace Cmf.Common.Cli.Objects
         /// </summary>
         public string ImportXMLObjectPath { get; set; }
 
-        /// <summary>
-        /// the order of the steps
-        /// </summary>
-        [XmlIgnore]
-        [JsonProperty(Order = 1)]
-        public int Order { get; set; }
 
         #endregion
 

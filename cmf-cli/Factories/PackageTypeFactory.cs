@@ -62,6 +62,7 @@ namespace Cmf.Common.Cli.Factories
                 PackageType.ExportedObjects => new ExportedObjectsPackageTypeHandler(cmfPackage),
                 PackageType.Database => new DatabasePackageTypeHandler(cmfPackage),
                 PackageType.Tests => new TestPackageTypeHandler(cmfPackage),
+                PackageType.IoTRepository => new IoTRepositoryHandler(cmfPackage),
                 _ => throw new NotImplementedException()
             };
 

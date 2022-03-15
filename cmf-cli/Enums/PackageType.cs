@@ -72,6 +72,10 @@
         /// <summary>
         /// The test
         /// </summary>
-        Tests = 13
+        Tests = 13,
+        /// <summary>
+        /// IoT Package For IoTRepository
+        /// </summary>
+        IoTRepository = 14
     }
 }

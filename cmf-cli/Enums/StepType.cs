@@ -53,6 +53,11 @@
         /// <summary>
         /// The enqueue SQL
         /// </summary>
-        EnqueueSql = 9
+        EnqueueSql = 9,
+
+        /// <summary>
+        /// Compiles IoT Repository Indexer
+        /// </summary>
+        GenerateRepositoryIndex = 10
     }
 }
