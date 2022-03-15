@@ -1,0 +1,14 @@
+{
+  "packageId": "<%= $CLI_PARAM_CustomPackageName %>.Packages.Repository",
+  "version": "<%= $CLI_PARAM_CustomPackageVersion %>",
+  "description": "Cmf Custom <%= $CLI_PARAM_Tenant %> <%= $CLI_PARAM_CustomPackageName %>.Packages Package for IoTRepository Deployment",
+  "packageType": "IoTRepository",
+  "isInstallable": true,
+  "isUniqueInstall": false,
+  "contentToPack": [
+    {
+      "source": "../src/*",
+      "target": "node_modules"
+    }
+  ]
+}

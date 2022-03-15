@@ -14,6 +14,12 @@
       ]
     }
   ],
+  "dependencies": [
+    {
+      "id": "<%= $CLI_PARAM_CustomPackageName %>.Packages.Repository",
+      "version": "<%= $CLI_PARAM_CustomPackageVersion %>"
+    }
+  ],
   "xmlInjection": [
     "ui.xml"
   ]

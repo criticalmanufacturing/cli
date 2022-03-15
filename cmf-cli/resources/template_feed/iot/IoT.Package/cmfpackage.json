@@ -10,7 +10,7 @@
       "id": "<%= $CLI_PARAM_CustomPackageName %>.Packages",
       "version": "<%= $CLI_PARAM_CustomPackageVersion %>"
     },
-	{
+	  {
       "id": "<%= $CLI_PARAM_CustomPackageName %>.Data",
       "version": "<%= $CLI_PARAM_CustomPackageVersion %>"
     }
