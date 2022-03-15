@@ -170,16 +170,23 @@ namespace Cmf.Common.Cli.Handlers
         /// <param name="outputDir">The output dir.</param>
         public override void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir)
         {
-            foreach (ContentToPack contentToPack in CmfPackage.ContentToPack)
+            GenerateIoTTGZPackages(CmfPackage, packageOutputDir);
+
+            base.Pack(packageOutputDir, outputDir);
+        }
+
+        public static void GenerateIoTTGZPackages(CmfPackage cmfPackage, IDirectoryInfo packageOutputDir)
+        {
+            foreach (ContentToPack contentToPack in cmfPackage.ContentToPack)
             {
                 if (contentToPack.Action == null || contentToPack.Action == PackAction.Pack)
                 {
-                    IDirectoryInfo[] packDirectories = CmfPackage.GetFileInfo().Directory.GetDirectories(contentToPack.Source);
+                    IDirectoryInfo[] packDirectories = cmfPackage.GetFileInfo().Directory.GetDirectories(contentToPack.Source);
 
                     foreach (IDirectoryInfo packDirectory in packDirectories)
                     {
                         string inputDirPath = packDirectory.FullName;
-                        IFileInfo packConfig = this.fileSystem.FileInfo.FromFileName($"{inputDirPath}/packconfig.json");
+                        IFileInfo packConfig = ExecutionContext.Instance.FileSystem.FileInfo.FromFileName($"{inputDirPath}/packconfig.json");
                         if (!packConfig.Exists)
                         {
                             Log.Warning("packconfig.json doesn't exist! packagePacker will not run.");
@@ -211,7 +218,7 @@ namespace Cmf.Common.Cli.Handlers
                 }
                 else if (contentToPack.Action == PackAction.Untar)
                 {
-                    IFileInfo tgzFile = this.fileSystem.FileInfo.FromFileName($"{CmfPackage.GetFileInfo().Directory.FullName}/{contentToPack.Source}");
+                    IFileInfo tgzFile = ExecutionContext.Instance.FileSystem.FileInfo.FromFileName($"{cmfPackage.GetFileInfo().Directory.FullName}/{contentToPack.Source}");
                     CmdCommand cmdCommand = new CmdCommand()
                     {
                         DisplayName = "tar -xzvf",
@@ -226,14 +233,12 @@ namespace Cmf.Common.Cli.Handlers
 
                     string packDirectoryName = packageJson == null ? tgzFile.Directory.Name : packageJson.name;
 
-                    IDirectoryInfo packageDirectory = this.fileSystem.DirectoryInfo.FromDirectoryName($"{packageOutputDir}/package");
-                    IDirectoryInfo destinationDirectory = this.fileSystem.DirectoryInfo.FromDirectoryName($"{packageOutputDir}/{contentToPack.Target}/{packDirectoryName}");
+                    IDirectoryInfo packageDirectory = ExecutionContext.Instance.FileSystem.DirectoryInfo.FromDirectoryName($"{packageOutputDir}/package");
+                    IDirectoryInfo destinationDirectory = ExecutionContext.Instance.FileSystem.DirectoryInfo.FromDirectoryName($"{packageOutputDir}/{contentToPack.Target}/{packDirectoryName}");
                     destinationDirectory.Parent.Create();
                     packageDirectory.MoveTo(destinationDirectory.FullName);
                 }
             }
-
-            base.Pack(packageOutputDir, outputDir);
         }
     }
 }
