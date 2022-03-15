@@ -433,6 +433,29 @@ namespace tests.Specs
         }
 
         [Fact]
+        public void IoTRepository()
+        {
+            string dir = GetTmpDirectory();
+            string packageId = "Cmf.Custom.IoT";
+            string packageIdRepositoryData = "Cmf.Custom.IoT.Packages.Repository";
+            string packageFolder = "IoTPackages";
+            string packageRepositoryFolder = "IoTRepository";
+
+            CopyFixture("new", new DirectoryInfo(dir));
+            RunNew(new IoTCommand(), packageId, dir);
+
+            // Validate IoT Package
+            string repositoryFolderPath = $"{ packageId }/{ packageFolder}/{ packageRepositoryFolder}";
+            Assert.True(Directory.Exists(repositoryFolderPath), "Package repository folder is missing");
+            Assert.True(File.Exists($"{repositoryFolderPath}/cmfpackage.json"), "Folder AutomationWorkFlows is missing");
+
+            Assert.Equal(packageIdRepositoryData, GetPackageProperty("packageId", $"{repositoryFolderPath}/cmfpackage.json"), "Package Id does not match expected");
+            Assert.Equal(PackageType.IoTRepository.ToString(), GetPackageProperty("packageType", $"{repositoryFolderPath}/cmfpackage.json"), "Package Type does not match expected");
+            Assert.Equal(GetPackageProperty("version", $"{repositoryFolderPath}/cmfpackage.json"),
+                GetPackageProperty("version", $"{repositoryFolderPath}/cmfpackage.json"), "Version does not match expected");
+        }
+
+        [Fact]
         public void Database()
         {
             RunDatabase(null);
