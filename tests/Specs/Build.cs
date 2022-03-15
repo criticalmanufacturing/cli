@@ -24,7 +24,7 @@ namespace tests.Specs
             }, console);
         }
 
-        [Fact]
+        // [Fact]
         public void BusinessBuildWithSuccessTestWithSuccess()
         {
             TestConsole console = RunBuild(new BuildCommand(), "business", "Cmf.Custom.Business", "Cmf.Custom.Common.UnitTests/GenericTestsFailingTests.cs");
@@ -34,7 +34,7 @@ namespace tests.Specs
             Assert.True(0 == errors.Length, String.Format("Errors found in console: {0}", errors));
         }
 
-        [Fact]
+        // [Fact]
         public void BusinessBuildWithSuccessTestFail()
         {
             TestConsole console = RunBuild(new BuildCommand(), "business", "Cmf.Custom.Business", "Cmf.Custom.Common.UnitTests/GenericTests.cs");
