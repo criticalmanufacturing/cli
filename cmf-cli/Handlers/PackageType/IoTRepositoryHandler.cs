@@ -33,7 +33,7 @@ namespace Cmf.Common.Cli.Handlers
                     {
                         new Step(StepType.DeployFiles)
                         {
-                            ContentPath= "runtimePackages/**" ,
+                            ContentPath= "*.tgz" ,
                             TargetDirectory= "/opt/connectiot/"
                         },
                         new Step(StepType.GenerateRepositoryIndex)
@@ -96,7 +96,7 @@ namespace Cmf.Common.Cli.Handlers
         /// <param name="outputDir">The output dir.</param>
         public override void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir)
         {
-            IoTPackageTypeHandler.GenerateIoTTGZPackages(CmfPackage, packageOutputDir);
+            IoTPackageTypeHandler.GenerateIoTTGZPackages(CmfPackage, packageOutputDir, "");
 
             base.Pack(packageOutputDir, outputDir);
         }

@@ -175,7 +175,7 @@ namespace Cmf.Common.Cli.Handlers
             base.Pack(packageOutputDir, outputDir);
         }
 
-        public static void GenerateIoTTGZPackages(CmfPackage cmfPackage, IDirectoryInfo packageOutputDir)
+        public static void GenerateIoTTGZPackages(CmfPackage cmfPackage, IDirectoryInfo packageOutputDir, string tgzPackagesDirectory = "/runtimePackages")
         {
             foreach (ContentToPack contentToPack in cmfPackage.ContentToPack)
             {
@@ -194,7 +194,7 @@ namespace Cmf.Common.Cli.Handlers
                         }
                         Log.Debug("Running Package Packer");
 
-                        string outputDirPath = $"{packageOutputDir}/runtimePackages";
+                        string outputDirPath = $"{packageOutputDir}{tgzPackagesDirectory}";
 
                         NPMCommand npmCommand = new NPMCommand()
                         {
