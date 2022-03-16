@@ -33,7 +33,7 @@ namespace Cmf.Common.Cli.Handlers
                     {
                         new Step(StepType.DeployFiles)
                         {
-                            ContentPath= "*.tgz" ,
+                            ContentPath= "runtimePackages/**" ,
                             TargetDirectory= "/opt/connectiot/"
                         },
                         new Step(StepType.GenerateRepositoryIndex)
