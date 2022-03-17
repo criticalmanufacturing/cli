@@ -1,5 +1,4 @@
-﻿using Cmf.Common.Cli.Objects;
-using Cmf.Common.Cli.Utilities;
+﻿using Cmf.CLI.Objects;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -9,14 +8,15 @@ using System.Linq;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
-using Utils = Cmf.Common.Cli.Utilities.FileSystemUtilities;
+using Cmf.CLI.Utilities;
+using Utils = Cmf.CLI.Utilities.FileSystemUtilities;
 
-namespace Cmf.Common.Cli.Handlers
+namespace Cmf.CLI.Handlers
 {
     /// <summary>
     ///
     /// </summary>
-    /// <seealso cref="Cmf.Common.Cli.Handlers.DataPackageTypeHandler" />
+    /// <seealso cref="DataPackageTypeHandler" />
     public class IoTDataPackageTypeHandler : DataPackageTypeHandler
     {
         /// <summary>
@@ -41,7 +41,7 @@ namespace Cmf.Common.Cli.Handlers
             List<string> automationWorkflowDirectory = this.fileSystem.Directory.GetDirectories(CmfPackage.GetFileInfo().DirectoryName, "AutomationWorkflowFiles", SearchOption.AllDirectories).ToList();
 
             // Get Parent Root
-            IDirectoryInfo parentRootDirectory = Utils.GetPackageRootByType(CmfPackage.GetFileInfo().DirectoryName, PackageType.Root, this.fileSystem);
+            IDirectoryInfo parentRootDirectory = FileSystemUtilities.GetPackageRootByType(CmfPackage.GetFileInfo().DirectoryName, PackageType.Root, this.fileSystem);
             CmfPackageCollection cmfPackageIoT = parentRootDirectory.LoadCmfPackagesFromSubDirectories(packageType: PackageType.IoT);
 
             #region GetCustomPackages

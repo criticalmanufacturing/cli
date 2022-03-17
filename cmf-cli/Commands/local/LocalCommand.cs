@@ -1,12 +1,12 @@
 using System.CommandLine;
 using Cmf.CLI.Core.Attributes;
 
-namespace Cmf.Common.Cli.Commands
+namespace Cmf.CLI.Commands
 {
     /// <summary>
     /// Local commands. TODO: migrate this to the dev plugin.
     /// </summary>
-    /// <seealso cref="Cmf.Common.Cli.Commands.BaseCommand" />
+    /// <seealso cref="BaseCommand" />
     [CmfCommand("local", IsHidden = true)]
     public class LocalCommand : BaseCommand
     {

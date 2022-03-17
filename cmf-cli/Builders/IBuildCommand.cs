@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace Cmf.Common.Cli.Builders
+namespace Cmf.CLI.Builders
 {
     /// <summary>
     ///

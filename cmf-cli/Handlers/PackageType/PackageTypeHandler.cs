@@ -1,8 +1,4 @@
-﻿using Cmf.Common.Cli.Builders;
-using Cmf.Common.Cli.Constants;
-using Cmf.Common.Cli.Interfaces;
-using Cmf.Common.Cli.Objects;
-using Cmf.Common.Cli.Utilities;
+﻿using Cmf.CLI.Objects;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -15,13 +11,17 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Xml.Linq;
 using System.Xml.Serialization;
+using Cmf.CLI.Builders;
+using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
+using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Interfaces;
+using Cmf.CLI.Utilities;
 
 [assembly: InternalsVisibleTo("tests")]
-
-namespace Cmf.Common.Cli.Handlers
+namespace Cmf.CLI.Handlers
 {
     /// <summary>
     ///
@@ -113,14 +113,14 @@ namespace Cmf.Common.Cli.Handlers
         /// Generates the deployment framework manifest.
         /// </summary>
         /// <param name="packageOutputDir">The package output dir.</param>
-        /// <exception cref="Cmf.Common.Cli.Utilities.CliException"></exception>
+        /// <exception cref="CliException"></exception>
         internal virtual void GenerateDeploymentFrameworkManifest(IDirectoryInfo packageOutputDir)
         {
             Log.Information("Generating DeploymentFramework manifest");
             string path = $"{packageOutputDir.FullName}/{CliConstants.DeploymentFrameworkManifestFileName}";
 
             // Get Template
-            string fileContent = GenericUtilities.GetEmbeddedResourceContent($"{CliConstants.FolderTemplates}/{CliConstants.DeploymentFrameworkManifestFileName}");
+            string fileContent = ResourceUtilities.GetEmbeddedResourceContent($"{CliConstants.FolderTemplates}/{CliConstants.DeploymentFrameworkManifestFileName}");
 
             StringReader dFManifestReader = new(fileContent);
             XDocument dFManifestTemplate = XDocument.Load(dFManifestReader);
@@ -491,7 +491,7 @@ namespace Cmf.Common.Cli.Handlers
             var filesToPack = GetContentToPack(packageOutputDir);
             if (CmfPackage.ContentToPack.HasAny() && !filesToPack.HasAny())
             {
-                throw new Exception(string.Format(CliMessages.ContentToPackNotFound, CmfPackage.PackageId, CmfPackage.Version));
+                throw new Exception(string.Format(CoreMessages.ContentToPackNotFound, CmfPackage.PackageId, CmfPackage.Version));
             }
 
             if (filesToPack != null)

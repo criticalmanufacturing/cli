@@ -1,13 +1,13 @@
-﻿using Cmf.Common.Cli.Builders;
-using Cmf.Common.Cli.Enums;
-using Cmf.Common.Cli.Objects;
-using System.Collections.Generic;
-using Cmf.Common.Cli.Commands.restore;
+﻿using System.Collections.Generic;
 using System.IO.Abstractions;
-using Cmf.Common.Cli.Constants;
-using Cmf.Common.Cli.Utilities;
+using Cmf.CLI.Constants;
+using Cmf.CLI.Core;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Handlers;
+using Cmf.CLI.Utilities;
 
-namespace Cmf.Common.Cli.Handlers
+namespace Cmf.CLI.Handlers
 {
 
     /// <summary>
@@ -64,7 +64,7 @@ namespace Cmf.Common.Cli.Handlers
                 string clientId = configJson.config.clientId;
 
                 // Get Template
-                string fileContent = GenericUtilities.GetEmbeddedResourceContent($"{CliConstants.FolderTemplates}/{CmfPackage.PackageType}/{CliConstants.CmfPackagePresentationConfig}");
+                string fileContent = ResourceUtilities.GetEmbeddedResourceContent($"{CliConstants.FolderTemplates}/{CmfPackage.PackageType}/{CliConstants.CmfPackagePresentationConfig}");
 
                 fileContent = fileContent.Replace(CliConstants.TokenPackageId, packageName);
                 fileContent = fileContent.Replace(CliConstants.StrategyPath, CliConstants.DefaultStrategyPath).Replace(CliConstants.Tenant, FileSystemUtilities.ReadProjectConfig(this.fileSystem).RootElement.GetProperty("Tenant").GetString());

@@ -8,10 +8,10 @@ using System.IO.Abstractions;
 using System.Text.Json;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Enums;
-using Cmf.Common.Cli.Objects;
-using Cmf.Common.Cli.Utilities;
+using Cmf.CLI.Objects;
+using Cmf.CLI.Utilities;
 
-namespace Cmf.Common.Cli.Commands.New
+namespace Cmf.CLI.Commands.New
 {
     /// <summary>
     /// Generates the Business layer structure

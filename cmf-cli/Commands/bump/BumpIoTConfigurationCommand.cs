@@ -1,4 +1,3 @@
-using Cmf.Common.Cli.Utilities;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
@@ -8,14 +7,15 @@ using System.IO.Abstractions;
 using System.Linq;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Utilities;
 
-namespace Cmf.Common.Cli.Commands
+namespace Cmf.CLI.Commands
 {
     /// <summary>
     ///
     /// </summary>
-    /// <seealso cref="Cmf.Common.Cli.Commands.BumpCommand" />
-    /// <seealso cref="Cmf.Common.Cli.Commands.BaseCommand" />
+    /// <seealso cref="BumpCommand" />
+    /// <seealso cref="BaseCommand" />
     [CmfCommand(name: "configuration", Parent = "iot")]
     public class BumpIoTConfigurationCommand : BumpCommand
     {

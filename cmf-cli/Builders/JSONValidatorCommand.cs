@@ -1,4 +1,4 @@
-using Cmf.Common.Cli.Objects;
+using Cmf.CLI.Objects;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,13 +8,13 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Cmf.CLI.Core.Objects;
 
-namespace Cmf.Common.Cli.Builders
+namespace Cmf.CLI.Builders
 {
     /// <summary>
     /// Validator for json files
     /// </summary>
-    /// <seealso cref="Cmf.Common.Cli.Builders.ProcessCommand" />
-    /// <seealso cref="Cmf.Common.Cli.Builders.IBuildCommand" />
+    /// <seealso cref="ProcessCommand" />
+    /// <seealso cref="IBuildCommand" />
     public class JSONValidatorCommand : IBuildCommand
     {
         /// <summary>

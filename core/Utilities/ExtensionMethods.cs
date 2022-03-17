@@ -12,7 +12,7 @@ using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 
-namespace Cmf.Common.Cli.Utilities
+namespace Cmf.CLI.Utilities
 {
     /// <summary>
     ///

@@ -1,9 +1,9 @@
 using Xunit;
 using System.IO.Abstractions.TestingHelpers;
 using System.Collections.Generic;
-using Cmf.Common.Cli.Objects;
-using Cmf.Common.Cli.Commands;
-using Cmf.Common.Cli.Handlers;
+using Cmf.CLI.Objects;
+using Cmf.CLI.Commands;
+using Cmf.CLI.Handlers;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO.Abstractions;

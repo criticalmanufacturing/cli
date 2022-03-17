@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Cmf.Common.Cli {
+namespace Cmf.CLI {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace Cmf.Common.Cli {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Cmf.Common.Cli.CliMessages", typeof(CliMessages).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Cmf.CLI.CliMessages", typeof(CliMessages).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

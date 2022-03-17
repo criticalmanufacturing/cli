@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Xml.Serialization;
-using Cmf.Common.Cli.Utilities;
+using Cmf.CLI.Utilities;
 using Newtonsoft.Json;
 
 namespace Cmf.CLI.Core.Objects

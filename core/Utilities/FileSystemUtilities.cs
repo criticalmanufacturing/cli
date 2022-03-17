@@ -13,7 +13,7 @@ using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 
-namespace Cmf.Common.Cli.Utilities
+namespace Cmf.CLI.Utilities
 {
     /// <summary>
     ///
@@ -239,7 +239,7 @@ namespace Cmf.Common.Cli.Utilities
         /// Gets the project root.
         /// </summary>
         /// <returns></returns>
-        /// <exception cref="Cmf.Common.Cli.Utilities.CliException">Cannot find project root. Are you in a valid project directory?</exception>
+        /// <exception cref="CliException">Cannot find project root. Are you in a valid project directory?</exception>
         /// <exception cref="CliException">Cannot find project root. Are you in a valid project directory?</exception>
         public static IDirectoryInfo GetProjectRoot(IFileSystem fileSystem, bool throwException = false)
         {
@@ -514,7 +514,7 @@ namespace Cmf.Common.Cli.Utilities
                             entryStream.Write(fileSystem.File.ReadAllBytes(file.FullName));
                     }
                     }
-                }
+                    }
 
                 using (Stream zipToOpen = fileSystem.FileStream.Create(filePath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 0x1000, useAsync: false))
                 {

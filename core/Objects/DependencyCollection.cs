@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Cmf.Common.Cli.Utilities;
+using Cmf.CLI.Utilities;
 
 namespace Cmf.CLI.Core.Objects
 {
     /// <summary>
     ///
     /// </summary>
-    /// <seealso cref="System.Collections.Generic.List{Cmf.Common.Cli.Objects.Dependency}" />
+    /// <seealso cref="System.Collections.Generic.List{Cmf.CLI.Core.Objects.Dependency}" />
     public class DependencyCollection : List<Dependency>
     {
         /// <summary>

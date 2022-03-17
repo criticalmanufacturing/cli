@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Enums;
 
-namespace Cmf.Common.Cli.Commands.New
+namespace Cmf.CLI.Commands.New
 {
     /// <summary>
     /// Generates Database package structure

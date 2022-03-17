@@ -1,4 +1,4 @@
-﻿using Cmf.Common.Cli;
+﻿using Cmf.CLI;
 using Spectre.Console;
 using System;
 using System.CommandLine;
