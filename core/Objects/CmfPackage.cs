@@ -11,13 +11,14 @@ using System.IO.Abstractions;
 using System.IO.Compression;
 using System.Linq;
 using System.Xml.Linq;
+using Cmf.CLI.Core;
 
 namespace Cmf.Common.Cli.Objects
 {
     /// <summary>
     ///
     /// </summary>
-    /// <seealso cref="System.IEquatable{Cmf.Common.Cli.Objects.CmfPackage}" />
+    /// <seealso cref="CmfPackage" />
     [JsonObject]
     public class CmfPackage : IEquatable<CmfPackage>
     {
@@ -39,7 +40,8 @@ namespace Cmf.Common.Cli.Objects
 
         #region Internal Properties
 
-        internal IFileSystem FileSystem => fileSystem;
+        [JsonIgnore]
+        public IFileSystem FileSystem => fileSystem;
 
         /// <summary>
         /// Gets the name of the package.
@@ -48,7 +50,7 @@ namespace Cmf.Common.Cli.Objects
         /// The name of the package.
         /// </value>
         [JsonIgnore]
-        internal string PackageName { get; private set; }
+        public string PackageName { get; private set; }
 
         /// <summary>
         /// Gets the name of the zip package.
@@ -57,7 +59,7 @@ namespace Cmf.Common.Cli.Objects
         /// The name of the zip package.
         /// </value>
         [JsonIgnore]
-        internal string ZipPackageName { get; private set; }
+        public string ZipPackageName { get; private set; }
 
         #endregion Internal Properties
 
@@ -183,7 +185,7 @@ namespace Cmf.Common.Cli.Objects
         /// The steps.
         /// </value>
         [JsonProperty(Order = 12)]
-        public List<Step> Steps { get; internal set; }
+        public List<Step> Steps { get; set; }
 
         /// <summary>
         /// Gets or sets the content to pack.
@@ -261,21 +263,21 @@ namespace Cmf.Common.Cli.Objects
             {
                 if (!ContentToPack.HasAny())
                 {
-                    throw new CliException(string.Format(CliMessages.MissingMandatoryPropertyInFile, nameof(ContentToPack), $"{FileInfo.FullName}"));
+                    throw new CliException(string.Format(CoreMessages.MissingMandatoryPropertyInFile, nameof(ContentToPack), $"{FileInfo.FullName}"));
                 }
             }
 
             if (PackageType.Equals(PackageType.Data) &&
                 !(IsUniqueInstall ?? false))
             {
-                throw new CliException(string.Format(CliMessages.InvalidValue, this.GetType(), "IsUniqueInstall", true));
+                throw new CliException(string.Format(CoreMessages.InvalidValue, this.GetType(), "IsUniqueInstall", true));
             }
 
             // criticalmanufacturing.deploymentmetadata or cmf.environment should be part of the dependencies in a package of Type Root
             if (PackageType.Equals(PackageType.Root) &&
                 !Dependencies.HasAny(d => d.Id.IgnoreCaseEquals(Dependency.DefaultDependenciesToIgnore[0]) || d.Id.IgnoreCaseEquals(Dependency.DefaultDependenciesToIgnore[1])))
             {
-                throw new CliException(string.Format(CliMessages.MissingMandatoryDependency, $"{ Dependency.DefaultDependenciesToIgnore[0] } or { Dependency.DefaultDependenciesToIgnore[1] }", string.Empty));
+                throw new CliException(string.Format(CoreMessages.MissingMandatoryDependency, $"{ Dependency.DefaultDependenciesToIgnore[0] } or { Dependency.DefaultDependenciesToIgnore[1] }", string.Empty));
             }
 
             // When is fixed by the product team, this can be uncommented
@@ -507,7 +509,7 @@ namespace Cmf.Common.Cli.Objects
                 var allDirectories = repoUris?.All(r => r.IsDirectory());
                 if (allDirectories == false)
                 {
-                    Log.Error(CliMessages.UrlsNotSupported);
+                    Log.Error(CoreMessages.UrlsNotSupported);
                     return;
                 }
 
@@ -592,7 +594,7 @@ namespace Cmf.Common.Cli.Objects
             fileSystem ??= ExecutionContext.Instance.FileSystem;
             if (!file.Exists)
             {
-                throw new CliException(string.Format(CliMessages.NotFound, file.FullName));
+                throw new CliException(string.Format(CoreMessages.NotFound, file.FullName));
             }
 
             string fileContent = file.ReadToString();
@@ -635,7 +637,7 @@ namespace Cmf.Common.Cli.Objects
                 {
                     using (ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read))
                     {
-                        var manifest = zip.GetEntry(CliConstants.DeploymentFrameworkManifestFileName);
+                        var manifest = zip.GetEntry(CoreConstants.DeploymentFrameworkManifestFileName);
                         if (manifest != null)
                         {
                             using var stream = manifest.Open();
@@ -670,7 +672,7 @@ namespace Cmf.Common.Cli.Objects
             XElement rootNode = dFManifestTemplate.Element("deploymentPackage", true);
             if (rootNode == null)
             {
-                throw new CliException(string.Format(CliMessages.InvalidManifestFile));
+                throw new CliException(string.Format(CoreMessages.InvalidManifestFile));
             }
             DependencyCollection deps = new();
             DependencyCollection testPackages = new();
@@ -738,7 +740,7 @@ namespace Cmf.Common.Cli.Objects
         /// </returns>
         public bool IsRootPackage()
         {
-            return Keywords != null && Keywords.Contains(CliConstants.RootPackageDefaultKeyword);
+            return Keywords != null && Keywords.Contains(CoreConstants.RootPackageDefaultKeyword);
         }
 
         /// <summary>

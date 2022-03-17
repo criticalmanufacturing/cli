@@ -112,7 +112,7 @@ namespace Cmf.Common.Cli.Utilities
 
             foreach (IDirectoryInfo subDirectory in subDirectories)
             {
-                IFileInfo[] cmfPackageFiles = subDirectory.GetFiles(CliConstants.CmfPackageFileName, SearchOption.AllDirectories);
+                IFileInfo[] cmfPackageFiles = subDirectory.GetFiles(CoreConstants.CmfPackageFileName, SearchOption.AllDirectories);
                 foreach (IFileInfo cmfPackageFile in cmfPackageFiles)
                 {
                     CmfPackage cmfPackage = CmfPackage.Load(cmfPackageFile, setDefaultValues);
@@ -283,7 +283,7 @@ namespace Cmf.Common.Cli.Utilities
         /// </returns>
         private static bool IsToken(this string value)
         {
-            return value.StartsWith(CliConstants.TokenStartElement) && value.EndsWith(CliConstants.TokenEndElement);
+            return value.StartsWith(CoreConstants.TokenStartElement) && value.EndsWith(CoreConstants.TokenEndElement);
         }
 
         /// <summary>
@@ -293,8 +293,8 @@ namespace Cmf.Common.Cli.Utilities
         /// <returns></returns>
         private static string GetTokenName(this string token)
         {
-            int startIndex = token.IndexOf(CliConstants.TokenStartElement, 0) + CliConstants.TokenStartElement.Length;
-            int endIndex = token.IndexOf(CliConstants.TokenEndElement, startIndex);
+            int startIndex = token.IndexOf(CoreConstants.TokenStartElement, 0) + CoreConstants.TokenStartElement.Length;
+            int endIndex = token.IndexOf(CoreConstants.TokenEndElement, startIndex);
 
             return token[startIndex..endIndex];
         }

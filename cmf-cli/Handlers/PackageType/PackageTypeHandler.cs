@@ -16,6 +16,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Xml.Linq;
 using System.Xml.Serialization;
+using Cmf.CLI.Core;
 
 [assembly: InternalsVisibleTo("tests")]
 
@@ -127,7 +128,7 @@ namespace Cmf.Common.Cli.Handlers
             XElement rootNode = dFManifestTemplate.Element("deploymentPackage", true);
             if (rootNode == null)
             {
-                throw new CliException(string.Format(CliMessages.InvalidManifestFile));
+                throw new CliException(string.Format(CoreMessages.InvalidManifestFile));
             }
 
             // List of empty Elements that we want to remove from the final file
@@ -153,7 +154,7 @@ namespace Cmf.Common.Cli.Handlers
 
                         if (!xmlFile.Exists || string.IsNullOrEmpty(xmlFileContent))
                         {
-                            throw new CliException(string.Format(CliMessages.NotFound, xmlFile.FullName));
+                            throw new CliException(string.Format(CoreMessages.NotFound, xmlFile.FullName));
                         }
 
                         StringReader reader = new(xmlFileContent);
@@ -249,7 +250,7 @@ namespace Cmf.Common.Cli.Handlers
                     if (ignoreFile == null)
                     {
                         string filePath = this.fileSystem.Path.Join(packDirectory.FullName, ignoreFileName);
-                        Log.Warning(string.Format(CliMessages.NotFound, filePath));
+                        Log.Warning(string.Format(CoreMessages.NotFound, filePath));
                     }
 
                     foreach (string ignore in ignoreFile.ReadToStringList())
@@ -371,7 +372,7 @@ namespace Cmf.Common.Cli.Handlers
                             foreach (IDirectoryInfo packDirectory in _directoriesToPack)
                             {
                                 // If a package.json exists the packDirectoryName needs to change to the name in the package.json
-                                dynamic _packageJson = packDirectory.GetFile(CliConstants.PackageJson);
+                                dynamic _packageJson = packDirectory.GetFile(CoreConstants.PackageJson);
 
                                 string _packDirectoryName = _packageJson == null ? packDirectory.Name : _packageJson.name;
 
@@ -410,7 +411,7 @@ namespace Cmf.Common.Cli.Handlers
                                     continue;
                                 }
 
-                            string destPackFile = $"{packageOutputDir.FullName}/{_target}/{packFile.Name}";
+                                string destPackFile = $"{packageOutputDir.FullName}/{_target}/{packFile.Name}";
                                 filesToPack.Add(new()
                                 {
                                     ContentToPack = contentToPack,
@@ -422,7 +423,7 @@ namespace Cmf.Common.Cli.Handlers
                             #endregion
                         }
                     }
-                }
+            }
 
             return filesToPack;
         }
@@ -485,7 +486,7 @@ namespace Cmf.Common.Cli.Handlers
         /// <param name="packageOutputDir">The package output dir.</param>
         /// <param name="outputDir">The output dir.</param>
         public virtual void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir)
-            {
+        {
             var filesToPack = GetContentToPack(packageOutputDir);
             if (CmfPackage.ContentToPack.HasAny() && !filesToPack.HasAny())
             {
@@ -502,7 +503,7 @@ namespace Cmf.Common.Cli.Handlers
                     if (!_targetFolder.Exists)
                     {
                         _targetFolder.Create();
-            }
+                    }
                 });
             }
 
@@ -530,91 +531,91 @@ namespace Cmf.Common.Cli.Handlers
             {
                 this.CmfPackage.LoadDependencies(repoUris, ctx, true);
                 ctx.Status($"Restoring {rootIdentifier} dependency tree...");
-            if (this.CmfPackage.Dependencies == null)
-            {
-                Log.Information($"No dependencies declared for package {rootIdentifier}");
-                return;
-            }
-
-            // flatten dependency tree. We need to obtain all dependencies
-            var allDependencies = this.CmfPackage.Dependencies.Flatten(
-                dependency => dependency.IsMissing || dependency.IsIgnorable ?
-                    new DependencyCollection() :
-                    dependency.CmfPackage.Dependencies).ToArray();
-
-            var missingDependencies = allDependencies.Where(d => d.IsMissing).ToArray();
-            if (missingDependencies.Any())
-            {
-                Log.Warning($"Dependencies missing:{Environment.NewLine}{string.Join(Environment.NewLine, missingDependencies.Select(d => $"{d.Id}@{d.Version}"))}");
-            }
-
-            var foundDependencies = allDependencies.Where(d => !d.IsMissing && d.CmfPackage.Location == PackageLocation.Repository).ToArray();
-            if (!foundDependencies.Any())
-            {
-                Log.Information("No present remote dependencies to restore. Exiting...");
-                return;
-            }
-            else
-            {
-                Log.Verbose($"Found {foundDependencies.Length} actionable dependencies in the {rootIdentifier} dependency tree. Restoring...");
-            }
-
-            if (this.DependenciesFolder.Exists)
-            {
-                Log.Debug($"Deleting directory {this.DependenciesFolder.FullName} and all its contents");
-                this.DependenciesFolder.Delete(true);
-            }
-            if (!this.DependenciesFolder.Exists)
-            {
-                this.DependenciesFolder.Create();
-                Log.Debug($"Created Dependencies directory at {this.DependenciesFolder.FullName}");
-            }
-            foreach (var dependency in foundDependencies)
-            {
-                var identifier = $"{dependency.Id}@{dependency.Version}";
-                Log.Debug($"Processing dependency {identifier}...");
-                Log.Debug($"Found package {identifier} at {dependency.CmfPackage.Uri.AbsoluteUri}");
-                if (dependency.CmfPackage.Uri.IsDirectory())
+                if (this.CmfPackage.Dependencies == null)
                 {
-                        using (Stream zipToOpen = this.fileSystem.FileInfo.FromFileName(dependency.CmfPackage.Uri.LocalPath).OpenRead())
+                    Log.Information($"No dependencies declared for package {rootIdentifier}");
+                    return;
+                }
+
+                // flatten dependency tree. We need to obtain all dependencies
+                var allDependencies = this.CmfPackage.Dependencies.Flatten(
+                    dependency => dependency.IsMissing || dependency.IsIgnorable ?
+                        new DependencyCollection() :
+                        dependency.CmfPackage.Dependencies).ToArray();
+
+                var missingDependencies = allDependencies.Where(d => d.IsMissing).ToArray();
+                if (missingDependencies.Any())
+                {
+                    Log.Warning($"Dependencies missing:{Environment.NewLine}{string.Join(Environment.NewLine, missingDependencies.Select(d => $"{d.Id}@{d.Version}"))}");
+                }
+
+                var foundDependencies = allDependencies.Where(d => !d.IsMissing && d.CmfPackage.Location == PackageLocation.Repository).ToArray();
+                if (!foundDependencies.Any())
+                {
+                    Log.Information("No present remote dependencies to restore. Exiting...");
+                    return;
+                }
+                else
+                {
+                    Log.Verbose($"Found {foundDependencies.Length} actionable dependencies in the {rootIdentifier} dependency tree. Restoring...");
+                }
+
+                if (this.DependenciesFolder.Exists)
+                {
+                    Log.Debug($"Deleting directory {this.DependenciesFolder.FullName} and all its contents");
+                    this.DependenciesFolder.Delete(true);
+                }
+                if (!this.DependenciesFolder.Exists)
+                {
+                    this.DependenciesFolder.Create();
+                    Log.Debug($"Created Dependencies directory at {this.DependenciesFolder.FullName}");
+                }
+                foreach (var dependency in foundDependencies)
+                {
+                    var identifier = $"{dependency.Id}@{dependency.Version}";
+                    Log.Debug($"Processing dependency {identifier}...");
+                    Log.Debug($"Found package {identifier} at {dependency.CmfPackage.Uri.AbsoluteUri}");
+                    if (dependency.CmfPackage.Uri.IsDirectory())
                     {
-                        using (ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read))
+                        using (Stream zipToOpen = this.fileSystem.FileInfo.FromFileName(dependency.CmfPackage.Uri.LocalPath).OpenRead())
                         {
-                            // these tuples allow us to rewrite entry paths
-                            var entriesToExtract = new List<Tuple<ZipArchiveEntry, string>>();
-                            entriesToExtract.AddRange(zip.Entries.Select(entry => new Tuple<ZipArchiveEntry, string>(entry, entry.FullName)));
-
-                            foreach (var entry in entriesToExtract)
+                            using (ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read))
                             {
-                                var target = this.fileSystem.Path.Join(this.DependenciesFolder.FullName, identifier, entry.Item2);
-                                var targetDir = this.fileSystem.Path.GetDirectoryName(target);
-                                if (target.EndsWith("/"))
-                                {
-                                    // this a dotnet bug: if a folder contains a ., the library assumes it's a file and adds it as an entry
-                                    // however, afterwards all folder contents are separate entries, so we can just skip these
-                                    continue;
-                                }
+                                // these tuples allow us to rewrite entry paths
+                                var entriesToExtract = new List<Tuple<ZipArchiveEntry, string>>();
+                                entriesToExtract.AddRange(zip.Entries.Select(entry => new Tuple<ZipArchiveEntry, string>(entry, entry.FullName)));
 
-                                if (!fileSystem.File.Exists(target)) // TODO: support overwriting if requested
+                                foreach (var entry in entriesToExtract)
                                 {
-                                    var overwrite = false;
-                                    Log.Debug($"Extracting {entry.Item1.FullName} to {target}");
-                                    if (!string.IsNullOrEmpty(targetDir))
+                                    var target = this.fileSystem.Path.Join(this.DependenciesFolder.FullName, identifier, entry.Item2);
+                                    var targetDir = this.fileSystem.Path.GetDirectoryName(target);
+                                    if (target.EndsWith("/"))
                                     {
-                                        fileSystem.Directory.CreateDirectory(targetDir);
+                                        // this a dotnet bug: if a folder contains a ., the library assumes it's a file and adds it as an entry
+                                        // however, afterwards all folder contents are separate entries, so we can just skip these
+                                        continue;
                                     }
 
-                                    entry.Item1.ExtractToFile(target, overwrite, fileSystem);
-                                }
-                                else
-                                {
-                                    Log.Debug($"Skipping {target}, file exists");
+                                    if (!fileSystem.File.Exists(target)) // TODO: support overwriting if requested
+                                    {
+                                        var overwrite = false;
+                                        Log.Debug($"Extracting {entry.Item1.FullName} to {target}");
+                                        if (!string.IsNullOrEmpty(targetDir))
+                                        {
+                                            fileSystem.Directory.CreateDirectory(targetDir);
+                                        }
+
+                                        entry.Item1.ExtractToFile(target, overwrite, fileSystem);
+                                    }
+                                    else
+                                    {
+                                        Log.Debug($"Skipping {target}, file exists");
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
             });
         }
 

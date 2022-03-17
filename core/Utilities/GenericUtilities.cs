@@ -8,6 +8,7 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Cmf.CLI.Core;
 
 namespace Cmf.Common.Cli.Utilities
 {
@@ -158,7 +159,7 @@ namespace Cmf.Common.Cli.Utilities
                 }
                 else
                 {
-                    throw new CliException(CliMessages.UrlsNotSupported);
+                    throw new CliException(CoreMessages.UrlsNotSupported);
                 }
             }
 

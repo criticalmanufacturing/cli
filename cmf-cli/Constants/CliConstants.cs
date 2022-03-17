@@ -1,8 +1,5 @@
-﻿namespace Cmf.Common.Cli.Constants
+namespace Cmf.Common.Cli.Constants
 {
-    /// <summary>
-    ///
-    /// </summary>
     public static class CliConstants
     {
         #region Folders
@@ -47,26 +44,6 @@
         public const string CmfPackageHostConfig = "Cmf.Foundation.Services.HostService.dll.config";
 
         /// <summary>
-        /// The package json
-        /// </summary>
-        public const string PackageJson = "package.json";
-
-        /// <summary>
-        /// The project config file name, located in the project root
-        /// </summary>
-        public const string ProjectConfigFileName = ".project-config.json";
-
-        /// <summary>
-        /// The repositories config file name, usually located in the project root
-        /// </summary>
-        public const string RepositoriesConfigFileName = "repositories.json";
-
-        /// <summary>
-        /// The lb os file location
-        /// </summary>
-        public const string LBOsFileLocation = "Libs/LBOs/NetStandard/Cmf.LightBusinessObjects.dll";
-
-        /// <summary>
         /// Dependencies File Name
         /// </summary>
         public const string FileDependencies = "dependencies.json";
@@ -79,12 +56,7 @@
         /// The root package default keyword
         /// </summary>
         public const string RootPackageDefaultKeyword = "cmf-root-package";
-
-        /// <summary>
-        /// The deployment metadata dependency
-        /// </summary>
-        public const string DeploymentMetadataDependency = "Cmf.Custom.DeploymentMetadata";
-
+        
         /// <summary>
         /// Driver keyword for IoT Packages
         /// </summary>
@@ -146,16 +118,6 @@
         #endregion
 
         #region Tokens
-
-        /// <summary>
-        /// The token start element
-        /// </summary>
-        public const string TokenStartElement = "$(";
-
-        /// <summary>
-        /// The token end element
-        /// </summary>
-        public const string TokenEndElement = ")";
 
         /// <summary>
         /// The token XML injection

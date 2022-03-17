@@ -1,7 +1,4 @@
 using System;
-using System.CommandLine;
-using System.ComponentModel;
-using System.Linq;
 using Spectre.Console;
 using Spectre.Console.Rendering;
 
@@ -12,14 +9,6 @@ namespace Cmf.Common.Cli
     /// </summary>
     public static class Log
     {
-        //private static IConsole console;
-
-        //private static bool ConsoleSupportsColor => (Log.console.GetType() is System.Console);
-
-        //private static bool ConsoleSupportsCursos => (Log.console.GetType() is System.Console);
-
-        //public static void SetConsole(IConsole console) => Log.console = console;
-
         public static IAnsiConsole AnsiConsole = Spectre.Console.AnsiConsole.Console;
 
         /// <summary>

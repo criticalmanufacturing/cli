@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:element name="root" msdata:IsDataSet="true">
+            
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="VersionFailedConsistencyCheck" xml:space="preserve">
+    <value>This root package dependencies must enforce version consistency. Root Version {0} Failed Package Version {1}</value>
+    <comment>0 - Root Version; 1 - Failed Package Version</comment>
+  </data>
+    <data name="ContentToPackNotFound" xml:space="preserve">
+    <value>Nothing was found on ContentToPack Sources of {0}.{1}</value>
+    <comment>0 - Package Id; 1 - Package Version</comment>
+  </data>
+    <data name="UrlsNotSupported" xml:space="preserve">
+    <value>Urls not supported yet</value>
+  </data>
+    <data name="MissingMandatoryPropertyInFile" xml:space="preserve">
+    <value>Missing mandatory property {0} in file {1}</value>
+    <comment>0 - Property name; 1 - File name</comment>
+  </data>
+    <data name="InvalidValue" xml:space="preserve">
+    <value>Invalid {0}, Property {1} doesn't have the expected value: {2}</value>
+    <comment>0 - Type; 1 - Property Name; 2 - Expected Value</comment>
+  </data>
+    <data name="MissingMandatoryDependency" xml:space="preserve">
+    <value>Mandatory Dependency {0}.{1} not found</value>
+    <comment>0 - Dependency Id; 1 - Dependency Version</comment>
+  </data>
+    <data name="PackageRootNotFound" xml:space="preserve">
+    <value>Cannot find package root. Are you in a valid package directory?</value>
+  </data>
+    <data name="InvalidManifestFile" xml:space="preserve">
+    <value>It was not possible to read the manifest file.</value>
+  </data>
+    <data name="NotFound" xml:space="preserve">
+    <value>{0} not found!</value>
+    <comment>0 - Name</comment>
+  </data>
+</root>

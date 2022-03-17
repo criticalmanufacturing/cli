@@ -3,6 +3,7 @@ using Cmf.Common.Cli.Objects;
 using Cmf.Common.Cli.Utilities;
 using System.IO.Abstractions;
 using System.Threading.Tasks;
+using Cmf.CLI.Core;
 using Cmf.Common.Cli.Enums;
 
 namespace Cmf.Common.Cli.Builders
@@ -72,7 +73,7 @@ namespace Cmf.Common.Cli.Builders
                         dep.CmfPackage.Location == PackageLocation.Local &&
                         pkg.Version != dep.Version)
                     {
-                        throw new CliException(string.Format(CliMessages.VersionFailedConsistencyCheck, pkg.Version, dep.Version));
+                        throw new CliException(string.Format(CoreMessages.VersionFailedConsistencyCheck, pkg.Version, dep.Version));
                     }
 
                     if (!dep.IsMissing)
