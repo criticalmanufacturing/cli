@@ -1,19 +1,19 @@
-using Cmf.Common.Cli.Constants;
-using Cmf.Common.Cli.Objects;
-using Cmf.Common.Cli.Utilities;
+using Cmf.CLI.Objects;
 using System.IO.Abstractions;
 using System.Threading.Tasks;
+using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Utilities;
 
-namespace Cmf.Common.Cli.Builders
+namespace Cmf.CLI.Builders
 {
     /// <summary>
     /// Checks the consistency of packages under a root
     /// </summary>
-    /// <seealso cref="Cmf.Common.Cli.Builders.ProcessCommand" />
-    /// <seealso cref="Cmf.Common.Cli.Builders.IBuildCommand" />
+    /// <seealso cref="ProcessCommand" />
+    /// <seealso cref="IBuildCommand" />
     public class ConsistencyCheckCommand : IBuildCommand
     {
         /// <summary>

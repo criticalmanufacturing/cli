@@ -7,8 +7,8 @@ using System.Linq;
 using System.Xml.Linq;
 using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Enums;
-using Cmf.Common.Cli;
-using Cmf.Common.Cli.Utilities;
+using Cmf.CLI;
+using Cmf.CLI.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
@@ -586,7 +586,7 @@ namespace Cmf.CLI.Core.Objects
         /// <param name="setDefaultValues"></param>
         /// <param name="fileSystem">the underlying file system</param>
         /// <returns></returns>
-        /// <exception cref="Cmf.Common.Cli.Utilities.CliException">
+        /// <exception cref="Cmf.CLI.Utilities.CliException">
         /// </exception>
         /// <exception cref="CliException"></exception>
         public static CmfPackage Load(IFileInfo file, bool setDefaultValues = false, IFileSystem fileSystem = null)

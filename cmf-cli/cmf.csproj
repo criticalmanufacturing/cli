@@ -4,7 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
     <TargetName>cmf</TargetName>
-    <RootNamespace>Cmf.Common.Cli</RootNamespace>
+    <RootNamespace>Cmf.CLI</RootNamespace>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>cmf</ToolCommandName>
     <PackageOutputPath>./nupkg</PackageOutputPath>
@@ -89,7 +89,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Enums" />
     <Folder Include="Properties\" />
   </ItemGroup>
 

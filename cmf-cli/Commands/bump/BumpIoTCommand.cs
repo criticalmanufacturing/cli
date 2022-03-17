@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Cmf.CLI.Core.Attributes;
 
-namespace Cmf.Common.Cli.Commands
+namespace Cmf.CLI.Commands
 {
     /// <summary>
     /// iot command group

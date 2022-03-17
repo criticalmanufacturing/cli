@@ -6,7 +6,7 @@ using System.IO.Abstractions;
 using System.Linq;
 using Cmf.CLI.Core;
 
-namespace Cmf.Common.Cli.Commands
+namespace Cmf.CLI.Commands
 {
     public abstract class BaseCommand : Cmf.CLI.Core.Commands.BaseCommand
     {

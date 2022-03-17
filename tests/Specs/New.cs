@@ -7,12 +7,11 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using Cmf.CLI.Core.Enums;
-using Cmf.Common.Cli.Commands;
-using Cmf.Common.Cli.Commands.New;
+using Cmf.CLI.Commands;
+using Cmf.CLI.Commands.New;
 using FluentAssertions;
 using Xunit;
 using Assert = tests.AssertWithMessage;
-using Cmf.Common.Cli.Utilities;
 using Cmf.Common.Cli.TestUtilities;
 
 namespace tests.Specs
@@ -362,7 +361,7 @@ namespace tests.Specs
         [Fact, Trait("TestCategory", "LongRunning")]
         public void Help()
         {
-            RunNew(new Cmf.Common.Cli.Commands.New.HelpCommand(), "Cmf.Custom.Help", extraArguments: new string[] {
+            RunNew(new Cmf.CLI.Commands.New.HelpCommand(), "Cmf.Custom.Help", extraArguments: new string[] {
                 "--docPkg", TestUtilities.GetFixturePath("prodPkg", "Cmf.Documentation.9.9.9.zip"),
             }, extraAsserts: args =>
             {
@@ -379,7 +378,7 @@ namespace tests.Specs
         [Fact]
         public void Help_FailNoPackage()
         {
-            var console = RunNew(new Cmf.Common.Cli.Commands.New.HelpCommand(), "Cmf.Custom.Help", defaultAsserts: false);
+            var console = RunNew(new Cmf.CLI.Commands.New.HelpCommand(), "Cmf.Custom.Help", defaultAsserts: false);
             var stderr = console.Error.ToString();
             Assert.True(stderr.Trim().Equals("Option '--docPkg' is required."), "Should exit with missing package error");
         }
@@ -671,7 +670,7 @@ namespace tests.Specs
 
                 var pkgDir = Path.Join(dir, "Features", "TestFeature");
                 const string packageId = "Cmf.Custom.TestFeature.Help";
-                var console = RunNew(new Cmf.Common.Cli.Commands.New.HelpCommand(), packageId, extraArguments: new string[] {
+                var console = RunNew(new Cmf.CLI.Commands.New.HelpCommand(), packageId, extraArguments: new string[] {
                     "--docPkg", TestUtilities.GetFixturePath("prodPkg", "Cmf.Documentation.9.9.9.zip"),
                 }, scaffoldingDir: pkgDir, extraAsserts: args =>
                 {
@@ -699,7 +698,7 @@ namespace tests.Specs
         }
 
         [Fact, Trait("TestCategory", "LongRunning")]
-        public void Features_HTML()
+        public void Features_UI()
         {
             var dir = TestUtilities.GetTmpDirectory();
 
@@ -716,7 +715,7 @@ namespace tests.Specs
 
                 var pkgDir = Path.Join(dir, "Features", "TestFeature");
                 const string packageId = "Cmf.Custom.TestFeature.HTML";
-                var console = RunNew(new Cmf.Common.Cli.Commands.New.HTMLCommand(), packageId, extraArguments: new string[] {
+                var console = RunNew(new Cmf.CLI.Commands.New.HTMLCommand(), packageId, extraArguments: new string[] {
                     "--htmlPkg", TestUtilities.GetFixturePath("prodPkg", "Cmf.Presentation.HTML.9.9.9.zip"),
                 }, scaffoldingDir: pkgDir);
             }

@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using Cmf.CLI.Core.Enums;
-using Cmf.Common.Cli.Utilities;
+using Cmf.CLI.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 namespace Cmf.CLI.Core.Objects
 {
     /// <summary>
-    ///
+    /// Represents the content to be packed into a DF Package
     /// </summary>
-    /// <seealso cref="System.IEquatable{Cmf.Common.Cli.Objects.ContentToPack}" />
+    /// <seealso cref="System.IEquatable{Cmf.CLI.Core.Objects.ContentToPack}" />
     public class ContentToPack : IEquatable<ContentToPack>
     {
         #region Public Properties

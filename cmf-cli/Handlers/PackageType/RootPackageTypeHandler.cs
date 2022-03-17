@@ -1,14 +1,14 @@
-﻿using Cmf.CLI.Core.Enums;
+﻿using Cmf.CLI.Constants;
+using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
-using Cmf.Common.Cli.Constants;
-using Cmf.Common.Cli.Objects;
+using Cmf.CLI.Objects;
 
-namespace Cmf.Common.Cli.Handlers
+namespace Cmf.CLI.Handlers
 {
     /// <summary>
     ///
     /// </summary>
-    /// <seealso cref="Cmf.Common.Cli.Handlers.PackageTypeHandler" />
+    /// <seealso cref="PackageTypeHandler" />
     public class RootPackageTypeHandler : PackageTypeHandler
     {
         /// <summary>

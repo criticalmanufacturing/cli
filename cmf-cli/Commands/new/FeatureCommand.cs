@@ -4,11 +4,11 @@ using System.CommandLine.Invocation;
 using System.IO.Abstractions;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
-using Cmf.Common.Cli.Constants;
-using Cmf.Common.Cli.Objects;
-using Cmf.Common.Cli.Utilities;
+using Cmf.CLI.Utilities;
+using Cmf.CLI.Constants;
+using Cmf.CLI.Objects;
 
-namespace Cmf.Common.Cli.Commands.New
+namespace Cmf.CLI.Commands.New
 {
     /// <summary>
     /// new feature command

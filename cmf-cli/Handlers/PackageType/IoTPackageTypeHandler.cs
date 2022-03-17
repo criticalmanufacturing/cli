@@ -1,22 +1,22 @@
-﻿using Cmf.Common.Cli.Builders;
-using Cmf.Common.Cli.Objects;
-using Cmf.Common.Cli.Utilities;
+﻿using Cmf.CLI.Objects;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
+using Cmf.CLI.Builders;
+using Cmf.CLI.Commands.restore;
 using Cmf.CLI.Core;
+using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
-using Cmf.Common.Cli.Commands.restore;
-using Cmf.Common.Cli.Constants;
+using Cmf.CLI.Utilities;
 
-namespace Cmf.Common.Cli.Handlers
+namespace Cmf.CLI.Handlers
 {
     /// <summary>
     ///
     /// </summary>
-    /// <seealso cref="Cmf.Common.Cli.Handlers.PresentationPackageTypeHandler" />
+    /// <seealso cref="PresentationPackageTypeHandler" />
     public class IoTPackageTypeHandler : PresentationPackageTypeHandler
     {
         #region Private Methods
@@ -134,7 +134,7 @@ namespace Cmf.Common.Cli.Handlers
         /// <param name="version">The version.</param>
         /// <param name="buildNr">The version for build Nr.</param>
         /// <param name="bumpInformation">The bump information.</param>
-        /// <exception cref="Cmf.Common.Cli.Utilities.CliException"></exception>
+        /// <exception cref="CliException"></exception>
         public override void Bump(string version, string buildNr, Dictionary<string, object> bumpInformation = null)
         {
             base.Bump(version, buildNr, bumpInformation);

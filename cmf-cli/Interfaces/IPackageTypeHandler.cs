@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 
-namespace Cmf.Common.Cli.Interfaces
+namespace Cmf.CLI.Interfaces
 {
     /// <summary>
     ///

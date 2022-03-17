@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Xml.Serialization;
 using Cmf.CLI.Core.Enums;
-using Cmf.Common.Cli.Utilities;
+using Cmf.CLI.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 

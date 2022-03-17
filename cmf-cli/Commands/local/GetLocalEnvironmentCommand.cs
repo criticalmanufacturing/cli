@@ -1,4 +1,3 @@
-using Cmf.Common.Cli.Utilities;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
@@ -6,14 +5,15 @@ using System.CommandLine.Invocation;
 using System.IO;
 using System.Linq;
 using Cmf.CLI.Core.Attributes;
-using Utils = Cmf.Common.Cli.Utilities.FileSystemUtilities;
+using Cmf.CLI.Utilities;
+using Utils = Cmf.CLI.Utilities.FileSystemUtilities;
 
-namespace Cmf.Common.Cli.Commands
+namespace Cmf.CLI.Commands
 {
     /// <summary>
     ///
     /// </summary>
-    /// <seealso cref="Cmf.Common.Cli.Commands.PowershellCommand" />
+    /// <seealso cref="PowershellCommand" />
     [CmfCommand(name: "getLocalEnvironment", Parent = "local")]
     public class GetLocalEnvironmentCommand : PowershellCommand
     {
@@ -23,7 +23,7 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="cmd"></param>
         public override void Configure(Command cmd)
         {
-            var root = Utils.GetProjectRoot(this.fileSystem);
+            var root = FileSystemUtilities.GetProjectRoot(this.fileSystem);
             var arg = new Argument<DirectoryInfo>(
                 name: "target",
                 description: "Where to place to fetched environment");
@@ -44,7 +44,7 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="target">The target.</param>
         public void Execute(DirectoryInfo target)
         {
-            var config = Utils.ReadProjectConfig(this.fileSystem);
+            var config = FileSystemUtilities.ReadProjectConfig(this.fileSystem);
             var x = config.RootElement.EnumerateObject();
             var hostname = x.FirstOrDefault(y => y.NameEquals("vmHostname"));
             var installationPath = x.FirstOrDefault(y => y.NameEquals("InstallationPath"));
@@ -76,7 +76,7 @@ namespace Cmf.Common.Cli.Commands
         /// <returns></returns>
         protected override string GetPowershellScript()
         {
-            return GenericUtilities.GetEmbeddedResourceContent("Tools/Local_GetLocalEnvironment.ps1");
+            return ResourceUtilities.GetEmbeddedResourceContent("Tools/Local_GetLocalEnvironment.ps1");
         }
     }
 }

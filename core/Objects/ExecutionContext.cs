@@ -1,5 +1,5 @@
 using System.IO.Abstractions;
-using Cmf.Common.Cli.Utilities;
+using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Cmf.CLI.Core.Objects

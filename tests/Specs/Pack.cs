@@ -1,8 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using Cmf.Common.Cli.Commands;
-using Cmf.Common.Cli.TestUtilities;
-using Cmf.Common.Cli.Utilities;
+using Cmf.CLI.Commands;
 using Xunit;
 using System.CommandLine;
 using System.CommandLine.Invocation;
@@ -12,6 +10,8 @@ using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.IO.Compression;
 using System.Linq;
+using Cmf.CLI.Utilities;
+using Cmf.Common.Cli.TestUtilities;
 using FluentAssertions;
 using tests.Objects;
 

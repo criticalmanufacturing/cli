@@ -1,5 +1,5 @@
-﻿using Cmf.Common.Cli.Constants;
-using Cmf.Common.Cli.Objects;
+﻿using Cmf.CLI.Constants;
+using Cmf.CLI.Objects;
 using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;

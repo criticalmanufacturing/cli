@@ -9,7 +9,7 @@ using System.Text;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Objects;
 
-namespace Cmf.Common.Cli.Utilities
+namespace Cmf.CLI.Utilities
 {
     /// <summary>
     ///
@@ -17,27 +17,6 @@ namespace Cmf.Common.Cli.Utilities
     public static class GenericUtilities
     {
         #region Public Methods
-
-        /// <summary>
-        /// Read Embedded Resource file content and return it.
-        /// e.g. GetEmbeddedResourceContent("BuildScrips/cleanNodeModules.ps1")
-        /// NOTE: Don't forget to set the BuildAction for your resource as EmbeddedResource. Resources must be in the [root]/resources folder
-        /// </summary>
-        /// <param name="resourceName">the path of the embedded resource inside the [root}/resources folder</param>
-        /// <returns>
-        /// the resource content
-        /// </returns>
-        public static string GetEmbeddedResourceContent(string resourceName)
-        {
-            var resourceId = $"Cmf.Common.Cli.resources.{resourceName.Replace("/", ".")}";
-
-            var assembly = Assembly.GetExecutingAssembly();
-
-            using Stream stream = assembly.GetManifestResourceStream(resourceId);
-            using StreamReader reader = new(stream);
-            string result = reader.ReadToEnd();
-            return result;
-        }
 
         /// <summary>
         /// Will create a new version based on the old and new inputs
