@@ -28,11 +28,13 @@ namespace tests.Specs
 
         class MockVersionService : IVersionService
         {
+            public string PackageId => "test";
             public string CurrentVersion => "1.0.0";
         }
         
         class MockVersionServiceDev : IVersionService
         {
+            public string PackageId => "test";
             public string CurrentVersion => "1.0.0-0";
         }
         #endregion

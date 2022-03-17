@@ -32,6 +32,11 @@ namespace Cmf.Common.Cli.Objects
         /// Get the current (executing) version of the CLI
         /// </summary>
         public static string CurrentVersion => (ServiceProvider.GetService<IVersionService>()!.CurrentVersion) ?? "dev";
+        
+        /// <summary>
+        /// Get the package id of the current running application
+        /// </summary>
+        public static string PackageId => (ServiceProvider.GetService<IVersionService>()!.PackageId) ?? "unknown";
 
         /// <summary>
         /// true if we're running a development/unstable version 

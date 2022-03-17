@@ -38,9 +38,23 @@
     <Compile Remove="nupkg\**" />
     <EmbeddedResource Remove="nupkg\**" />
     <None Remove="nupkg\**" />
+    <EmbeddedResource Update="CliMessages.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>CliMessages.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <Compile Update="CliMessages.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CliMessages.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="CliMessages.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CliMessages.resx</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="resources\**" />
   </ItemGroup>
 
@@ -65,11 +79,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="CliMessages.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>CliMessages.resx</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="installDependencies\Data\GenerateLBOs.ps1" />
   </ItemGroup>
 
@@ -80,6 +89,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Enums" />
     <Folder Include="Properties\" />
   </ItemGroup>
 
@@ -88,17 +98,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="CliMessages.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>CliMessages.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="CliMessages.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>CliMessages.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
+    <ProjectReference Include="..\core\core.csproj" />
   </ItemGroup>
 </Project>

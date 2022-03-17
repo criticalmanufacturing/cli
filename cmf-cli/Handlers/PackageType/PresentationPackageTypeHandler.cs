@@ -8,6 +8,7 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Cmf.CLI.Core;
 
 namespace Cmf.Common.Cli.Handlers
 {
@@ -42,7 +43,7 @@ namespace Cmf.Common.Cli.Handlers
 
                     foreach (IDirectoryInfo packDirectory in packDirectories)
                     {
-                        dynamic packageJson = packDirectory.GetFile(CliConstants.PackageJson);
+                        dynamic packageJson = packDirectory.GetFile(CoreConstants.PackageJson);
                         if (packageJson != null)
                         {
                             string packageName = packageJson.name;
@@ -183,7 +184,7 @@ namespace Cmf.Common.Cli.Handlers
 
                 if (jsonObj["version"] == null)
                 {
-                    throw new CliException(string.Format(CliMessages.MissingMandatoryPropertyInFile, "version", fileName));
+                    throw new CliException(string.Format(CoreMessages.MissingMandatoryPropertyInFile, "version", fileName));
                 }
 
                 jsonObj["version"] = GenericUtilities.RetrieveNewPresentationVersion(jsonObj["version"].ToString(), version, buildNr);

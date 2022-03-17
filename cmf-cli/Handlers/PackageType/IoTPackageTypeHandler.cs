@@ -223,7 +223,7 @@ namespace Cmf.Common.Cli.Handlers
 
                     cmdCommand.Exec();
 
-                    dynamic packageJson = tgzFile.Directory.GetFile(CliConstants.PackageJson);
+                    dynamic packageJson = tgzFile.Directory.GetFile(CoreConstants.PackageJson);
 
                     string packDirectoryName = packageJson == null ? tgzFile.Directory.Name : packageJson.name;
 

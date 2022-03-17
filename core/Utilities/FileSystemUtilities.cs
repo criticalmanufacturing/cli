@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
+using Cmf.CLI.Core;
 
 namespace Cmf.Common.Cli.Utilities
 {
@@ -226,7 +227,7 @@ namespace Cmf.Common.Cli.Utilities
         {
             var cwd = fileSystem.DirectoryInfo.FromDirectoryName(workingDir ?? fileSystem.Directory.GetCurrentDirectory());
             var cur = cwd;
-            while (cur != null && !fileSystem.File.Exists(fileSystem.Path.Join(cur.FullName, CliConstants.CmfPackageFileName)))
+            while (cur != null && !fileSystem.File.Exists(fileSystem.Path.Join(cur.FullName, CoreConstants.CmfPackageFileName)))
             {
                 cur = cur.Parent;
             }
@@ -244,14 +245,14 @@ namespace Cmf.Common.Cli.Utilities
         {
             var cwd = fileSystem.DirectoryInfo.FromDirectoryName(fileSystem.Directory.GetCurrentDirectory());
             var cur = cwd;
-            while (cur != null && !fileSystem.File.Exists(fileSystem.Path.Join(cur.FullName, CliConstants.ProjectConfigFileName)))
+            while (cur != null && !fileSystem.File.Exists(fileSystem.Path.Join(cur.FullName, CoreConstants.ProjectConfigFileName)))
             {
                 cur = cur.Parent;
             }
 
             if (cur == null && throwException)
             {
-                throw new CliException(CliMessages.PackageRootNotFound);
+                throw new CliException(CoreMessages.PackageRootNotFound);
             }
 
             return cur;
@@ -271,9 +272,9 @@ namespace Cmf.Common.Cli.Utilities
             var cur = cwd;
             while (cur != null)
             {
-                if (fileSystem.File.Exists(fileSystem.Path.Join(cur.FullName, CliConstants.CmfPackageFileName)))
+                if (fileSystem.File.Exists(fileSystem.Path.Join(cur.FullName, CoreConstants.CmfPackageFileName)))
                 {
-                    IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName(Path.Join(cur.FullName, CliConstants.CmfPackageFileName));
+                    IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName(Path.Join(cur.FullName, CoreConstants.CmfPackageFileName));
                     CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile);
 
                     if (cmfPackage.PackageType == packageType)
@@ -315,7 +316,7 @@ namespace Cmf.Common.Cli.Utilities
         /// <returns></returns>
         public static JsonDocument ReadProjectConfig(IFileSystem fileSystem)
         {
-            var projectCfg = fileSystem.Path.Join(GetProjectRoot(fileSystem)?.FullName, CliConstants.ProjectConfigFileName);
+            var projectCfg = fileSystem.Path.Join(GetProjectRoot(fileSystem)?.FullName, CoreConstants.ProjectConfigFileName);
             var json = fileSystem.File.ReadAllText(projectCfg);
             return JsonDocument.Parse(json);
         }
@@ -333,12 +334,12 @@ namespace Cmf.Common.Cli.Utilities
             var repoConfig = new RepositoriesConfig();
             while (cur != null)
             {
-                if (fileSystem.File.Exists(fileSystem.Path.Join(cur.FullName, CliConstants.RepositoriesConfigFileName)))
+                if (fileSystem.File.Exists(fileSystem.Path.Join(cur.FullName, CoreConstants.RepositoriesConfigFileName)))
                 {
-                    repoConfigPath = fileSystem.Path.Join(cur.FullName, CliConstants.RepositoriesConfigFileName);
+                    repoConfigPath = fileSystem.Path.Join(cur.FullName, CoreConstants.RepositoriesConfigFileName);
                     break;
                 }
-                if (fileSystem.File.Exists(fileSystem.Path.Join(cur.FullName, CliConstants.ProjectConfigFileName)))
+                if (fileSystem.File.Exists(fileSystem.Path.Join(cur.FullName, CoreConstants.ProjectConfigFileName)))
                 {
                     // we're at the repository root, quit
                     break;
@@ -378,7 +379,7 @@ namespace Cmf.Common.Cli.Utilities
         /// <param name="fileSystem">the underlying file system</param>
         public static void CopyInstallDependenciesFiles(IDirectoryInfo packageOutputDir, PackageType packageType, IFileSystem fileSystem)
         {
-            string sourceDirectory = fileSystem.Path.Join(AppDomain.CurrentDomain.BaseDirectory, CliConstants.FolderInstallDependencies, packageType.ToString());
+            string sourceDirectory = fileSystem.Path.Join(AppDomain.CurrentDomain.BaseDirectory, CoreConstants.FolderInstallDependencies, packageType.ToString());
             CopyDirectory(sourceDirectory, packageOutputDir.FullName, fileSystem, isCopyDependencies: true);
         }
 
@@ -452,7 +453,7 @@ namespace Cmf.Common.Cli.Utilities
             {
                 using (ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read))
                 {
-                    var manifest = zip.GetEntry(CliConstants.DeploymentFrameworkManifestFileName);
+                    var manifest = zip.GetEntry(CoreConstants.DeploymentFrameworkManifestFileName);
                     if (manifest != null)
                     {
                         using var stream = manifest.Open();
@@ -511,9 +512,9 @@ namespace Cmf.Common.Cli.Utilities
                         using (var entryStream = archive.Open())
                         {
                             entryStream.Write(fileSystem.File.ReadAllBytes(file.FullName));
-                        }
                     }
                 }
+            }
 
                 using (Stream zipToOpen = fileSystem.FileStream.Create(filePath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 0x1000, useAsync: false))
                 {

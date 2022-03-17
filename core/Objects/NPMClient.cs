@@ -4,6 +4,7 @@ using System.Net.Http.Json;
 using System.Reflection;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Cmf.Common.Cli.Constants;
 
 namespace Cmf.Common.Cli.Objects
 {
@@ -25,9 +26,6 @@ namespace Cmf.Common.Cli.Objects
     /// </summary>
     public class NPMClient : INPMClient
     {
-        private string packageId = "@criticalmanufacturing/cli";
-        private string registry = "https://registry.npmjs.org/";
-
         /// <summary>
         /// gets the latest version of the CLI from the NPM registry
         /// </summary>
@@ -36,7 +34,7 @@ namespace Cmf.Common.Cli.Objects
         public async Task<string> GetLatestVersion(bool preRelease = false)
         {
             var client = this.GetClient();
-            var res = await client.GetAsync($"{registry}{packageId}");
+            var res = await client.GetAsync($"{CoreConstants.NpmJsUrl.TrimEnd('/')}/{ExecutionContext.PackageId}");
             var body = await res.Content.ReadFromJsonAsync<JsonElement>();
             return (body).GetProperty("dist-tags").GetProperty(preRelease ? "next" : "latest").GetString();
         }
@@ -44,8 +42,9 @@ namespace Cmf.Common.Cli.Objects
         private HttpClient GetClient()
         {
             var client = new HttpClient();
+            // remove the scope @ as it's not a valid user agent character
             client.DefaultRequestHeaders.Add("User-Agent",
-                $"criticalmanufacturing/cli v{ExecutionContext.CurrentVersion}");
+                $"{ExecutionContext.PackageId.Replace("@", "")} v{ExecutionContext.CurrentVersion}");
             return client;
         }
     }
