@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
+using Cmf.CLI.Core.Objects;
 using Cmf.Common.Cli.Factories;
 using Cmf.Common.Cli.Interfaces;
 using Cmf.Common.Cli.Objects;

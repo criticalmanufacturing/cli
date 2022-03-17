@@ -8,6 +8,7 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO.Abstractions;
 using System.CommandLine.IO;
+using Cmf.CLI.Core.Objects;
 using FluentAssertions;
 using tests.Objects;
 

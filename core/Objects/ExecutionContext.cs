@@ -1,9 +1,8 @@
-using Cmf.Common.Cli.Utilities;
 using System.IO.Abstractions;
-using System.Reflection;
+using Cmf.Common.Cli.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Cmf.Common.Cli.Objects
+namespace Cmf.CLI.Core.Objects
 {
     /// <summary>
     /// The current execution context

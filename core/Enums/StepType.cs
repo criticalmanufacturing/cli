@@ -1,4 +1,4 @@
-﻿namespace Cmf.Common.Cli.Enums
+﻿namespace Cmf.CLI.Core.Enums
 {
     /// <summary>
     ///

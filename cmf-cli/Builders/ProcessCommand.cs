@@ -4,6 +4,7 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Threading.Tasks;
+using Cmf.CLI.Core;
 using Cmf.Common.Cli.Utilities;
 
 namespace Cmf.Common.Cli.Builders

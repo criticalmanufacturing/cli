@@ -1,11 +1,12 @@
-﻿using Cmf.Common.Cli.Attributes;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Enums;
 
 namespace Cmf.Common.Cli.Commands.New
 {
@@ -16,13 +17,13 @@ namespace Cmf.Common.Cli.Commands.New
     public class DatabaseCommand : LayerTemplateCommand
     {
         /// <inheritdoc />
-        public DatabaseCommand() : base("database", Enums.PackageType.Database)
+        public DatabaseCommand() : base("database", PackageType.Database)
         {
             this.registerInParent = false;
         }
 
         /// <inheritdoc />
-        public DatabaseCommand(IFileSystem fileSystem) : base("database", Enums.PackageType.Database, fileSystem)
+        public DatabaseCommand(IFileSystem fileSystem) : base("database", PackageType.Database, fileSystem)
         {
             this.registerInParent = false;
         }

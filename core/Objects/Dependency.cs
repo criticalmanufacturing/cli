@@ -1,10 +1,10 @@
-﻿using Cmf.Common.Cli.Utilities;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Linq;
 using System.Xml.Serialization;
+using Cmf.Common.Cli.Utilities;
+using Newtonsoft.Json;
 
-namespace Cmf.Common.Cli.Objects
+namespace Cmf.CLI.Core.Objects
 {
     /// <summary>
     ///

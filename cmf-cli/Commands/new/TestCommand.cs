@@ -3,7 +3,8 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO.Abstractions;
 using System.Text.Json;
-using Cmf.Common.Cli.Attributes;
+using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Enums;
 using Cmf.Common.Cli.Utilities;
 
 namespace Cmf.Common.Cli.Commands.New
@@ -15,12 +16,12 @@ namespace Cmf.Common.Cli.Commands.New
     public class TestCommand : LayerTemplateCommand
     {
         /// <inheritdoc />
-        public TestCommand() : base("test", Enums.PackageType.Tests)
+        public TestCommand() : base("test", PackageType.Tests)
         {
         }
 
         /// <inheritdoc />
-        public TestCommand(IFileSystem fileSystem) : base("test", Enums.PackageType.Tests, fileSystem)
+        public TestCommand(IFileSystem fileSystem) : base("test", PackageType.Tests, fileSystem)
         {
         }
 

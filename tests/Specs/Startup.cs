@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Cmf.CLI.Core.Objects;
 using Cmf.Common.Cli.Objects;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;

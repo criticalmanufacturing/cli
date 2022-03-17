@@ -1,7 +1,6 @@
-﻿using System.IO;
-using System.IO.Abstractions;
+﻿using System.IO.Abstractions;
 
-namespace Cmf.Common.Cli.Objects
+namespace Cmf.CLI.Core.Objects
 {
     /// <summary>
     ///

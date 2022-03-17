@@ -5,6 +5,8 @@ using System;
 using System.CommandLine;
 using System.Linq;
 using System.Threading.Tasks;
+using Cmf.CLI.Core;
+using Cmf.CLI.Core.Objects;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Cmf.Common.Cli

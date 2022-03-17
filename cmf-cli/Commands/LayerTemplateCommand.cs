@@ -3,9 +3,10 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO.Abstractions;
 using System.Text.Json;
-using Cmf.Common.Cli.Enums;
 using Cmf.Common.Cli.Utilities;
 using System.Linq;
+using Cmf.CLI.Core;
+using Cmf.CLI.Core.Enums;
 
 namespace Cmf.Common.Cli.Commands
 {

@@ -4,6 +4,7 @@ using System;
 using System.CommandLine;
 using System.Diagnostics;
 using System.IO;
+using Cmf.CLI.Core;
 using Xunit;
 using Assert = tests.AssertWithMessage;
 

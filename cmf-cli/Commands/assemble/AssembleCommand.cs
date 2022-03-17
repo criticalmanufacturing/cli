@@ -1,4 +1,3 @@
-using Cmf.Common.Cli.Attributes;
 using Cmf.Common.Cli.Constants;
 using Cmf.Common.Cli.Objects;
 using Cmf.Common.Cli.Utilities;
@@ -9,6 +8,10 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO.Abstractions;
 using System.Linq;
+using Cmf.CLI.Core;
+using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
 
 namespace Cmf.Common.Cli.Commands
 {
@@ -111,7 +114,7 @@ namespace Cmf.Common.Cli.Commands
 
             CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: false, fileSystem: fileSystem);
 
-            if (cmfPackage.PackageType != Enums.PackageType.Root)
+            if (cmfPackage.PackageType != PackageType.Root)
             {
                 throw new CliException(CliMessages.NotARootPackage);
             }

@@ -1,6 +1,7 @@
-﻿using Cmf.Common.Cli.Enums;
-using Cmf.Common.Cli.Objects;
+﻿using Cmf.Common.Cli.Objects;
 using System.Collections.Generic;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
 
 namespace Cmf.Common.Cli.Handlers
 {

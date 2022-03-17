@@ -1,11 +1,11 @@
-﻿using Cmf.Common.Cli.Enums;
-using Cmf.Common.Cli.Utilities;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Cmf.CLI.Core.Enums;
+using Cmf.Common.Cli.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace Cmf.Common.Cli.Objects
+namespace Cmf.CLI.Core.Objects
 {
     /// <summary>
     ///

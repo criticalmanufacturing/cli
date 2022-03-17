@@ -1,4 +1,5 @@
-﻿using Cmf.Common.Cli.Objects;
+﻿using Cmf.CLI.Core.Objects;
+using Cmf.Common.Cli.Objects;
 
 namespace Cmf.Common.Cli.Handlers
 {

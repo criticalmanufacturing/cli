@@ -1,12 +1,10 @@
-using System;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Reflection;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Cmf.Common.Cli.Constants;
+using Cmf.CLI.Core.Constants;
 
-namespace Cmf.Common.Cli.Objects
+namespace Cmf.CLI.Core.Objects
 {
     /// <summary>
     /// The NPM Registry client interface

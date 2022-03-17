@@ -6,8 +6,8 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
 using System.Text.Json;
-using Cmf.Common.Cli.Attributes;
-using Cmf.Common.Cli.Enums;
+using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Enums;
 using Cmf.Common.Cli.Objects;
 using Cmf.Common.Cli.Utilities;
 
@@ -22,7 +22,7 @@ namespace Cmf.Common.Cli.Commands.New
         /// <summary>
         /// constructor
         /// </summary>
-        public BusinessCommand() : base("business", Enums.PackageType.Business)
+        public BusinessCommand() : base("business", PackageType.Business)
         {
         }
 
@@ -30,7 +30,7 @@ namespace Cmf.Common.Cli.Commands.New
         /// constructor
         /// </summary>
         /// <param name="fileSystem"></param>
-        public BusinessCommand(IFileSystem fileSystem) : base("business", Enums.PackageType.Business, fileSystem)
+        public BusinessCommand(IFileSystem fileSystem) : base("business", PackageType.Business, fileSystem)
         {
         }
 

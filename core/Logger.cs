@@ -2,7 +2,7 @@ using System;
 using Spectre.Console;
 using Spectre.Console.Rendering;
 
-namespace Cmf.Common.Cli
+namespace Cmf.CLI.Core
 {
     /// <summary>
     ///

@@ -1,19 +1,19 @@
-﻿using Cmf.Common.Cli.Constants;
-using Cmf.Common.Cli.Enums;
-using Cmf.Common.Cli.Utilities;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Serialization;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Compression;
 using System.Linq;
 using System.Xml.Linq;
-using Cmf.CLI.Core;
+using Cmf.CLI.Core.Constants;
+using Cmf.CLI.Core.Enums;
+using Cmf.Common.Cli;
+using Cmf.Common.Cli.Utilities;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
 
-namespace Cmf.Common.Cli.Objects
+namespace Cmf.CLI.Core.Objects
 {
     /// <summary>
     ///

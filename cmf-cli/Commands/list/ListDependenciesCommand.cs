@@ -1,5 +1,4 @@
-﻿using Cmf.Common.Cli.Attributes;
-using Cmf.Common.Cli.Constants;
+﻿using Cmf.Common.Cli.Constants;
 using Cmf.Common.Cli.Objects;
 using Cmf.Common.Cli.Utilities;
 using System;
@@ -11,6 +10,9 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Cmf.CLI.Core;
+using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Objects;
 
 namespace Cmf.Common.Cli.Commands
 {

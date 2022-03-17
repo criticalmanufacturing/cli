@@ -1,6 +1,5 @@
 ﻿using Cmf.Common.Cli.Builders;
 using Cmf.Common.Cli.Constants;
-using Cmf.Common.Cli.Enums;
 using Cmf.Common.Cli.Interfaces;
 using Cmf.Common.Cli.Objects;
 using Cmf.Common.Cli.Utilities;
@@ -17,6 +16,8 @@ using System.Runtime.CompilerServices;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 using Cmf.CLI.Core;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
 
 [assembly: InternalsVisibleTo("tests")]
 
@@ -328,7 +329,7 @@ namespace Cmf.Common.Cli.Handlers
                     string _source = contentToPack.Source;
                     string _target = contentToPack.Target;
 
-                    if (contentToPack.Action != null && contentToPack.Action != Enums.PackAction.Pack)
+                    if (contentToPack.Action != null && contentToPack.Action != PackAction.Pack)
                     {
                         continue;
                     }

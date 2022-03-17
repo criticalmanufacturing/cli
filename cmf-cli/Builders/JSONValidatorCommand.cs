@@ -6,6 +6,7 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Cmf.CLI.Core.Objects;
 
 namespace Cmf.Common.Cli.Builders
 {

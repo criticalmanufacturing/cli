@@ -1,10 +1,11 @@
-﻿using Cmf.Common.Cli.Enums;
-using Cmf.Common.Cli.Handlers;
+﻿using Cmf.Common.Cli.Handlers;
 using Cmf.Common.Cli.Interfaces;
 using Cmf.Common.Cli.Objects;
 using System;
 using System.IO;
 using System.IO.Abstractions;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
 
 namespace Cmf.Common.Cli.Factories
 {
