@@ -2,7 +2,7 @@ using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO.Abstractions;
-using Cmf.Common.Cli.Attributes;
+using Cmf.CLI.Core.Attributes;
 
 namespace Cmf.Common.Cli.Commands
 {

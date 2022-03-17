@@ -1,10 +1,10 @@
-﻿using Cmf.Common.Cli.Attributes;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Cmf.CLI.Core.Attributes;
 
 namespace Cmf.Common.Cli.Commands
 {

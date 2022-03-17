@@ -1,4 +1,3 @@
-using Cmf.Common.Cli.Attributes;
 using Cmf.Common.Cli.Constants;
 using Cmf.Common.Cli.Factories;
 using Cmf.Common.Cli.Interfaces;
@@ -7,6 +6,7 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
 using System.IO.Abstractions;
+using Cmf.CLI.Core.Attributes;
 
 namespace Cmf.Common.Cli.Commands
 {

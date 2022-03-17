@@ -1,4 +1,4 @@
-namespace Cmf.Common.Cli.Attributes
+namespace Cmf.CLI.Core.Attributes
 {
     /// <summary>
     ///

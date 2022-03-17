@@ -4,6 +4,7 @@ using System.CommandLine;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
+using Cmf.CLI.Core;
 
 namespace Cmf.Common.Cli.Commands
 {

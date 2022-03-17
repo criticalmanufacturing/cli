@@ -1,11 +1,11 @@
-using Cmf.Common.Cli.Attributes;
 using Cmf.Common.Cli.Utilities;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
-using Cmf.Common.Cli.Enums;
+using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Enums;
 
 namespace Cmf.Common.Cli.Commands
 {

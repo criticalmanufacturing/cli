@@ -1,5 +1,4 @@
-﻿using Cmf.Common.Cli.Attributes;
-using Microsoft.TemplateEngine.Abstractions;
+﻿using Microsoft.TemplateEngine.Abstractions;
 using Microsoft.TemplateEngine.Cli;
 using Microsoft.TemplateEngine.Edge;
 using Microsoft.TemplateEngine.Orchestrator.RunnableProjects;
@@ -16,6 +15,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Cmf.CLI.Core.Attributes;
 
 namespace Cmf.Common.Cli.Commands
 {

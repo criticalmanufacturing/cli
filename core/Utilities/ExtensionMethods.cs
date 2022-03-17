@@ -1,7 +1,4 @@
-﻿using Cmf.Common.Cli.Constants;
-using Cmf.Common.Cli.Enums;
-using Cmf.Common.Cli.Objects;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,6 +8,9 @@ using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using System.Xml.Linq;
+using Cmf.CLI.Core.Constants;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
 
 namespace Cmf.Common.Cli.Utilities
 {

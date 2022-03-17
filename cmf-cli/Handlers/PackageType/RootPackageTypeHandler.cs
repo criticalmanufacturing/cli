@@ -1,5 +1,6 @@
-﻿using Cmf.Common.Cli.Constants;
-using Cmf.Common.Cli.Enums;
+﻿using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
+using Cmf.Common.Cli.Constants;
 using Cmf.Common.Cli.Objects;
 
 namespace Cmf.Common.Cli.Handlers

@@ -1,4 +1,4 @@
-﻿namespace Cmf.Common.Cli.Constants
+﻿namespace Cmf.CLI.Core.Constants
 {
     /// <summary>
     ///

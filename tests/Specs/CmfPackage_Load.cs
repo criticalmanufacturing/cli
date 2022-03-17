@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
+using Cmf.CLI.Core.Objects;
 using Xunit;
 
 namespace tests

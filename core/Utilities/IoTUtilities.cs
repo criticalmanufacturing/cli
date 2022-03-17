@@ -5,6 +5,7 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Cmf.CLI.Core;
 
 namespace Cmf.Common.Cli.Utilities
 {

@@ -1,7 +1,4 @@
-﻿using Cmf.Common.Cli.Constants;
-using Cmf.Common.Cli.Enums;
-using Cmf.Common.Cli.Objects;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,6 +9,9 @@ using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
 using Cmf.CLI.Core;
+using Cmf.CLI.Core.Constants;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
 
 namespace Cmf.Common.Cli.Utilities
 {
@@ -513,8 +513,8 @@ namespace Cmf.Common.Cli.Utilities
                         {
                             entryStream.Write(fileSystem.File.ReadAllBytes(file.FullName));
                     }
+                    }
                 }
-            }
 
                 using (Stream zipToOpen = fileSystem.FileStream.Create(filePath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 0x1000, useAsync: false))
                 {

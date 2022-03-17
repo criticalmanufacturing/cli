@@ -4,7 +4,8 @@ using Cmf.Common.Cli.Utilities;
 using System.IO.Abstractions;
 using System.Threading.Tasks;
 using Cmf.CLI.Core;
-using Cmf.Common.Cli.Enums;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
 
 namespace Cmf.Common.Cli.Builders
 {
@@ -39,7 +40,7 @@ namespace Cmf.Common.Cli.Builders
         /// <returns></returns>
         public Task Exec()
         {
-            IDirectoryInfo directory = Utilities.FileSystemUtilities.GetPackageRootByType(WorkingDirectory.FullName, Enums.PackageType.Root, FileSystem);
+            IDirectoryInfo directory = Utilities.FileSystemUtilities.GetPackageRootByType(WorkingDirectory.FullName, PackageType.Root, FileSystem);
             IFileInfo cmfpackageFile = FileSystem.FileInfo.FromFileName($"{directory.FullName}/{CliConstants.CmfPackageFileName}");
 
             CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true);

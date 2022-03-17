@@ -1,9 +1,9 @@
-﻿using Cmf.Common.Cli.Attributes;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO.Abstractions;
+using Cmf.CLI.Core.Attributes;
 using Cmf.Common.Cli.Utilities;
 using Newtonsoft.Json;
 using Cmf.Common.Cli.Constants;

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Cmf.Common.Cli.Enums
+﻿namespace Cmf.CLI.Core.Enums
 {
     /// <summary>
     /// Possible source for a CmfPackage

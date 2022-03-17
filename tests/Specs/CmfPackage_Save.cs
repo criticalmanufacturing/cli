@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Cmf.CLI.Core.Objects;
 using Xunit;
 
 namespace tests.Specs

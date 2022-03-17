@@ -1,4 +1,5 @@
 ﻿using System;
+using Cmf.CLI.Core;
 
 namespace Cmf.Common.Cli.Utilities
 {

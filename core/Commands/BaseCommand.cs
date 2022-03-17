@@ -1,4 +1,3 @@
-using Cmf.Common.Cli.Attributes;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
@@ -7,7 +6,8 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Reflection;
-using Cmf.Common.Cli.Objects;
+using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Objects;
 
 namespace Cmf.CLI.Core.Commands
 {

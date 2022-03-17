@@ -1,4 +1,3 @@
-using Cmf.Common.Cli.Attributes;
 using Cmf.Common.Cli.Utilities;
 using System;
 using System.Collections.Generic;
@@ -6,6 +5,7 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
 using System.Linq;
+using Cmf.CLI.Core.Attributes;
 using Utils = Cmf.Common.Cli.Utilities.FileSystemUtilities;
 
 namespace Cmf.Common.Cli.Commands

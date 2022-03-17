@@ -1,5 +1,3 @@
-using Cmf.Common.Cli.Enums;
-using Cmf.Common.Cli.Objects;
 using Spectre.Console;
 using System;
 using System.Collections.Generic;
@@ -9,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Cmf.CLI.Core;
+using Cmf.CLI.Core.Objects;
 
 namespace Cmf.Common.Cli.Utilities
 {

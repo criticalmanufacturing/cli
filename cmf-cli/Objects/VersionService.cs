@@ -1,4 +1,5 @@
 using System.Reflection;
+using Cmf.CLI.Core.Objects;
 
 namespace Cmf.Common.Cli.Objects
 {

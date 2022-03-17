@@ -1,6 +1,4 @@
-using System.Reflection;
-
-namespace Cmf.Common.Cli.Objects
+namespace Cmf.CLI.Core.Objects
 {
     /// <summary>
     /// Interface for a service that returns the current (running) CLI version

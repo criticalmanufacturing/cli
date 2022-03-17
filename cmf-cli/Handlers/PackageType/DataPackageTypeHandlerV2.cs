@@ -1,6 +1,5 @@
 using Cmf.Common.Cli.Builders;
 using Cmf.Common.Cli.Constants;
-using Cmf.Common.Cli.Enums;
 using Cmf.Common.Cli.Objects;
 using Cmf.Common.Cli.Utilities;
 using System;
@@ -8,6 +7,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
+using Cmf.CLI.Core;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
 
 namespace Cmf.Common.Cli.Handlers
 {

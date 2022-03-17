@@ -1,4 +1,4 @@
-﻿namespace Cmf.Common.Cli.Enums
+﻿namespace Cmf.CLI.Core.Enums
 {
     /// <summary>
     /// The action to apply to the content specified to be packed

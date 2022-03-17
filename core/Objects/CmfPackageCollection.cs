@@ -1,8 +1,8 @@
-﻿using Cmf.Common.Cli.Utilities;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using Cmf.Common.Cli.Utilities;
 
-namespace Cmf.Common.Cli.Objects
+namespace Cmf.CLI.Core.Objects
 {
     /// <summary>
     ///

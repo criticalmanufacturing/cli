@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Reflection;
+using Cmf.CLI.Core;
+using Cmf.CLI.Core.Objects;
 using Cmf.Common.Cli.Constants;
 using Cmf.Common.Cli.Objects;
 using Cmf.Common.Cli.Utilities;
