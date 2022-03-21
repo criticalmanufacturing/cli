@@ -475,7 +475,7 @@ namespace Cmf.Common.Cli.Utilities
         /// <returns></returns>
         public static string GetFileContentFromPackage(string packageFile, string filename)
         {
-            using (FileStream zipToOpen = new(packageFile, FileMode.Open))
+            using (FileStream zipToOpen = new FileInfo(packageFile).OpenRead())
             {
                 using (ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read))
                 {
