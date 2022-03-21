@@ -10,10 +10,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Compression;
+using System.IO.IsolatedStorage;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Xml.Linq;
 using System.Xml.Serialization;
+
+[assembly: InternalsVisibleTo("tests")]
 
 namespace Cmf.Common.Cli.Handlers
 {
@@ -217,7 +221,7 @@ namespace Cmf.Common.Cli.Handlers
                 elementToRemove.Remove();
             }
 
-            dFManifestTemplate.Save(path);
+            fileSystem.File.WriteAllText(path, dFManifestTemplate.ToString());
         }
 
         /// <summary>
@@ -246,7 +250,7 @@ namespace Cmf.Common.Cli.Handlers
                     if (ignoreFile == null)
                     {
                         string filePath = this.fileSystem.Path.Join(packDirectory.FullName, ignoreFileName);
-                        throw new CliException(string.Format(CliMessages.NotFound, filePath));
+                        Log.Warning(string.Format(CliMessages.NotFound, filePath));
                     }
 
                     foreach (string ignore in ignoreFile.ReadToStringList())
@@ -298,7 +302,7 @@ namespace Cmf.Common.Cli.Handlers
                 this.fileSystem.File.Delete(tempzipPath);
             }
 
-            FileSystemUtilities.ZipDirectory(tempzipPath, packageOutputDir);
+            FileSystemUtilities.ZipDirectory(fileSystem, tempzipPath, packageOutputDir);
 
             // move to final destination
             string destZipPath = $"{outputDir.FullName}/{CmfPackage.ZipPackageName}";
@@ -347,63 +351,55 @@ namespace Cmf.Common.Cli.Handlers
 
                     #endregion
 
-                    try
+                    // TODO: To be reviewed, files/directory search should be done with globs
+
+                    IDirectoryInfo[] _directoriesToPack = packageDirectory.GetDirectories(_source);
+
+                    if (_directoriesToPack.HasAny())
                     {
-                        // TODO: To be reviewed, files/directory search should be done with globs
+                        #region Directory Packing
 
-                        IDirectoryInfo[] _directoriesToPack = packageDirectory.GetDirectories(_source);
-
-                        if (_directoriesToPack.HasAny())
+                        foreach (IDirectoryInfo packDirectory in _directoriesToPack)
                         {
-                            #region Directory Packing
+                            // If a package.json exists the packDirectoryName needs to change to the name in the package.json
+                            dynamic _packageJson = packDirectory.GetPackageJsonFile();
 
-                            foreach (IDirectoryInfo packDirectory in _directoriesToPack)
-                            {
-                                // If a package.json exists the packDirectoryName needs to change to the name in the package.json
-                                dynamic _packageJson = packDirectory.GetPackageJsonFile();
+                            string _packDirectoryName = _packageJson == null ? packDirectory.Name : _packageJson.name;
 
-                                string _packDirectoryName = _packageJson == null ? packDirectory.Name : _packageJson.name;
-
-                                string destPackDir = $"{packageOutputDir.FullName}/{_target}/{_packDirectoryName}";
-                                List<string> contentToIgnore = GetContentToIgnore(contentToPack, packDirectory, DefaultContentToIgnore);
-                                filesToPack.AddRange(FileSystemUtilities.GetFilesToPack(contentToPack, packDirectory.FullName, destPackDir, this.fileSystem, contentToIgnore));
-                            }
-
-                            #endregion
+                            string destPackDir = $"{packageOutputDir.FullName}/{_target}/{_packDirectoryName}";
+                            List<string> contentToIgnore = GetContentToIgnore(contentToPack, packDirectory, DefaultContentToIgnore);
+                            filesToPack.AddRange(FileSystemUtilities.GetFilesToPack(contentToPack, packDirectory.FullName, destPackDir, this.fileSystem, contentToIgnore));
                         }
 
-                        IFileInfo[] _filesToPack = packageDirectory.GetFiles(_source);
-
-                        if (_filesToPack.HasAny())
-                        {
-                            #region Files Packing
-
-                            List<string> contentToIgnore = GetContentToIgnore(contentToPack, packageDirectory, DefaultContentToIgnore);
-
-                            foreach (IFileInfo packFile in _filesToPack)
-                            {
-                                // Skip files to ignore
-                                if (contentToIgnore.Contains(packFile.Name))
-                                {
-                                    continue;
-                                }
-
-                                string destPackFile = $"{packageOutputDir.FullName}/{_target}/{packFile.Name}";
-
-                                filesToPack.Add(new()
-                                {
-                                    ContentToPack = contentToPack,
-                                    Source = packFile,
-                                    Target = this.fileSystem.FileInfo.FromFileName(destPackFile)
-                                });
-                            }
-
-                            #endregion
-                        }
+                        #endregion
                     }
-                    catch (Exception e)
+
+                    IFileInfo[] _filesToPack = packageDirectory.GetFiles(_source);
+
+                    if (_filesToPack.HasAny())
                     {
-                        Log.Warning(e.Message);
+                        #region Files Packing
+
+                        List<string> contentToIgnore = GetContentToIgnore(contentToPack, packageDirectory, DefaultContentToIgnore);
+
+                        foreach (IFileInfo packFile in _filesToPack)
+                        {
+                            // Skip files to ignore
+                            if (contentToIgnore.Contains(packFile.Name))
+                            {
+                                continue;
+                            }
+
+                            string destPackFile = $"{packageOutputDir.FullName}/{_target}/{packFile.Name}";
+                            filesToPack.Add(new()
+                            {
+                                ContentToPack = contentToPack,
+                                Source = packFile,
+                                Target = this.fileSystem.FileInfo.FromFileName(destPackFile)
+                            });
+                        }
+
+                        #endregion
                     }
                 }
 
@@ -439,14 +435,14 @@ namespace Cmf.Common.Cli.Handlers
         /// <param name="buildNr">The version for build Nr.</param>
         /// <param name="bumpInformation">The bump information.</param>
         public virtual void Bump(string version, string buildNr, Dictionary<string, object> bumpInformation = null)
-            {
+        {
             // TODO: create "transaction" to rollback if anything fails
             // NOTE: Check pack strategy. Collect all packages to bump before bump.
 
             var currentVersion = CmfPackage.Version.Split("-")[0];
             var currentBuildNr = CmfPackage.Version.Split("-").Length > 1 ? CmfPackage.Version.Split("-")[1] : null;
             if (!currentVersion.IgnoreCaseEquals(version))
-                {
+            {
                 // TODO :: Uncomment if the cmfpackage.json support build number
                 // cmfPackage.SetVersion(GenericUtilities.RetrieveNewVersion(currentVersion, version, buildNr));
 
@@ -454,7 +450,7 @@ namespace Cmf.Common.Cli.Handlers
 
                 Log.Information($"Will bump {CmfPackage.PackageId} from version {currentVersion} to version {CmfPackage.Version}");
             }
-                }
+        }
 
         /// <summary>
         /// Builds this instance.
@@ -466,7 +462,7 @@ namespace Cmf.Common.Cli.Handlers
                 Log.Information($"Executing '{step.DisplayName}'");
                 step.Exec();
             }
-            }
+        }
 
         /// <summary>
         /// Packs the specified package output dir.

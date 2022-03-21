@@ -18,6 +18,21 @@ namespace Cmf.Common.Cli.Commands
     [CmfCommand("pack")]
     public class PackCommand : BaseCommand
     {
+        #region Constructors
+
+        /// <summary>
+        /// Assemble Command
+        /// </summary>
+        public PackCommand() : base() { }
+
+        /// <summary>
+        /// Assemble Command
+        /// </summary>
+        /// <param name="fileSystem"></param>
+        public PackCommand(IFileSystem fileSystem) : base(fileSystem) { }
+
+        #endregion
+
         /// <summary>
         /// Configure command
         /// </summary>
