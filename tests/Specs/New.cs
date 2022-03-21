@@ -341,6 +341,7 @@ namespace tests.Specs
             }, extraAsserts: args =>
             {
                 Assert.True(File.Exists($"Cmf.Custom.HTML/.dev-tasks.json"), "dev-tasks file is missing or has wrong name. Was cloning HTML-starter unsuccessful?");
+                Assert.True(File.ReadAllText("Cmf.Custom.HTML/.dev-tasks.json").Contains("\"isWebAppCompilable\": true"), "Web app is not compilable");
                 Assert.True(Directory.Exists($"Cmf.Custom.HTML/apps/customization.web"), "WebApp dir is missing or has wrong name. Was running the application generator unsuccessful?");
                 Assert.True(File.Exists($"Cmf.Custom.HTML/apps/customization.web/config.json"), "Config file is missing or has wrong name");
                 Assert.True(File.ReadAllText("Cmf.Custom.HTML/apps/customization.web/config.json").Contains("test.package"), "Product package is not in config.json");
