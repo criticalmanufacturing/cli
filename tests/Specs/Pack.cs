@@ -10,6 +10,8 @@ using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.IO.Compression;
 using System.Linq;
+using Cmf.Common.Cli.Utilities;
+using FluentAssertions;
 using tests.Objects;
 
 namespace tests.Specs
@@ -171,6 +173,35 @@ namespace tests.Specs
                     }
                 }
             }
+        }
+
+        [Fact]
+        public void CheckThatContentWasPacked_FailBecauseNoContentFound()
+        {
+            var fileSystem = MockPackage.Html_MissingDeclaredContent;
+            
+            var packCommand = new PackCommand(fileSystem);
+            var exception = Assert.Throws<CliException>(() => packCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.FromDirectoryName("output"), false));
+            exception.Message.Should().Contain("Nothing was found on ContentToPack Sources");
+        }
+        
+        [Fact]
+        public void DontCheckThatContentWasPacked_IfMeta()
+        {
+            var fileSystem = MockPackage.Root_Empty;
+            
+            var packCommand = new PackCommand(fileSystem);
+            packCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName(MockUnixSupport.Path("c:\\repo")), fileSystem.DirectoryInfo.FromDirectoryName("output"), false);
+        }
+        
+        [Fact]
+        public void DontCheckThatContentWasPacked_IfContentToPackIsEmpty()
+        {
+            var fileSystem = MockPackage.Html_EmptyContentToPack;
+            
+            var packCommand = new PackCommand(fileSystem);
+            var exception = Assert.Throws<CliException>(() => packCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.FromDirectoryName("output"), false));
+            exception.Message.Should().Contain("Missing mandatory property ContentToPack in file");
         }
     }
 }
