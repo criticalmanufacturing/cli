@@ -510,10 +510,7 @@ namespace Cmf.Common.Cli.Utilities
 
                         using (var entryStream = archive.Open())
                         {
-                            using (var streamWriter = new StreamWriter(entryStream))
-                            {
-                                streamWriter.Write(fileSystem.File.ReadAllText(file.FullName));
-                            }
+                            entryStream.Write(fileSystem.File.ReadAllBytes(file.FullName));
                         }
                     }
                 }
@@ -522,6 +519,7 @@ namespace Cmf.Common.Cli.Utilities
                 {
                     memoryStream.Position = 0;
                     memoryStream.WriteTo(zipToOpen);
+                    memoryStream.Flush();
                 }
             }
         }

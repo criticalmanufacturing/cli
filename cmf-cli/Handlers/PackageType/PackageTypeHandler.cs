@@ -51,7 +51,6 @@ namespace Cmf.Common.Cli.Handlers
         /// </summary>
         protected List<FileToPack> FilesToPack = new List<FileToPack>();
 
-
         #endregion
 
         #region Public Properties
@@ -316,7 +315,7 @@ namespace Cmf.Common.Cli.Handlers
         /// <returns></returns>
         internal virtual List<FileToPack> GetContentToPack(IDirectoryInfo packageOutputDir)
         {
-            List<FileToPack> filesToPack = new List<FileToPack>();
+            List<FileToPack> filesToPack = new();
 
             if (CmfPackage.ContentToPack.HasAny())
             {
@@ -351,9 +350,19 @@ namespace Cmf.Common.Cli.Handlers
 
                     #endregion
 
-                    // TODO: To be reviewed, files/directory search should be done with globs
+                    IDirectoryInfo[] _directoriesToPack = null;
 
-                    IDirectoryInfo[] _directoriesToPack = packageDirectory.GetDirectories(_source);
+                    try
+                    {
+                        // TODO: To be reviewed, files/directory search should be done with globs
+                        _directoriesToPack = packageDirectory.GetDirectories(_source);
+                    }
+                    // Because the method GetDirectories throws an exception if the folder is not found
+                    // we need to catch the error and don't throw an exception
+                    catch (DirectoryNotFoundException ex)
+                    {
+                        Log.Debug(ex.Message);
+                    }
 
                     if (_directoriesToPack.HasAny())
                     {
@@ -374,7 +383,18 @@ namespace Cmf.Common.Cli.Handlers
                         #endregion
                     }
 
-                    IFileInfo[] _filesToPack = packageDirectory.GetFiles(_source);
+                    IFileInfo[] _filesToPack = null;
+
+                    try
+                    {
+                        _filesToPack = packageDirectory.GetFiles(_source);
+                    }
+                    // Because the method GetFiles throws an exception if the folder is not found
+                    // we need to catch the error and don't throw an exception
+                    catch (DirectoryNotFoundException ex)
+                    {
+                        Log.Debug(ex.Message);
+                    }
 
                     if (_filesToPack.HasAny())
                     {
@@ -401,11 +421,6 @@ namespace Cmf.Common.Cli.Handlers
 
                         #endregion
                     }
-                }
-
-                if (!filesToPack.HasAny())
-                {
-                    Log.Warning(string.Format(CliMessages.ContentToPackNotFound, CmfPackage.PackageId, CmfPackage.Version));
                 }
             }
 
@@ -472,6 +487,11 @@ namespace Cmf.Common.Cli.Handlers
         public virtual void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir)
         {
             var filesToPack = GetContentToPack(packageOutputDir);
+            if (!filesToPack.HasAny())
+            {
+                throw new Exception(string.Format(CliMessages.ContentToPackNotFound, CmfPackage.PackageId, CmfPackage.Version));
+            }
+
             if (filesToPack != null)
             {
                 FilesToPack.AddRange(filesToPack);
