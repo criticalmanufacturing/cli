@@ -487,7 +487,7 @@ namespace Cmf.Common.Cli.Handlers
         public virtual void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir)
         {
             var filesToPack = GetContentToPack(packageOutputDir);
-            if (!filesToPack.HasAny())
+            if (CmfPackage.ContentToPack.HasAny() && !filesToPack.HasAny())
             {
                 throw new Exception(string.Format(CliMessages.ContentToPackNotFound, CmfPackage.PackageId, CmfPackage.Version));
             }
