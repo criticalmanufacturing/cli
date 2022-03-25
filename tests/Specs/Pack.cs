@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Cmf.Common.Cli.Commands;
+using Cmf.Common.Cli.TestUtilities;
+using Cmf.Common.Cli.Utilities;
 using Xunit;
 using System.CommandLine;
 using System.CommandLine.Invocation;
@@ -10,7 +12,6 @@ using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.IO.Compression;
 using System.Linq;
-using Cmf.Common.Cli.Utilities;
 using FluentAssertions;
 using tests.Objects;
 
@@ -202,6 +203,38 @@ namespace tests.Specs
             var packCommand = new PackCommand(fileSystem);
             var exception = Assert.Throws<CliException>(() => packCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.FromDirectoryName("output"), false));
             exception.Message.Should().Contain("Missing mandatory property ContentToPack in file");
+        }
+        [Fact]
+        public void Pack_SecurityPortal()
+        {
+            string dir = $"{TestUtilities.GetTmpDirectory()}/securityPortal";
+            TestUtilities.CopyFixture("pack/securityPortal", new DirectoryInfo(dir));
+
+            Directory.SetCurrentDirectory(dir);
+
+            string _workingDir = dir;
+
+            PackCommand packCommand = new PackCommand();
+            Command cmd = new Command("pack");
+            packCommand.Configure(cmd);
+
+            TestConsole console = new TestConsole();
+            cmd.Invoke(new string[] {
+            }, console);
+
+            DirectoryInfo curDir = new DirectoryInfo(System.IO.Directory.GetCurrentDirectory());
+
+            Assert.True(Directory.Exists($"{dir}/Package"), "Package folder is missing");
+            Assert.True(File.Exists($"{dir}/Package/Cmf.Custom.SecurityPortal.1.0.0.zip"), "Zip package is missing");
+
+            List<string> entries = TestUtilities.GetFileEntriesFromZip($"{dir}/Package/Cmf.Custom.SecurityPortal.1.0.0.zip");
+            Assert.True(entries.HasAny(), "Zip package is empty");
+            Assert.True(entries.HasAny(entry => entry == "manifest.xml"), "Manifest file does not exist");
+            Assert.True(entries.HasAny(entry => entry == "config.json"), "Config file does not exist");
+
+            string configJsonContent = FileSystemUtilities.GetFileContentFromPackage($"{dir}/Package/Cmf.Custom.SecurityPortal.1.0.0.zip", "config.json");
+
+            Assert.True(configJsonContent.Contains("$.tenants.config.tenant.strategies"), "Config file does not have correct tenant");
         }
     }
 }
