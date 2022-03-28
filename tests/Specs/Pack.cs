@@ -175,6 +175,40 @@ namespace tests.Specs
                 }
             }
         }
+        
+        [Fact(Skip = "No System.IO.Abstractions support for searching outside the current directory")]
+        public void HTML_OnlyLBOs()
+        {
+            var fileSystem = MockPackage.Html_OnlyLBOs;
+
+            var packCommand = new PackCommand(fileSystem);
+            packCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.FromDirectoryName("output"), false);
+
+            IEnumerable<IFileInfo> assembledFiles = fileSystem.DirectoryInfo.FromDirectoryName("output").EnumerateFiles("Cmf.Custom.HTML.1.1.0.zip").ToList();
+            Assert.Single(assembledFiles);
+
+            using (Stream zipToOpen = fileSystem.FileStream.Create(assembledFiles.First().FullName, FileMode.Open))
+            {
+                using (ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read))
+                {
+                    // these tuples allow us to rewrite entry paths
+                    var entriesToExtract = new List<Tuple<ZipArchiveEntry, string>>();
+                    entriesToExtract.AddRange(zip.Entries.Select(selector: entry => new Tuple<ZipArchiveEntry, string>(entry, entry.FullName)));
+
+                    List<string> expectedFiles = new()
+                    {
+                        "manifest.xml",
+                        MockUnixSupport.Path(@"node_modules\cmf.lbos\cmf.lbos.js"),
+                        MockUnixSupport.Path(@"node_modules\cmf.lbos\APIReference.js")
+                    };
+                    Assert.Equal(expectedFiles.Count, entriesToExtract.Count);
+                    foreach (var expectedFile in expectedFiles)
+                    {
+                        Assert.NotNull(entriesToExtract.FirstOrDefault(x => x.Item2.Equals(expectedFile)));
+                    }
+                }
+            }
+        }
 
         [Fact]
         public void CheckThatContentWasPacked_FailBecauseNoContentFound()

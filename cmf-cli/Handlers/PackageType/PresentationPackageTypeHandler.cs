@@ -113,6 +113,12 @@ namespace Cmf.Common.Cli.Handlers
 
                 this.fileSystem.File.WriteAllText(path, fileContent);
             }
+            else
+            {
+                Log.Debug("Could not find UI packages, so skipping generating config.json transform");
+                this.CmfPackage.Steps = this.CmfPackage.Steps
+                    .Where(step => step.Type != StepType.TransformFile && step.File != "config.json").ToList();
+            }
         }
 
         #endregion
