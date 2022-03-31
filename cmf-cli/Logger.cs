@@ -2,6 +2,8 @@ using System;
 using System.CommandLine;
 using System.ComponentModel;
 using System.Linq;
+using Spectre.Console;
+using Spectre.Console.Rendering;
 
 namespace Cmf.Common.Cli
 {
@@ -18,134 +20,112 @@ namespace Cmf.Common.Cli
 
         //public static void SetConsole(IConsole console) => Log.console = console;
 
+        public static IAnsiConsole AnsiConsole = Spectre.Console.AnsiConsole.Console;
+
         /// <summary>
-        /// The level
+        /// The default log level
         /// </summary>
         public static LogLevel Level = LogLevel.Verbose;
 
         /// <summary>
-        /// Debugs the specified MSG.
+        /// Log the message with Debug verbosity
         /// </summary>
         /// <param name="msg">The MSG.</param>
         public static void Debug(string msg)
         {
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            Write(msg);
-            Console.ResetColor();
+            if (Level <= LogLevel.Debug)
+                Write($"[gray]{EscapeMarkup(msg)}[/]");
         }
 
         /// <summary>
-        /// Verboses the specified MSG.
+        /// Log the message with Verbose verbosity
         /// </summary>
         /// <param name="msg">The MSG.</param>
         public static void Verbose(string msg)
         {
-            Console.ResetColor();
-            Write(msg);
-            Console.ResetColor();
+            if (Level <= LogLevel.Verbose)
+                Write($"[white]{EscapeMarkup(msg)}[/]");
         }
 
         /// <summary>
-        /// Informations the specified MSG.
+        /// Log the message with Information verbosity
         /// </summary>
         /// <param name="msg">The MSG.</param>
         public static void Information(string msg)
         {
-            Console.ForegroundColor = ConsoleColor.DarkGreen;
-            Write(msg);
-            Console.ResetColor();
+            if (Level <= LogLevel.Information)
+                Write($"[green]{EscapeMarkup(msg)}[/]");
         }
 
         /// <summary>
-        /// Warnings the specified MSG.
+        /// Log the message with Warning verbosity
         /// </summary>
         /// <param name="msg">The MSG.</param>
         public static void Warning(string msg)
         {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Write(msg);
-            Console.ResetColor();
+            if (Level <= LogLevel.Warning)
+                Write($"[yellow]{EscapeMarkup(msg)}[/]");
         }
 
         /// <summary>
-        /// Errors the specified MSG.
+        /// Log the message with Error verbosity
         /// </summary>
         /// <param name="msg">The MSG.</param>
         public static void Error(string msg)
         {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Write(msg);
-            Console.ResetColor();
+            if (Level <= LogLevel.Error)
+                Write($"[red]{EscapeMarkup(msg)}[/]");
         }
 
-        private static BackgroundWorker worker = null;
-        private static string curMsg = string.Empty;
-        
+        /// <summary>
+        /// Log the Exception
+        /// </summary>
+        /// <param name="e">an exception</param>
+        public static void Exception(Exception e)
+        {
+            AnsiConsole.WriteException(e);
+        }
+
         /// <summary>
         /// Logs the progress of an operation, single line with a spinner
-        /// TODO: this needs a better API and implementation, it's a mess
         /// </summary>
-        /// <param name="msg">message to print</param>
-        /// <param name="end">should stop the spinner and clear the console line</param>
-        public static void Progress(string msg, bool end = false)
+        /// <param name="msg">initial message to print</param>
+        public static void Status(string msg, Action<StatusContext> action = null)
         {
-            if (Console.LargestWindowHeight > 0) // no console available
+            AnsiConsole.Status().Start(msg, ctx =>
             {
-                curMsg = msg;
-                var spinnerPosition = Console.CursorLeft;
-                if (worker == null)
+                ctx.Spinner(Spinner.Known.Dots);
+                if (action != null)
                 {
-                    worker = new BackgroundWorker();
-                    worker.DoWork += delegate (object _, DoWorkEventArgs e)
-                    {
-                        Console.CursorVisible = false;
-                        while (!worker.CancellationPending)
-                        {
-
-                            char[] spinChars = new char[] { '|', '/', '-', '\\' };
-                            foreach (char spinChar in spinChars)
-                            {
-                                Console.CursorLeft = spinnerPosition;
-                                Console.Write(spinChar);
-                                Console.ForegroundColor = ConsoleColor.DarkGray;
-                                Console.Write($" {curMsg}{string.Join("", Enumerable.Repeat<char>(' ', Console.BufferWidth - curMsg.Length - 3).ToArray())}");
-                                Console.ResetColor();
-                                System.Threading.Thread.Sleep(50);
-                            }
-                        }
-                        e.Cancel = true;
-                        e.Result = "done";
-                    };
-                    worker.WorkerSupportsCancellation = true;
-                    worker.RunWorkerAsync();
+                    action(new StatusContext(ctx));
                 }
-                if (end)
-                {
-                    worker.CancelAsync();
-                    // according to docs, Cancel should trigger RunWorkerCompleted, but in .NET 5 I could not do anything complex there
-                    // such as wiping the last line. This needs more debugging.
-                    // So the thread sleep here allows for the worker to finish printing
-                    System.Threading.Thread.Sleep(100);
-                    // this clears the last line
-                    Console.CursorVisible = true;
-                    int currentLineCursor = Console.CursorTop;
-                    Console.SetCursorPosition(0, Console.CursorTop);
-                    Console.Write(new string(' ', Console.BufferWidth));
-                    Console.SetCursorPosition(0, currentLineCursor);
-                    // this allows the console to reset before we actually continue printing stuff
-                    System.Threading.Thread.Sleep(100);
-                }
-            }
+            });
         }
 
         /// <summary>
-        /// Writes the specified MSG.
+        /// renders a renderable Spectre object (currently we use it for trees)
+        /// This abstracts from the logging library (up to a point)
+        /// </summary>
+        /// <param name="renderable"></param>
+        public static void Render(IRenderable renderable)
+        {
+            AnsiConsole.Write(renderable);
+        }
+
+        /// <summary>
+        /// Abstracts from the logging library
         /// </summary>
         /// <param name="msg">The MSG.</param>
-        private static void Write(string msg)
-        {
-            Console.WriteLine($"  {msg}");
-        }
+        private static void Write(string msg) => AnsiConsole.MarkupLine($"  {msg}");
+
+        /// <summary>
+        /// Escapes Spectre Console markup
+        /// Markup is enclosed in [] and escaped as [[]]
+        /// This is a very naive operation that will likely need extending in the future
+        /// </summary>
+        /// <param name="msg">message to be escaped</param>
+        /// <returns>escaped message</returns>
+        private static string EscapeMarkup(string msg) => msg?.Replace("[", "[[").Replace("]", "]]");
     }
 
     /// <summary>
@@ -177,5 +157,44 @@ namespace Cmf.Common.Cli
         /// The error
         /// </summary>
         Error
+    }
+
+    /// <summary>
+    /// Wrapper for the SpectreConsole StatusContext object so we do not pollute all classes with Spectre imports
+    /// </summary>
+    public class StatusContext
+    {
+        private Spectre.Console.StatusContext context;
+
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="context">the StatusContext object</param>
+        public StatusContext(Spectre.Console.StatusContext context)
+        {
+            this.context = context;
+        }
+        
+        //
+        // Summary:
+        //     Sets the status message.
+        //
+        // Parameters:
+        //
+        //   status:
+        //     The status message.
+        //
+        // Returns:
+        //     The same instance so that multiple calls can be chained.
+        public StatusContext Status(string status)
+        {
+            if (context == null)
+            {
+                throw new ArgumentNullException("context");
+            }
+
+            context.Status = status;
+            return this;
+        }
     }
 }

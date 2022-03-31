@@ -23,7 +23,7 @@ namespace Cmf.Common.Cli.Handlers
         /// <param name="cmfPackage">The CMF package.</param>
         public IoTDataPackageTypeHandler(CmfPackage cmfPackage) : base(cmfPackage)
         {
-            DFPackageType = PackageType.Business;
+            cmfPackage.DFPackageType = PackageType.Business;
         }
 
         /// <summary>

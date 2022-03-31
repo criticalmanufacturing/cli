@@ -74,11 +74,14 @@ namespace Cmf.Common.Cli.Commands
             {
                 ExecutionContext.Instance.RepositoriesConfig.Repositories.InsertRange(0, repos);
             }
-            
-            Log.Progress("Starting ls...");
-            cmfPackage.LoadDependencies(ExecutionContext.Instance.RepositoriesConfig.Repositories.ToArray(), true);
-            Log.Progress("Finished ls", true);
-            GenericUtilities.IterateTree(cmfPackage);
+
+            Log.Status("Starting ls...", ctx => {
+                cmfPackage.LoadDependencies(ExecutionContext.Instance.RepositoriesConfig.Repositories.ToArray(), ctx, true);
+                ctx.Status("Finished ls");
+
+                var tree = GenericUtilities.BuildTree(cmfPackage);
+                Log.Render(tree);
+            });
         }
     }
 }

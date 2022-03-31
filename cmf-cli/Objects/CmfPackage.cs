@@ -35,7 +35,7 @@ namespace Cmf.Common.Cli.Objects
 
         private IFileSystem fileSystem;
 
-        #endregion
+        #endregion Private Properties
 
         #region Internal Properties
 
@@ -59,7 +59,7 @@ namespace Cmf.Common.Cli.Objects
         [JsonIgnore]
         internal string ZipPackageName { get; private set; }
 
-        #endregion
+        #endregion Internal Properties
 
         #region Public Properties
 
@@ -223,7 +223,6 @@ namespace Cmf.Common.Cli.Objects
         /// Handler Version
         /// </summary>
         [JsonProperty(Order = 17)]
-        [JsonIgnore]
         public int HandlerVersion { get; private set; }
 
         /// <summary>
@@ -240,7 +239,13 @@ namespace Cmf.Common.Cli.Objects
         [JsonIgnore]
         public Uri Uri { get; private set; }
 
-        #endregion
+        /// <summary>
+        /// The df package type
+        /// </summary>
+        [JsonIgnore]
+        public PackageType DFPackageType { get; set; }
+
+        #endregion Public Properties
 
         #region Private Methods
 
@@ -281,7 +286,7 @@ namespace Cmf.Common.Cli.Objects
             //}
         }
 
-        #endregion
+        #endregion Private Methods
 
         #region Constructors
 
@@ -362,7 +367,7 @@ namespace Cmf.Common.Cli.Objects
             ZipPackageName = $"{PackageName}.zip";
         }
 
-        #endregion
+        #endregion Constructors
 
         #region Public Methods
 
@@ -490,11 +495,11 @@ namespace Cmf.Common.Cli.Objects
         /// <param name="repoUris">the address of the package repositories (currently only folders are supported)</param>
         /// <param name="recurse">should we run recursively</param>
         /// <returns>this CmfPackage for chaining, but the method itself is mutable</returns>
-        public void LoadDependencies(IEnumerable<Uri> repoUris, bool recurse = false)
+        public void LoadDependencies(IEnumerable<Uri> repoUris, StatusContext ctx, bool recurse = false)
         {
             List<CmfPackage> loadedPackages = new();
             loadedPackages.Add(this);
-            Log.Progress($"Working on {this.Name ?? (this.PackageId + "@" + this.Version)}");
+            ctx?.Status($"Working on {this.Name ?? (this.PackageId + "@" + this.Version)}");
 
             if (this.Dependencies.HasAny())
             {
@@ -513,7 +518,7 @@ namespace Cmf.Common.Cli.Objects
                 }
                 foreach (var dependency in this.Dependencies)
                 {
-                    Log.Progress($"Working on dependency {dependency.Id}@{dependency.Version}");
+                    ctx?.Status($"Working on dependency {dependency.Id}@{dependency.Version}");
 
                     #region Get Dependencies from Dependencies Directory
 
@@ -542,13 +547,22 @@ namespace Cmf.Common.Cli.Objects
                         dependency.CmfPackage = dependencyPackage;
                         if (recurse)
                         {
-                            dependencyPackage.LoadDependencies(repoUris, recurse);
+                            dependencyPackage.LoadDependencies(repoUris, ctx, recurse);
                         }
                     }
                 }
 
-                #endregion
+                #endregion Get Dependencies from Dependencies Directory
             }
+        }
+
+        /// <summary>
+        /// Should Serialize Handler Version
+        /// </summary>
+        /// <returns>returns false if handler version is 0 otherwise true</returns>
+        public bool ShouldSerializeHandlerVersion()
+        {
+            return this.HandlerVersion != 0;
         }
 
         #region Static Methods
@@ -702,7 +716,7 @@ namespace Cmf.Common.Cli.Objects
             return cmfPackage;
         }
 
-        #endregion
+        #endregion Static Methods
 
         #region Utilities
 
@@ -760,8 +774,8 @@ namespace Cmf.Common.Cli.Objects
             throw new NotImplementedException();
         }
 
-        #endregion
+        #endregion Utilities
 
-        #endregion
+        #endregion Public Methods
     }
 }

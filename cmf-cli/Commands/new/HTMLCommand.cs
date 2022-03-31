@@ -123,6 +123,7 @@ namespace Cmf.Common.Cli.Commands.New
             devTasksJson.packagePrefix = "customization";
             devTasksJson.webAppPrefix = "customization";
             devTasksJson.registry = npmRegistry;
+            devTasksJson.isWebAppCompilable = true;
             devTasksJson.channel = $"release-{mesVersion?.Replace(".", "")}";
             devTasksStr = JsonConvert.SerializeObject(devTasksJson, Formatting.Indented);
             this.fileSystem.File.WriteAllText(devTasksPath, devTasksStr);
@@ -154,7 +155,7 @@ $@"{{
             this.fileSystem.File.WriteAllText(htmlWebAppConfigPath, htmlWebAppConfigJson);
             
             // create web app
-            // npx yeoman-gen-run --name @criticalmanufacturing/html --config "$pathHTMLConfig"
+            // npx yeoman-gen-run --name @criticalmanufacturing/html --config "$pathHTMLConfig" -- --keep
             Log.Verbose("Generate web app, this will take a while...");
             (new NPXCommand()
             {
@@ -162,7 +163,7 @@ $@"{{
                 WorkingDirectory = pkgFolder,
                 Args = new []
                 {
-                    "--name", "@criticalmanufacturing/html", "--config", htmlDevTasksConfigPath
+                    "--name", "@criticalmanufacturing/html", "--config", htmlDevTasksConfigPath, "--", "--keep"
                 }
             }).Exec();
             // npx yeoman-gen-run --name @criticalmanufacturing/html:application --config "$path"

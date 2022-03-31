@@ -53,7 +53,7 @@ namespace Cmf.Common.Cli.Handlers
                 }
             };
 
-            DFPackageType = PackageType.Business;
+            cmfPackage.DFPackageType = PackageType.Business;
         }
 
         /// <summary>

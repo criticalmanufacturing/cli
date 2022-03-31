@@ -475,7 +475,7 @@ namespace Cmf.Common.Cli.Utilities
         /// <returns></returns>
         public static string GetFileContentFromPackage(string packageFile, string filename)
         {
-            using (FileStream zipToOpen = new(packageFile, FileMode.Open))
+            using (FileStream zipToOpen = new FileInfo(packageFile).OpenRead())
             {
                 using (ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read))
                 {
@@ -497,17 +497,29 @@ namespace Cmf.Common.Cli.Utilities
         /// <param name="filePath"></param>
         /// <param name="directory"></param>
         /// <returns></returns>
-        public static void ZipDirectory(string filePath, IDirectoryInfo directory)
+        public static void ZipDirectory(IFileSystem fileSystem, string filePath, IDirectoryInfo directory)
         {
-            using (FileStream zipToOpen = new(filePath, FileMode.Create))
+            using (var memoryStream = new MemoryStream())
             {
-                using (ZipArchive archive = new(zipToOpen, ZipArchiveMode.Create))
+                using (ZipArchive zipArchive = new(memoryStream, ZipArchiveMode.Create, true))
                 {
                     foreach (IFileInfo file in directory.AllFilesAndFolders().Where(o => o is IFileInfo).Cast<IFileInfo>())
                     {
                         var relPath = file.FullName.Substring(directory.FullName.Length + 1);
-                        archive.CreateEntryFromFile(file.FullName, relPath);
+                        var archive = zipArchive.CreateEntry(relPath);
+
+                        using (var entryStream = archive.Open())
+                        {
+                            entryStream.Write(fileSystem.File.ReadAllBytes(file.FullName));
+                        }
                     }
+                }
+
+                using (Stream zipToOpen = fileSystem.FileStream.Create(filePath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 0x1000, useAsync: false))
+                {
+                    memoryStream.Position = 0;
+                    memoryStream.WriteTo(zipToOpen);
+                    memoryStream.Flush();
                 }
             }
         }
