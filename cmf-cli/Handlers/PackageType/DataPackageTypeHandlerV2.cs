@@ -32,7 +32,9 @@ namespace Cmf.Common.Cli.Handlers
                 waitForIntegrationEntries:
                     true,
                 targetDirectory:
-                    "BusinessTier"
+                    "BusinessTier",
+                targetLayer:
+                    "host"
             );
 
             BuildSteps = new IBuildCommand[]
@@ -45,7 +47,6 @@ namespace Cmf.Common.Cli.Handlers
             };
 
             cmfPackage.DFPackageType = PackageType.Business; // necessary because we restart the host during installation
-
         }
 
         /// <summary>
@@ -56,7 +57,7 @@ namespace Cmf.Common.Cli.Handlers
         public override void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir)
         {
             GenerateHostConfigFile(packageOutputDir);
-            
+
             base.Pack(packageOutputDir, outputDir);
         }
 
@@ -140,6 +141,5 @@ namespace Cmf.Common.Cli.Handlers
             string tempPath = fileSystem.Path.Combine(packageOutputDir.FullName, generateLBOsFile.Name);
             generateLBOsFile.CopyTo(tempPath, true);
         }
-
     }
 }
