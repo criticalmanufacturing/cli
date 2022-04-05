@@ -5,6 +5,9 @@ variables:
   # Run Settings
   RunSettings: 'integration.runsettings'
 
+  # Location of release candidate packages being tested in a release
+  CandidatePackages: '<%= $CLI_PARAM_RCRepo %>'
+
 //#if (releaseCustomerEnvironment != "") {
   # Customer Environment Name defined in DevOpsCenter
   CustomerEnvironmentName: '<%= $CLI_PARAM_ReleaseCustomerEnvironment %>'
