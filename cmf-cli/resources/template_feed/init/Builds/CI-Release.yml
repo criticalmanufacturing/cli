@@ -312,6 +312,7 @@ stages:
 
           - task: PowerShell@2
             displayName: "Enable maintenance mode"
+            condition: eq('${{ variables.UseMaintenanceMode }}', true)
             inputs:
               targetType: 'inline'
               pwsh: true
@@ -389,6 +390,7 @@ stages:
 
           - task: PowerShell@2
             displayName: "Disable maintenance mode"
+            condition: eq('${{ variables.UseMaintenanceMode }}', true)
             inputs:
               targetType: 'inline'
               pwsh: true
