@@ -2,8 +2,17 @@
 
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
+        <PackageId>Cmf.CLI.Core</PackageId>
         <RootNamespace>Cmf.CLI.Core</RootNamespace>
-        <Version>2.2.0-1</Version>
+        <Version>2.2.1-0</Version>
+        <Authors>CriticalManufacturing</Authors>
+        <Company>CriticalManufacturing</Company>
+        <Description>
+            These are the core classes from Critical Manufacturing CLI. They serve as a base for building CLI plugins.
+        </Description>
+        <PackageTags>Critical Manufacturing;Cmf;CM;CLI</PackageTags>
+        <IsPackable>true</IsPackable>
+        <PackageOutputPath>./nupkg</PackageOutputPath>
     </PropertyGroup>
 
     <ItemGroup>
