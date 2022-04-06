@@ -1,6 +1,7 @@
 ﻿using Cmf.Common.Cli.Commands;
 using Cmf.Common.Cli.Constants;
 using Cmf.Common.Cli.Objects;
+using FluentAssertions;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -98,7 +99,7 @@ namespace tests.Specs
             cmfPackageObj.SaveCmfPackage();
 
             var cmfpackageFileContent = fileSystem.File.ReadAllText(cmfpackageFile.FullName);
-            Assert.False(cmfpackageFileContent.Contains("handlerVersion"), "Package.json should not have handler version");
+            cmfpackageFileContent.Should().NotContain("handlerVersion", "cmfpackage.json should not have handler version");
         }
 
         /// <summary>
@@ -135,7 +136,7 @@ namespace tests.Specs
             cmfPackageObj.SaveCmfPackage();
 
             var cmfpackageFileContent = fileSystem.File.ReadAllText(cmfpackageFile.FullName);
-            Assert.True(cmfpackageFileContent.Contains("handlerVersion"), "Package.json should have handler version");
+            cmfpackageFileContent.Should().Contain("handlerVersion", "cmfpackage.json should have handler version");
         }
 
         /// <summary>
@@ -172,13 +173,13 @@ namespace tests.Specs
             cmfPackageObj.SaveCmfPackage();
 
             var cmfpackageFileContent = fileSystem.File.ReadAllText(cmfpackageFile.FullName);
-            Assert.True(cmfpackageFileContent.Contains("handlerVersion"), "Package.json should have handler version");
+            cmfpackageFileContent.Should().Contain("handlerVersion", "cmfpackage.json should have handler version");
         }
 
         /// <summary>
         /// Validates that the isMandatory property in Dependency is not kept during serialization if value is true
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void DoNotKeepIsMandatoryPropInDependencyIfValueIsTrue()
         {
             KeyValuePair<string, string> package = new("Cmf.Custom.Package", "1.1.0");
@@ -213,18 +214,16 @@ namespace tests.Specs
             IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
             CmfPackage cmfPackageObj = CmfPackage.Load(cmfpackageFile, fileSystem: fileSystem);
 
-            Assert.IsNotNull(cmfPackageObj.HandlerVersion);
-
             cmfPackageObj.SaveCmfPackage();
 
             var cmfpackageFileContent = fileSystem.File.ReadAllText(cmfpackageFile.FullName);
-            Assert.IsFalse(cmfpackageFileContent.Contains("mandatory"), "Package.json should not have ismandatory in dependency");
+            cmfpackageFileContent.Should().NotContain("mandatory", "cmfpackage.json should not have ismandatory in dependency");
         }
 
         /// <summary>
         /// Validates that the isMandatory property in Dependency is not added during serialization
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void DoNotAddIsMandatoryPropInDependency()
         {
             KeyValuePair<string, string> package = new("Cmf.Custom.Package", "1.1.0");
@@ -258,18 +257,16 @@ namespace tests.Specs
             IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
             CmfPackage cmfPackageObj = CmfPackage.Load(cmfpackageFile, fileSystem: fileSystem);
 
-            Assert.IsNotNull(cmfPackageObj.HandlerVersion);
-
             cmfPackageObj.SaveCmfPackage();
 
             var cmfpackageFileContent = fileSystem.File.ReadAllText(cmfpackageFile.FullName);
-            Assert.IsFalse(cmfpackageFileContent.Contains("mandatory"), "Package.json should not have ismandatory in dependency");
+            cmfpackageFileContent.Should().NotContain("mandatory", "cmfpackage.json should not have ismandatory in dependency");
         }
 
         /// <summary>
         /// Validates that the isMandatory property in Dependency is kept during serialization if value is false
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void KeepIsMandatoryPropInDependencyIfValueIsFalse()
         {
             KeyValuePair<string, string> package = new("Cmf.Custom.Package", "1.1.0");
@@ -304,12 +301,88 @@ namespace tests.Specs
             IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
             CmfPackage cmfPackageObj = CmfPackage.Load(cmfpackageFile, fileSystem: fileSystem);
 
-            Assert.IsNotNull(cmfPackageObj.HandlerVersion);
+            cmfPackageObj.SaveCmfPackage();
+
+            var cmfpackageFileContent = fileSystem.File.ReadAllText(cmfpackageFile.FullName);
+            cmfpackageFileContent.Should().Contain("mandatory", "cmfpackage.json should have ismandatory in dependency");
+        }
+
+        /// <summary>
+        /// Validates that the DFPackageType property is not added during serialization
+        /// </summary>
+        [Fact]
+        public void DoNotAddDFPackageTypeProp()
+        {
+            KeyValuePair<string, string> package = new("Cmf.Custom.Random.Package", "1.1.0");
+
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { "/repo/cmfpackage.json", new MockFileData(
+                @$"{{
+                      ""packageId"": ""{ package.Key }"",
+                      ""version"": ""{ package.Value }"",
+                      ""description"": ""Custom Package"",
+                      ""packageType"": ""Generic"",
+                      ""isInstallable"": true,
+                      ""isUniqueInstall"": true,
+                      ""contentToPack"": [
+                        {{
+                            ""source"": ""*"",
+                            ""target"": """"
+                        }}
+                        ],
+                      ""handlerVersion"": 2
+                }}")}
+            });
+
+            IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
+            CmfPackage cmfPackageObj = CmfPackage.Load(cmfpackageFile, fileSystem: fileSystem);
+
+            Assert.Null(cmfPackageObj.DFPackageType);
 
             cmfPackageObj.SaveCmfPackage();
 
             var cmfpackageFileContent = fileSystem.File.ReadAllText(cmfpackageFile.FullName);
-            Assert.IsTrue(cmfpackageFileContent.Contains("mandatory"), "Package.json should have ismandatory in dependency");
+            cmfpackageFileContent.Should().NotContain("dfPackageType", "cmfpackage.json should not have DFPackageType");
+        }
+
+        /// <summary>
+        /// Validates that the DFPackageType property is keeped during serialization
+        /// </summary>
+        [Fact]
+        public void KeepDFPackageTypeProp()
+        {
+            KeyValuePair<string, string> package = new("Cmf.Custom.Random.Package", "1.1.0");
+
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { "/repo/cmfpackage.json", new MockFileData(
+                @$"{{
+                      ""packageId"": ""{ package.Key }"",
+                      ""version"": ""{ package.Value }"",
+                      ""description"": ""Custom Package"",
+                      ""packageType"": ""Generic"",
+                      ""dFPackageType"": ""Data"",
+                      ""isUniqueInstall"": true,
+                      ""isInstallable"": true,
+                      ""isUniqueInstall"": true,
+                      ""contentToPack"": [
+                        {{
+                            ""source"": ""*"",
+                            ""target"": """"
+                        }}
+                        ],
+                      ""handlerVersion"": 2
+                }}")}
+            });
+
+            IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
+            CmfPackage cmfPackageObj = CmfPackage.Load(cmfpackageFile, fileSystem: fileSystem);
+
+            cmfPackageObj.SaveCmfPackage();
+
+            var cmfpackageFileContent = fileSystem.File.ReadAllText(cmfpackageFile.FullName);
+            cmfpackageFileContent.Should().Contain("dfPackageType", "cmfpackage.json should have DFPackageType");
         }
 
         /// <summary>
