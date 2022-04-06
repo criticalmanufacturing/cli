@@ -235,15 +235,16 @@ namespace Cmf.Common.Cli.Objects
         /// <summary>
         /// The Uri of the package
         /// </summary>
-        [JsonProperty(Order = 17)]
+        [JsonProperty(Order = 19)]
         [JsonIgnore]
         public Uri Uri { get; private set; }
 
         /// <summary>
         /// The df package type
         /// </summary>
-        [JsonIgnore]
-        public PackageType DFPackageType { get; set; }
+        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonProperty(Order = 20)]
+        public PackageType? DFPackageType { get; set; }
 
         #endregion Public Properties
 
@@ -562,7 +563,16 @@ namespace Cmf.Common.Cli.Objects
         /// <returns>returns false if handler version is 0 otherwise true</returns>
         public bool ShouldSerializeHandlerVersion()
         {
-            return this.HandlerVersion != 0;
+            return HandlerVersion != 0;
+        }
+
+        /// <summary>
+        /// Shoulds the serialize d f package type.
+        /// </summary>
+        /// <returns>returns false if handler version is 0 otherwise true</returns>
+        public bool ShouldSerializeDFPackageType()
+        {
+            return DFPackageType != null && PackageType == PackageType.Generic;
         }
 
         #region Static Methods
