@@ -27,7 +27,8 @@ Name | Description
 `help <workingDir>` | [default: ]
 `html <workingDir>` | [default: ]
 `iot <workingDir>` | [default: ]
-`test` | 
+`securityPortal <workingDir>` | [default: ]
+`test` |
 
 
 <!-- END USAGE -->
