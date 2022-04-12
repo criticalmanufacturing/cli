@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.3.0](https://github.com/criticalmanufacturing/cli/compare/2.3.0-0...2.3.0) (2022-04-12)
+
+## [2.3.0-0](https://github.com/criticalmanufacturing/cli/compare/2.2.0...2.3.0-0) (2022-04-06)
+
+
+### Features
+
+* allow DFPackageType to be deserialized ([0e43b4c](https://github.com/criticalmanufacturing/cli/commits/0e43b4cebf6899c1fd2032cbeb91f03a27bf6591))
+* allow the IsMandatory property to be deserialized ([cb54f25](https://github.com/criticalmanufacturing/cli/commits/cb54f25f8fb75ff5423d9df2a6819c6861559c5c))
+
+
+### Bug Fixes
+
+* hostUseSSL in tests BaseContext file ([1b32a61](https://github.com/criticalmanufacturing/cli/commits/1b32a6115e8d2f614be856de5e8f68d12b60c618))
+
 ## [2.2.0](https://github.com/criticalmanufacturing/cli/compare/2.2.0-5...2.2.0) (2022-03-31)
 
 ## [2.2.0-5](https://github.com/criticalmanufacturing/cli/compare/2.2.0-4...2.2.0-5) (2022-03-28)
