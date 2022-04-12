@@ -22,15 +22,15 @@ Name | Description
 Name | Description
 ---- | -----------
 `--version <version>` | Package Version [default: 1.0.0]
-`-c, --config <config>` | Configuration file exported from Setup [default: ]
-`--repositoryUrl <repositoryUrl>` | Git repository URL
-`--deploymentDir <deploymentDir>` | Deployments directory (for releases). Don't specify if not using CI-Release. [default: ]
-`--MESVersion <MESVersion>` | Target MES version
-`--DevTasksVersion <DevTasksVersion>` | Critical Manufacturing dev-tasks version
-`--HTMLStarterVersion <HTMLStarterVersion>` | HTML Starter version
-`--yoGeneratorVersion <yoGeneratorVersion>` | @criticalmanufacturing/html Yeoman generator version
-`--nugetVersion <nugetVersion>` | NuGet versions to target. This is usually the MES version
-`--testScenariosNugetVersion <testScenariosNugetVersion>` | Test Scenarios Nuget Version
+`-c, --config <config> (REQUIRED)` | Configuration file exported from Setup [default: ]
+`--repositoryUrl <repositoryUrl> (REQUIRED)` | Git repository URL
+`--deploymentDir <deploymentDir> (REQUIRED)` | Deployments directory
+`--MESVersion <MESVersion> (REQUIRED)` | Target MES version
+`--DevTasksVersion <DevTasksVersion> (REQUIRED)` | Critical Manufacturing dev-tasks version
+`--HTMLStarterVersion <HTMLStarterVersion> (REQUIRED)` | HTML Starter version
+`--yoGeneratorVersion <yoGeneratorVersion> (REQUIRED)` | @criticalmanufacturing/html Yeoman generator version
+`--nugetVersion <nugetVersion> (REQUIRED)` | NuGet versions to target. This is usually the MES version
+`--testScenariosNugetVersion <testScenariosNugetVersion> (REQUIRED)` | Test Scenarios Nuget Version
 `--infra, --infrastructure <infrastructure>` | Infrastructure JSON file [default: ]
 `--nugetRegistry <nugetRegistry>` | NuGet registry that contains the MES packages
 `--npmRegistry <npmRegistry>` | NPM registry that contains the MES packages
@@ -40,6 +40,8 @@ Name | Description
 `--ISOLocation <ISOLocation>` | MES ISO file [default: ]
 `--nugetRegistryUsername <nugetRegistryUsername>` | NuGet registry username
 `--nugetRegistryPassword <nugetRegistryPassword>` | NuGet registry password
+`--cmfCliRepository <cmfCliRepository>` | NPM registry that contains the CLI
+`--cmfPipelineRepository <cmfPipelineRepository>` | NPM registry that contains the CLI Pipeline Plugin
 `--releaseCustomerEnvironment <releaseCustomerEnvironment>` | Customer Environment Name defined in DevOpsCenter
 `--releaseSite <releaseSite>` | Site defined in DevOpsCenter
 `--releaseDeploymentPackage <releaseDeploymentPackage>` | DeploymentPackage defined in DevOpsCenter
