@@ -10,5 +10,9 @@
       "source": "0.0.0/*",
       "target": ""
     }
+  ],
+  "xmlInjection": [
+    "ui.xml",
+    "variables.xml"
   ]
 }
