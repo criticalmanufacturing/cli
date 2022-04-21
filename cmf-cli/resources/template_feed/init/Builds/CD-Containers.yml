@@ -286,18 +286,26 @@ stages:
             failOnStderr: true
             pwsh: true
             script: |
-              $CmfPackageJsonFile = Get-Item "./Configurations/cmfpackage.json"
-              $CmfPackageJson = Get-Content -Raw -Path $CmfPackageJsonFile | ConvertFrom-Json
+              $PackageId = "${{ variables.RootPackageIdToInstall }}"
 
-              $PackageId = $CmfPackageJson.'packageId'
-              $PackageVersion = $CmfPackageJson.'version'
-              $PackageIdentifier = $PackageId + '@' + $PackageVersion
+              if($PackageId)
+              {
+                $PackageVersion = (Get-Item "${{ variables.CandidatePackages }}/Package/$PackageId*").BaseName -replace "$PackageId."
+              }
+              else
+              {
+                $CmfPackageJsonFile = Get-Item "./Configurations/cmfpackage.json"
+                $CmfPackageJson = Get-Content -Raw -Path $CmfPackageJsonFile | ConvertFrom-Json
+                $PackageId = $CmfPackageJson.'packageId'
+                $PackageVersion = $CmfPackageJson.'version'
+              }
+              $PackageToInstall = "$PackageId@$PackageVersion"
 
               $file = "Configurations/EnvironmentConfigs/${{ variables.EnvironmentConfigName }}"
               $envConfig = Get-Content "$file" | out-string | ConvertFrom-Json
-              $envConfig.ENV_MANAGER_BOOT_PACKAGE = $PackageIdentifier
+              $envConfig.ENV_MANAGER_BOOT_PACKAGE = $PackageId
 
-              Write-Output "Installing package $PackageIdentifier"
+              Write-Output "Installing package $PackageId"
               $envConfig | ConvertTo-Json -Depth 10 | set-content "$(Agent.TempDirectory)/install-package.json"
 
         # Installation with customization
@@ -463,7 +471,12 @@ stages:
           inputs:
             targetType: inline
             script: |
-                $masterDataFiles = "${{ variables.CandidatePackages }}/Tests/*MasterData*.zip"
+                $testMasterDataFilter = "${{ variables.TestMasterDataFilter }}"
+                if(!$testMasterDataFilter)
+                {
+                  $testMasterDataFilter = "*MasterData*"
+                }
+                $masterDataFiles = "${{ variables.CandidatePackages }}/Tests/$testMasterDataFilter.zip"
                 Write-Host "##vso[task.setVariable variable=ArtifactExists;]false"
 
                 if (Get-ChildItem -Path $masterDataFiles)
@@ -521,15 +534,20 @@ stages:
           inputs:
             targetType: 'inline'
             script: |
-              $masterDataFiles = "${{ variables.CandidatePackages }}/Tests/*MasterData*.zip"
+              $testMasterDataFilter = "${{ variables.TestMasterDataFilter }}"
+              if(!$testMasterDataFilter)
+              {
+                $testMasterDataFilter = "*MasterData*"
+              }
+              $masterDataFiles = "${{ variables.CandidatePackages }}/Tests/$testMasterDataFilter.zip"
 
               Get-ChildItem $masterDataFiles | foreach {
                   $PackageId = [regex]::split($_.BaseName, ".[0-9]+.[0-9]+.[0-9]+")[0];
                   $PackageVersion = ($_.BaseName-replace "$PackageId." );
 
-                  $PackageIdentifier = $PackageId + '@' + $PackageVersion
+                  $PackageToInstall = $PackageId + '@' + $PackageVersion
 
-                  & tools\CmfDeploy.exe install $PackageIdentifier --parameters $env:AGENT_TEMPDIRECTORY/parameters.json --packageSources="${{ variables.CandidatePackages }}/Tests" -logFileLocation "${{ variables.CandidatePackages }}"
+                  & tools\CmfDeploy.exe install $PackageToInstall --parameters $env:AGENT_TEMPDIRECTORY/parameters.json --packageSources="${{ variables.CandidatePackages }}/Tests" -logFileLocation "${{ variables.CandidatePackages }}"
               }
 
             pwsh: true
@@ -685,10 +703,10 @@ stages:
               if (Get-ChildItem -Path $artifactPath)
               {
                 ls $artifactPath
-                Get-ChildItem $artifactPath | foreach { 
+                Get-ChildItem $artifactPath | foreach {
                   $targetDirectory = "$(Build.SourcesDirectory)/TestExecution/" + $_.BaseName
                   Write-Host "$_ -> $targetDirectory"
-                  Expand-Archive $_ -DestinationPath $targetDirectory -Force 
+                  Expand-Archive $_ -DestinationPath $targetDirectory -Force
                 }
                 Write-Host "##vso[task.setVariable variable=ArtifactExists;]true"
               }
@@ -804,13 +822,19 @@ stages:
                 inputs:
                   targetType: inline
                   script: |
-                    $CmfPackageJsonFile = Get-Item "./Configurations/cmfpackage.json"
-                    $CmfPackageJson = Get-Content -Raw -Path $CmfPackageJsonFile | ConvertFrom-Json
-                    $PackVersion = $CmfPackageJson.'version'
-                    $PackageId = $CmfPackageJson.'packageId'
-                    Write-Host "PackVersion = $PackVersion"
-                    Write-Host "PackageId = $PackageId"
-                    echo "##vso[task.setvariable variable=PackageVersion;isOutput=true]$PackVersion"
+                    $PackageId = "${{ variables.RootPackageIdToInstall }}"
+                    if($PackageId)
+                    {
+                      $PackageVersion = (Get-Item "${{ variables.CandidatePackages }}/Package/$PackageId*").BaseName -replace "$PackageId."
+                    }
+                    else
+                    {
+                      $CmfPackageJsonFile = Get-Item "./Configurations/cmfpackage.json"
+                      $CmfPackageJson = Get-Content -Raw -Path $CmfPackageJsonFile | ConvertFrom-Json
+                      $PackageId = $CmfPackageJson.'packageId'
+                      $PackageVersion = $CmfPackageJson.'version'
+                    }
+                    echo "##vso[task.setvariable variable=PackageVersion;isOutput=true]$PackageVersion"
                     echo "##vso[task.setvariable variable=PackageId;isOutput=true]$PackageId"
                 name: GetPackageVersion
 
