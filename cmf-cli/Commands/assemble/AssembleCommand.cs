@@ -249,6 +249,13 @@ namespace Cmf.CLI.Commands
                 {
                     if (!dependency.IsIgnorable)
                     {
+                        // Validate dependency Uri
+                        if (dependency.CmfPackage == null)
+                        {
+                            string errorMessage = string.Format(CliMessages.MissingMandatoryDependency, dependency.Id, dependency.Version);
+                            throw new Exception(errorMessage);
+                        }
+
                         string dependencyPath = dependency.CmfPackage.Uri.GetFile().Directory.FullName;
 
                         // To avoid assembling the same dependency twice
