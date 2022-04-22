@@ -121,6 +121,10 @@
     <value>Get Package {0}.{1}...</value>
     <comment>0 - Id; 1 - Version</comment>
   </data>
+  <data name="MissingMandatoryDependency" xml:space="preserve">
+    <value>Mandatory Dependency {0}.{1} not found</value>
+    <comment>0 - Dependency Name; 1 - Dependency Version</comment>
+  </data>
   <data name="MissingMandatoryOption" xml:space="preserve">
     <value>Missing mandatory option {0}</value>
     <comment>0 - Option name</comment>
