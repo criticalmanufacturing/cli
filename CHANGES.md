@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.3.1](https://github.com/criticalmanufacturing/cli/compare/2.3.1-0...2.3.1) (2022-04-26)
+
+### [2.3.1-0](https://github.com/criticalmanufacturing/cli/compare/2.3.0...2.3.1-0) (2022-04-13)
+
+
+### Bug Fixes
+
+* **pack:** package type handler was overriding dfPackageType for Generic packages ([e0b50e7](https://github.com/criticalmanufacturing/cli/commits/e0b50e797d764f392ca25256404483c4c08d818d))
+
 ## [2.3.0](https://github.com/criticalmanufacturing/cli/compare/2.3.0-0...2.3.0) (2022-04-12)
 
 ## [2.3.0-0](https://github.com/criticalmanufacturing/cli/compare/2.2.0...2.3.0-0) (2022-04-06)
