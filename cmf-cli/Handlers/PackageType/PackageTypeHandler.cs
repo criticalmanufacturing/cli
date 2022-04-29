@@ -98,7 +98,7 @@ namespace Cmf.CLI.Handlers
 
             BuildSteps = Array.Empty<IBuildCommand>();
 
-            cmfPackage.DFPackageType = cmfPackage.PackageType;
+            cmfPackage.DFPackageType ??= cmfPackage.PackageType;
 
             DependenciesFolder = fileSystem.DirectoryInfo.FromDirectoryName("./Dependencies");
 
