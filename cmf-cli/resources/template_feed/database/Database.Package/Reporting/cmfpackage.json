@@ -4,7 +4,7 @@
   "description": "<%= $CLI_PARAM_CustomReportingPackageName %> <%= $CLI_PARAM_Tenant %> Reporting Package",
   "packageType": "Reporting",
   "isInstallable": true,
-  "isUniqueInstall": false,
+  "isUniqueInstall": true,
   "contentToPack": [
     {
       "source": "0.0.0/*",

@@ -4,7 +4,7 @@
   "description": "<%= $CLI_PARAM_CustomPackageName %> <%= $CLI_PARAM_Tenant %> Database Scripts Package (Post)",
   "packageType": "Database",
   "isInstallable": true,
-  "isUniqueInstall": false,
+  "isUniqueInstall": true,
   "dependencies": [],
   "steps": [],
   "contentToPack": [
