@@ -131,11 +131,10 @@ namespace Cmf.CLI.Commands
             List<string> missingPackages = new();
             foreach (Dependency dependency in cmfPackage.Dependencies.Where(x => x.IsMissing))
             {
-                if(!dependency.IsIgnorable)
+                if (!dependency.IsIgnorable)
                 {
                     missingPackages.Add($"{dependency.Id}@{dependency.Version}");
                 }
-                
             }
 
             if (missingPackages.HasAny())
@@ -252,7 +251,7 @@ namespace Cmf.CLI.Commands
                         // Validate dependency Uri
                         if (dependency.CmfPackage == null)
                         {
-                            string errorMessage = string.Format(CliMessages.MissingMandatoryDependency, dependency.Id, dependency.Version);
+                            string errorMessage = string.Format(CoreMessages.MissingMandatoryDependency, dependency.Id, dependency.Version);
                             throw new Exception(errorMessage);
                         }
 
@@ -273,7 +272,7 @@ namespace Cmf.CLI.Commands
                         }
 
                         AssembleDependencies(outputDir, ciRepo, repoDirectories, dependency.CmfPackage, assembledDependencies, includeTestPackages);
-                    }                    
+                    }
                 }
             }
         }
