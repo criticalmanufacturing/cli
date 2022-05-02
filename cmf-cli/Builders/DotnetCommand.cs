@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
+using Cmf.CLI.Core.Objects;
 
 namespace Cmf.CLI.Builders
 {

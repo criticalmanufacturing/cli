@@ -247,6 +247,15 @@ namespace Cmf.CLI.Core.Objects
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty(Order = 20)]
         public PackageType? DFPackageType { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the build steps.
+        /// </summary>
+        /// <value>
+        /// The build steps.
+        /// </value>
+        [JsonProperty(Order = 21)]
+        public List<ProcessBuildStep> BuildSteps { get; set; }
 
         #endregion Public Properties
 
