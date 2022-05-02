@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Cmf.CLI.Core.Objects;
 
 namespace Cmf.CLI.Builders
 {
