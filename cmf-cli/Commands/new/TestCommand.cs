@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
@@ -83,6 +84,10 @@ namespace Cmf.CLI.Commands.New
             {
                 args.Add("--IsSslEnabled");
             }
+            
+            #region version-specific bits
+            args.AddRange(new []{ "--targetFramework", Version.Parse(mesVersion).Major > 8 ? "net6.0" : "netcoreapp3.1" });
+            #endregion
 
             this.executedArgs = args.ToArray();
             base.RunCommand(args);

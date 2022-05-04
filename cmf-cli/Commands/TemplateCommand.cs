@@ -22,7 +22,7 @@ namespace Cmf.CLI.Commands
     /// </summary>
     public abstract class TemplateCommand : BaseCommand
     {
-        private string commandName;
+        protected string CommandName { get; set; }
 
         /// <summary>
         /// constructor
@@ -37,7 +37,7 @@ namespace Cmf.CLI.Commands
         /// </summary>
         /// <param name="commandName"></param>
         /// <param name="fileSystem"></param>
-        protected TemplateCommand(string commandName, IFileSystem fileSystem) : base(fileSystem) => this.commandName = commandName;
+        protected TemplateCommand(string commandName, IFileSystem fileSystem) : base(fileSystem) => this.CommandName = commandName;
 
         /// <summary>
         /// Execute the command
@@ -45,7 +45,7 @@ namespace Cmf.CLI.Commands
         /// <param name="args">the template engine arguments</param>
         public void RunCommand(IReadOnlyCollection<string> args)
         {
-            this.ExecuteTemplate(this.commandName, args);
+            this.ExecuteTemplate(this.CommandName, args);
         }
 
         /// <summary>

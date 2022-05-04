@@ -432,6 +432,12 @@ namespace Cmf.CLI.Commands
             }
             #endregion
 
+            #region version-specific bits
+
+            var version = Version.Parse(x.MESVersion);
+            args.AddRange(new []{ "--dotnetSDKVersion", version.Major > 8 ? "6.0.x" : "3.1.102" });
+            #endregion
+            
             if (x.config != null)
             {
                 args.AddRange(ParseConfigFile(x.config));

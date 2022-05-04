@@ -39,6 +39,12 @@ namespace Cmf.CLI.Commands.New
         {
             var mesVersion = projectConfig.RootElement.GetProperty("MESVersion").GetString();
             
+            var version = Version.Parse(mesVersion);
+            if (version.Major > 8)
+            {
+                this.CommandName = "business9";
+            }
+
             // calculate relative path to local environment and create a new symbol for it
             var relativePathToLocalEnv =
                 this.fileSystem.Path.Join("..", "..", //always two levels deep, this is the depth of the business solution projects
