@@ -273,11 +273,11 @@ namespace Cmf.CLI.Core.Objects
                 throw new CliException(string.Format(CoreMessages.InvalidValue, this.GetType(), "IsUniqueInstall", true));
             }
 
-            // criticalmanufacturing.deploymentmetadata or cmf.environment should be part of the dependencies in a package of Type Root
+            // criticalmanufacturing.deploymentmetadata and cmf.environment should be part of the dependencies in a package of Type Root
             if (PackageType.Equals(PackageType.Root) &&
-                !Dependencies.HasAny(d => d.Id.IgnoreCaseEquals(Dependency.DefaultDependenciesToIgnore[0]) || d.Id.IgnoreCaseEquals(Dependency.DefaultDependenciesToIgnore[1])))
+                !Dependencies.Contains(Dependency.DefaultDependenciesToIgnore[0]) && !Dependencies.Contains(Dependency.DefaultDependenciesToIgnore[1]))
             {
-                throw new CliException(string.Format(CoreMessages.MissingMandatoryDependency, $"{ Dependency.DefaultDependenciesToIgnore[0] } or { Dependency.DefaultDependenciesToIgnore[1] }", string.Empty));
+                throw new CliException(string.Format(CoreMessages.MissingMandatoryDependency, $"{ Dependency.DefaultDependenciesToIgnore[0] } and { Dependency.DefaultDependenciesToIgnore[1] }", string.Empty));
             }
 
             // When is fixed by the product team, this can be uncommented

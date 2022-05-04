@@ -36,6 +36,18 @@ namespace Cmf.CLI.Core.Objects
         }
 
         /// <summary>
+        /// Determines whether this instance contains the object.
+        /// </summary>
+        /// <param name="dependencyId">The dependency.</param>
+        /// <returns>
+        ///   <c>true</c> if [contains] [the specified dependency]; otherwise, <c>false</c>.
+        /// </returns>
+        public bool Contains(string dependencyId)
+        {
+            return this.HasAny(x => x.Id.IgnoreCaseEquals(dependencyId));
+        }
+
+        /// <summary>
         /// Gets the specified dependency.
         /// </summary>
         /// <param name="dependency">The dependency.</param>
