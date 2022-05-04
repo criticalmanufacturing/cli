@@ -409,6 +409,12 @@
       "datatype": "string",
       "defaultValue": "",
       "replaces": "<%= $CLI_PARAM_ReleaseDeploymentTarget %>"
+    },
+    // versioned bits
+    "dotnetSDKVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_DotnetSDKVersion %>"
     }
   },
   "forms": {

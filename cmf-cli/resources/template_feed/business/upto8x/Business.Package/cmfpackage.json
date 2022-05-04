@@ -1,0 +1,14 @@
+{
+  "packageId": "<%= $CLI_PARAM_CustomPackageName %>",
+  "version": "<%= $CLI_PARAM_CustomPackageVersion %>",
+  "description": "Cmf Custom <%= $CLI_PARAM_Tenant %> <%= $CLI_PARAM_CustomPackageName %> Package",
+  "packageType": "Business",
+  "isInstallable": true,
+  "isUniqueInstall": false,
+  "contentToPack": [
+    {
+      "source": "Release/*.dll",
+      "target": ""
+    }
+  ]
+}
