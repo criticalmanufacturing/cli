@@ -7,10 +7,19 @@
   "isUniqueInstall": false,
   "dependencies": [
     {
+      "id": "Cmf.Environment",
+      "version": "<%= $CLI_PARAM_MESVersion %>",
+      "mandatory": false
+    },
+    {
+      "id": "CriticalManufacturing.DeploymentMetadata",
+      "version": "<%= $CLI_PARAM_MESVersion %>"
+    },
+    {
       "id": "<%= $CLI_PARAM_CustomPackageName %>.Packages",
       "version": "<%= $CLI_PARAM_CustomPackageVersion %>"
     },
-	{
+	  {
       "id": "<%= $CLI_PARAM_CustomPackageName %>.Data",
       "version": "<%= $CLI_PARAM_CustomPackageVersion %>"
     }
