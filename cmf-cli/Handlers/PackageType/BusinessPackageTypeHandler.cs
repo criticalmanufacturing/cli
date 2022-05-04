@@ -6,6 +6,7 @@ using Cmf.CLI.Builders;
 using Cmf.CLI.Commands.restore;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
+using Cmf.CLI.Core.Enums;
 
 namespace Cmf.CLI.Handlers
 {
@@ -25,7 +26,23 @@ namespace Cmf.CLI.Handlers
             targetDirectory:
                 "BusinessTier",
             targetLayer:
-                "host");
+                "host",
+            steps:
+                new List<Step>()
+                {
+                        new Step(StepType.Generic)
+                        {
+                            OnExecute = "$(Agent.Root)/agent/scripts/stop_host.ps1"
+                        },
+                        new Step(StepType.DeployFiles)
+                        {
+                            ContentPath = "**/*.dll"
+                        },
+                        new Step(StepType.Generic)
+                        {
+                            OnExecute = "$(Agent.Root)/agent/scripts/start_host.ps1"
+                        }
+                 });
 
             BuildSteps = new IBuildCommand[]
             {
