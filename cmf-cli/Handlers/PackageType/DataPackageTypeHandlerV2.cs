@@ -36,8 +36,32 @@ namespace Cmf.CLI.Handlers
                 targetDirectory:
                     "BusinessTier",
                 targetLayer:
-                    "host"
-            );
+                    "host",
+                steps:
+                    new List<Step>()
+                    {
+                        new Step(StepType.Generic)
+                        {
+                            OnExecute = "$(Agent.Root)/agent/scripts/stop_host.ps1"
+                        },
+                        new Step(StepType.TransformFile)
+                        {
+                            File = "Cmf.Foundation.Services.HostService.dll.config",
+                            TagFile = true
+                        },
+                        new Step(StepType.Generic)
+                        {
+                            OnExecute = "$(Agent.Root)/agent/scripts/start_host.ps1"
+                        },
+                        new Step(StepType.Generic)
+                        {
+                            ContentPath = "GenerateLBOs.ps1"
+                        },
+                        new Step(StepType.Generic)
+                        {
+                            OnExecute = $"$(Package[{cmfPackage.PackageId}].TargetDirectory)/GenerateLBOs.ps1"
+                        }
+                     });
 
             BuildSteps = new IBuildCommand[]
             {
