@@ -1,153 +1,155 @@
 var gulp = require('gulp'),
-  rootUtils = require("@criticalmanufacturing/dev-tasks/root.main"),
-  pluginRunSequence = require('run-sequence'),
-  pluginYargs = require('yargs').argv,
-  _config = require('./.dev-tasks.json'),
-  _packagesPath = './src/', //note the ending /
-  _dependenciesPath = './dependencies/',
-  _framework = _config.framework,
-  //NOTE: order matters in these arrays!
-  _dependencies = _config.dependencies,
-  _packages = _config.packages,
-  _apps = [`${_config.webAppPrefix}.web`],
-  tasks = null,
-  pluginUtil = require('gulp-util');
+    rootUtils = require("@criticalmanufacturing/dev-tasks/root.main"),
+    childProcess = require('child_process'),
+    pluginRunSequence = require('run-sequence'),
+    pluginYargs = require('yargs').argv,
+    _config = require('./.dev-tasks.json'),
+    _packagesPath = './src/', //note the ending /
+    _dependenciesPath = './dependencies/',
+    _framework = _config.framework,
+    //NOTE: order matters in these arrays!
+    _dependencies = _config.dependencies,
+    _packages = _config.packages,
+    _apps = [`${_config.webAppPrefix}.web`],
+    tasks = null,
+    pluginUtil = require('gulp-util');
 applyOps = null;
 
 if (typeof _framework === "string" && _framework !== "") {
-  tasks = require("./src/" + _framework + "/gulpfile.js")(gulp, _framework);
+    tasks = require("./src/" + _framework + "/gulpfile.js")(gulp, _framework);
 }
 if (_dependencies != null && _dependencies.length > 0) {
-  _dependencies.forEach(function (dep) {
-    require(_dependenciesPath + dep + "/gulpfile.js")(gulp, dep);
-  });
+    _dependencies.forEach(function (dep) {
+        require(_dependenciesPath + dep + "/gulpfile.js")(gulp, dep);
+    });
 }
 if (_packages != null && _packages.length > 0) {
-  _packages.forEach(function (pkg) {
-    require(_packagesPath + pkg + "/gulpfile.js")(gulp, pkg);
-  });
+    _packages.forEach(function (pkg) {
+        require(_packagesPath + pkg + "/gulpfile.js")(gulp, pkg);
+    });
 }
 
 //require(`./apps/${_config.webAppPrefix}.web/gulpfile.js`)(gulp, `${_config.webAppPrefix}.web`);
 
 applyOps = function (actions) {
-  if (!Array.isArray(actions)) { actions = [actions]; }
-  var operations = [];
-  var dependencyOperations = [];
-  var packageOperations = [];
-  if (_dependencies != null && _dependencies.length > 0) {
-    _dependencies.forEach(function (dep) {
-      actions.forEach(function (action) {
-        operations.push(dep + ">" + action);
-      });
-    });
-  }
-
-  actions.forEach(function (action) {
-    if (typeof _framework === "string" && _framework !== "") {
-      operations.push(_framework + '>' + action);
+    if (!Array.isArray(actions)) { actions = [actions]; }
+    var operations = [];
+    var dependencyOperations = [];
+    var packageOperations = [];
+    if (_dependencies != null && _dependencies.length > 0) {
+        _dependencies.forEach(function (dep) {
+            actions.forEach(function (action) {
+                operations.push(dep + ">" + action);
+            });
+        });
     }
-  })
 
-  _packages.forEach(function (mod) {
     actions.forEach(function (action) {
-      operations.push(mod + ">" + action)
-    });
-  });
+        if (typeof _framework === "string" && _framework !== "") {
+            operations.push(_framework + '>' + action);
+        }
+    })
 
-  return operations;
+    _packages.forEach(function (mod) {
+        actions.forEach(function (action) {
+            operations.push(mod + ">" + action)
+        });
+    });
+
+    return operations;
 };
 
 /*
  * Build all
  */
 gulp.task('build', function (callback) {
-  if (pluginYargs.server) {
-    var isWebAppCompilable = true;
-    rootUtils.runOperation(__dirname, _dependencies, _framework, _packages, _apps, "build", callback, typeof _framework === "string" && _framework !== "", isWebAppCompilable);
-  } else {
-    var ops = []
-    if (pluginYargs.parallelBuild !== false) {
-      pluginUtil.log(pluginUtil.colors.yellow(`building in parallel`));
-      if (Number.isInteger(pluginYargs.parallelBuild)) {
-        pluginUtil.log(pluginUtil.colors.yellow(`Using ${pluginYargs.parallelBuild} tasks in parallel`));
-        // split in tasks
-        var opsToSliceArray = applyOps('build');
-        for (i = 0; i < opsToSliceArray.length; i += pluginYargs.parallelBuild) {
-          ops.push(opsToSliceArray.slice(i, i + pluginYargs.parallelBuild));
+    if (pluginYargs.server) {
+        var isWebAppCompilable = true;
+        rootUtils.runOperation(__dirname, _dependencies, _framework, _packages, _apps, "build", callback, typeof _framework === "string" && _framework !== "", isWebAppCompilable);
+    } else {
+        var ops = []
+        if (pluginYargs.parallelBuild !== false) {
+            pluginUtil.log(pluginUtil.colors.yellow(`building in parallel`));
+            if (Number.isInteger(pluginYargs.parallelBuild)) {
+                pluginUtil.log(pluginUtil.colors.yellow(`Using ${pluginYargs.parallelBuild} tasks in parallel`));
+                // split in tasks
+                var opsToSliceArray = applyOps('build');
+                for (i = 0; i < opsToSliceArray.length; i += pluginYargs.parallelBuild) {
+                    ops.push(opsToSliceArray.slice(i, i + pluginYargs.parallelBuild));
+                }
+            } else {
+                // all the tasks at the same time!
+                ops = [applyOps('build')]
+            }
+        } else {
+            ops = applyOps('build');
         }
-      } else {
-        // all the tasks at the same time!
-        ops = [applyOps('build')]
-      }
-    } else {
-      ops = applyOps('build');
-    }
-    // On customized projects we would only require to compile the web if the project defined a framework on their own
-    var isWebAppCompilable = _config.isWebAppCompilable;
-    if (isWebAppCompilable === true) {
-      ops = ops.concat([`${_config.webAppPrefix}.web>build`]);
-    }
+        // On customized projects we would only require to compile the web if the project defined a framework on their own
+        var isWebAppCompilable = _config.isWebAppCompilable;
+        if (isWebAppCompilable === true) {
+            ops = ops.concat([`${_config.webAppPrefix}.web>build`]);
+        }
 
-    if (ops.length > 0 && ops[0].length > 0) {
-      ops = ops.concat(callback);
-      pluginRunSequence.apply(this, ops);
-    } else {
-      callback();
+        if (ops.length > 0 && ops[0].length > 0) {
+            ops = ops.concat(callback);
+            pluginRunSequence.apply(this, ops);
+        } else {
+            callback();
+        }
     }
-  }
 
 });
 
 /*
  * start running the tests
  */
-gulp.task('cliTest', function (callback) { 
+gulp.task('cliTest', function (callback) {
 
-  let pkgPromises = _packages.map(pkg => {
-    return new Promise((resolve, reject) => {
-      try {
-        execSync("npm run test", {stdio: ['inherit', 'inherit','pipe' ], cwd: `src\\${pkg}`});        
-        resolve();
-      } catch (e) {
-        reject(e);
-      }
-    })
-  });
+    let pkgPromises = _packages.map(pkg => {
+        return new Promise((resolve, reject) => {
+            try {
+                childProcess.execSync("npm run test", { stdio: ['inherit', 'inherit', 'pipe'], cwd: `src\\${pkg}` });
+                resolve();
+            } catch (e) {
+                reject(e);
+            }
+        })
+    });
 
-  Promise.allSettled(pkgPromises).then((results) => {
+    Promise.allSettled(pkgPromises).then((results) => {
 
-    let stacks = "";
-    for(const result of results){
-      if(result.status === "rejected" && typeof(result.reason.stderr) != "undefined" && 
-          !result.reason.stderr.toString().includes("Error: No test files found")) {
-        stacks = stacks + result.reason.stack;
-      }
-    }      
-    if(stacks !== "") {
-      throw new Error(stacks);
-    }    
-  });
- });
+        let stacks = "";
+        for (const result of results) {
+
+            if (result.status === "rejected" && typeof (result.reason.stderr) != "undefined" &&
+                !result.reason.stderr.toString().includes("Error: No test files found")) {
+                stacks = stacks + result.reason.stack;
+            }
+        }
+        if (stacks !== "") {
+            throw new Error(stacks);
+        }
+    });
+});
 
 /*
  * Install all
  */
 gulp.task('install', function (callback) {
 
-  if (pluginYargs.server) {
-    rootUtils.runOperation(__dirname, _dependencies, _framework, _packages, _apps, "install", callback, typeof _framework === "string" && _framework !== "", true);
+    if (pluginYargs.server) {
+        rootUtils.runOperation(__dirname, _dependencies, _framework, _packages, _apps, "install", callback, typeof _framework === "string" && _framework !== "", true);
 
-  } else {
-    var ops = applyOps(['install']);
-
-    if (ops.length > 0) {
-      ops = ops.concat(callback);
-      pluginRunSequence.apply(this, ops);
     } else {
-      callback();
+        var ops = applyOps(['install']);
+
+        if (ops.length > 0) {
+            ops = ops.concat(callback);
+            pluginRunSequence.apply(this, ops);
+        } else {
+            callback();
+        }
     }
-  }
 });
 
 /*
