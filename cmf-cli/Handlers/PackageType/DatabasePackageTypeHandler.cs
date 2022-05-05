@@ -1,13 +1,14 @@
-﻿using Cmf.Common.Cli.Enums;
-using Cmf.Common.Cli.Objects;
+﻿using Cmf.CLI.Objects;
 using System.Collections.Generic;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
 
-namespace Cmf.Common.Cli.Handlers
+namespace Cmf.CLI.Handlers
 {
     /// <summary>
     ///
     /// </summary>
-    /// <seealso cref="Cmf.Common.Cli.Handlers.PackageTypeHandler" />
+    /// <seealso cref="PackageTypeHandler" />
     public class DatabasePackageTypeHandler : PackageTypeHandler
     {
         /// <summary>

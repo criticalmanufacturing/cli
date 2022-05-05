@@ -1,7 +1,4 @@
-﻿using Cmf.Common.Cli.Attributes;
-using Cmf.Common.Cli.Constants;
-using Cmf.Common.Cli.Objects;
-using Cmf.Common.Cli.Utilities;
+﻿using Cmf.CLI.Objects;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
@@ -11,8 +8,13 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Cmf.CLI.Constants;
+using Cmf.CLI.Core;
+using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Utilities;
 
-namespace Cmf.Common.Cli.Commands
+namespace Cmf.CLI.Commands
 {
     /// <summary>
     /// List dependencies command

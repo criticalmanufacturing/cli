@@ -1,18 +1,18 @@
-using Cmf.Common.Cli.Attributes;
-using Cmf.Common.Cli.Utilities;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
-using Cmf.Common.Cli.Enums;
+using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Utilities;
 
-namespace Cmf.Common.Cli.Commands
+namespace Cmf.CLI.Commands
 {
     /// <summary>
     ///
     /// </summary>
-    /// <seealso cref="Cmf.Common.Cli.Commands.PowershellCommand" />
+    /// <seealso cref="PowershellCommand" />
     [CmfCommand(name: "generateMenuItems", Parent = "help")]
     public class GenerateMenuItemsCommand : PowershellCommand
     {
@@ -47,7 +47,7 @@ namespace Cmf.Common.Cli.Commands
         /// <returns></returns>
         protected override string GetPowershellScript()
         {
-            return GenericUtilities.GetEmbeddedResourceContent("Tools/GenerateMenuItemJson.ps1");
+            return ResourceUtilities.GetEmbeddedResourceContent("Tools/GenerateMenuItemJson.ps1");
         }
     }
 }

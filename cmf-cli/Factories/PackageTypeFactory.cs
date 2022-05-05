@@ -1,12 +1,14 @@
-﻿using Cmf.Common.Cli.Enums;
-using Cmf.Common.Cli.Handlers;
-using Cmf.Common.Cli.Interfaces;
-using Cmf.Common.Cli.Objects;
+﻿using Cmf.CLI.Objects;
 using System;
 using System.IO;
 using System.IO.Abstractions;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Handlers;
+using Cmf.CLI.Interfaces;
+using Cmf.CLI.Utilities;
 
-namespace Cmf.Common.Cli.Factories
+namespace Cmf.CLI.Factories
 {
     /// <summary>
     ///
@@ -33,7 +35,7 @@ namespace Cmf.Common.Cli.Factories
         /// <param name="cmfPackage">The CMF package.</param>
         /// <param name="setDefaultValues">if set to <c>true</c> [set default values].</param>
         /// <returns></returns>
-        /// <exception cref="Cmf.Common.Cli.Utilities.CliException">
+        /// <exception cref="CliException">
         /// </exception>
         public static IPackageTypeHandler GetPackageTypeHandler(CmfPackage cmfPackage, bool setDefaultValues = false)
         {

@@ -1,9 +1,10 @@
-﻿using Cmf.Common.Cli;
+﻿using Cmf.CLI;
 using Spectre.Console;
 using System;
 using System.CommandLine;
 using System.Diagnostics;
 using System.IO;
+using Cmf.CLI.Core;
 using Xunit;
 using Assert = tests.AssertWithMessage;
 

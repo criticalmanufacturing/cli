@@ -1,13 +1,14 @@
 using System.Linq;
 using System.Runtime.InteropServices;
+using Cmf.CLI.Core.Objects;
 
-namespace Cmf.Common.Cli.Builders
+namespace Cmf.CLI.Builders
 {
     /// <summary>
     ///
     /// </summary>
-    /// <seealso cref="Cmf.Common.Cli.Builders.ProcessCommand" />
-    /// <seealso cref="Cmf.Common.Cli.Builders.IBuildCommand" />
+    /// <seealso cref="ProcessCommand" />
+    /// <seealso cref="IBuildCommand" />
     public class CmdCommand : ProcessCommand, IBuildCommand
     {
         /// <summary>

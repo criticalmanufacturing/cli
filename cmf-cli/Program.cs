@@ -1,13 +1,15 @@
-﻿using Cmf.Common.Cli.Commands;
-using Cmf.Common.Cli.Objects;
-using Cmf.Common.Cli.Utilities;
+﻿using Cmf.CLI.Utilities;
 using System;
 using System.CommandLine;
 using System.Linq;
 using System.Threading.Tasks;
+using Cmf.CLI.Commands;
+using Cmf.CLI.Core;
+using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Objects;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Cmf.Common.Cli
+namespace Cmf.CLI
 {
     /// <summary>
     /// program entry point

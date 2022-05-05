@@ -1,14 +1,14 @@
-using Cmf.Common.Cli.Commands;
 using System;
 using System.Threading.Tasks;
+using Cmf.CLI.Commands;
 
-namespace Cmf.Common.Cli.Builders
+namespace Cmf.CLI.Builders
 {
     /// <summary>
     ///
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    /// <seealso cref="Cmf.Common.Cli.Builders.IBuildCommand" />
+    /// <seealso cref="IBuildCommand" />
     public class ExecuteCommand<T> : IBuildCommand where T : BaseCommand
     {
         /// <summary>

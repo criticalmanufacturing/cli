@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
-using Cmf.Common.Cli.Objects;
+using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Objects;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -28,11 +29,13 @@ namespace tests.Specs
 
         class MockVersionService : IVersionService
         {
+            public string PackageId => "test";
             public string CurrentVersion => "1.0.0";
         }
         
         class MockVersionServiceDev : IVersionService
         {
+            public string PackageId => "test";
             public string CurrentVersion => "1.0.0-0";
         }
         #endregion
@@ -47,7 +50,7 @@ namespace tests.Specs
 
             var logWriter = (new Logging()).GetLogStringWriter();
             
-            await Cmf.Common.Cli.Program.VersionChecks();
+            await Cmf.CLI.Program.VersionChecks();
             
             logWriter.ToString().Should().Contain("Please update");
         }
@@ -62,7 +65,7 @@ namespace tests.Specs
 
             var logWriter = (new Logging()).GetLogStringWriter();
             
-            await Cmf.Common.Cli.Program.VersionChecks();
+            await Cmf.CLI.Program.VersionChecks();
             
             logWriter.ToString().Should().NotContain("Please update");
         }
@@ -77,7 +80,7 @@ namespace tests.Specs
             
             var logWriter = (new Logging()).GetLogStringWriter();
             
-            await Cmf.Common.Cli.Program.VersionChecks();
+            await Cmf.CLI.Program.VersionChecks();
             
             logWriter.ToString().Should().Contain("You are using development version");
         }
@@ -92,7 +95,7 @@ namespace tests.Specs
             
             var logWriter = (new Logging()).GetLogStringWriter();
             
-            await Cmf.Common.Cli.Program.VersionChecks();
+            await Cmf.CLI.Program.VersionChecks();
             
             logWriter.ToString().Should().NotContain("You are using development version");
         }

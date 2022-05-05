@@ -2,10 +2,11 @@ using System;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
-using Cmf.Common.Cli.Builders;
-using Cmf.Common.Cli.Enums;
+using Cmf.CLI.Builders;
+using Cmf.CLI.Core;
+using Cmf.CLI.Core.Enums;
 
-namespace Cmf.Common.Cli.Commands
+namespace Cmf.CLI.Commands
 {
     /// <summary>
     /// UI Layer Template Abstract Command

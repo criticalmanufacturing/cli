@@ -6,12 +6,12 @@ using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.Diagnostics;
 
-namespace Cmf.Common.Cli.Commands
+namespace Cmf.CLI.Commands
 {
     /// <summary>
     ///
     /// </summary>
-    /// <seealso cref="Cmf.Common.Cli.Commands.BaseCommand" />
+    /// <seealso cref="BaseCommand" />
     public class PluginCommand : BaseCommand
     {
         /// <summary>

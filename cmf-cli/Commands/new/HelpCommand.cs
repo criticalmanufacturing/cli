@@ -8,12 +8,14 @@ using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using Cmf.Common.Cli.Attributes;
-using Cmf.Common.Cli.Builders;
-using Cmf.Common.Cli.Utilities;
+using Cmf.CLI.Builders;
+using Cmf.CLI.Core;
+using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Utilities;
 using Newtonsoft.Json;
 
-namespace Cmf.Common.Cli.Commands.New
+namespace Cmf.CLI.Commands.New
 {
     /// <summary>
     /// Generates Help/Documentation package structure
@@ -24,12 +26,12 @@ namespace Cmf.Common.Cli.Commands.New
         private JsonDocument projectConfig = null;
 
         /// <inheritdoc />
-        public HelpCommand() : base("help", Enums.PackageType.Help)
+        public HelpCommand() : base("help", PackageType.Help)
         {
         }
 
         /// <inheritdoc />
-        public HelpCommand(IFileSystem fileSystem) : base("help", Enums.PackageType.Help, fileSystem)
+        public HelpCommand(IFileSystem fileSystem) : base("help", PackageType.Help, fileSystem)
         {
         }
         

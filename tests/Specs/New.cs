@@ -6,13 +6,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
-using Cmf.Common.Cli.Commands;
-using Cmf.Common.Cli.Commands.New;
-using Cmf.Common.Cli.Enums;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Commands;
+using Cmf.CLI.Commands.New;
 using FluentAssertions;
 using Xunit;
 using Assert = tests.AssertWithMessage;
-using Cmf.Common.Cli.Utilities;
 using Cmf.Common.Cli.TestUtilities;
 
 namespace tests.Specs
@@ -146,7 +145,7 @@ namespace tests.Specs
             initCommand.Configure(cmd);
 
             cmd.Invoke(Array.Empty<string>(), console);
-            
+
             Assert.Contains("Required argument missing for command: x", console.Error.ToString());
             foreach (var optionName in new[]
                  {
@@ -157,14 +156,14 @@ namespace tests.Specs
                 Assert.Contains($"Option '--{optionName}' is required.", console.Error.ToString());
             }
         }
-        
+
         [Fact]
         public void Init_Fail_MissingInfra()
         {
             var console = new TestConsole();
             var rnd = new Random();
             var tmp = TestUtilities.GetTmpDirectory();
-            
+
             var projectName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
             var repoUrl = "https://repo_url/collection/project/_git/repo";
             var deploymentDir = "\\\\share\\deployment_dir";
@@ -173,7 +172,7 @@ namespace tests.Specs
             try
             {
                 Directory.SetCurrentDirectory(tmp);
-            
+
                 var initCommand = new InitCommand();
                 var cmd = new Command("x"); // this is the command name used in help text
                 initCommand.Configure(cmd);
@@ -191,7 +190,7 @@ namespace tests.Specs
                     "--testScenariosNugetVersion", "8.2.0",
                     "--deploymentDir", deploymentDir,
                 }, console);
-                
+
                 Assert.Contains("Missing infrastructure options", console.Error.ToString());
             }
             finally
@@ -200,8 +199,7 @@ namespace tests.Specs
                 Directory.Delete(tmp, true);
             }
         }
-        
-        
+
         [Fact]
         public void Init_Containers()
         {
@@ -362,7 +360,7 @@ namespace tests.Specs
         [Fact, Trait("TestCategory", "LongRunning")]
         public void Help()
         {
-            RunNew(new Cmf.Common.Cli.Commands.New.HelpCommand(), "Cmf.Custom.Help", extraArguments: new string[] {
+            RunNew(new Cmf.CLI.Commands.New.HelpCommand(), "Cmf.Custom.Help", extraArguments: new string[] {
                 "--docPkg", TestUtilities.GetFixturePath("prodPkg", "Cmf.Documentation.9.9.9.zip"),
             }, extraAsserts: args =>
             {
@@ -379,7 +377,7 @@ namespace tests.Specs
         [Fact]
         public void Help_FailNoPackage()
         {
-            var console = RunNew(new Cmf.Common.Cli.Commands.New.HelpCommand(), "Cmf.Custom.Help", defaultAsserts: false);
+            var console = RunNew(new Cmf.CLI.Commands.New.HelpCommand(), "Cmf.Custom.Help", defaultAsserts: false);
             var stderr = console.Error.ToString();
             Assert.True(stderr.Trim().Equals("Option '--docPkg' is required."), "Should exit with missing package error");
         }
@@ -405,10 +403,10 @@ namespace tests.Specs
             Assert.True(Directory.Exists($"{packageId}/{packageFolder}"), "Package folder is missing");
             Assert.True(Directory.Exists($"{packageId}/{packageFolder}/MasterData"), "Folder MasterData is missing");
             Assert.True(Directory.Exists($"{packageId}/{packageFolder}/AutomationWorkFlows"), "Folder AutomationWorkFlows is missing");
-            
+
             Assert.Equal(packageIdData, TestUtilities.GetPackageProperty("packageId", $"{packageId}/{packageFolder}/cmfpackage.json"), "Package Id does not match expected");
             Assert.Equal(PackageType.IoTData.ToString(), TestUtilities.GetPackageProperty("packageType", $"{packageId}/{packageFolder}/cmfpackage.json"), "Package Type does not match expected");
-            Assert.Equal(TestUtilities.GetPackageProperty("version", $"{packageId}/cmfpackage.json"), 
+            Assert.Equal(TestUtilities.GetPackageProperty("version", $"{packageId}/cmfpackage.json"),
                 TestUtilities.GetPackageProperty("version", $"{packageId}/{packageFolder}/cmfpackage.json"), "Version does not match expected");
         }
 
@@ -449,13 +447,13 @@ namespace tests.Specs
                 Assert.True(Directory.Exists("Cmf.Custom.Database"), "Package folder is missing");
                 Assert.True(File.Exists($"Cmf.Custom.Database/Pre/cmfpackage.json"), "Pre Package cmfpackage.json is missing");
                 Assert.True(File.Exists($"Cmf.Custom.Database/Post/cmfpackage.json"), "Post Package cmfpackage.json is missing");
-                Assert.True(File.Exists($"Cmf.Custom.Database/Post/Reporting/cmfpackage.json"), "Reports Package cmfpackage.json is missing");
+                Assert.True(File.Exists($"Cmf.Custom.Database/Reporting/cmfpackage.json"), "Reports Package cmfpackage.json is missing");
                 Assert.Equal("Cmf.Custom.Database.Pre", TestUtilities.GetPackageProperty("packageId", $"Cmf.Custom.Database/Pre/cmfpackage.json"), "Pre Package Id does not match expected");
                 Assert.Equal(packageVersion, TestUtilities.GetPackageProperty("version", $"Cmf.Custom.Database/Pre/cmfpackage.json"), "Pre Package version does not match expected");
                 Assert.Equal("Cmf.Custom.Database.Post", TestUtilities.GetPackageProperty("packageId", $"Cmf.Custom.Database/Post/cmfpackage.json"), "Post Package Id does not match expected");
                 Assert.Equal(packageVersion, TestUtilities.GetPackageProperty("version", $"Cmf.Custom.Database/Post/cmfpackage.json"), "Post Package version does not match expected");
-                Assert.Equal("Cmf.Custom.Reporting", TestUtilities.GetPackageProperty("packageId", $"Cmf.Custom.Database/Post/Reporting/cmfpackage.json"), "Reporting Package Id does not match expected");
-                Assert.Equal(packageVersion, TestUtilities.GetPackageProperty("version", $"Cmf.Custom.Database/Post/Reporting/cmfpackage.json"), "Reporting Package version does not match expected");
+                Assert.Equal("Cmf.Custom.Reporting", TestUtilities.GetPackageProperty("packageId", $"Cmf.Custom.Database/Reporting/cmfpackage.json"), "Reporting Package Id does not match expected");
+                Assert.Equal(packageVersion, TestUtilities.GetPackageProperty("version", $"Cmf.Custom.Database/Reporting/cmfpackage.json"), "Reporting Package version does not match expected");
                 var pkg = TestUtilities.GetPackage("cmfpackage.json");
                 var search = pkg.GetProperty("dependencies").EnumerateArray().ToArray().FirstOrDefault(d => d.GetProperty("id").GetString() == "Cmf.Custom.Database");
                 Assert.Equal(JsonValueKind.Undefined, search.ValueKind, "Package was found in root package dependencies");
@@ -671,7 +669,7 @@ namespace tests.Specs
 
                 var pkgDir = Path.Join(dir, "Features", "TestFeature");
                 const string packageId = "Cmf.Custom.TestFeature.Help";
-                var console = RunNew(new Cmf.Common.Cli.Commands.New.HelpCommand(), packageId, extraArguments: new string[] {
+                var console = RunNew(new Cmf.CLI.Commands.New.HelpCommand(), packageId, extraArguments: new string[] {
                     "--docPkg", TestUtilities.GetFixturePath("prodPkg", "Cmf.Documentation.9.9.9.zip"),
                 }, scaffoldingDir: pkgDir, extraAsserts: args =>
                 {
@@ -699,7 +697,7 @@ namespace tests.Specs
         }
 
         [Fact, Trait("TestCategory", "LongRunning")]
-        public void Features_HTML()
+        public void Features_UI()
         {
             var dir = TestUtilities.GetTmpDirectory();
 
@@ -716,7 +714,7 @@ namespace tests.Specs
 
                 var pkgDir = Path.Join(dir, "Features", "TestFeature");
                 const string packageId = "Cmf.Custom.TestFeature.HTML";
-                var console = RunNew(new Cmf.Common.Cli.Commands.New.HTMLCommand(), packageId, extraArguments: new string[] {
+                var console = RunNew(new Cmf.CLI.Commands.New.HTMLCommand(), packageId, extraArguments: new string[] {
                     "--htmlPkg", TestUtilities.GetFixturePath("prodPkg", "Cmf.Presentation.HTML.9.9.9.zip"),
                 }, scaffoldingDir: pkgDir);
             }

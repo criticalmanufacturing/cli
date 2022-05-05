@@ -1,12 +1,13 @@
-﻿using Cmf.Common.Cli.Commands;
-using Cmf.Common.Cli.Constants;
+﻿using Cmf.CLI.Commands;
+using Cmf.CLI.Constants;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
-using Cmf.Common.Cli.Objects;
+using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Objects;
 using tests.Objects;
 using Xunit;
 

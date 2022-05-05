@@ -1,18 +1,18 @@
-﻿using Cmf.Common.Cli.Builders;
-using Cmf.Common.Cli.Enums;
-using Cmf.Common.Cli.Objects;
-using Cmf.Common.Cli.Utilities;
+﻿using Cmf.CLI.Objects;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
-using Cmf.Common.Cli.Commands.restore;
+using Cmf.CLI.Builders;
+using Cmf.CLI.Commands.restore;
+using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Utilities;
 
-namespace Cmf.Common.Cli.Handlers
+namespace Cmf.CLI.Handlers
 {
     /// <summary>
     ///
     /// </summary>
-    /// <seealso cref="Cmf.Common.Cli.Handlers.PackageTypeHandler" />
+    /// <seealso cref="PackageTypeHandler" />
     public class BusinessPackageTypeHandler : PackageTypeHandler
     {
         /// <summary>

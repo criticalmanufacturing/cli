@@ -8,13 +8,15 @@ using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using Cmf.Common.Cli.Attributes;
-using Cmf.Common.Cli.Builders;
-using Cmf.Common.Cli.Utilities;
+using Cmf.CLI.Builders;
+using Cmf.CLI.Core;
+using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Cmf.Common.Cli.Commands.New
+namespace Cmf.CLI.Commands.New
 {
     /// <summary>
     /// Generates Help/Documentation package structure
@@ -25,12 +27,12 @@ namespace Cmf.Common.Cli.Commands.New
         private JsonDocument projectConfig = null;
 
         /// <inheritdoc />
-        public HTMLCommand() : base("html", Enums.PackageType.HTML)
+        public HTMLCommand() : base("html", PackageType.HTML)
         {
         }
 
         /// <inheritdoc />
-        public HTMLCommand(IFileSystem fileSystem) : base("html", Enums.PackageType.HTML, fileSystem)
+        public HTMLCommand(IFileSystem fileSystem) : base("html", PackageType.HTML, fileSystem)
         {
         }
         

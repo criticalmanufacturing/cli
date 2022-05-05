@@ -1,11 +1,9 @@
 ﻿using System.Collections.Generic;
-using System.CommandLine.Invocation;
 using System.IO.Abstractions;
 using System.Text.Json;
-using Cmf.Common.Cli.Attributes;
-using Cmf.Common.Cli.Constants;
-using Cmf.Common.Cli.Objects;
-using Cmf.Common.Cli.Utilities;
+using Cmf.CLI.Commands;
+using Cmf.CLI.Core.Attributes;
+
 
 namespace Cmf.Common.Cli.Commands.New
 {
@@ -18,7 +16,7 @@ namespace Cmf.Common.Cli.Commands.New
         /// <summary>
         /// constructor
         /// </summary>
-        public SecurityPortalCommand() : base("securityPortal", Enums.PackageType.SecurityPortal)
+        public SecurityPortalCommand() : base("securityPortal", Cmf.CLI.Core.Enums.PackageType.SecurityPortal)
         {
         }
 
@@ -26,7 +24,7 @@ namespace Cmf.Common.Cli.Commands.New
         /// constructor
         /// </summary>
         /// <param name="fileSystem"></param>
-        public SecurityPortalCommand(IFileSystem fileSystem) : base("securityPortal", Enums.PackageType.SecurityPortal, fileSystem)
+        public SecurityPortalCommand(IFileSystem fileSystem) : base("securityPortal", Cmf.CLI.Core.Enums.PackageType.SecurityPortal, fileSystem)
         {
         }
 

@@ -1,15 +1,16 @@
-﻿using Cmf.Common.Cli.Builders;
-using Cmf.Common.Cli.Enums;
-using Cmf.Common.Cli.Objects;
+﻿using Cmf.CLI.Objects;
 using System.Collections.Generic;
-using Cmf.Common.Cli.Commands.restore;
+using Cmf.CLI.Builders;
+using Cmf.CLI.Commands.restore;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
 
-namespace Cmf.Common.Cli.Handlers
+namespace Cmf.CLI.Handlers
 {
     /// <summary>
     ///
     /// </summary>
-    /// <seealso cref="Cmf.Common.Cli.Handlers.PresentationPackageTypeHandler" />
+    /// <seealso cref="PresentationPackageTypeHandler" />
     public class HtmlPackageTypeHandler : PresentationPackageTypeHandler
     {
         /// <summary>
@@ -67,7 +68,7 @@ namespace Cmf.Common.Cli.Handlers
                     Task = "build",
                     DisplayName = "Gulp Build",
                     GulpJS = "node_modules/gulp/bin/gulp.js",
-                    Args = new [] { "--production" , "--dist"},
+                    Args = new [] { "--production" , "--dist", "--brotli"},
                     WorkingDirectory = cmfPackage.GetFileInfo().Directory
                 },
             };

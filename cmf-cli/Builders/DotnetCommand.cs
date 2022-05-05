@@ -1,14 +1,15 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
+using Cmf.CLI.Core.Objects;
 
-namespace Cmf.Common.Cli.Builders
+namespace Cmf.CLI.Builders
 {
     /// <summary>
     ///
     /// </summary>
-    /// <seealso cref="Cmf.Common.Cli.Builders.ProcessCommand" />
-    /// <seealso cref="Cmf.Common.Cli.Builders.IBuildCommand" />
+    /// <seealso cref="ProcessCommand" />
+    /// <seealso cref="IBuildCommand" />
     public class DotnetCommand : ProcessCommand, IBuildCommand
     {
         /*

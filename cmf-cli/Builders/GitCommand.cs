@@ -1,8 +1,9 @@
 using System;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Cmf.CLI.Core.Objects;
 
-namespace Cmf.Common.Cli.Builders
+namespace Cmf.CLI.Builders
 {
     /// <summary>
     /// Execute a git command

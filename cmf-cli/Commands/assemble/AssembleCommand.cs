@@ -1,7 +1,4 @@
-using Cmf.Common.Cli.Attributes;
-using Cmf.Common.Cli.Constants;
-using Cmf.Common.Cli.Objects;
-using Cmf.Common.Cli.Utilities;
+using Cmf.CLI.Objects;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -9,13 +6,19 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO.Abstractions;
 using System.Linq;
+using Cmf.CLI.Constants;
+using Cmf.CLI.Core;
+using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Utilities;
 
-namespace Cmf.Common.Cli.Commands
+namespace Cmf.CLI.Commands
 {
     /// <summary>
     /// This command will be responsible for assembling a package based on a given cmfpackage and respective dependencies
     /// </summary>
-    /// <seealso cref="Cmf.Common.Cli.Commands.BaseCommand" />
+    /// <seealso cref="BaseCommand" />
     [CmfCommand("assemble")]
     public class AssembleCommand : BaseCommand
     {
@@ -111,7 +114,7 @@ namespace Cmf.Common.Cli.Commands
 
             CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: false, fileSystem: fileSystem);
 
-            if (cmfPackage.PackageType != Enums.PackageType.Root)
+            if (cmfPackage.PackageType != PackageType.Root)
             {
                 throw new CliException(CliMessages.NotARootPackage);
             }
@@ -128,11 +131,10 @@ namespace Cmf.Common.Cli.Commands
             List<string> missingPackages = new();
             foreach (Dependency dependency in cmfPackage.Dependencies.Where(x => x.IsMissing))
             {
-                if(!dependency.IsIgnorable)
+                if (!dependency.IsIgnorable)
                 {
                     missingPackages.Add($"{dependency.Id}@{dependency.Version}");
                 }
-                
             }
 
             if (missingPackages.HasAny())
@@ -246,6 +248,13 @@ namespace Cmf.Common.Cli.Commands
                 {
                     if (!dependency.IsIgnorable)
                     {
+                        // Validate dependency Uri
+                        if (dependency.CmfPackage == null)
+                        {
+                            string errorMessage = string.Format(CoreMessages.MissingMandatoryDependency, dependency.Id, dependency.Version);
+                            throw new Exception(errorMessage);
+                        }
+
                         string dependencyPath = dependency.CmfPackage.Uri.GetFile().Directory.FullName;
 
                         // To avoid assembling the same dependency twice
@@ -263,7 +272,7 @@ namespace Cmf.Common.Cli.Commands
                         }
 
                         AssembleDependencies(outputDir, ciRepo, repoDirectories, dependency.CmfPackage, assembledDependencies, includeTestPackages);
-                    }                    
+                    }
                 }
             }
         }
@@ -275,7 +284,7 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="repoDirectories">The repos.</param>
         /// <param name="cmfPackage">The CMF package.</param>
         /// <param name="includeTestPackages"></param>
-        /// <exception cref="Cmf.Common.Cli.Utilities.CliException"></exception>
+        /// <exception cref="CliException"></exception>
         private void AssemblePackage(IDirectoryInfo outputDir, IDirectoryInfo[] repoDirectories, CmfPackage cmfPackage, bool includeTestPackages)
         {
             // Load package from repo if is not loaded yet

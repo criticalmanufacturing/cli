@@ -1,14 +1,14 @@
-﻿using Cmf.Common.Cli.Attributes;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO.Abstractions;
-using Cmf.Common.Cli.Utilities;
+using Cmf.CLI.Constants;
+using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Utilities;
 using Newtonsoft.Json;
-using Cmf.Common.Cli.Constants;
 
-namespace Cmf.Common.Cli.Commands
+namespace Cmf.CLI.Commands
 {
     /// <summary>
     /// Azure DevOps Agent Type

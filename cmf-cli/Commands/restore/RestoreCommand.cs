@@ -4,14 +4,15 @@ using System.CommandLine.Invocation;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
-using Cmf.Common.Cli.Attributes;
-using Cmf.Common.Cli.Constants;
-using Cmf.Common.Cli.Factories;
-using Cmf.Common.Cli.Interfaces;
-using Cmf.Common.Cli.Objects;
-using Cmf.Common.Cli.Utilities;
+using Cmf.CLI.Constants;
+using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Factories;
+using Cmf.CLI.Interfaces;
+using Cmf.CLI.Utilities;
+using Cmf.CLI.Objects;
 
-namespace Cmf.Common.Cli.Commands.restore
+namespace Cmf.CLI.Commands.restore
 {
     /// <summary>
     /// Restore package dependencies (declared cmfpackage.json) from repository packages
