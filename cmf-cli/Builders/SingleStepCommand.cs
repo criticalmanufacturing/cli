@@ -26,4 +26,13 @@ internal class SingleStepCommand : ProcessCommand, IBuildCommand
         get => $"{BuildStep.Command} {string.Join(' ', BuildStep.Args)}";
         set { }
     }
+    
+    /// <summary>
+    /// Only Executes on Test (--test)
+    /// </summary>
+    /// <value>
+    /// boolean if to execute on Test should be true
+    /// </value>
+    public bool Test { get; set; } = false;
+
 }
