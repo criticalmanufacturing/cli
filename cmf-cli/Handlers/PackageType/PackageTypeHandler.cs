@@ -472,14 +472,17 @@ namespace Cmf.CLI.Handlers
         /// <summary>
         /// Builds this instance.
         /// </summary>
-        public virtual void Build()
+        public virtual void Build(bool test = false)
         {
             foreach (var step in BuildSteps)
             {
-                Log.Information($"Executing '{step.DisplayName}'");
-                step.Exec();
+                if(!step.Test || step.Test == test)
+                {
+                    Log.Information($"Executing '{step.DisplayName}'");
+                    step.Exec();
+                }
             }
-            }
+        }
 
         /// <summary>
         /// Packs the specified package output dir.

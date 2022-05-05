@@ -44,5 +44,14 @@ namespace Cmf.CLI.Builders
 
         /// <inheritdoc />
         public string DisplayName { get; set; }
+
+        /// <summary>
+        /// Only Executes on Test (--test)
+        /// </summary>
+        /// <value>
+        /// boolean if to execute on Test should be true
+        /// </value>
+        public bool Test { get; set; } = false;
+
     }
 }
