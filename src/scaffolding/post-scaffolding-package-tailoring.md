@@ -32,19 +32,20 @@ Below are some tailoring options for specific targets. It's recommended that the
    - Add to steps:
         ```json
         "steps": [
-            { "order": "1", "type": "Generic", "onExecute": "$(Agent.Root)/agent/scripts/stop_host.ps1" },
-            { "order": "2", "type": "DeployFiles", "ContentPath": "**/!(Cmf.Custom.*.BusinessObjects*).dll" },
-            { "order": "3", "type": "Generic", "onExecute": "$(Agent.Root)/agent/scripts/start_host.ps1" }
+            { "order": 1, "type": "Generic", "onExecute": "$(Agent.Root)/agent/scripts/stop_host.ps1" },
+            { "order": 2, "type": "DeployFiles", "ContentPath": "**/!(Cmf.Custom.*.BusinessObjects*).dll" },
+            { "order": 3, "type": "Generic", "onExecute": "$(Agent.Root)/agent/scripts/start_host.ps1" }
         ]
         ```
   - **Data, IoTData and Tests MasterData Package**
     - Add to steps:
         ```json
         "steps": [
-            { "order": "1", "type": "Generic", "onExecute": "$(Agent.Root)/agent/scripts/stop_host.ps1" },
-            { "order": "2", "type": "TransformFile", "file": "Cmf.Foundation.Services.HostService.dll.config", "tagFile": true },
-            { "order": "3", "type": "Generic", "onExecute": "$(Agent.Root)/agent/scripts/start_host.ps1" },
-            { "order": "4", "type": "Generic", "onExecute": "$(Package[Cmf.Custom.Package].TargetDirectory)/GenerateLBOs.ps1" }
+            { "order": 1, "type": "Generic", "onExecute": "$(Agent.Root)/agent/scripts/stop_host.ps1" },
+            { "order": 2, "type": "TransformFile", "file": "Cmf.Foundation.Services.HostService.dll.config", "tagFile": true },
+            { "order": 3, "type": "Generic", "onExecute": "$(Agent.Root)/agent/scripts/start_host.ps1" },
+            { "order": 4, "type": "DeployFiles", "ContentPath": "GenerateLBOs.ps1" },
+            { "order": 5, "type": "Generic", "onExecute": "$(Package[Cmf.Custom.Package].TargetDirectory)/GenerateLBOs.ps1" }
         ]
         ```
 
