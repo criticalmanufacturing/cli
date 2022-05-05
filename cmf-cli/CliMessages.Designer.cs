@@ -70,6 +70,15 @@ namespace Cmf.CLI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Mandatory Dependency {0}.{1} not found.
+        /// </summary>
+        internal static string MissingMandatoryDependency {
+            get {
+                return ResourceManager.GetString("MissingMandatoryDependency", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Missing mandatory option {0}.
         /// </summary>
         internal static string MissingMandatoryOption {
