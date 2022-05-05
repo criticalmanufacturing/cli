@@ -2,6 +2,98 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.2.0](https://github.com/criticalmanufacturing/cli/compare/2.2.0-5...2.2.0) (2022-03-31)
+
+## [2.2.0-5](https://github.com/criticalmanufacturing/cli/compare/2.2.0-4...2.2.0-5) (2022-03-28)
+
+
+### Features
+
+* securityPortal New Command ([6d5903c](https://github.com/criticalmanufacturing/cli/commits/6d5903cd5b41b745149e2eb2d7dce1b112f1d2b6))
+* securityPortal Pack Command ([cf9fa29](https://github.com/criticalmanufacturing/cli/commits/cf9fa29cadc2bda9de8a738ff47c707c0900eb0b))
+
+
+### Bug Fixes
+
+* **pack:** support packing presentation packages without any UI package ([3de07ab](https://github.com/criticalmanufacturing/cli/commits/3de07ab714ecaee102f8d75f5fe3131b128a5193))
+* **pack:** support relative LBO paths for feature packages ([5e20dd5](https://github.com/criticalmanufacturing/cli/commits/5e20dd5b3f36ce7e430e8dd9b28c67137812f2ce))
+
+
+### Under the hood
+
+* change GetPackageJsonFile to Generic GetFile ([4d10c29](https://github.com/criticalmanufacturing/cli/commits/4d10c29b4338d1c19a6bb8c7b195855b93d380dd))
+
+## [2.2.0-4](https://github.com/criticalmanufacturing/cli/compare/2.2.0-3...2.2.0-4) (2022-03-23)
+
+
+### Bug Fixes
+
+* **pack:** additional contentToPack check ([93f6d02](https://github.com/criticalmanufacturing/cli/commits/93f6d02645625166b22a3d71a816f007ffc0694c))
+
+## [2.2.0-3](https://github.com/criticalmanufacturing/cli/compare/2.2.0-2...2.2.0-3) (2022-03-23)
+
+(internal release pipeline changes)
+
+## [2.2.0-2](https://github.com/criticalmanufacturing/cli/compare/2.2.0-1...2.2.0-2) (2022-03-21)
+
+
+### Features
+
+* add version checks at start up ([c47dfe8](https://github.com/criticalmanufacturing/cli/commits/c47dfe8025f8d4ef38cb57fd4d54751d0cd5d68a))
+
+
+### Bug Fixes
+
+* allow reading DF packages from read-only repositories ([5573ab3](https://github.com/criticalmanufacturing/cli/commits/5573ab3e435ecd05be2a490e770503158e2d9dd1))
+* correct typo on Copy Cmf.FullBackup packages ([62b7b66](https://github.com/criticalmanufacturing/cli/commits/62b7b663f8bce7a9d2e598bf846ad8e6e99e00a5))
+* **new HTML:** set webapp as compilable, necessary for bundle generation ([3780234](https://github.com/criticalmanufacturing/cli/commits/37802346c16d8ef2081a8be3ac5516026d88d786))
+* **pack:** avoid silent fail ([51a8e26](https://github.com/criticalmanufacturing/cli/commits/51a8e26d68b24d7a9a05d2adcb85dfbfdeb941e9))
+
+
+### Under the hood
+
+* method ZipDirectory to stream ([bbeb84a](https://github.com/criticalmanufacturing/cli/commits/bbeb84a83a85e3be715b6005cd3cae1cca86fd16))
+
+## [2.2.0-1](https://github.com/criticalmanufacturing/cli/compare/2.2.0-0...2.2.0-1) (2022-03-09)
+
+
+### Bug Fixes
+
+* allow read of Handler Version ([8e7b404](https://github.com/criticalmanufacturing/cli/commits/8e7b4044006b8691e6e1c385002af8e6a8904fe3))
+* **init:** enforce mandatory options ([04e446f](https://github.com/criticalmanufacturing/cli/commits/04e446f5b0cf9f1c67dd06ac3fe44734700c9a18))
+
+## [2.2.0-0](https://github.com/criticalmanufacturing/cli/compare/2.1.1...2.2.0-0) (2022-02-23)
+
+
+### Features
+
+* add cliPackage as tag in the manifest xml ([01d35c7](https://github.com/criticalmanufacturing/cli/commits/01d35c752c8eb87071302fbe4578d799f7c3bb91))
+* **logging:** specify desired log level on invocation ([f8edef9](https://github.com/criticalmanufacturing/cli/commits/f8edef97a1dc63c38161aeb33646c0e24c190e0e))
+
+
+### Bug Fixes
+
+* continue gracefully when we don't have access to a path in $PATH ([1a852d8](https://github.com/criticalmanufacturing/cli/commits/1a852d89671ea4f24851a03ed1f9ab20f6aafad8))
+* isPathInside fails if the APPDATA variable is not defined ([e71531a](https://github.com/criticalmanufacturing/cli/commits/e71531a4a40080effe91049cd369429c1ffd55ce))
+* remove vm dependency from generateLBOs.ps1 ([a2c4cee](https://github.com/criticalmanufacturing/cli/commits/a2c4ceee71acfed28aefa06bbcfa9d5f25a18795))
+* **restore:** cli was asking for unnecessary write permissions to DF packages ([ddf52f0](https://github.com/criticalmanufacturing/cli/commits/ddf52f0bb3afeb7027268f65d86ae76adb0482d0))
+
+## [2.1.1](https://github.com/criticalmanufacturing/cli/compare/2.1.1-0...2.1.1) (2022-02-17)
+
+### Bug Fixes
+
+* only validate if is local pkg ([3586f53](https://github.com/criticalmanufacturing/cli/commits/3586f53bd5fd180dec330faab2318275d055b419))
+* **pipelines:** regex for PackageId ([7a8a146](https://github.com/criticalmanufacturing/cli/commits/7a8a14644b51d876ed00134d4f082486c3e059b3))
+
+## [2.1.1-0](https://github.com/criticalmanufacturing/cli/compare/2.1.0...2.1.1-0) (2022-02-10)
+
+### Bug Fixes
+
+* rename resource Html to HTML ([7b8f5d4](https://github.com/criticalmanufacturing/cli/commits/7b8f5d4c2eeff8bff55994018e007ff641e6046c))
+* template IoTData ([36456b6](https://github.com/criticalmanufacturing/cli/commits/36456b601cbfd9440e79bb8fdcbd1a655938befb))
+* remove config from html template ([11cb2c5](https://github.com/criticalmanufacturing/cli/commits/11cb2c563b11e2f5a6d00bd43875c7c8a48e64d1))
+* getContentToPack to not create target folder ([b78fbae](https://github.com/criticalmanufacturing/cli/commits/b78fbae7f0efb2963dac0dc766d3cd9aebbeb4a9))
+
 ## [2.1.0](https://github.com/criticalmanufacturing/cli/compare/2.0.0...2.1.0) (2022-02-07)
 
 
@@ -223,7 +315,7 @@ All notable changes to this project will be documented in this file. See [standa
 * **build:** add nuget.config ([4669fc3](https://github.com/criticalmanufacturing/cli/commits/4669fc37c0126a34125a90d6de44aec53183db05))
 * **init template:** add missing content. fix nuget url path ([cc772a0](https://github.com/criticalmanufacturing/cli/commits/cc772a05ad13333ba6845609b20bf030f3436113))
 * **init:** lbo script had unreplaced tokens ([3aae846](https://github.com/criticalmanufacturing/cli/commits/3aae846850b49fe1bc62ff9a9014c603adf49b43))
-* make HTML and Help templates more resistent to config.json variations (introduced by generator-heml 8.1.1) ([79c961a](https://github.com/criticalmanufacturing/cli/commits/79c961a43d84d4c6ea781a4b93ad58fbdfe5e550))
+* make HTML and Help templates more resistant to config.json variations (introduced by generator-heml 8.1.1) ([79c961a](https://github.com/criticalmanufacturing/cli/commits/79c961a43d84d4c6ea781a4b93ad58fbdfe5e550))
 * **pipelines:** fix wrong path ([995a71c](https://github.com/criticalmanufacturing/cli/commits/995a71c97b9bdf701c7f2096fce72d05d952ca8e))
 * prevent object reference error when run outside a project ([abab000](https://github.com/criticalmanufacturing/cli/commits/abab000f41a0b3ebe50200215a23a6f3f9f4e034))
 * stray quotes ([584d191](https://github.com/criticalmanufacturing/cli/commits/584d19102242837a0a64854aed2e7a9a00a3bd5a))

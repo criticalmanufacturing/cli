@@ -524,7 +524,7 @@ stages:
               $masterDataFiles = "${{ variables.CandidatePackages }}/Tests/*MasterData*.zip"
 
               Get-ChildItem $masterDataFiles | foreach {
-                  $PackageId = [regex]::split($_.BaseName, ".[0-9].[0-9].[0-9]")[0];
+                  $PackageId = [regex]::split($_.BaseName, ".[0-9]+.[0-9]+.[0-9]+")[0];
                   $PackageVersion = ($_.BaseName-replace "$PackageId." );
 
                   $PackageIdentifier = $PackageId + '@' + $PackageVersion
@@ -941,7 +941,7 @@ stages:
             targetType: inline
             failOnStderr: true
             script: |
-                Copy-Item -Path $(DATABASE_NETWORK_SHARE)/FullBackup/Cmf.FullBackup.*.zip Copy-Item -Path $(DATABASE_NETWORK_SHARE)/Approved -Verbose -Force -Recurse
+                Copy-Item -Path $(DATABASE_NETWORK_SHARE)/FullBackup/Cmf.FullBackup.*.zip -Destination $(DATABASE_NETWORK_SHARE)/Approved -Verbose -Force -Recurse
           continueOnError: false
 
         # Clean

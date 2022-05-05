@@ -120,7 +120,7 @@ namespace Cmf.Common.Cli.Commands
             // We need to force the CI Repo to be the last to be checked, to make sure that we first check the "release repositories"
             ExecutionContext.Instance.RepositoriesConfig.Repositories.Add(ciRepo);
 
-            cmfPackage.LoadDependencies(ExecutionContext.Instance.RepositoriesConfig.Repositories, true);
+            cmfPackage.LoadDependencies(ExecutionContext.Instance.RepositoriesConfig.Repositories, null, true);
 
             #region Missing Dependencies Handling
 

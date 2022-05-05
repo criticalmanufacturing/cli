@@ -18,15 +18,15 @@
       "target": ""
     },
     {
-      "source": "../Libs/LBOs/TypeScript/APIReference*",
+      "source": "<%= $CLI_PARAM_rootRelativePath %>/Libs/LBOs/TypeScript/APIReference*",
       "target": "node_modules/cmf.lbos"
     },
     {
-      "source": "../Libs/LBOs/TypeScript/cmf.lbos.*",
+      "source": "<%= $CLI_PARAM_rootRelativePath %>/Libs/LBOs/TypeScript/cmf.lbos.*",
       "target": "node_modules/cmf.lbos"
     },
     {
-      "source": "../Libs/LBOs/TypeScript/package.json",
+      "source": "<%= $CLI_PARAM_rootRelativePath %>/Libs/LBOs/TypeScript/package.json",
       "target": "node_modules/cmf.lbos"
     }
   ]

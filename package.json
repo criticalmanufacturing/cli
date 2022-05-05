@@ -34,7 +34,13 @@
     "bump:dotnet:patch": "cd cmf-cli && dotnet-bump patch --force --no-commit && cd ..",
     "bump:dotnet:feature": "cd cmf-cli && dotnet-bump minor --force --no-commit && cd ..",
     "bump:dotnet:breaking": "cd cmf-cli && dotnet-bump major --force --no-commit && cd ..",
-    "gen:changelog": "cd npm && standard-version && cd .."
+    "gen:changelog": "cd npm && standard-version && cd ..",
+    "commit": "git-cz"
+  },
+  "config": {
+    "commitizen": {
+      "path": "@commitlint/cz-commitlint"
+    }
   },
   "author": "Marco Silva",
   "license": "BSD-3-Clause",
@@ -45,6 +51,8 @@
   "devDependencies": {
     "@commitlint/cli": "^12.1.4",
     "@commitlint/config-conventional": "^12.1.4",
+    "@commitlint/cz-commitlint": "^16.2.1",
+    "commitizen": "^4.2.4",
     "husky": "^7.0.0",
     "standard-version": "^9.3.0"
   }

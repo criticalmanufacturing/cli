@@ -4,7 +4,8 @@
   <name>$(name)</name>
   <targetDirectory>$(targetDirectory)</targetDirectory>
   <targetLayer>$(targetLayer)</targetLayer>
-  <packageType>$(packageType)</packageType>
+  <packageType>$(dfPackageType)</packageType>
+  <cliPackageType>$(packageType)</cliPackageType>
   <description>$(description)</description>
   <version>$(version)</version>
   <isInstallable>$(isInstallable)</isInstallable>

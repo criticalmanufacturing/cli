@@ -1,4 +1,4 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System.IO.Abstractions.TestingHelpers;
 using System.Collections.Generic;
 using Cmf.Common.Cli.Objects;
@@ -12,10 +12,9 @@ using tests.Objects;
 
 namespace tests.Specs
 {
-    [TestClass]
     public class JsonValidator
     {
-        [TestMethod]
+        [Fact]
         public void Data_JsonValidator_HappyPath()
         {
             var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
@@ -81,11 +80,11 @@ namespace tests.Specs
                 "test/Data/"
             }, console);
 
-            Assert.IsTrue(console.Error == null || string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator failed {console.Error.ToString()}");
+            Assert.True(console.Error == null || string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator failed {console.Error.ToString()}");
 
         }
 
-        [TestMethod]
+        [Fact]
         public void Data_JsonValidator_FailData()
         {
             var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
@@ -150,10 +149,10 @@ namespace tests.Specs
                 "test/Data/"
             }, console);
 
-            Assert.IsTrue(console.Error != null && !string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator failed for Data Package: {console.Error.ToString()}");
+            Assert.True(console.Error != null && !string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator failed for Data Package: {console.Error.ToString()}");
         }
 
-        [TestMethod]
+        [Fact]
         public void IoTData_JsonValidator_FailData()
         {
             var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
@@ -257,10 +256,10 @@ namespace tests.Specs
                 "test/Data/"
             }, console);
 
-            Assert.IsTrue(console.Error != null && !string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator failed for IoT Data Package: {console.Error.ToString()}");
+            Assert.True(console.Error != null && !string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator failed for IoT Data Package: {console.Error.ToString()}");
         }
 
-        [TestMethod]
+        [Fact]
         public void IoTData_Workflow_JsonValidator_FailData()
         {
             var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
@@ -364,7 +363,7 @@ namespace tests.Specs
                 "test/Data/"
             }, console);
 
-            Assert.IsTrue(console.Error != null && !string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator failed for IoT Data Workflow Package: {console.Error.ToString()}");
+            Assert.True(!string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator failed for IoT Data Workflow Package: {console.Error.ToString()}");
         }
     }
 }

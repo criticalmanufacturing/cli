@@ -10,10 +10,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Compression;
+using System.IO.IsolatedStorage;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Xml.Linq;
 using System.Xml.Serialization;
+
+[assembly: InternalsVisibleTo("tests")]
 
 namespace Cmf.Common.Cli.Handlers
 {
@@ -46,11 +50,6 @@ namespace Cmf.Common.Cli.Handlers
         /// The files to pack
         /// </summary>
         protected List<FileToPack> FilesToPack = new List<FileToPack>();
-
-        /// <summary>
-        /// The df package type
-        /// </summary>
-        protected PackageType DFPackageType;
 
         #endregion
 
@@ -97,7 +96,7 @@ namespace Cmf.Common.Cli.Handlers
 
             BuildSteps = Array.Empty<IBuildCommand>();
 
-            DFPackageType = cmfPackage.PackageType;
+            cmfPackage.DFPackageType = cmfPackage.PackageType;
 
             DependenciesFolder = fileSystem.DirectoryInfo.FromDirectoryName("./Dependencies");
 
@@ -181,11 +180,6 @@ namespace Cmf.Common.Cli.Handlers
                     // If the Property is not a List we just need to set the Element Value with the Property Value
                     if (!propertyValue.IsList())
                     {
-                        if (propertyValue is PackageType type)
-                        {
-                            propertyValue = DFPackageType;
-                        }
-
                         element.Value = propertyValue.ToString();
                     }
                     else
@@ -226,7 +220,7 @@ namespace Cmf.Common.Cli.Handlers
                 elementToRemove.Remove();
             }
 
-            dFManifestTemplate.Save(path);
+            fileSystem.File.WriteAllText(path, dFManifestTemplate.ToString());
         }
 
         /// <summary>
@@ -255,7 +249,7 @@ namespace Cmf.Common.Cli.Handlers
                     if (ignoreFile == null)
                     {
                         string filePath = this.fileSystem.Path.Join(packDirectory.FullName, ignoreFileName);
-                        throw new CliException(string.Format(CliMessages.NotFound, filePath));
+                        Log.Warning(string.Format(CliMessages.NotFound, filePath));
                     }
 
                     foreach (string ignore in ignoreFile.ReadToStringList())
@@ -307,7 +301,7 @@ namespace Cmf.Common.Cli.Handlers
                 this.fileSystem.File.Delete(tempzipPath);
             }
 
-            FileSystemUtilities.ZipDirectory(tempzipPath, packageOutputDir);
+            FileSystemUtilities.ZipDirectory(fileSystem, tempzipPath, packageOutputDir);
 
             // move to final destination
             string destZipPath = $"{outputDir.FullName}/{CmfPackage.ZipPackageName}";
@@ -321,7 +315,7 @@ namespace Cmf.Common.Cli.Handlers
         /// <returns></returns>
         internal virtual List<FileToPack> GetContentToPack(IDirectoryInfo packageOutputDir)
         {
-            List<FileToPack> filesToPack = new List<FileToPack>();
+            List<FileToPack> filesToPack = new();
 
             if (CmfPackage.ContentToPack.HasAny())
             {
@@ -356,11 +350,19 @@ namespace Cmf.Common.Cli.Handlers
 
                     #endregion
 
+                    IDirectoryInfo[] _directoriesToPack = null;
+
                     try
                     {
                         // TODO: To be reviewed, files/directory search should be done with globs
-
-                        IDirectoryInfo[] _directoriesToPack = packageDirectory.GetDirectories(_source);
+                        _directoriesToPack = packageDirectory.GetDirectories(_source);
+                    }
+                    // Because the method GetDirectories throws an exception if the folder is not found
+                    // we need to catch the error and don't throw an exception
+                    catch (DirectoryNotFoundException ex)
+                    {
+                        Log.Debug(ex.Message);
+                    }
 
                         if (_directoriesToPack.HasAny())
                         {
@@ -369,7 +371,7 @@ namespace Cmf.Common.Cli.Handlers
                             foreach (IDirectoryInfo packDirectory in _directoriesToPack)
                             {
                                 // If a package.json exists the packDirectoryName needs to change to the name in the package.json
-                                dynamic _packageJson = packDirectory.GetPackageJsonFile();
+                                dynamic _packageJson = packDirectory.GetFile(CliConstants.PackageJson);
 
                                 string _packDirectoryName = _packageJson == null ? packDirectory.Name : _packageJson.name;
 
@@ -381,7 +383,18 @@ namespace Cmf.Common.Cli.Handlers
                             #endregion
                         }
 
-                        IFileInfo[] _filesToPack = packageDirectory.GetFiles(_source);
+                    IFileInfo[] _filesToPack = null;
+
+                    try
+                    {
+                        _filesToPack = packageDirectory.GetFiles(_source);
+                    }
+                    // Because the method GetFiles throws an exception if the folder is not found
+                    // we need to catch the error and don't throw an exception
+                    catch (DirectoryNotFoundException ex)
+                    {
+                        Log.Debug(ex.Message);
+                    }
 
                         if (_filesToPack.HasAny())
                         {
@@ -397,8 +410,7 @@ namespace Cmf.Common.Cli.Handlers
                                     continue;
                                 }
 
-                                string destPackFile = $"{packageOutputDir.FullName}/{_target}/{packFile.Name}";
-
+                            string destPackFile = $"{packageOutputDir.FullName}/{_target}/{packFile.Name}";
                                 filesToPack.Add(new()
                                 {
                                     ContentToPack = contentToPack,
@@ -410,17 +422,7 @@ namespace Cmf.Common.Cli.Handlers
                             #endregion
                         }
                     }
-                    catch (Exception e)
-                    {
-                        Log.Warning(e.Message);
-                    }
                 }
-
-                if (!filesToPack.HasAny())
-                {
-                    Log.Warning(string.Format(CliMessages.ContentToPackNotFound, CmfPackage.PackageId, CmfPackage.Version));
-                }
-            }
 
             return filesToPack;
         }
@@ -486,8 +488,13 @@ namespace Cmf.Common.Cli.Handlers
         /// <param name="packageOutputDir">The package output dir.</param>
         /// <param name="outputDir">The output dir.</param>
         public virtual void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir)
-        {
+            {
             var filesToPack = GetContentToPack(packageOutputDir);
+            if (CmfPackage.ContentToPack.HasAny() && !filesToPack.HasAny())
+            {
+                throw new Exception(string.Format(CliMessages.ContentToPackNotFound, CmfPackage.PackageId, CmfPackage.Version));
+            }
+
             if (filesToPack != null)
             {
                 FilesToPack.AddRange(filesToPack);
@@ -498,7 +505,7 @@ namespace Cmf.Common.Cli.Handlers
                     if (!_targetFolder.Exists)
                     {
                         _targetFolder.Create();
-                    }
+            }
                 });
             }
 
@@ -522,9 +529,10 @@ namespace Cmf.Common.Cli.Handlers
             Log.Debug($"Using repos at {string.Join(", ", repoUris.Select(r => r.OriginalString))}");
             Log.Debug($"Targeting dependencies folder at {this.DependenciesFolder.FullName}");
             var rootIdentifier = $"{this.CmfPackage.PackageId}@{this.CmfPackage.Version}";
-            Log.Debug($"Loading {rootIdentifier} dependency tree...");
-            this.CmfPackage.LoadDependencies(repoUris, true);
-            Log.Progress("Finished", true);
+            Log.Status($"Loading {rootIdentifier} dependency tree...", ctx =>
+            {
+                this.CmfPackage.LoadDependencies(repoUris, ctx, true);
+                ctx.Status($"Restoring {rootIdentifier} dependency tree...");
             if (this.CmfPackage.Dependencies == null)
             {
                 Log.Information($"No dependencies declared for package {rootIdentifier}");
@@ -571,7 +579,7 @@ namespace Cmf.Common.Cli.Handlers
                 Log.Debug($"Found package {identifier} at {dependency.CmfPackage.Uri.AbsoluteUri}");
                 if (dependency.CmfPackage.Uri.IsDirectory())
                 {
-                    using (Stream zipToOpen = this.fileSystem.FileStream.Create(dependency.CmfPackage.Uri.LocalPath, FileMode.Open))
+                        using (Stream zipToOpen = this.fileSystem.FileInfo.FromFileName(dependency.CmfPackage.Uri.LocalPath).OpenRead())
                     {
                         using (ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read))
                         {
@@ -610,6 +618,7 @@ namespace Cmf.Common.Cli.Handlers
                     }
                 }
             }
+            });
         }
 
         #endregion
