@@ -53,21 +53,27 @@ namespace Cmf.Common.Cli.Commands
             };
 
             cmd.AddArgument(arg);
-            
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo>(Execute);
+
+            cmd.AddOption(new Option<bool>(
+                aliases: new[] { "--test" },
+                description: "Build and Run Unit Tests",
+                getDefaultValue: () => false
+            ));
+
+            cmd.Handler = CommandHandler.Create<IDirectoryInfo, bool>(Execute);
         }
 
         /// <summary>
         /// Executes the specified package path.
         /// </summary>
         /// <param name="packagePath">The package path.</param>
-        public void Execute(IDirectoryInfo packagePath)
+        public void Execute(IDirectoryInfo packagePath, bool test = false)
         {
             IFileInfo cmfpackageFile = this.fileSystem.FileInfo.FromFileName($"{packagePath}/{CliConstants.CmfPackageFileName}");
 
             IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile, setDefaultValues: false);
 
-            packageTypeHandler.Build();
+            packageTypeHandler.Build(test);
         }
     }
 }

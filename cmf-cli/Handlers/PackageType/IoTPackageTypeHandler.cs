@@ -111,7 +111,8 @@ namespace Cmf.Common.Cli.Handlers
                     Task = "cliTest",
                     DisplayName = "Gulp Test",
                     GulpJS = "node_modules/gulp/bin/gulp.js",
-                    WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                    WorkingDirectory = cmfPackage.GetFileInfo().Directory,
+                    Test = true
                 },
                 new ConsistencyCheckCommand()
                 {

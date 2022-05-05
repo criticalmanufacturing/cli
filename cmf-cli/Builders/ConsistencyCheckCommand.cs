@@ -24,6 +24,14 @@ namespace Cmf.Common.Cli.Builders
         public IDirectoryInfo WorkingDirectory { get; set; }
 
         /// <summary>
+        /// Only Executes on Test (--test)
+        /// </summary>
+        /// <value>
+        /// boolean if to execute on Test should be true
+        /// </value>
+        public bool Test { get; set; } = false;
+
+        /// <summary>
         /// Gets or sets the display name.
         /// </summary>
         /// <value>
