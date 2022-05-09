@@ -199,7 +199,7 @@ namespace Cmf.CLI.Utilities
 
                     if (!dep.IsMissing)
                     {
-                        var curNode = tree.AddNode($"{pkg.PackageId}@{pkg.Version} [[{pkg.Location.ToString()}]]");
+                        var curNode = tree.AddNode($"{dep.CmfPackage.PackageId}@{dep.CmfPackage.Version} [[{dep.CmfPackage.Location.ToString()}]]");
                         BuildTreeNodes(dep.CmfPackage, curNode);
                     }
                     else if (dep.IsMissing)
@@ -232,18 +232,18 @@ namespace Cmf.CLI.Utilities
                     Dependency dep = pkg.Dependencies[i];
 
                     if (!dep.IsMissing)
-        {
-                        var curNode = node.AddNode($"{pkg.PackageId}@{pkg.Version} [[{pkg.Location.ToString()}]]");
+                    {
+                        var curNode = node.AddNode($"{dep.CmfPackage.PackageId}@{dep.CmfPackage.Version} [[{dep.CmfPackage.Location.ToString()}]]");
                         BuildTreeNodes(dep.CmfPackage, curNode);
                     }
                     else if (dep.IsMissing)
-            {
+                    {
                         if (dep.Mandatory)
-                {
+                        {
                             node.AddNode($"[red]MISSING {dep.Id}@{dep.Version}[/]");
-                }
-                else
-                {
+                        }
+                        else
+                        {
                             node.AddNode($"[yellow]MISSING {dep.Id}@{dep.Version}[/]");
                         }
                     }

@@ -15,7 +15,8 @@ namespace tests
         public void Root_HappyPath()
         {
             KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.1.0");
-            KeyValuePair<string, string> packageDep1 = new("CriticalManufacturing.DeploymentMetadata", "8.3.0");
+            KeyValuePair<string, string> packageDep1 = new("Cmf.Environment", "8.3.0");
+            KeyValuePair<string, string> packageDep2 = new("CriticalManufacturing.DeploymentMetadata", "8.3.0");
 
             var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
             {
@@ -31,6 +32,10 @@ namespace tests
                     {{
                          ""id"": ""{packageDep1.Key}"",
                         ""version"": ""{packageDep1.Value}""
+                    }},
+                    {{
+                         ""id"": ""{packageDep2.Key}"",
+                        ""version"": ""{packageDep2.Value}""
                     }}
                   ]
                 }}")}
@@ -97,9 +102,9 @@ namespace tests
                 message = ex.Message;
             }
 
-            Assert.Equal("Mandatory Dependency criticalmanufacturing.deploymentmetadata or cmf.environment. not found", message);
+            Assert.Equal("Mandatory Dependency criticalmanufacturing.deploymentmetadata and cmf.environment. not found", message);
         }
-        
+
         [Fact(Skip = "awaiting product fix")]
         public void IoT_WithoutMandatoryDependencies()
         {
