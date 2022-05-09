@@ -51,6 +51,7 @@ This is done with the `cmf init` command:
         --releaseLicense EnvironmentLicense `
         --releaseDeploymentTarget EnvironmentTarget
     ```
+    `EnvironmentTarget` can take any value recognized by the Portal SDK, which can be found [here](https://github.com/criticalmanufacturing/portal-sdk/blob/main/src/Common/DeploymentTarget.cs).
 
 Note: The `` ` `` character escapes multiline commands in `powershell`. For bash, the `\` character does the same thing.
 
