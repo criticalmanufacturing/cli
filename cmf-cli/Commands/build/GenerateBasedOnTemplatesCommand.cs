@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
+using Cmf.CLI.Constants;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
@@ -35,7 +36,7 @@ namespace Cmf.CLI.Commands
             var project = FileSystemUtilities.ReadProjectConfig(this.fileSystem).RootElement.GetProperty("Tenant").GetString();
             var helpPackagesRoot = this.fileSystem.Path.Join(helpRoot, "src", "packages");
             var helpPackages = this.fileSystem.Directory.GetDirectories(helpPackagesRoot);
-            var pkgName = CmfPackage.Load(this.fileSystem.FileInfo.FromFileName(this.fileSystem.Path.Join(helpRoot, "cmfpackage.json"))).PackageId.ToLowerInvariant();
+            var pkgName = CmfPackage.Load(this.fileSystem.FileInfo.FromFileName(this.fileSystem.Path.Join(helpRoot, CliConstants.CmfPackageFileName))).PackageId.ToLowerInvariant();
             foreach (var helpPackagePath in helpPackages)
             {
                 var pars = new Dictionary<string, string>
