@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Cmf.CLI.Commands;
+using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Enums;
@@ -58,14 +59,12 @@ namespace Cmf.CLI.Commands
                 throw new CliException("Can't find Help package root, please run this command inside a Help package");
             }
 
-            var regex = new Regex("\"id\":\\s+\"(.*)\"");
-
-            var projectName = project.ToLowerInvariant();
+            var regex = new Regex("\"id\":\\s+\"(.*)\""); // match for menu item IDs
 
             var packagesDir = this.fileSystem.DirectoryInfo.FromDirectoryName(this.fileSystem.Path.Join(helpRoot, "src", "packages"));
             var helpPackages = packagesDir.GetDirectories("cmf.docs.area.*");
 
-            void GetMetadataFromFolder(IDirectoryInfo current, List<object> metadata, IDirectoryInfo parent = null, string prefix = null)
+            void GetMetadataFromFolder(IDirectoryInfo current, List<object> metadata, IDirectoryInfo parent = null)
             {
                 if (parent != null)
                 {
@@ -81,8 +80,8 @@ namespace Cmf.CLI.Commands
                         var basename = this.fileSystem.Path.GetFileNameWithoutExtension(file.FullName).ToLowerInvariant();
                         metadata.Add(new
                         {
-                            id = /*prefix == null ? */basename/* : $"{prefix}.{basename}"*/,
-                            menuGroupId = /*prefix == null ? */parent.Name.ToLowerInvariant()/* : $"{prefix}.{parent.Name.ToLowerInvariant()}"*/,
+                            id = basename,
+                            menuGroupId = parent.Name.ToLowerInvariant(),
                             title = title,
                             actionId = ""
                         });
@@ -94,16 +93,14 @@ namespace Cmf.CLI.Commands
                 foreach (var folder in folders)
                 {
                     Log.Verbose($"Getting metadata from folder: {folder.FullName}");
-                    GetMetadataFromFolder(folder, metadata, folder, prefix);
+                    GetMetadataFromFolder(folder, metadata, folder);
                 }
             }
 
             foreach (var helpPackage in helpPackages)
             {
                 var helpPackageMetadata = new List<object>();
-                
-                //var pkgName = helpPackage.Name.ToLowerInvariant();
-                var pkgName = CmfPackage.Load(this.fileSystem.FileInfo.FromFileName(this.fileSystem.Path.Join(helpRoot, "cmfpackage.json"))).PackageId.ToLowerInvariant();
+
                 var assetsPath = helpPackage.GetDirectories("assets").FirstOrDefault();
                 if (assetsPath == null)
                 {
@@ -115,13 +112,11 @@ namespace Cmf.CLI.Commands
                 var metadataFile = helpPackage.GetFiles("src/*.metadata.ts").FirstOrDefault();
                 var metadataContent = metadataFile.ReadToString();
                 var matchedIds = regex.Matches(metadataContent);
-                var isLegacy = false; 
                 if (matchedIds.Any(m => m.Captures.Any(id => !id.Value.Contains("."))))
                 {
                     Log.Warning($"Using legacy menu item IDs! This package will not be deployable with other packages using legacy IDs, as collisions will happen!");
-                    isLegacy = true;
                 }
-                GetMetadataFromFolder(assetsPath, helpPackageMetadata, prefix: isLegacy ? null : pkgName);
+                GetMetadataFromFolder(assetsPath, helpPackageMetadata);
 
                 var menuItemsJson = this.fileSystem.Path.Join(assetsPath.FullName, "__generatedMenuItems.json");
                 var jsonOut = System.Text.Json.JsonSerializer.Serialize(helpPackageMetadata, new JsonSerializerOptions() { WriteIndented = true });
