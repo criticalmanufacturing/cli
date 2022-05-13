@@ -29,7 +29,7 @@ namespace Cmf.CLI.Commands.restore
             cmd.AddOption(new Option<Uri[]>(
                 aliases: new string[] { "-r", "--repos", "--repo" },
                 description: "Repositories where dependencies are located (folder)"));
-            
+
             var packageRoot = FileSystemUtilities.GetPackageRoot(this.fileSystem);
             var arg = new Argument<IDirectoryInfo>(
                 name: "packagePath",
@@ -53,12 +53,11 @@ namespace Cmf.CLI.Commands.restore
         {
             IFileInfo cmfpackageFile = this.fileSystem.FileInfo.FromFileName($"{packagePath}/{CliConstants.CmfPackageFileName}");
 
+            IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile, setDefaultValues: false);
             if (repos != null)
             {
                 ExecutionContext.Instance.RepositoriesConfig.Repositories.InsertRange(0, repos);
             }
-
-            IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile, setDefaultValues: false);
             packageTypeHandler.RestoreDependencies(ExecutionContext.Instance.RepositoriesConfig.Repositories.ToArray());
         }
     }
