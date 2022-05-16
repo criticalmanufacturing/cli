@@ -62,3 +62,9 @@ jobs:
         if: "!github.event.release.prerelease"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Publish Core NuGet
+        id: publish_nuget
+        uses: rohith/publish-nuget@v2
+        with:
+          PROJECT_FILE_PATH: core/core.csproj
+          NUGET_KEY: ${{secrets.NUGET_API_KEY}}
