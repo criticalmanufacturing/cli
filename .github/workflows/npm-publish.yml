@@ -63,6 +63,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Publish Core NuGet
+        if: "!github.event.release.prerelease"
         id: publish_nuget
         uses: rohith/publish-nuget@v2
         with:
