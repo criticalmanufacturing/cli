@@ -218,7 +218,16 @@ namespace Cmf.CLI.Utilities
             return tree;
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="envVarName"></param>
+        /// <returns></returns>
+        public static bool IsEnvVarTruthy(string envVarName)
+        {
+            var enableConsoleExporter = System.Environment.GetEnvironmentVariable(envVarName);
+            return enableConsoleExporter is "1" or "true" or "TRUE" or "True";
+        }
         #endregion Public Methods
 
         #region Private Methods
