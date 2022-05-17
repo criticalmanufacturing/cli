@@ -1,8 +1,10 @@
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Objects;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using OpenTelemetry.Trace;
 using Xunit;
 
 [assembly: CollectionBehavior(CollectionBehavior.CollectionPerAssembly)]
@@ -38,6 +40,21 @@ namespace tests.Specs
             public string PackageId => "test";
             public string CurrentVersion => "1.0.0-0";
         }
+
+        class MockTelemetryService : ITelemetryService
+        {
+            public TracerProvider Provider => null;
+            private ActivitySource activitySource = null;
+            public TracerProvider InitializeTracerProvider(string serviceName, string version) => null;
+
+            public ActivitySource InitializeActivitySource(string name)
+            {
+                activitySource = new ActivitySource(name);
+                return activitySource;
+            }
+
+            public Activity StartActivity(string name, ActivityKind kind = ActivityKind.Internal) => null;
+        }
         #endregion
 
         [Fact]
@@ -46,6 +63,7 @@ namespace tests.Specs
             ExecutionContext.ServiceProvider = (new ServiceCollection())
                 .AddSingleton<INPMClient, MockNPMClient999>()
                 .AddSingleton<IVersionService, MockVersionService>()
+                .AddSingleton<ITelemetryService, MockTelemetryService>()
                 .BuildServiceProvider();
 
             var logWriter = (new Logging()).GetLogStringWriter();
@@ -61,6 +79,7 @@ namespace tests.Specs
             ExecutionContext.ServiceProvider = (new ServiceCollection())
                 .AddSingleton<INPMClient, MockNPMClientCurrent>()
                 .AddSingleton<IVersionService, MockVersionService>()
+                .AddSingleton<ITelemetryService, MockTelemetryService>()
                 .BuildServiceProvider();
 
             var logWriter = (new Logging()).GetLogStringWriter();
@@ -76,6 +95,7 @@ namespace tests.Specs
             ExecutionContext.ServiceProvider = (new ServiceCollection())
                 .AddSingleton<INPMClient, MockNPMClientCurrent>()
                 .AddSingleton<IVersionService, MockVersionServiceDev>()
+                .AddSingleton<ITelemetryService, MockTelemetryService>()
                 .BuildServiceProvider();
             
             var logWriter = (new Logging()).GetLogStringWriter();
@@ -91,6 +111,7 @@ namespace tests.Specs
             ExecutionContext.ServiceProvider = (new ServiceCollection())
                 .AddSingleton<INPMClient, MockNPMClientCurrent>()
                 .AddSingleton<IVersionService, MockVersionService>()
+                .AddSingleton<ITelemetryService, MockTelemetryService>()
                 .BuildServiceProvider();
             
             var logWriter = (new Logging()).GetLogStringWriter();
