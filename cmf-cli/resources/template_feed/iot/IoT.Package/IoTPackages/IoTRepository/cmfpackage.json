@@ -8,7 +8,10 @@
   "contentToPack": [
     {
       "source": "../src/*",
-      "target": "node_modules"
+      "target": "node_modules",
+      "ignoreFiles": [
+        ".npmignore"
+      ]
     }
   ]
 }
