@@ -493,10 +493,11 @@ namespace Cmf.CLI.Utilities
         }
 
         /// <summary>
-        ///
+        /// Create a Zip file at filePath from the directory content
         /// </summary>
-        /// <param name="filePath"></param>
-        /// <param name="directory"></param>
+        /// <param name="fileSystem">The file system implementation</param>
+        /// <param name="filePath">The path of the resulting zip file</param>
+        /// <param name="directory">The directory to zip</param>
         /// <returns></returns>
         public static void ZipDirectory(IFileSystem fileSystem, string filePath, IDirectoryInfo directory)
         {
@@ -506,15 +507,15 @@ namespace Cmf.CLI.Utilities
                 {
                     foreach (IFileInfo file in directory.AllFilesAndFolders().Where(o => o is IFileInfo).Cast<IFileInfo>())
                     {
-                        var relPath = file.FullName.Substring(directory.FullName.Length + 1);
+                        var relPath = file.FullName.Substring(directory.FullName.Length + 1).Replace("\\", "/");
                         var archive = zipArchive.CreateEntry(relPath);
 
                         using (var entryStream = archive.Open())
                         {
                             entryStream.Write(fileSystem.File.ReadAllBytes(file.FullName));
+                        }
                     }
-                    }
-                    }
+                }
 
                 using (Stream zipToOpen = fileSystem.FileStream.Create(filePath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 0x1000, useAsync: false))
                 {
