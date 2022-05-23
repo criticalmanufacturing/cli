@@ -15,8 +15,7 @@ resources:
      source: CI-Publish
      branch: $(Build.SourceBranch)
      project: '<%= $CLI_PARAM_ProjectName %>'
-     trigger:
-      enabled: true
+     trigger: true
 
 variables:
  - group: Docker Variables
