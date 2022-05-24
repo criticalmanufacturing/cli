@@ -225,7 +225,7 @@ public class Build
 
         ExecutionContext.Initialize(fileSystem);
         IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
-        fileSystem.Directory.SetCurrentDirectory("C:/repo");
+        fileSystem.Directory.SetCurrentDirectory("repo");
 
         string message = string.Empty;
         CmfPackage cmfPackage = null;
