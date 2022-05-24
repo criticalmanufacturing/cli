@@ -25,8 +25,4 @@
     <ProjectReference Include="..\cmf-cli\cmf.csproj" />
     <ProjectReference Include="..\core\core.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Fixtures\NewFolder\" />
-  </ItemGroup>
 </Project>
