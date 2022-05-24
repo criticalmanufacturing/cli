@@ -2,6 +2,7 @@ using Cmf.CLI.Builders;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Handlers;
+using Cmf.Common.Cli.TestUtilities;
 using FluentAssertions;
 using Moq;
 using Newtonsoft.Json;
@@ -164,10 +165,11 @@ public class Build
         KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.1.0");
         KeyValuePair<string, string> packageDep1 = new("Cmf.Environment", "8.3.0");
         KeyValuePair<string, string> packageDep2 = new("CriticalManufacturing.DeploymentMetadata", "8.3.0");
+        string url = TestUtilities.GetTmpDirectory();
 
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
             {
-                { "/repo/cmfpackage.json", new MockFileData(
+                { $"{url}/cmfpackage.json", new MockFileData(
                 @$"{{
                   ""packageId"": ""{packageRoot.Key}"",
                   ""version"": ""{packageRoot.Value}"",
@@ -186,7 +188,7 @@ public class Build
                     }}
                   ]
                 }}")},
-                { "/repo/.project-config.json", new MockFileData(
+                { $"{url}/.project-config.json", new MockFileData(
                 @$"{{
                       ""ProjectName"": ""CF58AABF"",
                       ""NPMRegistry"": ""http://npm_registry/"",
@@ -224,8 +226,8 @@ public class Build
             });
 
         ExecutionContext.Initialize(fileSystem);
-        IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
-        fileSystem.Directory.SetCurrentDirectory("repo");
+        IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"{url}/{CliConstants.CmfPackageFileName}");
+        fileSystem.Directory.SetCurrentDirectory(url);
 
         string message = string.Empty;
         CmfPackage cmfPackage = null;
@@ -261,10 +263,11 @@ public class Build
         KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.1.0");
         KeyValuePair<string, string> packageDep1 = new("Cmf.Environment", "8.3.0");
         KeyValuePair<string, string> packageDep2 = new("CriticalManufacturing.DeploymentMetadata", "8.3.0");
+        string url = TestUtilities.GetTmpDirectory();
 
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
             {
-                { "/repo/cmfpackage.json", new MockFileData(
+                { $"{url}/cmfpackage.json", new MockFileData(
                 @$"{{
                   ""packageId"": ""{packageRoot.Key}"",
                   ""version"": ""{packageRoot.Value}"",
@@ -283,7 +286,7 @@ public class Build
                     }}
                   ]
                 }}")},
-                { "/repo/.project-config.json", new MockFileData(
+                { $"{url}/.project-config.json", new MockFileData(
                 @$"{{
                       ""ProjectName"": ""CF58AABF"",
                       ""NPMRegistry"": ""http://npm_registry/"",
@@ -321,8 +324,8 @@ public class Build
             });
 
         ExecutionContext.Initialize(fileSystem);
-        IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
-        fileSystem.Directory.SetCurrentDirectory("C:/repo");
+        IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"{url}/{CliConstants.CmfPackageFileName}");
+        fileSystem.Directory.SetCurrentDirectory(url);
 
         string message = string.Empty;
         CmfPackage cmfPackage = null;
@@ -358,10 +361,11 @@ public class Build
         KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.1.0");
         KeyValuePair<string, string> packageDep1 = new("Cmf.Environment", "8.3.0");
         KeyValuePair<string, string> packageDep2 = new("CriticalManufacturing.DeploymentMetadata", "8.3.0");
+        string url = TestUtilities.GetTmpDirectory();
 
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
             {
-                { "/repo/cmfpackage.json", new MockFileData(
+                { $"{url}/cmfpackage.json", new MockFileData(
                 @$"{{
                   ""packageId"": ""{packageRoot.Key}"",
                   ""version"": ""{packageRoot.Value}"",
@@ -380,7 +384,7 @@ public class Build
                     }}
                   ]
                 }}")},
-                { "/repo/.project-config.json", new MockFileData(
+                { $"{url}/.project-config.json", new MockFileData(
                 @$"{{
                       ""ProjectName"": ""CF58AABF"",
                       ""NPMRegistry"": ""http://npm_registry/"",
@@ -418,8 +422,8 @@ public class Build
             });
 
         ExecutionContext.Initialize(fileSystem);
-        IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
-        fileSystem.Directory.SetCurrentDirectory("C:/repo");
+        IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"{url}/{CliConstants.CmfPackageFileName}");
+        fileSystem.Directory.SetCurrentDirectory(url);
 
         string message = string.Empty;
         CmfPackage cmfPackage = null;
