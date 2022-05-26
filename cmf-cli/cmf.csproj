@@ -76,6 +76,9 @@
     <None Include="resources\template_feed\**\*.sln">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="resources\template_feed\database\**\*.sqlproj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
