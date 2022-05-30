@@ -11,7 +11,7 @@
       
       
       <link rel="icon" href="../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.2.14">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.2.16">
     
     
       
@@ -19,7 +19,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.3de6f41f.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.1c3799f8.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.cc9b2e1e.min.css">
@@ -1112,8 +1112,7 @@ If you are scaffolding a Deployment Services project, there is a CMF-internal.js
 If scaffolding a customer or partner project, you will need to create this infrastructure file first. Check <a href="../infrastructure/">Infrastructure</a> for more details.</p>
 <p>As in previous scenarios, the versions for the various input options must be previously determined. Unlike with <code>solgen</code>, <code>cmf init</code> will not assume default/current values for these options.</p>
 <p>This will also create a root package, which may or may not be shipped to the customer. Unlike with <code>solgen</code>, this root package has no dependencies, initially. Each time a layer package is created, it will be registered in the higher level package found. For a traditional repository, this will be the root package.</p>
-<p>If you are using version cmf-cli version 1 or 2, follow the instructions defined in the <a href="../post-scaffolding-package-tailoring/">Post-scaffolding package tailoring</a>. You will not be able to generate the layer packages before doing this.
-In version 3, this is already done by the CLI.</p>
+<p>If you are using version cmf-cli version 2x, follow the instructions defined in the <a href="../post-scaffolding-package-tailoring/">Post-scaffolding package tailoring</a>. You will not be able to generate the layer packages before doing this. In version 3, this is already done by the CLI.</p>
 <h2 id="layer-packages">Layer packages</h2>
 <p>Each application layer is deployed in a different package. This allows the team to deliver only what was actively modified during a sprint, and keep the previous versions of the unchanged layers in an installed system.</p>
 <h3 id="business">Business</h3>
@@ -1214,7 +1213,7 @@ In version 3, this is already done by the CLI.</p>
     <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.top", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2a1c317c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.c2e1ee47.min.js"></script>
+      <script src="../../assets/javascripts/bundle.3a4b43e5.min.js"></script>
       
     
   </body>
