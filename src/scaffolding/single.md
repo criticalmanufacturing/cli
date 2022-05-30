@@ -63,8 +63,7 @@ As in previous scenarios, the versions for the various input options must be pre
 
 This will also create a root package, which may or may not be shipped to the customer. Unlike with `solgen`, this root package has no dependencies, initially. Each time a layer package is created, it will be registered in the higher level package found. For a traditional repository, this will be the root package.
 
-If you are using version cmf-cli version 1 or 2, follow the instructions defined in the [Post-scaffolding package tailoring](./post-scaffolding-package-tailoring.md). You will not be able to generate the layer packages before doing this.
-In version 3, this is already done by the CLI.
+If you are using version cmf-cli version 2x, follow the instructions defined in the [Post-scaffolding package tailoring](./post-scaffolding-package-tailoring.md). You will not be able to generate the layer packages before doing this. In version 3, this is already done by the CLI.
 
 ## Layer packages
 
