@@ -11,6 +11,7 @@ using Cmf.CLI.Factories;
 using Cmf.CLI.Interfaces;
 using Cmf.CLI.Utilities;
 using Cmf.CLI.Objects;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Cmf.CLI.Commands.restore
 {
@@ -51,6 +52,7 @@ namespace Cmf.CLI.Commands.restore
         /// <param name="repos">The package repositories URI/path</param>
         public void Execute(IDirectoryInfo packagePath, Uri[] repos)
         {
+            using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
             IFileInfo cmfpackageFile = this.fileSystem.FileInfo.FromFileName($"{packagePath}/{CliConstants.CmfPackageFileName}");
 
             IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile, setDefaultValues: false);

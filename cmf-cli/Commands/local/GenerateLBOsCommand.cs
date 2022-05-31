@@ -4,7 +4,9 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
 using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Cmf.CLI.Commands
 {
@@ -29,6 +31,7 @@ namespace Cmf.CLI.Commands
         /// </summary>
         public void Execute()
         {
+            using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
             var toolsPath = this.fileSystem.Path.Join(Utilities.FileSystemUtilities.GetProjectRoot(this.fileSystem).FullName, "Tools");
             var pars = new Dictionary<string, string>
             {

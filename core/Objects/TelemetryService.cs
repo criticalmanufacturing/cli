@@ -18,6 +18,7 @@ public interface ITelemetryService
     ActivitySource InitializeActivitySource(string name);
     Activity StartActivity(string name, ActivityKind kind = ActivityKind.Internal);
     Activity StartBareActivity(string name, ActivityKind kind = ActivityKind.Internal);
+    Activity StartExtendedActivity(string name, ActivityKind kind = ActivityKind.Internal);
 }
 
 public class TelemetryService : ITelemetryService
@@ -46,7 +47,7 @@ public class TelemetryService : ITelemetryService
         }
         builder = builder.AddOtlpExporter(opt =>
         {
-            opt.Endpoint = new Uri(telemetryHostname ?? "https://telemetry.criticalmanufacturing.dev");
+            opt.Endpoint = new Uri(telemetryHostname ?? "http://telemetry.criticalmanufacturing.dev:4317");
             opt.Protocol = OtlpExportProtocol.Grpc;
             opt.ExportProcessorType = ExportProcessorType.Simple;
         });
@@ -75,6 +76,8 @@ public class TelemetryService : ITelemetryService
         }
         return activity;
     }
+
+    public Activity StartExtendedActivity(string name, ActivityKind kind = ActivityKind.Internal) => GenericUtilities.IsEnvVarTruthy("cmf_cli_enable_extended_telemetry") ? this.StartActivity(name, kind) : null;
 
     public Activity StartActivity(string name, ActivityKind kind = ActivityKind.Internal)
     {

@@ -2,12 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
-using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Cmf.CLI.Commands
 {
@@ -99,6 +100,8 @@ namespace Cmf.CLI.Commands
         /// <returns></returns>
         public void Execute(IDirectoryInfo path, string version, string buildNr, bool isToBumpMasterdata, bool isToBumpIoT, string packageNames, string root, string group, string workflowName, bool isToTag, bool onlyMdCustomization)
         {
+            using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
+            
             // Get All AutomationWorkflowFiles Folders
             List<string> automationWorkflowDirectories = this.fileSystem.Directory.GetDirectories(path.FullName, "AutomationWorkflowFiles").ToList();
 
