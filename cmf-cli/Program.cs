@@ -106,7 +106,6 @@ namespace Cmf.CLI
             
             using var activity = ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!
                 .StartActivity("CLIVersion");
-            activity?.SetTag("version", ExecutionContext.CurrentVersion);
 
             var npmClient = ExecutionContext.ServiceProvider.GetService<INPMClient>();
             
@@ -114,16 +113,16 @@ namespace Cmf.CLI
             {
                 Log.Information(
                     $"You are using development version {ExecutionContext.CurrentVersion}. This in unsupported in production and should only be used for testing.");
-                activity?.SetTag("isDev", ExecutionContext.IsDevVersion);
             }
 
-            var latestVersion = await npmClient!.GetLatestVersion(ExecutionContext.IsDevVersion);
-            if (latestVersion != ExecutionContext.CurrentVersion)
+            ExecutionContext.LatestVersion = await npmClient!.GetLatestVersion(ExecutionContext.IsDevVersion);
+            if (ExecutionContext.LatestVersion != ExecutionContext.CurrentVersion)
             {
                 Log.Warning(
-                    $"Using version {ExecutionContext.CurrentVersion} while {latestVersion} is available. Please update.");
+                    $"Using version {ExecutionContext.CurrentVersion} while {ExecutionContext.LatestVersion} is available. Please update.");
+                // after this run, every activity will have these tags (check TelemetryService)
                 activity?.SetTag("isOutdated", true);
-                activity?.SetTag("latestVersion", latestVersion);
+                activity?.SetTag("latestVersion", ExecutionContext.LatestVersion);
             }
 
             #endregion

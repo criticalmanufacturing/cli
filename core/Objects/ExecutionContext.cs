@@ -33,6 +33,11 @@ namespace Cmf.CLI.Core.Objects
         public static string CurrentVersion => (ServiceProvider.GetService<IVersionService>()!.CurrentVersion) ?? "dev";
         
         /// <summary>
+        /// Get or set the latest vetsion of the CLI. Use this if the CLI checks for new versions
+        /// </summary>
+        public static string LatestVersion { get; set; }
+        
+        /// <summary>
         /// Get the package id of the current running application
         /// </summary>
         public static string PackageId => (ServiceProvider.GetService<IVersionService>()!.PackageId) ?? "unknown";
@@ -47,6 +52,12 @@ namespace Cmf.CLI.Core.Objects
         /// NOTE: As we already have this ExecutionContext object, we're not enabling Hosting, but instead we are hosting the container in the execution context
         /// </summary>
         public static ServiceProvider ServiceProvider { get; set; }
+
+        /// <summary>
+        /// Is the current CLI outdated.
+        /// True if LatestVersion is not null (meaning a check was performed) and if the LatestVersion does not match the CurrentVersion
+        /// </summary>
+        public static bool IsOutdated => ExecutionContext.LatestVersion != null && ExecutionContext.CurrentVersion != ExecutionContext.LatestVersion;
 
         private ExecutionContext(IFileSystem fileSystem)
         {
