@@ -21,7 +21,6 @@
       <PackageReference Include="OpenTelemetry" Version="1.2.0" />
       <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.2.0" />
       <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.2.0" />
-      <PackageReference Include="OpenTelemetry.Exporter.Zipkin" Version="1.2.0" />
       <PackageReference Include="Spectre.Console" Version="0.43.0" />
       <PackageReference Include="System.IO.Abstractions" Version="13.2.38" />
       <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20574.7" />

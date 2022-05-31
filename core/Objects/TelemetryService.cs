@@ -1,5 +1,8 @@
 using System;
 using System.Diagnostics;
+using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using Cmf.CLI.Utilities;
 using OpenTelemetry;
 using OpenTelemetry.Exporter;
@@ -14,6 +17,7 @@ public interface ITelemetryService
     TracerProvider InitializeTracerProvider(string serviceName, string version);
     ActivitySource InitializeActivitySource(string name);
     Activity StartActivity(string name, ActivityKind kind = ActivityKind.Internal);
+    Activity StartBareActivity(string name, ActivityKind kind = ActivityKind.Internal);
 }
 
 public class TelemetryService : ITelemetryService
@@ -24,7 +28,7 @@ public class TelemetryService : ITelemetryService
     
     public TracerProvider InitializeTracerProvider(string serviceName, string version)
     {
-        if (GenericUtilities.IsEnvVarTruthy("cmf_cli_disable_telemetry"))
+        if (!GenericUtilities.IsEnvVarTruthy("cmf_cli_enable_telemetry"))
         {
             return null;
         }
@@ -42,13 +46,9 @@ public class TelemetryService : ITelemetryService
         }
         builder = builder.AddOtlpExporter(opt =>
         {
-            opt.Endpoint = new Uri(telemetryHostname ?? "https://cli-telemetry.criticalmanufacturing.dev");
+            opt.Endpoint = new Uri(telemetryHostname ?? "https://telemetry.criticalmanufacturing.dev");
             opt.Protocol = OtlpExportProtocol.Grpc;
             opt.ExportProcessorType = ExportProcessorType.Simple;
-        });
-        builder = builder.AddZipkinExporter(o =>
-        {
-            o.Endpoint = new Uri("http://ubuntu.wsl:9411");
         });
         Provider = builder.Build();
         return Provider;
@@ -60,8 +60,34 @@ public class TelemetryService : ITelemetryService
         return activitySource;
     }
 
+    public Activity StartBareActivity(string name, ActivityKind kind = ActivityKind.Internal)
+    {
+        var activity = this.activitySource.StartActivity(name, kind);
+        activity?.SetTag("version", ExecutionContext.CurrentVersion);
+        if (ExecutionContext.IsDevVersion)
+        {
+            activity?.SetTag("isDev", ExecutionContext.IsDevVersion);
+        }
+        if (ExecutionContext.IsOutdated)
+        {
+            activity?.SetTag("isOutdated", true);
+            activity?.SetTag("latestVersion", ExecutionContext.LatestVersion);
+        }
+        return activity;
+    }
+
     public Activity StartActivity(string name, ActivityKind kind = ActivityKind.Internal)
     {
-        return this.activitySource.StartActivity(name, kind);
+        var activity = this.StartBareActivity(name, kind);
+        if (GenericUtilities.IsEnvVarTruthy("cmf_cli_enable_extended_telemetry"))
+        {
+            activity?.SetTag("ip", Dns.GetHostAddresses(Dns.GetHostName())
+                .FirstOrDefault(ha => ha.AddressFamily == AddressFamily.InterNetwork)
+                ?.ToString());
+            activity?.SetTag("hostname", Environment.MachineName);
+            activity?.SetTag("username", Environment.UserName);
+            activity?.SetTag("cwd", Environment.CurrentDirectory);
+        }
+        return activity;
     }
 }
