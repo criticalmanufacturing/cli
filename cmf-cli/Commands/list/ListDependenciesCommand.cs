@@ -13,6 +13,7 @@ using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Cmf.CLI.Commands
 {
@@ -67,6 +68,7 @@ namespace Cmf.CLI.Commands
         /// <param name="repos">a set of repositories for remote packages</param>
         public void Execute(IDirectoryInfo workingDir, Uri[] repos)
         {
+            using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
             IFileInfo cmfpackageFile = this.fileSystem.FileInfo.FromFileName($"{workingDir}/{CliConstants.CmfPackageFileName}");
 
             // Reading cmfPackage

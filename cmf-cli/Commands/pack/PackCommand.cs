@@ -9,6 +9,7 @@ using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Factories;
 using Cmf.CLI.Interfaces;
 using Cmf.CLI.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Cmf.CLI.Commands
 {
@@ -72,6 +73,7 @@ namespace Cmf.CLI.Commands
         /// <returns></returns>
         public void Execute(IDirectoryInfo workingDir, IDirectoryInfo outputDir, bool force)
         {
+            using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
             IFileInfo cmfpackageFile = this.fileSystem.FileInfo.FromFileName($"{workingDir}/{CliConstants.CmfPackageFileName}");
 
             // Reading cmfPackage

@@ -55,6 +55,7 @@ namespace tests.Specs
 
             public Activity StartActivity(string name, ActivityKind kind = ActivityKind.Internal) => null;
             public Activity StartBareActivity(string name, ActivityKind kind = ActivityKind.Internal) => null;
+            public Activity StartExtendedActivity(string name, ActivityKind kind = ActivityKind.Internal) => null;
         }
         #endregion
 

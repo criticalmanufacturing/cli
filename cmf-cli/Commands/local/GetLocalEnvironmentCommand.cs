@@ -5,7 +5,9 @@ using System.CommandLine.Invocation;
 using System.IO;
 using System.Linq;
 using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 using Utils = Cmf.CLI.Utilities.FileSystemUtilities;
 
 namespace Cmf.CLI.Commands
@@ -44,6 +46,7 @@ namespace Cmf.CLI.Commands
         /// <param name="target">The target.</param>
         public void Execute(DirectoryInfo target)
         {
+            using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
             var config = FileSystemUtilities.ReadProjectConfig(this.fileSystem);
             var x = config.RootElement.EnumerateObject();
             var hostname = x.FirstOrDefault(y => y.NameEquals("vmHostname"));

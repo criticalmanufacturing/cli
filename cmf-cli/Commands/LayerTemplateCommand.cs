@@ -6,7 +6,9 @@ using System.Text.Json;
 using System.Linq;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Cmf.CLI.Commands
 {
@@ -141,6 +143,7 @@ namespace Cmf.CLI.Commands
         /// <param name="version">the package version</param>
         public void Execute(IDirectoryInfo workingDir, string version)
         {
+            using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
             if (workingDir == null)
             {
                 Log.Error("This command needs to run inside a project. Run `cmf init` to create a new project.");

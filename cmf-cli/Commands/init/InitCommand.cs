@@ -5,7 +5,9 @@ using System.CommandLine.Invocation;
 using System.IO.Abstractions;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 
 namespace Cmf.CLI.Commands
@@ -259,6 +261,7 @@ namespace Cmf.CLI.Commands
         /// </summary>
         internal void Execute(InitArguments x)
         {
+            using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
             var args = new List<string>()
             {
                 // engine options

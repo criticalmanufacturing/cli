@@ -1,7 +1,5 @@
-using Cmf.CLI.Objects;
 using System.CommandLine;
 using System.CommandLine.Invocation;
-using System.IO;
 using System.IO.Abstractions;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
@@ -9,6 +7,7 @@ using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Cmf.CLI.Commands
 {
@@ -66,6 +65,7 @@ namespace Cmf.CLI.Commands
         /// <exception cref="CliException"></exception>
         public void Execute(IDirectoryInfo packagePath, string version, string buildNr, string packageNames, bool isToTag)
         {
+            using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
             IFileInfo cmfpackageFile = this.fileSystem.FileInfo.FromFileName($"{packagePath}/{CliConstants.CmfPackageFileName}");
 
             if (string.IsNullOrEmpty(version))
