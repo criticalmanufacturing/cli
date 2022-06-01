@@ -72,6 +72,9 @@ steps:
 # Cmf Build
 - task: PowerShell@2
   displayName: 'Build ${{ parameters.PackageId }}'
+  env:
+    cmf_cli_enable_telemetry: true
+    cmf_cli_enable_extended_telemetry: true
   inputs:
     pwsh: true
     failOnStderr: true
@@ -88,6 +91,9 @@ steps:
 # Cmf Pack
 - task: PowerShell@2
   displayName: 'Pack ${{ parameters.PackageId }}'
+  env:
+    cmf_cli_enable_telemetry: true
+    cmf_cli_enable_extended_telemetry: true
   inputs:
     pwsh: true
     failOnStderr: true
