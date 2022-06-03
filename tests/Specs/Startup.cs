@@ -5,6 +5,7 @@ using Cmf.CLI.Objects;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using OpenTelemetry.Trace;
+using tests.Mocks;
 using Xunit;
 
 [assembly: CollectionBehavior(CollectionBehavior.CollectionPerAssembly)]
@@ -29,34 +30,13 @@ namespace tests.Specs
             }
         }
 
-        class MockVersionService : IVersionService
-        {
-            public string PackageId => "test";
-            public string CurrentVersion => "1.0.0";
-        }
-        
         class MockVersionServiceDev : IVersionService
         {
             public string PackageId => "test";
             public string CurrentVersion => "1.0.0-0";
         }
 
-        class MockTelemetryService : ITelemetryService
-        {
-            public TracerProvider Provider => null;
-            private ActivitySource activitySource = null;
-            public TracerProvider InitializeTracerProvider(string serviceName, string version) => null;
 
-            public ActivitySource InitializeActivitySource(string name)
-            {
-                activitySource = new ActivitySource(name);
-                return activitySource;
-            }
-
-            public Activity StartActivity(string name, ActivityKind kind = ActivityKind.Internal) => null;
-            public Activity StartBareActivity(string name, ActivityKind kind = ActivityKind.Internal) => null;
-            public Activity StartExtendedActivity(string name, ActivityKind kind = ActivityKind.Internal) => null;
-        }
         #endregion
 
         [Fact]
