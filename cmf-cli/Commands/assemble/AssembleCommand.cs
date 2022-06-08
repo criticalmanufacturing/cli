@@ -133,7 +133,7 @@ namespace Cmf.CLI.Commands
             List<string> missingPackages = new();
             foreach (Dependency dependency in cmfPackage.Dependencies.Where(x => x.IsMissing))
             {
-                if(!dependency.IsIgnorable)
+                if (!dependency.IsIgnorable)
                 {
                     missingPackages.Add($"{dependency.Id}@{dependency.Version}");
                 }
@@ -274,7 +274,7 @@ namespace Cmf.CLI.Commands
                         }
 
                         AssembleDependencies(outputDir, ciRepo, repoDirectories, dependency.CmfPackage, assembledDependencies, includeTestPackages);
-                    }                    
+                    }
                 }
             }
         }
@@ -292,7 +292,13 @@ namespace Cmf.CLI.Commands
             // Load package from repo if is not loaded yet
             if (cmfPackage == null || (cmfPackage != null && cmfPackage.Uri == null))
             {
+                string packageName = cmfPackage.PackageName;
                 cmfPackage = CmfPackage.LoadFromRepo(repoDirectories, cmfPackage.PackageId, cmfPackage.Version);
+                if(cmfPackage == null)
+                {
+                    string errorMessage = string.Format(CoreMessages.NotFound, packageName);
+                    throw new Exception(errorMessage);
+                }
             }
 
             string destinationFile = $"{outputDir.FullName}/{cmfPackage.Uri.Segments.Last()}";
