@@ -95,6 +95,15 @@ stages:
             artifactName: 'Configurations'
             downloadPath: '.'
 
+        - task: replacetokens@4
+          displayName: 'Replace tokens in parameters files'
+          inputs:
+            rootDirectory: 'Configurations'
+            targetFiles: '**/*.json'
+            keepToken: true
+            tokenPrefix: '#{'
+            tokenSuffix: '}#'
+
         - task: PowerShell@2
           displayName: "Load environment config"
           inputs:
@@ -302,9 +311,9 @@ stages:
 
               $file = "Configurations/EnvironmentConfigs/${{ variables.EnvironmentConfigName }}"
               $envConfig = Get-Content "$file" | out-string | ConvertFrom-Json
-              $envConfig.ENV_MANAGER_BOOT_PACKAGE = $PackageId
+              $envConfig.ENV_MANAGER_BOOT_PACKAGE = $PackageToInstall
 
-              Write-Output "Installing package $PackageId"
+              Write-Output "Installing package $PackageToInstall"
               $envConfig | ConvertTo-Json -Depth 10 | set-content "$(Agent.TempDirectory)/install-package.json"
 
         # Installation with customization
@@ -360,6 +369,15 @@ stages:
             downloadType: 'single'
             artifactName: 'Configurations'
             downloadPath: '.'
+
+        - task: replacetokens@4
+          displayName: 'Replace tokens in parameters files'
+          inputs:
+            rootDirectory: 'Configurations'
+            targetFiles: '**/*.json'
+            keepToken: true
+            tokenPrefix: '#{'
+            tokenSuffix: '}#'
 
         - task: PowerShell@2
           displayName: "Load environment config"
@@ -493,6 +511,16 @@ stages:
             tokenSuffix: '}#'
 
         - task: PowerShell@2
+          displayName: "Get portal-sdk"
+          inputs:
+            pwsh: true
+            failOnStderr: false
+            workingDirectory: $(Agent.TempDirectory)
+            targetType: inline
+            script: |
+              npm install --no-save @criticalmanufacturing/portal --registry ${{ variables.CmfCliRepository }}
+
+        - task: PowerShell@2
           displayName: "Load environment config"
           inputs:
             pwsh: true
@@ -509,24 +537,6 @@ stages:
               } else {
                   Write-Output "'$file' not found"
               }
-        - task: PowerShell@2
-          displayName: "Generate parameters"
-          inputs:
-            pwsh: true
-            targetType: 'inline'
-            script: |
-              $file = "$env:AGENT_TEMPDIRECTORY/parameters.json"
-              $json = @"
-              {
-              "Product.SystemName": "$(SYSTEM_NAME)",
-              "Packages.Root.TargetDirectory": "",
-              "Package[Product.Database.Online].Database.Server": "$('$(DATABASE_ONLINE_MSSQL_ADDRESS)' -replace '\\', '\\')",
-              "Package[Product.Database.Online].Database.User": "$('$(DATABASE_ONLINE_MSSQL_USERNAME)' -replace '\\', '\\')",
-              "Package[Product.Database.Online].Database.Password": "$('$(DATABASE_ONLINE_MSSQL_PASSWORD)' -replace '\\', '\\')",
-              }
-              "@
-              $json | set-content $file
-              Write-Host $json
 
         - task: PowerShell@2
           displayName: "MasterData Loading"
@@ -545,12 +555,25 @@ stages:
                   $PackageVersion = ($_.BaseName-replace "$PackageId." );
 
                   $PackageToInstall = $PackageId + '@' + $PackageVersion
+                  $file = "Configurations/EnvironmentConfigs/${{ variables.EnvironmentConfigName }}"
+                  $envConfig = Get-Content "$file" | out-string | ConvertFrom-Json
+                  $envConfig.ENV_MANAGER_BOOT_PACKAGE = $PackageToInstall
 
-                  & tools\CmfDeploy.exe install $PackageToInstall --parameters $env:AGENT_TEMPDIRECTORY/parameters.json --packageSources="${{ variables.CandidatePackages }}/Tests" -logFileLocation "${{ variables.CandidatePackages }}"
+                  Write-Output "Installing package $PackageId"
+                  $envConfig | ConvertTo-Json -Depth 10 | set-content "$(Agent.TempDirectory)/install-package.json"
+
+                  & $env:AGENT_TEMPDIRECTORY/node_modules/@criticalmanufacturing/portal/bin/cmf-portal.exe login --token $(CustomerPortalPAT) --verbose
+                  & $env:AGENT_TEMPDIRECTORY/node_modules/@criticalmanufacturing/portal/bin/cmf-portal.exe deploy `
+                    --name "${{ variables.CustomerEnvironmentName }}" `
+                    --customer-infrastructure-name "DS Integration Environments" `
+                    --parameters "$(Agent.TempDirectory)/install-package.json" `
+                    --license "${{ variables.LicenseName }}" `
+                    --site "${{ variables.SiteName }}" `
+                    --target "${{ variables.DeploymentTarget }}" `
+                    --package="${{ variables.DeploymentPackage }}" `
+                    --terminateOtherVersions --verbose
               }
-
             pwsh: true
-            workingDirectory: 'C:\tools\Cmf.Deployment.Framework'
           condition: eq(variables['ArtifactExists'], true)
 
         # Clean
@@ -582,6 +605,15 @@ stages:
             downloadType: 'single'
             artifactName: 'Configurations'
             downloadPath: '.'
+
+        - task: replacetokens@4
+          displayName: 'Replace tokens in parameters files'
+          inputs:
+            rootDirectory: 'Configurations'
+            targetFiles: '**/*.json'
+            keepToken: true
+            tokenPrefix: '#{'
+            tokenSuffix: '}#'
 
         - task: PowerShell@2
           displayName: "Load environment config"
@@ -937,6 +969,15 @@ stages:
             downloadType: 'single'
             artifactName: 'Configurations'
             downloadPath: '.'
+
+        - task: replacetokens@4
+          displayName: 'Replace tokens in parameters files'
+          inputs:
+            rootDirectory: 'Configurations'
+            targetFiles: '**/*.json'
+            keepToken: true
+            tokenPrefix: '#{'
+            tokenSuffix: '}#'
 
         - task: PowerShell@2
           displayName: "Load environment config"
