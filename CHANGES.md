@@ -2,6 +2,142 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.0.0](https://github.com/criticalmanufacturing/cli/compare/3.0.0-9...3.0.0) (2022-06-20)
+
+## [3.0.0-9](https://github.com/criticalmanufacturing/cli/compare/3.0.0-8...3.0.0-9) (2022-06-13)
+
+
+### Features
+
+* add basic telemetry ([f7d0c87](https://github.com/criticalmanufacturing/cli/commits/f7d0c87735b912e8555046c5bf5e1c882074b09c))
+* add extended telemetry for commands ([3e60463](https://github.com/criticalmanufacturing/cli/commits/3e60463921f99e5655dab8f9b6d49a20c96b02e0))
+
+
+### Bug Fixes
+
+* assemble object reference not set [#148](https://github.com/criticalmanufacturing/cli/issues/148) ([745be6f](https://github.com/criticalmanufacturing/cli/commits/745be6f0e8ca8c74838fbf2d1656c96acd245cf1))
+* encode absolute dotnet version for Azure DevOps agents ([1ed5b9b](https://github.com/criticalmanufacturing/cli/commits/1ed5b9b6ba78ba71250e9c91b20da192069c2ffc))
+
+
+### Under the hood
+
+* make telemetry opt-in ([3422745](https://github.com/criticalmanufacturing/cli/commits/342274522a528b358d59c25174dc1e4e9e048bec))
+
+## [3.0.0-8](https://github.com/criticalmanufacturing/cli/compare/3.0.0-7...3.0.0-8) (2022-06-01)
+
+
+### Bug Fixes
+
+* support legacy package formats for generateBasedOnTemplates command ([097d0b2](https://github.com/criticalmanufacturing/cli/commits/097d0b2e306fbf77fde151b273d0f3327396f7b4))
+
+## [3.0.0-7](https://github.com/criticalmanufacturing/cli/compare/3.0.0-6...3.0.0-7) (2022-05-26)
+
+
+### Features
+
+* add new build step to run unit tests on build ([66c5c01](https://github.com/criticalmanufacturing/cli/commits/66c5c01fdbae68720c49baa5a216d476e69e2d75))
+* add new build step to run unit tests on build ([fdca38c](https://github.com/criticalmanufacturing/cli/commits/fdca38cafa0e9dde424b2e982f69c02791967039))
+* **pipelines:** run unit tests on pull request pipelines ([89fc302](https://github.com/criticalmanufacturing/cli/commits/89fc302da166481773551ef67e46ea21bce4b892))
+
+
+### Bug Fixes
+
+* **new database:** include database projects for database scaffolding ([e265469](https://github.com/criticalmanufacturing/cli/commits/e265469db57f9dc1ca1636ae98e84c27a75bb609))
+
+## [3.0.0-6](https://github.com/criticalmanufacturing/cli/compare/3.0.0-5...3.0.0-6) (2022-05-23)
+
+
+### Bug Fixes
+
+* **pack:** ensure zip paths always use forward slash ([7c2766a](https://github.com/criticalmanufacturing/cli/commits/7c2766a72dea94742eea0a696fa0b59044bb5ee4))
+* **pipelines:** change trigger format issue ([7caa55f](https://github.com/criticalmanufacturing/cli/commits/7caa55f322484b652f05b87a10e579799ff97cd5))
+
+## [3.0.0-5](https://github.com/criticalmanufacturing/cli/compare/3.0.0-4...3.0.0-5) (2022-05-19)
+
+
+### Bug Fixes
+
+* **init:** add support for MES runtime environments ([2406192](https://github.com/criticalmanufacturing/cli/commits/24061926e9e2aa8f3767d1b7d98feb6c585de884))
+
+## [3.0.0-4](https://github.com/criticalmanufacturing/cli/compare/3.0.0-3...3.0.0-4) (2022-05-17)
+
+
+### Features
+
+* **new:** add scaffolding compatible with .NET 6 and IoC for MES 9 and up ([4b47666](https://github.com/criticalmanufacturing/cli/commits/4b47666dbe34a8065eb647e62c8bd74f148ceca4))
+* publish Core NuGet ([d7cf7eb](https://github.com/criticalmanufacturing/cli/commits/d7cf7eb021585972d65a21dfd6fd89d2d6e29ad8))
+
+
+### Bug Fixes
+
+* repos arg was being cleared by ExecutionContext.Instance initialization ([2e67a09](https://github.com/criticalmanufacturing/cli/commits/2e67a0925da5a80bf0aac908b924c5a6fa30ff27))
+
+## [3.0.0-3](https://github.com/criticalmanufacturing/cli/compare/3.0.0-2...3.0.0-3) (2022-05-12)
+
+
+### Features
+
+* **help:** support multiple custom generated doc packages per doc portal instance ([a32878f](https://github.com/criticalmanufacturing/cli/commits/a32878fc73f42c059acff0436ca0dca722abba18))
+
+
+### Bug Fixes
+
+* **help:** avoid help menu item collisions ([156a227](https://github.com/criticalmanufacturing/cli/commits/156a2271e9fa1de66d2a341d8dfe8b92c715c0c3))
+
+## [3.0.0-2](https://github.com/criticalmanufacturing/cli/compare/3.0.0-1...3.0.0-2) (2022-05-09)
+
+
+### Features
+
+* add new build step for IoT ([b62ae47](https://github.com/criticalmanufacturing/cli/commits/b62ae47a7b0327b95364bab0a6e4448f1d08b44a))
+* adding test mode to single step command ([9da6599](https://github.com/criticalmanufacturing/cli/commits/9da65994194098a84bc9691441c0ff7c6a7bcd6d))
+* create build and test with an added option ([5959b9a](https://github.com/criticalmanufacturing/cli/commits/5959b9a41b91e41c7b1766cbd87444cef426c6ce))
+
+
+### Bug Fixes
+
+* add child process import ([86bef6a](https://github.com/criticalmanufacturing/cli/commits/86bef6a33e6706be560aab42b91b367dc5b01249))
+
+## [3.0.0-1](https://github.com/criticalmanufacturing/cli/compare/3.0.0-0...3.0.0-1) (2022-05-09)
+
+
+### Features
+
+* **build:** support manifest build steps for generic packages ([10df538](https://github.com/criticalmanufacturing/cli/commits/10df538edb4771935d0a0f57bd86caba1e6a47d4))
+* force product dependencies as part of Root dependencies package ([4d8db6c](https://github.com/criticalmanufacturing/cli/commits/4d8db6cdb045511932691271ea069b20a3542966))
+
+
+### Bug Fixes
+
+* **ls:** correct printed tree found package labels ([cca485e](https://github.com/criticalmanufacturing/cli/commits/cca485ede5e2be4198f7931998737158222446a7))
+
+## [3.0.0-0](https://github.com/criticalmanufacturing/cli/compare/2.3.1...3.0.0-0) (2022-04-29)
+
+
+### ⚠ BREAKING CHANGES
+
+* migrate to .NET 6
+
+### Features
+
+* **pipelines:** support package installation by environment ([da7aca4](https://github.com/criticalmanufacturing/cli/commits/da7aca48c7f36bb22f2ea86038396e9b607236a6))
+
+
+### Bug Fixes
+
+* database template packages are not uniqueinstall [#169](https://github.com/criticalmanufacturing/cli/issues/169) ([cfbaca2](https://github.com/criticalmanufacturing/cli/commits/cfbaca219cc48f6ebc2e03682f90cea953b0a5b2))
+
+
+### Under the hood
+
+* add Core Nuget spec ([464119b](https://github.com/criticalmanufacturing/cli/commits/464119b93e8b7b18f08c1e0000e7bdef6581c3ef))
+* harmonize CLI namespaces ([7099052](https://github.com/criticalmanufacturing/cli/commits/70990527ae8424ee3cd86df7c88446a15464aebb))
+* harmonize core namespaces ([23ba5c0](https://github.com/criticalmanufacturing/cli/commits/23ba5c0b15a9f4aa29c35bb28d59595c614df3a6))
+* move core objects to a separate assembly ([232d432](https://github.com/criticalmanufacturing/cli/commits/232d43295fe508d40080e38562eb47c2b4b6885e))
+
+
+* migrate to .NET 6 ([881b90b](https://github.com/criticalmanufacturing/cli/commits/881b90b8cb869197e7110de6aceac130dbf33949))
+
 ### [2.3.1](https://github.com/criticalmanufacturing/cli/compare/2.3.1-0...2.3.1) (2022-04-26)
 
 ### [2.3.1-0](https://github.com/criticalmanufacturing/cli/compare/2.3.0...2.3.1-0) (2022-04-13)
