@@ -15,8 +15,7 @@ resources:
      source: CI-Publish
      branch: $(Build.SourceBranch)
      project: '<%= $CLI_PARAM_ProjectName %>'
-     trigger:
-      enabled: true
+     trigger: true
 
 variables:
  - group: Docker Variables
@@ -95,6 +94,15 @@ stages:
             downloadType: 'single'
             artifactName: 'Configurations'
             downloadPath: '.'
+
+        - task: replacetokens@4
+          displayName: 'Replace tokens in parameters files'
+          inputs:
+            rootDirectory: 'Configurations'
+            targetFiles: '**/*.json'
+            keepToken: true
+            tokenPrefix: '#{'
+            tokenSuffix: '}#'
 
         - task: PowerShell@2
           displayName: "Load environment config"
@@ -286,18 +294,26 @@ stages:
             failOnStderr: true
             pwsh: true
             script: |
-              $CmfPackageJsonFile = Get-Item "./Configurations/cmfpackage.json"
-              $CmfPackageJson = Get-Content -Raw -Path $CmfPackageJsonFile | ConvertFrom-Json
+              $PackageId = "${{ variables.RootPackageIdToInstall }}"
 
-              $PackageId = $CmfPackageJson.'packageId'
-              $PackageVersion = $CmfPackageJson.'version'
-              $PackageIdentifier = $PackageId + '@' + $PackageVersion
+              if($PackageId)
+              {
+                $PackageVersion = (Get-Item "${{ variables.CandidatePackages }}/Package/$PackageId*").BaseName -replace "$PackageId."
+              }
+              else
+              {
+                $CmfPackageJsonFile = Get-Item "./Configurations/cmfpackage.json"
+                $CmfPackageJson = Get-Content -Raw -Path $CmfPackageJsonFile | ConvertFrom-Json
+                $PackageId = $CmfPackageJson.'packageId'
+                $PackageVersion = $CmfPackageJson.'version'
+              }
+              $PackageToInstall = "$PackageId@$PackageVersion"
 
               $file = "Configurations/EnvironmentConfigs/${{ variables.EnvironmentConfigName }}"
               $envConfig = Get-Content "$file" | out-string | ConvertFrom-Json
-              $envConfig.ENV_MANAGER_BOOT_PACKAGE = $PackageIdentifier
+              $envConfig.ENV_MANAGER_BOOT_PACKAGE = $PackageToInstall
 
-              Write-Output "Installing package $PackageIdentifier"
+              Write-Output "Installing package $PackageToInstall"
               $envConfig | ConvertTo-Json -Depth 10 | set-content "$(Agent.TempDirectory)/install-package.json"
 
         # Installation with customization
@@ -353,6 +369,15 @@ stages:
             downloadType: 'single'
             artifactName: 'Configurations'
             downloadPath: '.'
+
+        - task: replacetokens@4
+          displayName: 'Replace tokens in parameters files'
+          inputs:
+            rootDirectory: 'Configurations'
+            targetFiles: '**/*.json'
+            keepToken: true
+            tokenPrefix: '#{'
+            tokenSuffix: '}#'
 
         - task: PowerShell@2
           displayName: "Load environment config"
@@ -463,7 +488,12 @@ stages:
           inputs:
             targetType: inline
             script: |
-                $masterDataFiles = "${{ variables.CandidatePackages }}/Tests/*MasterData*.zip"
+                $testMasterDataFilter = "${{ variables.TestMasterDataFilter }}"
+                if(!$testMasterDataFilter)
+                {
+                  $testMasterDataFilter = "*MasterData*"
+                }
+                $masterDataFiles = "${{ variables.CandidatePackages }}/Tests/$testMasterDataFilter.zip"
                 Write-Host "##vso[task.setVariable variable=ArtifactExists;]false"
 
                 if (Get-ChildItem -Path $masterDataFiles)
@@ -479,6 +509,16 @@ stages:
             keepToken: true
             tokenPrefix: '#{'
             tokenSuffix: '}#'
+
+        - task: PowerShell@2
+          displayName: "Get portal-sdk"
+          inputs:
+            pwsh: true
+            failOnStderr: false
+            workingDirectory: $(Agent.TempDirectory)
+            targetType: inline
+            script: |
+              npm install --no-save @criticalmanufacturing/portal --registry ${{ variables.CmfCliRepository }}
 
         - task: PowerShell@2
           displayName: "Load environment config"
@@ -497,43 +537,43 @@ stages:
               } else {
                   Write-Output "'$file' not found"
               }
-        - task: PowerShell@2
-          displayName: "Generate parameters"
-          inputs:
-            pwsh: true
-            targetType: 'inline'
-            script: |
-              $file = "$env:AGENT_TEMPDIRECTORY/parameters.json"
-              $json = @"
-              {
-              "Product.SystemName": "$(SYSTEM_NAME)",
-              "Packages.Root.TargetDirectory": "",
-              "Package[Product.Database.Online].Database.Server": "$('$(DATABASE_ONLINE_MSSQL_ADDRESS)' -replace '\\', '\\')",
-              "Package[Product.Database.Online].Database.User": "$('$(DATABASE_ONLINE_MSSQL_USERNAME)' -replace '\\', '\\')",
-              "Package[Product.Database.Online].Database.Password": "$('$(DATABASE_ONLINE_MSSQL_PASSWORD)' -replace '\\', '\\')",
-              }
-              "@
-              $json | set-content $file
-              Write-Host $json
 
         - task: PowerShell@2
           displayName: "MasterData Loading"
           inputs:
             targetType: 'inline'
             script: |
-              $masterDataFiles = "${{ variables.CandidatePackages }}/Tests/*MasterData*.zip"
+              $testMasterDataFilter = "${{ variables.TestMasterDataFilter }}"
+              if(!$testMasterDataFilter)
+              {
+                $testMasterDataFilter = "*MasterData*"
+              }
+              $masterDataFiles = "${{ variables.CandidatePackages }}/Tests/$testMasterDataFilter.zip"
 
               Get-ChildItem $masterDataFiles | foreach {
                   $PackageId = [regex]::split($_.BaseName, ".[0-9]+.[0-9]+.[0-9]+")[0];
                   $PackageVersion = ($_.BaseName-replace "$PackageId." );
 
-                  $PackageIdentifier = $PackageId + '@' + $PackageVersion
+                  $PackageToInstall = $PackageId + '@' + $PackageVersion
+                  $file = "Configurations/EnvironmentConfigs/${{ variables.EnvironmentConfigName }}"
+                  $envConfig = Get-Content "$file" | out-string | ConvertFrom-Json
+                  $envConfig.ENV_MANAGER_BOOT_PACKAGE = $PackageToInstall
 
-                  & tools\CmfDeploy.exe install $PackageIdentifier --parameters $env:AGENT_TEMPDIRECTORY/parameters.json --packageSources="${{ variables.CandidatePackages }}/Tests" -logFileLocation "${{ variables.CandidatePackages }}"
+                  Write-Output "Installing package $PackageId"
+                  $envConfig | ConvertTo-Json -Depth 10 | set-content "$(Agent.TempDirectory)/install-package.json"
+
+                  & $env:AGENT_TEMPDIRECTORY/node_modules/@criticalmanufacturing/portal/bin/cmf-portal.exe login --token $(CustomerPortalPAT) --verbose
+                  & $env:AGENT_TEMPDIRECTORY/node_modules/@criticalmanufacturing/portal/bin/cmf-portal.exe deploy `
+                    --name "${{ variables.CustomerEnvironmentName }}" `
+                    --customer-infrastructure-name "DS Integration Environments" `
+                    --parameters "$(Agent.TempDirectory)/install-package.json" `
+                    --license "${{ variables.LicenseName }}" `
+                    --site "${{ variables.SiteName }}" `
+                    --target "${{ variables.DeploymentTarget }}" `
+                    --package="${{ variables.DeploymentPackage }}" `
+                    --terminateOtherVersions --verbose
               }
-
             pwsh: true
-            workingDirectory: 'C:\tools\Cmf.Deployment.Framework'
           condition: eq(variables['ArtifactExists'], true)
 
         # Clean
@@ -565,6 +605,15 @@ stages:
             downloadType: 'single'
             artifactName: 'Configurations'
             downloadPath: '.'
+
+        - task: replacetokens@4
+          displayName: 'Replace tokens in parameters files'
+          inputs:
+            rootDirectory: 'Configurations'
+            targetFiles: '**/*.json'
+            keepToken: true
+            tokenPrefix: '#{'
+            tokenSuffix: '}#'
 
         - task: PowerShell@2
           displayName: "Load environment config"
@@ -685,10 +734,10 @@ stages:
               if (Get-ChildItem -Path $artifactPath)
               {
                 ls $artifactPath
-                Get-ChildItem $artifactPath | foreach { 
+                Get-ChildItem $artifactPath | foreach {
                   $targetDirectory = "$(Build.SourcesDirectory)/TestExecution/" + $_.BaseName
                   Write-Host "$_ -> $targetDirectory"
-                  Expand-Archive $_ -DestinationPath $targetDirectory -Force 
+                  Expand-Archive $_ -DestinationPath $targetDirectory -Force
                 }
                 Write-Host "##vso[task.setVariable variable=ArtifactExists;]true"
               }
@@ -804,13 +853,19 @@ stages:
                 inputs:
                   targetType: inline
                   script: |
-                    $CmfPackageJsonFile = Get-Item "./Configurations/cmfpackage.json"
-                    $CmfPackageJson = Get-Content -Raw -Path $CmfPackageJsonFile | ConvertFrom-Json
-                    $PackVersion = $CmfPackageJson.'version'
-                    $PackageId = $CmfPackageJson.'packageId'
-                    Write-Host "PackVersion = $PackVersion"
-                    Write-Host "PackageId = $PackageId"
-                    echo "##vso[task.setvariable variable=PackageVersion;isOutput=true]$PackVersion"
+                    $PackageId = "${{ variables.RootPackageIdToInstall }}"
+                    if($PackageId)
+                    {
+                      $PackageVersion = (Get-Item "${{ variables.CandidatePackages }}/Package/$PackageId*").BaseName -replace "$PackageId."
+                    }
+                    else
+                    {
+                      $CmfPackageJsonFile = Get-Item "./Configurations/cmfpackage.json"
+                      $CmfPackageJson = Get-Content -Raw -Path $CmfPackageJsonFile | ConvertFrom-Json
+                      $PackageId = $CmfPackageJson.'packageId'
+                      $PackageVersion = $CmfPackageJson.'version'
+                    }
+                    echo "##vso[task.setvariable variable=PackageVersion;isOutput=true]$PackageVersion"
                     echo "##vso[task.setvariable variable=PackageId;isOutput=true]$PackageId"
                 name: GetPackageVersion
 
@@ -914,6 +969,15 @@ stages:
             downloadType: 'single'
             artifactName: 'Configurations'
             downloadPath: '.'
+
+        - task: replacetokens@4
+          displayName: 'Replace tokens in parameters files'
+          inputs:
+            rootDirectory: 'Configurations'
+            targetFiles: '**/*.json'
+            keepToken: true
+            tokenPrefix: '#{'
+            tokenSuffix: '}#'
 
         - task: PowerShell@2
           displayName: "Load environment config"

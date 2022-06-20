@@ -22,7 +22,7 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - uses: actions/setup-dotnet@v1.7.2
         with:
-          dotnet-version: '5.0.x'
+          dotnet-version: '6.0.x'
       - name: install zip
         uses: montudor/action-zip@v0.1.0
       - run: npm install
@@ -62,3 +62,10 @@ jobs:
         if: "!github.event.release.prerelease"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Publish Core NuGet
+        if: "!github.event.release.prerelease"
+        id: publish_nuget
+        uses: rohith/publish-nuget@v2
+        with:
+          PROJECT_FILE_PATH: core/core.csproj
+          NUGET_KEY: ${{secrets.NUGET_API_KEY}}

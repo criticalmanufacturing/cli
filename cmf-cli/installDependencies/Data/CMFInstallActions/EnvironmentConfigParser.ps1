@@ -59,7 +59,7 @@ if(Test-Path $ConfigFilePath)
 	$env.BackupLocation = $configJson.'Product.Database.BackupShare'
 
 	#### #### #### #### #### ####
-	#### Aplication Servers  ####
+	#### Application Servers  ####
 	#### #### #### #### #### ####
 
 	# New-CMFServer 'ServerName' 'InstallationPath'

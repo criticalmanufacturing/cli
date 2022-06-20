@@ -6,12 +6,12 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
 using System.Text.Json;
-using Cmf.Common.Cli.Attributes;
-using Cmf.Common.Cli.Enums;
-using Cmf.Common.Cli.Objects;
-using Cmf.Common.Cli.Utilities;
+using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Objects;
+using Cmf.CLI.Utilities;
 
-namespace Cmf.Common.Cli.Commands.New
+namespace Cmf.CLI.Commands.New
 {
     /// <summary>
     /// Generates the Business layer structure
@@ -22,7 +22,7 @@ namespace Cmf.Common.Cli.Commands.New
         /// <summary>
         /// constructor
         /// </summary>
-        public BusinessCommand() : base("business", Enums.PackageType.Business)
+        public BusinessCommand() : base("business", PackageType.Business)
         {
         }
 
@@ -30,7 +30,7 @@ namespace Cmf.Common.Cli.Commands.New
         /// constructor
         /// </summary>
         /// <param name="fileSystem"></param>
-        public BusinessCommand(IFileSystem fileSystem) : base("business", Enums.PackageType.Business, fileSystem)
+        public BusinessCommand(IFileSystem fileSystem) : base("business", PackageType.Business, fileSystem)
         {
         }
 
@@ -39,6 +39,12 @@ namespace Cmf.Common.Cli.Commands.New
         {
             var mesVersion = projectConfig.RootElement.GetProperty("MESVersion").GetString();
             
+            var version = Version.Parse(mesVersion);
+            if (version.Major > 8)
+            {
+                this.CommandName = "business9";
+            }
+
             // calculate relative path to local environment and create a new symbol for it
             var relativePathToLocalEnv =
                 this.fileSystem.Path.Join("..", "..", //always two levels deep, this is the depth of the business solution projects

@@ -1,13 +1,15 @@
-﻿using Cmf.Common.Cli.Commands;
-using Cmf.Common.Cli.Objects;
-using Cmf.Common.Cli.Utilities;
+﻿using Cmf.CLI.Utilities;
 using System;
 using System.CommandLine;
 using System.Linq;
 using System.Threading.Tasks;
+using Cmf.CLI.Commands;
+using Cmf.CLI.Core;
+using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Objects;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Cmf.Common.Cli
+namespace Cmf.CLI
 {
     /// <summary>
     /// program entry point
@@ -56,6 +58,8 @@ namespace Cmf.Common.Cli
             {
                 RegisterServices();
                 
+                InitializeTelemetry();
+                
                 await VersionChecks();
 
                 var rootCommand = new RootCommand
@@ -87,6 +91,7 @@ namespace Cmf.Common.Cli
             var sp = new ServiceCollection()
                 .AddSingleton<INPMClient, NPMClient>()
                 .AddSingleton<IVersionService, VersionService>()
+                .AddSingleton<ITelemetryService, TelemetryService>()
                 .BuildServiceProvider();
 
             ExecutionContext.ServiceProvider = sp;
@@ -98,6 +103,9 @@ namespace Cmf.Common.Cli
         public static async Task VersionChecks()
         {
             #region version checks
+            
+            using var activity = ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!
+                .StartActivity("CLIVersion");
 
             var npmClient = ExecutionContext.ServiceProvider.GetService<INPMClient>();
             
@@ -107,14 +115,28 @@ namespace Cmf.Common.Cli
                     $"You are using development version {ExecutionContext.CurrentVersion}. This in unsupported in production and should only be used for testing.");
             }
 
-            var latestVersion = await npmClient.GetLatestVersion(ExecutionContext.IsDevVersion);
-            if (latestVersion != ExecutionContext.CurrentVersion)
+            ExecutionContext.LatestVersion = await npmClient!.GetLatestVersion(ExecutionContext.IsDevVersion);
+            if (ExecutionContext.LatestVersion != ExecutionContext.CurrentVersion)
             {
                 Log.Warning(
-                    $"Using version {ExecutionContext.CurrentVersion} while {latestVersion} is available. Please update.");
+                    $"Using version {ExecutionContext.CurrentVersion} while {ExecutionContext.LatestVersion} is available. Please update.");
+                // after this run, every activity will have these tags (check TelemetryService)
+                activity?.SetTag("isOutdated", true);
+                activity?.SetTag("latestVersion", ExecutionContext.LatestVersion);
             }
 
             #endregion
+        }
+
+        private static void InitializeTelemetry()
+        {
+            var serviceName = "@criticalmanufacturing/cli";
+            var serviceVersion = ExecutionContext.CurrentVersion;
+
+            ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!
+                .InitializeTracerProvider(serviceName, serviceVersion);
+            ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!
+                .InitializeActivitySource(serviceName);
         }
     }
 }

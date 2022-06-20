@@ -2,10 +2,11 @@ using System;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
-using Cmf.Common.Cli.Builders;
-using Cmf.Common.Cli.Enums;
+using Cmf.CLI.Builders;
+using Cmf.CLI.Core;
+using Cmf.CLI.Core.Enums;
 
-namespace Cmf.Common.Cli.Commands
+namespace Cmf.CLI.Commands
 {
     /// <summary>
     /// UI Layer Template Abstract Command
@@ -39,7 +40,7 @@ namespace Cmf.Common.Cli.Commands
             target.GetFiles(".gitkeep").FirstOrDefault()?.Delete();
             Log.Verbose("cloning html starter");
             // git init
-            (new GitCommand() { Command = "init", WorkingDirectory = target}).Exec();
+            (new GitCommand() { Command = "init", WorkingDirectory = target }).Exec();
             // git remote add origin https://github.com/criticalmanufacturing/html-starter
             (new GitCommand() { Command = "remote", WorkingDirectory = target, Args = new[] { "add", "origin", "https://github.com/criticalmanufacturing/html-starter" } }).Exec();
             // git fetch

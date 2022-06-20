@@ -1,4 +1,4 @@
-using Cmf.Common.Cli.Objects;
+using Cmf.CLI.Objects;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -6,14 +6,15 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Cmf.CLI.Core.Objects;
 
-namespace Cmf.Common.Cli.Builders
+namespace Cmf.CLI.Builders
 {
     /// <summary>
     /// Validator for json files
     /// </summary>
-    /// <seealso cref="Cmf.Common.Cli.Builders.ProcessCommand" />
-    /// <seealso cref="Cmf.Common.Cli.Builders.IBuildCommand" />
+    /// <seealso cref="ProcessCommand" />
+    /// <seealso cref="IBuildCommand" />
     public class JSONValidatorCommand : IBuildCommand
     {
         /// <summary>
@@ -31,6 +32,14 @@ namespace Cmf.Common.Cli.Builders
         /// The display name.
         /// </value>
         public string DisplayName { get; set; }
+
+        /// <summary>
+        /// Only Executes on Test (--test)
+        /// </summary>
+        /// <value>
+        /// boolean if to execute on Test should be true
+        /// </value>
+        public bool Test { get; set; } = false;
 
         /// <summary>
         /// Search all the json files and validate them
@@ -53,7 +62,7 @@ namespace Cmf.Common.Cli.Builders
                 {
                     var json = JsonDocument.Parse(fileContent);
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     throw new Exception($"File {file.Source.FullName} is not a valid json");
                 }

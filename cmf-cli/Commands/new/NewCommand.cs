@@ -2,9 +2,9 @@ using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO.Abstractions;
-using Cmf.Common.Cli.Attributes;
+using Cmf.CLI.Core.Attributes;
 
-namespace Cmf.Common.Cli.Commands
+namespace Cmf.CLI.Commands
 {
     /// <summary>
     /// "new" command group
@@ -35,11 +35,11 @@ namespace Cmf.Common.Cli.Commands
         {
             if (reset)
             {
-                RunCommand(new []{ "--debug:reinit" });
+                RunCommand(new[] { "--debug:reinit" });
             }
             else
             {
-                this._cmd.Invoke(new [] { "-h" });
+                this._cmd.Invoke(new[] { "-h" });
             }
         }
 

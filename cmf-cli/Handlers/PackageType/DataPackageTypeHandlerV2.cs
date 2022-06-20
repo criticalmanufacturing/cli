@@ -1,20 +1,22 @@
-using Cmf.Common.Cli.Builders;
-using Cmf.Common.Cli.Constants;
-using Cmf.Common.Cli.Enums;
-using Cmf.Common.Cli.Objects;
-using Cmf.Common.Cli.Utilities;
+using Cmf.CLI.Objects;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
+using Cmf.CLI.Builders;
+using Cmf.CLI.Constants;
+using Cmf.CLI.Core;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Utilities;
 
-namespace Cmf.Common.Cli.Handlers
+namespace Cmf.CLI.Handlers
 {
     /// <summary>
     ///
     /// </summary>
-    /// <seealso cref="Cmf.Common.Cli.Handlers.PackageTypeHandler" />
+    /// <seealso cref="PackageTypeHandler" />
     public class DataPackageTypeHandlerV2 : PackageTypeHandler
     {
         /// <summary>
@@ -34,8 +36,32 @@ namespace Cmf.Common.Cli.Handlers
                 targetDirectory:
                     "BusinessTier",
                 targetLayer:
-                    "host"
-            );
+                    "host",
+                steps:
+                    new List<Step>()
+                    {
+                        new Step(StepType.Generic)
+                        {
+                            OnExecute = "$(Agent.Root)/agent/scripts/stop_host.ps1"
+                        },
+                        new Step(StepType.TransformFile)
+                        {
+                            File = "Cmf.Foundation.Services.HostService.dll.config",
+                            TagFile = true
+                        },
+                        new Step(StepType.Generic)
+                        {
+                            OnExecute = "$(Agent.Root)/agent/scripts/start_host.ps1"
+                        },
+                        new Step(StepType.Generic)
+                        {
+                            ContentPath = "GenerateLBOs.ps1"
+                        },
+                        new Step(StepType.Generic)
+                        {
+                            OnExecute = $"$(Package[{cmfPackage.PackageId}].TargetDirectory)/GenerateLBOs.ps1"
+                        }
+                     });
 
             BuildSteps = new IBuildCommand[]
             {
@@ -65,7 +91,7 @@ namespace Cmf.Common.Cli.Handlers
         /// Generates the deployment framework manifest.
         /// </summary>
         /// <param name="packageOutputDir">The package output dir.</param>
-        /// <exception cref="Cmf.Common.Cli.Utilities.CliException"></exception>
+        /// <exception cref="CliException"></exception>
         internal override void GenerateDeploymentFrameworkManifest(IDirectoryInfo packageOutputDir)
         {
             if (this.FilesToPack?.HasAny() ?? false)
@@ -126,7 +152,7 @@ namespace Cmf.Common.Cli.Handlers
             string path = $"{packageOutputDir.FullName}/{CliConstants.CmfPackageHostConfig}";
 
             // Get Template
-            string fileContent = GenericUtilities.GetEmbeddedResourceContent($"{CliConstants.FolderTemplates}/Data/{CliConstants.CmfPackageHostConfig}");
+            string fileContent = ResourceUtilities.GetEmbeddedResourceContent($"{CliConstants.FolderTemplates}/Data/{CliConstants.CmfPackageHostConfig}");
             this.fileSystem.File.WriteAllText(path, fileContent);
         }
 

@@ -3,11 +3,14 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO.Abstractions;
 using System.Text.Json;
-using Cmf.Common.Cli.Enums;
-using Cmf.Common.Cli.Utilities;
 using System.Linq;
+using Cmf.CLI.Core;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Cmf.Common.Cli.Commands
+namespace Cmf.CLI.Commands
 {
     /// <summary>
     /// Layer Template Abstract Command
@@ -46,7 +49,7 @@ namespace Cmf.Common.Cli.Commands
         {
             this.packageType = packageType;
         }
-        
+
         /// <summary>
         /// configure the command
         /// </summary>
@@ -86,7 +89,7 @@ namespace Cmf.Common.Cli.Commands
 
         private (string, string)? GeneratePackageName(IDirectoryInfo workingDir)
         {
-            
+
             string featureName = null;
             var projectRoot = FileSystemUtilities.GetProjectRoot(this.fileSystem, throwException: true);
 
@@ -94,7 +97,7 @@ namespace Cmf.Common.Cli.Commands
             var projectConfig = FileSystemUtilities.ReadProjectConfig(this.fileSystem);
             var organization = Constants.CliConstants.DefaultOrganization;
             var product = Constants.CliConstants.DefaultProduct;
-            if (projectConfig.RootElement.TryGetProperty("Organization", out JsonElement element)) 
+            if (projectConfig.RootElement.TryGetProperty("Organization", out JsonElement element))
             {
                 organization = element.GetString();
             }
@@ -140,6 +143,7 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="version">the package version</param>
         public void Execute(IDirectoryInfo workingDir, string version)
         {
+            using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
             if (workingDir == null)
             {
                 Log.Error("This command needs to run inside a project. Run `cmf init` to create a new project.");
@@ -147,11 +151,12 @@ namespace Cmf.Common.Cli.Commands
             }
 
             var names = this.GeneratePackageName(workingDir);
-            if (names == null) {
+            if (names == null)
+            {
                 return;
             }
             var (packageName, featureName) = names.Value;
-            
+
             //load .project-config
             var projectConfig = FileSystemUtilities.ReadProjectConfig(this.fileSystem);
             var tenant = projectConfig.RootElement.GetProperty("Tenant").GetString();

@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Cmf.Common.Cli {
+namespace Cmf.CLI {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace Cmf.Common.Cli {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Cmf.Common.Cli.CliMessages", typeof(CliMessages).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Cmf.CLI.CliMessages", typeof(CliMessages).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,38 +61,11 @@ namespace Cmf.Common.Cli {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Nothing was found on ContentToPack Sources of {0}.{1}.
-        /// </summary>
-        internal static string ContentToPackNotFound {
-            get {
-                return ResourceManager.GetString("ContentToPackNotFound", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Get Package {0}.{1}....
         /// </summary>
         internal static string GetPackage {
             get {
                 return ResourceManager.GetString("GetPackage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to It was not possible to read the manifest file..
-        /// </summary>
-        internal static string InvalidManifestFile {
-            get {
-                return ResourceManager.GetString("InvalidManifestFile", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Invalid {0}, Property {1} doesn&apos;t have the expected value: {2}.
-        /// </summary>
-        internal static string InvalidValue {
-            get {
-                return ResourceManager.GetString("InvalidValue", resourceCulture);
             }
         }
         
@@ -133,29 +106,11 @@ namespace Cmf.Common.Cli {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Missing mandatory property {0} in file {1}.
-        /// </summary>
-        internal static string MissingMandatoryPropertyInFile {
-            get {
-                return ResourceManager.GetString("MissingMandatoryPropertyInFile", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to This is not a root package.
         /// </summary>
         internal static string NotARootPackage {
             get {
                 return ResourceManager.GetString("NotARootPackage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to {0} not found!.
-        /// </summary>
-        internal static string NotFound {
-            get {
-                return ResourceManager.GetString("NotFound", resourceCulture);
             }
         }
         
@@ -169,38 +124,11 @@ namespace Cmf.Common.Cli {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Cannot find package root. Are you in a valid package directory?.
-        /// </summary>
-        internal static string PackageRootNotFound {
-            get {
-                return ResourceManager.GetString("PackageRootNotFound", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Some packages were not found: {0}.
         /// </summary>
         internal static string SomePackagesNotFound {
             get {
                 return ResourceManager.GetString("SomePackagesNotFound", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Urls not supported yet.
-        /// </summary>
-        internal static string UrlsNotSupported {
-            get {
-                return ResourceManager.GetString("UrlsNotSupported", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to This root package dependencies must enforce version consistency. Root Version {0} Failed Package Version {1}.
-        /// </summary>
-        internal static string VersionFailedConsistencyCheck {
-            get {
-                return ResourceManager.GetString("VersionFailedConsistencyCheck", resourceCulture);
             }
         }
     }

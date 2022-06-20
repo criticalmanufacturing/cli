@@ -1,12 +1,13 @@
 using System.Collections.Generic;
+using Cmf.CLI.Core.Objects;
 
-namespace Cmf.Common.Cli.Builders
+namespace Cmf.CLI.Builders
 {
     /// <summary>
     ///
     /// </summary>
-    /// <seealso cref="Cmf.Common.Cli.Builders.ProcessCommand" />
-    /// <seealso cref="Cmf.Common.Cli.Builders.IBuildCommand" />
+    /// <seealso cref="ProcessCommand" />
+    /// <seealso cref="IBuildCommand" />
     public class GulpCommand : ProcessCommand, IBuildCommand
     {
         /*
@@ -59,6 +60,14 @@ namespace Cmf.Common.Cli.Builders
         /// The display name.
         /// </value>
         public string DisplayName { get; set; }
+
+        /// <summary>
+        /// Only Executes on Test (--test)
+        /// </summary>
+        /// <value>
+        /// boolean if to execute on Test should be true
+        /// </value>
+        public bool Test { get; set; } = false;
 
         /// <summary>
         /// Gets the steps.

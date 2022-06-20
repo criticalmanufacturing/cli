@@ -1,11 +1,11 @@
-﻿using Cmf.Common.Cli.Constants;
-using Cmf.Common.Cli.Factories;
-using Cmf.Common.Cli.Handlers;
-using Cmf.Common.Cli.Objects;
-using Xunit;
+﻿using Xunit;
 using System;
 using System.IO;
 using System.IO.Abstractions.TestingHelpers;
+using Cmf.CLI.Constants;
+using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Factories;
+using Cmf.CLI.Handlers;
 using tests.Objects;
 
 namespace tests.Specs

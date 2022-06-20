@@ -1,14 +1,14 @@
-using Cmf.Common.Cli.Commands;
 using System;
 using System.Threading.Tasks;
+using Cmf.CLI.Commands;
 
-namespace Cmf.Common.Cli.Builders
+namespace Cmf.CLI.Builders
 {
     /// <summary>
     ///
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    /// <seealso cref="Cmf.Common.Cli.Builders.IBuildCommand" />
+    /// <seealso cref="IBuildCommand" />
     public class ExecuteCommand<T> : IBuildCommand where T : BaseCommand
     {
         /// <summary>
@@ -26,6 +26,14 @@ namespace Cmf.Common.Cli.Builders
         /// The display name.
         /// </value>
         public string DisplayName { get; set; }
+
+        /// <summary>
+        /// Only Executes on Test (--test)
+        /// </summary>
+        /// <value>
+        /// boolean if to execute on Test should be true
+        /// </value>
+        public bool Test { get; set; } = false;
 
         /// <summary>
         /// Gets or sets the execute.

@@ -250,7 +250,7 @@ function Invoke-SQLScript
 		Flag to enable compression of backups
 
 	.PARAMETER useParallelJob
-		Flag to enable parallel jobs. Usefull when  backing up several large databases
+		Flag to enable parallel jobs. Useful when  backing up several large databases
 		
     .EXAMPLE 
         Backup-CMFDatabase $env

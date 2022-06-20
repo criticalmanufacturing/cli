@@ -3,11 +3,15 @@ using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO.Abstractions;
+using System.Linq;
 using System.Text.Json;
-using Cmf.Common.Cli.Attributes;
-using Cmf.Common.Cli.Builders;
+using Cmf.CLI.Builders;
+using Cmf.CLI.Core;
+using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Utilities;
 
-namespace Cmf.Common.Cli.Commands.New
+namespace Cmf.CLI.Commands.New
 {
     /// <summary>
     /// Generates Data package structure
@@ -16,12 +20,12 @@ namespace Cmf.Common.Cli.Commands.New
     public class DataCommand : LayerTemplateCommand
     {
         /// <inheritdoc />
-        public DataCommand() : base("data", Enums.PackageType.Data)
+        public DataCommand() : base("data", PackageType.Data)
         {
         }
 
         /// <inheritdoc />
-        public DataCommand(IFileSystem fileSystem) : base("data", Enums.PackageType.Data, fileSystem)
+        public DataCommand(IFileSystem fileSystem) : base("data", PackageType.Data, fileSystem)
         {
         }
 
@@ -52,6 +56,13 @@ namespace Cmf.Common.Cli.Commands.New
             {
                 "--rootRelativePath", relativePathToRoot 
             });
+            
+            #region version-specific bits
+            var config = FileSystemUtilities.ReadProjectConfig(this.fileSystem);
+            var x = config.RootElement.EnumerateObject();
+            var version = Version.Parse(x.FirstOrDefault(y => y.NameEquals("MESVersion")).Value.ToString());
+            args.AddRange(new []{ "--targetFramework", version.Major > 8 ? "net6.0" : "netstandard2.0" });
+            #endregion
 
             return args;
         }

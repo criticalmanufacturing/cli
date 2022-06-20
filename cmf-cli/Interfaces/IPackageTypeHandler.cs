@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 
-namespace Cmf.Common.Cli.Interfaces
+namespace Cmf.CLI.Interfaces
 {
     /// <summary>
     ///
@@ -29,7 +29,7 @@ namespace Cmf.Common.Cli.Interfaces
         /// <summary>
         /// Builds this instance.
         /// </summary>
-        public void Build();
+        public void Build(bool test);
 
         /// <summary>
         /// Packs the specified package output dir.

@@ -1,14 +1,16 @@
-﻿using Cmf.Common.Cli.Attributes;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO.Abstractions;
-using Cmf.Common.Cli.Utilities;
+using Cmf.CLI.Constants;
+using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
-using Cmf.Common.Cli.Constants;
 
-namespace Cmf.Common.Cli.Commands
+namespace Cmf.CLI.Commands
 {
     /// <summary>
     /// Azure DevOps Agent Type
@@ -259,6 +261,7 @@ namespace Cmf.Common.Cli.Commands
         /// </summary>
         internal void Execute(InitArguments x)
         {
+            using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
             var args = new List<string>()
             {
                 // engine options
@@ -346,8 +349,8 @@ namespace Cmf.Common.Cli.Commands
                     {
                         x.cmfPipelineRepository ??= infraJson["CmfPipelineRepository"]?.Value;
                     }
+                    }
                 }
-            }
 
             if (x.nugetRegistry == null ||
                 x.npmRegistry == null ||
@@ -415,8 +418,8 @@ namespace Cmf.Common.Cli.Commands
                 // we need to escape the @ symbol to avoid that commandline lib parses it as a file
                 // https://github.com/dotnet/command-line-api/issues/816
                 x.releaseDeploymentPackage = x.releaseDeploymentPackage.Length > 1 && x.releaseDeploymentPackage[0] == '\\'
-                    ? x.releaseDeploymentPackage[1..]
-                    : x.releaseDeploymentPackage;
+                ? x.releaseDeploymentPackage[1..]
+                : x.releaseDeploymentPackage;
 
                 args.AddRange(new[] { "--releaseDeploymentPackage", $"{x.releaseDeploymentPackage}" });
             }
@@ -432,6 +435,12 @@ namespace Cmf.Common.Cli.Commands
             }
             #endregion
 
+            #region version-specific bits
+
+            var version = Version.Parse(x.MESVersion);
+            args.AddRange(new []{ "--dotnetSDKVersion", version.Major > 8 ? "6.0.201" : "3.1.102" });
+            #endregion
+            
             if (x.config != null)
             {
                 args.AddRange(ParseConfigFile(x.config));

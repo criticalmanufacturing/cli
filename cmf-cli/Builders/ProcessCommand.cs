@@ -4,40 +4,12 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Threading.Tasks;
-using Cmf.Common.Cli.Utilities;
+using Cmf.CLI.Core;
+using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Utilities;
 
-namespace Cmf.Common.Cli.Builders
+namespace Cmf.CLI.Builders
 {
-    /// <summary>
-    ///
-    /// </summary>
-    public class ProcessBuildStep
-    {
-        /// <summary>
-        /// Gets or sets the arguments.
-        /// </summary>
-        /// <value>
-        /// The arguments.
-        /// </value>
-        public string[] Args { get; set; }
-
-        /// <summary>
-        /// Gets or sets the command.
-        /// </summary>
-        /// <value>
-        /// The command.
-        /// </value>
-        public string Command { get; set; }
-
-        /// <summary>
-        /// Gets or sets the working directory.
-        /// </summary>
-        /// <value>
-        /// The working directory.
-        /// </value>
-        public IDirectoryInfo WorkingDirectory { get; set; }
-    }
-
     /// <summary>
     ///
     /// </summary>

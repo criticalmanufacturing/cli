@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace Cmf.Common.Cli.Builders
+namespace Cmf.CLI.Builders
 {
     /// <summary>
     ///
@@ -14,6 +14,14 @@ namespace Cmf.Common.Cli.Builders
         /// The display name.
         /// </value>
         public string DisplayName { get; set; }
+
+        /// <summary>
+        /// Only Executes on Test (--test)
+        /// </summary>
+        /// <value>
+        /// boolean if to execute on Test should be true
+        /// </value>
+        public bool Test { get; set; }
 
         /// <summary>
         /// Executes this instance.

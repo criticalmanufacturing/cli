@@ -2,9 +2,9 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <TargetName>cmf</TargetName>
-    <RootNamespace>Cmf.Common.Cli</RootNamespace>
+    <RootNamespace>Cmf.CLI</RootNamespace>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>cmf</ToolCommandName>
     <PackageOutputPath>./nupkg</PackageOutputPath>
@@ -15,7 +15,7 @@
     <DefaultDocumentationFileNameMode>Name</DefaultDocumentationFileNameMode>
     <DefaultDocumentationNestedTypeVisibility>Namespace</DefaultDocumentationNestedTypeVisibility>
     <DefaultDocumentationGeneratedPages>Namespaces</DefaultDocumentationGeneratedPages>
-    <Version>2.3.1</Version>
+    <Version>3.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -38,9 +38,23 @@
     <Compile Remove="nupkg\**" />
     <EmbeddedResource Remove="nupkg\**" />
     <None Remove="nupkg\**" />
+    <EmbeddedResource Update="CliMessages.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>CliMessages.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <Compile Update="CliMessages.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CliMessages.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="CliMessages.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CliMessages.resx</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="resources\**" />
   </ItemGroup>
 
@@ -62,14 +76,12 @@
     <None Include="resources\template_feed\**\*.sln">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="resources\template_feed\database\**\*.sqlproj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="CliMessages.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>CliMessages.resx</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="installDependencies\Data\GenerateLBOs.ps1" />
   </ItemGroup>
 
@@ -88,17 +100,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="CliMessages.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>CliMessages.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="CliMessages.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>CliMessages.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
+    <ProjectReference Include="..\core\core.csproj" />
   </ItemGroup>
 </Project>

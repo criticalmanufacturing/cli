@@ -117,24 +117,13 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ContentToPackNotFound" xml:space="preserve">
-    <value>Nothing was found on ContentToPack Sources of {0}.{1}</value>
-    <comment>0 - Package Id; 1 - Package Version</comment>
-  </data>
   <data name="GetPackage" xml:space="preserve">
     <value>Get Package {0}.{1}...</value>
     <comment>0 - Id; 1 - Version</comment>
   </data>
-  <data name="InvalidManifestFile" xml:space="preserve">
-    <value>It was not possible to read the manifest file.</value>
-  </data>
-  <data name="InvalidValue" xml:space="preserve">
-    <value>Invalid {0}, Property {1} doesn't have the expected value: {2}</value>
-    <comment>0 - Type; 1 - Property Name; 2 - Expected Value</comment>
-  </data>
   <data name="MissingMandatoryDependency" xml:space="preserve">
     <value>Mandatory Dependency {0}.{1} not found</value>
-    <comment>0 - Dependency Id; 1 - Dependency Version</comment>
+    <comment>0 - Dependency Name; 1 - Dependency Version</comment>
   </data>
   <data name="MissingMandatoryOption" xml:space="preserve">
     <value>Missing mandatory option {0}</value>
@@ -148,33 +137,15 @@
     <value>Missing mandatory property {0}</value>
     <comment>0 - Property name</comment>
   </data>
-  <data name="MissingMandatoryPropertyInFile" xml:space="preserve">
-    <value>Missing mandatory property {0} in file {1}</value>
-    <comment>0 - Property name; 1 - File name</comment>
-  </data>
   <data name="NotARootPackage" xml:space="preserve">
     <value>This is not a root package</value>
-  </data>
-  <data name="NotFound" xml:space="preserve">
-    <value>{0} not found!</value>
-    <comment>0 - Name</comment>
   </data>
   <data name="PackageHasNoTestPackages" xml:space="preserve">
     <value>Package {0}.{1} has no test packages</value>
     <comment>0 - Id; 1 - Version</comment>
   </data>
-  <data name="PackageRootNotFound" xml:space="preserve">
-    <value>Cannot find package root. Are you in a valid package directory?</value>
-  </data>
   <data name="SomePackagesNotFound" xml:space="preserve">
     <value>Some packages were not found: {0}</value>
     <comment>0 - List of Packages</comment>
-  </data>
-  <data name="UrlsNotSupported" xml:space="preserve">
-    <value>Urls not supported yet</value>
-  </data>
-  <data name="VersionFailedConsistencyCheck" xml:space="preserve">
-    <value>This root package dependencies must enforce version consistency. Root Version {0} Failed Package Version {1}</value>
-    <comment>0 - Root Version; 1 - Failed Package Version</comment>
   </data>
 </root>

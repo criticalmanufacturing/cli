@@ -2,9 +2,11 @@ using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Reflection;
-using Cmf.Common.Cli.Constants;
-using Cmf.Common.Cli.Objects;
-using Cmf.Common.Cli.Utilities;
+using Cmf.CLI.Constants;
+using Cmf.CLI.Core;
+using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Utilities;
+using Cmf.CLI.Objects;
 using Microsoft.TemplateEngine.Abstractions;
 using Microsoft.TemplateEngine.Cli;
 using Microsoft.TemplateEngine.Edge;
@@ -13,14 +15,14 @@ using Microsoft.TemplateEngine.Orchestrator.RunnableProjects.Config;
 using Microsoft.TemplateEngine.Utils;
 using Newtonsoft.Json;
 
-namespace Cmf.Common.Cli.Commands
+namespace Cmf.CLI.Commands
 {
     /// <summary>
     /// 
     /// </summary>
     public abstract class TemplateCommand : BaseCommand
     {
-        private string commandName;
+        protected string CommandName { get; set; }
 
         /// <summary>
         /// constructor
@@ -35,7 +37,7 @@ namespace Cmf.Common.Cli.Commands
         /// </summary>
         /// <param name="commandName"></param>
         /// <param name="fileSystem"></param>
-        protected TemplateCommand(string commandName, IFileSystem fileSystem) : base(fileSystem) => this.commandName = commandName;
+        protected TemplateCommand(string commandName, IFileSystem fileSystem) : base(fileSystem) => this.CommandName = commandName;
 
         /// <summary>
         /// Execute the command
@@ -43,7 +45,7 @@ namespace Cmf.Common.Cli.Commands
         /// <param name="args">the template engine arguments</param>
         public void RunCommand(IReadOnlyCollection<string> args)
         {
-            this.ExecuteTemplate(this.commandName, args);
+            this.ExecuteTemplate(this.CommandName, args);
         }
 
         /// <summary>
@@ -124,11 +126,11 @@ namespace Cmf.Common.Cli.Commands
 
                 args.AddRange(new string[] { "--vmHostname", configJson["Product.ApplicationServer.Address"]?.Value ?? configJson["APPLICATION_PUBLIC_HTTP_ADDRESS"]?.Value });
                 args.AddRange(new string[] { "--DBReplica1", configJson["Package[Product.Database.Online].Database.Server"]?.Value ?? configJson["DATABASE_ONLINE_MSSQL_ADDRESS"]?.Value });
-                args.AddRange(new string[] { "--DBReplica2", configJson["Package[Product.Database.Ods].Database.Server"]?.Value ?? configJson["DATABASE_ODS_MSSQL_ADDRESS"]?.Value });
+                args.AddRange(new string[] { "--DBReplica2", configJson["Package[Product.Database.Ods].Database.Server"]?.Value ?? configJson["DATABASE_ODS_MSSQL_ADDRESS"]?.Value ?? "" });
                 args.AddRange(new string[] { "--DBServerOnline", configJson["Package[Product.Database.Online].Database.Server"]?.Value ?? configJson["DATABASE_ONLINE_MSSQL_ADDRESS"]?.Value });
-                args.AddRange(new string[] { "--DBServerODS", configJson["Package[Product.Database.Ods].Database.Server"]?.Value ?? configJson["DATABASE_ODS_MSSQL_ADDRESS"]?.Value });
-                args.AddRange(new string[] { "--DBServerDWH", configJson["Package[Product.Database.Dwh].Database.Server"]?.Value ?? configJson["DATABASE_DWH_MSSQL_ADDRESS"]?.Value });
-                args.AddRange(new string[] { "--ReportServerURI", configJson["Package.ReportingServices.Address"]?.Value ?? configJson["REPORTING_SSRS_WEB_PORTAL_URL"]?.Value });
+                args.AddRange(new string[] { "--DBServerODS", configJson["Package[Product.Database.Ods].Database.Server"]?.Value ?? configJson["DATABASE_ODS_MSSQL_ADDRESS"]?.Value ?? "" });
+                args.AddRange(new string[] { "--DBServerDWH", configJson["Package[Product.Database.Dwh].Database.Server"]?.Value ?? configJson["DATABASE_DWH_MSSQL_ADDRESS"]?.Value ?? "" });
+                args.AddRange(new string[] { "--ReportServerURI", configJson["Package.ReportingServices.Address"]?.Value ?? configJson["REPORTING_SSRS_WEB_PORTAL_URL"]?.Value ?? "" });
                 if (configJson["Product.Database.IsAlwaysOn"]?.Value ?? bool.Parse(configJson["DATABASE_MSSQL_ALWAYS_ON_ENABLED"]?.Value ?? false))
                 {
                     args.AddRange(new string[] { "--AlwaysOn" });

@@ -157,11 +157,12 @@ namespace Settings
 
                 Mode = ioTMode;
             }
-                        
+
             if (GetString(context, "TestRunDirectory").Contains("TestExecution"))
             {
                 FilePath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), GetString(context, "filePathRemote")));
-            } else
+            }
+            else
             {
                 FilePath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), GetString(context, "filePathLocal")));
             }

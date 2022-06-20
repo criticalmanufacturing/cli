@@ -95,9 +95,9 @@ steps:
     targetType: inline
     script: |
 //#if (agentType == "Cloud")
-      $(Agent.TempDirectory)/../node_modules/.bin/cmf-cli/cmf build
+      $(Agent.TempDirectory)/../node_modules/.bin/cmf-cli/cmf build --test
 //#else
-      $(Agent.TempDirectory)/node_modules/.bin/cmf-cli/cmf build
+      $(Agent.TempDirectory)/node_modules/.bin/cmf-cli/cmf build --test
 //#endif
 
 # Cleanup

@@ -1,6 +1,6 @@
-﻿using Cmf.Common.Cli.Commands;
-using Cmf.Common.Cli.Constants;
-using Cmf.Common.Cli.Objects;
+using Cmf.CLI.Commands;
+using Cmf.CLI.Constants;
+using Cmf.CLI.Objects;
 using FluentAssertions;
 using Newtonsoft.Json;
 using System;
@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Cmf.CLI.Core.Objects;
 using Xunit;
 
 namespace tests.Specs

@@ -8,13 +8,15 @@ using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using Cmf.Common.Cli.Attributes;
-using Cmf.Common.Cli.Builders;
-using Cmf.Common.Cli.Utilities;
+using Cmf.CLI.Builders;
+using Cmf.CLI.Core;
+using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Cmf.Common.Cli.Commands.New
+namespace Cmf.CLI.Commands.New
 {
     /// <summary>
     /// Generates Help/Documentation package structure
@@ -25,15 +27,15 @@ namespace Cmf.Common.Cli.Commands.New
         private JsonDocument projectConfig = null;
 
         /// <inheritdoc />
-        public HTMLCommand() : base("html", Enums.PackageType.HTML)
+        public HTMLCommand() : base("html", PackageType.HTML)
         {
         }
 
         /// <inheritdoc />
-        public HTMLCommand(IFileSystem fileSystem) : base("html", Enums.PackageType.HTML, fileSystem)
+        public HTMLCommand(IFileSystem fileSystem) : base("html", PackageType.HTML, fileSystem)
         {
         }
-        
+
         /// <inheritdoc />
         public override void Configure(Command cmd)
         {
@@ -60,9 +62,9 @@ namespace Cmf.Common.Cli.Commands.New
 
             this.projectConfig = projectConfig;
 
-            args.AddRange(new []
+            args.AddRange(new[]
             {
-                "--rootRelativePath", relativePathToRoot 
+                "--rootRelativePath", relativePathToRoot
             });
 
             return args;
@@ -87,7 +89,7 @@ namespace Cmf.Common.Cli.Commands.New
                 throw new Exception($"Package folder {pkgFolder.Name} does not exist. This is a template error. Please open an issue on GitHub.");
             }
             this.CloneHTMLStarter(htmlStarterVersion, pkgFolder);
-            
+
             // root package.json
             var rootPkgJsonPath = this.fileSystem.Path.Join(pkgFolder.FullName, "package.json");
             var json = fileSystem.File.ReadAllText(rootPkgJsonPath);
@@ -109,7 +111,7 @@ namespace Cmf.Common.Cli.Commands.New
             json = JsonConvert.SerializeObject(rootPkgJson, Formatting.Indented);
             this.fileSystem.File.WriteAllText(rootPkgJsonPath, json);
             Log.Verbose("Updated package.json");
-            
+
             // .dev-tasks.json
             var devTasksPath = this.fileSystem.Path.Join(pkgFolder.FullName, ".dev-tasks.json");
             var devTasksStr = fileSystem.File.ReadAllText(devTasksPath);
@@ -134,7 +136,7 @@ namespace Cmf.Common.Cli.Commands.New
             (new NPMCommand() { Command = "install", WorkingDirectory = pkgFolder }).Exec();
 
             var htmlDevTasksConfigPath = this.fileSystem.Path.GetTempFileName();
-            var htmlDevTasksConfigJson = 
+            var htmlDevTasksConfigJson =
 $@"{{
     ""answers"": {{
         ""packagePrefix"": ""customization"",
@@ -145,7 +147,7 @@ $@"{{
 }}";
             this.fileSystem.File.WriteAllText(htmlDevTasksConfigPath, htmlDevTasksConfigJson);
             var htmlWebAppConfigPath = this.fileSystem.Path.GetTempFileName();
-            var htmlWebAppConfigJson = 
+            var htmlWebAppConfigJson =
 @"{
     ""answers"": {
         ""appName"": ""web"",
@@ -153,7 +155,7 @@ $@"{{
     }
 }";
             this.fileSystem.File.WriteAllText(htmlWebAppConfigPath, htmlWebAppConfigJson);
-            
+
             // create web app
             // npx yeoman-gen-run --name @criticalmanufacturing/html --config "$pathHTMLConfig" -- --keep
             Log.Verbose("Generate web app, this will take a while...");
@@ -161,7 +163,7 @@ $@"{{
             {
                 Command = "yeoman-gen-run",
                 WorkingDirectory = pkgFolder,
-                Args = new []
+                Args = new[]
                 {
                     "--name", "@criticalmanufacturing/html", "--config", htmlDevTasksConfigPath, "--", "--keep"
                 }
@@ -171,22 +173,22 @@ $@"{{
             {
                 Command = "yeoman-gen-run",
                 WorkingDirectory = pkgFolder,
-                Args = new []
+                Args = new[]
                 {
                     "--name", "@criticalmanufacturing/html:application", "--config", htmlWebAppConfigPath
                 }
             }).Exec();
             Log.Verbose("Web app generated!");
-            
-            
+
+
             Log.Debug("Obtaining sources from MES Presentation HTML package...");
             var htmlPkgConfigJsonStr = FileSystemUtilities.GetFileContentFromPackage(htmlPackage.FullName, "config.json");
             // replace tokens that would break Json parse
             htmlPkgConfigJsonStr = Regex.Replace(htmlPkgConfigJsonStr, @"\$\([^\)]+\)", "0", RegexOptions.Multiline);
             dynamic htmlPkgConfigJson = JsonConvert.DeserializeObject(htmlPkgConfigJsonStr);
-            
+
             // config.json
-            var configJsonPath = this.fileSystem.Path.Join(pkgFolder.FullName, "apps", 
+            var configJsonPath = this.fileSystem.Path.Join(pkgFolder.FullName, "apps",
                 this.fileSystem.Path.Join("customization.web", "config.json"));
             var configJsonStr = fileSystem.File.ReadAllText(configJsonPath);
             configJsonStr = Regex.Replace(configJsonStr, @"\$\([^\)]+\)", "0", RegexOptions.Multiline);
@@ -209,11 +211,11 @@ $@"{{
             configJsonStr = JsonConvert.SerializeObject(configJsonJson, Formatting.Indented);
             this.fileSystem.File.WriteAllText(configJsonPath, configJsonStr);
             Log.Verbose("Updated config.json");
-            
+
             // use lodash
             // use custom LBOs
             Log.Verbose("Updating web app package.json");
-            var webAppPath = this.fileSystem.Path.Join(pkgFolder.FullName, 
+            var webAppPath = this.fileSystem.Path.Join(pkgFolder.FullName,
                 "apps", "customization.web");
             var webAppPkgJsonPath = this.fileSystem.Path.Join(webAppPath, "package.json");
             var projectRoot = FileSystemUtilities.GetProjectRoot(this.fileSystem);
@@ -223,13 +225,13 @@ $@"{{
                         webAppPath, projectRoot.FullName)
                     //);
                     .Replace("\\", "/");
-            var webAppPkgJsonStr= fileSystem.File.ReadAllText(webAppPkgJsonPath);
+            var webAppPkgJsonStr = fileSystem.File.ReadAllText(webAppPkgJsonPath);
             dynamic webAppPkgJson = JsonConvert.DeserializeObject(webAppPkgJsonStr);
             webAppPkgJson.dependencies["lodash"] = "3.10.1";
             webAppPkgJson.cmfLinkDependencies["cmf.lbos"] = $"file:{relativePathToRoot}/Libs/LBOs/TypeScript";
             webAppPkgJsonStr = JsonConvert.SerializeObject(webAppPkgJson, Formatting.Indented);
             this.fileSystem.File.WriteAllText(webAppPkgJsonPath, webAppPkgJsonStr);
-            
+
             // remove package locks
             Log.Verbose("Generating accurate package-locks for future installs. This will take a while...");
             var rootPkgLockJsonPath = this.fileSystem.Path.Join(pkgFolder.FullName, "package-lock.json");
@@ -245,7 +247,7 @@ $@"{{
                 Task = "install",
                 DisplayName = "Gulp Install",
                 GulpJS = "node_modules/gulp/bin/gulp.js",
-                Args = new [] { "--update" },
+                Args = new[] { "--update" },
             }).Exec();
             Log.Information("HTML package generated");
         }

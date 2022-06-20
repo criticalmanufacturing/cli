@@ -1,20 +1,22 @@
-using Cmf.Common.Cli.Attributes;
-using Cmf.Common.Cli.Utilities;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
-using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
+using Cmf.CLI.Core;
+using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Cmf.Common.Cli.Commands
+namespace Cmf.CLI.Commands
 {
     /// <summary>
     ///
     /// </summary>
-    /// <seealso cref="Cmf.Common.Cli.Commands.BumpCommand" />
-    /// <seealso cref="Cmf.Common.Cli.Commands.BaseCommand" />
+    /// <seealso cref="BumpCommand" />
+    /// <seealso cref="BaseCommand" />
     [CmfCommand(name: "configuration", Parent = "iot")]
     public class BumpIoTConfigurationCommand : BumpCommand
     {
@@ -98,6 +100,8 @@ namespace Cmf.Common.Cli.Commands
         /// <returns></returns>
         public void Execute(IDirectoryInfo path, string version, string buildNr, bool isToBumpMasterdata, bool isToBumpIoT, string packageNames, string root, string group, string workflowName, bool isToTag, bool onlyMdCustomization)
         {
+            using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
+            
             // Get All AutomationWorkflowFiles Folders
             List<string> automationWorkflowDirectories = this.fileSystem.Directory.GetDirectories(path.FullName, "AutomationWorkflowFiles").ToList();
 

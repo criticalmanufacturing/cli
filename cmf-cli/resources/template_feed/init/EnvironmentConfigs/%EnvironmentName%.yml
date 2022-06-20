@@ -8,6 +8,12 @@ variables:
   # Location of release candidate packages being tested in a release
   CandidatePackages: '<%= $CLI_PARAM_RCRepo %>'
 
+  # Root Package to be installed in CI-Release/CD-Containers
+  RootPackageIdToInstall: 'Cmf.Custom.Package'
+
+  # MasterData Filter to be used in CI-Release/CD-Containers
+  TestMasterDataFilter: '*MasterData*'
+
 //#if (releaseCustomerEnvironment != "") {
   # Customer Environment Name defined in DevOpsCenter
   CustomerEnvironmentName: '<%= $CLI_PARAM_ReleaseCustomerEnvironment %>'

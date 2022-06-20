@@ -1,12 +1,12 @@
-using Cmf.Common.Cli.Attributes;
 using System.CommandLine;
+using Cmf.CLI.Core.Attributes;
 
-namespace Cmf.Common.Cli.Commands
+namespace Cmf.CLI.Commands
 {
     /// <summary>
     ///
     /// </summary>
-    /// <seealso cref="Cmf.Common.Cli.Commands.BaseCommand" />
+    /// <seealso cref="BaseCommand" />
     [CmfCommand(name: "help", Parent = "build")]
     public class HelpCommand : BaseCommand
     {

@@ -1,20 +1,22 @@
-using Cmf.Common.Cli.Attributes;
-using Cmf.Common.Cli.Constants;
-using Cmf.Common.Cli.Factories;
-using Cmf.Common.Cli.Interfaces;
-using Cmf.Common.Cli.Objects;
-using Cmf.Common.Cli.Utilities;
+using Cmf.CLI.Objects;
 using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO.Abstractions;
+using Cmf.CLI.Constants;
+using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Factories;
+using Cmf.CLI.Interfaces;
+using Cmf.CLI.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Cmf.Common.Cli.Commands
+namespace Cmf.CLI.Commands
 {
     /// <summary>
     ///
     /// </summary>
-    /// <seealso cref="Cmf.Common.Cli.Commands.BaseCommand" />
+    /// <seealso cref="BaseCommand" />
     [CmfCommand("pack")]
     public class PackCommand : BaseCommand
     {
@@ -71,6 +73,7 @@ namespace Cmf.Common.Cli.Commands
         /// <returns></returns>
         public void Execute(IDirectoryInfo workingDir, IDirectoryInfo outputDir, bool force)
         {
+            using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
             IFileInfo cmfpackageFile = this.fileSystem.FileInfo.FromFileName($"{workingDir}/{CliConstants.CmfPackageFileName}");
 
             // Reading cmfPackage

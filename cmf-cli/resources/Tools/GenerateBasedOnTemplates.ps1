@@ -54,11 +54,11 @@ function Get-Description {
 
 $templateFiles = Get-ChildItem -File -Recurse -Path $path -Filter "*$templateSuffix"
 foreach ( $templateFile in $templateFiles ) {
-	if ( "$($templateFile.BaseName)" -eq "$templateSuffix" ) {
+	if ( "$($templateFile.Name)" -eq "$templateSuffix" ) {
 		continue
 	}
 	
-	$template = $templateFile.BaseName
+	$template = $templateFile.Name
 	$name = $template -replace $templateSuffix, ""
 		
 	# Add .md to file
@@ -67,7 +67,7 @@ foreach ( $templateFile in $templateFiles ) {
 	write-verbose "template: $template"
 	write-verbose "outputFile: $outputFile"
 	
-	$baseFolder = $templateFile.FullName -replace $templateFile.BaseName, ""
+	$baseFolder = $templateFile.FullName -replace $templateFile.Name, ""
 	write-verbose "BaseFolder: $baseFolder"
 		
 	$filesPath = (Resolve-Path "$baseFolder\$name").Path

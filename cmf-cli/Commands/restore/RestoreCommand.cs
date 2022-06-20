@@ -4,14 +4,16 @@ using System.CommandLine.Invocation;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
-using Cmf.Common.Cli.Attributes;
-using Cmf.Common.Cli.Constants;
-using Cmf.Common.Cli.Factories;
-using Cmf.Common.Cli.Interfaces;
-using Cmf.Common.Cli.Objects;
-using Cmf.Common.Cli.Utilities;
+using Cmf.CLI.Constants;
+using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Factories;
+using Cmf.CLI.Interfaces;
+using Cmf.CLI.Utilities;
+using Cmf.CLI.Objects;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Cmf.Common.Cli.Commands.restore
+namespace Cmf.CLI.Commands.restore
 {
     /// <summary>
     /// Restore package dependencies (declared cmfpackage.json) from repository packages
@@ -28,7 +30,7 @@ namespace Cmf.Common.Cli.Commands.restore
             cmd.AddOption(new Option<Uri[]>(
                 aliases: new string[] { "-r", "--repos", "--repo" },
                 description: "Repositories where dependencies are located (folder)"));
-            
+
             var packageRoot = FileSystemUtilities.GetPackageRoot(this.fileSystem);
             var arg = new Argument<IDirectoryInfo>(
                 name: "packagePath",
@@ -50,14 +52,14 @@ namespace Cmf.Common.Cli.Commands.restore
         /// <param name="repos">The package repositories URI/path</param>
         public void Execute(IDirectoryInfo packagePath, Uri[] repos)
         {
+            using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
             IFileInfo cmfpackageFile = this.fileSystem.FileInfo.FromFileName($"{packagePath}/{CliConstants.CmfPackageFileName}");
 
+            IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile, setDefaultValues: false);
             if (repos != null)
             {
                 ExecutionContext.Instance.RepositoriesConfig.Repositories.InsertRange(0, repos);
             }
-
-            IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile, setDefaultValues: false);
             packageTypeHandler.RestoreDependencies(ExecutionContext.Instance.RepositoriesConfig.Repositories.ToArray());
         }
     }

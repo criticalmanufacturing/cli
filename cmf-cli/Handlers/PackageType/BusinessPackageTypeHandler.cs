@@ -1,18 +1,19 @@
-﻿using Cmf.Common.Cli.Builders;
-using Cmf.Common.Cli.Enums;
-using Cmf.Common.Cli.Objects;
-using Cmf.Common.Cli.Utilities;
+﻿using Cmf.CLI.Objects;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
-using Cmf.Common.Cli.Commands.restore;
+using Cmf.CLI.Builders;
+using Cmf.CLI.Commands.restore;
+using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Utilities;
+using Cmf.CLI.Core.Enums;
 
-namespace Cmf.Common.Cli.Handlers
+namespace Cmf.CLI.Handlers
 {
     /// <summary>
     ///
     /// </summary>
-    /// <seealso cref="Cmf.Common.Cli.Handlers.PackageTypeHandler" />
+    /// <seealso cref="PackageTypeHandler" />
     public class BusinessPackageTypeHandler : PackageTypeHandler
     {
         /// <summary>
@@ -25,7 +26,23 @@ namespace Cmf.Common.Cli.Handlers
             targetDirectory:
                 "BusinessTier",
             targetLayer:
-                "host");
+                "host",
+            steps:
+                new List<Step>()
+                {
+                        new Step(StepType.Generic)
+                        {
+                            OnExecute = "$(Agent.Root)/agent/scripts/stop_host.ps1"
+                        },
+                        new Step(StepType.DeployFiles)
+                        {
+                            ContentPath = "**/*.dll"
+                        },
+                        new Step(StepType.Generic)
+                        {
+                            OnExecute = "$(Agent.Root)/agent/scripts/start_host.ps1"
+                        }
+                 });
 
             BuildSteps = new IBuildCommand[]
             {
@@ -54,6 +71,13 @@ namespace Cmf.Common.Cli.Handlers
                     Configuration = "Release",
                     WorkingDirectory = cmfPackage.GetFileInfo().Directory,
                     Args = new [] { "--no-restore "}
+                },
+                new DotnetCommand()
+                {
+                    Command = "test",
+                    DisplayName = "Run Business Unit Tests",
+                    WorkingDirectory = cmfPackage.GetFileInfo().Directory,
+                    Test = true
                 }
             };
         }

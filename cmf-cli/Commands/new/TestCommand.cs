@@ -1,12 +1,14 @@
+using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO.Abstractions;
 using System.Text.Json;
-using Cmf.Common.Cli.Attributes;
-using Cmf.Common.Cli.Utilities;
+using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Utilities;
 
-namespace Cmf.Common.Cli.Commands.New
+namespace Cmf.CLI.Commands.New
 {
     /// <summary>
     /// Generates the Test layer structure
@@ -15,12 +17,12 @@ namespace Cmf.Common.Cli.Commands.New
     public class TestCommand : LayerTemplateCommand
     {
         /// <inheritdoc />
-        public TestCommand() : base("test", Enums.PackageType.Tests)
+        public TestCommand() : base("test", PackageType.Tests)
         {
         }
 
         /// <inheritdoc />
-        public TestCommand(IFileSystem fileSystem) : base("test", Enums.PackageType.Tests, fileSystem)
+        public TestCommand(IFileSystem fileSystem) : base("test", PackageType.Tests, fileSystem)
         {
         }
 
@@ -82,6 +84,10 @@ namespace Cmf.Common.Cli.Commands.New
             {
                 args.Add("--IsSslEnabled");
             }
+            
+            #region version-specific bits
+            args.AddRange(new []{ "--targetFramework", Version.Parse(mesVersion).Major > 8 ? "net6.0" : "netcoreapp3.1" });
+            #endregion
 
             this.executedArgs = args.ToArray();
             base.RunCommand(args);

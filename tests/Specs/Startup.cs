@@ -1,7 +1,11 @@
+using System.Diagnostics;
 using System.Threading.Tasks;
-using Cmf.Common.Cli.Objects;
+using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Objects;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using OpenTelemetry.Trace;
+using tests.Mocks;
 using Xunit;
 
 [assembly: CollectionBehavior(CollectionBehavior.CollectionPerAssembly)]
@@ -26,15 +30,13 @@ namespace tests.Specs
             }
         }
 
-        class MockVersionService : IVersionService
-        {
-            public string CurrentVersion => "1.0.0";
-        }
-        
         class MockVersionServiceDev : IVersionService
         {
+            public string PackageId => "test";
             public string CurrentVersion => "1.0.0-0";
         }
+
+
         #endregion
 
         [Fact]
@@ -43,11 +45,12 @@ namespace tests.Specs
             ExecutionContext.ServiceProvider = (new ServiceCollection())
                 .AddSingleton<INPMClient, MockNPMClient999>()
                 .AddSingleton<IVersionService, MockVersionService>()
+                .AddSingleton<ITelemetryService, MockTelemetryService>()
                 .BuildServiceProvider();
 
             var logWriter = (new Logging()).GetLogStringWriter();
             
-            await Cmf.Common.Cli.Program.VersionChecks();
+            await Cmf.CLI.Program.VersionChecks();
             
             logWriter.ToString().Should().Contain("Please update");
         }
@@ -58,11 +61,12 @@ namespace tests.Specs
             ExecutionContext.ServiceProvider = (new ServiceCollection())
                 .AddSingleton<INPMClient, MockNPMClientCurrent>()
                 .AddSingleton<IVersionService, MockVersionService>()
+                .AddSingleton<ITelemetryService, MockTelemetryService>()
                 .BuildServiceProvider();
 
             var logWriter = (new Logging()).GetLogStringWriter();
             
-            await Cmf.Common.Cli.Program.VersionChecks();
+            await Cmf.CLI.Program.VersionChecks();
             
             logWriter.ToString().Should().NotContain("Please update");
         }
@@ -73,11 +77,12 @@ namespace tests.Specs
             ExecutionContext.ServiceProvider = (new ServiceCollection())
                 .AddSingleton<INPMClient, MockNPMClientCurrent>()
                 .AddSingleton<IVersionService, MockVersionServiceDev>()
+                .AddSingleton<ITelemetryService, MockTelemetryService>()
                 .BuildServiceProvider();
             
             var logWriter = (new Logging()).GetLogStringWriter();
             
-            await Cmf.Common.Cli.Program.VersionChecks();
+            await Cmf.CLI.Program.VersionChecks();
             
             logWriter.ToString().Should().Contain("You are using development version");
         }
@@ -88,11 +93,12 @@ namespace tests.Specs
             ExecutionContext.ServiceProvider = (new ServiceCollection())
                 .AddSingleton<INPMClient, MockNPMClientCurrent>()
                 .AddSingleton<IVersionService, MockVersionService>()
+                .AddSingleton<ITelemetryService, MockTelemetryService>()
                 .BuildServiceProvider();
             
             var logWriter = (new Logging()).GetLogStringWriter();
             
-            await Cmf.Common.Cli.Program.VersionChecks();
+            await Cmf.CLI.Program.VersionChecks();
             
             logWriter.ToString().Should().NotContain("You are using development version");
         }
