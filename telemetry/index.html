@@ -10,19 +10,19 @@
         <meta name="author" content="Critical Manufacturing SA">
       
       
-      <link rel="icon" href="../../assets/favicon.ico">
+      <link rel="icon" href="../assets/favicon.ico">
       <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.6">
     
     
       
-        <title>bump iot customization - @criticalmanufacturing/cli Documentation</title>
+        <title>Telemetry - @criticalmanufacturing/cli Documentation</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.4a0965b7.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.4a0965b7.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.cbb835fc.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.cbb835fc.min.css">
         
       
       
@@ -38,9 +38,9 @@
       
     
     
-      <link rel="stylesheet" href="../../stylesheets/extra.css">
+      <link rel="stylesheet" href="../stylesheets/extra.css">
     
-    <script>__md_scope=new URL("../..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -68,7 +68,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#bump-iot-customization" class="md-skip">
+        <a href="#telemetry-implementation" class="md-skip">
           Skip to content
         </a>
       
@@ -82,9 +82,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="@criticalmanufacturing/cli Documentation" class="md-header__button md-logo" aria-label="@criticalmanufacturing/cli Documentation" data-md-component="logo">
+    <a href=".." title="@criticalmanufacturing/cli Documentation" class="md-header__button md-logo" aria-label="@criticalmanufacturing/cli Documentation" data-md-component="logo">
       
-  <img src="../../assets/cmf-logo.png" alt="logo">
+  <img src="../assets/cmf-logo.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -100,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              bump iot customization
+              Telemetry
             
           </span>
         </div>
@@ -199,7 +199,7 @@
 
 
   <li class="md-tabs__item">
-    <a href="../.." class="md-tabs__link">
+    <a href=".." class="md-tabs__link">
       About cmf-cli
     </a>
   </li>
@@ -211,7 +211,7 @@
 
 
   <li class="md-tabs__item">
-    <a href="../../install/" class="md-tabs__link">
+    <a href="../install/" class="md-tabs__link">
       Installation
     </a>
   </li>
@@ -223,20 +223,8 @@
 
 
   <li class="md-tabs__item">
-    <a href="../../plugins/" class="md-tabs__link">
+    <a href="../plugins/" class="md-tabs__link">
       Plugins
-    </a>
-  </li>
-
-      
-        
-  
-  
-
-
-  <li class="md-tabs__item">
-    <a href="../../telemetry/" class="md-tabs__link">
-      Telemetry
     </a>
   </li>
 
@@ -248,11 +236,23 @@
   
 
 
+  <li class="md-tabs__item">
+    <a href="./" class="md-tabs__link md-tabs__link--active">
+      Telemetry
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
   
   
   
     <li class="md-tabs__item">
-      <a href="../assemble/" class="md-tabs__link md-tabs__link--active">
+      <a href="../commands/assemble/" class="md-tabs__link">
         Commands
       </a>
     </li>
@@ -268,7 +268,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../scaffolding/" class="md-tabs__link">
+      <a href="../scaffolding/" class="md-tabs__link">
         Scaffolding
       </a>
     </li>
@@ -296,9 +296,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="@criticalmanufacturing/cli Documentation" class="md-nav__button md-logo" aria-label="@criticalmanufacturing/cli Documentation" data-md-component="logo">
+    <a href=".." title="@criticalmanufacturing/cli Documentation" class="md-nav__button md-logo" aria-label="@criticalmanufacturing/cli Documentation" data-md-component="logo">
       
-  <img src="../../assets/cmf-logo.png" alt="logo">
+  <img src="../assets/cmf-logo.png" alt="logo">
 
     </a>
     @criticalmanufacturing/cli Documentation
@@ -326,7 +326,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href=".." class="md-nav__link">
         About cmf-cli
       </a>
     </li>
@@ -341,7 +341,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../install/" class="md-nav__link">
+      <a href="../install/" class="md-nav__link">
         Installation
       </a>
     </li>
@@ -356,7 +356,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../plugins/" class="md-nav__link">
+      <a href="../plugins/" class="md-nav__link">
         Plugins
       </a>
     </li>
@@ -369,11 +369,55 @@
 
   
   
+    
   
-    <li class="md-nav__item">
-      <a href="../../telemetry/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Telemetry
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         Telemetry
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#telemetry-implementation" class="md-nav__link">
+    Telemetry implementation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pipelines" class="md-nav__link">
+    Pipelines
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -384,14 +428,12 @@
 
   
   
-    
-  
   
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" checked>
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_5" type="checkbox" id="__nav_5" >
       
       
       
@@ -414,7 +456,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../assemble/" class="md-nav__link">
+      <a href="../commands/assemble/" class="md-nav__link">
         assemble
       </a>
     </li>
@@ -428,7 +470,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../build/" class="md-nav__link">
+      <a href="../commands/build/" class="md-nav__link">
         build
       </a>
     </li>
@@ -442,7 +484,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../build_help/" class="md-nav__link">
+      <a href="../commands/build_help/" class="md-nav__link">
         build help
       </a>
     </li>
@@ -456,7 +498,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../build_help_generateBasedOnTemplates/" class="md-nav__link">
+      <a href="../commands/build_help_generateBasedOnTemplates/" class="md-nav__link">
         build help generateBasedOnTemplates
       </a>
     </li>
@@ -470,7 +512,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../build_help_generateMenuItems/" class="md-nav__link">
+      <a href="../commands/build_help_generateMenuItems/" class="md-nav__link">
         build help generateMenuItems
       </a>
     </li>
@@ -484,7 +526,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../bump/" class="md-nav__link">
+      <a href="../commands/bump/" class="md-nav__link">
         bump
       </a>
     </li>
@@ -498,7 +540,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../bump_iot/" class="md-nav__link">
+      <a href="../commands/bump_iot/" class="md-nav__link">
         bump iot
       </a>
     </li>
@@ -512,7 +554,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../bump_iot_configuration/" class="md-nav__link">
+      <a href="../commands/bump_iot_configuration/" class="md-nav__link">
         bump iot configuration
       </a>
     </li>
@@ -524,72 +566,11 @@
               
   
   
-    
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          bump iot customization
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../commands/bump_iot_customization/" class="md-nav__link">
         bump iot customization
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#usage" class="md-nav__link">
-    Usage
-  </a>
-  
-    <nav class="md-nav" aria-label="Usage">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#arguments" class="md-nav__link">
-    Arguments
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#options" class="md-nav__link">
-    Options
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -601,7 +582,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../init/" class="md-nav__link">
+      <a href="../commands/init/" class="md-nav__link">
         init
       </a>
     </li>
@@ -615,7 +596,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ls/" class="md-nav__link">
+      <a href="../commands/ls/" class="md-nav__link">
         ls
       </a>
     </li>
@@ -629,7 +610,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../new/" class="md-nav__link">
+      <a href="../commands/new/" class="md-nav__link">
         new
       </a>
     </li>
@@ -643,7 +624,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../new_business/" class="md-nav__link">
+      <a href="../commands/new_business/" class="md-nav__link">
         new business
       </a>
     </li>
@@ -657,7 +638,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../new_data/" class="md-nav__link">
+      <a href="../commands/new_data/" class="md-nav__link">
         new data
       </a>
     </li>
@@ -671,7 +652,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../new_database/" class="md-nav__link">
+      <a href="../commands/new_database/" class="md-nav__link">
         new database
       </a>
     </li>
@@ -685,7 +666,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../new_feature/" class="md-nav__link">
+      <a href="../commands/new_feature/" class="md-nav__link">
         new feature
       </a>
     </li>
@@ -699,7 +680,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../new_help/" class="md-nav__link">
+      <a href="../commands/new_help/" class="md-nav__link">
         new help
       </a>
     </li>
@@ -713,7 +694,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../new_html/" class="md-nav__link">
+      <a href="../commands/new_html/" class="md-nav__link">
         new html
       </a>
     </li>
@@ -727,7 +708,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../new_iot/" class="md-nav__link">
+      <a href="../commands/new_iot/" class="md-nav__link">
         new iot
       </a>
     </li>
@@ -741,7 +722,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../new_test/" class="md-nav__link">
+      <a href="../commands/new_test/" class="md-nav__link">
         new test
       </a>
     </li>
@@ -755,7 +736,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../pack/" class="md-nav__link">
+      <a href="../commands/pack/" class="md-nav__link">
         pack
       </a>
     </li>
@@ -769,7 +750,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../restore/" class="md-nav__link">
+      <a href="../commands/restore/" class="md-nav__link">
         restore
       </a>
     </li>
@@ -817,7 +798,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../scaffolding/" class="md-nav__link">
+      <a href="../scaffolding/" class="md-nav__link">
         Scaffolding
       </a>
     </li>
@@ -831,7 +812,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../scaffolding/external/" class="md-nav__link">
+      <a href="../scaffolding/external/" class="md-nav__link">
         Scaffolding and Pipelines for non-CMF Users
       </a>
     </li>
@@ -845,7 +826,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../scaffolding/features/" class="md-nav__link">
+      <a href="../scaffolding/features/" class="md-nav__link">
         Feature package scaffolding
       </a>
     </li>
@@ -859,7 +840,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../scaffolding/infrastructure/" class="md-nav__link">
+      <a href="../scaffolding/infrastructure/" class="md-nav__link">
         Infrastructure config file
       </a>
     </li>
@@ -873,7 +854,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../scaffolding/migrationPaths/" class="md-nav__link">
+      <a href="../scaffolding/migrationPaths/" class="md-nav__link">
         Migration Paths
       </a>
     </li>
@@ -887,7 +868,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../scaffolding/pipeline_import/" class="md-nav__link">
+      <a href="../scaffolding/pipeline_import/" class="md-nav__link">
         Pipeline Import
       </a>
     </li>
@@ -901,7 +882,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../scaffolding/pkg_exportedobjects/" class="md-nav__link">
+      <a href="../scaffolding/pkg_exportedobjects/" class="md-nav__link">
         Exported Objects package
       </a>
     </li>
@@ -915,7 +896,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../scaffolding/post-scaffolding-package-tailoring/" class="md-nav__link">
+      <a href="../scaffolding/post-scaffolding-package-tailoring/" class="md-nav__link">
         Post-scaffolding package tailoring
       </a>
     </li>
@@ -929,7 +910,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../scaffolding/single/" class="md-nav__link">
+      <a href="../scaffolding/single/" class="md-nav__link">
         Traditional scaffolding
       </a>
     </li>
@@ -960,8 +941,6 @@
   
   
   
-    
-  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -970,29 +949,16 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#usage" class="md-nav__link">
-    Usage
-  </a>
-  
-    <nav class="md-nav" aria-label="Usage">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#arguments" class="md-nav__link">
-    Arguments
+  <a href="#telemetry-implementation" class="md-nav__link">
+    Telemetry implementation
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#options" class="md-nav__link">
-    Options
+      
+        <li class="md-nav__item">
+  <a href="#pipelines" class="md-nav__link">
+    Pipelines
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1008,65 +974,43 @@
             <article class="md-content__inner md-typeset">
               
                 
-  <a href="https://github.com/criticalmanufacturing/cli/edit/documentation/src/commands/bump_iot_customization.md" title="Edit this page" class="md-content__button md-icon">
+  <a href="https://github.com/criticalmanufacturing/cli/edit/documentation/src/telemetry.md" title="Edit this page" class="md-content__button md-icon">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
   </a>
 
 
 
-<h1 id="bump-iot-customization">bump iot customization</h1>
-<!-- BEGIN USAGE -->
+  <h1>Telemetry</h1>
 
-<h2 id="usage">Usage</h2>
-<div class="highlight"><pre><span></span><code>cmf bump [&lt;packagePath&gt;] iot customization [options] [&lt;packagePath&gt;]
-</code></pre></div>
-<h3 id="arguments">Arguments</h3>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>&lt;packagePath&gt;</code></td>
-<td>Package Path [default: .]</td>
-</tr>
-</tbody>
-</table>
-<h3 id="options">Options</h3>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>-v, --version &lt;version&gt;</code></td>
-<td>Will bump all versions to the version specified</td>
-</tr>
-<tr>
-<td><code>-b, --buildNrVersion &lt;buildNrVersion&gt;</code></td>
-<td>Will add this version next to the version (v-b)</td>
-</tr>
-<tr>
-<td><code>-pckNames, --packageNames &lt;packageNames&gt;</code></td>
-<td>Packages to be bumped</td>
-</tr>
-<tr>
-<td><code>-isToTag</code></td>
-<td>Instead of replacing the version will add -$version [default: False]</td>
-</tr>
-<tr>
-<td><code>-?, -h, --help</code></td>
-<td>Show help and usage information</td>
-</tr>
-</tbody>
-</table>
-<!-- END USAGE -->
+<h2 id="telemetry-implementation">Telemetry implementation</h2>
+<p>Basic telemetry currently only tracks the CLI startup and logs:</p>
+<ul>
+<li>CLI name and version</li>
+<li>latest version available in NPM</li>
+<li>if the CLI version is stable or testing</li>
+<li>if the CLI is outdated</li>
+</ul>
+<p><strong>no identifiable information is collected in basic telemetry</strong></p>
+<p>However, any user can optionally enable extended telemetry, which might help with troubleshooting. <strong>Extended telemetry includes identifiable information</strong> and as such should be used with care. This includes the basic telemetry, plus:</p>
+<ul>
+<li>for the version (startup) log, it also includes<ul>
+<li>current working directory</li>
+<li>hostname</li>
+<li>IP</li>
+<li>username</li>
+</ul>
+</li>
+</ul>
+<p>It also tracks and logs the package tree if, for any command, the tree must be computed. This includes all of the above information plus the package name, for each package in the tree.</p>
+<p>Enabling telemetry can be done via environment variables:</p>
+<ul>
+<li><code>cmf_cli_enable_telemetry</code> - enable basic telemetry. If this is off (the default), no telemetry will be collected, even if extended telemetry is on. To enable, set to <code>true</code> or <code>1</code>, do not set or set to <code>false</code> or <code>0</code> to disable.</li>
+<li><code>cmf_cli_enable_extended_telemetry</code> - enable extended telemetry. Note the above warnings regarding the impact of keeping this on. To enable, set to <code>true</code> or <code>1</code>, do not set or set to <code>false</code> or <code>0</code> to disable.</li>
+<li><code>cmf_cli_telemetry_enable_console_exporter</code> - also print the telemetry information to the console. This is for auditing or troubleshooting as it makes the console output extremely verbose</li>
+<li><code>cmf_cli_telemetry_host</code> - specify an alternate telemetry endpoint (if you're hosting your own)</li>
+</ul>
+<h2 id="pipelines">Pipelines</h2>
+<p><strong>NOTE: The CI-Package pipeline is shipped with telemetry ON</strong>. The provided pipelines are built for Critical Manufacturing use and provided as an example for the user to build their own. As at CM we keep telemetry on for troubleshooting, the generated pipelines have telemetry on. To disable, search for the <code>cmf_cli_enable_telemetry</code> environment variable in the pipeline YAML and disable it.</p>
 
               
             </article>
@@ -1087,7 +1031,7 @@
     <nav class="md-footer__inner md-grid" aria-label="Footer" >
       
         
-        <a href="../bump_iot_configuration/" class="md-footer__link md-footer__link--prev" aria-label="Previous: bump iot configuration" rel="prev">
+        <a href="../plugins/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Plugins" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
           </div>
@@ -1096,20 +1040,20 @@
               <span class="md-footer__direction">
                 Previous
               </span>
-              bump iot configuration
+              Plugins
             </div>
           </div>
         </a>
       
       
         
-        <a href="../init/" class="md-footer__link md-footer__link--next" aria-label="Next: init" rel="next">
+        <a href="../commands/assemble/" class="md-footer__link md-footer__link--next" aria-label="Next: assemble" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              init
+              assemble
             </div>
           </div>
           <div class="md-footer__button md-icon">
@@ -1143,10 +1087,10 @@
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.top", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.85cb4492.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.top", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.85cb4492.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.a877e258.min.js"></script>
+      <script src="../assets/javascripts/bundle.a877e258.min.js"></script>
       
     
   </body>
