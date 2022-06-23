@@ -2,11 +2,12 @@
 
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
-        <PackageId>Cmf.CLI.Core</PackageId>
+        <PackageId>CriticalManufacturing.CLI.Core</PackageId>
         <RootNamespace>Cmf.CLI.Core</RootNamespace>
         <Version>3.0.0</Version>
         <Authors>CriticalManufacturing</Authors>
         <Company>CriticalManufacturing</Company>
+        <PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
         <Description>
             These are the core classes from Critical Manufacturing CLI. They serve as a base for building CLI plugins.
         </Description>
