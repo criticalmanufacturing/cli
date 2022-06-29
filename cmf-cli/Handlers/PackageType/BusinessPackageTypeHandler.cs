@@ -1,12 +1,11 @@
-﻿using Cmf.CLI.Objects;
+﻿using Cmf.CLI.Builders;
+using Cmf.CLI.Commands.restore;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Utilities;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
-using Cmf.CLI.Builders;
-using Cmf.CLI.Commands.restore;
-using Cmf.CLI.Core.Objects;
-using Cmf.CLI.Utilities;
-using Cmf.CLI.Core.Enums;
 
 namespace Cmf.CLI.Handlers
 {
@@ -77,7 +76,8 @@ namespace Cmf.CLI.Handlers
                     Command = "test",
                     DisplayName = "Run Business Unit Tests",
                     WorkingDirectory = cmfPackage.GetFileInfo().Directory,
-                    Test = true
+                    Test = true,
+                    Args = new [] { "--collect:\"XPlat Code Coverage\"" }
                 }
             };
         }
