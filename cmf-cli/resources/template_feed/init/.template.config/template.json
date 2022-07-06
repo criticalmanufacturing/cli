@@ -53,6 +53,11 @@
       "datatype": "string",
       "replaces": "<%= $CLI_PARAM_RepositoryURL %>"
     },
+    "repositoryName": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_RepositoryName %>"
+    },
     "deploymentDir-JSON": {
       "type": "derived",
       "replaces": "\"<%= $CLI_PARAM_DeploymentDir %>\"",

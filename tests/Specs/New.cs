@@ -4,15 +4,18 @@ using System.CommandLine;
 using System.CommandLine.IO;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
 using System.Text.Json;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Commands;
 using Cmf.CLI.Commands.New;
+using Cmf.CLI.Core.Objects;
 using FluentAssertions;
 using Xunit;
 using Assert = tests.AssertWithMessage;
 using Cmf.Common.Cli.TestUtilities;
+using Moq;
 
 namespace tests.Specs
 {
@@ -309,6 +312,40 @@ namespace tests.Specs
                 Directory.SetCurrentDirectory(cur);
                 Directory.Delete(tmp, true);
             }
+        }
+
+        [Theory]
+        [InlineData("https://azure-devops.example/collection/project/_git/repository", "repository")]
+        [InlineData("https://azure-devops.example/collection/_git/repository", "repository")]
+        [InlineData("https://github.example/org/repository", "defaultProject")]
+        public void Init_RepoName_Calc(string repoUrl, string repoName)
+        {
+            string url = TestUtilities.GetTmpDirectory();
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+            });
+
+            ExecutionContext.Initialize(fileSystem);
+            var initMoq = new Moq.Mock<InitCommand>();
+
+            var args = new InitArguments()
+            {
+                projectName = "defaultProject",
+                workingDir = fileSystem.DirectoryInfo.FromDirectoryName($"."),
+                repositoryUrl = new Uri(repoUrl),
+                nugetRegistry = new Uri("http://nuget.example"),
+                npmRegistry = new Uri("http://npm.example"),
+                azureDevOpsCollectionUrl = new Uri("http://azure-devops.example/collection"),
+                ISOLocation = fileSystem.FileInfo.FromFileName("."),
+                agentPool = "agents",
+                MESVersion = "9.9.9"
+            };
+            initMoq.Object.Execute(args);
+            
+            initMoq
+                .Verify(x =>
+                    x.RunCommand(It.Is<IReadOnlyCollection<string>>(value => string.Join("_", value).Contains($"--repositoryName_{repoName}")))
+                );
         }
 
         [Fact]
