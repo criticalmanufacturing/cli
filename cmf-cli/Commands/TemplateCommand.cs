@@ -43,7 +43,7 @@ namespace Cmf.CLI.Commands
         /// Execute the command
         /// </summary>
         /// <param name="args">the template engine arguments</param>
-        public void RunCommand(IReadOnlyCollection<string> args)
+        public virtual void RunCommand(IReadOnlyCollection<string> args)
         {
             this.ExecuteTemplate(this.CommandName, args);
         }

@@ -52,7 +52,7 @@
   "repository": {
     "properties": {
       "cloneUrl": "<%= $CLI_PARAM_RepositoryURL %>",
-      "fullName": "<%= $CLI_PARAM_ProjectName %>",
+      "fullName": "<%= $CLI_PARAM_RepositoryName %>",
       "defaultBranch": "refs/heads/development",
       "isFork": "False",
       "safeRepository": "e8c523b0-e52d-4698-ac78-a79f6e0487a3",
@@ -66,7 +66,7 @@
       "labelSourcesFormat": "$(build.buildNumber)"
     },
     "type": "TfsGit",
-    "name": "<%= $CLI_PARAM_ProjectName %>",
+    "name": "<%= $CLI_PARAM_RepositoryName %>",
     "url": "<%= $CLI_PARAM_RepositoryURL %>",
     "defaultBranch": "refs/heads/development",
     "clean": null,

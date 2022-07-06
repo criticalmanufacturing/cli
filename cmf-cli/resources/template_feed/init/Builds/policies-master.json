@@ -9,7 +9,7 @@
         {
           "refName": "refs/heads/master",
           "matchKind": "Exact",
-          "__repositoryName": "<%= $CLI_PARAM_ProjectName %>"
+          "__repositoryName": "<%= $CLI_PARAM_RepositoryName %>"
         }
       ]
     },
@@ -32,7 +32,7 @@
         {
           "refName": "refs/heads/master",
           "matchKind": "Exact",
-          "__repositoryName": "<%= $CLI_PARAM_ProjectName %>"
+          "__repositoryName": "<%= $CLI_PARAM_RepositoryName %>"
         }
       ]
     },
@@ -51,7 +51,7 @@
         {
           "refName": "refs/heads/master",
           "matchKind": "Exact",
-          "__repositoryName": "<%= $CLI_PARAM_ProjectName %>"
+          "__repositoryName": "<%= $CLI_PARAM_RepositoryName %>"
         }
       ]
     },
@@ -70,7 +70,7 @@
         {
           "refName": "refs/heads/master",
           "matchKind": "Exact",
-          "__repositoryName": "<%= $CLI_PARAM_ProjectName %>"
+          "__repositoryName": "<%= $CLI_PARAM_RepositoryName %>"
         }
       ]
     },
