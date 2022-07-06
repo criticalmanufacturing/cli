@@ -8,7 +8,7 @@
         {
           "refName": "refs/heads/development",
           "matchKind": "Exact",
-          "__repositoryName": "<%= $CLI_PARAM_ProjectName %>"
+          "__repositoryName": "<%= $CLI_PARAM_RepositoryName %>"
         }
       ]
     },
@@ -27,7 +27,7 @@
         {
           "refName": "refs/heads/development",
           "matchKind": "Exact",
-          "__repositoryName": "<%= $CLI_PARAM_ProjectName %>"
+          "__repositoryName": "<%= $CLI_PARAM_RepositoryName %>"
         }
       ]
     },
@@ -51,7 +51,7 @@
         {
           "refName": "refs/heads/development",
           "matchKind": "Exact",
-          "__repositoryName": "<%= $CLI_PARAM_ProjectName %>"
+          "__repositoryName": "<%= $CLI_PARAM_RepositoryName %>"
         }
       ]
     },
@@ -75,7 +75,7 @@
         {
           "refName": "refs/heads/development",
           "matchKind": "Exact",
-          "__repositoryName": "<%= $CLI_PARAM_ProjectName %>"
+          "__repositoryName": "<%= $CLI_PARAM_RepositoryName %>"
         }
       ],
       "__buildDefinitionName": "PR-Changes"
@@ -96,7 +96,7 @@
         {
           "refName": "refs/heads/development",
           "matchKind": "Exact",
-          "__repositoryName": "<%= $CLI_PARAM_ProjectName %>"
+          "__repositoryName": "<%= $CLI_PARAM_RepositoryName %>"
         }
       ]
     },

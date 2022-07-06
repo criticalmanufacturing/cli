@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 namespace Cmf.CLI.Constants
 {
     public static class CliConstants
@@ -80,6 +82,8 @@ namespace Cmf.CLI.Constants
         /// Security Portal Path for deployment of strategies
         /// </summary>
         public const string DefaultStrategyPath = "$.tenants.config.$(tenant).strategies";
+
+        public static readonly Regex RepoRegex = new Regex(@"^(?<proto>\w+):\/\/(?<host>[^\/]+)\/(?<collection>[^/]+)\/(?<project>[^\/]+\/)?_git\/(?<repo>.+)\/?$", RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
 
         #endregion
 

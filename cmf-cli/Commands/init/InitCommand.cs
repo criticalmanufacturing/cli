@@ -287,9 +287,20 @@ namespace Cmf.CLI.Commands
                 args.AddRange(new [] {"--DeliveredRepo", $"{x.deploymentDir.FullName}\\Delivered"});
             }
 
+            var repoName = x.projectName;
             if (x.repositoryUrl != null)
             {
                 args.AddRange(new [] {"--repositoryUrl", x.repositoryUrl.AbsoluteUri});
+                var match = CliConstants.RepoRegex.Match(x.repositoryUrl.AbsoluteUri);
+                if ((match?.Success ?? false) && match.Groups.ContainsKey("repo"))
+                {
+                    repoName = match.Groups["repo"].Value;
+                }
+            }
+
+            if (repoName != null)
+            {
+                args.AddRange(new [] {"--repositoryName", repoName});
             }
 
             if (x.MESVersion != null)
