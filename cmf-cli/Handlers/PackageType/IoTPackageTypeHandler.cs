@@ -61,7 +61,12 @@ namespace Cmf.CLI.Handlers
                         new Step(StepType.Generic)
                         {
                             OnExecute = $"$(Package[{cmfPackage.PackageId}].TargetDirectory)/runtimePackages/PublishToDirectory.ps1"
-                        }
+                        },
+                        new Step(StepType.DeployRepositoryFiles)
+                        {
+                            ContentPath = "runtimePackages/**"
+                        },
+                        new Step(StepType.GenerateRepositoryIndex)
                     }
             );
 

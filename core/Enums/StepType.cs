@@ -53,6 +53,16 @@
         /// <summary>
         /// The enqueue SQL
         /// </summary>
-        EnqueueSql = 9
+        EnqueueSql = 9,
+
+        /// <summary>
+        /// Deploy ConnectIoT packages to Repository
+        /// </summary>
+        DeployRepositoryFiles = 10,
+
+        /// <summary>
+        /// Update the ConnectIoT Repository Index
+        /// </summary>
+        GenerateRepositoryIndex = 11
     }
 }
