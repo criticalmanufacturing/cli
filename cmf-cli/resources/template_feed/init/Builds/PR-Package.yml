@@ -69,6 +69,16 @@ steps:
   inputs:
     versionSpec: ${{ variables.NodeVersion }}
 
+# use Jave Tool
+- task: JavaToolInstaller@0
+  inputs:
+    versionSpec: '8'
+    jdkArchitectureOption: 'x64'
+    jdkSourceOption: 'LocalDirectory'
+    jdkFile: 'C:/Tools/OpenJDK8U-jdk_x64_windows_8u332b09.zip'
+    jdkDestinationDirectory: '$(Agent.TempDirectory)/JDKs'
+    cleanDestinationDirectory: true						   
+
 - task: UseDotNet@2
   inputs:
     packageType: 'sdk'
@@ -84,7 +94,28 @@ steps:
     workingDirectory: $(Agent.TempDirectory)
     script: |
       npm install --no-save @criticalmanufacturing/cli@${{ variables.CmfCliVersion }} --registry ${{ variables.CmfCliRepository }}
-
+        
+# Check if sonar qube should run
+- task: PowerShell@2
+  displayName: 'Check if sonar qube should run'
+  inputs:
+    pwsh: true
+    failOnStderr: false
+    targetType: inline
+    workingDirectory: ${{ parameters.PackagePath }}
+    script: |
+      $SLNEXISTS = Test-Path -Path "./*.sln" 
+      Write-Output "##vso[task.setvariable variable=SLNEXISTS]$SLNEXISTS"
+        
+# Prepare run of sonar qube
+- task: SonarQubePrepare@4
+  displayName: 'Prepare analysis on SonarQube'
+  condition: eq(variables.SLNEXISTS, true)
+  inputs:
+    SonarQube: SonarQube
+    projectKey: Integer
+    projectName: Integer
+	  
 # Cmf Build
 - task: PowerShell@2
   displayName: Build ${{ parameters.PackageId }}
@@ -99,6 +130,20 @@ steps:
 //#else
       $(Agent.TempDirectory)/node_modules/.bin/cmf-cli/cmf build --test
 //#endif
+
+# Run Code Analysis task
+- task: SonarQubeAnalyze@4  
+  condition: eq(variables.SLNEXISTS, 'true')
+  displayName: 'Run Code Analysis'
+  continueOnError: true
+    
+# Publish Quality Gate Result task
+- task: SonarQubePublish@4
+  condition: eq(variables.SLNEXISTS, 'true')
+  displayName: 'Publish Quality Gate Result'
+  inputs:
+    pollingTimeoutSec: '300'
+  continueOnError: true
 
 # Cleanup
 - task: PostBuildCleanup@3
