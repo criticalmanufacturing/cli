@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.1.0](https://github.com/criticalmanufacturing/cli/compare/3.1.0-2...3.1.0) (2022-08-24)
+
+## [3.1.0-2](https://github.com/criticalmanufacturing/cli/compare/3.1.0-1...3.1.0-2) (2022-07-22)
+
+
+### Features
+
+* Add ConnectIoT deployment steps to IoT Package ([6a27664](https://github.com/criticalmanufacturing/cli/commits/6a27664ff1c913e527e8c0f177ae54ac19e1489c))
+
+## [3.1.0-1](https://github.com/criticalmanufacturing/cli/compare/3.1.0-0...3.1.0-1) (2022-07-11)
+
+
+### Bug Fixes
+
+* **init:** derive repository name from valid repository url ([6de229e](https://github.com/criticalmanufacturing/cli/commits/6de229e694140d99728aa795d235d804500e8af6)), closes [#160](https://github.com/criticalmanufacturing/cli/issues/160)
+
+## [3.1.0-0](https://github.com/criticalmanufacturing/cli/compare/3.0.0...3.1.0-0) (2022-06-30)
+
+
+### Features
+
+* start capturing test coverage when running unit tests ([30d6bb7](https://github.com/criticalmanufacturing/cli/commits/30d6bb71561862f97140aa55474eb598223ec77c))
+
 ## [3.0.0](https://github.com/criticalmanufacturing/cli/compare/3.0.0-9...3.0.0) (2022-06-20)
 
 ## [3.0.0-9](https://github.com/criticalmanufacturing/cli/compare/3.0.0-8...3.0.0-9) (2022-06-13)
