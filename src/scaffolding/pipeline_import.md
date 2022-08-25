@@ -68,4 +68,4 @@ The **CD-Containers** pipeline requires that a secret is specified in a variable
 
 The pipeline will automatically use the variable group.
 
-It is possible to add extra secrets or varibles into this group, to preserve some secrets from the environment settings. Any token in the format e.g. `#{aToken}#` will be replaced with the value of the **aToken** variable.
+It is possible to add extra secrets or variables into this group, to preserve some secrets from the environment settings. Any token in the format e.g. `#{aToken}#` will be replaced with the value of the **aToken** variable.
