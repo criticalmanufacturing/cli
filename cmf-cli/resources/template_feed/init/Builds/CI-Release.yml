@@ -318,6 +318,41 @@ stages:
                 }
                 catch { throw (" *  Invoke-Command ERROR " + $_) }
 
+          # Copy External Package Dependencies
+          # use Node Tool
+          - task: NodeTool@0
+            displayName: 'Use Node ${{ variables.NodeVersion }}'
+            inputs:
+              versionSpec: ${{ variables.NodeVersion }}
+
+          # Install cmf-pipeline
+          - task: PowerShell@2
+            displayName: 'Install cmf-pipeline@${{ variables.CmfPipelineVersion }}'
+            inputs:
+              pwsh: true
+              failOnStderr: false
+              workingDirectory: $(Agent.TempDirectory)
+              targetType: inline
+              script: |
+                npm install --no-save @criticalmanufacturing/cmf-pipeline@${{ variables.CmfPipelineVersion }} --registry ${{ variables.CmfPipelineRepository }}
+
+          - task: PowerShell@2
+            displayName: "cmf-pipeline copyDependencies"
+            inputs:
+              targetType: 'inline'
+              pwsh: true
+              failOnStderr: false
+              script: |
+                $(Agent.TempDirectory)/node_modules/@criticalmanufacturing/cmf-pipeline/dist/win-x64/cmf-pipeline copyDependencies Configurations/dependencies.json ${{ variables.CandidatePackages }}/Package
+
+          # Copy EnvironmentConfig to Server
+          - task: CopyFiles@2
+            displayName: 'Copy EnvironmentConfig to Server'
+            inputs:
+              SourceFolder: Configurations/EnvironmentConfigs
+              Contents: '${{ variables.EnvironmentConfigName }}'
+              TargetFolder: ${{ variables.CandidatePackages }}
+
           - task: PowerShell@2
             displayName: "Enable maintenance mode"
             condition: eq('${{ variables.UseMaintenanceMode }}', true)
@@ -462,6 +497,27 @@ stages:
         steps:
           - checkout: none
 
+          # Clean deploy folder
+          - task: DeleteFiles@1
+            displayName: 'Clean deploy folder'
+            inputs:
+              SourceFolder: '${{ variables.CandidatePackages }}'
+              Contents: '**'
+
+          # Download Package Artifacts
+          - task: DownloadBuildArtifacts@0
+            displayName: "Download Package Artifacts"
+            inputs:
+              buildType: 'specific'
+              project: 'BBRAUNATO'
+              pipeline: 'CI-Publish'
+              specificBuildWithTriggering: true
+              buildVersionToDownload: 'specific'
+              buildId: '$(resources.pipeline.CIPublish.runID)'
+              downloadType: 'single'
+              artifactName: 'Package'
+              downloadPath: '${{ variables.CandidatePackages }}'
+ 
           # Download Configurations Artifacts
           - task: DownloadBuildArtifacts@0
             displayName: "Download Configurations Artifacts"
@@ -497,6 +553,41 @@ stages:
                 echo "##vso[task.setvariable variable=PackageVersion;isOutput=true]$PackageVersion"
                 echo "##vso[task.setvariable variable=PackageId;isOutput=true]$PackageId"
             name: GetPackageVersion
+
+          # Copy External Package Dependencies
+          # use Node Tool
+          - task: NodeTool@0
+            displayName: 'Use Node ${{ variables.NodeVersion }}'
+            inputs:
+              versionSpec: ${{ variables.NodeVersion }}
+
+          # Install cmf-pipeline
+          - task: PowerShell@2
+            displayName: 'Install cmf-pipeline@${{ variables.CmfPipelineVersion }}'
+            inputs:
+              pwsh: true
+              failOnStderr: false
+              workingDirectory: $(Agent.TempDirectory)
+              targetType: inline
+              script: |
+                npm install --no-save @criticalmanufacturing/cmf-pipeline@${{ variables.CmfPipelineVersion }} --registry ${{ variables.CmfPipelineRepository }}
+
+          - task: PowerShell@2
+            displayName: "cmf-pipeline copyDependencies"
+            inputs:
+              targetType: 'inline'
+              pwsh: true
+              failOnStderr: false
+              script: |
+                $(Agent.TempDirectory)/node_modules/@criticalmanufacturing/cmf-pipeline/dist/win-x64/cmf-pipeline copyDependencies Configurations/dependencies.json ${{ variables.CandidatePackages }}/Package
+
+          # Copy EnvironmentConfig to Server
+          - task: CopyFiles@2
+            displayName: 'Copy EnvironmentConfig to Server'
+            inputs:
+              SourceFolder: Configurations/EnvironmentConfigs
+              Contents: '${{ variables.EnvironmentConfigName }}'
+              TargetFolder: ${{ variables.CandidatePackages }}
 
           # BackupRestoreTools Artifact
           - task: DownloadBuildArtifacts@0
@@ -1032,6 +1123,27 @@ stages:
               steps:
                 - checkout: none
 
+                # Clean deploy folder
+                - task: DeleteFiles@1
+                  displayName: 'Clean deploy folder'
+                  inputs:
+                    SourceFolder: '${{ variables.CandidatePackages }}'
+                    Contents: '**'
+
+                # Download Package Artifacts
+                - task: DownloadBuildArtifacts@0
+                  displayName: "Download Package Artifacts"
+                  inputs:
+                    buildType: 'specific'
+                    project: 'BBRAUNATO'
+                    pipeline: 'CI-Publish'
+                    specificBuildWithTriggering: true
+                    buildVersionToDownload: 'specific'
+                    buildId: '$(resources.pipeline.CIPublish.runID)'
+                    downloadType: 'single'
+                    artifactName: 'Package'
+                    downloadPath: '${{ variables.CandidatePackages }}'
+      
                 # Download Configurations Artifacts
                 - task: DownloadBuildArtifacts@0
                   displayName: "Download Configurations Artifacts"
@@ -1067,6 +1179,41 @@ stages:
                       echo "##vso[task.setvariable variable=PackageVersion;isOutput=true]$PackageVersion"
                       echo "##vso[task.setvariable variable=PackageId;isOutput=true]$PackageId"
                   name: GetPackageVersion
+
+                # Copy External Package Dependencies
+                # use Node Tool
+                - task: NodeTool@0
+                  displayName: 'Use Node ${{ variables.NodeVersion }}'
+                  inputs:
+                    versionSpec: ${{ variables.NodeVersion }}
+
+                # Install cmf-pipeline
+                - task: PowerShell@2
+                  displayName: 'Install cmf-pipeline@${{ variables.CmfPipelineVersion }}'
+                  inputs:
+                    pwsh: true
+                    failOnStderr: false
+                    workingDirectory: $(Agent.TempDirectory)
+                    targetType: inline
+                    script: |
+                      npm install --no-save @criticalmanufacturing/cmf-pipeline@${{ variables.CmfPipelineVersion }} --registry ${{ variables.CmfPipelineRepository }}
+
+                - task: PowerShell@2
+                  displayName: "cmf-pipeline copyDependencies"
+                  inputs:
+                    targetType: 'inline'
+                    pwsh: true
+                    failOnStderr: false
+                    script: |
+                      $(Agent.TempDirectory)/node_modules/@criticalmanufacturing/cmf-pipeline/dist/win-x64/cmf-pipeline copyDependencies Configurations/dependencies.json ${{ variables.CandidatePackages }}/Package
+
+                # Copy EnvironmentConfig to Server
+                - task: CopyFiles@2
+                  displayName: 'Copy EnvironmentConfig to Server'
+                  inputs:
+                    SourceFolder: Configurations/EnvironmentConfigs
+                    Contents: '${{ variables.EnvironmentConfigName }}'
+                    TargetFolder: ${{ variables.CandidatePackages }}
 
                 # Get Date
                 - task: PowerShell@2
@@ -1155,6 +1302,27 @@ stages:
         steps:
           - checkout: none
 
+          # Clean deploy folder
+          - task: DeleteFiles@1
+            displayName: 'Clean deploy folder'
+            inputs:
+              SourceFolder: '${{ variables.CandidatePackages }}'
+              Contents: '**'
+
+          # Download Package Artifacts
+          - task: DownloadBuildArtifacts@0
+            displayName: "Download Package Artifacts"
+            inputs:
+              buildType: 'specific'
+              project: 'BBRAUNATO'
+              pipeline: 'CI-Publish'
+              specificBuildWithTriggering: true
+              buildVersionToDownload: 'specific'
+              buildId: '$(resources.pipeline.CIPublish.runID)'
+              downloadType: 'single'
+              artifactName: 'Package'
+              downloadPath: '${{ variables.CandidatePackages }}'
+ 
           # Download Configurations Artifacts
           - task: DownloadBuildArtifacts@0
             displayName: "Download Configurations Artifacts"
@@ -1190,6 +1358,41 @@ stages:
                 echo "##vso[task.setvariable variable=PackageVersion;isOutput=true]$PackageVersion"
                 echo "##vso[task.setvariable variable=PackageId;isOutput=true]$PackageId"
             name: GetPackageVersion
+
+          # Copy External Package Dependencies
+          # use Node Tool
+          - task: NodeTool@0
+            displayName: 'Use Node ${{ variables.NodeVersion }}'
+            inputs:
+              versionSpec: ${{ variables.NodeVersion }}
+
+          # Install cmf-pipeline
+          - task: PowerShell@2
+            displayName: 'Install cmf-pipeline@${{ variables.CmfPipelineVersion }}'
+            inputs:
+              pwsh: true
+              failOnStderr: false
+              workingDirectory: $(Agent.TempDirectory)
+              targetType: inline
+              script: |
+                npm install --no-save @criticalmanufacturing/cmf-pipeline@${{ variables.CmfPipelineVersion }} --registry ${{ variables.CmfPipelineRepository }}
+
+          - task: PowerShell@2
+            displayName: "cmf-pipeline copyDependencies"
+            inputs:
+              targetType: 'inline'
+              pwsh: true
+              failOnStderr: false
+              script: |
+                $(Agent.TempDirectory)/node_modules/@criticalmanufacturing/cmf-pipeline/dist/win-x64/cmf-pipeline copyDependencies Configurations/dependencies.json ${{ variables.CandidatePackages }}/Package
+
+          # Copy EnvironmentConfig to Server
+          - task: CopyFiles@2
+            displayName: 'Copy EnvironmentConfig to Server'
+            inputs:
+              SourceFolder: Configurations/EnvironmentConfigs
+              Contents: '${{ variables.EnvironmentConfigName }}'
+              TargetFolder: ${{ variables.CandidatePackages }}
 
           # Rename RestorePoint to ORIGINAL
           - task: PowerShell@2
