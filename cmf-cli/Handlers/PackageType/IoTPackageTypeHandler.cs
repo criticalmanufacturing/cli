@@ -1,8 +1,8 @@
-﻿using Cmf.CLI.Objects;
+﻿using System;
 using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.IO;
 using System.IO.Abstractions;
+using System.Linq;
 using Cmf.CLI.Builders;
 using Cmf.CLI.Commands.restore;
 using Cmf.CLI.Core;
@@ -29,6 +29,15 @@ namespace Cmf.CLI.Handlers
         /// <param name="cmfPackage">The CMF package.</param>
         public IoTPackageTypeHandler(CmfPackage cmfPackage) : base(cmfPackage)
         {
+            var minimumVersion = new Version("8.3.5");
+            var projectConfig = FileSystemUtilities.ReadProjectConfig(this.fileSystem);
+            var mesVersion = projectConfig.RootElement.GetProperty("MESVersion").GetString();
+            var targetVersion = new Version(mesVersion!);
+            if (targetVersion.CompareTo(minimumVersion) < 0)
+            {
+                Log.Debug(
+                    $"MES version lower than {minimumVersion.ToString()}, skipping DeployRepositoryFiles and GenerateRepositoryIndex steps. Make sure you have alternative steps in your manifest.");
+            }
             cmfPackage.SetDefaultValues
             (
                 targetDirectory:
@@ -62,12 +71,17 @@ namespace Cmf.CLI.Handlers
                         {
                             OnExecute = $"$(Package[{cmfPackage.PackageId}].TargetDirectory)/runtimePackages/PublishToDirectory.ps1"
                         },
+                        
                         new Step(StepType.DeployRepositoryFiles)
                         {
                             ContentPath = "runtimePackages/**"
                         },
                         new Step(StepType.GenerateRepositoryIndex)
-                    }
+                    }.Where(step =>
+                            // if MES version is inferior to 8.3.5, the DeployRepositoryFiles and GenerateRepositoryIndex steps are not supported
+                            targetVersion.CompareTo(minimumVersion) >= 0 || step.Type != StepType.DeployRepositoryFiles && step.Type != StepType.GenerateRepositoryIndex   
+                        ).ToList() 
+                        
             );
 
             DefaultContentToIgnore.AddRange(new List<string>()

@@ -10,6 +10,9 @@ using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.IO.Compression;
 using System.Linq;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Handlers;
 using Cmf.CLI.Utilities;
 using Cmf.Common.Cli.TestUtilities;
 using FluentAssertions;
@@ -269,6 +272,34 @@ namespace tests.Specs
             string configJsonContent = FileSystemUtilities.GetFileContentFromPackage($"{dir}/Package/Cmf.Custom.SecurityPortal.1.0.0.zip", "config.json");
 
             Assert.True(configJsonContent.Contains("$.tenants.config.tenant.strategies"), "Config file does not have correct tenant");
+        }
+
+        [Theory]
+        [InlineData("8.1.0", new [] { StepType.DeployRepositoryFiles, StepType.GenerateRepositoryIndex })]
+        [InlineData("9.1.0", new StepType[0] )]
+        public void IoTDFStepsForVersion(string version, StepType[] forbiddenStepTypes)
+        {
+            var mockFS = new MockFileSystem(new Dictionary<string, MockFileData>
+            {{ MockUnixSupport.Path(@"c:\.project-config.json"), new MockFileData(
+    $@"{{
+                ""MESVersion"": ""{version}""
+                }}")
+            }, {
+                MockUnixSupport.Path(@"c:\.pkg.json"), new MockFileData(
+                    $@"{{
+                ""type"": ""{PackageType.IoT}"",
+                ""packageId"": ""xxxxx"",
+                ""version"": ""9.9.9"",
+                ""contentToPack"": [{{}}]
+                }}")
+            }});
+            
+            var pkg = CmfPackage.Load(mockFS.FileSystem.FileInfo.FromFileName(MockUnixSupport.Path(@"c:\.pkg.json")), true,
+                mockFS);
+            var _ = new IoTPackageTypeHandler(pkg);
+
+            pkg.Steps.Any(step => forbiddenStepTypes.ToList().Contains(step.Type ?? StepType.Generic)).Should()
+                .BeFalse();
         }
     }
 }
