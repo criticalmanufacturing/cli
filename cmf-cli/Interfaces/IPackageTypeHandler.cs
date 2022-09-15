@@ -29,7 +29,7 @@ namespace Cmf.CLI.Interfaces
         /// <summary>
         /// Builds this instance.
         /// </summary>
-        public void Build(bool test);
+        public void Build(bool test = false);
 
         /// <summary>
         /// Packs the specified package output dir.
@@ -37,7 +37,7 @@ namespace Cmf.CLI.Interfaces
         /// <param name="packageOutputDir">The package output dir.</param>
         /// <param name="outputDir">The output dir.</param>
         public void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir);
-        
+
         /// <summary>
         /// Restore package dependencies (declared in cmfpackage.json) from repository packages
         /// </summary>
