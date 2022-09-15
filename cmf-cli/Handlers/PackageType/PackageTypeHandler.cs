@@ -471,7 +471,7 @@ namespace Cmf.CLI.Handlers
         /// <summary>
         /// Builds this instance.
         /// </summary>
-        public virtual void Build(bool test = false)
+        public virtual void Build(bool test)
         {
             foreach (var step in BuildSteps)
             {
