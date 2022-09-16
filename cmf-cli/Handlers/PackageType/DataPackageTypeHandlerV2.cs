@@ -52,14 +52,6 @@ namespace Cmf.CLI.Handlers
                         new Step(StepType.Generic)
                         {
                             OnExecute = "$(Agent.Root)/agent/scripts/start_host.ps1"
-                        },
-                        new Step(StepType.Generic)
-                        {
-                            ContentPath = "GenerateLBOs.ps1"
-                        },
-                        new Step(StepType.Generic)
-                        {
-                            OnExecute = $"$(Package[{cmfPackage.PackageId}].TargetDirectory)/GenerateLBOs.ps1"
                         }
                      });
 
@@ -154,18 +146,6 @@ namespace Cmf.CLI.Handlers
             // Get Template
             string fileContent = ResourceUtilities.GetEmbeddedResourceContent($"{CliConstants.FolderTemplates}/Data/{CliConstants.CmfPackageHostConfig}");
             this.fileSystem.File.WriteAllText(path, fileContent);
-        }
-
-        /// <summary>
-        /// Copies the install dependencies.
-        /// </summary>
-        /// <param name="packageOutputDir">The package output dir.</param>
-        protected override void CopyInstallDependencies(IDirectoryInfo packageOutputDir)
-        {
-            IDirectoryInfo dir = fileSystem.DirectoryInfo.FromDirectoryName(fileSystem.Path.Join(AppDomain.CurrentDomain.BaseDirectory, CliConstants.FolderInstallDependencies, "Data"));
-            IFileInfo generateLBOsFile = dir.GetFiles("GenerateLBOs.ps1")[0];
-            string tempPath = fileSystem.Path.Combine(packageOutputDir.FullName, generateLBOsFile.Name);
-            generateLBOsFile.CopyTo(tempPath, true);
         }
     }
 }
