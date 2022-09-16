@@ -1,7 +1,10 @@
 using Cmf.CLI.Builders;
 using Cmf.CLI.Constants;
+using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Factories;
 using Cmf.CLI.Handlers;
+using Cmf.CLI.Interfaces;
 using Cmf.Common.Cli.TestUtilities;
 using FluentAssertions;
 using Moq;
@@ -12,6 +15,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
+using System.Linq;
+using System.Security.Policy;
 using Xunit;
 
 namespace tests.Specs;
@@ -451,5 +456,91 @@ public class Build
         StringWriter standardOutput = (new Logging()).GetLogStringWriter();
         businessPackageTypeHandler.Build(false);
         Assert.DoesNotContain("Executing 'Run Business Unit Tests'", standardOutput.ToString().Trim());
+    }
+
+    [Theory]
+    [InlineData(true, true)]
+    [InlineData(false, false)]
+    public void DataBuild_DEEActionProjects(bool withProject, bool hasBuildSteps)
+    {
+        KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.1.0");
+        KeyValuePair<string, string> packageData = new("Cmf.Custom.Data", "1.1.0");
+
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            // project config file
+            { ".project-config.json", new MockFileData("")},
+
+            // root cmfpackage file
+            { $"cmfpackage.json", new MockFileData(
+            @$"{{
+                ""packageId"": ""{packageRoot.Key}"",
+                ""version"": ""{packageRoot.Value}"",
+                ""description"": ""This package deploys Critical Manufacturing Customization"",
+                ""packageType"": ""Root"",
+                ""isInstallable"": true,
+                ""isUniqueInstall"": false
+            }}")},
+
+            // data cmfpackage file
+            { $"Cmf.Custom.Data/{CliConstants.CmfPackageFileName}", new MockFileData(
+            @$"{{
+                ""packageId"": ""{packageData.Key}"",
+                ""version"": ""{packageData.Value}"",
+                ""description"": ""This package deploys Critical Manufacturing Customization"",
+                ""packageType"": ""Data"",
+                ""isInstallable"": true,
+                ""isUniqueInstall"": true,
+                ""contentToPack"": [
+                {{
+                    ""source"": ""DEEs/*"",
+                    ""target"": ""DeeRules"",
+                    ""contentType"": ""DEE""
+                }},
+                ]
+            }}")},
+        });
+
+        if (withProject)
+        {
+            // deeActions csproj
+            fileSystem.AddFile(
+                "Cmf.Custom.Data/DEEs/Cmf.Custom.Actions.csproj", new MockFileData(
+                @$"<Project Sdk=""Microsoft.NET.Sdk"">
+                      <PropertyGroup>
+                        <TargetFramework>net6.0</TargetFramework>
+                        <ImplicitUsings>enable</ImplicitUsings>
+                        <Nullable>enable</Nullable>
+                      </PropertyGroup>
+                </Project>"));
+
+            // deeActionfile
+            fileSystem.AddFile(
+                "Cmf.Custom.Data/DEEs/TestDEE.cs", new MockFileData(
+            @$"namespace Cmf.Custom.Actions
+            {{
+                public class Class1
+                {{
+                }}
+            }}"));
+        }
+
+        ExecutionContext.Initialize(fileSystem);
+
+        IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"Cmf.Custom.Data/{CliConstants.CmfPackageFileName}");
+        DataPackageTypeHandlerV2 packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile) as DataPackageTypeHandlerV2;
+
+        packageTypeHandler.BuildSteps
+            .Any(buildStep =>
+                            buildStep is DotnetCommand
+                            && (buildStep as DotnetCommand).Command.Equals("restore")
+                            && (buildStep as DotnetCommand).DisplayName.Equals("NuGet restore Cmf.Custom.Actions.csproj"))
+            .Should().Be(hasBuildSteps);
+        packageTypeHandler.BuildSteps
+            .Any(buildStep =>
+                            buildStep is DotnetCommand
+                            && (buildStep as DotnetCommand).Command.Equals("build")
+                            && (buildStep as DotnetCommand).DisplayName.Equals("Build Cmf.Custom.Actions.csproj"))
+            .Should().Be(hasBuildSteps);
     }
 }
