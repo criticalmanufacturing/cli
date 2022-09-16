@@ -72,6 +72,39 @@ namespace Cmf.CLI.Handlers
                 }
             };
 
+            IFileInfo[] deeActionProjects = cmfPackage.GetFileInfo().Directory.GetFiles("*.csproj", SearchOption.AllDirectories);
+
+            foreach (IFileInfo project in deeActionProjects)
+            {
+                if (project.Exists)
+                {
+                    BuildSteps = BuildSteps.Union(new IBuildCommand[]
+                    {
+                        new DotnetCommand()
+                        {
+                            Command = "restore",
+                            DisplayName = $"NuGet restore {project.Name}",
+                            Solution = project,
+                            NuGetConfig = this.fileSystem.FileInfo.FromFileName(Path.Join(FileSystemUtilities.GetProjectRoot(this.fileSystem, throwException: true).FullName, "NuGet.Config")),
+                            WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                        },
+                        new DotnetCommand()
+                        {
+                            Command = "build",
+                            DisplayName = $"Build {project.Name}",
+                            Solution = project,
+                            Configuration = "Release",
+                            WorkingDirectory = cmfPackage.GetFileInfo().Directory,
+                            Args = new[] { "--no-restore " }
+                        }
+                    }).ToArray();
+                }
+                else
+                {
+                    Log.Warning(string.Format(CoreMessages.NotFound, project.FullName));
+                }
+            }
+
             cmfPackage.DFPackageType = PackageType.Business; // necessary because we restart the host during installation
         }
 
