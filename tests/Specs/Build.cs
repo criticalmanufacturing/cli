@@ -41,7 +41,7 @@ public class Build
         var dirInfo = fileSystem.DirectoryInfo.FromDirectoryName("/test");
         converter.WriteJson(writer, dirInfo, JsonSerializer.Create());
 
-        txtWriter.ToString().Should().Be($"\"{MockUnixSupport.Path("C:\\test").Replace("\\", "\\\\")}\"", "directory path does not match");
+        txtWriter.ToString().Should().Be(@"""/test""", "directory path does not match");
     }
 
     [Fact]
@@ -156,7 +156,7 @@ public class Build
 
         string serializedStep = JsonConvert.SerializeObject(step, jsonSerializerSettings);
 
-        serializedStep.Should().Be(@$"{{""args"":[""run"",""build:clean""],""command"":""npm.cmd"",""workingDirectory"":""{MockUnixSupport.Path("C:\\").Replace("\\", "\\\\")}""}}");
+        serializedStep.Should().Be(@$"{{""args"":[""run"",""build:clean""],""command"":""npm.cmd"",""workingDirectory"":"".""}}");
     }
 
     [Fact]

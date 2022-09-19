@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 namespace Cmf.CLI.Core.Objects;
 
 /// <summary>
-/// An atomic (from tool perspective) build step 
+/// An atomic (from tool perspective) build step
 /// </summary>
 [JsonObject]
 public class ProcessBuildStep : IEquatable<ProcessBuildStep>
@@ -38,7 +38,7 @@ public class ProcessBuildStep : IEquatable<ProcessBuildStep>
     [JsonConverter(typeof(AbstractionsDirectoryConverter))]
     [JsonProperty(Order = 3)]
     public IDirectoryInfo WorkingDirectory { get; set; }
-    
+
     #region IEquatable
 
     /// <inheritdoc />
@@ -66,12 +66,12 @@ public class ProcessBuildStep : IEquatable<ProcessBuildStep>
     /// <inheritdoc />
     public override int GetHashCode()
     {
-        return (this.Command?.GetHashCode() ?? 0) 
-            + (this.Args?.GetHashCode() ?? 0) 
+        return (this.Command?.GetHashCode() ?? 0)
+            + (this.Args?.GetHashCode() ?? 0)
             + (this.WorkingDirectory?.GetHashCode() ?? 0);
     }
 
-    #endregion
+    #endregion IEquatable
 }
 
 /// <summary>
@@ -82,7 +82,7 @@ public class AbstractionsDirectoryConverter : JsonConverter
     /// <inheritdoc />
     public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
     {
-        writer.WriteValue((value as IDirectoryInfo).FullName);
+        writer.WriteValue((value as IDirectoryInfo).ToString());
     }
 
     /// <inheritdoc />
