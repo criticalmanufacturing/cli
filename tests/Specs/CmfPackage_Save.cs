@@ -385,5 +385,75 @@ namespace tests.Specs
             var cmfpackageFileContent = fileSystem.File.ReadAllText(cmfpackageFile.FullName);
             cmfpackageFileContent.Should().Contain("dfPackageType", "cmfpackage.json should have DFPackageType");
         }
+
+        [Fact]
+        public void Generic_WithBuildSteps_WorkingDirectoryNotChanged()
+        {
+            KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.1.0");
+            KeyValuePair<string, string> packageGeneric = new("Cmf.Custom.IoT", "1.1.0");
+
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            // project config file
+            { ".project-config.json", new MockFileData("")},
+
+            // root cmfpackage file
+            { $"cmfpackage.json", new MockFileData(
+            @$"{{
+                ""packageId"": ""{packageRoot.Key}"",
+                ""version"": ""{packageRoot.Value}"",
+                ""description"": ""This package deploys Critical Manufacturing Customization"",
+                ""packageType"": ""Root"",
+                ""isInstallable"": true,
+                ""isUniqueInstall"": false
+            }}")},
+
+            // data cmfpackage file
+            { $"Cmf.Custom.Generic/{CliConstants.CmfPackageFileName}", new MockFileData(
+            @$"{{
+                ""packageId"": ""{packageGeneric.Key}"",
+                ""version"": ""{packageGeneric.Value}"",
+                ""description"": """",
+                ""packageType"": ""Generic"",
+                ""dfPackageType"": ""Business"",
+                ""targetDirectory"": ""Custom"",
+                ""isInstallable"": true,
+                ""isUniqueInstall"": false,
+                ""buildSteps"": [
+                {{
+                    ""command"" : ""dotnet"",
+                    ""args"": [
+                    ""build"",
+                    ""solution1.sln""
+                    ],
+                    ""workingDirectory"" : ""./directory1""
+                }}
+                ],
+                ""steps"": [
+                {{
+                    ""type"": ""DeployFiles"",
+                    ""contentPath"": ""**/**""
+                }}
+                ],
+                ""contentToPack"": [
+                {{
+                    ""source"": ""directory1/*"",
+                    ""target"": """"
+                }}
+                ]
+            }}")},
+        });
+
+            ExecutionContext.Initialize(fileSystem);
+
+            IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"Cmf.Custom.Generic/{CliConstants.CmfPackageFileName}");
+            CmfPackage cmfPackageObj = CmfPackage.Load(cmfpackageFile);
+            cmfPackageObj.SaveCmfPackage();
+            dynamic cmfpackageFileContent = JsonConvert.DeserializeObject(fileSystem.File.ReadAllText(cmfpackageFile.FullName));
+
+            string workingDirectory = cmfpackageFileContent.buildSteps[0].workingDirectory.ToString();
+
+            workingDirectory.Should().Be("./directory1");
+        }
     }
 }
