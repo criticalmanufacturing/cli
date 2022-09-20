@@ -17,6 +17,9 @@ using Cmf.CLI.Utilities;
 using Cmf.Common.Cli.TestUtilities;
 using FluentAssertions;
 using tests.Objects;
+using Cmf.CLI.Constants;
+using Cmf.CLI.Factories;
+using Newtonsoft.Json;
 
 namespace tests.Specs
 {
@@ -178,7 +181,7 @@ namespace tests.Specs
                 }
             }
         }
-        
+
         [Fact(Skip = "No System.IO.Abstractions support for searching outside the current directory")]
         public void HTML_OnlyLBOs()
         {
@@ -217,30 +220,31 @@ namespace tests.Specs
         public void CheckThatContentWasPacked_FailBecauseNoContentFound()
         {
             var fileSystem = MockPackage.Html_MissingDeclaredContent;
-            
+
             var packCommand = new PackCommand(fileSystem);
             var exception = Assert.Throws<CliException>(() => packCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.FromDirectoryName("output"), false));
             exception.Message.Should().Contain("Nothing was found on ContentToPack Sources");
         }
-        
+
         [Fact]
         public void DontCheckThatContentWasPacked_IfMeta()
         {
             var fileSystem = MockPackage.Root_Empty;
-            
+
             var packCommand = new PackCommand(fileSystem);
             packCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName(MockUnixSupport.Path("c:\\repo")), fileSystem.DirectoryInfo.FromDirectoryName("output"), false);
         }
-        
+
         [Fact]
         public void DontCheckThatContentWasPacked_IfContentToPackIsEmpty()
         {
             var fileSystem = MockPackage.Html_EmptyContentToPack;
-            
+
             var packCommand = new PackCommand(fileSystem);
             var exception = Assert.Throws<CliException>(() => packCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.FromDirectoryName("output"), false));
             exception.Message.Should().Contain("Missing mandatory property ContentToPack in file");
         }
+
         [Fact]
         public void Pack_SecurityPortal()
         {
@@ -275,8 +279,8 @@ namespace tests.Specs
         }
 
         [Theory]
-        [InlineData("8.1.0", new [] { StepType.DeployRepositoryFiles, StepType.GenerateRepositoryIndex })]
-        [InlineData("9.1.0", new StepType[0] )]
+        [InlineData("8.1.0", new[] { StepType.DeployRepositoryFiles, StepType.GenerateRepositoryIndex })]
+        [InlineData("9.1.0", new StepType[0])]
         public void IoTDFStepsForVersion(string version, StepType[] forbiddenStepTypes)
         {
             var mockFS = new MockFileSystem(new Dictionary<string, MockFileData>
@@ -293,13 +297,86 @@ namespace tests.Specs
                 ""contentToPack"": [{{}}]
                 }}")
             }});
-            
+
             var pkg = CmfPackage.Load(mockFS.FileSystem.FileInfo.FromFileName(MockUnixSupport.Path(@"c:\.pkg.json")), true,
                 mockFS);
             var _ = new IoTPackageTypeHandler(pkg);
 
             pkg.Steps.Any(step => forbiddenStepTypes.ToList().Contains(step.Type ?? StepType.Generic)).Should()
                 .BeFalse();
+        }
+
+        [Theory]
+        [InlineData("Html", "1.1.0")]
+        [InlineData("IoT", null)]
+        public void GeneratePresentationConfigFile(string packageType, string version)
+        {
+            KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.1.0");
+
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                // project config file
+                { ".project-config.json", new MockFileData(
+                    @$"{{
+                        ""MESVersion"": ""9.0.0""
+                    }}")},
+
+                // root cmfpackage file
+                { $"cmfpackage.json", new MockFileData(
+                @$"{{
+                    ""packageId"": ""{packageRoot.Key}"",
+                    ""version"": ""{packageRoot.Value}"",
+                    ""description"": ""This package deploys Critical Manufacturing Customization"",
+                    ""packageType"": ""Root"",
+                    ""isInstallable"": true,
+                    ""isUniqueInstall"": false,
+                    ""dependencies"": [
+                    {{ ""id"": ""Cmf.Environment"", ""version"": ""0.0.0"" }}
+                    ]
+                }}")},
+
+                // cmfpackage file
+                { $"Cmf.Custom.{packageType}/cmfpackage.json", new MockFileData(
+                $@"{{
+                  ""packageId"": ""Cmf.Custom.{packageType}"",
+                  ""version"": ""{version}"",
+                  ""description"": ""Cmf Custom {packageType} Package"",
+                  ""packageType"": ""{packageType}"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": false,
+                  ""contentToPack"": [
+                    {{
+                      ""source"": ""{MockUnixSupport.Path("src\\packages\\*").Replace("\\", "\\\\")}"",
+                      ""target"": ""node_modules"",
+                      ""ignoreFiles"": [
+                        "".npmignore""
+                      ]
+                    }}
+                  ]
+                }}")},
+
+                // js package
+                { $"Cmf.Custom.{packageType}/src/packages/customization.common/package.json", new MockFileData(@"{""name"": ""customization.package""}")},
+                { $"Cmf.Custom.{packageType}/src/packages/customization.common/customization.common.js", new MockFileData("")},
+                { $"Cmf.Custom.{packageType}/package.json", new MockFileData(@"{""name"": ""customization.package""}")},
+
+                // output dir
+                { $"output", new MockDirectoryData() },
+            });
+
+            ExecutionContext.Initialize(fileSystem);
+
+            IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"Cmf.Custom.{packageType}/cmfpackage.json");
+            PresentationPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile, true) as PresentationPackageTypeHandler;
+
+            packageTypeHandler.GeneratePresentationConfigFile(fileSystem.DirectoryInfo.FromDirectoryName("output"));
+
+            IFileInfo configJsonFile = fileSystem.FileInfo.FromFileName(MockUnixSupport.Path(@"output\\config.json").Replace("\\", "\\\\"));
+            dynamic configJsonFileContent = JsonConvert.DeserializeObject(fileSystem.File.ReadAllText(configJsonFile.FullName));
+
+            string customizationVersion = configJsonFileContent.customizationVersion?.ToString();
+
+            customizationVersion.Should().Be(version);
         }
     }
 }
