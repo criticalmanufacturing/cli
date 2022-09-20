@@ -8,6 +8,5 @@
       "@jdt.value": [ $(packagesToAdd) ]
     }
   ],
-  "cacheId": "$(Product.Presentation.CacheToken)",
-  "customizationVersion": "$(version)"
+  "cacheId": "$(Product.Presentation.CacheToken)"
 }
