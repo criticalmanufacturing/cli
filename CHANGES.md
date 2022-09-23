@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.1.1](https://github.com/criticalmanufacturing/cli/compare/3.1.1-0...3.1.1) (2022-09-23)
+
+### [3.1.1-0](https://github.com/criticalmanufacturing/cli/compare/3.1.0...3.1.1-0) (2022-09-15)
+
+
+### Bug Fixes
+
+* **pack:** gate new IoT steps to DF versions that actually support them ([c419586](https://github.com/criticalmanufacturing/cli/commits/c41958672777a86c7a27f51b33753012410b5a5d))
+
+
 ## [3.1.0](https://github.com/criticalmanufacturing/cli/compare/3.1.0-2...3.1.0) (2022-08-24)
 
 ## [3.1.0-2](https://github.com/criticalmanufacturing/cli/compare/3.1.0-1...3.1.0-2) (2022-07-22)

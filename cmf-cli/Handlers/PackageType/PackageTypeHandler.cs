@@ -502,6 +502,7 @@ namespace Cmf.CLI.Handlers
 
                 FilesToPack.ForEach(fileToPack =>
                 {
+                    Log.Debug($"Packing '{fileToPack.Source.FullName} to {fileToPack.Target.FullName} by contentToPack rule (Action: {fileToPack.ContentToPack.Action.ToString()}, Source: {fileToPack.ContentToPack.Source}, Target: {fileToPack.ContentToPack.Target})");
                     IDirectoryInfo _targetFolder = this.fileSystem.DirectoryInfo.FromDirectoryName(fileToPack.Target.Directory.FullName);
                     if (!_targetFolder.Exists)
                     {
