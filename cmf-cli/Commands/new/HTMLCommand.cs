@@ -122,6 +122,12 @@ namespace Cmf.CLI.Commands.New
             }
             var npmRegistry = projectConfig.RootElement.GetProperty("NPMRegistry").GetString();
             var mesVersion = projectConfig.RootElement.GetProperty("MESVersion").GetString();
+            var targetVersion = new Version(mesVersion!);
+            var injectAppsPackage = targetVersion.CompareTo(new Version("8.3.0")) >= 0;
+            if (injectAppsPackage)
+            {
+                Log.Debug($"Target MES version is 8.3.0+, injecting `cmf.core.app` into packages list.");
+            }
             devTasksJson.packagePrefix = "customization";
             devTasksJson.webAppPrefix = "customization";
             devTasksJson.registry = npmRegistry;
@@ -206,7 +212,7 @@ $@"{{
             configJsonJson.general.defaultDomain = projectConfig.RootElement.GetProperty("DefaultDomain").GetString();
             configJsonJson.general.environmentName = $"{projectName}Local";
             configJsonJson.version = $"{projectName} $(Build.BuildNumber) - {mesVersion}";
-            configJsonJson.packages.available = htmlPkgConfigJson.packages.available;
+            configJsonJson.packages.available = JArray.FromObject((htmlPkgConfigJson.packages.available as JArray).Concat(injectAppsPackage ? new [] { new JValue("cmf.core.app") } : Array.Empty<JToken>()));
             configJsonJson.packages.bundlePath = "node_modules/@criticalmanufacturing/mes-ui-web/bundles";
             configJsonStr = JsonConvert.SerializeObject(configJsonJson, Formatting.Indented);
             this.fileSystem.File.WriteAllText(configJsonPath, configJsonStr);
