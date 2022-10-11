@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Cmf.CLI.Core.Objects;
@@ -20,6 +21,11 @@ namespace tests.Specs
             {
                 return Task.FromResult("999.99.99");
             }
+
+            public IPackage[] FindPlugins(Uri[] registries)
+            {
+                throw new NotImplementedException();
+            }
         }
         
         class MockNPMClientCurrent : INPMClient
@@ -27,6 +33,11 @@ namespace tests.Specs
             public Task<string> GetLatestVersion(bool preRelease = false)
             {
                 return Task.FromResult(ExecutionContext.CurrentVersion);
+            }
+
+            public IPackage[] FindPlugins(Uri[] registries)
+            {
+                throw new NotImplementedException();
             }
         }
 

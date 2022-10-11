@@ -26,6 +26,11 @@ namespace Cmf.CLI.Core.Attributes
         public string Parent { get; set; }
 
         /// <summary>
+        /// Description for the command
+        /// </summary>
+        public string Description { get; set; }
+
+        /// <summary>
         /// should hide the command in help screens?
         /// </summary>
         public bool IsHidden { get; set; } = false;
