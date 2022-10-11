@@ -138,6 +138,72 @@ namespace tests.Specs
             }
         }
         
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData("testNamespace")]
+        public void Init_PipelineFolders(string folder)
+        {
+            var rnd = new Random();
+            var tmp = TestUtilities.GetTmpDirectory();
+
+            var projectName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
+            var repoUrl = "https://repo_url/collection/project/_git/repo";
+            var deploymentDir = "\\\\share\\deployment_dir";
+            var isoLocation = "\\\\share\\iso_location";
+            var pkgVersion = $"{rnd.Next(10)}.{rnd.Next(10)}.{rnd.Next(10)}";
+
+            var cur = Directory.GetCurrentDirectory();
+            try
+            {
+                var console = new TestConsole();
+                Directory.SetCurrentDirectory(tmp);
+
+                var initCommand = new InitCommand();
+                var cmd = new Command("x");
+                initCommand.Configure(cmd);
+
+                cmd.Invoke(new[]
+                {
+                    projectName,
+                    "--infra", TestUtilities.GetFixturePath("init", "infrastructure.json"),
+                    "-c", TestUtilities.GetFixturePath("init", "config.json"),
+                    "--repositoryUrl", repoUrl,
+                    "--MESVersion", "8.2.0",
+                    "--DevTasksVersion", "8.1.0",
+                    "--HTMLStarterVersion", "8.0.0",
+                    "--yoGeneratorVersion", "8.1.0",
+                    "--nugetVersion", "8.2.0",
+                    "--testScenariosNugetVersion", "8.2.0",
+                    "--deploymentDir", deploymentDir,
+                    "--ISOLocation", isoLocation,
+                    "--version", pkgVersion
+                }.Concat(folder != null ? new []{ "--pipelinesFolder", folder } : Array.Empty<string>())
+                    .Concat(new [] {
+                    "Cmf.Custom.Package",
+                    tmp
+                }).ToArray(), console);
+
+                Assert.True(Directory.Exists(Path.Join(tmp, "Builds")), "pipelines are missing");
+
+                File.ReadAllText(Path.Join(tmp, "Builds", "CI-Changes.yml"))
+                    .Should().Contain(string.IsNullOrWhiteSpace(folder) ? @"\CI-Builds" : @$"\{folder}\CI-Builds", "Wrong CI pipeline folder name in source");
+                File.ReadAllText(Path.Join(tmp, "Builds", "PR-Changes.yml"))
+                    .Should().Contain(string.IsNullOrWhiteSpace(folder) ? @"\PR-Builds" : @$"\{folder}\PR-Builds", "Wrong PR pipeline folder name in source");
+                
+                Directory
+                    .GetFiles("Builds")
+                    .Where(f => f.EndsWith(".json") && (f.Contains("CD-") || f.Contains("PR-") || f.Contains("CD-")))
+                    .Select(File.ReadAllText)
+                    .Should().AllSatisfy(s => s.Should().MatchRegex(string.IsNullOrWhiteSpace(folder) ? "\"path\":\\s\"\\\\\\\\[^\"]+" : $"\"path\":\\s\"\\\\\\\\{folder}\\\\\\\\[^\"]+"), "Wrong agent pool name");
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                Directory.Delete(tmp, true);
+            }
+        }
+        
         [Fact]
         public void Init_PoolName()
         {

@@ -84,7 +84,7 @@
   "name": "CD-Containers",
   "url": "<%= $CLI_PARAM_AzureDevopsCollectionURL %>/d659bbbd-b8f0-4d06-b2a9-1a161455189f/_apis/build/Definitions/1063?revision=14",
   "uri": "vstfs:///Build/Definition/1063",
-  "path": "\\Releases",
+  "path": "<%= $CLI_PARAM_PipelinesFolderJSON %>\\Releases",
   "type": 2,
   "queueStatus": 2,
   "revision": 14,

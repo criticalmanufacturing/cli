@@ -173,6 +173,23 @@
       "datatype": "string",
       "replaces": "<%= $CLI_PARAM_TestScenariosNugetVersion %>"
     },
+    "pipelinesFolder": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_PipelinesFolder %>",
+      "defaultValue": ""
+    },
+    "pipelinesFolderJSON-withquotes": {
+      "type": "derived",
+      "valueSource": "PipelinesFolder",
+      "valueTransform": "jsonEncode"
+    },
+    "pipelinesFolderJSON": {
+      "type": "derived",
+      "replaces": "<%= $CLI_PARAM_PipelinesFolderJSON %>",
+      "valueSource": "pipelinesFolderJSON-withquotes",
+      "valueTransform": "stripQuotes"
+    },
     
     // from infra
     "nugetRegistry": {
@@ -427,6 +444,11 @@
       "identifier": "replace",
       "pattern": "(\\d+)\\.(\\d+)\\.(\\d+)",
       "replacement": "$1.$2.x"
+    },
+    "stripQuotes": {
+      "identifier": "replace",
+      "pattern": "\"([^\"]*)\"",
+      "replacement": "$1"
     }
   }
 }
