@@ -137,6 +137,82 @@ namespace tests.Specs
                 Directory.Delete(tmp, true);
             }
         }
+        
+        [Fact]
+        public void Init_PoolName()
+        {
+            var rnd = new Random();
+            var tmp = TestUtilities.GetTmpDirectory();
+
+            var projectName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
+            var poolName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
+            var repoUrl = "https://repo_url/collection/project/_git/repo";
+            var deploymentDir = "\\\\share\\deployment_dir";
+            var isoLocation = "\\\\share\\iso_location";
+            var pkgVersion = $"{rnd.Next(10)}.{rnd.Next(10)}.{rnd.Next(10)}";
+
+            var cur = Directory.GetCurrentDirectory();
+            try
+            {
+                var console = new TestConsole();
+                Directory.SetCurrentDirectory(tmp);
+
+                var initCommand = new InitCommand();
+                var cmd = new Command("x");
+                initCommand.Configure(cmd);
+
+                cmd.Invoke(new[]
+                {
+                    projectName,
+                    "-c", TestUtilities.GetFixturePath("init", "config.json"),
+                    "--repositoryUrl", repoUrl,
+                    "--MESVersion", "8.2.0",
+                    "--DevTasksVersion", "8.1.0",
+                    "--HTMLStarterVersion", "8.0.0",
+                    "--yoGeneratorVersion", "8.1.0",
+                    "--nugetVersion", "8.2.0",
+                    "--testScenariosNugetVersion", "8.2.0",
+                    "--deploymentDir", deploymentDir,
+                    "--ISOLocation", isoLocation,
+                    "--version", pkgVersion,
+                    // infra options
+                    "--nugetRegistry", "http://nuget.example/feed",
+                    "--npmRegistry", "http://npm.example/feed",
+                    "--azureDevOpsCollectionUrl", "http://azure.example/org/project",
+                    "--agentPool", poolName,
+                    "--agentType", "Hosted",
+                    "Cmf.Custom.Package",
+                    tmp
+                }, console);
+
+                var extractFileName = new Func<string, string>(s => s.Split(Path.DirectorySeparatorChar).LastOrDefault());
+
+                Assert.True(Directory.Exists(Path.Join(tmp, "Builds")), "pipelines are missing");
+                Assert.True(
+                    new[]{ "CI-Changes.json",
+                        "CI-Package.json",
+                        "CI-Publish.json",
+                        "CI-Release.json",
+                        "PR-Changes.json",
+                        "PR-Package.json" }
+                            .ToList()
+                            .All(f => Directory
+                                .GetFiles("Builds")
+                                .Select(extractFileName)
+                                .Contains(f)), "Missing pipeline metadata");
+
+                Directory
+                    .GetFiles("Builds")
+                    .Where(f => f.EndsWith(".yml"))
+                    .Select(File.ReadAllText)
+                    .Should().AllSatisfy(s => s.Should().MatchRegex($@"pool:\r?\n\s\sname:\s{poolName}"), "Wrong agent pool name");
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                Directory.Delete(tmp, true);
+            }
+        }
 
         [Fact]
         public void Init_Fail_MissingMandatoryArgumentsAndOptions()
