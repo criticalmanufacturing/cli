@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.1.2](https://github.com/criticalmanufacturing/cli/compare/3.1.2-0...3.1.2) (2022-10-17)
+
+### [3.1.2-0](https://github.com/criticalmanufacturing/cli/compare/3.1.1...3.1.2-0) (2022-09-23)
+
+
+### Bug Fixes
+
+* build dotnet projects on data package build ([66443bf](https://github.com/criticalmanufacturing/cli/commits/66443bffee1560869a43375be16a731869127503))
+* iot package changing html config.json with wrong version ([74fe8e8](https://github.com/criticalmanufacturing/cli/commits/74fe8e89da5d9b2ffe10b25dc0a58b5c766ebd08)), closes [#202](https://github.com/criticalmanufacturing/cli/issues/202)
+* serialization changing workingDirectory>buildSteps ([3fc8b18](https://github.com/criticalmanufacturing/cli/commits/3fc8b181908dff52dcdb3bb188f204929688f4ee)), closes [#190](https://github.com/criticalmanufacturing/cli/issues/190)
+
 ### [3.1.1](https://github.com/criticalmanufacturing/cli/compare/3.1.1-0...3.1.1) (2022-09-23)
 
 ### [3.1.1-0](https://github.com/criticalmanufacturing/cli/compare/3.1.0...3.1.1-0) (2022-09-15)

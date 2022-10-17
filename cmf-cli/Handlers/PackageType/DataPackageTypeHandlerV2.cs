@@ -52,14 +52,6 @@ namespace Cmf.CLI.Handlers
                         new Step(StepType.Generic)
                         {
                             OnExecute = "$(Agent.Root)/agent/scripts/start_host.ps1"
-                        },
-                        new Step(StepType.Generic)
-                        {
-                            ContentPath = "GenerateLBOs.ps1"
-                        },
-                        new Step(StepType.Generic)
-                        {
-                            OnExecute = $"$(Package[{cmfPackage.PackageId}].TargetDirectory)/GenerateLBOs.ps1"
                         }
                      });
 
@@ -71,6 +63,39 @@ namespace Cmf.CLI.Handlers
                     FilesToValidate = GetContentToPack(this.fileSystem.DirectoryInfo.FromDirectoryName("."))
                 }
             };
+
+            IFileInfo[] deeActionProjects = cmfPackage.GetFileInfo().Directory.GetFiles("*.csproj", SearchOption.AllDirectories);
+
+            foreach (IFileInfo project in deeActionProjects)
+            {
+                if (project.Exists)
+                {
+                    BuildSteps = BuildSteps.Union(new IBuildCommand[]
+                    {
+                        new DotnetCommand()
+                        {
+                            Command = "restore",
+                            DisplayName = $"NuGet restore {project.Name}",
+                            Solution = project,
+                            NuGetConfig = this.fileSystem.FileInfo.FromFileName(Path.Join(FileSystemUtilities.GetProjectRoot(this.fileSystem, throwException: true).FullName, "NuGet.Config")),
+                            WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                        },
+                        new DotnetCommand()
+                        {
+                            Command = "build",
+                            DisplayName = $"Build {project.Name}",
+                            Solution = project,
+                            Configuration = "Release",
+                            WorkingDirectory = cmfPackage.GetFileInfo().Directory,
+                            Args = new[] { "--no-restore " }
+                        }
+                    }).ToArray();
+                }
+                else
+                {
+                    Log.Warning(string.Format(CoreMessages.NotFound, project.FullName));
+                }
+            }
 
             cmfPackage.DFPackageType = PackageType.Business; // necessary because we restart the host during installation
         }
@@ -154,18 +179,6 @@ namespace Cmf.CLI.Handlers
             // Get Template
             string fileContent = ResourceUtilities.GetEmbeddedResourceContent($"{CliConstants.FolderTemplates}/Data/{CliConstants.CmfPackageHostConfig}");
             this.fileSystem.File.WriteAllText(path, fileContent);
-        }
-
-        /// <summary>
-        /// Copies the install dependencies.
-        /// </summary>
-        /// <param name="packageOutputDir">The package output dir.</param>
-        protected override void CopyInstallDependencies(IDirectoryInfo packageOutputDir)
-        {
-            IDirectoryInfo dir = fileSystem.DirectoryInfo.FromDirectoryName(fileSystem.Path.Join(AppDomain.CurrentDomain.BaseDirectory, CliConstants.FolderInstallDependencies, "Data"));
-            IFileInfo generateLBOsFile = dir.GetFiles("GenerateLBOs.ps1")[0];
-            string tempPath = fileSystem.Path.Combine(packageOutputDir.FullName, generateLBOsFile.Name);
-            generateLBOsFile.CopyTo(tempPath, true);
         }
     }
 }
