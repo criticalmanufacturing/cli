@@ -10,6 +10,7 @@ using Cmf.CLI.Core;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
+using Cmf.CLI.Commands.restore;
 
 namespace Cmf.CLI.Handlers
 {
@@ -72,6 +73,15 @@ namespace Cmf.CLI.Handlers
                 {
                     BuildSteps = BuildSteps.Union(new IBuildCommand[]
                     {
+                        new ExecuteCommand<RestoreCommand>()
+                        {
+                            Command = new RestoreCommand(),
+                            DisplayName = "cmf restore",
+                            Execute = command =>
+                            {
+                                command.Execute(cmfPackage.GetFileInfo().Directory, null);
+                            }
+                        },
                         new DotnetCommand()
                         {
                             Command = "restore",
