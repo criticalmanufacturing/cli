@@ -99,7 +99,7 @@ namespace Cmf.CLI.Handlers
 
             cmfPackage.DFPackageType ??= cmfPackage.PackageType;
 
-            DependenciesFolder = fileSystem.DirectoryInfo.FromDirectoryName("./Dependencies");
+            DependenciesFolder = fileSystem.DirectoryInfo.FromDirectoryName(Path.Join(cmfPackage.GetFileInfo().Directory.FullName, "Dependencies"));
 
             this.fileSystem = fileSystem;
         }
