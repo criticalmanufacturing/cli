@@ -37,7 +37,12 @@ namespace Cmf.CLI.Handlers
         /// <summary>
         /// The CMF package
         /// </summary>
-        protected CmfPackage CmfPackage;
+        protected internal CmfPackage CmfPackage;
+
+        /// <summary>
+        /// The files to pack
+        /// </summary>
+        protected List<FileToPack> FilesToPack = new();
 
         /// <summary>
         /// Gets or sets the build steps.
@@ -48,9 +53,12 @@ namespace Cmf.CLI.Handlers
         internal IBuildCommand[] BuildSteps;
 
         /// <summary>
-        /// The files to pack
+        /// Gets or sets the BuildablePackagesHandlers
         /// </summary>
-        protected List<FileToPack> FilesToPack = new List<FileToPack>();
+        /// <value>
+        /// The BuildablePackagesHandlers
+        /// </value>
+        internal List<IPackageTypeHandler> BuildablePackagesHandlers;
 
         #endregion Protected Properties
 

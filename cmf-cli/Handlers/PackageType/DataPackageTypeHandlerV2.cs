@@ -13,6 +13,7 @@ using Cmf.CLI.Utilities;
 using Cmf.CLI.Commands.restore;
 using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Factories;
+using Cmf.CLI.Interfaces;
 
 namespace Cmf.CLI.Handlers
 {
@@ -63,29 +64,35 @@ namespace Cmf.CLI.Handlers
                 new JSONValidatorCommand()
                 {
                     DisplayName = "JSON Validator Command",
-                    FilesToValidate = GetContentToPack(this.fileSystem.DirectoryInfo.FromDirectoryName("."))
+                    FilesToValidate = GetContentToPack(fileSystem.DirectoryInfo.FromDirectoryName("."))
                 }
             };
 
             cmfPackage.DFPackageType = PackageType.Business; // necessary because we restart the host during installation
+
+            BuildablePackagesHandlers = new();
+
+            foreach (var buildablePackageFolder in CmfPackage.BuildablePackages ?? new())
+            {
+                IFileInfo buildablePackageJson = fileSystem.FileInfo.FromFileName(Path.Join(buildablePackageFolder.FullName, CoreConstants.CmfPackageFileName));
+                if (buildablePackageJson?.Exists ?? false)
+                {
+                    BuildablePackagesHandlers.Add(PackageTypeFactory.GetPackageTypeHandler(buildablePackageJson));
+                }
+                else
+                {
+                    Log.Warning(string.Format(CoreMessages.NotFound, buildablePackageJson));
+                }
+            }
         }
 
         public override void Build(bool test)
         {
-            foreach (var buildablePackage in CmfPackage.BuildablePackages ?? new())
+            foreach (var buildablePackage in BuildablePackagesHandlers)
             {
-                IFileInfo buildablePackageJson = buildablePackage.GetFiles(CoreConstants.CmfPackageFileName).FirstOrDefault();
-                if (buildablePackageJson?.Exists ?? false)
-                {
-                    var buildPackage = CmfPackage.Load(buildablePackageJson);
-                    var packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(buildPackage);
-                    packageTypeHandler.Build(test);
-                }
-                else
-                {
-                    Log.Warning(string.Format(CoreMessages.NotFound, buildablePackage.FullName));
-                }
+                buildablePackage.Build(test);
             }
+
             base.Build(test);
         }
 

@@ -21,8 +21,23 @@ namespace Cmf.CLI.Commands.restore
     [CmfCommand("restore")]
     public class RestoreCommand : BaseCommand
     {
+        #region Constructors
+
         /// <summary>
-        /// Configure the Restore command options and arguments 
+        /// Restore Command
+        /// </summary>
+        public RestoreCommand() : base() { }
+
+        /// <summary>
+        /// Restore Command
+        /// </summary>
+        /// <param name="fileSystem"></param>
+        public RestoreCommand(IFileSystem fileSystem) : base(fileSystem) { }
+
+        #endregion Constructors
+
+        /// <summary>
+        /// Configure the Restore command options and arguments
         /// </summary>
         /// <param name="cmd"></param>
         public override void Configure(Command cmd)
@@ -54,7 +69,6 @@ namespace Cmf.CLI.Commands.restore
         {
             using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
             IFileInfo cmfpackageFile = this.fileSystem.FileInfo.FromFileName($"{packagePath}/{CliConstants.CmfPackageFileName}");
-
             IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile, setDefaultValues: false);
             if (repos != null)
             {
