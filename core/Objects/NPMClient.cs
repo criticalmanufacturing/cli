@@ -82,9 +82,19 @@ namespace Cmf.CLI.Core.Objects
         public async Task<string> GetLatestVersion(bool preRelease = false)
         {
             var client = this.GetClient();
-            var res = await client.GetAsync($"{CoreConstants.NpmJsUrl.TrimEnd('/')}/{ExecutionContext.PackageId}");
-            var body = await res.Content.ReadFromJsonAsync<JsonElement>();
-            return (body).GetProperty("dist-tags").GetProperty(preRelease ? "next" : "latest").GetString();
+            try
+            {
+                var res = await client.GetAsync($"{CoreConstants.NpmJsUrl.TrimEnd('/')}/{ExecutionContext.PackageId}");
+                var body = await res.Content.ReadFromJsonAsync<JsonElement>();
+                return (body).GetProperty("dist-tags").GetProperty(preRelease ? "next" : "latest").GetString();
+            }
+            catch (Exception e)
+            {
+                Log.Debug(e.Message);
+                Log.Warning("Could not retrieve latest version information. Try again later.");
+            }
+
+            return null;
         }
 
         public IPackage[] FindPlugins(Uri[] registries)

@@ -116,7 +116,7 @@ namespace Cmf.CLI
             }
 
             ExecutionContext.LatestVersion = await npmClient!.GetLatestVersion(ExecutionContext.IsDevVersion);
-            if (ExecutionContext.LatestVersion != ExecutionContext.CurrentVersion)
+            if (ExecutionContext.LatestVersion != null && ExecutionContext.LatestVersion != ExecutionContext.CurrentVersion)
             {
                 Log.Warning(
                     $"Using version {ExecutionContext.CurrentVersion} while {ExecutionContext.LatestVersion} is available. Please update.");
