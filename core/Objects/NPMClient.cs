@@ -52,6 +52,8 @@ namespace Cmf.CLI.Core.Objects
     /// </summary>
     public class NPMClient : INPMClient
     {
+        private readonly HttpClient client;
+
         private record SearchResults
         {
             internal record PackageResult
@@ -71,6 +73,15 @@ namespace Cmf.CLI.Core.Objects
                 public SearchPackage Package { get; set; }
             }
             public List<PackageResult> Objects { get; set; }
+        }
+
+        public NPMClient()
+        {
+        }
+
+        public NPMClient(object client)
+        {
+            this.client = client as HttpClient;
         }
 
         
@@ -138,6 +149,10 @@ namespace Cmf.CLI.Core.Objects
 
         private HttpClient GetClient()
         {
+            if (this.client != null)
+            {
+                return this.client;
+            }
             var client = new HttpClient();
             // remove the scope @ as it's not a valid user agent character
             client.DefaultRequestHeaders.Add("User-Agent",
