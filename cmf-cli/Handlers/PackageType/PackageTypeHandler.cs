@@ -37,7 +37,7 @@ namespace Cmf.CLI.Handlers
         /// <summary>
         /// The CMF package
         /// </summary>
-        protected CmfPackage CmfPackage;
+        protected internal CmfPackage CmfPackage;
 
         /// <summary>
         /// Gets or sets the build steps.

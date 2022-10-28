@@ -11,6 +11,8 @@ using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
+using Microsoft.TemplateEngine.Edge.Mount;
+using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 namespace Cmf.CLI.Handlers
 {
@@ -203,9 +205,18 @@ namespace Cmf.CLI.Handlers
                     continue;
                 }
                 string metadataFile = this.fileSystem.File.ReadAllText(fileName);
-                string regex = @"version: \""[0-9.-]*\""";
-                var metadataVersion = Regex.Match(metadataFile, regex, RegexOptions.Singleline)?.Value?.Split("\"")[1];
-                metadataVersion = GenericUtilities.RetrieveNewPresentationVersion(metadataVersion, version, buildNr);
+
+                // take in consideration double quotes and single quotes
+                string[] quotes = { "\"", "'" };
+                string regex = @$"version: ({quotes[0]}|{quotes[1]})[0-9.-]*({quotes[0]}|{quotes[1]})";
+
+                var regexMatch = Regex.Match(metadataFile, regex, RegexOptions.Singleline)?.Value?.Split(quotes, StringSplitOptions.TrimEntries);
+                if (regexMatch?.Length <= 1)
+                {
+                    continue; // in case that version is not found on metadata.ts skip this
+                }
+
+                var metadataVersion = GenericUtilities.RetrieveNewPresentationVersion(regexMatch[1], version, buildNr);
                 metadataFile = Regex.Replace(metadataFile, regex, string.Format("version: \"{0}\"", metadataVersion));
                 this.fileSystem.File.WriteAllText(fileName, metadataFile);
             }
