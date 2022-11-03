@@ -64,7 +64,7 @@ namespace Cmf.CLI.Core.Objects
         /// Dependencies that will be missing but should be ignored
         /// </summary>
         [JsonIgnore]
-        internal static readonly string[] DefaultDependenciesToIgnore = new string[] { "criticalmanufacturing.deploymentmetadata", "cmf.environment", "cmf.connectiot.packages" };
+        internal static readonly string[] DefaultDependenciesToIgnore = new string[] { "criticalmanufacturing.deploymentmetadata", "cmf.environment", "cmf.connectiot.packages", "criticalmanufacturing" };
 
         /// <summary>
         /// If the dependency is part of the DefaultDependenciesToIgnore, should be marked as ignorable
