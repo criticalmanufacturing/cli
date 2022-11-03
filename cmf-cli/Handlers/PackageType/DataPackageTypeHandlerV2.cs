@@ -10,6 +10,10 @@ using Cmf.CLI.Core;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
+using Cmf.CLI.Commands.restore;
+using Cmf.CLI.Core.Constants;
+using Cmf.CLI.Factories;
+using Cmf.CLI.Interfaces;
 
 namespace Cmf.CLI.Handlers
 {
@@ -60,44 +64,36 @@ namespace Cmf.CLI.Handlers
                 new JSONValidatorCommand()
                 {
                     DisplayName = "JSON Validator Command",
-                    FilesToValidate = GetContentToPack(this.fileSystem.DirectoryInfo.FromDirectoryName("."))
+                    FilesToValidate = GetContentToPack(fileSystem.DirectoryInfo.FromDirectoryName("."))
                 }
             };
 
-            IFileInfo[] deeActionProjects = cmfPackage.GetFileInfo().Directory.GetFiles("*.csproj", SearchOption.AllDirectories);
+            cmfPackage.DFPackageType = PackageType.Business; // necessary because we restart the host during installation
 
-            foreach (IFileInfo project in deeActionProjects)
+            BuildablePackagesHandlers = new();
+
+            foreach (var buildablePackageFolder in CmfPackage.BuildablePackages ?? new())
             {
-                if (project.Exists)
+                IFileInfo buildablePackageJson = fileSystem.FileInfo.FromFileName(Path.Join(buildablePackageFolder.FullName, CoreConstants.CmfPackageFileName));
+                if (buildablePackageJson?.Exists ?? false)
                 {
-                    BuildSteps = BuildSteps.Union(new IBuildCommand[]
-                    {
-                        new DotnetCommand()
-                        {
-                            Command = "restore",
-                            DisplayName = $"NuGet restore {project.Name}",
-                            Solution = project,
-                            NuGetConfig = this.fileSystem.FileInfo.FromFileName(Path.Join(FileSystemUtilities.GetProjectRoot(this.fileSystem, throwException: true).FullName, "NuGet.Config")),
-                            WorkingDirectory = cmfPackage.GetFileInfo().Directory
-                        },
-                        new DotnetCommand()
-                        {
-                            Command = "build",
-                            DisplayName = $"Build {project.Name}",
-                            Solution = project,
-                            Configuration = "Release",
-                            WorkingDirectory = cmfPackage.GetFileInfo().Directory,
-                            Args = new[] { "--no-restore " }
-                        }
-                    }).ToArray();
+                    BuildablePackagesHandlers.Add(PackageTypeFactory.GetPackageTypeHandler(buildablePackageJson));
                 }
                 else
                 {
-                    Log.Warning(string.Format(CoreMessages.NotFound, project.FullName));
+                    Log.Warning(string.Format(CoreMessages.NotFound, buildablePackageJson));
                 }
             }
+        }
 
-            cmfPackage.DFPackageType = PackageType.Business; // necessary because we restart the host during installation
+        public override void Build(bool test)
+        {
+            foreach (var buildablePackage in BuildablePackagesHandlers)
+            {
+                buildablePackage.Build(test);
+            }
+
+            base.Build(test);
         }
 
         /// <summary>

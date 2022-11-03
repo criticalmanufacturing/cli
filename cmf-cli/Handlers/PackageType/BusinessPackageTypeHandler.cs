@@ -47,7 +47,7 @@ namespace Cmf.CLI.Handlers
             {
                 new ExecuteCommand<RestoreCommand>()
                 {
-                    Command = new RestoreCommand(),
+                    Command = new RestoreCommand(fileSystem),
                     DisplayName = "cmf restore",
                     Execute = command =>
                     {

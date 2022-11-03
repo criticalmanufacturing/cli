@@ -13,6 +13,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json.Linq;
+using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Core.Utilities;
 
 namespace Cmf.CLI.Core.Objects
 {
@@ -248,7 +251,7 @@ namespace Cmf.CLI.Core.Objects
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty(Order = 20)]
         public PackageType? DFPackageType { get; set; }
-        
+
         /// <summary>
         /// Gets or sets the build steps.
         /// </summary>
@@ -257,6 +260,16 @@ namespace Cmf.CLI.Core.Objects
         /// </value>
         [JsonProperty(Order = 21)]
         public List<ProcessBuildStep> BuildSteps { get; set; }
+
+        /// <summary>
+        /// Gets or sets the build packages.
+        /// </summary>
+        /// <value>
+        /// Packages that should be build before the context package
+        /// </value>
+        [JsonProperty(Order = 22)]
+        [JsonConverter(typeof(ListAbstractionsDirectoryConverter))]
+        public List<IDirectoryInfo> BuildablePackages { get; set; }
 
         #endregion Public Properties
 
@@ -287,7 +300,7 @@ namespace Cmf.CLI.Core.Objects
             if (PackageType.Equals(PackageType.Root) &&
                 !Dependencies.Contains(Dependency.DefaultDependenciesToIgnore[0]) && !Dependencies.Contains(Dependency.DefaultDependenciesToIgnore[1]))
             {
-                throw new CliException(string.Format(CoreMessages.MissingMandatoryDependency, $"{ Dependency.DefaultDependenciesToIgnore[0] } and { Dependency.DefaultDependenciesToIgnore[1] }", string.Empty));
+                throw new CliException(string.Format(CoreMessages.MissingMandatoryDependency, $"{Dependency.DefaultDependenciesToIgnore[0]} and {Dependency.DefaultDependenciesToIgnore[1]}", string.Empty));
             }
 
             // When is fixed by the product team, this can be uncommented
@@ -587,6 +600,15 @@ namespace Cmf.CLI.Core.Objects
         public bool ShouldSerializeDFPackageType()
         {
             return DFPackageType != null && PackageType == PackageType.Generic;
+        }
+
+        /// <summary>
+        /// Shoulds the serialize Buildable Packages
+        /// </summary>
+        /// <returns>returns false if Buildable Packages is null or empty</returns>
+        public bool ShouldSerializeBuildablePackages()
+        {
+            return BuildablePackages.HasAny();
         }
 
         #region Static Methods

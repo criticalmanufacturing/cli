@@ -40,6 +40,11 @@ namespace Cmf.CLI.Handlers
         protected internal CmfPackage CmfPackage;
 
         /// <summary>
+        /// The files to pack
+        /// </summary>
+        protected List<FileToPack> FilesToPack = new();
+
+        /// <summary>
         /// Gets or sets the build steps.
         /// </summary>
         /// <value>
@@ -48,9 +53,12 @@ namespace Cmf.CLI.Handlers
         internal IBuildCommand[] BuildSteps;
 
         /// <summary>
-        /// The files to pack
+        /// Gets or sets the BuildablePackagesHandlers
         /// </summary>
-        protected List<FileToPack> FilesToPack = new List<FileToPack>();
+        /// <value>
+        /// The BuildablePackagesHandlers
+        /// </value>
+        internal List<IPackageTypeHandler> BuildablePackagesHandlers;
 
         #endregion Protected Properties
 
@@ -99,7 +107,7 @@ namespace Cmf.CLI.Handlers
 
             cmfPackage.DFPackageType ??= cmfPackage.PackageType;
 
-            DependenciesFolder = fileSystem.DirectoryInfo.FromDirectoryName("./Dependencies");
+            DependenciesFolder = fileSystem.DirectoryInfo.FromDirectoryName(Path.Join(cmfPackage.GetFileInfo().Directory.FullName, "Dependencies"));
 
             this.fileSystem = fileSystem;
         }

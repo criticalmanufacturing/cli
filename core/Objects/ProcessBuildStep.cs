@@ -1,6 +1,7 @@
 using System;
 using System.IO.Abstractions;
 using System.Linq;
+using Cmf.CLI.Core.Utilities;
 using Newtonsoft.Json;
 
 namespace Cmf.CLI.Core.Objects;
@@ -72,32 +73,4 @@ public class ProcessBuildStep : IEquatable<ProcessBuildStep>
     }
 
     #endregion IEquatable
-}
-
-/// <summary>
-/// Converts a path string to an IDirectoryInfo and vice versa
-/// </summary>
-public class AbstractionsDirectoryConverter : JsonConverter
-{
-    /// <inheritdoc />
-    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-    {
-        writer.WriteValue((value as IDirectoryInfo).ToString());
-    }
-
-    /// <inheritdoc />
-    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-    {
-        return reader.TokenType == JsonToken.String ? ExecutionContext.Instance.FileSystem.DirectoryInfo.FromDirectoryName(reader.Value?.ToString()) : null;
-    }
-
-    /// <inheritdoc />
-    public override bool CanConvert(Type objectType)
-    {
-        Type t = (objectType.IsGenericType && objectType.GetGenericTypeDefinition() == typeof(Nullable<>))
-            ? Nullable.GetUnderlyingType(objectType)
-            : objectType;
-
-        return t?.FullName == typeof(ProcessBuildStep).FullName;
-    }
 }
