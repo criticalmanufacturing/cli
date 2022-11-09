@@ -102,7 +102,7 @@ namespace Cmf.CLI.Core.Objects
             catch (Exception e)
             {
                 Log.Debug(e.Message);
-                Log.Warning("Could not retrieve latest version information. Try again later.");
+                Log.Warning($"Could not retrieve {ExecutionContext.PackageId} latest version information. Try again later.");
             }
 
             return null;

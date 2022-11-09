@@ -98,7 +98,7 @@ namespace tests.Specs
             
             await Cmf.CLI.Program.VersionChecks();
             
-            logWriter.ToString().Should().Contain("You are using development version");
+            logWriter.ToString().Should().Contain("You are using test development version");
         }
         
         [Fact]
@@ -114,7 +114,7 @@ namespace tests.Specs
             
             await Cmf.CLI.Program.VersionChecks();
             
-            logWriter.ToString().Should().NotContain("You are using development version");
+            logWriter.ToString().Should().NotContain("You are using test development version");
         }
         
         [Fact]
@@ -148,7 +148,7 @@ namespace tests.Specs
 
             await npmClient.GetLatestVersion();
             
-            logWriter.ToString().Should().Contain("Could not retrieve latest version information");
+            logWriter.ToString().Should().Contain("Could not retrieve test latest version information");
         }
         
         [Theory]

@@ -112,14 +112,14 @@ namespace Cmf.CLI
             if (ExecutionContext.IsDevVersion)
             {
                 Log.Information(
-                    $"You are using development version {ExecutionContext.CurrentVersion}. This in unsupported in production and should only be used for testing.");
+                    $"You are using {ExecutionContext.PackageId} development version {ExecutionContext.CurrentVersion}. This in unsupported in production and should only be used for testing.");
             }
 
             ExecutionContext.LatestVersion = await npmClient!.GetLatestVersion(ExecutionContext.IsDevVersion);
             if (ExecutionContext.LatestVersion != null && ExecutionContext.LatestVersion != ExecutionContext.CurrentVersion)
             {
                 Log.Warning(
-                    $"Using version {ExecutionContext.CurrentVersion} while {ExecutionContext.LatestVersion} is available. Please update.");
+                    $"Using {ExecutionContext.PackageId} version {ExecutionContext.CurrentVersion} while {ExecutionContext.LatestVersion} is available. Please update.");
                 // after this run, every activity will have these tags (check TelemetryService)
                 activity?.SetTag("isOutdated", true);
                 activity?.SetTag("latestVersion", ExecutionContext.LatestVersion);
