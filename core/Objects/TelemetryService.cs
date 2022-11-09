@@ -23,25 +23,42 @@ public interface ITelemetryService
 
 public class TelemetryService : ITelemetryService
 {
-    public TracerProvider Provider { get; private set; }
-
+    private readonly string cmfCLIEnableTelemetryEnvVarName;
+    private readonly string cmfCLIEnableExtendedTelemetryEnvVarName;
+    private readonly string cmfCLITelemetryHostEnvVarName;
+    private readonly string cmfCLITelemetryEnableConsoleExporterEnvVarName;
     private ActivitySource activitySource = null;
+    
+    public TracerProvider Provider { get; private set; }
+    
+    public TelemetryService(
+        string cmfCLIEnableTelemetryEnvVarName = "cmf_cli_enable_telemetry",
+        string cmfCLITelemetryHostEnvVarName = "cmf_cli_telemetry_host",
+        string cmfCLIEnableExtendedTelemetryEnvVarName = "cmf_cli_enable_extended_telemetry",
+        string cmfCLITelemetryEnableConsoleExporterEnvVarName = "cmf_cli_telemetry_enable_console_exporter"
+    )
+    {
+        this.cmfCLIEnableTelemetryEnvVarName = cmfCLIEnableTelemetryEnvVarName;
+        this.cmfCLITelemetryHostEnvVarName = cmfCLITelemetryHostEnvVarName;
+        this.cmfCLIEnableExtendedTelemetryEnvVarName = cmfCLIEnableExtendedTelemetryEnvVarName;
+        this.cmfCLITelemetryEnableConsoleExporterEnvVarName = cmfCLITelemetryEnableConsoleExporterEnvVarName;
+    }
     
     public TracerProvider InitializeTracerProvider(string serviceName, string version)
     {
-        if (!GenericUtilities.IsEnvVarTruthy("cmf_cli_enable_telemetry"))
+        if (!GenericUtilities.IsEnvVarTruthy(cmfCLIEnableTelemetryEnvVarName))
         {
             return null;
         }
         
-        var telemetryHostname = System.Environment.GetEnvironmentVariable("cmf_cli_telemetry_host");
+        var telemetryHostname = System.Environment.GetEnvironmentVariable(cmfCLITelemetryHostEnvVarName);
 
         var builder = Sdk.CreateTracerProviderBuilder()
             .AddSource(serviceName)
             .SetResourceBuilder(
                 ResourceBuilder.CreateDefault()
                     .AddService(serviceName: serviceName, serviceVersion: version));
-        if (GenericUtilities.IsEnvVarTruthy("cmf_cli_telemetry_enable_console_exporter"))
+        if (GenericUtilities.IsEnvVarTruthy(cmfCLITelemetryEnableConsoleExporterEnvVarName))
         {
             builder = builder.AddConsoleExporter();    
         }
@@ -77,12 +94,12 @@ public class TelemetryService : ITelemetryService
         return activity;
     }
 
-    public Activity StartExtendedActivity(string name, ActivityKind kind = ActivityKind.Internal) => GenericUtilities.IsEnvVarTruthy("cmf_cli_enable_extended_telemetry") ? this.StartActivity(name, kind) : null;
+    public Activity StartExtendedActivity(string name, ActivityKind kind = ActivityKind.Internal) => GenericUtilities.IsEnvVarTruthy(cmfCLIEnableExtendedTelemetryEnvVarName) ? this.StartActivity(name, kind) : null;
 
     public Activity StartActivity(string name, ActivityKind kind = ActivityKind.Internal)
     {
         var activity = this.StartBareActivity(name, kind);
-        if (GenericUtilities.IsEnvVarTruthy("cmf_cli_enable_extended_telemetry"))
+        if (GenericUtilities.IsEnvVarTruthy(cmfCLIEnableExtendedTelemetryEnvVarName))
         {
             activity?.SetTag("ip", Dns.GetHostAddresses(Dns.GetHostName())
                 .FirstOrDefault(ha => ha.AddressFamily == AddressFamily.InterNetwork)
