@@ -117,7 +117,7 @@ stages:
           - task: ExtractFiles@1
             displayName: "Extract files - Pre-Package"
             inputs:
-              archiveFilePatterns: "Cmf.BackupRestore.Tools.*.zip"
+              archiveFilePatterns: "DownloadPackages/Cmf.BackupRestore.Tools/Cmf.BackupRestore.Tools.*.zip"
               destinationFolder: "BackupRestoreTools"
               cleanDestinationFolder: true
             continueOnError: false

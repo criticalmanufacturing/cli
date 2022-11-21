@@ -69,7 +69,7 @@ stages:
              downloadPath: '_CommonTools'
           - task: ExtractFiles@1
             inputs:
-             archiveFilePatterns: '_CommonTools/*.zip'
+             archiveFilePatterns: '_CommonTools/Cmf.BackupRestore.Tools/*.zip'
              destinationFolder: 'Package'
              cleanDestinationFolder: true
           - task: CopyFiles@2
@@ -108,7 +108,7 @@ stages:
              downloadPath: '_CommonTools'
           - task: ExtractFiles@1
             inputs:
-             archiveFilePatterns: '_CommonTools/*.zip'
+             archiveFilePatterns: '_CommonTools/Cmf.BackupRestore.Tools/*.zip'
              destinationFolder: 'Package'
              cleanDestinationFolder: true
           - task: CopyFiles@2
@@ -151,7 +151,7 @@ stages:
              downloadPath: '_CommonTools'
           - task: ExtractFiles@1
             inputs:
-             archiveFilePatterns: '_CommonTools/*.zip'
+             archiveFilePatterns: '_CommonTools/Cmf.BackupRestore.Tools/*.zip'
              destinationFolder: 'Package'
              cleanDestinationFolder: true
           - task: CopyFiles@2
@@ -190,7 +190,7 @@ stages:
              downloadPath: '_CommonTools'
           - task: ExtractFiles@1
             inputs:
-             archiveFilePatterns: '_CommonTools/*.zip'
+             archiveFilePatterns: '_CommonTools/Cmf.BackupRestore.Tools/*.zip'
              destinationFolder: 'Package'
              cleanDestinationFolder: true
           - task: CopyFiles@2
