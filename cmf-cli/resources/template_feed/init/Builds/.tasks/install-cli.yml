@@ -1,0 +1,4 @@
+steps:
+- pwsh: npm install --no-save @criticalmanufacturing/cli@$(CmfCliVersion) --registry $(CmfCliRepository)
+  displayName: Install cmf-cli@$(CmfCliVersion)
+  workingDirectory: $(Agent.TempDirectory)
