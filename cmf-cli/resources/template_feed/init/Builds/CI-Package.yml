@@ -1,4 +1,8 @@
-# CM PI Continuous Integration Package Pipeline
+# Critical Manufacturing Framework Continuous Integration Package Pipeline
+# dependsOn:
+#             - cmf cli
+#             - cmf pipeline
+
 pool:
   name: <%= $CLI_PARAM_AgentPool %>
 //#if (agentType == "Cloud")
@@ -12,99 +16,56 @@ trigger: none
 pr: none
 
 parameters:
-- name: PackageId
-  displayName: Package
-  type: string
-- name: PackagePath
-  displayName: Package Path
-  type: string
+- name: packages
+  type: object
 
 variables:
  - template: ../EnvironmentConfigs/GlobalVariables.yml  # Template reference to global variables
- - name: groupName
-   value: 'BuiltHEADs'
+ - name: GroupName
+   value: BuiltHEADs
+ - name: packOutputDir
+//#if (agentType == "Cloud")
+ value: $(Build.ArtifactStagingDirectory)
+//#else
+  value: $(CIPackages)/$(Build.SourceBranchName)
+//#endif
+
 
 workspace:
-    clean: all
+  clean: all
 
-name: $(Build.SourceBranchName)_$(Build.DefinitionName)_${{ parameters.PackageId }}.$(Build.BuildId)
+name: $(Build.SourceBranchName)_$(Build.DefinitionName).$(Build.BuildId)
 steps:
 - checkout: self
-  persistCredentials: true
 
-# use Node Tool
-- task: NodeTool@0
-  displayName: 'Use Node ${{ variables.NodeVersion }}'
-  inputs:
-    versionSpec: ${{ variables.NodeVersion }}
+# set node version
+- template: .tasks/use-node-version.yml
 
-- task: UseDotNet@2
-  displayName: 'Use Repository specified .NET Core version'
-  inputs:
-    packageType: 'sdk'
-    useGlobalJson: true
+# set dotnet version
+- template: .tasks/use-dotnet-version.yml
 
-//#if (nugetRegistryUsername != "" && nugetRegistryPassword != "") {
-- task: NuGetCommand@2
-  displayName: "Remove CMF NuGet source"
-  inputs:
-    command: 'custom'
-    arguments: 'sources remove -Name "CMF" -Config NuGet.Config'
+# install cmf-cli
+- template: .tasks/install-cli.yml
 
-- task: NuGetCommand@2
-  displayName: "Add authenticated CMF NuGet source"
-  inputs:
-    command: 'custom'
-    arguments: 'sources Add -Name "CMF" -Source "<%= $CLI_PARAM_NuGetRegistry %>" -Username $(NuGetRegistryUsername) -password $(NuGetRegistryPassword) -StorePasswordInClearText -Config NuGet.Config'
-//#endif
+# install cmf-pipeline
+- template: .tasks/install-cmf-pipeline.yml
 
-# Install cmf-cli
-- task: PowerShell@2
-  displayName: 'Install cmf-cli@${{ variables.CmfCliVersion }}'
-  inputs:
-    pwsh: true
-    failOnStderr: false
-    workingDirectory: $(Agent.TempDirectory)
-    targetType: inline
-    script: |
-      npm install --no-save @criticalmanufacturing/cli@${{ variables.CmfCliVersion }} --registry ${{ variables.CmfCliRepository }}
+- ${{ each package in parameters.packages }}:
+  # cmf build
+  - pwsh: $(CmfCliPath)/cmf build
+    workingDirectory: ${{ package.path }}
+    displayName: Build ${{ package.packageId }} @ ${{ package.path }}
 
-# Cmf Build
-- task: PowerShell@2
-  displayName: 'Build ${{ parameters.PackageId }}'
-  env:
-    cmf_cli_enable_telemetry: true
-    cmf_cli_enable_extended_telemetry: true
-  inputs:
-    pwsh: true
-    failOnStderr: true
-    workingDirectory: ${{ parameters.PackagePath }}
-    targetType: inline
-    script: |
-//#if (agentType == "Cloud")
-      $(Agent.TempDirectory)/../node_modules/.bin/cmf-cli/cmf build
-//#else
-      $(Agent.TempDirectory)/node_modules/.bin/cmf-cli/cmf build
-//#endif
+  # cmf pack
+  - pwsh: $(CmfCliPath)/cmf pack --force --outputDir $(packOutputDir)
+    workingDirectory: ${{ package.path }}
+    displayName: Pack ${{ package.packageId }} @ ${{ package.path }}
 
-
-# Cmf Pack
-- task: PowerShell@2
-  displayName: 'Pack ${{ parameters.PackageId }}'
-  env:
-    cmf_cli_enable_telemetry: true
-    cmf_cli_enable_extended_telemetry: true
-  inputs:
-    pwsh: true
-    failOnStderr: true
-    workingDirectory: ${{ parameters.PackagePath }}
-    targetType: inline
-    script: |
-//#if (agentType == "Cloud")
-      $(Agent.TempDirectory)/../node_modules/.bin/cmf-cli/cmf pack --outputDir $(Build.ArtifactStagingDirectory)
-//#else
-      $(Agent.TempDirectory)/node_modules/.bin/cmf-cli/cmf pack --force --outputDir '${{ variables.CIPackages }}/$(Build.SourceBranchName)'
-//#endif
+  # set new built HEAD
+  - pwsh: $(CmfPipelinePath)/cmf-pipeline azureDevOps variableGroup updateVariable --group $(GroupName) --key ${{ package.packageId }}@$(Build.SourceBranchName) --value ${{ package.head }}
+    env:
+      SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+    displayName: Set variable ${{ package.packageId }}@$(Build.SourceBranchName):${{ package.head }} @ $(GroupName)
 
 //#if (agentType == "Cloud")
 # Publish Package Artifact
@@ -115,70 +76,5 @@ steps:
     publishLocation: 'Container'
 //#endif
 
-# set new built HEAD
-- task: PowerShell@2
-  displayName: 'Set Built HEAD'
-  inputs:
-    pwsh: true
-    failOnStderr: true
-    workingDirectory: ${{ parameters.PackagePath }}
-    targetType: inline
-    script: |
-      $url = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$env:SYSTEM_TEAMPROJECTID/_apis/distributedtask/variablegroups/{GROUP}?api-version=5.0-preview.1"
-      $headers = @{
-        Authorization = "Bearer $env:SYSTEM_ACCESSTOKEN"
-      }
-
-      $vars = Invoke-RestMethod -Uri $url.Replace("{GROUP}", "") -Method Get -ContentType "application/json" -Headers $headers
-      $groupName = '${{ variables.groupName }}'
-      $createGroup = $false;
-
-      $group = $vars.value | where { $_.Name -eq $groupName }
-      if ($null -eq $group) {
-        Write-Host "Variable group ${groupName} does not exist in project $(System.TeamProject). This will trigger CI for all found packages.";
-        $group = @{
-            type = "Vsts"
-            name= $groupName
-            variables = New-Object PSObject
-        }
-        $createGroup = $true
-      }
-
-      $HEAD = $(git log -n 1 --pretty=format:%H .)
-      $pkgId = "${{ parameters.PackageId }}"
-      $branch = "$(Build.SourceBranchName)"
-      $key = "${pkgId}@${branch}"
-
-      Write-Debug "Key: $key"
-
-      if ([bool]($group.variables.PSobject.Properties.name -match "^$key$")) { 
-        $builtHEAD = $group.variables.$key.value
-        if ($builtHEAD -eq $HEAD) {
-          Write-Host "Current HEAD matches last built: $builtHEAD"
-        } else {
-          Write-Host "Last built HEAD for ${key} was $builtHEAD. Setting to $HEAD"
-          $group.variables.$key.value = $HEAD
-        }
-      } else {
-        Write-Host "No last built HEAD found for ${key}. Setting it to $HEAD"
-        $group.variables | add-member -name $key -value @{value=$HEAD} -MemberType NoteProperty
-      }
-
-      $json = $group | ConvertTo-Json
-      Write-Debug $json
-
-      if ($createGroup) {
-        $pipeline = Invoke-RestMethod -Uri $url.Replace("{GROUP}", "") -Method Post -Body $json -ContentType "application/json" -Headers $headers
-      } else {
-        $pipeline = Invoke-RestMethod -Uri $url.Replace("{GROUP}", $group.id) -Method Put -Body $json -ContentType "application/json" -Headers $headers
-      }
-  name: SetBuiltHead
-  env:
-    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-    SYSTEM_TEAMFOUNDATIONCOLLECTIONURI: $(System.TeamFoundationCollectionUri)
-    SYSTEM_TEAMPROJECTID: $(System.TeamProject)
-
-# Clean up
-- task: PostBuildCleanup@3
-  displayName: 'Clean Agent Directories'
-  condition: always()
+# Clean Agent Directories
+- template: .tasks/clean-agent-directories.yml

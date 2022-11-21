@@ -9,10 +9,22 @@ variables:
   CmfCliRepository: '<%= $CLI_PARAM_CmfCliRepository %>'
   # cmf cli Version
   CmfCliVersion: '3.x.x'
+  # cmf cli Path
+//#if (agentType == "Cloud")
+  CmfCliPath: '$(Agent.TempDirectory)/../node_modules/.bin/cmf-cli'
+//#else
+  CmfCliPath: '$(Agent.TempDirectory)/node_modules/.bin/cmf-cli'
+//#endif
   # cmf pipeline Repository
   CmfPipelineRepository: '<%= $CLI_PARAM_CmfPipelineRepository %>'
   # cmf pipeline Version
   CmfPipelineVersion: '1.x.x'
+  # cmf pipeline Path
+//#if (agentType == "Cloud")
+  CmfPipelinePath: '$(Agent.TempDirectory)/../node_modules/@criticalmanufacturing/cmf-pipeline/dist/win-x64'
+//#else
+  CmfPipelinePath: '$(Agent.TempDirectory)/node_modules/@criticalmanufacturing/cmf-pipeline/dist/win-x64'
+//#endif
   # Iso Image Path
   ISOImagePath: '<%= $CLI_PARAM_ISOLocation %>'
   # Current refspec to get the tools for the package (by default, a tagged MES version release)
