@@ -15,7 +15,12 @@ const debug = dbg("cmf:debug");
 debug("Executing cmf-cli");
 let exePath = null;
 debug("Determining if cli is installed globally or locally...");
-if (isInstalledGlobally || isPathInside(__dirname, process.env.LOCALAPPDATA || "dummy")) {
+/**
+ * we need to check if we are installed globally. 
+ * However, this does not cover some cases, depending on how Node was installed, that we need to check manually:
+ * - in windows, Node was installed in Program Files but NPM is installed in the user profile (AppData/Roaming)
+ */
+if (isInstalledGlobally || isPathInside(__dirname, process.env.APPDATA || "dummy")) {
   debug("cli is installed globally. Getting binary location from user profile...");
   const paths = envPaths("cmf-cli", {suffix: ""});
   exePath = path.join(paths.data, opts.binName);
