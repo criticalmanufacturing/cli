@@ -2,6 +2,62 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.2.0](https://github.com/criticalmanufacturing/cli/compare/3.2.0-5...3.2.0) (2022-11-29)
+
+## [3.2.0-5](https://github.com/criticalmanufacturing/cli/compare/3.2.0-4...3.2.0-5) (2022-11-28)
+
+
+### Bug Fixes
+
+* downgrade global-dirs to 3.0.0 ([0a59642](https://github.com/criticalmanufacturing/cli/commits/0a59642787c9d6863b8d73f34287cae4142d321b))
+
+## [3.2.0-4](https://github.com/criticalmanufacturing/cli/compare/3.2.0-3...3.2.0-4) (2022-11-24)
+
+
+### Features
+
+* add node tooling version to UI packages ([c276ce7](https://github.com/criticalmanufacturing/cli/commits/c276ce77d7db431ee34d08adc51c459833f0ad5e))
+
+## [3.2.0-3](https://github.com/criticalmanufacturing/cli/compare/3.2.0-2...3.2.0-3) (2022-11-23)
+
+## [3.2.0-2](https://github.com/criticalmanufacturing/cli/compare/3.2.0-1...3.2.0-2) (2022-11-22)
+
+
+### Bug Fixes
+
+* **builds:** fixed issues caused by azuredevops update ([c847312](https://github.com/criticalmanufacturing/cli/commits/c8473127556daf2e034857250c7e57d0e5c34b13))
+
+
+### Under the hood
+
+* make telemetry service parameterized to be used in plugins ([4a8f6b4](https://github.com/criticalmanufacturing/cli/commits/4a8f6b431eafd4e9a27c14f6c4955f676bbffdad))
+
+### [3.1.3](https://github.com/criticalmanufacturing/cli/compare/3.1.2...3.1.3) (2022-10-25)
+
+
+### Bug Fixes
+
+* set dependencies folder based on the context package ([1986da7](https://github.com/criticalmanufacturing/cli/commits/1986da7e977b1817ab28699dffbc6d806f57d8ab))
+* support BuildablePackages on data packages ([8110271](https://github.com/criticalmanufacturing/cli/commits/8110271c3c8979d1d496752cfd86a0873208a407)), closes [#66](https://github.com/criticalmanufacturing/cli/issues/66)
+
+## [3.2.0-1](https://github.com/criticalmanufacturing/cli/compare/3.1.3...3.2.0-1) (2022-11-03)
+
+
+### Features
+
+* add command for plugin discovery ([d00f8b7](https://github.com/criticalmanufacturing/cli/commits/d00f8b796b18426b390e7715d5dbbbc6065e1680))
+* **init:** allow namespacing the pipelines for multi-site projects ([a360854](https://github.com/criticalmanufacturing/cli/commits/a360854fbdd67a15c909d16b9e6f2fabe8f7d1d6))
+
+
+### Bug Fixes
+
+* append cmf.core.app to HTML packages, isn't used in ISO but is needed in bundles for containers ([cd79f03](https://github.com/criticalmanufacturing/cli/commits/cd79f0331799137201db6797135eaea6f7dd0801))
+* **bump:** support single and double quotes on metadata ts file ([cfe7f22](https://github.com/criticalmanufacturing/cli/commits/cfe7f225046bb52ff60e5a0e1852e5fcc2c8294e))
+* change CD-Containers: had an hardcoded agent pool ([60e0cab](https://github.com/criticalmanufacturing/cli/commits/60e0cab56ecbc80ce51527aafe527c75b48f3175))
+* fail gracefully when there's no internet to check new versions (fixes [#218](https://github.com/criticalmanufacturing/cli/issues/218)) ([67f642d](https://github.com/criticalmanufacturing/cli/commits/67f642d171af5b491945599a280c46cb9845d71c))
+* **new feature:** add MES dependencies to root feature scaffolding, they are mandatory ([70bbdb1](https://github.com/criticalmanufacturing/cli/commits/70bbdb1c12bd6683dda2c28206747f763c1f9685))
+* **pipeline namespacing:** namespace triggers in release pipelines ([77dc943](https://github.com/criticalmanufacturing/cli/commits/77dc9433f9077c5b59618c4d6b56ea916e44dd98))
+
 ### [3.1.2](https://github.com/criticalmanufacturing/cli/compare/3.1.2-0...3.1.2) (2022-10-17)
 
 ### [3.1.2-0](https://github.com/criticalmanufacturing/cli/compare/3.1.1...3.1.2-0) (2022-09-23)
