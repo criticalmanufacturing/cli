@@ -137,6 +137,148 @@ namespace tests.Specs
                 Directory.Delete(tmp, true);
             }
         }
+        
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData("testNamespace")]
+        public void Init_PipelineFolders(string folder)
+        {
+            var rnd = new Random();
+            var tmp = TestUtilities.GetTmpDirectory();
+
+            var projectName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
+            var repoUrl = "https://repo_url/collection/project/_git/repo";
+            var deploymentDir = "\\\\share\\deployment_dir";
+            var isoLocation = "\\\\share\\iso_location";
+            var pkgVersion = $"{rnd.Next(10)}.{rnd.Next(10)}.{rnd.Next(10)}";
+
+            var cur = Directory.GetCurrentDirectory();
+            try
+            {
+                var console = new TestConsole();
+                Directory.SetCurrentDirectory(tmp);
+
+                var initCommand = new InitCommand();
+                var cmd = new Command("x");
+                initCommand.Configure(cmd);
+
+                cmd.Invoke(new[]
+                {
+                    projectName,
+                    "--infra", TestUtilities.GetFixturePath("init", "infrastructure.json"),
+                    "-c", TestUtilities.GetFixturePath("init", "config.json"),
+                    "--repositoryUrl", repoUrl,
+                    "--MESVersion", "8.2.0",
+                    "--DevTasksVersion", "8.1.0",
+                    "--HTMLStarterVersion", "8.0.0",
+                    "--yoGeneratorVersion", "8.1.0",
+                    "--nugetVersion", "8.2.0",
+                    "--testScenariosNugetVersion", "8.2.0",
+                    "--deploymentDir", deploymentDir,
+                    "--ISOLocation", isoLocation,
+                    "--version", pkgVersion
+                }.Concat(folder != null ? new []{ "--pipelinesFolder", folder } : Array.Empty<string>())
+                    .Concat(new [] {
+                    "Cmf.Custom.Package",
+                    tmp
+                }).ToArray(), console);
+
+                Assert.True(Directory.Exists(Path.Join(tmp, "Builds")), "pipelines are missing");
+
+                File.ReadAllText(Path.Join(tmp, "Builds", "CI-Changes.yml"))
+                    .Should().Contain(string.IsNullOrWhiteSpace(folder) ? @"\CI-Builds" : @$"\{folder}\CI-Builds", "Wrong CI pipeline folder name in source");
+                File.ReadAllText(Path.Join(tmp, "Builds", "PR-Changes.yml"))
+                    .Should().Contain(string.IsNullOrWhiteSpace(folder) ? @"\PR-Builds" : @$"\{folder}\PR-Builds", "Wrong PR pipeline folder name in source");
+                
+                Directory
+                    .GetFiles("Builds")
+                    .Where(f => f.EndsWith(".json") && (f.Contains("CD-") || f.Contains("PR-") || f.Contains("CD-")))
+                    .Select(File.ReadAllText)
+                    .Should().AllSatisfy(s => s.Should().MatchRegex(string.IsNullOrWhiteSpace(folder) ? "\"path\":\\s\"\\\\\\\\[^\"]+" : $"\"path\":\\s\"\\\\\\\\{folder}\\\\\\\\[^\"]+"), "Wrong agent pool name");
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                Directory.Delete(tmp, true);
+            }
+        }
+        
+        [Fact]
+        public void Init_PoolName()
+        {
+            var rnd = new Random();
+            var tmp = TestUtilities.GetTmpDirectory();
+
+            var projectName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
+            var poolName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
+            var repoUrl = "https://repo_url/collection/project/_git/repo";
+            var deploymentDir = "\\\\share\\deployment_dir";
+            var isoLocation = "\\\\share\\iso_location";
+            var pkgVersion = $"{rnd.Next(10)}.{rnd.Next(10)}.{rnd.Next(10)}";
+
+            var cur = Directory.GetCurrentDirectory();
+            try
+            {
+                var console = new TestConsole();
+                Directory.SetCurrentDirectory(tmp);
+
+                var initCommand = new InitCommand();
+                var cmd = new Command("x");
+                initCommand.Configure(cmd);
+
+                cmd.Invoke(new[]
+                {
+                    projectName,
+                    "-c", TestUtilities.GetFixturePath("init", "config.json"),
+                    "--repositoryUrl", repoUrl,
+                    "--MESVersion", "8.2.0",
+                    "--DevTasksVersion", "8.1.0",
+                    "--HTMLStarterVersion", "8.0.0",
+                    "--yoGeneratorVersion", "8.1.0",
+                    "--nugetVersion", "8.2.0",
+                    "--testScenariosNugetVersion", "8.2.0",
+                    "--deploymentDir", deploymentDir,
+                    "--ISOLocation", isoLocation,
+                    "--version", pkgVersion,
+                    // infra options
+                    "--nugetRegistry", "http://nuget.example/feed",
+                    "--npmRegistry", "http://npm.example/feed",
+                    "--azureDevOpsCollectionUrl", "http://azure.example/org/project",
+                    "--agentPool", poolName,
+                    "--agentType", "Hosted",
+                    "Cmf.Custom.Package",
+                    tmp
+                }, console);
+
+                var extractFileName = new Func<string, string>(s => s.Split(Path.DirectorySeparatorChar).LastOrDefault());
+
+                Assert.True(Directory.Exists(Path.Join(tmp, "Builds")), "pipelines are missing");
+                Assert.True(
+                    new[]{ "CI-Changes.json",
+                        "CI-Package.json",
+                        "CI-Publish.json",
+                        "CI-Release.json",
+                        "PR-Changes.json",
+                        "PR-Package.json" }
+                            .ToList()
+                            .All(f => Directory
+                                .GetFiles("Builds")
+                                .Select(extractFileName)
+                                .Contains(f)), "Missing pipeline metadata");
+
+                Directory
+                    .GetFiles("Builds")
+                    .Where(f => f.EndsWith(".yml"))
+                    .Select(File.ReadAllText)
+                    .Should().AllSatisfy(s => s.Should().MatchRegex($@"pool:\r?\n\s\sname:\s{poolName}"), "Wrong agent pool name");
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                Directory.Delete(tmp, true);
+            }
+        }
 
         [Fact]
         public void Init_Fail_MissingMandatoryArgumentsAndOptions()
@@ -372,7 +514,12 @@ namespace tests.Specs
         [Fact, Trait("TestCategory", "LongRunning")]
         public void UI()
         {
-            RunNew(new HTMLCommand(), "Cmf.Custom.HTML", extraArguments: new string[]
+            UI_internal(null);
+        }
+        
+        private void UI_internal(string scaffoldingDir)
+        {
+            RunNew(new HTMLCommand(), "Cmf.Custom.HTML", scaffoldingDir: scaffoldingDir, extraArguments: new string[]
             {
                 "--htmlPkg", TestUtilities.GetFixturePath("prodPkg", "Cmf.Presentation.HTML.9.9.9.zip"),
             }, extraAsserts: args =>
@@ -382,6 +529,27 @@ namespace tests.Specs
                 Assert.True(Directory.Exists($"Cmf.Custom.HTML/apps/customization.web"), "WebApp dir is missing or has wrong name. Was running the application generator unsuccessful?");
                 Assert.True(File.Exists($"Cmf.Custom.HTML/apps/customization.web/config.json"), "Config file is missing or has wrong name");
                 Assert.True(File.ReadAllText("Cmf.Custom.HTML/apps/customization.web/config.json").Contains("test.package"), "Product package is not in config.json");
+                Assert.True(File.Exists($"Cmf.Custom.HTML/apps/customization.web/index.html"), "Index file is missing or has wrong name");
+            });
+        }
+        
+        [Theory, Trait("TestCategory", "LongRunning")]
+        [InlineData("8.2.0", false)]
+        [InlineData("9.1.0", true)]
+        public void UI_WithAppsPackage(string mesVersion, bool isCoreAppPresent)
+        {
+            RunNew(new HTMLCommand(), "Cmf.Custom.HTML", mesVersion: mesVersion, extraArguments: new string[]
+            {
+                "--htmlPkg", TestUtilities.GetFixturePath("prodPkg", "Cmf.Presentation.HTML.9.9.9.zip"),
+            }, extraAsserts: args =>
+            {
+                Assert.True(File.Exists($"Cmf.Custom.HTML/.dev-tasks.json"), "dev-tasks file is missing or has wrong name. Was cloning HTML-starter unsuccessful?");
+                Assert.True(File.ReadAllText("Cmf.Custom.HTML/.dev-tasks.json").Contains("\"isWebAppCompilable\": true"), "Web app is not compilable");
+                Assert.True(Directory.Exists($"Cmf.Custom.HTML/apps/customization.web"), "WebApp dir is missing or has wrong name. Was running the application generator unsuccessful?");
+                Assert.True(File.Exists($"Cmf.Custom.HTML/apps/customization.web/config.json"), "Config file is missing or has wrong name");
+                Assert.True(File.ReadAllText("Cmf.Custom.HTML/apps/customization.web/config.json").Contains("test.package"), "Product package is not in config.json");
+                File.ReadAllText("Cmf.Custom.HTML/apps/customization.web/config.json").Contains("cmf.core.app").Should()
+                    .Be(isCoreAppPresent, $"Apps package {(isCoreAppPresent ? "is not" : "is")} in config.json even though we are targeting {mesVersion}");
                 Assert.True(File.Exists($"Cmf.Custom.HTML/apps/customization.web/index.html"), "Index file is missing or has wrong name");
             });
         }
@@ -397,7 +565,12 @@ namespace tests.Specs
         [Fact, Trait("TestCategory", "LongRunning")]
         public void Help()
         {
-            RunNew(new Cmf.CLI.Commands.New.HelpCommand(), "Cmf.Custom.Help", extraArguments: new string[] {
+            Help_internal();
+        }
+
+        private void Help_internal(string scaffoldingDir = null)
+        {
+            RunNew(new Cmf.CLI.Commands.New.HelpCommand(), "Cmf.Custom.Help", scaffoldingDir: scaffoldingDir, extraArguments: new string[] {
                 "--docPkg", TestUtilities.GetFixturePath("prodPkg", "Cmf.Documentation.9.9.9.zip"),
             }, extraAsserts: args =>
             {
@@ -497,12 +670,17 @@ namespace tests.Specs
             });
         }
 
-        // TODO: Tests doesn't work with RunNew (Execute is invoked on LayerTemplateCommand)
+        // Tests doesn't work with RunNew (Execute is invoked on LayerTemplateCommand)
         [Fact]
         public void Tests()
         {
+            Tests_internal(null);
+        }
+
+        private void Tests_internal(string scaffoldingDir = null)
+        {
             var packageId = "Cmf.Custom.Tests";
-            var dir = TestUtilities.GetTmpDirectory();
+            var dir = scaffoldingDir ?? TestUtilities.GetTmpDirectory();
 
             var rnd = new Random();
             var pkgVersion = $"{rnd.Next(10)}.{rnd.Next(10)}.{rnd.Next(10)}";
@@ -555,7 +733,7 @@ namespace tests.Specs
             }
         }
 
-        [Fact]
+        [Fact, Trait("TestCategory", "LongRunning")]
         public void Traditional()
         {
             var dir = TestUtilities.GetTmpDirectory();
@@ -572,11 +750,11 @@ namespace tests.Specs
 
                 RunNew(new BusinessCommand(), "Cmf.Custom.Business", scaffoldingDir: dir);
                 RunNew(new DataCommand(), "Cmf.Custom.Data", scaffoldingDir: dir);
-                //UI(dir);
-                //Help(dir);
+                // UI_internal(dir);
+                // Help_internal(dir);
                 RunNew(new IoTCommand(), "Cmf.Custom.IoT", scaffoldingDir: dir);
                 RunDatabase(dir);
-                //Tests(dir);
+                // Tests_internal(dir);
             }
             finally
             {
@@ -792,7 +970,7 @@ namespace tests.Specs
             Assert.True(File.Exists($"{dir}/Cmf.Custom.SecurityPortal/config.json"), "Package config.json is missing");
         }
 
-        private TestConsole RunNew<T>(T newCommand, string packageId, string scaffoldingDir = null, string[] extraArguments = null, bool defaultAsserts = true, Action<(string, string)> extraAsserts = null) where T : TemplateCommand
+        private TestConsole RunNew<T>(T newCommand, string packageId, string scaffoldingDir = null, string[] extraArguments = null, bool defaultAsserts = true, Action<(string, string)> extraAsserts = null, string mesVersion = "8.2.0") where T : TemplateCommand
         {
             var dir = scaffoldingDir ?? TestUtilities.GetTmpDirectory();
 
@@ -809,6 +987,11 @@ namespace tests.Specs
                 if (scaffoldingDir == null)
                 {
                     TestUtilities.CopyFixture("new", new DirectoryInfo(dir));
+                    var projCfg = Path.Join(dir, ".project-config.json");
+                    if (File.Exists(projCfg))
+                    {
+                        File.WriteAllText(projCfg, File.ReadAllText(projCfg).Replace(@"""MESVersion"": ""8.2.0""", $@"""MESVersion"": ""{mesVersion}"""));
+                    }
                 }
 
                 var cmd = new Command("x");

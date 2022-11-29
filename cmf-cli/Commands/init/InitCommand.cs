@@ -58,6 +58,7 @@ namespace Cmf.CLI.Commands
         public string nugetRegistryPassword { get; set; }
         public string cmfPipelineRepository { get; set; }
         public string cmfCliRepository { get; set; }
+        public string pipelinesFolder { get; set; }
         public string releaseCustomerEnvironment { get; set; }
         public string releaseSite { get; set; }
         public string releaseDeploymentPackage { get; set; }
@@ -206,6 +207,11 @@ namespace Cmf.CLI.Commands
                 aliases: new[] { "--cmfPipelineRepository" },
                 description: "NPM registry that contains the CLI Pipeline Plugin"
             ));
+            cmd.AddOption(new Option<string>(
+                aliases: new[] { "--pipelinesFolder" },
+                getDefaultValue: () => "",
+                description: "Folder where we should put the pipelines in. Empty means the root folder"
+            ));
             
             // container-specific switches
             cmd.AddOption(new Option<string>(
@@ -326,6 +332,16 @@ namespace Cmf.CLI.Commands
             if (x.testScenariosNugetVersion != null)
             {
                 args.AddRange(new [] {"--testScenariosNugetVersion", x.testScenariosNugetVersion});
+            }
+
+            if (!string.IsNullOrWhiteSpace(x.pipelinesFolder))
+            {
+                var folder = x.pipelinesFolder.Replace("/", "\\");
+                if (!folder.StartsWith("\\"))
+                {
+                    folder = "\\" + folder;
+                }
+                args.AddRange(new []{"--pipelinesFolder", folder});   
             }
 
             #region infrastructure

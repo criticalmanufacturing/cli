@@ -1,6 +1,9 @@
 # CM PI Continuous Deployment Containers Pipeline
 pool:
-  name: Releases
+  name: <%= $CLI_PARAM_AgentPool %>
+//#if (agentType == "Cloud")
+  vmImage: 'ubuntu-latest'
+//#endif
 
 # A pipeline with no CI trigger
 trigger: none
@@ -12,7 +15,7 @@ pr: none
 resources:
  pipelines:
    - pipeline: CIPublish
-     source: CI-Publish
+     source: <%= $CLI_PARAM_PipelinesFolder %>\CI-Builds\CI-Publish
      branch: $(Build.SourceBranch)
      project: '<%= $CLI_PARAM_ProjectName %>'
      trigger: true
@@ -114,7 +117,7 @@ stages:
               if (Test-Path -Path $file -PathType Leaf) {
                   $envConfig = Get-Content "$file" | out-string | ConvertFrom-Json
                   $envConfig.PSObject.Properties | ForEach-Object {
-                      if (-not($_.Value -eq "" -or $_.Value -eq $nil)) {
+                      if (-not($_.Value -eq "" -or $_.Value -eq $nil -or ($_.Value.GetType().FullName -eq "System.Management.Automation.PSCustomObject"))) {
                           Write-Output "##vso[task.setvariable variable=$($_.Name)]$($_.Value)"
                       }
                   }
@@ -279,7 +282,7 @@ stages:
               if (Test-Path -Path $file -PathType Leaf) {
                   $envConfig = Get-Content "$file" | out-string | ConvertFrom-Json
                   $envConfig.PSObject.Properties | ForEach-Object {
-                      if (-not($_.Value -eq "" -or $_.Value -eq $nil)) {
+                      if (-not($_.Value -eq "" -or $_.Value -eq $nil -or ($_.Value.GetType().FullName -eq "System.Management.Automation.PSCustomObject"))) {
                           Write-Output "##vso[task.setvariable variable=$($_.Name)]$($_.Value)"
                       }
                   }
@@ -389,7 +392,7 @@ stages:
               if (Test-Path -Path $file -PathType Leaf) {
                   $envConfig = Get-Content "$file" | out-string | ConvertFrom-Json
                   $envConfig.PSObject.Properties | ForEach-Object {
-                      if (-not($_.Value -eq "" -or $_.Value -eq $nil)) {
+                      if (-not($_.Value -eq "" -or $_.Value -eq $nil -or ($_.Value.GetType().FullName -eq "System.Management.Automation.PSCustomObject"))) {
                           Write-Output "##vso[task.setvariable variable=$($_.Name)]$($_.Value)"
                       }
                   }
@@ -530,7 +533,7 @@ stages:
               if (Test-Path -Path $file -PathType Leaf) {
                   $envConfig = Get-Content "$file" | out-string | ConvertFrom-Json
                   $envConfig.PSObject.Properties | ForEach-Object {
-                      if (-not($_.Value -eq "" -or $_.Value -eq $nil)) {
+                      if (-not($_.Value -eq "" -or $_.Value -eq $nil -or ($_.Value.GetType().FullName -eq "System.Management.Automation.PSCustomObject"))) {
                           Write-Output "##vso[task.setvariable variable=$($_.Name)]$($_.Value)"
                       }
                   }
@@ -625,7 +628,7 @@ stages:
               if (Test-Path -Path $file -PathType Leaf) {
                   $envConfig = Get-Content "$file" | out-string | ConvertFrom-Json
                   $envConfig.PSObject.Properties | ForEach-Object {
-                      if (-not($_.Value -eq "" -or $_.Value -eq $nil)) {
+                      if (-not($_.Value -eq "" -or $_.Value -eq $nil -or ($_.Value.GetType().FullName -eq "System.Management.Automation.PSCustomObject"))) {
                           Write-Output "##vso[task.setvariable variable=$($_.Name)]$($_.Value)"
                       }
                   }
@@ -653,7 +656,7 @@ stages:
               $json | set-content $file
               Write-Host $json
 
-        # TODO: avoid colision between Full and Daily backups, both will generate a Cmf.FullBackup.Online.<version>.zip
+        # TODO: avoid collision between Full and Daily backups, both will generate a Cmf.FullBackup.Online.<version>.zip
         - task: PowerShell@2
           displayName: "Daily Backup"
           inputs:
@@ -989,7 +992,7 @@ stages:
               if (Test-Path -Path $file -PathType Leaf) {
                   $envConfig = Get-Content "$file" | out-string | ConvertFrom-Json
                   $envConfig.PSObject.Properties | ForEach-Object {
-                      if (-not($_.Value -eq "" -or $_.Value -eq $nil)) {
+                      if (-not($_.Value -eq "" -or $_.Value -eq $nil -or ($_.Value.GetType().FullName -eq "System.Management.Automation.PSCustomObject"))) {
                           Write-Output "##vso[task.setvariable variable=$($_.Name)]$($_.Value)"
                       }
                   }

@@ -117,7 +117,7 @@
   "name": "CI-Publish",
   "url": "<%= $CLI_PARAM_AzureDevopsCollectionURL %>/d659bbbd-b8f0-4d06-b2a9-1a161455189f/_apis/build/Definitions/504?revision=14",
   "uri": "vstfs:///Build/Definition/504",
-  "path": "\\CI-Builds",
+  "path": "<%= $CLI_PARAM_PipelinesFolderJSON %>\\CI-Builds",
   "type": 2,
   "queueStatus": 0,
   "revision": 14,

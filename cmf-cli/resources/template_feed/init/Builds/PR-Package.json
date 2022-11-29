@@ -94,7 +94,7 @@
   "name": "PR-Package",
   "url": "https://tfs-projects.cmf.criticalmanufacturing.com/ImplementationProjects/8a17a15f-cb8d-46f0-9b3c-d40ff4ac3438/_apis/build/Definitions/1896?revision=1",
   "uri": "vstfs:///Build/Definition/1896",
-  "path": "\\PR-Builds",
+  "path": "<%= $CLI_PARAM_PipelinesFolderJSON %>\\PR-Builds",
   "type": 2,
   "queueStatus": 0,
   "revision": 1,

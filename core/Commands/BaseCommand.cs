@@ -85,7 +85,7 @@ namespace Cmf.CLI.Core.Commands
             var cmdName = dec.Name;
 
             // Create command
-            var cmdInstance = new Command(cmdName) { IsHidden = dec.IsHidden };
+            var cmdInstance = new Command(cmdName) { IsHidden = dec.IsHidden, Description = dec.Description };
 
             // Call "Configure" method
             BaseCommand cmdHandler = Activator.CreateInstance(cmd) as BaseCommand;

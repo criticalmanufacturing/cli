@@ -15,7 +15,7 @@ pr: none
 resources:
  pipelines:
    - pipeline: CIPublish
-     source: CI-Publish
+     source: <%= $CLI_PARAM_PipelinesFolder %>\CI-Builds\CI-Publish
      branch: $(Build.SourceBranch)
      project: '<%= $CLI_PARAM_ProjectName %>'
      trigger: true
@@ -117,7 +117,7 @@ stages:
           - task: ExtractFiles@1
             displayName: "Extract files - Pre-Package"
             inputs:
-              archiveFilePatterns: "Cmf.BackupRestore.Tools.*.zip"
+              archiveFilePatterns: "DownloadPackages/Cmf.BackupRestore.Tools/Cmf.BackupRestore.Tools.*.zip"
               destinationFolder: "BackupRestoreTools"
               cleanDestinationFolder: true
             continueOnError: false

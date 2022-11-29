@@ -16,7 +16,7 @@ using tests.Objects;
 using Assert = tests.AssertWithMessage;
 using Xunit;
 
-namespace tests
+namespace tests.Specs
 {
     public class ListDependencies
     {

@@ -1,12 +1,16 @@
-using System.Diagnostics;
+using System;
+using System.Net;
+using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Cmf.CLI.Core.Objects;
-using Cmf.CLI.Objects;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using OpenTelemetry.Trace;
+using Moq;
+using Moq.Protected;
 using tests.Mocks;
 using Xunit;
+using ExecutionContext = Cmf.CLI.Core.Objects.ExecutionContext;
 
 [assembly: CollectionBehavior(CollectionBehavior.CollectionPerAssembly)]
 namespace tests.Specs
@@ -20,6 +24,11 @@ namespace tests.Specs
             {
                 return Task.FromResult("999.99.99");
             }
+
+            public IPackage[] FindPlugins(Uri[] registries)
+            {
+                throw new NotImplementedException();
+            }
         }
         
         class MockNPMClientCurrent : INPMClient
@@ -27,6 +36,11 @@ namespace tests.Specs
             public Task<string> GetLatestVersion(bool preRelease = false)
             {
                 return Task.FromResult(ExecutionContext.CurrentVersion);
+            }
+
+            public IPackage[] FindPlugins(Uri[] registries)
+            {
+                throw new NotImplementedException();
             }
         }
 
@@ -84,7 +98,7 @@ namespace tests.Specs
             
             await Cmf.CLI.Program.VersionChecks();
             
-            logWriter.ToString().Should().Contain("You are using development version");
+            logWriter.ToString().Should().Contain("You are using test development version");
         }
         
         [Fact]
@@ -100,7 +114,79 @@ namespace tests.Specs
             
             await Cmf.CLI.Program.VersionChecks();
             
-            logWriter.ToString().Should().NotContain("You are using development version");
+            logWriter.ToString().Should().NotContain("You are using test development version");
         }
+        
+        [Fact]
+        public async Task VersionCheckFailed()
+        {
+            ExecutionContext.ServiceProvider = (new ServiceCollection())
+                .AddSingleton<IVersionService, MockVersionService>()
+                .BuildServiceProvider();
+            
+            var logWriter = (new Logging()).GetLogStringWriter();
+            
+            // mock HttpClient
+            var httpMessageHandler = new Mock<HttpMessageHandler>();
+            httpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>()
+                )
+                .ReturnsAsync((HttpRequestMessage request, CancellationToken token) =>
+                {
+                    HttpResponseMessage response = new HttpResponseMessage();
+                    
+                    response.StatusCode = HttpStatusCode.InternalServerError;
+
+                    return response;
+                });
+            var httpClient = new HttpClient(httpMessageHandler.Object);
+
+            var npmClient = new NPMClient(httpClient);
+
+            await npmClient.GetLatestVersion();
+            
+            logWriter.ToString().Should().Contain("Could not retrieve test latest version information");
+        }
+        
+        [Theory]
+        [InlineData(true, "3.1.3-1")]
+        [InlineData(false, "3.1.3")]
+        public async Task CheckVersionJSONParse(bool prerelease, string expectedVersion)
+        {
+            ExecutionContext.ServiceProvider = (new ServiceCollection())
+                .AddSingleton<IVersionService, MockVersionServiceDev>()
+                .BuildServiceProvider();
+            
+            var content = @"{""name"": ""@criticalmanufacturing/cli"",""dist-tags"": {""latest"": ""3.1.3"",""next"": ""3.1.3-1""}}";
+
+            // mock HttpClient
+            var httpMessageHandler = new Mock<HttpMessageHandler>();
+            httpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>()
+                )
+                .ReturnsAsync((HttpRequestMessage request, CancellationToken token) =>
+                {
+                    HttpResponseMessage response = new HttpResponseMessage();
+
+                    response.Content = new StringContent(content);
+                    response.StatusCode = HttpStatusCode.OK;
+
+                    return response;
+                });
+            var httpClient = new HttpClient(httpMessageHandler.Object);
+
+            var npmClient = new NPMClient(httpClient);
+
+            var version = await npmClient.GetLatestVersion(prerelease);
+
+            version.Should().Be(expectedVersion);
+        }
+        
     }
 }

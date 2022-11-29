@@ -7,7 +7,7 @@ using System.IO.Abstractions.TestingHelpers;
 using Cmf.CLI.Core.Objects;
 using Xunit;
 
-namespace tests
+namespace tests.Specs
 {
     public class CmfPackage_Load
     {
