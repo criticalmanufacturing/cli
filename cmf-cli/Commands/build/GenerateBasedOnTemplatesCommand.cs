@@ -35,7 +35,7 @@ namespace Cmf.CLI.Commands
         /// </summary>
         public void Execute()
         {
-            var regex = new Regex("\"id\":\\s+\"(.*)\""); // match for menu item IDs
+            var regex = new Regex("\"?id\"?:\\s+[\"'](.*)[\"']"); // match for menu item IDs
             
             var helpRoot = FileSystemUtilities.GetPackageRootByType(Environment.CurrentDirectory, PackageType.Help, this.fileSystem).FullName;
             var project = FileSystemUtilities.ReadProjectConfig(this.fileSystem).RootElement.GetProperty("Tenant").GetString();

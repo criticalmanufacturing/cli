@@ -360,3 +360,5 @@ launchSettings.json
 .history/**
 
 report/
+
+npm/*.tgz
