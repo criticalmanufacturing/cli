@@ -59,7 +59,7 @@ namespace Cmf.CLI.Commands
                 throw new CliException("Can't find Help package root, please run this command inside a Help package");
             }
 
-            var regex = new Regex("\"id\":\\s+\"(.*)\""); // match for menu item IDs
+            var regex = new Regex("\"?id\"?:\\s+[\"'](.*)[\"']"); // match for menu item IDs
 
             var packagesDir = this.fileSystem.DirectoryInfo.FromDirectoryName(this.fileSystem.Path.Join(helpRoot, "src", "packages"));
             var helpPackages = packagesDir.GetDirectories("cmf.docs.area.*");
