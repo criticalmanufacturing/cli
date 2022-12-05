@@ -25,9 +25,9 @@ variables:
    value: BuiltHEADs
  - name: packOutputDir
 //#if (agentType == "Cloud")
-  value: $(Build.ArtifactStagingDirectory)
+   value: $(Build.ArtifactStagingDirectory)
 //#else
-  value: $(CIPackages)/$(Build.SourceBranchName)
+   value: $(CIPackages)/$(Build.SourceBranchName)
 //#endif
 
 workspace:
