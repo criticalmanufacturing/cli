@@ -15,7 +15,7 @@
     <DefaultDocumentationFileNameMode>Name</DefaultDocumentationFileNameMode>
     <DefaultDocumentationNestedTypeVisibility>Namespace</DefaultDocumentationNestedTypeVisibility>
     <DefaultDocumentationGeneratedPages>Namespaces</DefaultDocumentationGeneratedPages>
-    <Version>3.2.0</Version>
+    <Version>3.3.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -77,6 +77,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="resources\template_feed\database\**\*.sqlproj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="resources\template_feed\**\.tasks\**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

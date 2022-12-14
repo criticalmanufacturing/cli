@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.3.0](https://github.com/criticalmanufacturing/cli/compare/3.3.0-1...3.3.0) (2022-12-14)
+
+## [3.3.0-1](https://github.com/criticalmanufacturing/cli/compare/3.3.0-0...3.3.0-1) (2022-12-06)
+
+## [3.3.0-0](https://github.com/criticalmanufacturing/cli/compare/3.2.0...3.3.0-0) (2022-12-05)
+
+
+### Features
+
+* **pipelines:** refactor pr and ci pipelines ([5b2c61c](https://github.com/criticalmanufacturing/cli/commits/5b2c61c15911cb191f258d7257241ab1ac117858))
+
+
+### Bug Fixes
+
+* **build help:** make legacy package check more permissive to style ([3d97c7f](https://github.com/criticalmanufacturing/cli/commits/3d97c7f7899efbeca25f3127992fcbd1b6ebfcdb))
+
 ## [3.2.0](https://github.com/criticalmanufacturing/cli/compare/3.2.0-5...3.2.0) (2022-11-29)
 
 ## [3.2.0-5](https://github.com/criticalmanufacturing/cli/compare/3.2.0-4...3.2.0-5) (2022-11-28)

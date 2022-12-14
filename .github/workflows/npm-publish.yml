@@ -68,4 +68,4 @@ jobs:
         uses: alirezanet/publish-nuget@v3.0.4
         with:
           PROJECT_FILE_PATH: core/core.csproj
-          NUGET_KEY: ${{secrets.NUGET_KEY}}
+          NUGET_KEY: ${{secrets.NUGET_API_KEY}}
