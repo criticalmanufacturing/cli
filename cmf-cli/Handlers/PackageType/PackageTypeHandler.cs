@@ -27,6 +27,19 @@ namespace Cmf.CLI.Handlers
     /// </summary>
     public abstract class PackageTypeHandler : IPackageTypeHandler
     {
+        #region Private Properties
+
+        /// <summary>
+        /// Sets whether the identifier should be omitted when extracting package dependencies.
+        /// Only true when CmfPackage 'DependenciesDirectory' has a value
+        /// </summary>
+        /// <default>
+        /// false
+        /// </default>
+        private static bool omitIdentifier = false;
+
+        #endregion Private Properties
+
         #region Protected Properties
 
         /// <summary>
@@ -100,14 +113,25 @@ namespace Cmf.CLI.Handlers
                 ".gitattributes",
                 ".gitignore",
                 ".gitkeep",
-                ".cmfpackageignore"
+                ".cmfpackageignore",
+                "cmfpackage.json"
             };
 
             BuildSteps = Array.Empty<IBuildCommand>();
 
             cmfPackage.DFPackageType ??= cmfPackage.PackageType;
 
-            DependenciesFolder = fileSystem.DirectoryInfo.FromDirectoryName(Path.Join(cmfPackage.GetFileInfo().Directory.FullName, "Dependencies"));
+            cmfPackage.DependenciesDirectory ??= cmfPackage.DependenciesDirectory;
+
+            if (!string.IsNullOrWhiteSpace(cmfPackage.DependenciesDirectory))
+            {
+                omitIdentifier = true;
+                DependenciesFolder = fileSystem.DirectoryInfo.FromDirectoryName(cmfPackage.DependenciesDirectory);
+            }
+            else
+            {
+                DependenciesFolder = fileSystem.DirectoryInfo.FromDirectoryName(Path.Join(cmfPackage.GetFileInfo().Directory.FullName, "Dependencies"));
+            }
 
             this.fileSystem = fileSystem;
         }
@@ -599,7 +623,7 @@ namespace Cmf.CLI.Handlers
 
                                 foreach (var entry in entriesToExtract)
                                 {
-                                    var target = this.fileSystem.Path.Join(this.DependenciesFolder.FullName, identifier, entry.Item2);
+                                    var target = this.fileSystem.Path.Join(this.DependenciesFolder.FullName, omitIdentifier ? null : identifier, entry.Item2);
                                     var targetDir = this.fileSystem.Path.GetDirectoryName(target);
                                     if (target.EndsWith("/"))
                                     {

@@ -23,7 +23,7 @@ namespace Cmf.CLI.Handlers
                 isInstallable: false
             );
 
-            BuildSteps = cmfPackage.BuildSteps.Select(pbs => new SingleStepCommand() { BuildStep = pbs} as IBuildCommand).ToArray();
+            BuildSteps = cmfPackage.BuildSteps?.Select(pbs => new SingleStepCommand() { BuildStep = pbs} as IBuildCommand).ToArray();
         }
     }
 }
