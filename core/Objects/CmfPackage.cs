@@ -271,6 +271,18 @@ namespace Cmf.CLI.Core.Objects
         [JsonConverter(typeof(ListAbstractionsDirectoryConverter))]
         public List<IDirectoryInfo> BuildablePackages { get; set; }
 
+        /// <summary>
+        /// Gets or sets the target directory where the dependencies contents should be extracted.
+        /// This is used when the package dependencies are restored in the restore and build commands.
+        /// </summary>
+        /// <value>
+        /// The dependencies target directory.
+        /// </value>
+        [JsonProperty(Order = 23)]
+#nullable enable
+        public string? DependenciesDirectory { get; set; }
+#nullable disable
+
         #endregion Public Properties
 
         #region Private Methods
@@ -593,9 +605,9 @@ namespace Cmf.CLI.Core.Objects
         }
 
         /// <summary>
-        /// Shoulds the serialize d f package type.
+        /// Shoulds the serialize DF package type.
         /// </summary>
-        /// <returns>returns false if handler version is 0 otherwise true</returns>
+        /// <returns>returns false if DF Package Type is null and Package Type is different then Generic, otherwise true</returns>
         public bool ShouldSerializeDFPackageType()
         {
             return DFPackageType != null && PackageType == PackageType.Generic;
@@ -608,6 +620,15 @@ namespace Cmf.CLI.Core.Objects
         public bool ShouldSerializeBuildablePackages()
         {
             return BuildablePackages.HasAny();
+        }
+
+        /// <summary>
+        /// Should the Dependencies Directory be serialized
+        /// </summary>
+        /// <returns>returns false if Dependencies Directory is null or empty</returns>
+        public bool ShouldSerializeDependenciesDirectory()
+        {
+            return !string.IsNullOrWhiteSpace(DependenciesDirectory);
         }
 
         #region Static Methods
