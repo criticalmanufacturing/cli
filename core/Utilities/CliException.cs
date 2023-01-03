@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Enums;
 
@@ -41,6 +42,24 @@ namespace Cmf.CLI.Utilities
         public CliException(string message, Exception innerException, ErrorCode errorCode = ErrorCode.Default) : base(message, innerException)
         {
             ErrorCode = errorCode;
+        }
+
+        /// <summary>
+        /// Method to handle exception when is coming from Reflection
+        /// in that case the CliException is wrapped into a TargetInvocationException
+        /// </summary>
+        /// <param name="exception">The exception.</param>
+        public static void Handler(Exception exception)
+        {
+            if (exception is TargetInvocationException
+                && exception.InnerException is CliException)
+            {
+                throw exception.InnerException;
+            }
+            else
+            {
+                throw exception;
+            }
         }
 
         // A constructor is needed for serialization when an
