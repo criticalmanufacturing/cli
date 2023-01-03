@@ -28,7 +28,8 @@ namespace tests.Specs
         {
             _writer = new StringWriter();
             Environment.SetEnvironmentVariable("cmf_cli_loglevel", null);
-            Program.logLevelOption.Parse(""); // reset to default log level
+
+            LoggerHelpers.LogLevelOption.Parse(""); // reset to default log level
             Log.AnsiConsole = factory.Create(new AnsiConsoleSettings
             {
                 Ansi = AnsiSupport.Yes,
@@ -72,7 +73,7 @@ namespace tests.Specs
         public void LogDebug_WhenDebug_Option()
         {
             // System.Environment.SetEnvironmentVariable("cmf:cli:loglevel", "debug");
-            Program.logLevelOption.Parse("--loglevel debug");
+            LoggerHelpers.LogLevelOption.Parse("--loglevel debug");
             // Log.Level = LogLevel.Debug;
 
             // var root = Program.Main(new string[] { "--loglevel", "debug", "ls" });
@@ -86,7 +87,7 @@ namespace tests.Specs
         public void LogDebug_WhenDebug_Environment()
         {
             System.Environment.SetEnvironmentVariable("cmf_cli_loglevel", "debug");
-            Program.logLevelOption.Parse(""); // invoke rootCommand option parser to set environment value
+            LoggerHelpers.LogLevelOption.Parse(""); // invoke rootCommand option parser to set environment value
             // --loglevel debug
             // Log.Level = LogLevel.Debug;
 

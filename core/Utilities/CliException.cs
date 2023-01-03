@@ -31,7 +31,6 @@ namespace Cmf.CLI.Utilities
         public CliException(string message, ErrorCode errorCode = ErrorCode.Default) : base(message)
         {
             ErrorCode = errorCode;
-            Log.Error(message);
         }
 
         /// <summary>
@@ -42,7 +41,6 @@ namespace Cmf.CLI.Utilities
         public CliException(string message, Exception innerException, ErrorCode errorCode = ErrorCode.Default) : base(message, innerException)
         {
             ErrorCode = errorCode;
-            Log.Error($"{message} | InnerException: {innerException.Message}");
         }
 
         // A constructor is needed for serialization when an

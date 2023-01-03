@@ -8,6 +8,7 @@ using Cmf.CLI.Core;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Objects;
 using Microsoft.Extensions.DependencyInjection;
+using Cmf.CLI.Core.Enums;
 
 namespace Cmf.CLI
 {
@@ -16,38 +17,8 @@ namespace Cmf.CLI
     /// </summary>
     public static class Program
     {
-        private static System.CommandLine.Parsing.ParseArgument<LogLevel> parseLogLevel = argResult =>
-        {
-            var loglevel = LogLevel.Verbose;
-            string loglevelStr = "verbose";
-            if (argResult.Tokens.Any())
-            {
-                loglevelStr = argResult.Tokens.First().Value;
-            }
-            else if (System.Environment.GetEnvironmentVariable("cmf_cli_loglevel") != null)
-            {
-                loglevelStr = System.Environment.GetEnvironmentVariable("cmf_cli_loglevel");
-            }
 
-            if (Enum.TryParse(typeof(LogLevel), loglevelStr, ignoreCase: true, out var loglevelObj))
-            {
-                loglevel = (LogLevel)loglevelObj!;
-            }
-            Log.Level = loglevel;
-            return loglevel;
-        };
-
-        /// <summary>
-        /// Root Command log verbosity option
-        /// </summary>
-        public static Option<LogLevel> logLevelOption = new Option<LogLevel>(
-                aliases: new[] { "--loglevel", "-l" },
-                description: "Log Verbosity",
-                parseArgument: parseLogLevel,
-                isDefault: true
-            );
-
-        /// <summary>
+       /// <summary>
         /// program entry point
         /// </summary>
         /// <param name="args"></param>
@@ -67,7 +38,8 @@ namespace Cmf.CLI
                     Description = "Critical Manufacturing CLI"
                 };
 
-                rootCommand.AddOption(logLevelOption);
+                // add logleveloption
+                rootCommand.AddOption(LoggerHelpers.LogLevelOption);
 
                 if (args.Length == 1 && args.Has("-v"))
                 {
@@ -79,10 +51,16 @@ namespace Cmf.CLI
 
                 return rootCommand.Invoke(args);
             }
+            catch (CliException e)
+            {
+                Log.Error(e.Message);
+                Log.Debug(e.StackTrace);
+                return (int)e.ErrorCode;
+            }
             catch (Exception e)
             {
                 Log.Exception(e);
-                return -1; // TODO: set exception error codes
+                return (int)ErrorCode.Default;
             }
         }
 

@@ -70,8 +70,7 @@ namespace Cmf.CLI.Commands
 
             if (string.IsNullOrEmpty(version))
             {
-                Log.Error(string.Format(CliMessages.MissingMandatoryProperty, "version"));
-                return;
+                throw new CliException(string.Format(CliMessages.MissingMandatoryProperty, "version"));
             }
 
             // Reading cmfPackage

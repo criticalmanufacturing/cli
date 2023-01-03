@@ -272,6 +272,21 @@ namespace Cmf.CLI.Utilities
             fileSystem.File.SetLastWriteTime(destinationFileName, source.LastWriteTime.DateTime);
         }
 
+        /// <summary>
+        /// Converts string true, yes, 1, false, no, 0 to bool.
+        /// </summary>
+        /// <param name="str">The string.</param>
+        /// <returns></returns>
+        public static bool ToBool(this string str)
+        {
+            return (str.ToLowerInvariant()) switch
+            {
+                "true" or "yes" or "1" => true,
+                "false" or "no" or "0" or null => false,
+                _ => throw new ArgumentException("string was not true or false", str)
+            };
+        }
+
         #region Private Methods
 
         /// <summary>

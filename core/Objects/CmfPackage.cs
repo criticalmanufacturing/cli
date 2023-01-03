@@ -534,8 +534,7 @@ namespace Cmf.CLI.Core.Objects
                 var allDirectories = repoUris?.All(r => r.IsDirectory());
                 if (allDirectories == false)
                 {
-                    Log.Error(CoreMessages.UrlsNotSupported);
-                    return;
+                    throw new CliException(CoreMessages.UrlsNotSupported);
                 }
 
                 IDirectoryInfo[] repoDirectories = repoUris?.Select(r => r.GetDirectory()).ToArray();

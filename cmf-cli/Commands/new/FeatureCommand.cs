@@ -68,8 +68,7 @@ namespace Cmf.CLI.Commands.New
         {
             if (workingDir == null)
             {
-                Log.Error("This command needs to run inside a project. Run `cmf init` to create a new project.");
-                return;
+                throw new CliException("This command needs to run inside a project. Run `cmf init` to create a new project.");
             }
             var featurePath = this.fileSystem.Path.Join(workingDir.FullName, "Features");
             var args = new List<string>()
