@@ -1,5 +1,6 @@
 ﻿using System;
 using Cmf.CLI.Core;
+using Cmf.CLI.Core.Enums;
 
 namespace Cmf.CLI.Utilities
 {
@@ -11,18 +12,25 @@ namespace Cmf.CLI.Utilities
     public class CliException : Exception
     {
         /// <summary>
+        /// The output ErrorCode of the application
+        /// </summary>
+        public ErrorCode ErrorCode = ErrorCode.Default;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="CliException"/> class.
         /// </summary>
-        public CliException()
+        public CliException(ErrorCode errorCode = ErrorCode.Default)
         {
+            ErrorCode = errorCode;
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CliException"/> class.
         /// </summary>
         /// <param name="message">The message that describes the error.</param>
-        public CliException(string message) : base(message)
+        public CliException(string message, ErrorCode errorCode = ErrorCode.Default) : base(message)
         {
+            ErrorCode = errorCode;
             Log.Error(message);
         }
 
@@ -31,8 +39,9 @@ namespace Cmf.CLI.Utilities
         /// </summary>
         /// <param name="message">The error message that explains the reason for the exception.</param>
         /// <param name="innerException">The exception that is the cause of the current exception, or a null reference (<see langword="Nothing" /> in Visual Basic) if no inner exception is specified.</param>
-        public CliException(string message, Exception innerException) : base(message, innerException)
+        public CliException(string message, Exception innerException, ErrorCode errorCode = ErrorCode.Default) : base(message, innerException)
         {
+            ErrorCode = errorCode;
             Log.Error($"{message} | InnerException: {innerException.Message}");
         }
 
