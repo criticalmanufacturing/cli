@@ -77,8 +77,7 @@ namespace Cmf.CLI.Commands.New
         {
             if (businessPackage != null && !businessPackage.Exists)
             {
-                Log.Error($"Target business package does not exist");
-                return;
+                throw new CliException($"Target business package does not exist");
             }
             
             base.Execute(workingDir, version);

@@ -8,6 +8,7 @@ namespace Cmf.CLI.Core.Enums
 {
     public enum ErrorCode
     {
-        Default = -1
+        Default = -1,
+        Success = 0
     }
 }
