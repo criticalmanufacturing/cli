@@ -501,7 +501,7 @@ namespace Cmf.CLI.Handlers
             var filesToPack = GetContentToPack(packageOutputDir);
             if (CmfPackage.ContentToPack.HasAny() && !filesToPack.HasAny())
             {
-                throw new Exception(string.Format(CoreMessages.ContentToPackNotFound, CmfPackage.PackageId, CmfPackage.Version));
+                throw new CliException(string.Format(CoreMessages.ContentToPackNotFound, CmfPackage.PackageId, CmfPackage.Version));
             }
 
             if (filesToPack != null)
