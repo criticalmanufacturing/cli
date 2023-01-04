@@ -5,6 +5,7 @@ using System.Linq;
 using Cmf.CLI.Builders;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Utilities;
 
 namespace Cmf.CLI.Commands
 {
@@ -33,7 +34,7 @@ namespace Cmf.CLI.Commands
         {
             if (target?.Exists != true)
             {
-                throw new Exception("Target clone directory doesn't exist");
+                throw new CliException("Target clone directory doesn't exist");
             }
 
             // delete .gitkeep if it exists
