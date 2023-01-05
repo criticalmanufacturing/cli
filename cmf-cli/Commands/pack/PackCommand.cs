@@ -78,6 +78,7 @@ namespace Cmf.CLI.Commands
 
             // Reading cmfPackage
             CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true);
+            cmfPackage.ValidatePackage();
 
             Execute(cmfPackage, outputDir, force);
         }

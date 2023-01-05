@@ -273,47 +273,6 @@ namespace Cmf.CLI.Core.Objects
 
         #endregion Public Properties
 
-        #region Private Methods
-
-        /// <summary>
-        /// Validates the package.
-        /// </summary>
-        private void ValidatePackage()
-        {
-            // If is installable and is not a root Package ContentToPack are mandatory
-            if (!PackageType.Equals(PackageType.Root) &&
-                (IsInstallable ?? false))
-            {
-                if (!ContentToPack.HasAny())
-                {
-                    throw new CliException(string.Format(CoreMessages.MissingMandatoryPropertyInFile, nameof(ContentToPack), $"{FileInfo.FullName}"));
-                }
-            }
-
-            if (PackageType.Equals(PackageType.Data) &&
-                !(IsUniqueInstall ?? false))
-            {
-                throw new CliException(string.Format(CoreMessages.InvalidValue, this.GetType(), "IsUniqueInstall", true));
-            }
-
-            // criticalmanufacturing.deploymentmetadata and cmf.environment should be part of the dependencies in a package of Type Root
-            if (PackageType.Equals(PackageType.Root) &&
-                !Dependencies.Contains(Dependency.DefaultDependenciesToIgnore[0]) && !Dependencies.Contains(Dependency.DefaultDependenciesToIgnore[1]))
-            {
-                throw new CliException(string.Format(CoreMessages.MissingMandatoryDependency, $"{Dependency.DefaultDependenciesToIgnore[0]} and {Dependency.DefaultDependenciesToIgnore[1]}", string.Empty));
-            }
-
-            // When is fixed by the product team, this can be uncommented
-            //// cmf.connectiot.packages should be part of the dependencies in a package of Type IoT
-            //if (PackageType.Equals(PackageType.IoT) &&
-            //    !Dependencies.HasAny(d => d.Id.IgnoreCaseEquals(Dependency.DefaultDependenciesToIgnore[2])))
-            //{
-            //    throw new CliException(string.Format(CliMessages.MissingMandatoryDependency, $"{ Dependency.DefaultDependenciesToIgnore[2] }", string.Empty));
-            //}
-        }
-
-        #endregion Private Methods
-
         #region Constructors
 
         /// <summary>
@@ -396,6 +355,43 @@ namespace Cmf.CLI.Core.Objects
         #endregion Constructors
 
         #region Public Methods
+
+        /// <summary>
+        /// Validates the package.
+        /// </summary>
+        public void ValidatePackage()
+        {
+            // If is installable and is not a root Package ContentToPack are mandatory
+            if (!PackageType.Equals(PackageType.Root) &&
+                (IsInstallable ?? false))
+            {
+                if (!ContentToPack.HasAny())
+                {
+                    throw new CliException(string.Format(CoreMessages.MissingMandatoryPropertyInFile, nameof(ContentToPack), $"{FileInfo.FullName}"));
+                }
+            }
+
+            if (PackageType.Equals(PackageType.Data) &&
+                !(IsUniqueInstall ?? false))
+            {
+                throw new CliException(string.Format(CoreMessages.InvalidValue, this.GetType(), "IsUniqueInstall", true));
+            }
+
+            // criticalmanufacturing.deploymentmetadata and cmf.environment should be part of the dependencies in a package of Type Root
+            if (PackageType.Equals(PackageType.Root) &&
+                !Dependencies.Contains(Dependency.DefaultDependenciesToIgnore[0]) && !Dependencies.Contains(Dependency.DefaultDependenciesToIgnore[1]))
+            {
+                throw new CliException(string.Format(CoreMessages.MissingMandatoryDependency, $"{Dependency.DefaultDependenciesToIgnore[0]} and {Dependency.DefaultDependenciesToIgnore[1]}", string.Empty));
+            }
+
+            // When is fixed by the product team, this can be uncommented
+            //// cmf.connectiot.packages should be part of the dependencies in a package of Type IoT
+            //if (PackageType.Equals(PackageType.IoT) &&
+            //    !Dependencies.HasAny(d => d.Id.IgnoreCaseEquals(Dependency.DefaultDependenciesToIgnore[2])))
+            //{
+            //    throw new CliException(string.Format(CliMessages.MissingMandatoryDependency, $"{ Dependency.DefaultDependenciesToIgnore[2] }", string.Empty));
+            //}
+        }
 
         /// <summary>
         /// Indicates whether the current object is equal to another object of the same type.
@@ -635,7 +631,6 @@ namespace Cmf.CLI.Core.Objects
             cmfPackage.IsToSetDefaultValues = setDefaultValues;
             cmfPackage.FileInfo = file;
             cmfPackage.Location = PackageLocation.Local;
-            cmfPackage.ValidatePackage();
             cmfPackage.fileSystem = fileSystem;
 
             return cmfPackage;
