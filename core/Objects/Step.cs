@@ -136,6 +136,18 @@ namespace Cmf.CLI.Core.Objects
         [JsonProperty(Order = 1)]
         public int Order { get; set; }
 
+        /// <summary>
+        /// Whether it is to run script against master database
+        /// ProductDabatase Package Type specific
+        /// </summary>
+        public bool? RunInMaster { get; set; }
+
+        /// <summary>
+        /// Whether it is to run script against all product databases
+        /// ProductDabatase Package Type specific
+        /// </summary>
+        public bool? TargetAll { get; set; }
+
         #endregion
 
         #region Constructors

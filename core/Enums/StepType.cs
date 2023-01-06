@@ -63,6 +63,11 @@
         /// <summary>
         /// Update the ConnectIoT Repository Index
         /// </summary>
-        GenerateRepositoryIndex = 11
+        GenerateRepositoryIndex = 11,
+        
+        /// <summary>
+        /// Generate Service History Id
+        /// </summary>
+        GenerateServiceHistoryId = 12
     }
 }

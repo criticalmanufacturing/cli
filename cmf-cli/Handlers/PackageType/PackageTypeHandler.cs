@@ -114,7 +114,8 @@ namespace Cmf.CLI.Handlers
                 ".gitignore",
                 ".gitkeep",
                 ".cmfpackageignore",
-                "cmfpackage.json"
+                "cmfpackage.json",
+                "manifest.xml"
             };
 
             BuildSteps = Array.Empty<IBuildCommand>();
