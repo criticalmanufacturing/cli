@@ -9,6 +9,8 @@ using Cmf.CLI.Core.Objects;
 using Microsoft.Extensions.DependencyInjection;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Constants;
+using System.CommandLine.Builder;
+using System.Diagnostics;
 
 namespace Cmf.CLI
 {
@@ -31,10 +33,14 @@ namespace Cmf.CLI
                     envVarPrefix: "cmf_cli",
                     description: "Critical Manufacturing CLI",
                     args: args);
-                   
+
+                using var activity = ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!.StartActivity("Main");
+
                 BaseCommand.AddPluginCommands(rootCommand);
 
-                return rootCommand.Invoke(args);
+                var result = await rootCommand.InvokeAsync(args);
+                activity?.SetTag("execution.success", true);
+                return result;
             }
             catch (CliException e)
             {
@@ -44,7 +50,9 @@ namespace Cmf.CLI
             }
             catch (Exception e)
             {
+                Log.Debug("Caught exception at program.");
                 Log.Exception(e);
+                ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!.LogException(e);
                 return (int)ErrorCode.Default;
             }
         }
