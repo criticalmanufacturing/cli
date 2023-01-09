@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.CommandLine;
+using System.CommandLine.Builder;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -44,6 +45,13 @@ namespace Cmf.CLI.Core
             ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!
                 .InitializeActivitySource(ExecutionContext.PackageId);
 
+            AppDomain.CurrentDomain.UnhandledException += (sender, eventArgs) =>
+            {
+                Log.Debug("Uncaught exception!");
+                Log.Exception(eventArgs.ExceptionObject as Exception);
+                ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!.LogException(eventArgs.ExceptionObject as Exception);
+            };
+
             await VersionChecks();
 
             // add LogLevelOption
@@ -56,6 +64,20 @@ namespace Cmf.CLI.Core
             }
 
             BaseCommand.AddChildCommands(rootCommand);
+
+            new CommandLineBuilder(rootCommand)
+                .UseVersionOption()
+                .UseHelp() // TODO: add custom handler
+                .UseEnvironmentVariableDirective()
+                .UseParseDirective()
+                .UseDebugDirective()
+                .UseSuggestDirective()
+                .RegisterWithDotnetSuggest()
+                .UseTypoCorrections()
+                .UseParseErrorReporting()
+                .UseExceptionHandler((exception, context) => CliException.Handler(exception))
+                .CancelOnProcessTermination()
+                .Build();
 
             return rootCommand;
         }

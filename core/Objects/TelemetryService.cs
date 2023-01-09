@@ -29,6 +29,8 @@ public interface ITelemetryService
     Activity StartBareActivity(string name, ActivityKind kind = ActivityKind.Internal);
 
     Activity StartExtendedActivity(string name, ActivityKind kind = ActivityKind.Internal);
+
+    void LogException(Exception exception);
 }
 
 public class TelemetryService : ITelemetryService

@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using Cmf.CLI.Core.Objects;
 using OpenTelemetry.Trace;
@@ -25,4 +26,6 @@ public class MockTelemetryService : ITelemetryService
 
     public TracerProvider InitializeTracerProvider(string version) => null;
     public ActivitySource InitializeActivitySource() => null;
+
+    public void LogException(Exception exception) { }
 }
