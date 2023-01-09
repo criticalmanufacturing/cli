@@ -1,6 +1,6 @@
 using Cmf.CLI.Commands;
 using Cmf.CLI.Constants;
-using Cmf.CLI.Objects;
+
 using FluentAssertions;
 using Newtonsoft.Json;
 using System;

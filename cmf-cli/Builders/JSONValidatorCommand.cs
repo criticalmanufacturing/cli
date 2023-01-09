@@ -1,4 +1,3 @@
-using Cmf.CLI.Objects;
 using System;
 using System.Collections.Generic;
 using System.IO;

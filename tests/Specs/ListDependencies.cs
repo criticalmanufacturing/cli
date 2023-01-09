@@ -10,7 +10,7 @@ using System.Linq;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Commands;
-using Cmf.CLI.Objects;
+
 using Cmf.CLI.Utilities;
 using tests.Objects;
 using Assert = tests.AssertWithMessage;

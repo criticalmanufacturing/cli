@@ -6,7 +6,7 @@ using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Utilities;
 using Cmf.CLI.Constants;
-using Cmf.CLI.Objects;
+
 
 namespace Cmf.CLI.Commands.New
 {

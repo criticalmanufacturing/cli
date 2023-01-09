@@ -10,7 +10,7 @@ using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Factories;
 using Cmf.CLI.Interfaces;
 using Cmf.CLI.Utilities;
-using Cmf.CLI.Objects;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Cmf.CLI.Commands.restore
