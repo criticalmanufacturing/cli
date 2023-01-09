@@ -1,4 +1,3 @@
-using Cmf.CLI.Objects;
 using System.IO.Abstractions;
 using System.Threading.Tasks;
 using Cmf.CLI.Constants;

@@ -6,7 +6,7 @@ using System.IO.Abstractions.TestingHelpers;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Factories;
 using Cmf.CLI.Interfaces;
-using Cmf.CLI.Objects;
+
 using Cmf.CLI.Utilities;
 using Xunit;
 using tests.Objects;
