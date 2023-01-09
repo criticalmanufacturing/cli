@@ -1,3 +1,5 @@
+using System.Management.Automation.Runspaces;
+using System.Security.Authentication.ExtendedProtection;
 using System.Text.RegularExpressions;
 
 namespace Cmf.CLI.Constants

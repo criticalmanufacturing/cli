@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Cmf.CLI.Core;
 using Cmf.CLI.Core.Objects;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -64,7 +65,7 @@ namespace tests.Specs
 
             var logWriter = (new Logging()).GetLogStringWriter();
             
-            await Cmf.CLI.Program.VersionChecks();
+            await StartupModule.VersionChecks();
             
             logWriter.ToString().Should().Contain("Please update");
         }
@@ -80,7 +81,7 @@ namespace tests.Specs
 
             var logWriter = (new Logging()).GetLogStringWriter();
             
-            await Cmf.CLI.Program.VersionChecks();
+            await StartupModule.VersionChecks();
             
             logWriter.ToString().Should().NotContain("Please update");
         }
@@ -96,7 +97,7 @@ namespace tests.Specs
             
             var logWriter = (new Logging()).GetLogStringWriter();
             
-            await Cmf.CLI.Program.VersionChecks();
+            await StartupModule.VersionChecks();
             
             logWriter.ToString().Should().Contain("You are using test development version");
         }
@@ -112,7 +113,7 @@ namespace tests.Specs
             
             var logWriter = (new Logging()).GetLogStringWriter();
             
-            await Cmf.CLI.Program.VersionChecks();
+            await StartupModule.VersionChecks();
             
             logWriter.ToString().Should().NotContain("You are using test development version");
         }
