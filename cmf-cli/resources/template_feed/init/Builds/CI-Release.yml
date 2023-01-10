@@ -516,7 +516,7 @@ stages:
           - task: ExtractFiles@1
             displayName: "Extract files - BackupRestoreTools"
             inputs:
-              archiveFilePatterns: "Cmf.BackupRestore.Tools.*.zip"
+              archiveFilePatterns: "DownloadPackages/Cmf.BackupRestore.Tools/Cmf.BackupRestore.Tools.*.zip"
               destinationFolder: "BackupRestoreTools"
               cleanDestinationFolder: true
             continueOnError: false
@@ -844,7 +844,7 @@ stages:
           - task: ExtractFiles@1
             displayName: "Extract files - BackupRestoreTools"
             inputs:
-              archiveFilePatterns: "Cmf.BackupRestore.Tools.*.zip"
+              archiveFilePatterns: "DownloadPackages/Cmf.BackupRestore.Tools/Cmf.BackupRestore.Tools.*.zip"
               destinationFolder: "BackupRestoreTools"
               cleanDestinationFolder: true
             continueOnError: false
