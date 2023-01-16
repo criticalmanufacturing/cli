@@ -1,12 +1,13 @@
 ﻿
 using System;
 using System.IO;
-using System.IO.Abstractions;
+using Cmf.CLI.Core;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Handlers;
 using Cmf.CLI.Interfaces;
 using Cmf.CLI.Utilities;
+using System.IO.Abstractions;
 
 namespace Cmf.CLI.Factories
 {
@@ -65,7 +66,7 @@ namespace Cmf.CLI.Factories
                 PackageType.Database => new DatabasePackageTypeHandler(cmfPackage),
                 PackageType.Tests => new TestPackageTypeHandler(cmfPackage),
                 PackageType.SecurityPortal => new SecurityPortalPackageTypeHandler(cmfPackage),
-                _ => throw new NotImplementedException()
+                _ => throw new CliException(string.Format(CoreMessages.PackageTypeHandlerNotImplemented, cmfPackage.PackageType.ToString()))
             };
 
             return packageTypeHandler;
