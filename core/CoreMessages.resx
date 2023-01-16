@@ -51,4 +51,8 @@
     <value>{0} not found!</value>
     <comment>0 - Name</comment>
   </data>
+  <data name="PackageTypeHandlerNotImplemented" xml:space="preserve">
+    <value>Handler for Package Type {0} not implemented!</value>
+    <comment>0 - Package Type Name</comment>
+  </data>
 </root>

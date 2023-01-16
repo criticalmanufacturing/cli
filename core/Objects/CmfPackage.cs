@@ -1,21 +1,18 @@
-﻿using System;
+﻿using Cmf.CLI.Core.Constants;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Utilities;
+using Cmf.CLI.Utilities;
+using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Compression;
 using System.Linq;
 using System.Xml.Linq;
-using Cmf.CLI.Core.Constants;
-using Cmf.CLI.Core.Enums;
-using Cmf.CLI;
-using Cmf.CLI.Utilities;
-using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Serialization;
-using Newtonsoft.Json.Linq;
-using Cmf.CLI.Core.Objects;
-using Cmf.CLI.Core.Utilities;
 
 namespace Cmf.CLI.Core.Objects
 {
@@ -279,9 +276,7 @@ namespace Cmf.CLI.Core.Objects
         /// The dependencies target directory.
         /// </value>
         [JsonProperty(Order = 23)]
-#nullable enable
-        public string? DependenciesDirectory { get; set; }
-#nullable disable
+        public string DependenciesDirectory { get; set; }
 
         #endregion Public Properties
 

@@ -124,6 +124,15 @@ namespace Cmf.CLI.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Handler for Package Type {0} not implemented!.
+        /// </summary>
+        public static string PackageTypeHandlerNotImplemented {
+            get {
+                return ResourceManager.GetString("PackageTypeHandlerNotImplemented", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Urls not supported yet.
         /// </summary>
         public static string UrlsNotSupported {
