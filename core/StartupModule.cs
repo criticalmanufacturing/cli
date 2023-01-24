@@ -61,6 +61,7 @@ namespace Cmf.CLI.Core
             if (args.Length == 1 && args.Has("-v"))
             {
                 rootCommand.Invoke(new[] { "--version" });
+                return null;
             }
 
             BaseCommand.AddChildCommands(rootCommand);

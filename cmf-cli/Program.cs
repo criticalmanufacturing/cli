@@ -36,9 +36,14 @@ namespace Cmf.CLI
 
                 using var activity = ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!.StartActivity("Main");
 
-                BaseCommand.AddPluginCommands(rootCommand);
-
-                var result = await rootCommand.InvokeAsync(args);
+                var result = -1;
+                
+                if (rootCommand != null)
+                {
+                    BaseCommand.AddPluginCommands(rootCommand);
+                    result = await rootCommand.InvokeAsync(args);
+                }
+                 
                 activity?.SetTag("execution.success", true);
                 return result;
             }
