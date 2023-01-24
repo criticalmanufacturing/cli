@@ -1,0 +1,48 @@
+{
+  "name": "<%= $CLI_PARAM_PluginName %>",
+  "version": "0.0.1",
+  "description": "<%= $CLI_PARAM_PluginDescription %>",
+  "bin": {
+    "cmf-dev": "./run.js"
+  },
+  "keywords": [
+    "cmf",
+    "cmf-cli",
+    "cmf-cli-plugin",
+    "cmf-<%= $CLI_PARAM_PluginBinary %>"
+  ],
+  "scripts": {
+    "postinstall": "node postinstall.js install",
+    "preuninstall": "node postinstall.js uninstall"
+  },
+  "author": "",
+  "license": "BSD-3-Clause",
+  "goBinary": {
+    "name": "cmf-<%= $CLI_PARAM_PluginBinary %>",
+    "path": "./bin",
+    "url": "https://github.com/<%= $CLI_PARAM_PluginGitHubRepo %>releases/download/{{version}}/cmf-<%= $CLI_PARAM_PluginBinary %>.{{platform}}-{{arch}}.zip"
+  },
+  "homepage": "https://github.com/<%= $CLI_PARAM_PluginGitHubRepo %>/npm#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/<%= $CLI_PARAM_PluginGitHubRepo %>"
+  },
+  "files": [
+    "dist",
+    "postinstall.js",
+    "run.js",
+    "utils.js"
+  ],
+  "dependencies": {
+    "adm-zip": "^0.5.5",
+    "axios": "^0.21.1",
+    "debug": "^4.3.1",
+    "env-paths": "^2.2.1",
+    "is-installed-globally": "^0.4.0",
+    "is-path-inside": "^3.0.3",
+    "mkdirp": "^1.0.4",
+    "node_modules-path": "^2.0.5",
+    "rimraf": "^3.0.2",
+    "tmp": "^0.2.1"
+  }
+}
