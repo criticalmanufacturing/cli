@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TargetName>cmf-<%= $CLI_PARAM_PluginBinary %></TargetName>
+    <ToolCommandName>cmf-<%= $CLI_PARAM_PluginBinary %></ToolCommandName>
+    <AssemblyName>cmf-<%= $CLI_PARAM_PluginBinary %></AssemblyName>
+    <PackageOutputPath>./nupkg</PackageOutputPath>
+    <PackAsTool>true</PackAsTool>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <Version>0.0.1</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CriticalManufacturing.CLI.Core" Version="3.4.0-pre.1" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20574.7" />
+  </ItemGroup>
+  
+</Project>
