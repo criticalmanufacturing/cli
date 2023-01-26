@@ -9,7 +9,7 @@ namespace Cmf.CLI.Commands
     /// <summary>
     /// "new" command group
     /// </summary>
-    [CmfCommand("new")]
+    [CmfCommand("new", Id = "new")]
     public class NewCommand : TemplateCommand
     {
         private Command _cmd;

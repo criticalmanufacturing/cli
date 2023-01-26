@@ -17,7 +17,7 @@ namespace Cmf.CLI.Commands
     ///
     /// </summary>
     /// <seealso cref="BaseCommand" />
-    [CmfCommand("bump")]
+    [CmfCommand("bump", Id = "bump")]
     public class BumpCommand : BaseCommand
     {
         /// <summary>

@@ -11,7 +11,7 @@ namespace Cmf.CLI.Commands
     /// <summary>
     /// iot command group
     /// </summary>
-    [CmfCommand(name: "iot", Parent = "bump")]
+    [CmfCommand(name: "iot", Id = "bump_iot", ParentId = "bump")]
     public class BumpIoTCommand : BaseCommand
     {
         /// <summary>

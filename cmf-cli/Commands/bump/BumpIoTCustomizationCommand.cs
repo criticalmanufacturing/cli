@@ -15,7 +15,7 @@ namespace Cmf.CLI.Commands
     ///
     /// </summary>
     /// <seealso cref="BaseCommand" />
-    [CmfCommand(name: "customization", Parent = "iot")]
+    [CmfCommand(name: "customization", ParentId = "bump_iot")]
     public class BumpIoTCustomizationCommand : BaseCommand
     {
         /// <summary>

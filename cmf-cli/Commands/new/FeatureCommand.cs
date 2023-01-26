@@ -13,7 +13,7 @@ namespace Cmf.CLI.Commands.New
     /// <summary>
     /// new feature command
     /// </summary>
-    [CmfCommand("feature", Parent = "new")]
+    [CmfCommand("feature", ParentId = "new")]
     public class FeatureCommand : TemplateCommand
     {
         /// <summary>

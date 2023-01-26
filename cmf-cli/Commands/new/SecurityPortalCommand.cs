@@ -10,7 +10,7 @@ namespace Cmf.Common.Cli.Commands.New
     /// <summary>
     /// Generator for Security Portal package
     /// </summary>
-    [CmfCommand("securityPortal", Parent = "new")]
+    [CmfCommand("securityPortal", ParentId = "new")]
     public class SecurityPortalCommand : LayerTemplateCommand
     {
         /// <summary>

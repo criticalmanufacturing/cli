@@ -22,7 +22,7 @@ namespace Cmf.CLI.Commands
     /// This algo is based in an internal PowerShell implementation
     /// </summary>
     /// <seealso cref="PowershellCommand" />
-    [CmfCommand(name: "generateMenuItems", Parent = "help")]
+    [CmfCommand(name: "generateMenuItems", Parent = "help", ParentId = "build_help")]
     public class GenerateMenuItemsCommand : BaseCommand
     {
         public GenerateMenuItemsCommand()

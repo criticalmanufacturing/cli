@@ -11,7 +11,7 @@ using Spectre.Console;
 
 namespace Cmf.CLI.Commands;
 
-[CmfCommand("plugins", Description = "Search for plugins for the CLI")]
+[CmfCommand("plugins", Id="plugins", Description = "Search for plugins for the CLI")]
 public class PluginsCommand : BaseCommand
 {
     public override void Configure(Command cmd)
