@@ -7,7 +7,7 @@ namespace Cmf.CLI.Commands
     ///
     /// </summary>
     /// <seealso cref="BaseCommand" />
-    [CmfCommand(name: "help", Parent = "build")]
+    [CmfCommand(name: "help", ParentId = "build", Id = "build_help")]
     public class HelpCommand : BaseCommand
     {
         /// <summary>

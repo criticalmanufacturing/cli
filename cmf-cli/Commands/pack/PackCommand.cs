@@ -17,7 +17,7 @@ namespace Cmf.CLI.Commands
     ///
     /// </summary>
     /// <seealso cref="BaseCommand" />
-    [CmfCommand("pack")]
+    [CmfCommand("pack", Id = "pack")]
     public class PackCommand : BaseCommand
     {
         #region Constructors

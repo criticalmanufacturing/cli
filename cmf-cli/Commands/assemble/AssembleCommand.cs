@@ -20,7 +20,7 @@ namespace Cmf.CLI.Commands
     /// This command will be responsible for assembling a package based on a given cmfpackage and respective dependencies
     /// </summary>
     /// <seealso cref="BaseCommand" />
-    [CmfCommand("assemble")]
+    [CmfCommand("assemble", Id = "assemble", Description = "Assemble all unreleased packages as release candidates. Also generate a dependency file with all needed released packages.")]
     public class AssembleCommand : BaseCommand
     {
         #region Private Properties

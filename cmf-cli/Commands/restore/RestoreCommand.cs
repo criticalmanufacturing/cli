@@ -18,7 +18,7 @@ namespace Cmf.CLI.Commands.restore
     /// <summary>
     /// Restore package dependencies (declared cmfpackage.json) from repository packages
     /// </summary>
-    [CmfCommand("restore")]
+    [CmfCommand("restore", Id = "restore")]
     public class RestoreCommand : BaseCommand
     {
         #region Constructors

@@ -16,7 +16,7 @@ namespace Cmf.CLI.Commands
     ///
     /// </summary>
     /// <seealso cref="BaseCommand" />
-    [CmfCommand("build")]
+    [CmfCommand("build", Id = "build")]
     public class BuildCommand : BaseCommand
     {
         /// <summary>

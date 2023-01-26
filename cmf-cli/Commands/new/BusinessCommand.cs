@@ -15,7 +15,7 @@ namespace Cmf.CLI.Commands.New
     /// <summary>
     /// Generates the Business layer structure
     /// </summary>
-    [CmfCommand("business", Parent = "new")]
+    [CmfCommand("business", ParentId = "new")]
     public class BusinessCommand : LayerTemplateCommand
     {
         /// <summary>

@@ -71,7 +71,7 @@ namespace Cmf.CLI.Commands
     /// <summary>
     /// Init command
     /// </summary>
-    [CmfCommand("init")]
+    [CmfCommand("init", Id = "init")]
     public class InitCommand : TemplateCommand
     {
         /// <summary>

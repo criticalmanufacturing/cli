@@ -13,7 +13,7 @@ namespace Cmf.CLI.Commands.New
     /// <summary>
     /// Generates the Test layer structure
     /// </summary>
-    [CmfCommand("test", Parent = "new")]
+    [CmfCommand("test", ParentId = "new")]
     public class TestCommand : LayerTemplateCommand
     {
         /// <inheritdoc />

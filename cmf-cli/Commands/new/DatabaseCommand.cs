@@ -13,7 +13,7 @@ namespace Cmf.CLI.Commands.New
     /// <summary>
     /// Generates Database package structure
     /// </summary>
-    [CmfCommand("database", Parent = "new")]
+    [CmfCommand("database", ParentId = "new")]
     public class DatabaseCommand : LayerTemplateCommand
     {
         /// <inheritdoc />

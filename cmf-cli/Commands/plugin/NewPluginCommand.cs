@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Cmf.CLI.Commands;
 
-[CmfCommand("new", Parent = "plugins", Description = "Scaffold a new plugin")]
+[CmfCommand("new", Id = "plugins_new", ParentId = "plugins", Description = "Scaffold a new plugin")]
 public class NewPluginCommand : TemplateCommand
 {
     public NewPluginCommand() : base("plugin")

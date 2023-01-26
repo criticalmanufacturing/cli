@@ -20,7 +20,7 @@ namespace Cmf.CLI.Commands.New
     /// <summary>
     /// Generates Help/Documentation package structure
     /// </summary>
-    [CmfCommand("help", Parent = "new")]
+    [CmfCommand("help", ParentId = "new", Id = "new_help")]
     public class HelpCommand : UILayerTemplateCommand
     {
         private JsonDocument projectConfig = null;

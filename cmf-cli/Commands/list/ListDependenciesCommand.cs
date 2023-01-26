@@ -19,7 +19,7 @@ namespace Cmf.CLI.Commands
     /// <summary>
     /// List dependencies command
     /// </summary>
-    [CmfCommand("ls")]
+    [CmfCommand("ls", Id = "ls")]
     public class ListDependenciesCommand : BaseCommand
     {
         /// <summary>

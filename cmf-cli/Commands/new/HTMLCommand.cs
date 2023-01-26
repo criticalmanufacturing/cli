@@ -21,7 +21,7 @@ namespace Cmf.CLI.Commands.New
     /// <summary>
     /// Generates Help/Documentation package structure
     /// </summary>
-    [CmfCommand("html", Parent = "new")]
+    [CmfCommand("html", ParentId = "new")]
     public class HTMLCommand : UILayerTemplateCommand
     {
         private JsonDocument projectConfig = null;

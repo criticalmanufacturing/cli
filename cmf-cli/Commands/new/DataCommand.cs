@@ -16,7 +16,7 @@ namespace Cmf.CLI.Commands.New
     /// <summary>
     /// Generates Data package structure
     /// </summary>
-    [CmfCommand("data", Parent = "new")]
+    [CmfCommand("data", ParentId = "new")]
     public class DataCommand : LayerTemplateCommand
     {
         /// <inheritdoc />
