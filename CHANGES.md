@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.3.1](https://github.com/criticalmanufacturing/cli/compare/v3.3.0...v3.3.1) (2023-01-10)
+
+
+### Bug Fixes
+
+* missing replace on CI-Release.yml on PR [#232](https://github.com/criticalmanufacturing/cli/issues/232) ([e0c5a4f](https://github.com/criticalmanufacturing/cli/commits/e0c5a4ff23fabd73d1327b51d10c1bb46d5bfb44))
+
 ## [3.3.0](https://github.com/criticalmanufacturing/cli/compare/3.3.0-1...3.3.0) (2022-12-14)
 
 ## [3.3.0-1](https://github.com/criticalmanufacturing/cli/compare/3.3.0-0...3.3.0-1) (2022-12-06)
