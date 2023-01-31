@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "<%= $CLI_PARAM_PluginDescription %>",
   "bin": {
-    "cmf-dev": "./run.js"
+    "cmf-<%= $CLI_PARAM_PluginBinary %>": "./run.js"
   },
   "keywords": [
     "cmf",

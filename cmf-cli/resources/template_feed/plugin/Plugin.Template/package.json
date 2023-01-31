@@ -1,5 +1,5 @@
 {
-  "name": "<%= $CLI_PARAM_PluginName %>-builder",
+  "name": "<%= $CLI_PARAM_PluginBinary %>-builder",
   "version": "1.0.0",
   "description": "Builder package for <%= $CLI_PARAM_PluginName %>",
   "main": "index.js",
@@ -11,13 +11,13 @@
     "bump:feature": "npm run bump:npm:feature && npm run bump:dotnet:feature",
     "bump:breaking": "npm run bump:npm:breaking && npm run bump:dotnet:breaking",
     "build:prod": "npm run build:clean && npm run build:prod:win && npm run build:prod:linux && npm run build:prod:osx",
-    "build:prod:win": "dotnet publish ./src/<%= $CLI_PARAM_PluginName %>.csproj -c Release -r win10-x64 -o dist/win-x64",
-    "build:prod:linux": "dotnet publish ./src/<%= $CLI_PARAM_PluginName %>.csproj -c Release -r linux-x64 -o dist/linux-x64",
-    "build:prod:osx": "dotnet publish ./src/<%= $CLI_PARAM_PluginName %>.csproj -c Release -r osx-x64 -o dist/osx-x64",
+    "build:prod:win": "dotnet publish ./src/<%= $CLI_PARAM_PluginBinary %>.csproj -c Release -r win10-x64 -o dist/win-x64",
+    "build:prod:linux": "dotnet publish ./src/<%= $CLI_PARAM_PluginBinary %>.csproj -c Release -r linux-x64 -o dist/linux-x64",
+    "build:prod:osx": "dotnet publish ./src/<%= $CLI_PARAM_PluginBinary %>.csproj -c Release -r osx-x64 -o dist/osx-x64",
     "build:bundle": "npm run build:clean && npm run build:bundle:win && npm run build:bundle:linux && npm run build:bundle:osx",
-    "build:bundle:win": "dotnet publish ./src/<%= $CLI_PARAM_PluginName %>.csproj -c Release -r win10-x64 -o npm/dist/win-x64",
-    "build:bundle:linux": "dotnet publish ./src/<%= $CLI_PARAM_PluginName %>.csproj -c Release -r linux-x64 -o npm/dist/linux-x64",
-    "build:bundle:osx": "dotnet publish ./src/<%= $CLI_PARAM_PluginName %>.csproj -c Release -r osx-x64 -o npm/dist/osx-x64",
+    "build:bundle:win": "dotnet publish ./src/<%= $CLI_PARAM_PluginBinary %>.csproj -c Release -r win10-x64 -o npm/dist/win-x64",
+    "build:bundle:linux": "dotnet publish ./src/<%= $CLI_PARAM_PluginBinary %>.csproj -c Release -r linux-x64 -o npm/dist/linux-x64",
+    "build:bundle:osx": "dotnet publish ./src/<%= $CLI_PARAM_PluginBinary %>.csproj -c Release -r osx-x64 -o npm/dist/osx-x64",
     "build:prod:selfcontained:win": "dotnet publish ./src/<%= $CLI_PARAM_PluginName %>.csproj -c Release -r win10-x64 -o dist/win-x64 --self-contained=false /p:PublishSingleFile=true",
     "build:prod:selfcontained:linux": "dotnet publish ./src/<%= $CLI_PARAM_PluginName %>.csproj -c Release -r linux-x64 -o dist/linux-x64 --self-contained=false /p:PublishSingleFile=true",
     "build:prod:selfcontained:osx": "dotnet publish ./src/<%= $CLI_PARAM_PluginName %>.csproj -c Release -r osx-x64 -o dist/osx-x64 --self-contained=false /p:PublishSingleFile=true",
@@ -45,6 +45,6 @@
     "@commitlint/cli": "^16.1.0",
     "@commitlint/config-conventional": "^16.0.0",
     "husky": "^7.0.4",
-    "standard-version": "^9.3.2"
+    "standard-version": "^9.5.0"
   }
 }
