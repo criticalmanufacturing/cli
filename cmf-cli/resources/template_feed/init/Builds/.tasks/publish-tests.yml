@@ -24,7 +24,7 @@ steps:
   condition: always()
   inputs:
     testRunner: VSTest
-    testResultsFiles: '${{ parameters.PackagePath }}/**/*.trx'
+    testResultsFiles: '${{ parameters.path }}/**/*.trx'
 
 # Publish Code Coverage
 - task: PublishCodeCoverageResults@1
