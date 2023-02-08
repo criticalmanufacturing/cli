@@ -105,6 +105,7 @@ namespace Cmf.CLI.Commands.New
             var tenant = projectConfig.RootElement.GetProperty("Tenant").GetString();
             rootPkgJson.devDependencies["@criticalmanufacturing/dev-tasks"] = devTasksVersion;
             rootPkgJson.devDependencies["@criticalmanufacturing/generator-html"] = yoGeneratorVersion;
+            rootPkgJson.devDependencies["@types/node"] = "^12.0.0";
             rootPkgJson.name = $"customization.{tenant?.ToLowerInvariant()}";
             rootPkgJson.description = $"HTML customization package for {projectName}";
             rootPkgJson.repository.url = repositoryURL;
