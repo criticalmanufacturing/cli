@@ -102,6 +102,7 @@ namespace Cmf.CLI.Commands.New
             var repositoryURL = projectConfig.RootElement.GetProperty("RepositoryURL").GetString();
             rootPkgJson.devDependencies["@criticalmanufacturing/dev-tasks"] = devTasksVersion;
             rootPkgJson.devDependencies["@criticalmanufacturing/generator-html"] = yoGeneratorVersion;
+            rootPkgJson.devDependencies["@types/node"] = "^12.0.0";
             rootPkgJson.name = "cmf.docs.area";
             rootPkgJson.description = $"Help customization package for {projectName}";
             rootPkgJson.repository.url = repositoryURL;
