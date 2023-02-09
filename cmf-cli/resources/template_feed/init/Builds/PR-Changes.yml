@@ -41,6 +41,44 @@ steps:
   displayName: Find changed packages and trigger $(Pipeline)
   name: FindChangedPackages
 
+  - task: PowerShell@2
+  displayName: "Search for Test Cases"
+  inputs:
+    continueOnError: true
+    targetType: 'inline'
+    script: |
+      $headers = @{
+        Authorization = "Bearer $env:SYSTEM_ACCESSTOKEN"
+      }
+      $flag = 0
+      Write-Host "Fetch WorkItems start"
+      $url = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$env:SYSTEM_TEAMPROJECTID/_apis/git/repositories/<%= $CLI_PARAM_RepositoryName %>/pullRequests/$(System.PullRequest.PullRequestId)/workitems?api-version=6.0"
+      $workitems = Invoke-RestMethod -Uri $url -Method Get -ContentType "application/json" -Headers $headers
+      $workitems.value | ForEach-Object {
+        $url = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$env:SYSTEM_TEAMPROJECTID/_apis/wit/workitems/$($_.id)?api-version=6.0&`$expand=relations"
+        $workitem = Invoke-RestMethod -Uri $url -Method Get -ContentType "application/json" -Headers $headers
+        if ($workitem.fields.'System.Tags' -NotLike '*not testable*') {
+          Write-Host "WorkItem: $($_.id) is testable"
+          $testCases = $workitem.relations | where({$_.attributes.name -like 'Tested By'})
+          if ($testCases -eq $null) {
+            Write-Host "WorkItem: $($_.id) is missing test cases"
+            $flag = 1
+          }else{
+            Write-Host "WorkItem: $($_.id) has test cases"
+          }
+        }else{
+           Write-Host "WorkItem: $($_.id) is not testable"
+        }
+      }
+      Write-Host "Fetch WorkItems finished"
+      exit $flag
+      # end get workitems
+    pwsh: true
+  env:
+    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+    SYSTEM_TEAMFOUNDATIONCOLLECTIONURI: $(System.TeamFoundationCollectionUri)
+    SYSTEM_TEAMPROJECTID: $(System.TeamProject)
+
 # cancel triggered pipeline if canceled
 - pwsh: $(CmfPipelinePath)/cmf-pipeline azureDevOps pipeline cancel --pipeline $(Pipeline) --pipelineRunId $(FindChangedPackages.Cmf.Pipeline.Triggered.Build.Id)
   env:
