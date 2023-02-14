@@ -32,6 +32,9 @@ steps:
 - checkout: self
   persistCredentials: true
 
+# set node version
+- template: .tasks/use-node-version.yml
+
 # install cmf-pipeline
 - template: .tasks/install-cmf-pipeline.yml
 
