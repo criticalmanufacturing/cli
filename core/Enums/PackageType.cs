@@ -76,8 +76,13 @@
         Tests = 13,
 
         /// <summary>
-        /// The test
+        /// The Security Portal
         /// </summary>
-        SecurityPortal = 14
+        SecurityPortal = 14,
+
+        /// <summary>
+        /// The specific product database
+        /// </summary>
+        ProductDatabase = 15,
     }
 }

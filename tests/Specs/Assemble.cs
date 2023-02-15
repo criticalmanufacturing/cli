@@ -7,7 +7,7 @@ using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
 using Cmf.CLI.Core.Objects;
-using Cmf.CLI.Objects;
+
 using tests.Objects;
 using Xunit;
 

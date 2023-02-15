@@ -77,7 +77,7 @@ namespace Cmf.CLI.Handlers
                     DisplayName = "Run Business Unit Tests",
                     WorkingDirectory = cmfPackage.GetFileInfo().Directory,
                     Test = true,
-                    Args = new [] { "--collect:\"XPlat Code Coverage\"" }
+                    Args = new [] { "--collect:\"XPlat Code Coverage\"", "--logger", "trx" }
                 }
             };
         }

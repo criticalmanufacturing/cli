@@ -27,8 +27,19 @@ steps:
 - checkout: self
   persistCredentials: true
 
+# set node version
+- template: .tasks/use-node-version.yml
+
 # install cmf-pipeline
 - template: .tasks/install-cmf-pipeline.yml
+
+# search for test cases on pullrequest workitems
+- pwsh: |
+    $(CmfPipelinePath)/cmf-pipeline azureDevOps pr hastestcases
+  env:
+    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+  displayName: Search for test cases on pullrequest workitems
+  name: SearchForTestCases
 
 # find changes and trigger pr-package build
 - pwsh: |

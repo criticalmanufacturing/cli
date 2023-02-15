@@ -1,7 +1,7 @@
 using Xunit;
 using System.IO.Abstractions.TestingHelpers;
 using System.Collections.Generic;
-using Cmf.CLI.Objects;
+
 using Cmf.CLI.Commands;
 using Cmf.CLI.Handlers;
 using System.CommandLine;

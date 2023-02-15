@@ -8,7 +8,6 @@ using System.IO.Abstractions;
 using System.Text.Json;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Enums;
-using Cmf.CLI.Objects;
 using Cmf.CLI.Utilities;
 
 namespace Cmf.CLI.Commands.New
@@ -16,7 +15,7 @@ namespace Cmf.CLI.Commands.New
     /// <summary>
     /// Generates the Business layer structure
     /// </summary>
-    [CmfCommand("business", Parent = "new")]
+    [CmfCommand("business", ParentId = "new")]
     public class BusinessCommand : LayerTemplateCommand
     {
         /// <summary>

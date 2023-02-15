@@ -113,8 +113,7 @@ namespace Cmf.CLI.Commands
                 var featuresPath = this.fileSystem.Path.Join(projectRoot.FullName, "Features");
                 if (this.fileSystem.Directory.Exists(featuresPath))
                 {
-                    Log.Error($"Cannot create a root-level layer package when features already exist.");
-                    return null;
+                    throw new CliException($"Cannot create a root-level layer package when features already exist.");
                 }
             }
             else
@@ -146,8 +145,7 @@ namespace Cmf.CLI.Commands
             using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
             if (workingDir == null)
             {
-                Log.Error("This command needs to run inside a project. Run `cmf init` to create a new project.");
-                return;
+                throw new CliException("This command needs to run inside a project. Run `cmf init` to create a new project.");
             }
 
             var names = this.GeneratePackageName(workingDir);

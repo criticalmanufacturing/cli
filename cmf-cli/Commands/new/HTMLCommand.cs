@@ -21,7 +21,7 @@ namespace Cmf.CLI.Commands.New
     /// <summary>
     /// Generates Help/Documentation package structure
     /// </summary>
-    [CmfCommand("html", Parent = "new")]
+    [CmfCommand("html", ParentId = "new")]
     public class HTMLCommand : UILayerTemplateCommand
     {
         private JsonDocument projectConfig = null;
@@ -86,7 +86,7 @@ namespace Cmf.CLI.Commands.New
             var pkgFolder = workingDir.GetDirectories(pkgName).FirstOrDefault();
             if (!pkgFolder?.Exists ?? false)
             {
-                throw new Exception($"Package folder {pkgFolder.Name} does not exist. This is a template error. Please open an issue on GitHub.");
+                throw new CliException($"Package folder {pkgFolder.Name} does not exist. This is a template error. Please open an issue on GitHub.");
             }
             this.CloneHTMLStarter(htmlStarterVersion, pkgFolder);
 
@@ -96,7 +96,7 @@ namespace Cmf.CLI.Commands.New
             dynamic rootPkgJson = JsonConvert.DeserializeObject(json);
             if (rootPkgJson == null)
             {
-                throw new Exception("Could not load package.json");
+                throw new CliException("Could not load package.json");
             }
             var devTasksVersion = projectConfig.RootElement.GetProperty("DevTasksVersion").GetString();
             var yoGeneratorVersion = projectConfig.RootElement.GetProperty("YoGeneratorVersion").GetString();
@@ -105,6 +105,7 @@ namespace Cmf.CLI.Commands.New
             var tenant = projectConfig.RootElement.GetProperty("Tenant").GetString();
             rootPkgJson.devDependencies["@criticalmanufacturing/dev-tasks"] = devTasksVersion;
             rootPkgJson.devDependencies["@criticalmanufacturing/generator-html"] = yoGeneratorVersion;
+            rootPkgJson.devDependencies["@types/node"] = "^12.0.0";
             rootPkgJson.name = $"customization.{tenant?.ToLowerInvariant()}";
             rootPkgJson.description = $"HTML customization package for {projectName}";
             rootPkgJson.repository.url = repositoryURL;
@@ -118,7 +119,7 @@ namespace Cmf.CLI.Commands.New
             dynamic devTasksJson = JsonConvert.DeserializeObject(devTasksStr);
             if (devTasksJson == null)
             {
-                throw new Exception("Could not load .dev-tasks.json");
+                throw new CliException("Could not load .dev-tasks.json");
             }
             var npmRegistry = projectConfig.RootElement.GetProperty("NPMRegistry").GetString();
             var mesVersion = projectConfig.RootElement.GetProperty("MESVersion").GetString();
@@ -201,7 +202,7 @@ $@"{{
             dynamic configJsonJson = JsonConvert.DeserializeObject(configJsonStr);
             if (configJsonJson == null)
             {
-                throw new Exception("Could not load config.json");
+                throw new CliException("Could not load config.json");
             }
             var restPort = int.Parse(projectConfig.RootElement.GetProperty("RESTPort").GetString());
             configJsonJson.host.rest.enableSsl = false;

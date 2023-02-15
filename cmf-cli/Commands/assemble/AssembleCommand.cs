@@ -1,4 +1,4 @@
-using Cmf.CLI.Objects;
+
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -20,7 +20,7 @@ namespace Cmf.CLI.Commands
     /// This command will be responsible for assembling a package based on a given cmfpackage and respective dependencies
     /// </summary>
     /// <seealso cref="BaseCommand" />
-    [CmfCommand("assemble")]
+    [CmfCommand("assemble", Id = "assemble", Description = "Assemble all unreleased packages as release candidates. Also generate a dependency file with all needed released packages.")]
     public class AssembleCommand : BaseCommand
     {
         #region Private Properties
@@ -222,7 +222,7 @@ namespace Cmf.CLI.Commands
                         }
                         else
                         {
-                            throw new Exception(string.Format(CliMessages.SomePackagesNotFound, _dependencyFileName));
+                            throw new CliException(string.Format(CliMessages.SomePackagesNotFound, _dependencyFileName));
                         }
                     }
 
@@ -254,7 +254,7 @@ namespace Cmf.CLI.Commands
                         if (dependency.CmfPackage == null)
                         {
                             string errorMessage = string.Format(CoreMessages.MissingMandatoryDependency, dependency.Id, dependency.Version);
-                            throw new Exception(errorMessage);
+                            throw new CliException(errorMessage);
                         }
 
                         string dependencyPath = dependency.CmfPackage.Uri.GetFile().Directory.FullName;
@@ -297,7 +297,7 @@ namespace Cmf.CLI.Commands
                 if(cmfPackage == null)
                 {
                     string errorMessage = string.Format(CoreMessages.NotFound, packageName);
-                    throw new Exception(errorMessage);
+                    throw new CliException(errorMessage);
                 }
             }
 

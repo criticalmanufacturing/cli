@@ -62,10 +62,14 @@ jobs:
         if: "!github.event.release.prerelease"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Re-version Core Nuget for pre-release
+        if: "github.event.release.prerelease"
+        run: sed -i.orig -E 's/([0-9]+)\.([0-9]+)\.([0-9]+)-([0-9]+)/\1\.\2\.\3-pre.\4/' core.csproj
+        working-directory: ./core
       - name: Publish Core NuGet
-        if: "!github.event.release.prerelease"
         id: publish_nuget
         uses: alirezanet/publish-nuget@v3.0.4
         with:
           PROJECT_FILE_PATH: core/core.csproj
+          TAG_COMMIT: false
           NUGET_KEY: ${{secrets.NUGET_API_KEY}}

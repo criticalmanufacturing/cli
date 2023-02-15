@@ -1,4 +1,4 @@
-using Cmf.CLI.Objects;
+
 using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
@@ -17,7 +17,7 @@ namespace Cmf.CLI.Commands
     ///
     /// </summary>
     /// <seealso cref="BaseCommand" />
-    [CmfCommand("pack")]
+    [CmfCommand("pack", Id = "pack")]
     public class PackCommand : BaseCommand
     {
         #region Constructors
@@ -78,6 +78,7 @@ namespace Cmf.CLI.Commands
 
             // Reading cmfPackage
             CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true);
+            cmfPackage.ValidatePackage();
 
             Execute(cmfPackage, outputDir, force);
         }

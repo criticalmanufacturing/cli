@@ -6,14 +6,14 @@ using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Utilities;
 using Cmf.CLI.Constants;
-using Cmf.CLI.Objects;
+
 
 namespace Cmf.CLI.Commands.New
 {
     /// <summary>
     /// new feature command
     /// </summary>
-    [CmfCommand("feature", Parent = "new")]
+    [CmfCommand("feature", ParentId = "new")]
     public class FeatureCommand : TemplateCommand
     {
         /// <summary>
@@ -68,8 +68,7 @@ namespace Cmf.CLI.Commands.New
         {
             if (workingDir == null)
             {
-                Log.Error("This command needs to run inside a project. Run `cmf init` to create a new project.");
-                return;
+                throw new CliException("This command needs to run inside a project. Run `cmf init` to create a new project.");
             }
             var featurePath = this.fileSystem.Path.Join(workingDir.FullName, "Features");
             var args = new List<string>()

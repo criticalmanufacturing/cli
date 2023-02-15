@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Critical Manufacturing",
+  "classifications": [
+    "cli", "plugin"
+  ],
+  "description": "Generate a new Plugin solution",
+  "name": "Cmf CLI Plugin",
+  "identity": "cmf-cli.new.plugin",
+  "groupIdentity": "cmf-cli.new.plugin",
+  "shortName": "plugin",
+  // You can create the project using this short name instead of the one above.
+  "tags": {
+    "language": "C#",
+    // Specify that this template is in C#.
+    "type": "project"
+  },
+  "sourceName": "Plugin.Template",
+  // Will replace the string 'MyProject.StarterWeb' with the value provided via -n.
+  "preferNameDirectory": true,
+  "symbols": {
+    "pluginName": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The plugin name",
+      "displayName": "Plugin Name",
+      "replaces": "<%= $CLI_PARAM_PluginName %>"
+    },
+    "description": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The plugin description",
+      "displayName": "Plugin Description",
+      "replaces": "<%= $CLI_PARAM_PluginDescription %>"
+    },
+    "binary": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The plugin binary name",
+      "displayName": "Plugin Binary Name",
+      "replaces": "<%= $CLI_PARAM_PluginBinary %>",
+      "fileRename": "%solutionName%"
+    }
+  }
+}

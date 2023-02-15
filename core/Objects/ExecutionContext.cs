@@ -59,6 +59,12 @@ namespace Cmf.CLI.Core.Objects
         /// </summary>
         public static bool IsOutdated => ExecutionContext.LatestVersion != null && ExecutionContext.CurrentVersion != ExecutionContext.LatestVersion;
 
+        /// <summary>
+        /// Prefix that should be used in environment variables defition in the whole aplication
+        /// example: telemetry service envars use this prefix
+        /// </summary>
+        public static string EnvVarPrefix { get; set; }
+
         private ExecutionContext(IFileSystem fileSystem)
         {
             // private constructor, can only obtain instance via the Instance property

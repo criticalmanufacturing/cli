@@ -32,14 +32,14 @@ steps:
 # install cmf-pipeline
 - template: .tasks/install-cmf-pipeline.yml
 
+# set node version
+- template: .tasks/use-node-version.yml
+
 - ${{ each package in parameters.packages }}:
   # package existsInRepos
   - pwsh: $(CmfPipelinePath)/cmf-pipeline package existsInRepos --repo $(ApprovedPackages)
     displayName: Check if ${{ package.packageId }}@${{ package.version }} was not released
     workingDirectory: ${{ package.path }}
-
-# set node version
-- template: .tasks/use-node-version.yml
 
 # set dotnet version
 - template: .tasks/use-dotnet-version.yml
@@ -47,11 +47,20 @@ steps:
 # install cmf-cli
 - template: .tasks/install-cli.yml
 
+# install dotnet tools
+- script: 'dotnet tool restore'
+  displayName: 'Restore .NET tools'
+
 - ${{ each package in parameters.packages }}:
   # cmf build
-  - pwsh: $(CmfCliPath)/cmf build
+  - pwsh: $(CmfCliPath)/cmf build --test
     displayName: Build ${{ package.packageId }} @ ${{ package.path }}
     workingDirectory: ${{ package.path }}
+
+# Publish test and coverage results
+- template: .tasks/publish-tests.yml
+  parameters:
+    path: $(build.sourcesdirectory)
 
 # Clean Agent Directories
 - template: .tasks/clean-agent-directories.yml

@@ -2,6 +2,44 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.4.0](https://github.com/criticalmanufacturing/cli/compare/3.4.0-5...3.4.0) (2023-02-15)
+
+## [3.4.0-5](https://github.com/criticalmanufacturing/cli/compare/3.4.0-4...3.4.0-5) (2023-02-14)
+
+
+### Features
+
+* **pr-changes:** add validation to search for test cases on pullrequest workitems ([b974fab](https://github.com/criticalmanufacturing/cli/commits/b974fabc79d171524e7a0259af64071ef7eccb58))
+
+## [3.4.0-4](https://github.com/criticalmanufacturing/cli/compare/3.4.0-3...3.4.0-4) (2023-02-08)
+
+
+### Bug Fixes
+
+* pin node typings to the node version ([748489b](https://github.com/criticalmanufacturing/cli/commits/748489bfe6de45016bef730484cb156b8ba6a0cb))
+
+## [3.4.0-3](https://github.com/criticalmanufacturing/cli/compare/3.4.0-2...3.4.0-3) (2023-02-07)
+
+## [3.4.0-2](https://github.com/criticalmanufacturing/cli/compare/3.4.0-1...3.4.0-2) (2023-01-30)
+
+
+### Features
+
+* add plugin scaffolding command ([03d6023](https://github.com/criticalmanufacturing/cli/commits/03d60237335315f745dc7832a2f338d522ef11a3))
+* allow commands to specify an Id in addition to the name ([977d772](https://github.com/criticalmanufacturing/cli/commits/977d77284b633ff0db36854db9c6f51c05403e0b))
+* **build:** collect test output for coverage analysis ([e10fed2](https://github.com/criticalmanufacturing/cli/commits/e10fed2f6cb73fd0b9797555c0840f1c9c6efbed))
+* **build:** publish test and coverage reports for displaying in pipeline UI ([163ba11](https://github.com/criticalmanufacturing/cli/commits/163ba11cdc62a3cc2ffb451a6eb7d23789376348))
+* **restore dependencies:** move CopyLibs to cmf-cli restore dependencies ([9ee2573](https://github.com/criticalmanufacturing/cli/commits/9ee25733b38b54f3b7aa65862522d9fb9a53f3df))
+
+
+### Bug Fixes
+
+* allow -v version shorthand without executing the root command ([9a7fb5e](https://github.com/criticalmanufacturing/cli/commits/9a7fb5e9a8963a78c43c02f9330e597eb0e8b640))
+
+## [3.4.0-1](https://github.com/criticalmanufacturing/cli/compare/v3.3.1...3.4.0-1) (2023-01-10)
+
+## [3.4.0-0](https://github.com/criticalmanufacturing/cli/compare/v3.3.0...3.4.0-0) (2023-01-04)
+
 ### [3.3.1](https://github.com/criticalmanufacturing/cli/compare/v3.3.0...v3.3.1) (2023-01-10)
 
 

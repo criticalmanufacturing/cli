@@ -10,7 +10,7 @@ using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Factories;
 using Cmf.CLI.Interfaces;
 using Cmf.CLI.Utilities;
-using Cmf.CLI.Objects;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Cmf.CLI.Commands.restore
@@ -18,7 +18,7 @@ namespace Cmf.CLI.Commands.restore
     /// <summary>
     /// Restore package dependencies (declared cmfpackage.json) from repository packages
     /// </summary>
-    [CmfCommand("restore")]
+    [CmfCommand("restore", Id = "restore")]
     public class RestoreCommand : BaseCommand
     {
         #region Constructors

@@ -18,12 +18,22 @@ namespace Cmf.CLI.Core.Attributes
         public string Name { get; set; }
 
         /// <summary>
-        /// Gets or sets the parent.
+        /// gets or sets the command Id
+        /// </summary>
+        public string Id { get; set; }
+
+        /// <summary>
+        /// Gets or sets the parent command name.
         /// </summary>
         /// <value>
         /// The parent.
         /// </value>
         public string Parent { get; set; }
+
+        /// <summary>
+        /// Gets or sets the parent command id. This property has precedence to the Parent property.
+        /// </summary>
+        public string ParentId { get; set; }
 
         /// <summary>
         /// Description for the command

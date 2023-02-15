@@ -62,7 +62,9 @@ namespace Cmf.CLI.Core.Commands
             // Commands that depend on root (have no defined parent)
             var topmostCommands = commandTypes.Where(
                 t => string.IsNullOrWhiteSpace(t.GetCustomAttributes<CmfCommandAttribute>(false)
-                    .First().Parent));
+                    .First().Parent) && 
+                     string.IsNullOrWhiteSpace(t.GetCustomAttributes<CmfCommandAttribute>(false)
+                         .First().ParentId));
 
             foreach (var cmd in topmostCommands)
             {
@@ -93,9 +95,15 @@ namespace Cmf.CLI.Core.Commands
 
             // Add commands that depend on me
             var childCommands = commandTypes.Where(
-                t => t.GetCustomAttributes(typeof(CmfCommandAttribute), false)
-                    .Cast<CmfCommandAttribute>()
-                    .First().Parent == cmdName);
+                t =>
+                {
+                    var attr = t.GetCustomAttributes(typeof(CmfCommandAttribute), false)
+                        .Cast<CmfCommandAttribute>()
+                        .First();
+                    // ParentId has precedence to Parent
+                    return !string.IsNullOrWhiteSpace(attr.ParentId) && attr.ParentId == dec.Id ||
+                        string.IsNullOrWhiteSpace(attr.ParentId) && attr.Parent == cmdName;
+                });
 
             foreach (var child in childCommands)
             {

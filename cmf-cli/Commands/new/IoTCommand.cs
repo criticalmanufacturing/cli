@@ -12,7 +12,7 @@ namespace Cmf.CLI.Commands.New
     /// <summary>
     /// Generates IoT package structure
     /// </summary>
-    [CmfCommand("iot", Parent = "new")]
+    [CmfCommand("iot", ParentId = "new", Id = "new_iot")]
     public class IoTCommand : LayerTemplateCommand
     {
         /// <summary>

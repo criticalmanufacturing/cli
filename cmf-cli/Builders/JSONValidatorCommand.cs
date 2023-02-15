@@ -1,4 +1,3 @@
-using Cmf.CLI.Objects;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,6 +6,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Utilities;
 
 namespace Cmf.CLI.Builders
 {
@@ -64,7 +64,7 @@ namespace Cmf.CLI.Builders
                 }
                 catch (Exception)
                 {
-                    throw new Exception($"File {file.Source.FullName} is not a valid json");
+                    throw new CliException($"File {file.Source.FullName} is not a valid json");
                 }
             }
             return null;

@@ -378,5 +378,83 @@ namespace tests.Specs
 
             customizationVersion.Should().Be(version);
         }
+
+        [Fact]
+        public void Business_WithoutContentToPack()
+        {
+            KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Business", "1.1.0");
+
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { "/repo/cmfpackage.json", new MockFileData(
+                @$"{{
+                  ""packageId"": ""{packageRoot.Key}"",
+                  ""version"": ""{packageRoot.Value}"",
+                  ""description"": ""This package deploys Critical Manufacturing Customization"",
+                  ""packageType"": ""Business"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": false
+                }}")}
+            });
+            ExecutionContext.Initialize(fileSystem);
+
+            IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
+
+            string message = string.Empty;
+            try
+            {
+                var packCommand = new PackCommand(fileSystem);
+                packCommand.Execute(cmfpackageFile.Directory, fileSystem.DirectoryInfo.FromDirectoryName("output"), false);
+            }
+            catch (Exception ex)
+            {
+                message = ex.Message;
+            }
+            string fileLocation = fileSystem.FileInfo.FromFileName("/repo/cmfpackage.json").FullName;
+
+            Assert.Equal(@$"Missing mandatory property ContentToPack in file {fileLocation}", message);
+        }
+
+        [Fact]
+        public void Root_WithoutMandatoryDependencies()
+        {
+            KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.1.0");
+            KeyValuePair<string, string> packageDep1 = new("Cmf.Custom.Business", "1.1.0");
+
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { "/repo/cmfpackage.json", new MockFileData(
+                @$"{{
+                  ""packageId"": ""{packageRoot.Key}"",
+                  ""version"": ""{packageRoot.Value}"",
+                  ""description"": ""This package deploys Critical Manufacturing Customization"",
+                  ""packageType"": ""Root"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": false,
+                  ""dependencies"": [
+                    {{
+                         ""id"": ""{packageDep1.Key}"",
+                        ""version"": ""{packageDep1.Value}""
+                    }}
+                  ]
+                }}")}
+            });
+
+            ExecutionContext.Initialize(fileSystem);
+            IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
+
+            string message = string.Empty;
+            try
+            {
+                var packCommand = new PackCommand(fileSystem);
+                packCommand.Execute(cmfpackageFile.Directory, fileSystem.DirectoryInfo.FromDirectoryName("output"), false);
+            }
+            catch (Exception ex)
+            {
+                message = ex.Message;
+            }
+
+            Assert.Equal("Mandatory Dependency criticalmanufacturing.deploymentmetadata and cmf.environment. not found", message);
+        }
     }
 }

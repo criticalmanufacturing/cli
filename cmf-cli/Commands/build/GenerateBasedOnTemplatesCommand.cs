@@ -18,7 +18,7 @@ namespace Cmf.CLI.Commands
     ///
     /// </summary>
     /// <seealso cref="PowershellCommand" />
-    [CmfCommand(name: "generateBasedOnTemplates", Parent = "help")]
+    [CmfCommand(name: "generateBasedOnTemplates", Parent = "help", ParentId = "build_help")]
     public class GenerateBasedOnTemplatesCommand : PowershellCommand
     {
         /// <summary>

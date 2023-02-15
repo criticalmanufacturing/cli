@@ -15,7 +15,7 @@ namespace Cmf.CLI.Commands
     ///
     /// </summary>
     /// <seealso cref="BaseCommand" />
-    [CmfCommand(name: "customization", Parent = "iot")]
+    [CmfCommand(name: "customization", ParentId = "bump_iot")]
     public class BumpIoTCustomizationCommand : BaseCommand
     {
         /// <summary>
@@ -70,8 +70,7 @@ namespace Cmf.CLI.Commands
 
             if (string.IsNullOrEmpty(version))
             {
-                Log.Error(string.Format(CliMessages.MissingMandatoryProperty, "version"));
-                return;
+                throw new CliException(string.Format(CliMessages.MissingMandatoryProperty, "version"));
             }
 
             // Reading cmfPackage

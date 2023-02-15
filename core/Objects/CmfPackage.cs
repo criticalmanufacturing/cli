@@ -1,21 +1,18 @@
-﻿using System;
+﻿using Cmf.CLI.Core.Constants;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Utilities;
+using Cmf.CLI.Utilities;
+using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Compression;
 using System.Linq;
 using System.Xml.Linq;
-using Cmf.CLI.Core.Constants;
-using Cmf.CLI.Core.Enums;
-using Cmf.CLI;
-using Cmf.CLI.Utilities;
-using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Serialization;
-using Newtonsoft.Json.Linq;
-using Cmf.CLI.Core.Objects;
-using Cmf.CLI.Core.Utilities;
 
 namespace Cmf.CLI.Core.Objects
 {
@@ -271,48 +268,17 @@ namespace Cmf.CLI.Core.Objects
         [JsonConverter(typeof(ListAbstractionsDirectoryConverter))]
         public List<IDirectoryInfo> BuildablePackages { get; set; }
 
-        #endregion Public Properties
-
-        #region Private Methods
-
         /// <summary>
-        /// Validates the package.
+        /// Gets or sets the target directory where the dependencies contents should be extracted.
+        /// This is used when the package dependencies are restored in the restore and build commands.
         /// </summary>
-        private void ValidatePackage()
-        {
-            // If is installable and is not a root Package ContentToPack are mandatory
-            if (!PackageType.Equals(PackageType.Root) &&
-                (IsInstallable ?? false))
-            {
-                if (!ContentToPack.HasAny())
-                {
-                    throw new CliException(string.Format(CoreMessages.MissingMandatoryPropertyInFile, nameof(ContentToPack), $"{FileInfo.FullName}"));
-                }
-            }
+        /// <value>
+        /// The dependencies target directory.
+        /// </value>
+        [JsonProperty(Order = 23)]
+        public string DependenciesDirectory { get; set; }
 
-            if (PackageType.Equals(PackageType.Data) &&
-                !(IsUniqueInstall ?? false))
-            {
-                throw new CliException(string.Format(CoreMessages.InvalidValue, this.GetType(), "IsUniqueInstall", true));
-            }
-
-            // criticalmanufacturing.deploymentmetadata and cmf.environment should be part of the dependencies in a package of Type Root
-            if (PackageType.Equals(PackageType.Root) &&
-                !Dependencies.Contains(Dependency.DefaultDependenciesToIgnore[0]) && !Dependencies.Contains(Dependency.DefaultDependenciesToIgnore[1]))
-            {
-                throw new CliException(string.Format(CoreMessages.MissingMandatoryDependency, $"{Dependency.DefaultDependenciesToIgnore[0]} and {Dependency.DefaultDependenciesToIgnore[1]}", string.Empty));
-            }
-
-            // When is fixed by the product team, this can be uncommented
-            //// cmf.connectiot.packages should be part of the dependencies in a package of Type IoT
-            //if (PackageType.Equals(PackageType.IoT) &&
-            //    !Dependencies.HasAny(d => d.Id.IgnoreCaseEquals(Dependency.DefaultDependenciesToIgnore[2])))
-            //{
-            //    throw new CliException(string.Format(CliMessages.MissingMandatoryDependency, $"{ Dependency.DefaultDependenciesToIgnore[2] }", string.Empty));
-            //}
-        }
-
-        #endregion Private Methods
+        #endregion Public Properties
 
         #region Constructors
 
@@ -396,6 +362,43 @@ namespace Cmf.CLI.Core.Objects
         #endregion Constructors
 
         #region Public Methods
+
+        /// <summary>
+        /// Validates the package.
+        /// </summary>
+        public void ValidatePackage()
+        {
+            // If is installable and is not a root Package ContentToPack are mandatory
+            if (!PackageType.Equals(PackageType.Root) &&
+                (IsInstallable ?? false))
+            {
+                if (!ContentToPack.HasAny())
+                {
+                    throw new CliException(string.Format(CoreMessages.MissingMandatoryPropertyInFile, nameof(ContentToPack), $"{FileInfo.FullName}"));
+                }
+            }
+
+            if (PackageType.Equals(PackageType.Data) &&
+                !(IsUniqueInstall ?? false))
+            {
+                throw new CliException(string.Format(CoreMessages.InvalidValue, this.GetType(), "IsUniqueInstall", true));
+            }
+
+            // criticalmanufacturing.deploymentmetadata and cmf.environment should be part of the dependencies in a package of Type Root
+            if (PackageType.Equals(PackageType.Root) &&
+                !Dependencies.Contains(Dependency.DefaultDependenciesToIgnore[0]) && !Dependencies.Contains(Dependency.DefaultDependenciesToIgnore[1]))
+            {
+                throw new CliException(string.Format(CoreMessages.MissingMandatoryDependency, $"{Dependency.DefaultDependenciesToIgnore[0]} and {Dependency.DefaultDependenciesToIgnore[1]}", string.Empty));
+            }
+
+            // When is fixed by the product team, this can be uncommented
+            //// cmf.connectiot.packages should be part of the dependencies in a package of Type IoT
+            //if (PackageType.Equals(PackageType.IoT) &&
+            //    !Dependencies.HasAny(d => d.Id.IgnoreCaseEquals(Dependency.DefaultDependenciesToIgnore[2])))
+            //{
+            //    throw new CliException(string.Format(CliMessages.MissingMandatoryDependency, $"{ Dependency.DefaultDependenciesToIgnore[2] }", string.Empty));
+            //}
+        }
 
         /// <summary>
         /// Indicates whether the current object is equal to another object of the same type.
@@ -534,8 +537,7 @@ namespace Cmf.CLI.Core.Objects
                 var allDirectories = repoUris?.All(r => r.IsDirectory());
                 if (allDirectories == false)
                 {
-                    Log.Error(CoreMessages.UrlsNotSupported);
-                    return;
+                    throw new CliException(CoreMessages.UrlsNotSupported);
                 }
 
                 IDirectoryInfo[] repoDirectories = repoUris?.Select(r => r.GetDirectory()).ToArray();
@@ -594,9 +596,9 @@ namespace Cmf.CLI.Core.Objects
         }
 
         /// <summary>
-        /// Shoulds the serialize d f package type.
+        /// Shoulds the serialize DF package type.
         /// </summary>
-        /// <returns>returns false if handler version is 0 otherwise true</returns>
+        /// <returns>returns false if DF Package Type is null and Package Type is different then Generic, otherwise true</returns>
         public bool ShouldSerializeDFPackageType()
         {
             return DFPackageType != null && PackageType == PackageType.Generic;
@@ -609,6 +611,15 @@ namespace Cmf.CLI.Core.Objects
         public bool ShouldSerializeBuildablePackages()
         {
             return BuildablePackages.HasAny();
+        }
+
+        /// <summary>
+        /// Should the Dependencies Directory be serialized
+        /// </summary>
+        /// <returns>returns false if Dependencies Directory is null or empty</returns>
+        public bool ShouldSerializeDependenciesDirectory()
+        {
+            return !string.IsNullOrWhiteSpace(DependenciesDirectory);
         }
 
         #region Static Methods
@@ -636,7 +647,6 @@ namespace Cmf.CLI.Core.Objects
             cmfPackage.IsToSetDefaultValues = setDefaultValues;
             cmfPackage.FileInfo = file;
             cmfPackage.Location = PackageLocation.Local;
-            cmfPackage.ValidatePackage();
             cmfPackage.fileSystem = fileSystem;
 
             return cmfPackage;

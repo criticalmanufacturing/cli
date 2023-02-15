@@ -37,7 +37,7 @@ namespace tests.Objects
                 }}
               ]
             }}")}});
-        
+
         internal static readonly MockFileSystem Html_OnlyLBOs = new MockFileSystem(new Dictionary<string, MockFileData>
         {
           { MockUnixSupport.Path(@"c:\Libs\LBOs\TypeScript\APIReference.js"), new MockFileData(@"dummy")},
@@ -79,7 +79,7 @@ namespace tests.Objects
                 }}
               ]
             }}")}});
-        
+
         internal static readonly MockFileSystem Html_MissingDeclaredContent = new MockFileSystem(new Dictionary<string, MockFileData>
         {
           { MockUnixSupport.Path(@"c:\ui\package.json"), new MockFileData(
@@ -107,7 +107,7 @@ namespace tests.Objects
            }}")
           }
         });
-        
+
         internal static readonly MockFileSystem Html_EmptyContentToPack = new MockFileSystem(new Dictionary<string, MockFileData>
         {
           { MockUnixSupport.Path(@"c:\ui\package.json"), new MockFileData(
@@ -128,7 +128,7 @@ namespace tests.Objects
            }}")
           }
         });
-        
+
         internal static readonly MockFileSystem Root_Empty = new MockFileSystem(new Dictionary<string, MockFileData>
         {
          { MockUnixSupport.Path(@"c:\repo\cmfpackage.json"), new MockFileData(
@@ -141,6 +141,26 @@ namespace tests.Objects
               ""isUniqueInstall"": false,
               ""dependencies"": [
                 {{ ""id"": ""Cmf.Environment"", ""version"": ""0.0.0"" }}
+              ]
+           }}")
+          }
+        });
+
+        internal static readonly MockFileSystem ProductDatabase_Empty = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+         { MockUnixSupport.Path(@"c:\repo\cmfpackage.json"), new MockFileData(
+            $@"{{
+              ""packageId"": ""Cmf.Custom.ProductDatabase"",
+              ""version"": ""1.1.0"",
+              ""description"": ""Cmf Custom ProductDatabase Package"",
+              ""packageType"": ""ProductDatabase"",
+              ""isInstallable"": true,
+              ""isUniqueInstall"": false,
+              ""contentToPack"": [
+                {{
+                  ""source"": ""{MockUnixSupport.Path("src\\packages\\*").Replace("\\", "\\\\")}"",
+                  ""target"": ""test""
+                }}
               ]
            }}")
           }
