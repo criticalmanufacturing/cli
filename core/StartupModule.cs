@@ -29,6 +29,14 @@ namespace Cmf.CLI.Core
         /// <param name="npmClient">The NPM client. if is not set, we assume NPMClient implementation by default</param>
         public static async Task<RootCommand> Configure(string packageName, string envVarPrefix, string description, string[] args, INPMClient npmClient = null)
         {
+            // in a scenario that cli is not running on a terminal,
+            // the AnsiConsole.Profile.Width defaults to 80,which is a low value and causes unexpected break lines.
+            // in that cases we need to double the value
+            if (!Log.AnsiConsole.Profile.Out.IsTerminal && Log.AnsiConsole.Profile.Width == 80)
+            {
+                Log.AnsiConsole.Profile.Width = 160;
+            }
+
             RootCommand rootCommand = new(description);
 
             ExecutionContext.EnvVarPrefix = envVarPrefix;
