@@ -1,7 +1,7 @@
 
 using System;
 using System.CommandLine;
-using System.CommandLine.Invocation;
+using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core.Attributes;

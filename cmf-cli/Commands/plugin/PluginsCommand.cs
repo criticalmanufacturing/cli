@@ -1,12 +1,10 @@
 using System;
 using System.CommandLine;
-using System.CommandLine.Invocation;
-using System.IO.Abstractions;
+using System.CommandLine.NamingConventionBinder;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Objects;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.TemplateEngine.Cli;
 using Spectre.Console;
 
 namespace Cmf.CLI.Commands;

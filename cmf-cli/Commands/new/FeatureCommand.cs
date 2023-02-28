@@ -1,11 +1,9 @@
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.Invocation;
+using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
-using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Utilities;
-using Cmf.CLI.Constants;
 
 
 namespace Cmf.CLI.Commands.New

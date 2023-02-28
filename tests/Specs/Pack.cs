@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Cmf.CLI.Commands;
 using Xunit;
 using System.CommandLine;
-using System.CommandLine.Invocation;
+using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.IO;
 using System.IO;
 using System.IO.Abstractions;

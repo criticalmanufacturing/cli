@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.IO;
+using System.CommandLine.Parsing;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions.TestingHelpers;
@@ -55,7 +56,7 @@ namespace tests.Specs
                 var cmd = new Command("x");
                 initCommand.Configure(cmd);
 
-                cmd.Invoke(new[]
+                TestUtilities.GetParser(cmd).Invoke(new[]
                 {
                     projectName,
                     "--infra", TestUtilities.GetFixturePath("init", "infrastructure.json"),
@@ -163,7 +164,7 @@ namespace tests.Specs
                 var cmd = new Command("x");
                 initCommand.Configure(cmd);
 
-                cmd.Invoke(new[]
+                TestUtilities.GetParser(cmd).Invoke(new[]
                 {
                     projectName,
                     "--infra", TestUtilities.GetFixturePath("init", "infrastructure.json"),
@@ -227,7 +228,7 @@ namespace tests.Specs
                 var cmd = new Command("x");
                 initCommand.Configure(cmd);
 
-                cmd.Invoke(new[]
+                TestUtilities.GetParser(cmd).Invoke(new[]
                 {
                     projectName,
                     "-c", TestUtilities.GetFixturePath("init", "config.json"),
@@ -289,9 +290,9 @@ namespace tests.Specs
             var cmd = new Command("x"); // this is the command name used in help text
             initCommand.Configure(cmd);
 
-            cmd.Invoke(Array.Empty<string>(), console);
+            TestUtilities.GetParser(cmd).Invoke(Array.Empty<string>(), console);
 
-            Assert.Contains("Required argument missing for command: x", console.Error.ToString());
+            Assert.Contains("Required argument missing for command: 'x'", console.Error.ToString());
             foreach (var optionName in new[]
                  {
                      "repositoryUrl", "MESVersion", "DevTasksVersion", "HTMLStarterVersion", "yoGeneratorVersion",
@@ -322,7 +323,7 @@ namespace tests.Specs
                 var cmd = new Command("x"); // this is the command name used in help text
                 initCommand.Configure(cmd);
 
-                cmd.Invoke(new[]
+                TestUtilities.GetParser(cmd).Invoke(new[]
                 {
                     projectName,
                     "-c", TestUtilities.GetFixturePath("init", "config.json"),
@@ -369,7 +370,7 @@ namespace tests.Specs
             {
                 var console = new TestConsole();
                 Directory.SetCurrentDirectory(tmp);
-                cmd.Invoke(new[]
+                TestUtilities.GetParser(cmd).Invoke(new[]
                 {
                     projectName,
                     "--infra", TestUtilities.GetFixturePath("init", "infrastructure.json"),
@@ -701,7 +702,7 @@ namespace tests.Specs
                 {
                     "--version", pkgVersion
                 };
-                cmd.Invoke(args.ToArray(), console);
+                TestUtilities.GetParser(cmd).Invoke(args.ToArray(), console);
 
                 string errors = console.Error.ToString().Trim();
                 Assert.True(errors.Length == 0, $"Errors found in console: {errors}");
@@ -1005,7 +1006,7 @@ namespace tests.Specs
                 {
                     args.InsertRange(0, extraArguments);
                 }
-                cmd.Invoke(args.ToArray(), console);
+                TestUtilities.GetParser(cmd).Invoke(args.ToArray(), console);
 
                 if (defaultAsserts)
                 {

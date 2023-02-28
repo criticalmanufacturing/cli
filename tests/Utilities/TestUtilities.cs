@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.CommandLine;
+using System.CommandLine.Builder;
+using System.CommandLine.Parsing;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
@@ -119,9 +122,22 @@ namespace Cmf.Common.Cli.TestUtilities
             }
         }
 
-        #endregion
-
-        #region public Methods
+        /// <summary>
+        /// Create a minimal parser to invoke commands with
+        /// The default parser brings a lot of extras that we don't require in the tests
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <returns></returns>
+        public static Parser GetParser(Command cmd)
+        {
+            return new CommandLineBuilder(cmd)
+                .UseEnvironmentVariableDirective()
+                .UseParseDirective()
+                .UseParseErrorReporting()
+                .UseExceptionHandler()
+                .CancelOnProcessTermination()
+                .Build();
+        }
 
         #endregion
     }

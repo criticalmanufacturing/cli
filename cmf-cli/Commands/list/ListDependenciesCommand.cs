@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.Invocation;
-using System.IO;
+using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
