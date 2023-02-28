@@ -1,0 +1,33 @@
+# Rename RestorePoint to $(RestoreIdentifier)
+steps:
+  - pwsh: |
+      Set-Location "$(EnvConfig.Product.Database.BackupShare)" -Verbose
+      $originalKeyword = "$(RestoreIdentifier)"
+      $restorePointKeyword = "$(EnvConfig.PackageId)_$(EnvConfig.PackageVersion)"
+      $date = (Get-Date).ToString("yyyyMMdd")
+      $oldRestorePointName = "Before-$(EnvConfig.Product.Tenant.Name)-$date-$(EnvConfig.PackageVersion)"
+      $originalFolderSearch = (Get-ChildItem -Filter $originalKeyword -Directory)
+      $restorePointFolder =  (Get-ChildItem -Filter $restorePointKeyword -Directory)[0]
+
+      # Rename Original Folder if exists
+      if ($originalFolderSearch)
+      {
+        $originalFolder =  (Get-ChildItem -Filter $originalKeyword -Directory)[0]
+        Rename-Item -Path $originalFolder -NewName $oldRestorePointName -Verbose -Force
+        Set-Location $oldRestorePointName -Verbose
+        $oldRestorePointFiles = Get-ChildItem -Filter "*$originalKeyword*" -File -Verbose
+        foreach ($oldRestorePointFile in $oldRestorePointFiles) {
+            Rename-Item -Path $oldRestorePointFile -NewName ($oldRestorePointFile.Name -replace $originalKeyword, $oldRestorePointName) -Verbose
+        }
+        Set-Location "$(EnvConfig.Product.Database.BackupShare)" -Verbose
+      }
+
+      Copy-Item -Path $restorePointFolder $originalKeyword -Verbose -Force -Recurse
+      $originalFolder =  (Get-ChildItem -Filter $originalKeyword -Directory)[0]
+      Set-Location $originalFolder -Verbose
+      $restorePointFiles = Get-ChildItem -Filter "*$restorePointKeyword*" -File -Verbose
+      foreach ($restorePointFile in $restorePointFiles) {
+          Rename-Item -Path $restorePointFile -NewName ($restorePointFile.Name -replace $restorePointKeyword, $originalKeyword) -Verbose -Force
+      }
+      Set-Location "$(EnvConfig.Product.Database.BackupShare)" -Verbose
+    displayName: Rename RestorePoint to $(RestoreIdentifier)

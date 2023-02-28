@@ -7,20 +7,20 @@
     },
     "resource": {
       "type": "environment",
-      "name": "system_name"
+      "name": "Approval Gate"
     },
     "settings": {
-        "approvers": [
-            {
-                "displayName": "[CF58AABF]\\Release Administrators",
-                "uniqueName": "CF58AABF\\Release Administrators"
-            }
-        ],
-        "executionOrder": 1,
-        "instructions": "Validate everything necessary for a client release is in order before approving.",
-        "blockedApprovers": [],
-        "minRequiredApprovers": 0,
-        "requesterCannotBeApprover": true
+      "approvers": [
+        {
+          "displayName": "[CF58AABF]\\Release Administrators",
+          "uniqueName": "CF58AABF\\Release Administrators"
+        }
+      ],
+      "executionOrder": 1,
+      "instructions": "Validate everything necessary for a client release is in order before approving.",
+      "blockedApprovers": [],
+      "minRequiredApprovers": 0,
+      "requesterCannotBeApprover": true
     }
   }
 ]

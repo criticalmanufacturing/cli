@@ -20,7 +20,7 @@ parameters:
   type: object
 
 variables:
- - template: ../EnvironmentConfigs/GlobalVariables.yml  # Template reference to global variables
+ - template: .vars/global.yml  # Template reference to global variables
 
 workspace:
   clean: all
@@ -32,24 +32,17 @@ steps:
 # install cmf-pipeline
 - template: .tasks/install-cmf-pipeline.yml
 
-# set node version
-- template: .tasks/use-node-version.yml
-
 - ${{ each package in parameters.packages }}:
   # package existsInRepos
   - pwsh: $(CmfPipelinePath)/cmf-pipeline package existsInRepos --repo $(ApprovedPackages)
     displayName: Check if ${{ package.packageId }}@${{ package.version }} was not released
     workingDirectory: ${{ package.path }}
 
-# set dotnet version
-- template: .tasks/use-dotnet-version.yml
-
 # install cmf-cli
 - template: .tasks/install-cli.yml
 
-# install dotnet tools
-- script: 'dotnet tool restore'
-  displayName: 'Restore .NET tools'
+# set dotnet version
+- template: .tasks/use-dotnet-version.yml
 
 - ${{ each package in parameters.packages }}:
   # cmf build

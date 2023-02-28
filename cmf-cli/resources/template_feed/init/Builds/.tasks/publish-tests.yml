@@ -1,21 +1,23 @@
 parameters:
-- name: path # name of the parameter; required
-  type: string # data type of the parameter; required
+- name: path
+  type: string
   default: false
 
 steps:
-- task: PowerShell@2
-  displayName: 'Check if reportgenerator is to be executed'
-  inputs:
-    targetType: 'inline'
-    script: |
-      $count = (Get-ChildItem -Path ".\**\coverage.cobertura.xml" -Recurse | Measure-Object).Count
-      if ($count -gt 0) {
-        Write-Host "##vso[task.setvariable variable=generateCoverageReport]Yes" #set variable doThing to Yes
-      }
+- pwsh: |
+    $count = (Get-ChildItem -Path ".\**\coverage.cobertura.xml" -Recurse | Measure-Object).Count
+    if ($count -gt 0) {
+      Write-Host "##vso[task.setvariable variable=generateCoverageReport]Yes" #set variable doThing to Yes
+    }
+  displayName: Check if reportgenerator is to be executed
 
-- script: 'dotnet tool run dotnet-coverage merge -o "${{ parameters.path }}/Merged.Cobertura.xml" -f "Cobertura" -r "coverage.cobertura.xml"'
-  displayName: 'Run reportgenerator'
+# install dotnet tools
+- pwsh: dotnet tool restore
+  displayName: Restore .NET tools
+
+# run dotnet-coverage
+- pwsh: dotnet tool run dotnet-coverage merge -o "${{ parameters.path }}/Merged.Cobertura.xml" -f "Cobertura" -r "coverage.cobertura.xml"
+  displayName: Run reportgenerator
   condition: and(succeeded(), eq(variables.generateCoverageReport, 'Yes'))
 
 # Publish test results

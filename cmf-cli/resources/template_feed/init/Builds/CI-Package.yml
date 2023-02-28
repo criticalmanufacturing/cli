@@ -20,7 +20,7 @@ parameters:
   type: object
 
 variables:
- - template: ../EnvironmentConfigs/GlobalVariables.yml  # Template reference to global variables
+ - template: .vars/global.yml  # Template reference to global variables
  - name: GroupName
    value: BuiltHEADs
  - name: packOutputDir
@@ -37,9 +37,6 @@ name: $(Build.SourceBranchName)_$(Build.DefinitionName).$(Build.BuildId)
 steps:
 - checkout: self
 
-# set node version
-- template: .tasks/use-node-version.yml
-
 # set dotnet version
 - template: .tasks/use-dotnet-version.yml
 
@@ -51,7 +48,7 @@ steps:
 
 - ${{ each package in parameters.packages }}:
   # cmf build
-  - pwsh: $(CmfCliPath)/cmf build
+  - pwsh: $(CmfCliPath)/cmf build --test
     workingDirectory: ${{ package.path }}
     displayName: Build ${{ package.packageId }} @ ${{ package.path }}
 

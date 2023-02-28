@@ -1,0 +1,35 @@
+# MaintenanceMode
+parameters:
+    IsEnabled: false
+steps:
+# Preparation
+- powershell: |
+    $manifest =
+        ('<?xml version="1.0" encoding="utf-8"?>
+        <deploymentPackage>
+            <packageId>Cmf.Configuration.MaintenanceMode</packageId>
+            <name>Cmf SetMaintenanceMode</name>
+            <packageType>Generic</packageType>
+            <description>Cmf SetMaintenanceMode</description>
+            <version>1.0.0</version>
+            <isInstallable>True</isInstallable>
+            <isToForceInstall>True</isToForceInstall>
+            <steps>
+                <step type="Generic" onExecute="$(Agent.Root)/agent/scripts/stop_host.ps1" />
+                <step type="UpdateConfiguration" configPath="/Cmf/System/Configuration/MaintenanceMode/IsEnabled/" value="${{ parameters.IsEnabled }}"/>
+                <step type="Generic" onExecute="$(Agent.Root)/agent/scripts/start_host.ps1" />
+            </steps>
+        </deploymentPackage>')
+
+    $manifestPath = '$(CandidatePackages)/Configurations/Cmf.Configuration.MaintenanceMode/manifest.xml"
+    New-Item -Path $manifestPath -ItemType File -Value $manifest -Force -Verbose
+  displayName: Prepare MM Manifest
+  workingDirectory: $(DriveLetter)
+  condition: and(succeeded(), eq(variables.UseMaintenanceMode, 'true'))
+
+
+# Run
+- powershell: ./tools/CmfDeploy.exe install --packageToInstall=Cmf.Configuration.MaintenanceMode@1.0.0 --parameters="$(EnvConfig.ConfigPath)" --packageSource="$(CandidatePackages)/Configurations/Cmf.Configuration.MaintenanceMode" -logFileLocation "$(CandidatePackages)"
+  displayName: Set MM ${{ parameters.IsEnabled }}
+  workingDirectory: $(DriveLetter)
+  condition: and(succeeded(), eq(variables.UseMaintenanceMode, 'true'))
