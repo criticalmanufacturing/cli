@@ -65,7 +65,7 @@ namespace Cmf.CLI.Core
             // add LogLevelOption
             rootCommand.AddOption(LoggerHelpers.LogLevelOption);
 
-            // TODO: review this, maybe shoud be an command option like loglevel
+            // TODO: review this, maybe should be an command option like loglevel
             if (args.Length == 1 && args.Has("-v"))
             {
                 rootCommand.Invoke(new[] { "--version" });
@@ -75,11 +75,11 @@ namespace Cmf.CLI.Core
             BaseCommand.AddChildCommands(rootCommand);
 
             new CommandLineBuilder(rootCommand)
-                .UseVersionOption()
+                //.UseVersionOption()
                 .UseHelp() // TODO: add custom handler
                 .UseEnvironmentVariableDirective()
                 .UseParseDirective()
-                .UseDebugDirective()
+                //.UseDebugDirective()
                 .UseSuggestDirective()
                 .RegisterWithDotnetSuggest()
                 .UseTypoCorrections()

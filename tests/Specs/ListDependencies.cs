@@ -2,8 +2,9 @@ using System;
 using System.IO.Abstractions.TestingHelpers;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.Invocation;
+using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.IO;
+using System.CommandLine.Parsing;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
@@ -12,6 +13,7 @@ using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Commands;
 
 using Cmf.CLI.Utilities;
+using Cmf.Common.Cli.TestUtilities;
 using tests.Objects;
 using Assert = tests.AssertWithMessage;
 using Xunit;
@@ -234,7 +236,7 @@ namespace tests.Specs
 
           var console = new TestConsole();
           cmd.Invoke(new[] {
-            "-r", "d:\\xpto", "e:\\packages"
+            "-r", "d:\\xpto", "-r", "e:\\packages"
           }, console);
           
           var curDir = new DirectoryInfo(System.IO.Directory.GetCurrentDirectory());
@@ -263,7 +265,7 @@ namespace tests.Specs
 
           var console = new TestConsole();
           cmd.Invoke(new[] {
-            "-r", "d:\\xpto", "http://repository.example"
+            "-r", "d:\\xpto", "-r", "http://repository.example"
           }, console);
           
           var curDir = new DirectoryInfo(System.IO.Directory.GetCurrentDirectory());
@@ -294,7 +296,7 @@ namespace tests.Specs
 
           var console = new TestConsole();
           cmd.Invoke(new[] {
-            "-r", "..\\xpto", "\\root_dir"
+            "-r", "..\\xpto", "-r", "\\root_dir"
           }, console);
           
           var curDir = new DirectoryInfo(System.IO.Directory.GetCurrentDirectory());

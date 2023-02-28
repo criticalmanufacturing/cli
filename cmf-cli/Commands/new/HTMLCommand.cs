@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.Invocation;
-using System.IO;
+using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
 using System.Linq;
-using System.Reflection;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Cmf.CLI.Builders;
