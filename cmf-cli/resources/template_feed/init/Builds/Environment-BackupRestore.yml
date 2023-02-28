@@ -1,4 +1,4 @@
-# CM PI Environment Backup or Restore Pipeline
+# CM DS Environment Backup or Restore Pipeline
 pool:
   name: <%= $CLI_PARAM_AgentPool %>
 //#if (agentType == "Cloud")

@@ -7,7 +7,7 @@
     },
     "resource": {
       "type": "environment",
-      "name": "<%= $CLI_PARAM_EnvironmentName %>"
+      "name": "Approval Gate"
     },
     "settings": {
         "approvers": [

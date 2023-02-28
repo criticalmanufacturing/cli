@@ -1,0 +1,38 @@
+# vm installation
+steps:
+- pwsh: |
+    $sc =
+    {
+        param ($PackageId, $PackageVersion)
+        $parameters = "$(EnvConfig.ConfigPath)"
+        $PackageToInstall = "$PackageId@$PackageVersion"
+
+        Set-Location -Path $(DriveLetter)
+
+        $scriptPath = ".\tools\CmfDeploy.exe install --packageToInstall=$PackageToInstall --parameters='$(EnvConfig.ConfigPath)' --packageSources='$(CandidatePackages)',$(DriveLetter) --logFileLocation '$(CandidatePackages)' --licenseId '$(LicenseName)' --token $(CustomerPortalPAT)"
+        Write-Host("Script to run: " + $scriptPath)
+        Invoke-Expression $scriptPath | Out-Host
+        if($LASTEXITCODE)
+        {
+            throw "Installation Failed on Run CmfDeploy.exe install"
+        }
+    }
+    try
+    {
+        $testMasterDataFilter = "$(TestMasterDataFilter)"
+        if(!$testMasterDataFilter)
+        {
+            $testMasterDataFilter = "*MasterData*"
+        }
+        $masterDataFiles = "$(CandidatePackages)/Tests/$testMasterDataFilter.zip"
+        Get-ChildItem $masterDataFiles | foreach {
+            $PackageId = [regex]::split($_.BaseName, ".[0-9]+.[0-9]+.[0-9]+")[0];
+            $PackageVersion = ($_.BaseName-replace "$PackageId." );
+            $PackageToInstall = "$PackageId@$PackageVersion"
+
+            Invoke-Command -ComputerName  $(EnvConfig.Product.ApplicationServer.Address) -ScriptBlock $sc -ArgumentList @($PackageId, $PackageVersion) | Out-Host
+        }
+    }
+    catch { throw (" *  Invoke-Command ERROR " + $_) }
+  displayName: Load Master Data Files
+  timeoutInMinutes: 720 # 12 hours

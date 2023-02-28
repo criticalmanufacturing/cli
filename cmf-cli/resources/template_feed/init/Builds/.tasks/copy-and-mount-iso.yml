@@ -1,0 +1,24 @@
+# Copy and mount MES ISO
+steps:
+- powershell: |
+    $iso = Get-Item "$(ISOImagePath)"
+    $destPath = "$(CandidatePackages)/../isos/"
+    $destIso = "$destPath/" + $iso.Name
+
+    if (-Not (Test-Path $destIso)) {
+        New-Item -Type Directory -Path $destPath -Force -Verbose
+        Copy-Item -Path $iso -Destination $destIso -Force -Verbose
+    }
+
+    $ImagePath = $destIso
+
+    # Mount the ISO, without having a drive letter auto-assigned
+    if (!(Get-DiskImage -ImagePath $ImagePath).Attached) {
+        Mount-DiskImage -ImagePath $ImagePath -PassThru
+    }
+
+    $driveLetter = (Get-DiskImage -ImagePath $ImagePath | Get-Volume).DriveLetter + ":/"
+    Set-Location -Path $driveLetter
+
+    Write-Output "##vso[task.setvariable variable=DriveLetter]$driveLetter"
+  displayName: Copy and mount MES ISO

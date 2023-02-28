@@ -1,0 +1,30 @@
+steps:
+- pwsh: |
+    $testMasterDataFilter = "$(TestMasterDataFilter)"
+    if(!$testMasterDataFilter)
+    {
+      $testMasterDataFilter = "*MasterData*"
+    }
+    $masterDataFiles = "$(CandidatePackages)/Tests/$testMasterDataFilter.zip"
+
+    Get-ChildItem $masterDataFiles | foreach {
+      $PackageId = [regex]::split($_.BaseName, ".[0-9]+.[0-9]+.[0-9]+")[0];
+      $PackageVersion = ($_.BaseName-replace "$PackageId." );
+      $PackageToInstall = "$PackageId@$PackageVersion"
+
+      $envConfig = Get-Content "$(EnvConfig.ConfigPath)" | Out-String | ConvertFrom-Json
+      $envConfig.ENV_MANAGER_BOOT_PACKAGE = $(EnvConfig.PackageToInstall)
+      $envConfig | ConvertTo-Json -Depth 10 | set-content "$(Agent.TempDirectory)/install-package.json"
+
+      $(Agent.TempDirectory)/node_modules/@criticalmanufacturing/portal/bin/cmf-portal.exe deploy `
+      --name "$(CustomerEnvironmentName)" `
+      --customer-infrastructure-name "DS Integration Environments" `
+      --parameters "$(Agent.TempDirectory)/install-package.json" `
+      --license "$(LicenseName)" `
+      --site "$(SiteName)" `
+      --target "$(DeploymentTarget)" `
+      --package="$(DeploymentPackage)" `
+      --terminateOtherVersions --verbose
+    }
+  displayName: MasterData Loading
+

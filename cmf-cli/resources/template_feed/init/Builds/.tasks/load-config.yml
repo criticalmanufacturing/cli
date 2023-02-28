@@ -1,0 +1,46 @@
+# Load EnvironmentConfig and Package Info
+steps:
+- pwsh: |
+    # Load PackageInfo
+    $PackageId = "${{ variables.RootPackageIdToInstall }}"
+    if($PackageId)
+    {
+        $PackageVersion = (Get-Item "$(CandidatePackages)/Package/$PackageId*").BaseName -replace "$PackageId."
+    }
+    else
+    {
+        $CmfPackageJsonFile = Get-Item "$(CandidatePackages)//Configurations/cmfpackage.json"
+        $CmfPackageJson = Get-Content -Raw -Path $CmfPackageJsonFile | ConvertFrom-Json
+        $PackageId = $CmfPackageJson."packageId"
+        $PackageVersion = $CmfPackageJson."version"
+    }
+    $PackageToInstall = "$PackageId@$PackageVersion"
+
+    # Load file location to variable
+    $file = "$(CandidatePackages)/Configurations/EnvironmentConfigs/$(EnvironmentConfigName)"
+    Write-Output "##vso[task.setvariable variable=ConfigPath;isOutput=true]$file"
+
+    # Load file to variable
+    $configString = Get-Content "$file" | out-string
+    Write-Output "##vso[task.setvariable variable=ConfigString;isOutput=true]$configString"
+
+    # Load each property to variable
+    if (Test-Path -Path $file -PathType Leaf) {
+        $envConfig = $configString | ConvertFrom-Json
+        $envConfig.PSObject.Properties | ForEach-Object {
+        if (-not($_.Value -eq "" -or $_.Value -eq $nil -or
+            ($_.Value.GetType().FullName -eq "System.Management.Automation.PSCustomObject"))) {
+                # we need to remove the [] to avoid errors when trying to access the variable
+                $var = ($_.Name).Replace("[","").Replace("]","");
+                Write-Output "##vso[task.setvariable variable=$($var);isOutput=true]$($_.Value)"
+            }
+        }
+    } else {
+        Write-Output "$file not found"
+    }
+
+    Write-Output "##vso[task.setvariable variable=PackageToInstall;isOutput=true]$PackageToInstall"
+    Write-Output "##vso[task.setvariable variable=PackageId;isOutput=true]$PackageId"
+    Write-Output "##vso[task.setvariable variable=PackageVersion;isOutput=true]$PackageVersion"
+  name: EnvConfig
+  displayName: Load EnvironmentConfig and PackageInfo

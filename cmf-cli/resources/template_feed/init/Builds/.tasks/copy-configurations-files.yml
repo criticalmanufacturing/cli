@@ -1,0 +1,58 @@
+parameters:
+  configurationDir: $(Build.ArtifactStagingDirectory)/Configurations
+  packageDir: ''
+
+steps:
+# Copy dependencies.json to Configurations~
+- task: CopyFiles@2
+  displayName: Copy dependencies.json to Configurations
+  inputs:
+    SourceFolder: ${{ parameters.packageDir }}
+    Contents: |
+      dependencies.json
+    FlattenFolders: true
+    TargetFolder: ${{ parameters.configurationDir }}
+
+# Remove dependencies.json
+- task: DeleteFiles@1
+  displayName: Remove dependencies.json from source
+  inputs:
+    SourceFolder: ${{ parameters.packageDir }}
+    Contents: dependencies.json
+
+# Copy global.json and cmfpackage.json to Configurations
+- task: CopyFiles@2
+  displayName: Copy global.json and cmfpackage.json to Configurations
+  inputs:
+    Contents: |
+      global.json
+      cmfpackage.json
+    FlattenFolders: true
+    TargetFolder: ${{ parameters.configurationDir }}
+
+# Copy Runsettings to Configurations
+- task: CopyFiles@2
+  displayName: Copy Runsettings to Configurations
+  inputs:
+    Contents: |
+      **/*.runsettings
+    TargetFolder: ${{ parameters.configurationDir }}/Runsettings
+    flattenFolders: true
+
+# Copy EnvironmentConfigs to Configurations
+- task: CopyFiles@2
+  displayName: Copy EnvironmentConfigs to Configurations
+  inputs:
+    SourceFolder: EnvironmentConfigs
+    Contents: |
+      *.json
+    TargetFolder: $(Build.ArtifactStagingDirectory)/Configurations/EnvironmentConfigs
+
+# Copy LBOs to Configurations
+- task: CopyFiles@2
+  displayName: Copy LBOs to Configurations
+  inputs:
+    SourceFolder: Libs/LBOs/NetStandard
+    Contents: |
+      Cmf.LightBusinessObjects.dll
+    TargetFolder: $(Build.ArtifactStagingDirectory)/Configurations/LBOs

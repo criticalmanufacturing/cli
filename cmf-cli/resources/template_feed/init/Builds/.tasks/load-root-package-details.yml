@@ -1,0 +1,13 @@
+steps:
+  - pwsh: |
+      $CmfPackageJsonFile = Get-Item ./cmfpackage.json
+      $CmfPackageJson = Get-Content -Raw -Path $CmfPackageJsonFile | ConvertFrom-Json
+      $PackageId = $CmfPackageJson."packageId"
+      $PackageVersion = $CmfPackageJson."version"
+      $Package = "$PackageId@$PackageVersion"
+
+      Write-Output "##vso[task.setvariable variable=Name;isOutput=true]$Package"
+      Write-Output "##vso[task.setvariable variable=Id;isOutput=true]$PackageId"
+      Write-Output "##vso[task.setvariable variable=Version;isOutput=true]$PackageVersion"
+    name: Package
+    displayName: Get package details

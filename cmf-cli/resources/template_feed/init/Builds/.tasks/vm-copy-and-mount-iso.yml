@@ -1,0 +1,32 @@
+# Copy and mount MES ISO
+steps:
+- pwsh: |
+    $sc =
+    {
+        param ($ImagePath)
+        # Mount the ISO, without having a drive letter auto-assigned
+        if (!(Get-DiskImage -ImagePath $ImagePath).Attached) {
+            Mount-DiskImage -ImagePath $ImagePath -PassThru
+        }
+
+        $driveLetter = (Get-DiskImage -ImagePath $ImagePath | Get-Volume).DriveLetter + ":/"
+        Set-Location -Path $driveLetter
+
+        Write-Output "##vso[task.setvariable variable=DriveLetter]$driveLetter"
+    }
+
+    try
+    {
+        $iso = Get-Item "$(ISOImagePath)"
+        $destPath = "$(CandidatePackages)/../isos/"
+        $destIso = "$destPath/" + $iso.Name
+
+        if (-Not (Test-Path $destIso)) {
+            New-Item -Type Directory -Path $destPath -Force -Verbose
+            Copy-Item -Path $iso -Destination $destIso -Force -Verbose
+        }
+
+        Invoke-Command -ComputerName $(EnvConfig.Product.ApplicationServer.Address) -ScriptBlock $sc -ArgumentList @($destIso) | Out-Host
+    }
+    catch { throw (" *  Invoke-Command ERROR " + $_) }
+  displayName: Mount MES ISO
