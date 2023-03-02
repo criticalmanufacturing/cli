@@ -38,9 +38,9 @@ If provided, the NuGet restore calls will be authenticated. Note that currently 
 
         npm adduser --registry=http://example.local/repository/npm/
     
-1. in the .npmrc file in your home folder, a new line should be added, in the format `//example.local/repository/npm/:_authToken=NpmToken.<GUID>`
+1. in the `.npmrc` file in your home folder, a new line should be added, in the format `//example.local/repository/npm/:_authToken=NpmToken.<GUID>`
 
-1. take this line and add it to the .npmrc in both the Help and HTML solutions. The files are always in the `apps/<web solution>` path
+1. take this line and add it to the `.npmrc` in both the Help and HTML solutions. The files are always in the `apps/<web solution>` path
 
 1. commit these files
 
@@ -56,7 +56,7 @@ In some cases `npm adduser` may fail. A known case is when using Personal Access
 
 1. tell NPM to always authenticate: `//example.io/repository/npm/:always_auth=true`
 
-So if your username is `user1` and your password is `secret2` the .npmrc files would look like
+So if your username is `user1` and your password is `secret2` the `.npmrc` files would look like
 ```ini
 registry=https://example.io/repository/npm/
 //example.io/repository/npm/:_auth="dQBzAGUAcgAxADoAcwBlAGMAcgBlAHQAMgA=" 
@@ -70,7 +70,7 @@ where the auth string can be generated in Powershell using
 ## Process
 
 ### Host packages in local repository
-If using a local repository, the dependency packages need to be hosted there. CMF will have provided a package with the NuGet packages. The NPM packages are extracted from the MES ISO file. The instructions are available either on your Help website or in CMF's general [Help repository](https://help.criticalmanufacturing.com/8.0/Development/Tutorial%3EPresentation%3Elocalrepository).
+If using a local repository, the dependency packages need to be hosted there. CMF will have provided a package with the NuGet packages. The NPM packages are extracted from the MES ISO file. The instructions are available either on your Help website or in CMF's general [Help repository](https://help.criticalmanufacturing.com/Development/Tutorial%3EPresentation%3Elocalrepository).
 
 However, currently the script provided in the Help tutorial only uploads the HTML solution dependencies, not the Help solution ones. As such, an updated copy of the script can be provided if requested.
 
@@ -82,15 +82,13 @@ It is recommended that you follow the Help tutorial, but a few quick steps will 
 
     1. NOTE: If using Nexus OSS, you will have to upload to the `npm-hosted` repo, not to `npm`
 
-1. Run
+1. Run for each package (where the `package.json` is located)
 
-    *You only need to specify the Username if you don't have anonymous access to your repository* 
+        npm publish --registry=http://example.local/repository/npm-hosted/ --force
 
-        .\LoadNPMPackagesToLocalRepository.ps1 -PathToISO "<ISO path>" "http://example.local/repository/npm-hosted/" -ExtractionFolder "C:\_CMTemp\packages" [-Username <User>]
+**NOTE:** *You only need to specify the Username if you don't have anonymous access to your repository* 
 
-    1.  the script will automatically mount the ISO, extract the packages and upload them to the repository
-
-1. OPTIONAL: tag the loaded packages with the dist-tags used by the solutions. If this is not desired, the scaffolded solutions will have to be changed to point to the exact versions that are uploaded into the repository. Adding the dist-tags is generally easier. The dist-tags always follow the format `release-<version>` with no dots. As an example, for MES version 8.1.0 the dist-tag commands would be:
+2. OPTIONAL: tag the loaded packages with the dist-tags used by the solutions. If this is not desired, the scaffolded solutions will have to be changed to point to the exact versions that are uploaded into the repository. Adding the dist-tags is generally easier. The dist-tags always follow the format `release-<version>` with no dots. As an example, for MES version 8.1.0 the dist-tag commands would be:
 
         npm dist-tag add @criticalmanufacturing/mes-ui-web@8.1.0-202103302 release-810 --registry=http://example.local/repository/npm-hosted/
 	    
@@ -101,8 +99,6 @@ It is recommended that you follow the Help tutorial, but a few quick steps will 
 ### Using a local repository
 If using a local repository, the first step is to load the NuGet dependencies. Until this is done the Business and Test solutions will not compile. 
 
-Place the packages in a folder. Open a powershell session in `Tools` and run the `Deploy_LoadAllNuGetPackages.ps1`script. Don't forget to authenticate first.
-
 ```
 cd <folder>
 nuget setapikey <nuget key> -source http://example.local/repository/nuget-hosted
@@ -110,6 +106,8 @@ nuget setapikey <nuget key> -source http://example.local/repository/nuget-hosted
 # for each nuget file:
 nuget push <file.nupkg> -source http://local.example/repository/nuget-hosted/
 ```
+
+**NOTE:** Don't forget to authenticate first if you are not using an API Key.
 
 ### Commiting the code
 If you did not run `init` and `new` inside a cloned git repository folder, you can add it as a remote in place. For the second approach, open a PS session where you ran the `init` and run:
