@@ -17,12 +17,12 @@ namespace Cmf.CLI.Commands.New
     public class TestCommand : LayerTemplateCommand
     {
         /// <inheritdoc />
-        public TestCommand() : base("test", PackageType.Tests)
+        public TestCommand() : base("tests", PackageType.Tests)
         {
         }
 
         /// <inheritdoc />
-        public TestCommand(IFileSystem fileSystem) : base("test", PackageType.Tests, fileSystem)
+        public TestCommand(IFileSystem fileSystem) : base("tests", PackageType.Tests, fileSystem)
         {
         }
 

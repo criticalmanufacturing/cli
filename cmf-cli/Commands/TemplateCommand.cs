@@ -1,19 +1,23 @@
+using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 
 using Microsoft.TemplateEngine.Abstractions;
-using Microsoft.TemplateEngine.Cli;
+using Microsoft.TemplateEngine.Abstractions.TemplatePackage;
 using Microsoft.TemplateEngine.Edge;
-using Microsoft.TemplateEngine.Orchestrator.RunnableProjects;
-using Microsoft.TemplateEngine.Orchestrator.RunnableProjects.Config;
+using Microsoft.TemplateEngine.IDE;
 using Microsoft.TemplateEngine.Utils;
 using Newtonsoft.Json;
+using DefaultTemplateEngineHost = Microsoft.TemplateEngine.Edge.DefaultTemplateEngineHost;
+using ExecutionContext = Cmf.CLI.Core.Objects.ExecutionContext;
 
 namespace Cmf.CLI.Commands
 {
@@ -53,61 +57,162 @@ namespace Cmf.CLI.Commands
         /// </summary>
         /// <param name="templateName">the name of the template</param>
         /// <param name="args">the template engine arguments</param>
-        protected void ExecuteTemplate(string templateName, IReadOnlyCollection<string> args)
+        protected async void ExecuteTemplate(string templateName, IReadOnlyCollection<string> args)
         {
-            var logger = new TelemetryLogger(null);
-
-            New3Callbacks callbacks = new New3Callbacks()
+            Log.Debug($"Going to generate template {templateName}");
+            // TODO: args needs to become a dictionary
+            var parameters = new Dictionary<string, string>();
+            var argList = args.ToList().Aggregate(new List<List<string>>(), (list, s) =>
             {
-                OnFirstRun = FirstRun,
-                //RestoreProject = RestoreProject
-            };
+                if (s.StartsWith("--"))
+                {
+                    list.Add(new List<string>() { s });
+                }
+                else
+                {
+                    list.Last().Add(s);
+                }
+
+                return list;
+            });
+            foreach (var list in argList)
+            {
+                switch (list.Count)
+                {
+                    case 1:
+                        parameters.Add(list[0].Replace("--", ""), null);
+                        Log.Debug($"Adding template param with key {list[0].Replace("--", "")}");
+                        break;
+                    case 2:
+                        parameters.Add(list[0].Replace("--", ""), list[1]);
+                        Log.Debug($"Adding template param with key {list[0].Replace("--", "")} and value {list[1]}");
+                        break;
+                    default:
+                        Log.Error($"Cannot deal with key pairs with length {list.Count}");
+                        break;
+                }
+            }
+            
+            var name = parameters.ContainsKey("name") ? parameters["name"] : "package"; // package is a placeholder, if name isn't provided, the template doesn't use it
+            var outputPath = parameters.ContainsKey("output") ? parameters["output"] : ExecutionContext.Instance.FileSystem.Directory.GetCurrentDirectory();
 
             var version = (Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly())
                 .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
                 ?.InformationalVersion;
+            var templateEngineHost = CreateHost(version);
+            using var bootstrapper = new Bootstrapper(templateEngineHost, false);
 
-            var commands = new List<string>
-                {
-                    templateName
-                }
-                .Concat(args.ToList())
-                .Concat(new[] { "--debug:custom-hive", $"{System.Environment.GetEnvironmentVariable("HOME")}/.templateengine/cmf-cli/{version}" })
-                .ToList();
-
-            Log.Debug(string.Join(' ', commands));
-            New3Command.Run(templateName, CreateHost(version), logger, callbacks, 
-                commands.ToArray(), null);
-        }
-
-        private static ITemplateEngineHost CreateHost(string version)
-        {
-            var builtIns = new AssemblyComponentCatalog(new Assembly[]
+            // this needs a refactor, right now we're minimizing the impact on the implemented commands
+            if (templateName == "new" && parameters.ContainsKey("debug:reinit")) 
             {
-                typeof(RunnableProjectGenerator).GetTypeInfo().Assembly,
-                typeof(ConditionalConfig).GetTypeInfo().Assembly,
-                //typeof(NupkgUpdater).GetTypeInfo().Assembly
-            });
+                Log.Debug("Cleaning up the template engine store");
+                // we have to re-instantiate the engine environment settings as they are private in the bootstrapper, but are exactly the same
+                var engineEnvironmentSettings = new EngineEnvironmentSettings(templateEngineHost, virtualizeSettings: false);
+                Log.Debug($"Cleaning up {engineEnvironmentSettings.Paths.HostVersionSettingsDir}");
+                templateEngineHost.FileSystem.DirectoryDelete(engineEnvironmentSettings.Paths.HostVersionSettingsDir, true);
+                templateEngineHost.FileSystem.CreateDirectory(engineEnvironmentSettings.Paths.HostVersionSettingsDir);
+                Log.Debug("Done");
+                return;
+            }
 
-            var preferences = new Dictionary<string, string>();
-
-            return new DefaultTemplateEngineHost("cmf-cli", 
-                version,
-                System.Threading.Thread.CurrentThread.CurrentCulture.Name, preferences, builtIns);
-}
-
-        private static void FirstRun(IEngineEnvironmentSettings environmentSettings, IInstaller installer)
-        {
-            var paths = new Paths(environmentSettings);
-            var templateFeed = new System.IO.DirectoryInfo(System.IO.Path.Join(paths.Global.BaseDir, "resources", "template_feed"));
-
-            installer.InstallPackages(templateFeed.GetDirectories().Select(x => x.FullName));
-
-            // install dotnet packages (for testing)
-            //installer.InstallPackages(environmentSettings.Host.FileSystem.EnumerateFiles(@"C:\Program Files\dotnet\templates\5.0.7", "*.nupkg", System.IO.SearchOption.TopDirectoryOnly));
+            Log.Debug("Getting templates");
+            // we want to use: var templates = await bootstrapper.GetTemplatesAsync(); 
+            var t = bootstrapper.GetTemplatesAsync(default);
+            t.Wait();
+            var templates = t.Result;
+            Log.Debug($"Found templates:\n{string.Join("\n",templates.Select(t => t.Name))}\n");
+            var template = templates.FirstOrDefault(tpl => tpl.ShortNameList.Contains(templateName));
+            if (template == null)
+            {
+                throw new CliException($"Cannot find template {templateName}");
+            }
+            Log.Debug($"Running template {template.Name} for generating {name} in {outputPath}");
+            try
+            {
+                var result = await bootstrapper.CreateAsync(template!, name, outputPath, parameters);
+                Log.Debug($"{result.Status.ToString()}: {result.ErrorMessage}");
+            }
+            catch (Exception e)
+            {
+                Log.Exception(e);
+            }
         }
         
-        /// <summary>
+        internal class CmfCliPackageProviderFactory : ITemplatePackageProviderFactory
+        {
+            public Guid Id => new Guid("bacf2f68-3346-4097-a472-e093a2f2843a");
+
+            public ITemplatePackageProvider CreateProvider(IEngineEnvironmentSettings settings)
+            {
+                return new CmfCliPackageProvider(this, settings);
+            }
+            
+            private class CmfCliPackageProvider : ITemplatePackageProvider, IIdentifiedComponent
+            {
+                private readonly IEngineEnvironmentSettings settings;
+
+                public CmfCliPackageProvider(ITemplatePackageProviderFactory builtInTemplatePackagesProviderFactory, IEngineEnvironmentSettings settings)
+                {
+                    this.Factory = builtInTemplatePackagesProviderFactory;
+                    this.settings = settings;
+                }
+
+                public Task<IReadOnlyList<ITemplatePackage>> GetAllTemplatePackagesAsync(CancellationToken cancellationToken)
+                {
+                    List<ITemplatePackage> templatePackages = new List<ITemplatePackage>();
+                    string assemblyLocation = ExecutionContext.Instance.FileSystem.Path.GetDirectoryName(typeof(Program).Assembly.Location);
+                    
+                    IEnumerable<string> expandedPaths = InstallRequestPathResolution.ExpandMaskedPath(ExecutionContext.Instance.FileSystem.Path.Join(assemblyLocation, "resources", "template_feed"), settings);
+                    foreach (string path in expandedPaths)
+                    {
+                        if (settings.Host.FileSystem.FileExists(path) || settings.Host.FileSystem.DirectoryExists(path))
+                        {
+                            templatePackages.Add(new TemplatePackage(this, path, settings.Host.FileSystem.GetLastWriteTimeUtc(path)));
+                        }
+                    }
+                    
+                    return Task.FromResult((IReadOnlyList<ITemplatePackage>)templatePackages);
+                }
+
+                public ITemplatePackageProviderFactory Factory { get; }
+                // disable warning due to unused event (part of ITemplatePackageProvider)
+                #pragma warning disable CS0067
+                public event Action TemplatePackagesChanged;
+                #pragma warning restore CS0067
+                public Guid Id => new Guid("22a853c8-fae7-42fb-bc58-d858010becf5");
+            }
+
+            public string DisplayName => "CMF CLI templates";
+        }
+
+         private static ITemplateEngineHost CreateHost(string version)
+         {
+             var builtIns = new List<(Type InterfaceType, IIdentifiedComponent Instance)>();
+             builtIns.AddRange(Microsoft.TemplateEngine.Orchestrator.RunnableProjects.Components.AllComponents);
+             builtIns.AddRange(Microsoft.TemplateEngine.Edge.Components.AllComponents);
+             builtIns.Add((typeof(ITemplatePackageProviderFactory), new CmfCliPackageProviderFactory()));
+             var preferences = new Dictionary<string, string>
+             {
+             };
+
+             return new DefaultTemplateEngineHost(hostIdentifier: "cmf-cli", 
+                 version: version,
+                 defaults: preferences, 
+                 builtIns: builtIns,
+                 // loggerFactory: Microsoft.Extensions.Logging.LoggerFactory.Create(builder =>
+                 //     builder
+                 //         .SetMinimumLevel(logLevel)
+                 //         .AddConsole(config => config.FormatterName = nameof(CliConsoleFormatter))
+                 //         .AddConsoleFormatter<CliConsoleFormatter, ConsoleFormatterOptions>(config =>
+                 //         {
+                 //             config.IncludeScopes = true;
+                 //             config.TimestampFormat = "yyyy-MM-dd HH:mm:ss.fff";
+                 //         }))
+                 loggerFactory: null
+             );
+         }
+
+         /// <summary>
         /// Parse a DF exported config file
         /// </summary>
         /// <param name="configFile">the path to the config file</param>

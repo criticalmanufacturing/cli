@@ -5,7 +5,7 @@
     "cli"
   ],
   "description": "Generate a new Data package",
-  "name": "Data Package",
+  "name": "Database Package",
   "identity": "cmf-cli.new.database",
   "groupIdentity": "cmf-cli.new.database",
   "shortName": "database",
