@@ -18,7 +18,7 @@ schedules:
     always: false # whether to always run the pipeline or only if there have been source code changes since the last run. The default is false.
 
 variables:
- - template: ../EnvironmentConfigs/GlobalVariables.yml  # Template reference to global variables
+ - template: .vars/global.yml  # Template reference to global variables
 
 parameters:
   - name: PackagePath

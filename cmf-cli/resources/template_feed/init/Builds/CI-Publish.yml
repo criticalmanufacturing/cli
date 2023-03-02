@@ -23,7 +23,7 @@ schedules:
     always: false # whether to always run the pipeline or only if there have been source code changes since the last run. The default is false.
 
 variables:
- - template: ../EnvironmentConfigs/GlobalVariables.yml  # Template reference to global variables
+ - template: .vars/global.yml  # Template reference to global variables
  - name: packageDir
    value: $(Build.ArtifactStagingDirectory)/Package
  - name: configurationDir
@@ -78,7 +78,7 @@ steps:
 - task: DeleteFiles@1
   displayName: Remove Tests Source Folder
   inputs:
-    SourceFolder: FinalPackage/Tests
+    SourceFolder: $(packageDir)/Tests
     Contents: |
       **
     RemoveSourceFolder: true

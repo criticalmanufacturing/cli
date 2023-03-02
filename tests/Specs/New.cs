@@ -119,10 +119,10 @@ namespace tests.Specs
                             .Contains(f)), "Missing policy metadata");
                 Assert.True(Directory.Exists(Path.Join(tmp, "EnvironmentConfigs")), "environment configs are missing");
                 Assert.True(
-                    new[] { "GlobalVariables.yml" }
+                    new[] { "global.yml" }
                         .ToList()
                         .All(f => Directory
-                            .GetFiles("EnvironmentConfigs")
+                            .GetFiles("Builds/.vars")
                             .Select(extractFileName)
                             .Contains(f)), "Missing global variables");
                 Assert.True(
@@ -590,10 +590,10 @@ namespace tests.Specs
                             .Contains(f)), "Missing policy metadata");
                 Assert.True(Directory.Exists(Path.Join(tmp, "EnvironmentConfigs")), "environment configs are missing");
                 Assert.True(
-                    new[] { "GlobalVariables.yml" }
+                    new[] { "global.yml" }
                         .ToList()
                         .All(f => Directory
-                            .GetFiles("EnvironmentConfigs")
+                            .GetFiles("Builds/.vars")
                             .Select(extractFileName)
                             .Contains(f)), "Missing global variables");
                 Assert.True(

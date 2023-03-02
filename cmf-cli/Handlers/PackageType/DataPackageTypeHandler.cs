@@ -66,7 +66,7 @@ namespace Cmf.CLI.Handlers
         {
             FileSystemUtilities.CopyInstallDependenciesFiles(packageOutputDir, PackageType.Data, this.fileSystem);
 
-            string globalVariablesPath = this.fileSystem.Path.Join(packageOutputDir.FullName, "EnvironmentConfigs", "GlobalVariables.yml");
+            string globalVariablesPath = this.fileSystem.Path.Join(packageOutputDir.FullName, "Builds/.vars", "global.yml");
 
             string globalVariablesFile = this.fileSystem.File.ReadAllText(globalVariablesPath);
             globalVariablesFile = globalVariablesFile.Replace(CliConstants.TokenVersion, CmfPackage.Version);
