@@ -28,4 +28,8 @@
     <ProjectReference Include="..\cmf-cli\cmf.csproj" />
     <ProjectReference Include="..\core\core.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Fixtures\new\Builds\.vars\global.yml" />
+  </ItemGroup>
 </Project>

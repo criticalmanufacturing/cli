@@ -83,6 +83,9 @@
     <None Include="resources\template_feed\**\.tasks\**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="resources\template_feed\**\.vars\**">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>

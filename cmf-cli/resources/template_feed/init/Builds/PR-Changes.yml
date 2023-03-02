@@ -15,7 +15,7 @@ trigger: none
 pr: none
 
 variables:
-- template: ../EnvironmentConfigs/GlobalVariables.yml  # Template reference to global variables
+- template: .vars/global.yml  # Template reference to global variables
 - name: Pipeline
   value: <%= $CLI_PARAM_PipelinesFolder %>\PR-Builds\PR-Package
 

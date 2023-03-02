@@ -518,6 +518,7 @@ namespace Cmf.CLI.Commands
             {
                 var envConfigPath = this.fileSystem.Path.Join(FileSystemUtilities.GetProjectRoot(this.fileSystem, throwException: true).FullName, "EnvironmentConfigs");
                 x.config.CopyTo(this.fileSystem.Path.Join(envConfigPath, x.config.Name));
+                this.fileSystem.FileInfo.FromFileName(this.fileSystem.Path.Join(envConfigPath, ".gitkeep")).Delete();
             }
         }
     }
