@@ -42,7 +42,7 @@ namespace tests.Specs
             });
 
             ExecutionContext.Initialize(fileSystem);
-            IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"repo/{CliConstants.CmfPackageFileName}");
 
             string message = string.Empty;
             CmfPackage cmfPackage = null;
@@ -90,7 +90,7 @@ namespace tests.Specs
             });
 
             ExecutionContext.Initialize(fileSystem);
-            IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"repo/{CliConstants.CmfPackageFileName}");
 
             string message = string.Empty;
             try

@@ -20,7 +20,7 @@ namespace Cmf.CLI.Core.Utilities
             {
                 if (children.Type == JTokenType.String)
                 {
-                    directories.Add(ExecutionContext.Instance.FileSystem.DirectoryInfo.FromDirectoryName(children?.ToString()));
+                    directories.Add(ExecutionContext.Instance.FileSystem.DirectoryInfo.New(children?.ToString()));
                 }
             }
             return directories;
@@ -57,7 +57,7 @@ namespace Cmf.CLI.Core.Utilities
         /// <inheritdoc />
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            return reader.TokenType == JsonToken.String ? ExecutionContext.Instance.FileSystem.DirectoryInfo.FromDirectoryName(reader.Value?.ToString()) : null;
+            return reader.TokenType == JsonToken.String ? ExecutionContext.Instance.FileSystem.DirectoryInfo.New(reader.Value?.ToString()) : null;
         }
 
         /// <inheritdoc />

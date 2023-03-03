@@ -474,12 +474,12 @@ namespace tests.Specs
             var args = new InitArguments()
             {
                 projectName = "defaultProject",
-                workingDir = fileSystem.DirectoryInfo.FromDirectoryName($"."),
+                workingDir = fileSystem.DirectoryInfo.New($"."),
                 repositoryUrl = new Uri(repoUrl),
                 nugetRegistry = new Uri("http://nuget.example"),
                 npmRegistry = new Uri("http://npm.example"),
                 azureDevOpsCollectionUrl = new Uri("http://azure-devops.example/collection"),
-                ISOLocation = fileSystem.FileInfo.FromFileName("."),
+                ISOLocation = fileSystem.FileInfo.New("."),
                 agentPool = "agents",
                 MESVersion = "9.9.9"
             };

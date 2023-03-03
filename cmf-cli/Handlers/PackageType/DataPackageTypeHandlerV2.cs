@@ -64,7 +64,7 @@ namespace Cmf.CLI.Handlers
                 new JSONValidatorCommand()
                 {
                     DisplayName = "JSON Validator Command",
-                    FilesToValidate = GetContentToPack(fileSystem.DirectoryInfo.FromDirectoryName("."))
+                    FilesToValidate = GetContentToPack(fileSystem.DirectoryInfo.New("."))
                 }
             };
 
@@ -74,7 +74,7 @@ namespace Cmf.CLI.Handlers
 
             foreach (var buildablePackageFolder in CmfPackage.BuildablePackages ?? new())
             {
-                IFileInfo buildablePackageJson = fileSystem.FileInfo.FromFileName(Path.Join(buildablePackageFolder.FullName, CoreConstants.CmfPackageFileName));
+                IFileInfo buildablePackageJson = fileSystem.FileInfo.New(Path.Join(buildablePackageFolder.FullName, CoreConstants.CmfPackageFileName));
                 if (buildablePackageJson?.Exists ?? false)
                 {
                     BuildablePackagesHandlers.Add(PackageTypeFactory.GetPackageTypeHandler(buildablePackageJson));

@@ -77,7 +77,7 @@ public class Bump
 
         ExecutionContext.Initialize(fileSystem);
 
-        IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName(cmfPackageJson);
+        IFileInfo cmfpackageFile = fileSystem.FileInfo.New(cmfPackageJson);
         IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile);
         packageTypeHandler.Bump(bumpVersion, "");
 

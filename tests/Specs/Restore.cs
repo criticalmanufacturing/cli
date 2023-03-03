@@ -88,22 +88,22 @@ namespace tests.Specs
             ExecutionContext.Initialize(fileSystem);
             fileSystem.Directory.SetCurrentDirectory(MockUnixSupport.Path(@"c:\test"));
             
-            CmfPackage cmfpackageFile = CmfPackage.Load(fileSystem.FileInfo.FromFileName("/test/cmfpackage.json"), setDefaultValues: true, fileSystem);
+            CmfPackage cmfpackageFile = CmfPackage.Load(fileSystem.FileInfo.New("/test/cmfpackage.json"), setDefaultValues: true, fileSystem);
             IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile, setDefaultValues: false);
 
             var repo = new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = ciRepo }.Uri;
             
-            Assert.False(fileSystem.DirectoryInfo.FromDirectoryName(MockUnixSupport.Path("c:\\Dependencies")).Exists, "Dependencies folder already exists!");
+            Assert.False(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\Dependencies")).Exists, "Dependencies folder already exists!");
             
             packageTypeHandler.RestoreDependencies(new []{ repo });
             
-            Assert.True(fileSystem.DirectoryInfo.FromDirectoryName(MockUnixSupport.Path("c:\\test\\Dependencies")).Exists, "Dependencies folder not found");
-            Assert.True(fileSystem.DirectoryInfo.FromDirectoryName(MockUnixSupport.Path("c:\\test\\Dependencies\\Cmf.Custom.HTML@1.1.0")).Exists, "HTML Dependency folder not found");
-            Assert.True(fileSystem.DirectoryInfo.FromDirectoryName(MockUnixSupport.Path("c:\\test\\Dependencies\\Cmf.Custom.Business@1.1.0")).Exists, "Business Dependency folder not found");
-            Assert.True(fileSystem.FileInfo.FromFileName(MockUnixSupport.Path("c:\\test\\Dependencies\\Cmf.Custom.Business@1.1.0\\content.txt")).Exists, "Business Dependency content not found");
-            Assert.True(fileSystem.FileInfo.FromFileName(MockUnixSupport.Path("c:\\test\\Dependencies\\Cmf.Custom.HTML@1.1.0\\content.txt")).Exists, "HTML Dependency content not found");
-            Assert.Equal("business", fileSystem.FileInfo.FromFileName(MockUnixSupport.Path("c:\\test\\Dependencies\\Cmf.Custom.Business@1.1.0\\content.txt")).OpenText().ReadToEnd(), "Business Dependency content does not match");
-            Assert.Equal("HTML", fileSystem.FileInfo.FromFileName(MockUnixSupport.Path("c:\\test\\Dependencies\\Cmf.Custom.HTML@1.1.0\\content.txt")).OpenText().ReadToEnd(), "HTML Dependency content does not match");
+            Assert.True(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\test\\Dependencies")).Exists, "Dependencies folder not found");
+            Assert.True(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\test\\Dependencies\\Cmf.Custom.HTML@1.1.0")).Exists, "HTML Dependency folder not found");
+            Assert.True(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\test\\Dependencies\\Cmf.Custom.Business@1.1.0")).Exists, "Business Dependency folder not found");
+            Assert.True(fileSystem.FileInfo.New(MockUnixSupport.Path("c:\\test\\Dependencies\\Cmf.Custom.Business@1.1.0\\content.txt")).Exists, "Business Dependency content not found");
+            Assert.True(fileSystem.FileInfo.New(MockUnixSupport.Path("c:\\test\\Dependencies\\Cmf.Custom.HTML@1.1.0\\content.txt")).Exists, "HTML Dependency content not found");
+            Assert.Equal("business", fileSystem.FileInfo.New(MockUnixSupport.Path("c:\\test\\Dependencies\\Cmf.Custom.Business@1.1.0\\content.txt")).OpenText().ReadToEnd(), "Business Dependency content does not match");
+            Assert.Equal("HTML", fileSystem.FileInfo.New(MockUnixSupport.Path("c:\\test\\Dependencies\\Cmf.Custom.HTML@1.1.0\\content.txt")).OpenText().ReadToEnd(), "HTML Dependency content does not match");
         }
         
         [Fact]
@@ -178,12 +178,12 @@ namespace tests.Specs
             ExecutionContext.Initialize(fileSystem);
             fileSystem.Directory.SetCurrentDirectory(MockUnixSupport.Path(@"c:\test"));
             
-            CmfPackage cmfpackageFile = CmfPackage.Load(fileSystem.FileInfo.FromFileName("/test/cmfpackage.json"), setDefaultValues: true, fileSystem);
+            CmfPackage cmfpackageFile = CmfPackage.Load(fileSystem.FileInfo.New("/test/cmfpackage.json"), setDefaultValues: true, fileSystem);
             IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile, setDefaultValues: false);
 
             var repo = new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = MockUnixSupport.Path(@"c:\missingRepo")}.Uri;
             
-            Assert.False(fileSystem.DirectoryInfo.FromDirectoryName(MockUnixSupport.Path("c:\\Dependencies")).Exists, "Dependencies folder already exists!");
+            Assert.False(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\Dependencies")).Exists, "Dependencies folder already exists!");
 
             Assert.Throws<CliException>(() => packageTypeHandler.RestoreDependencies(new[] { repo }));
         }

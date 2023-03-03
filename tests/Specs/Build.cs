@@ -49,7 +49,7 @@ public class Build
         var txtWriter = new StringWriter();
         var writer = new JsonTextWriter(txtWriter);
         var converter = new AbstractionsDirectoryConverter();
-        var dirInfo = fileSystem.DirectoryInfo.FromDirectoryName("/test");
+        var dirInfo = fileSystem.DirectoryInfo.New("/test");
         converter.WriteJson(writer, dirInfo, JsonSerializer.Create());
 
         txtWriter.ToString().Should().Be(@"""/test""", "directory path does not match");
@@ -82,7 +82,7 @@ public class Build
         var converter = new AbstractionsDirectoryConverter();
         var dirInfo = converter.ReadJson(reader, typeof(IDirectoryInfo), null, JsonSerializer.Create()) as IDirectoryInfo;
         Assert.NotNull(dirInfo);
-        dirInfo.FullName.Should().Be(fileSystem.DirectoryInfo.FromDirectoryName(MockUnixSupport.Path("C:\\test")).FullName,
+        dirInfo.FullName.Should().Be(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("C:\\test")).FullName,
             "expected directory path does not match");
     }
 
@@ -118,7 +118,7 @@ public class Build
         {
             Command = "npm.cmd",
             Args = new[] { "run", "build:clean" },
-            WorkingDirectory = fileSystem.DirectoryInfo.FromDirectoryName(".")
+            WorkingDirectory = fileSystem.DirectoryInfo.New(".")
         };
 
         expectedStep.Should().Be(step);
@@ -146,7 +146,7 @@ public class Build
         {
             Command = "npm.cmd",
             Args = new[] { "run", "build:clean" },
-            WorkingDirectory = fileSystem.DirectoryInfo.FromDirectoryName(".")
+            WorkingDirectory = fileSystem.DirectoryInfo.New(".")
         };
         var serializer = new JsonSerializer();
         var txtWriter = new StringWriter();
@@ -237,7 +237,7 @@ public class Build
             });
 
         ExecutionContext.Initialize(fileSystem);
-        IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"{url}/{CliConstants.CmfPackageFileName}");
+        IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"{url}/{CliConstants.CmfPackageFileName}");
         fileSystem.Directory.SetCurrentDirectory(url);
 
         string message = string.Empty;
@@ -335,7 +335,7 @@ public class Build
             });
 
         ExecutionContext.Initialize(fileSystem);
-        IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"{url}/{CliConstants.CmfPackageFileName}");
+        IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"{url}/{CliConstants.CmfPackageFileName}");
         fileSystem.Directory.SetCurrentDirectory(url);
 
         string message = string.Empty;
@@ -433,7 +433,7 @@ public class Build
             });
 
         ExecutionContext.Initialize(fileSystem);
-        IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"{url}/{CliConstants.CmfPackageFileName}");
+        IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"{url}/{CliConstants.CmfPackageFileName}");
         fileSystem.Directory.SetCurrentDirectory(url);
 
         string message = string.Empty;
@@ -625,7 +625,7 @@ public class Build
 
         ExecutionContext.Initialize(fileSystem);
 
-        IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"Cmf.Custom.Data/{CliConstants.CmfPackageFileName}");
+        IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"Cmf.Custom.Data/{CliConstants.CmfPackageFileName}");
         DataPackageTypeHandlerV2 packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile) as DataPackageTypeHandlerV2;
 
         packageTypeHandler.BuildablePackagesHandlers

@@ -312,7 +312,7 @@ namespace Cmf.CLI.Commands
             if (this.fileSystem.File.Exists(cmfPackage))
             {
                 return CmfPackage.Load(
-                    this.fileSystem.FileInfo.FromFileName(
+                    this.fileSystem.FileInfo.New(
                         cmfPackage),
                     fileSystem: this.fileSystem);
             }

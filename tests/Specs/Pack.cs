@@ -153,12 +153,12 @@ namespace tests.Specs
             var fileSystem = MockPackage.Html;
 
             var packCommand = new PackCommand(fileSystem);
-            packCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.FromDirectoryName("output"), false);
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.New("output"), false);
 
-            IEnumerable<IFileInfo> assembledFiles = fileSystem.DirectoryInfo.FromDirectoryName("output").EnumerateFiles("Cmf.Custom.HTML.1.1.0.zip").ToList();
+            IEnumerable<IFileInfo> assembledFiles = fileSystem.DirectoryInfo.New("output").EnumerateFiles("Cmf.Custom.HTML.1.1.0.zip").ToList();
             Assert.Single(assembledFiles);
 
-            using (Stream zipToOpen = fileSystem.FileStream.Create(assembledFiles.First().FullName, FileMode.Open))
+            using (Stream zipToOpen = fileSystem.FileStream.New(assembledFiles.First().FullName, FileMode.Open))
             {
                 using (ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read))
                 {
@@ -188,12 +188,12 @@ namespace tests.Specs
             var fileSystem = MockPackage.Html_OnlyLBOs;
 
             var packCommand = new PackCommand(fileSystem);
-            packCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.FromDirectoryName("output"), false);
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.New("output"), false);
 
-            IEnumerable<IFileInfo> assembledFiles = fileSystem.DirectoryInfo.FromDirectoryName("output").EnumerateFiles("Cmf.Custom.HTML.1.1.0.zip").ToList();
+            IEnumerable<IFileInfo> assembledFiles = fileSystem.DirectoryInfo.New("output").EnumerateFiles("Cmf.Custom.HTML.1.1.0.zip").ToList();
             Assert.Single(assembledFiles);
 
-            using (Stream zipToOpen = fileSystem.FileStream.Create(assembledFiles.First().FullName, FileMode.Open))
+            using (Stream zipToOpen = fileSystem.FileStream.New(assembledFiles.First().FullName, FileMode.Open))
             {
                 using (ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read))
                 {
@@ -222,7 +222,7 @@ namespace tests.Specs
             var fileSystem = MockPackage.Html_MissingDeclaredContent;
 
             var packCommand = new PackCommand(fileSystem);
-            var exception = Assert.Throws<CliException>(() => packCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.FromDirectoryName("output"), false));
+            var exception = Assert.Throws<CliException>(() => packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.New("output"), false));
             exception.Message.Should().Contain("Nothing was found on ContentToPack Sources");
         }
 
@@ -232,7 +232,7 @@ namespace tests.Specs
             var fileSystem = MockPackage.Root_Empty;
 
             var packCommand = new PackCommand(fileSystem);
-            packCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName(MockUnixSupport.Path("c:\\repo")), fileSystem.DirectoryInfo.FromDirectoryName("output"), false);
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\repo")), fileSystem.DirectoryInfo.New("output"), false);
         }
 
         [Fact]
@@ -241,7 +241,7 @@ namespace tests.Specs
             var fileSystem = MockPackage.Html_EmptyContentToPack;
 
             var packCommand = new PackCommand(fileSystem);
-            var exception = Assert.Throws<CliException>(() => packCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.FromDirectoryName("output"), false));
+            var exception = Assert.Throws<CliException>(() => packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.New("output"), false));
             exception.Message.Should().Contain("Missing mandatory property ContentToPack in file");
         }
 
@@ -298,7 +298,7 @@ namespace tests.Specs
                 }}")
             }});
 
-            var pkg = CmfPackage.Load(mockFS.FileSystem.FileInfo.FromFileName(MockUnixSupport.Path(@"c:\.pkg.json")), true,
+            var pkg = CmfPackage.Load(mockFS.FileSystem.FileInfo.New(MockUnixSupport.Path(@"c:\.pkg.json")), true,
                 mockFS);
             var _ = new IoTPackageTypeHandler(pkg);
 
@@ -366,12 +366,12 @@ namespace tests.Specs
 
             ExecutionContext.Initialize(fileSystem);
 
-            IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"Cmf.Custom.{packageType}/cmfpackage.json");
+            IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"Cmf.Custom.{packageType}/cmfpackage.json");
             PresentationPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile, true) as PresentationPackageTypeHandler;
 
-            packageTypeHandler.GeneratePresentationConfigFile(fileSystem.DirectoryInfo.FromDirectoryName("output"));
+            packageTypeHandler.GeneratePresentationConfigFile(fileSystem.DirectoryInfo.New("output"));
 
-            IFileInfo configJsonFile = fileSystem.FileInfo.FromFileName(MockUnixSupport.Path(@"output\\config.json").Replace("\\", "\\\\"));
+            IFileInfo configJsonFile = fileSystem.FileInfo.New(MockUnixSupport.Path(@"output\\config.json").Replace("\\", "\\\\"));
             dynamic configJsonFileContent = JsonConvert.DeserializeObject(fileSystem.File.ReadAllText(configJsonFile.FullName));
 
             string customizationVersion = configJsonFileContent.customizationVersion?.ToString();
@@ -398,19 +398,19 @@ namespace tests.Specs
             });
             ExecutionContext.Initialize(fileSystem);
 
-            IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"repo/{CliConstants.CmfPackageFileName}");
 
             string message = string.Empty;
             try
             {
                 var packCommand = new PackCommand(fileSystem);
-                packCommand.Execute(cmfpackageFile.Directory, fileSystem.DirectoryInfo.FromDirectoryName("output"), false);
+                packCommand.Execute(cmfpackageFile.Directory, fileSystem.DirectoryInfo.New("output"), false);
             }
             catch (Exception ex)
             {
                 message = ex.Message;
             }
-            string fileLocation = fileSystem.FileInfo.FromFileName("/repo/cmfpackage.json").FullName;
+            string fileLocation = fileSystem.FileInfo.New("/repo/cmfpackage.json").FullName;
 
             Assert.Equal(@$"Missing mandatory property ContentToPack in file {fileLocation}", message);
         }
@@ -441,13 +441,13 @@ namespace tests.Specs
             });
 
             ExecutionContext.Initialize(fileSystem);
-            IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"repo/{CliConstants.CmfPackageFileName}");
 
             string message = string.Empty;
             try
             {
                 var packCommand = new PackCommand(fileSystem);
-                packCommand.Execute(cmfpackageFile.Directory, fileSystem.DirectoryInfo.FromDirectoryName("output"), false);
+                packCommand.Execute(cmfpackageFile.Directory, fileSystem.DirectoryInfo.New("output"), false);
             }
             catch (Exception ex)
             {

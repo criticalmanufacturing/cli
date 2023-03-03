@@ -65,7 +65,7 @@ namespace Cmf.CLI.Commands
         public void Execute(IDirectoryInfo packagePath, string version, string buildNr, string packageNames, bool isToTag)
         {
             using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
-            IFileInfo cmfpackageFile = this.fileSystem.FileInfo.FromFileName($"{packagePath}/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{packagePath}/{CliConstants.CmfPackageFileName}");
 
             if (string.IsNullOrEmpty(version))
             {

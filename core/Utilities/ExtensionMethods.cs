@@ -263,7 +263,7 @@ namespace Cmf.CLI.Utilities
             // Rely on FileStream's ctor for further checking destinationFileName parameter
             FileMode fMode = overwrite ? FileMode.Create : FileMode.CreateNew;
 
-            using (Stream fs = fileSystem.FileStream.Create(destinationFileName, fMode, FileAccess.Write, FileShare.None, bufferSize: 0x1000, useAsync: false))
+            using (Stream fs = fileSystem.FileStream.New(destinationFileName, fMode, FileAccess.Write, FileShare.None, bufferSize: 0x1000, useAsync: false))
             {
                 using (Stream es = source.Open())
                     es.CopyTo(fs);

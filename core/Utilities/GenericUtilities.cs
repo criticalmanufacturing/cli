@@ -112,7 +112,7 @@ namespace Cmf.CLI.Utilities
                 {
                     // Create expected file name for the package to get
                     string _packageFileName = $"{packageId}.{packageVersion}.zip";
-                    IDirectoryInfo repoDirectory = fileSystem.DirectoryInfo.FromDirectoryName(repoUri.OriginalString);
+                    IDirectoryInfo repoDirectory = fileSystem.DirectoryInfo.New(repoUri.OriginalString);
 
                     if (repoDirectory.Exists)
                     {
