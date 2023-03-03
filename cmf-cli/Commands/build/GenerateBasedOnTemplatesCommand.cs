@@ -40,10 +40,10 @@ namespace Cmf.CLI.Commands
             var project = FileSystemUtilities.ReadProjectConfig(this.fileSystem).RootElement.GetProperty("Tenant").GetString();
             var helpPackagesRoot = this.fileSystem.Path.Join(helpRoot, "src", "packages");
             var helpPackages = this.fileSystem.Directory.GetDirectories(helpPackagesRoot);
-            var pkgName = CmfPackage.Load(this.fileSystem.FileInfo.FromFileName(this.fileSystem.Path.Join(helpRoot, CliConstants.CmfPackageFileName))).PackageId.ToLowerInvariant();
+            var pkgName = CmfPackage.Load(this.fileSystem.FileInfo.New(this.fileSystem.Path.Join(helpRoot, CliConstants.CmfPackageFileName))).PackageId.ToLowerInvariant();
             foreach (var helpPackagePath in helpPackages)
             {
-                var helpPackage = this.fileSystem.DirectoryInfo.FromDirectoryName(helpPackagePath);
+                var helpPackage = this.fileSystem.DirectoryInfo.New(helpPackagePath);
                 var metadataFile = helpPackage.GetFiles("src/*.metadata.ts").FirstOrDefault();
                 var metadataContent = metadataFile.ReadToString();
                 var matchedIds = regex.Matches(metadataContent);

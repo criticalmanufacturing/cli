@@ -63,7 +63,7 @@ namespace Cmf.CLI.Commands
         public void Execute(IDirectoryInfo workingDir, Uri[] repos)
         {
             using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
-            IFileInfo cmfpackageFile = this.fileSystem.FileInfo.FromFileName($"{workingDir}/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{workingDir}/{CliConstants.CmfPackageFileName}");
 
             // Reading cmfPackage
             CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true, this.fileSystem);

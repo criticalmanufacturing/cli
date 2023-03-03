@@ -54,7 +54,7 @@ namespace tests.Specs
                 }}")}
             });
 
-            IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"repo/{CliConstants.CmfPackageFileName}");
             CmfPackage cmfPackageObj = CmfPackage.Load(cmfpackageFile, fileSystem: fileSystem);
 
             cmfPackageObj.SaveCmfPackage();
@@ -94,7 +94,7 @@ namespace tests.Specs
                 }}")}
             });
 
-            IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"repo/{CliConstants.CmfPackageFileName}");
             CmfPackage cmfPackageObj = CmfPackage.Load(cmfpackageFile, fileSystem: fileSystem);
 
             cmfPackageObj.SaveCmfPackage();
@@ -131,7 +131,7 @@ namespace tests.Specs
                 }}")}
             });
 
-            IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"repo/{CliConstants.CmfPackageFileName}");
             CmfPackage cmfPackageObj = CmfPackage.Load(cmfpackageFile, fileSystem: fileSystem);
 
             cmfPackageObj.SaveCmfPackage();
@@ -168,7 +168,7 @@ namespace tests.Specs
                 }}")}
             });
 
-            IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"repo/{CliConstants.CmfPackageFileName}");
             CmfPackage cmfPackageObj = CmfPackage.Load(cmfpackageFile, fileSystem: fileSystem);
 
             cmfPackageObj.SaveCmfPackage();
@@ -212,7 +212,7 @@ namespace tests.Specs
                 }}")}
             });
 
-            IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"repo/{CliConstants.CmfPackageFileName}");
             CmfPackage cmfPackageObj = CmfPackage.Load(cmfpackageFile, fileSystem: fileSystem);
 
             cmfPackageObj.SaveCmfPackage();
@@ -255,7 +255,7 @@ namespace tests.Specs
                 }}")}
             });
 
-            IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"repo/{CliConstants.CmfPackageFileName}");
             CmfPackage cmfPackageObj = CmfPackage.Load(cmfpackageFile, fileSystem: fileSystem);
 
             cmfPackageObj.SaveCmfPackage();
@@ -299,7 +299,7 @@ namespace tests.Specs
                 }}")}
             });
 
-            IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"repo/{CliConstants.CmfPackageFileName}");
             CmfPackage cmfPackageObj = CmfPackage.Load(cmfpackageFile, fileSystem: fileSystem);
 
             cmfPackageObj.SaveCmfPackage();
@@ -336,7 +336,7 @@ namespace tests.Specs
                 }}")}
             });
 
-            IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"repo/{CliConstants.CmfPackageFileName}");
             CmfPackage cmfPackageObj = CmfPackage.Load(cmfpackageFile, fileSystem: fileSystem);
 
             Assert.Null(cmfPackageObj.DFPackageType);
@@ -377,7 +377,7 @@ namespace tests.Specs
                 }}")}
             });
 
-            IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"repo/{CliConstants.CmfPackageFileName}");
             CmfPackage cmfPackageObj = CmfPackage.Load(cmfpackageFile, fileSystem: fileSystem);
 
             cmfPackageObj.SaveCmfPackage();
@@ -446,7 +446,7 @@ namespace tests.Specs
 
             ExecutionContext.Initialize(fileSystem);
 
-            IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"Cmf.Custom.Generic/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"Cmf.Custom.Generic/{CliConstants.CmfPackageFileName}");
             CmfPackage cmfPackageObj = CmfPackage.Load(cmfpackageFile);
             cmfPackageObj.SaveCmfPackage();
             dynamic cmfpackageFileContent = JsonConvert.DeserializeObject(fileSystem.File.ReadAllText(cmfpackageFile.FullName));

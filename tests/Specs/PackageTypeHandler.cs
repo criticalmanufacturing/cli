@@ -27,10 +27,10 @@ namespace tests.Specs
             string exceptionMessage = string.Empty;
             try
             {
-                var cmfPackage = fileSystem.FileInfo.FromFileName(CliConstants.CmfPackageFileName);
+                var cmfPackage = fileSystem.FileInfo.New(CliConstants.CmfPackageFileName);
                 var packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfPackage) as PresentationPackageTypeHandler;
 
-                packageTypeHandler.GetContentToPack(fileSystem.DirectoryInfo.FromDirectoryName("output"));
+                packageTypeHandler.GetContentToPack(fileSystem.DirectoryInfo.New("output"));
             }
             catch (Exception ex)
             {
@@ -57,7 +57,7 @@ namespace tests.Specs
             string exceptionMessage = string.Empty;
             try
             {
-                var cmfPackage = fileSystem.FileInfo.FromFileName(CliConstants.CmfPackageFileName);
+                var cmfPackage = fileSystem.FileInfo.New(CliConstants.CmfPackageFileName);
                 var packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfPackage);
             }
             catch (Exception ex)

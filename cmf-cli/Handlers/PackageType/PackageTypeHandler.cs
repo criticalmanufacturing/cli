@@ -127,11 +127,11 @@ namespace Cmf.CLI.Handlers
             if (!string.IsNullOrWhiteSpace(cmfPackage.DependenciesDirectory))
             {
                 omitIdentifier = true;
-                DependenciesFolder = fileSystem.DirectoryInfo.FromDirectoryName(cmfPackage.DependenciesDirectory);
+                DependenciesFolder = fileSystem.DirectoryInfo.New(cmfPackage.DependenciesDirectory);
             }
             else
             {
-                DependenciesFolder = fileSystem.DirectoryInfo.FromDirectoryName(Path.Join(cmfPackage.GetFileInfo().Directory.FullName, "Dependencies"));
+                DependenciesFolder = fileSystem.DirectoryInfo.New(Path.Join(cmfPackage.GetFileInfo().Directory.FullName, "Dependencies"));
             }
 
             this.fileSystem = fileSystem;
@@ -182,7 +182,7 @@ namespace Cmf.CLI.Handlers
                 {
                     foreach (string xmlInjectionFile in CmfPackage.XmlInjection)
                     {
-                        IFileInfo xmlFile = this.fileSystem.FileInfo.FromFileName($"{CmfPackage.GetFileInfo().Directory}/{xmlInjectionFile}");
+                        IFileInfo xmlFile = this.fileSystem.FileInfo.New($"{CmfPackage.GetFileInfo().Directory}/{xmlInjectionFile}");
                         string xmlFileContent = xmlFile.ReadToString();
 
                         if (!xmlFile.Exists || string.IsNullOrEmpty(xmlFileContent))
@@ -449,7 +449,7 @@ namespace Cmf.CLI.Handlers
                             {
                                 ContentToPack = contentToPack,
                                 Source = packFile,
-                                Target = this.fileSystem.FileInfo.FromFileName(destPackFile)
+                                Target = this.fileSystem.FileInfo.New(destPackFile)
                             });
                         }
 
@@ -536,7 +536,7 @@ namespace Cmf.CLI.Handlers
                 FilesToPack.ForEach(fileToPack =>
                 {
                     Log.Debug($"Packing '{fileToPack.Source.FullName} to {fileToPack.Target.FullName} by contentToPack rule (Action: {fileToPack.ContentToPack.Action.ToString()}, Source: {fileToPack.ContentToPack.Source}, Target: {fileToPack.ContentToPack.Target})");
-                    IDirectoryInfo _targetFolder = this.fileSystem.DirectoryInfo.FromDirectoryName(fileToPack.Target.Directory.FullName);
+                    IDirectoryInfo _targetFolder = this.fileSystem.DirectoryInfo.New(fileToPack.Target.Directory.FullName);
                     if (!_targetFolder.Exists)
                     {
                         _targetFolder.Create();
@@ -614,7 +614,7 @@ namespace Cmf.CLI.Handlers
                     Log.Debug($"Found package {identifier} at {dependency.CmfPackage.Uri.AbsoluteUri}");
                     if (dependency.CmfPackage.Uri.IsDirectory())
                     {
-                        using (Stream zipToOpen = this.fileSystem.FileInfo.FromFileName(dependency.CmfPackage.Uri.LocalPath).OpenRead())
+                        using (Stream zipToOpen = this.fileSystem.FileInfo.New(dependency.CmfPackage.Uri.LocalPath).OpenRead())
                         {
                             using (ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read))
                             {

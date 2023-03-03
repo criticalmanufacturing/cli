@@ -105,7 +105,7 @@ namespace Cmf.CLI.Commands.New
                     var slnAddCmd = new DotnetCommand()
                     {
                         Command = "sln",
-                        Solution = this.fileSystem.FileInfo.FromFileName(businessSlnPath),
+                        Solution = this.fileSystem.FileInfo.New(businessSlnPath),
                         Args = new[]
                         {
                             "add",

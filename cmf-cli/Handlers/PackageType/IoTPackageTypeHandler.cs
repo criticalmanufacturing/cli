@@ -210,7 +210,7 @@ namespace Cmf.CLI.Handlers
                     foreach (IDirectoryInfo packDirectory in packDirectories)
                     {
                         string inputDirPath = packDirectory.FullName;
-                        IFileInfo packConfig = this.fileSystem.FileInfo.FromFileName($"{inputDirPath}/packconfig.json");
+                        IFileInfo packConfig = this.fileSystem.FileInfo.New($"{inputDirPath}/packconfig.json");
                         if (!packConfig.Exists)
                         {
                             Log.Warning("packconfig.json doesn't exist! packagePacker will not run.");
@@ -242,7 +242,7 @@ namespace Cmf.CLI.Handlers
                 }
                 else if (contentToPack.Action == PackAction.Untar)
                 {
-                    IFileInfo tgzFile = this.fileSystem.FileInfo.FromFileName($"{CmfPackage.GetFileInfo().Directory.FullName}/{contentToPack.Source}");
+                    IFileInfo tgzFile = this.fileSystem.FileInfo.New($"{CmfPackage.GetFileInfo().Directory.FullName}/{contentToPack.Source}");
                     CmdCommand cmdCommand = new CmdCommand()
                     {
                         DisplayName = "tar -xzvf",
@@ -257,8 +257,8 @@ namespace Cmf.CLI.Handlers
 
                     string packDirectoryName = packageJson == null ? tgzFile.Directory.Name : packageJson.name;
 
-                    IDirectoryInfo packageDirectory = this.fileSystem.DirectoryInfo.FromDirectoryName($"{packageOutputDir}/package");
-                    IDirectoryInfo destinationDirectory = this.fileSystem.DirectoryInfo.FromDirectoryName($"{packageOutputDir}/{contentToPack.Target}/{packDirectoryName}");
+                    IDirectoryInfo packageDirectory = this.fileSystem.DirectoryInfo.New($"{packageOutputDir}/package");
+                    IDirectoryInfo destinationDirectory = this.fileSystem.DirectoryInfo.New($"{packageOutputDir}/{contentToPack.Target}/{packDirectoryName}");
                     destinationDirectory.Parent.Create();
                     packageDirectory.MoveTo(destinationDirectory.FullName);
                 }

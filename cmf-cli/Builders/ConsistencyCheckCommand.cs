@@ -48,7 +48,7 @@ namespace Cmf.CLI.Builders
         public Task Exec()
         {
             IDirectoryInfo directory = Utilities.FileSystemUtilities.GetPackageRootByType(WorkingDirectory.FullName, PackageType.Root, FileSystem);
-            IFileInfo cmfpackageFile = FileSystem.FileInfo.FromFileName($"{directory.FullName}/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = FileSystem.FileInfo.New($"{directory.FullName}/{CliConstants.CmfPackageFileName}");
 
             CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true);
 

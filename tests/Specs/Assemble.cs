@@ -57,16 +57,16 @@ namespace tests.Specs
             });
 
             var assembleCommand = new AssembleCommand(fileSystem);
-            assembleCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName("test"), fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key), new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = cirepo }.Uri, null, false);
+            assembleCommand.Execute(fileSystem.DirectoryInfo.New("test"), fileSystem.DirectoryInfo.New(assembleOutputDir.Key), new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = cirepo }.Uri, null, false);
 
-            IEnumerable<string> assembledFiles = fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key).EnumerateFiles("*.zip").Select(f => f.Name).ToList();
+            IEnumerable<string> assembledFiles = fileSystem.DirectoryInfo.New(assembleOutputDir.Key).EnumerateFiles("*.zip").Select(f => f.Name).ToList();
             Assert.Equal(3, assembledFiles.Count());
 
             Assert.Contains($"{packageRoot.Key}.{packageRoot.Value}.zip", assembledFiles);
             Assert.Contains($"{packageDep1.Key}.{packageDep1.Value}.zip", assembledFiles);
             Assert.Contains($"{packageDep2.Key}.{packageDep2.Value}.zip", assembledFiles);
 
-            IFileInfo dependenciesJsonFile = fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key).EnumerateFiles(CliConstants.FileDependencies).FirstOrDefault();
+            IFileInfo dependenciesJsonFile = fileSystem.DirectoryInfo.New(assembleOutputDir.Key).EnumerateFiles(CliConstants.FileDependencies).FirstOrDefault();
             Assert.NotNull(dependenciesJsonFile);
             Assert.True(dependenciesJsonFile?.Exists ?? false, "Dependencies file does not exist");
             Assert.Equal("{}", dependenciesJsonFile.OpenText().ReadToEnd());
@@ -114,7 +114,7 @@ namespace tests.Specs
             string message = string.Empty;
             try
             {
-                assembleCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName("test"), fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key), new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = cirepo1 }.Uri, null, false);
+                assembleCommand.Execute(fileSystem.DirectoryInfo.New("test"), fileSystem.DirectoryInfo.New(assembleOutputDir.Key), new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = cirepo1 }.Uri, null, false);
             }
             catch (Exception ex)
             {
@@ -174,16 +174,16 @@ namespace tests.Specs
 
             var assembleCommand = new AssembleCommand(fileSystem);
             Uri[] repos = new[] { new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = repo1 }.Uri, new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = repo2 }.Uri };
-            assembleCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName("test"), fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key), new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = cirepo }.Uri, repos, false);
+            assembleCommand.Execute(fileSystem.DirectoryInfo.New("test"), fileSystem.DirectoryInfo.New(assembleOutputDir.Key), new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = cirepo }.Uri, repos, false);
 
-            IEnumerable<string> assembledFiles = fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key).EnumerateFiles("*.zip").Select(f => f.Name);
+            IEnumerable<string> assembledFiles = fileSystem.DirectoryInfo.New(assembleOutputDir.Key).EnumerateFiles("*.zip").Select(f => f.Name);
             Assert.Single(assembledFiles);
 
             Assert.Contains($"{packageRoot.Key}.{packageRoot.Value}.zip", assembledFiles);
             Assert.DoesNotContain($"{packageDep1.Key}.{packageDep1.Value}.zip", assembledFiles);
             Assert.DoesNotContain($"{packageDep2.Key}.{packageDep2.Value}.zip", assembledFiles);
 
-            IFileInfo dependenciesJsonFile = fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key).EnumerateFiles(CliConstants.FileDependencies).FirstOrDefault();
+            IFileInfo dependenciesJsonFile = fileSystem.DirectoryInfo.New(assembleOutputDir.Key).EnumerateFiles(CliConstants.FileDependencies).FirstOrDefault();
             Assert.NotNull(dependenciesJsonFile);
             Assert.True(dependenciesJsonFile.Exists);
             string expectedContent = @$"{{""{packageDep1.Key}@{packageDep1.Value}"":""{MockUnixSupport.Path($@"{repo1}\{packageDep1.Key}.{packageDep1.Value}.zip").Replace("\\", "\\\\")}"",""{packageDep2.Key}@{packageDep2.Value}"":""{MockUnixSupport.Path($@"{repo2}\{packageDep2.Key}.{packageDep2.Value}.zip").Replace("\\", "\\\\")}""}}";
@@ -240,16 +240,16 @@ namespace tests.Specs
             });
 
             var assembleCommand = new AssembleCommand(fileSystem);
-            assembleCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName("test"), fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key), new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = cirepo }.Uri, null, true);
+            assembleCommand.Execute(fileSystem.DirectoryInfo.New("test"), fileSystem.DirectoryInfo.New(assembleOutputDir.Key), new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = cirepo }.Uri, null, true);
 
-            IEnumerable<string> assembledFiles = fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key).EnumerateFiles("*.zip").Select(f => f.Name).ToList();
+            IEnumerable<string> assembledFiles = fileSystem.DirectoryInfo.New(assembleOutputDir.Key).EnumerateFiles("*.zip").Select(f => f.Name).ToList();
             Assert.Equal(3, assembledFiles.Count());
 
             Assert.Contains($"{packageRoot.Key}.{packageRoot.Value}.zip", assembledFiles);
             Assert.Contains($"{packageDep1.Key}.{packageDep1.Value}.zip", assembledFiles);
             Assert.Contains($"{packageDep2.Key}.{packageDep2.Value}.zip", assembledFiles);
 
-            IEnumerable<string> assembledTestFiles = fileSystem.DirectoryInfo.FromDirectoryName(@$"{assembleOutputDir.Key}/Tests").EnumerateFiles("*.zip").Select(f => f.Name).ToList();
+            IEnumerable<string> assembledTestFiles = fileSystem.DirectoryInfo.New(@$"{assembleOutputDir.Key}/Tests").EnumerateFiles("*.zip").Select(f => f.Name).ToList();
             Assert.Single(assembledTestFiles);
 
             Assert.Contains($"{packageTest.Key}.{packageTest.Value}.zip", assembledTestFiles);
@@ -286,15 +286,15 @@ namespace tests.Specs
 
             var assembleCommand = new AssembleCommand(fileSystem);
 
-            assembleCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName("test"), fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key), new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = cirepo }.Uri, null, false);
+            assembleCommand.Execute(fileSystem.DirectoryInfo.New("test"), fileSystem.DirectoryInfo.New(assembleOutputDir.Key), new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = cirepo }.Uri, null, false);
 
-            IEnumerable<string> assembledFiles = fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key).EnumerateFiles("*.zip").Select(f => f.Name).ToList();
+            IEnumerable<string> assembledFiles = fileSystem.DirectoryInfo.New(assembleOutputDir.Key).EnumerateFiles("*.zip").Select(f => f.Name).ToList();
             Assert.Single(assembledFiles);
 
             Assert.Contains($"{packageRoot.Key}.{packageRoot.Value}.zip", assembledFiles);
             Assert.DoesNotContain($"{packageDep1.Key}.{packageDep1.Value}.zip", assembledFiles);
 
-            IFileInfo dependenciesJsonFile = fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key).EnumerateFiles(CliConstants.FileDependencies).FirstOrDefault();
+            IFileInfo dependenciesJsonFile = fileSystem.DirectoryInfo.New(assembleOutputDir.Key).EnumerateFiles(CliConstants.FileDependencies).FirstOrDefault();
             Assert.NotNull(dependenciesJsonFile);
             Assert.True(dependenciesJsonFile!.Exists);
             Assert.Equal("{}", dependenciesJsonFile.OpenText().ReadToEnd());
@@ -352,7 +352,7 @@ namespace tests.Specs
             try
             {
                 var assembleCommand = new AssembleCommand(fileSystem);
-                assembleCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName("test"), fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key), new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = cirepo }.Uri, null, true);
+                assembleCommand.Execute(fileSystem.DirectoryInfo.New("test"), fileSystem.DirectoryInfo.New(assembleOutputDir.Key), new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = cirepo }.Uri, null, true);
             }
             catch (Exception ex)
             {
