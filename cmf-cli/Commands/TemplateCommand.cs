@@ -185,32 +185,32 @@ namespace Cmf.CLI.Commands
             public string DisplayName => "CMF CLI templates";
         }
 
-         private static ITemplateEngineHost CreateHost(string version)
-         {
-             var builtIns = new List<(Type InterfaceType, IIdentifiedComponent Instance)>();
-             builtIns.AddRange(Microsoft.TemplateEngine.Orchestrator.RunnableProjects.Components.AllComponents);
-             builtIns.AddRange(Microsoft.TemplateEngine.Edge.Components.AllComponents);
-             builtIns.Add((typeof(ITemplatePackageProviderFactory), new CmfCliPackageProviderFactory()));
-             var preferences = new Dictionary<string, string>
-             {
-             };
+        private static ITemplateEngineHost CreateHost(string version)
+        {
+            var builtIns = new List<(Type InterfaceType, IIdentifiedComponent Instance)>();
+            builtIns.AddRange(Microsoft.TemplateEngine.Orchestrator.RunnableProjects.Components.AllComponents);
+            builtIns.AddRange(Microsoft.TemplateEngine.Edge.Components.AllComponents);
+            builtIns.Add((typeof(ITemplatePackageProviderFactory), new CmfCliPackageProviderFactory()));
+            var preferences = new Dictionary<string, string>
+            {
+            };
 
-             return new DefaultTemplateEngineHost(hostIdentifier: "cmf-cli", 
-                 version: version,
-                 defaults: preferences, 
-                 builtIns: builtIns,
-                 // loggerFactory: Microsoft.Extensions.Logging.LoggerFactory.Create(builder =>
-                 //     builder
-                 //         .SetMinimumLevel(logLevel)
-                 //         .AddConsole(config => config.FormatterName = nameof(CliConsoleFormatter))
-                 //         .AddConsoleFormatter<CliConsoleFormatter, ConsoleFormatterOptions>(config =>
-                 //         {
-                 //             config.IncludeScopes = true;
-                 //             config.TimestampFormat = "yyyy-MM-dd HH:mm:ss.fff";
-                 //         }))
-                 loggerFactory: null
-             );
-         }
+            return new DefaultTemplateEngineHost(hostIdentifier: "cmf-cli",
+                version: version,
+                defaults: preferences,
+                builtIns: builtIns,
+                // loggerFactory: Microsoft.Extensions.Logging.LoggerFactory.Create(builder =>
+                //     builder
+                //         .SetMinimumLevel(logLevel)
+                //         .AddConsole(config => config.FormatterName = nameof(CliConsoleFormatter))
+                //         .AddConsoleFormatter<CliConsoleFormatter, ConsoleFormatterOptions>(config =>
+                //         {
+                //             config.IncludeScopes = true;
+                //             config.TimestampFormat = "yyyy-MM-dd HH:mm:ss.fff";
+                //         }))
+                loggerFactory: null
+            );
+        }
 
          /// <summary>
         /// Parse a DF exported config file

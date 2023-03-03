@@ -12,7 +12,6 @@ namespace tests.Specs
 {
     public class Logging
     {
-        private AnsiConsoleFactory factory = new AnsiConsoleFactory();
         private StringWriter _writer = null;
         
         public Logging()
@@ -30,7 +29,7 @@ namespace tests.Specs
             Environment.SetEnvironmentVariable("cmf_cli_loglevel", null);
 
             LoggerHelpers.LogLevelOption.Parse(""); // reset to default log level
-            Log.AnsiConsole = factory.Create(new AnsiConsoleSettings
+            Log.AnsiConsole = AnsiConsole.Create(new AnsiConsoleSettings
             {
                 Ansi = AnsiSupport.Yes,
                 // we should probably add some color testing but it's low priority, to avoid a lot of trimming we disable the colours here
