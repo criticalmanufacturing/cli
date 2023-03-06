@@ -1,16 +1,12 @@
 ﻿using Cmf.CLI.Utilities;
 using System;
-using System.CommandLine;
-using System.Linq;
 using System.Threading.Tasks;
 using Cmf.CLI.Commands;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Objects;
 using Microsoft.Extensions.DependencyInjection;
 using Cmf.CLI.Core.Enums;
-using Cmf.CLI.Constants;
-using System.CommandLine.Builder;
-using System.Diagnostics;
+using System.CommandLine.Parsing;
 
 namespace Cmf.CLI
 {
@@ -28,7 +24,7 @@ namespace Cmf.CLI
         {
             try
             {
-                var rootCommand = await StartupModule.Configure(
+                var (rootCommand, parser) = await StartupModule.Configure(
                     packageName: "@criticalmanufacturing/cli",
                     envVarPrefix: "cmf_cli",
                     description: "Critical Manufacturing CLI",
@@ -41,7 +37,7 @@ namespace Cmf.CLI
                 if (rootCommand != null)
                 {
                     BaseCommand.AddPluginCommands(rootCommand);
-                    result = await rootCommand.InvokeAsync(args);
+                    result = await parser.InvokeAsync(args);
                 }
                  
                 activity?.SetTag("execution.success", true);
