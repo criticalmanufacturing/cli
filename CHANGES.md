@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.4.2](https://github.com/criticalmanufacturing/cli/compare/3.4.2-0...3.4.2) (2023-03-06)
+
+* **core**: enhancements for plugin development
+
+### [3.4.2-0](https://github.com/criticalmanufacturing/cli/compare/3.4.1...3.4.2-0) (2023-02-27)
+
 ### [3.4.1](https://github.com/criticalmanufacturing/cli/compare/3.4.0-5...3.4.1) (2023-02-16)
 
 

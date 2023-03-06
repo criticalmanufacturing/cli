@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Spectre.Console;
 using Spectre.Console.Rendering;
 
@@ -99,6 +100,35 @@ namespace Cmf.CLI.Core
         public static void Render(IRenderable renderable)
         {
             AnsiConsole.Write(renderable);
+        }
+
+        /// <summary>
+        /// Renders a table with the given columns and rows
+        /// </summary>
+        /// <param name="columns">The columns.</param>
+        /// <param name="rows">The rows.</param>
+        public static void RenderTable(string[] columns, List<string[]> rows)
+        {
+            // Create a table
+            var table = new Table();
+
+            foreach (var col in columns)
+            {
+                table.AddColumn(EscapeMarkup(col));
+            }
+
+            foreach (var row in rows)
+            {
+                var _row = new string[row.Length];
+                for (int i = 0; i < row.Length; i++)
+                {
+                    _row[i] = EscapeMarkup(row[i]);
+                }
+                table.AddRow(_row);
+            };
+
+            // Render the table to the console
+            Render(table);
         }
 
         /// <summary>
