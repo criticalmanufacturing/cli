@@ -1,13 +1,8 @@
 # Drop Database
 parameters:
-<<<<<<< Updated upstream
-    DB: ''
-=======
   DB: ''
   DBName: $(EnvConfig.Product.SystemName)
   ServerName: $(EnvConfig.PackageProduct.Database.${{parameters.DB}}.Database.Server)
-
->>>>>>> Stashed changes
 steps:
 - task: SqlDacpacDeploymentOnMachineGroup@0
   displayName: Drop ${{parameters.DB}} database
@@ -23,10 +18,5 @@ steps:
     ServerName: ${{parameters.ServerName}}
     DatabaseName: master
     AuthScheme: sqlServerAuthentication
-<<<<<<< Updated upstream
-    SqlUsername: $(EnvConfig.PackageProduct.Database.${{ parameters.DB}}.Database.User)
-    SqlPassword: $(EnvConfig.PackageProduct.Database.${{ parameters.DB}}.Database.Password)
-=======
-    SqlUsername: $(Database${{parameters.DB}}User)
-    SqlPassword: $(Database${{parameters.DB}}Password)
->>>>>>> Stashed changes
+    SqlUsername: $(Database${{ parameters.DB}}User)
+    SqlPassword: $(Database${{ parameters.DB}}Password)
