@@ -2,7 +2,6 @@
 using Cmf.CLI.Constants;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
@@ -362,6 +361,74 @@ namespace tests.Specs
             
 
             
+        }
+
+        [Fact]
+        public void Assemble_FromRepositoriesJson()
+        {
+            string cirepo = MockUnixSupport.Path(@"y:\cirepo");
+            string approvedrepo = MockUnixSupport.Path(@"y:\approvedrepo");
+            string root = MockUnixSupport.Path(@"x:\test");
+            
+            KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.1.0");
+            KeyValuePair<string, string> packageDep = new("CriticalManufacturing.DeploymentMetadata", "8.3.0");
+            KeyValuePair<string, string> packageDep1 = new("Cmf.Custom.Business", "1.1.0");
+            KeyValuePair<string, string> packageDep2 = new("Cmf.Custom.Html", "1.1.0");
+            KeyValuePair<string, string> packageTest = new("Cmf.Custom.Tests", "1.1.0");
+            KeyValuePair<string, MockDirectoryData> assembleOutputDir = new($"/test/assemble/", new());
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { MockUnixSupport.Path($"{root}/cmfpackage.json"), new MockFileData(
+                    @$"{{
+                  ""packageId"": ""{packageRoot.Key}"",
+                  ""version"": ""{packageRoot.Value}"",
+                  ""description"": ""This package deploys Critical Manufacturing Customization"",
+                  ""packageType"": ""Root"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": false,
+                  ""dependencies"": [
+                    {{
+                         ""id"": ""{packageDep.Key}"",
+                        ""version"": ""{packageDep.Value}""
+                    }},
+                    {{
+                         ""id"": ""{packageDep1.Key}"",
+                        ""version"": ""{packageDep1.Value}""
+                    }},
+                    {{
+                        ""id"": ""{packageDep2.Key}"",
+                        ""version"": ""{packageDep2.Value}""
+                    }}
+                  ],
+                  ""testPackages"": [
+                    {{
+                         ""id"": ""{packageTest.Key}"",
+                        ""version"": ""{packageTest.Value}""
+                    }}
+                  ]
+                }}")},
+                {
+                    MockUnixSupport.Path($"{root}/repositories.json"), new MockFileData(
+                    @$"{{
+                        ""CIRepository"": ""{cirepo.Replace(@"\", @"\\")}"",
+                        ""Repositories"": [
+                            ""{approvedrepo.Replace(@"\", @"\\")}""
+                        ]
+                    }}"
+                )},
+                { assembleOutputDir.Key, assembleOutputDir.Value },
+                { @$"{cirepo}/{packageRoot.Key}.{packageRoot.Value}.zip", new DFPackageBuilder().CreateManifest(packageRoot.Key, packageRoot.Value, new() { { packageDep1.Key, packageDep1.Value}  }, new() { { packageTest.Key, packageTest.Value} }).ToMockFileData() },
+                { @$"{cirepo}/{packageDep1.Key}.{packageDep1.Value}.zip", new DFPackageBuilder().CreateManifest(packageDep1.Key, packageDep1.Value).ToMockFileData() },
+                { @$"{cirepo}/{packageDep2.Key}.{packageDep2.Value}.zip", new DFPackageBuilder().CreateManifest(packageDep2.Key, packageDep2.Value).ToMockFileData() },
+                { @$"{cirepo}/{packageTest.Key}.{packageTest.Value}.zip", new DFPackageBuilder().CreateManifest(packageTest.Key, packageTest.Value).ToMockFileData() },
+                { $"{approvedrepo}/.gitkeep", ""}
+            });
+
+            fileSystem.Directory.SetCurrentDirectory(root);
+            ExecutionContext.Initialize(fileSystem);
+            
+            var assembleCommand = new AssembleCommand(fileSystem);
+            assembleCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName(root), fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key), null, null, true);
         }
     }
 }
