@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace Cmf.CLI.Core.Objects
@@ -13,11 +14,13 @@ namespace Cmf.CLI.Core.Objects
         /// <summary>
         /// The CI repository folder: this is the place where Packages built by CI are stored, by branch
         /// </summary>
+        [JsonConverter(typeof(UriConverter))]
         public Uri CIRepository { get; set; }
 
         /// <summary>
         /// The DF repositories: these contain package that we treat as official (i.e. upstream dependencies or already releases packages)
         /// </summary>
+        [JsonConverter(typeof(UriListConverter))]
         public List<Uri> Repositories { get; set; }
 
         /// <summary>
@@ -28,5 +31,43 @@ namespace Cmf.CLI.Core.Objects
         {
             Repositories = new List<Uri>();
         }
+    }
+
+    class UriConverter : JsonConverter<Uri>
+    {
+        public override void WriteJson(JsonWriter writer, Uri value, JsonSerializer serializer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Uri ReadJson(JsonReader reader, Type objectType, Uri existingValue, bool hasExistingValue, JsonSerializer serializer)
+        {
+            if (reader.TokenType == JsonToken.String)
+            {
+                return new Uri((serializer.Deserialize(reader, typeof(string)) as string)!, UriKind.Absolute);
+            }
+
+            return hasExistingValue ? existingValue : null;
+        }
+
+        public override bool CanWrite => false;
+    }
+    class UriListConverter : JsonConverter<List<Uri>>
+    {
+        public override void WriteJson(JsonWriter writer, List<Uri> value, JsonSerializer serializer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override List<Uri> ReadJson(JsonReader reader, Type objectType, List<Uri> existingValue, bool hasExistingValue, JsonSerializer serializer)
+        {
+            var array = serializer.Deserialize(reader, objectType) as List<Uri>;
+            
+            array = array?.Select(u => new Uri(u.OriginalString, UriKind.Absolute)).ToList();
+
+            return array ?? existingValue;
+        }
+
+        public override bool CanWrite => false;
     }
 }
