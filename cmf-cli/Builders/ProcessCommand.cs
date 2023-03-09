@@ -48,15 +48,22 @@ namespace Cmf.CLI.Builders
 
                     command = exePath ?? command;
                 }
-                Log.Debug($"Executing '{command} {String.Join(' ', step.Args)}'");
+                Log.Debug($"Executing '{command} {String.Join(' ', step.Args ?? Array.Empty<string>())}'");
                 ProcessStartInfo ps = new();
                 ps.FileName = command;
                 ps.WorkingDirectory = step.WorkingDirectory != null ? step.WorkingDirectory.FullName : this.WorkingDirectory.FullName;
                 ps.Arguments = String.Join(' ', step.Args);
-                // step.Args.ToList().ForEach(arg => ps.ArgumentList.Add(arg));
                 ps.UseShellExecute = false;
                 ps.RedirectStandardOutput = true;
                 ps.RedirectStandardError = true;
+
+                if(step.EnvironmentVariables.HasAny())
+                {
+                    foreach (var envVar in step.EnvironmentVariables)
+                    {
+                        ps.EnvironmentVariables.Add(envVar.Key, envVar.Value);
+                    }
+                }                
 
                 using var process = System.Diagnostics.Process.Start(ps);
                 process.OutputDataReceived += (sender, args) => Log.Verbose(args.Data);

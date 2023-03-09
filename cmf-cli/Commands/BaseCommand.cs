@@ -82,7 +82,7 @@ namespace Cmf.CLI.Commands
                                 if (!plugins.ContainsKey(commandName))
                                 {
                                     plugins.Add(commandName, file.FullName);
-                                    // Console.WriteLine($"Added command {commandName} as {file.FullName}");
+                                    Log.Debug($"Added command {commandName} as {file.FullName}");
                                 }
                                 else
                                 {
@@ -90,13 +90,13 @@ namespace Cmf.CLI.Commands
                                     if (existingPos > pos)
                                     {
                                         plugins[commandName] = file.FullName;
-                                        // Console.WriteLine($"Replaced command {commandName} with {file.FullName}");
+                                        Log.Debug($"Replaced command {commandName} with {file.FullName}");
                                     }
                                 }
                             }
                             else
                             {
-                                // Console.WriteLine($"Skipping {file.FullName} for command {file.Name} as it's not supported on this platform");
+                                Log.Debug($"Skipping {file.FullName} for command {file.Name} as it's not supported on this platform");
                             }
                         }
                     }

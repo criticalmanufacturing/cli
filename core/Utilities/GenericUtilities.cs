@@ -1,13 +1,10 @@
-using Spectre.Console;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
-using System.Linq;
-using System.Reflection;
-using System.Text;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Objects;
+using Spectre.Console;
 
 namespace Cmf.CLI.Utilities
 {
@@ -219,7 +216,7 @@ namespace Cmf.CLI.Utilities
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="envVarName"></param>
         /// <returns></returns>
@@ -228,6 +225,7 @@ namespace Cmf.CLI.Utilities
             var enableConsoleExporter = System.Environment.GetEnvironmentVariable(envVarName);
             return enableConsoleExporter is "1" or "true" or "TRUE" or "True";
         }
+
         #endregion Public Methods
 
         #region Private Methods
@@ -259,6 +257,7 @@ namespace Cmf.CLI.Utilities
                 }
             }
         }
-        #endregion
+
+        #endregion Private Methods
     }
 }

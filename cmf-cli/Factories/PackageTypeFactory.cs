@@ -40,13 +40,13 @@ namespace Cmf.CLI.Factories
         /// </exception>
         public static IPackageTypeHandler GetPackageTypeHandler(CmfPackage cmfPackage, bool setDefaultValues = false)
         {
-            PackageTypeHandler packageTypeHandler;
+            IPackageTypeHandler packageTypeHandler;
             packageTypeHandler = cmfPackage.PackageType switch
             {
                 PackageType.Root => new RootPackageTypeHandler(cmfPackage),
                 PackageType.Generic => new GenericPackageTypeHandler(cmfPackage),
                 PackageType.Business => new BusinessPackageTypeHandler(cmfPackage),
-                PackageType.HTML => new HtmlPackageTypeHandler(cmfPackage),
+                PackageType.HTML => HtmlHandler(cmfPackage),
                 PackageType.Help => new HelpPackageTypeHandler(cmfPackage),
                 PackageType.IoT => new IoTPackageTypeHandler(cmfPackage),
                 PackageType.IoTData => cmfPackage.HandlerVersion switch
@@ -70,6 +70,20 @@ namespace Cmf.CLI.Factories
             };
 
             return packageTypeHandler;
+        }
+
+        private static IPackageTypeHandler HtmlHandler(CmfPackage cmfPackage)
+        {
+            var projectConfig = FileSystemUtilities.ReadProjectConfig(ExecutionContext.Instance.FileSystem);
+            var mesVersion = projectConfig.RootElement.GetProperty("MESVersion").GetString();
+            var minimumVersion = new Version("10.0.0");
+            var targetVersion = new Version(mesVersion!);
+            if (targetVersion.CompareTo(minimumVersion) < 0)
+            {
+                return new HtmlGulpPackageTypeHandler(cmfPackage);
+            }
+
+            return new HtmlNgCliPackageTypeHandler(cmfPackage);
         }
     }
 }
