@@ -10,7 +10,13 @@ namespace tests.Objects
     internal static class MockPackage
     {
         internal static readonly MockFileSystem Html = new MockFileSystem(new Dictionary<string, MockFileData>
-            {{ MockUnixSupport.Path(@"c:\ui\src\packages\customization.common\package.json"), new MockFileData(
+        {
+            { MockUnixSupport.Path(@"c:\.project-config.json"), new MockFileData(
+            @"{
+              ""MESVersion"": ""9.0.0""
+            }")
+            },
+            { MockUnixSupport.Path(@"c:\ui\src\packages\customization.common\package.json"), new MockFileData(
             @"{
               ""name"": ""customization.package""
             }")},
@@ -45,6 +51,11 @@ namespace tests.Objects
           { MockUnixSupport.Path(@"c:\Libs\LBOs\TypeScript\package.json"), new MockFileData(@"{
               ""name"": ""cmf.lbos""
             }")},
+          { MockUnixSupport.Path(@"c:\.project-config.json"), new MockFileData(
+            @"{
+              ""MESVersion"": ""9.0.0""
+            }")
+          },
           { MockUnixSupport.Path(@"c:\ui\package.json"), new MockFileData(
             @"{
               ""name"": ""customization.package""
@@ -82,6 +93,11 @@ namespace tests.Objects
 
         internal static readonly MockFileSystem Html_MissingDeclaredContent = new MockFileSystem(new Dictionary<string, MockFileData>
         {
+          { MockUnixSupport.Path(@"c:\.project-config.json"), new MockFileData(
+            @"{
+              ""MESVersion"": ""9.0.0""
+            }")
+          },
           { MockUnixSupport.Path(@"c:\ui\package.json"), new MockFileData(
             @"{
               ""name"": ""customization.package""

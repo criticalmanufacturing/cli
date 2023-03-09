@@ -11,13 +11,13 @@ namespace Cmf.CLI.Handlers
     ///
     /// </summary>
     /// <seealso cref="PresentationPackageTypeHandler" />
-    public class HtmlPackageTypeHandler : PresentationPackageTypeHandler
+    public class HtmlGulpPackageTypeHandler : PresentationPackageTypeHandler
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="HtmlPackageTypeHandler" /> class.
+        /// Initializes a new instance of the <see cref="HtmlGulpPackageTypeHandler" /> class.
         /// </summary>
         /// <param name="cmfPackage"></param>
-        public HtmlPackageTypeHandler(CmfPackage cmfPackage) : base(cmfPackage)
+        public HtmlGulpPackageTypeHandler(CmfPackage cmfPackage) : base(cmfPackage)
         {
             cmfPackage.SetDefaultValues
             (
