@@ -60,6 +60,12 @@
       "type": "parameter",
       "datatype": "string",
       "replaces": "<%= $CLI_PARAM_NPMRegistry %>"
+    },
+    "repositoryType": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The type of repository this package will be included in",
+      "displayName": "Repository Type"
     }
   }
 }

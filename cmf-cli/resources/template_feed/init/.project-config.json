@@ -1,5 +1,7 @@
 {
   "ProjectName": "<%= $CLI_PARAM_ProjectName %>",
+  "RepositoryType": "<%= $CLI_PARAM_RepositoryType %>",
+  "BaseLayer": "<%= $CLI_PARAM_BaseLayer %>",
   "NPMRegistry": "<%= $CLI_PARAM_NPMRegistry %>",
   "NuGetRegistry": "<%= $CLI_PARAM_NuGetRegistry %>",
   "AzureDevopsCollectionURL": "<%= $CLI_PARAM_AzureDevopsCollectionURL %>",

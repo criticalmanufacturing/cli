@@ -6,6 +6,7 @@ using System.IO.Abstractions;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Enums;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -41,10 +42,11 @@ namespace Cmf.CLI.Commands
         public IFileInfo config { get; set; }
         public IDirectoryInfo deploymentDir { get; set; }
         public Uri repositoryUrl { get; set; }
-        public string MESVersion { get; set; }
+        public string BaseVersion { get; set; }
         public string DevTasksVersion { get; set; }
         public string HTMLStarterVersion { get; set; }
         public string yoGeneratorVersion { get; set; }
+        public string ngxSchematicsVersion { get; set; }
         public string nugetVersion { get; set; }
         public string testScenariosNugetVersion { get; set; }
         public IFileInfo infrastructure { get; set; }
@@ -64,6 +66,7 @@ namespace Cmf.CLI.Commands
         public string releaseDeploymentPackage { get; set; }
         public string releaseLicense { get; set; }
         public string releaseDeploymentTarget { get; set; }
+        public RepositoryType repositoryType { get; set; }
         // ReSharper restore UnusedAutoPropertyAccessor.Global
         // ReSharper restore InconsistentNaming
     }
@@ -71,7 +74,7 @@ namespace Cmf.CLI.Commands
     /// <summary>
     /// Init command
     /// </summary>
-    [CmfCommand("init", Id = "init")]
+    [CmfCommand("init", Id = "init", Description = "Initialize the content of a new repository for your project")]
     public class InitCommand : TemplateCommand
     {
         /// <summary>
@@ -121,6 +124,11 @@ namespace Cmf.CLI.Commands
                 isDefault: true,
                 description: "Configuration file exported from Setup")
                 { IsRequired = true });
+            cmd.AddOption(new Option<RepositoryType>(
+                    aliases: new[] { "-t", "--repositoryType" },
+                    getDefaultValue: () => CliConstants.DefaultRepositoryType,
+                    description: "The type of repository we should initialize. Are we customizing MES or creating a new Application?")
+                { IsRequired = true });
             
             // template-time options. These are all mandatory
             cmd.AddOption(new Option<Uri>(
@@ -133,21 +141,25 @@ namespace Cmf.CLI.Commands
                 description: "Deployments directory"
             ){ IsRequired = true });
             cmd.AddOption(new Option<string>(
-                aliases: new[] { "--MESVersion" },
-                description: "Target MES version"
+                aliases: new[] { "--BaseVersion", "--MESVersion" },
+                description: "Target CM framework/MES version"
             ) { IsRequired = true });
             cmd.AddOption(new Option<string>(
                 aliases: new[] { "--DevTasksVersion" },
-                description: "Critical Manufacturing dev-tasks version"
-            ) { IsRequired = true });
+                description: "Critical Manufacturing dev-tasks version. Only required if you are targeting a version lower than v10."
+            ) { IsRequired = false });
             cmd.AddOption(new Option<string>(
                 aliases: new[] { "--HTMLStarterVersion" },
-                description: "HTML Starter version"
-            ) { IsRequired = true });
+                description: "HTML Starter version. Only required if you are targeting a version lower than v10."
+            ) { IsRequired = false });
             cmd.AddOption(new Option<string>(
                 aliases: new[] { "--yoGeneratorVersion" },
-                description: "@criticalmanufacturing/html Yeoman generator version"
-            ) { IsRequired = true });
+                description: "@criticalmanufacturing/html Yeoman generator version. Only required if you are targeting a version lower than v10."
+            ) { IsRequired = false });
+            cmd.AddOption(new Option<string>(
+                aliases: new[] { "--ngxSchematicsVersion" },
+                description: "@criticalmanufacturing/ngx-schematics version. Only required if you are targeting a version equal or higher than v10."
+            ) { IsRequired = false });
             cmd.AddOption(new Option<string>(
                 aliases: new[] { "--nugetVersion" },
                 description: "NuGet versions to target. This is usually the MES version"
@@ -201,7 +213,8 @@ namespace Cmf.CLI.Commands
             ));
             cmd.AddOption(new Option<Uri>(
                 aliases: new[] { "--cmfCliRepository" },
-                description: "NPM registry that contains the CLI"
+                description: "NPM registry that contains the CLI",
+                getDefaultValue: () => new Uri(CliConstants.NpmJsUrl, UriKind.Absolute)
             ));
             cmd.AddOption(new Option<Uri>(
                 aliases: new[] { "--cmfPipelineRepository" },
@@ -275,7 +288,9 @@ namespace Cmf.CLI.Commands
 
                 // template symbols
                 "--customPackageName", x.rootPackageName,
-                "--projectName", x.projectName
+                "--projectName", x.projectName,
+                "--repositoryType", x.repositoryType.ToString(),
+                "--baseLayer", x.repositoryType == RepositoryType.App ? BaseLayer.Core.ToString() : BaseLayer.MES.ToString()
             };
 
             if (x.version != null)
@@ -309,9 +324,9 @@ namespace Cmf.CLI.Commands
                 args.AddRange(new [] {"--repositoryName", repoName});
             }
 
-            if (x.MESVersion != null)
+            if (x.BaseVersion != null)
             {
-                args.AddRange(new [] {"--MESVersion", x.MESVersion});
+                args.AddRange(new [] {"--MESVersion", x.BaseVersion});
             }
             if (x.DevTasksVersion != null)
             {
@@ -464,8 +479,37 @@ namespace Cmf.CLI.Commands
 
             #region version-specific bits
 
-            var version = Version.Parse(x.MESVersion);
+            var version = Version.Parse(x.BaseVersion);
             args.AddRange(new []{ "--dotnetSDKVersion", version.Major > 8 ? "6.0.201" : "3.1.102" });
+            
+            if (version.Major > 9)
+            {
+                if (string.IsNullOrWhiteSpace(x.ngxSchematicsVersion))
+                {
+                    throw new CliException(
+                        "--ngxSchematicsVersion is required when targeting a base version of 10 or above.");
+                }
+            }
+            else
+            {
+                var errors = new List<string>();
+                if (string.IsNullOrWhiteSpace(x.DevTasksVersion))
+                {
+                    errors.Add("--DevTasksVersion is required when targeting a base version lower than 10.");
+                }
+                if (string.IsNullOrWhiteSpace(x.HTMLStarterVersion))
+                {
+                    errors.Add("--HTMLStarterVersion is required when targeting a base version lower than 10.");
+                }
+                if (string.IsNullOrWhiteSpace(x.yoGeneratorVersion))
+                {
+                    errors.Add("--yoGeneratorVersion is required when targeting a base version lower than 10.");
+                }
+                if (errors.Count > 0)
+                {
+                    throw new CliException(string.Join(Environment.NewLine, errors));
+                }
+            }
             #endregion
             
             if (x.config != null)

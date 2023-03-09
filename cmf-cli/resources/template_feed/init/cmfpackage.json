@@ -1,7 +1,7 @@
 {
   "packageId": "<%= $CLI_PARAM_CustomPackageName %>",
   "version": "<%= $CLI_PARAM_CustomPackageVersion %>",
-  "description": "This package deploys Critical Manufacturing MES <%= $CLI_PARAM_Tenant %> Customization",
+  "description": "This package deploys Critical Manufacturing <%= $CLI_PARAM_Tenant %> Customization",
   "packageType": "Root",
   "isInstallable": true,
   "isUniqueInstall": false,
@@ -10,10 +10,13 @@
       "id": "Cmf.Environment",
       "version": "<%= $CLI_PARAM_MESVersion %>",
       "mandatory": false
-    },
+    } 
+//#if (repositoryType == "Customization") {
+    ,
     {
       "id": "CriticalManufacturing.DeploymentMetadata",
       "version": "<%= $CLI_PARAM_MESVersion %>"
     }
+//#endif
   ]
 }

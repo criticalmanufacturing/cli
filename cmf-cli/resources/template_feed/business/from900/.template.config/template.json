@@ -59,6 +59,11 @@
       "type": "parameter",
       "datatype": "string",
       "replaces": "<%= $CLI_PARAM_deploymentMetadataRelativePath %>"
+    },
+    "includeMESNugets": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": true
     }
   }
 }

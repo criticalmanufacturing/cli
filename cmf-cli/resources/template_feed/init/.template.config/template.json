@@ -48,6 +48,20 @@
       "datatype": "string",
       "replaces": "<%= $CLI_PARAM_DeploymentDir %>"
     },
+    "repositoryType": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The type of repository to scaffold",
+      "displayName": "Repository Type",
+      "replaces": "<%= $CLI_PARAM_RepositoryType %>"
+    },
+    "baseLayer": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The layer to which this repo will be applied: Core or MES",
+      "displayName": "Base Layer",
+      "replaces": "<%= $CLI_PARAM_BaseLayer %>"
+    },
     "repositoryUrl": {
       "type": "parameter",
       "datatype": "string",

@@ -14,7 +14,7 @@
       ]
     },
     {
-      "source": "apps/customization.web/node_modules/@criticalmanufacturing/mes-ui-web/bundles",
+      "source": "apps/customization.web/node_modules/<%= $CLI_PARAM_baseWebPackage %>/bundles",
       "target": ""
     },
     {

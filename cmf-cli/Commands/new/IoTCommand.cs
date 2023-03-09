@@ -1,11 +1,10 @@
 using System.Collections.Generic;
-using System.CommandLine;
-using System.CommandLine.Invocation;
 using System.IO.Abstractions;
 using System.Text.Json;
+using Cmf.CLI.Constants;
+using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Enums;
-using Cmf.CLI.Utilities;
 
 namespace Cmf.CLI.Commands.New
 {
@@ -36,6 +35,8 @@ namespace Cmf.CLI.Commands.New
         {
             var npmRegistry = projectConfig.RootElement.GetProperty("NPMRegistry").GetString();
             var devTasksVersion = projectConfig.RootElement.GetProperty("DevTasksVersion").GetString();
+            var repoType = projectConfig.RootElement.GetProperty("RepositoryType").GetString() ?? CliConstants.DefaultRepositoryType.ToString();
+            Log.Debug($"Creating IoT Package at {workingDir} for repo type {repoType} using registry {npmRegistry}");
 
             // calculate relative path to local environment and create a new symbol for it
             var relativePathToRoot =
@@ -49,7 +50,8 @@ namespace Cmf.CLI.Commands.New
             {
                 "--rootInnerRelativePath", relativePathToRoot,
                 "--DevTasksVersion", devTasksVersion,
-                "--npmRegistry", npmRegistry
+                "--npmRegistry", npmRegistry,
+                "--repositoryType", repoType
             });
 
             return args;
