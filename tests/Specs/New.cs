@@ -12,11 +12,13 @@ using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Commands;
 using Cmf.CLI.Commands.New;
 using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Enums;
 using FluentAssertions;
 using Xunit;
 using Assert = tests.AssertWithMessage;
 using Cmf.Common.Cli.TestUtilities;
 using Moq;
+using Newtonsoft.Json;
 
 namespace tests.Specs
 {
@@ -131,6 +133,14 @@ namespace tests.Specs
                             .Select(extractFileName)
                             .Contains(f)), "Missing environment configuration");
                 Assert.True(Directory.Exists(Path.Join(tmp, "Libs")), "Libs are missing");
+                File.ReadAllText(Path.Join(tmp, ".project-config.json"))
+                    .Should().Contain(@"""RepositoryType"": ""Customization""", "Default repository type was not Customization");
+                File.ReadAllText(Path.Join(tmp, ".project-config.json"))
+                    .Should().Contain(@"""BaseLayer"": ""MES""", "Base Layer should be MES");
+                File.ReadAllText(Path.Join(tmp, "cmfpackage.json"))
+                    .Should().Contain(@"CriticalManufacturing.DeploymentMetadata", "VM Dependency should be included in root package");
+                File.ReadAllText(Path.Join(tmp, "cmfpackage.json"))
+                    .Should().Contain(@"Cmf.Environment", "Container Dependency should be included in root package");
             }
             finally
             {
@@ -295,11 +305,156 @@ namespace tests.Specs
             Assert.Contains("Required argument missing for command: 'x'", console.Error.ToString());
             foreach (var optionName in new[]
                  {
-                     "repositoryUrl", "MESVersion", "DevTasksVersion", "HTMLStarterVersion", "yoGeneratorVersion",
+                     "repositoryUrl", "BaseVersion",
                      "nugetVersion", "testScenariosNugetVersion", "deploymentDir"
                  })
             {
                 Assert.Contains($"Option '--{optionName}' is required.", console.Error.ToString());
+            }
+        }
+        
+        [Fact]
+        public void Init_Fail_MissingOptionsForLTv10()
+        {
+            var console = new TestConsole();
+            var rnd = new Random();
+            var tmp = TestUtilities.GetTmpDirectory();
+
+            var projectName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
+            var repoUrl = "https://repo_url/collection/project/_git/repo";
+            var deploymentDir = "\\\\share\\deployment_dir";
+
+            var cur = Directory.GetCurrentDirectory();
+            try
+            {
+                Directory.SetCurrentDirectory(tmp);
+
+                var initCommand = new InitCommand();
+                var cmd = new Command("x"); // this is the command name used in help text
+                initCommand.Configure(cmd);
+
+                TestUtilities.GetParser(cmd).Invoke(new[]
+                {
+                    projectName,
+                    "-c", TestUtilities.GetFixturePath("init", "config.json"),
+                    "--repositoryUrl", repoUrl,
+                    "--MESVersion", "8.2.0",
+                    "--nugetVersion", "8.2.0",
+                    "--testScenariosNugetVersion", "8.2.0",
+                    "--nugetRegistry", "http://nuget.example/feed",
+                    "--npmRegistry", "http://npm.example/feed",
+                    "--azureDevOpsCollectionUrl", "http://azure.example/org/project",
+                    "--agentPool", "poolName",
+                    "--agentType", "Hosted",
+                    "--ISOLocation", "dummy",
+                    "--deploymentDir", deploymentDir,
+                }, console);
+
+                Assert.Contains("DevTasksVersion is required", console.Error.ToString());
+                Assert.Contains("HTMLStarterVersion is required", console.Error.ToString());
+                Assert.Contains("yoGeneratorVersion is required", console.Error.ToString());
+                console.Error.ToString().Should().NotContain("ngxSchematicsVersion is required");
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                Directory.Delete(tmp, true);
+            }
+        }
+        
+        [Fact]
+        public void Init_Fail_MissingOptionsForGTv10()
+        {
+            var console = new TestConsole();
+            var rnd = new Random();
+            var tmp = TestUtilities.GetTmpDirectory();
+
+            var projectName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
+            var repoUrl = "https://repo_url/collection/project/_git/repo";
+            var deploymentDir = "\\\\share\\deployment_dir";
+
+            var cur = Directory.GetCurrentDirectory();
+            try
+            {
+                Directory.SetCurrentDirectory(tmp);
+
+                var initCommand = new InitCommand();
+                var cmd = new Command("x"); // this is the command name used in help text
+                initCommand.Configure(cmd);
+
+                TestUtilities.GetParser(cmd).Invoke(new[]
+                {
+                    projectName,
+                    "-c", TestUtilities.GetFixturePath("init", "config.json"),
+                    "--repositoryUrl", repoUrl,
+                    "--MESVersion", "10.2.0",
+                    "--nugetVersion", "8.2.0",
+                    "--testScenariosNugetVersion", "8.2.0",
+                    "--nugetRegistry", "http://nuget.example/feed",
+                    "--npmRegistry", "http://npm.example/feed",
+                    "--azureDevOpsCollectionUrl", "http://azure.example/org/project",
+                    "--agentPool", "poolName",
+                    "--agentType", "Hosted",
+                    "--ISOLocation", "dummy",
+                    "--deploymentDir", deploymentDir,
+                }, console);
+
+                Assert.Contains("ngxSchematicsVersion is required", console.Error.ToString());
+                console.Error.ToString().Should().NotContain("DevTasksVersion is required");
+                console.Error.ToString().Should().NotContain("HTMLStarterVersion is required");
+                console.Error.ToString().Should().NotContain("yoGeneratorVersion is required");
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                Directory.Delete(tmp, true);
+            }
+        }
+        
+        [Fact(Skip = "not ready")]
+        public void Init_DefaultRepoTypeIsCustomization()
+        {
+            var console = new TestConsole();
+            var rnd = new Random();
+            var tmp = TestUtilities.GetTmpDirectory();
+
+            var projectName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
+            var repoUrl = "https://repo_url/collection/project/_git/repo";
+            var deploymentDir = "\\\\share\\deployment_dir";
+
+            var cur = Directory.GetCurrentDirectory();
+            try
+            {
+                Directory.SetCurrentDirectory(tmp);
+
+                var initCommand = new Mock<InitCommand>();
+                var cmd = new Command("x"); // this is the command name used in help text
+                initCommand.Setup(command =>
+                    command.RunCommand(
+                        It.Is<IReadOnlyCollection<string>>(args => args.Contains("--repoType"))));
+                initCommand.Object.Configure(cmd);
+
+                TestUtilities.GetParser(cmd).Invoke(new[]
+                {
+                    projectName,
+                    "-c", TestUtilities.GetFixturePath("init", "config.json"),
+                    "--repositoryUrl", repoUrl,
+                    "--MESVersion", "8.2.0",
+                    "--nugetVersion", "8.2.0",
+                    "--testScenariosNugetVersion", "8.2.0",
+                    "--nugetRegistry", "http://nuget.example/feed",
+                    "--npmRegistry", "http://npm.example/feed",
+                    "--azureDevOpsCollectionUrl", "http://azure.example/org/project",
+                    "--agentPool", "poolName",
+                    "--agentType", "Hosted",
+                    "--ISOLocation", "dummy",
+                    "--deploymentDir", deploymentDir,
+                }, console);
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                Directory.Delete(tmp, true);
             }
         }
 
@@ -449,6 +604,132 @@ namespace tests.Specs
                             .Select(extractFileName)
                             .Contains(f)), "Missing environment configuration");
                 Assert.True(Directory.Exists(Path.Join(tmp, "Libs")), "Libs are missing");
+                File.ReadAllText(Path.Join(tmp, ".project-config.json"))
+                    .Should().Contain(@"""RepositoryType"": ""Customization""", "Default repository type was not Customization");
+                File.ReadAllText(Path.Join(tmp, "cmfpackage.json"))
+                    .Should().Contain(@"CriticalManufacturing.DeploymentMetadata", "VM Dependency should be included in root package");
+                File.ReadAllText(Path.Join(tmp, "cmfpackage.json"))
+                    .Should().Contain(@"Cmf.Environment", "Container Dependency should be included in root package");
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                Directory.Delete(tmp, true);
+            }
+        }
+        
+        [Fact]
+        public void Init_App()
+        {
+            var initCommand = new InitCommand();
+            var cmd = new Command("x");
+            initCommand.Configure(cmd);
+
+            var rnd = new Random();
+            var tmp = Path.Join(Path.GetTempPath(), Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8));
+            Directory.CreateDirectory(tmp);
+
+            Debug.WriteLine("Generating at " + tmp);
+
+            var projectName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
+            var repoUrl = "https://repo_url/collection/project/_git/repo";
+            var deploymentDir = "\\\\share\\deployment_dir";
+            var isoLocation = "\\\\share\\iso_location";
+            var pkgVersion = $"{rnd.Next(10)}.{rnd.Next(10)}.{rnd.Next(10)}";
+
+            var cur = Directory.GetCurrentDirectory();
+            try
+            {
+                var console = new TestConsole();
+                Directory.SetCurrentDirectory(tmp);
+                TestUtilities.GetParser(cmd).Invoke(new[]
+                {
+                    projectName,
+                    "--infra", TestUtilities.GetFixturePath("init", "infrastructure.json"),
+                    "-c", TestUtilities.GetFixturePath("init", "config.json"),
+                    "--repositoryType", "App",
+                    "--repositoryUrl", repoUrl,
+                    "--MESVersion", "8.2.0",
+                    "--DevTasksVersion", "8.1.0",
+                    "--HTMLStarterVersion", "8.0.0",
+                    "--yoGeneratorVersion", "8.1.0",
+                    "--nugetVersion", "8.2.0",
+                    "--testScenariosNugetVersion", "8.2.0",
+                    "--deploymentDir", deploymentDir,
+                    "--ISOLocation", isoLocation,
+                    "--version", pkgVersion,
+                    "--releaseCustomerEnvironment", "cmf-environment",
+                    "--releaseSite", "cmf-site",
+                    "--releaseDeploymentPackage", @"\@criticalmanufacturing\mes:8.3.1",
+                    "--releaseLicense", "cmf-license",
+                    "--releaseDeploymentTarget", "cmf-target",
+                    tmp
+                }, console);
+
+                var extractFileName = new Func<string, string>(s => s.Split(Path.DirectorySeparatorChar).LastOrDefault());
+
+                Assert.True(File.Exists(".project-config.json"), "project config is missing");
+                Assert.True(File.Exists("cmfpackage.json"), "root cmfpackage is missing");
+                Assert.True(File.Exists("global.json"), "global .NET versioning is missing");
+                Assert.True(File.Exists("NuGet.Config"), "global NuGet feeds config is missing");
+
+                Assert.True(Directory.Exists(Path.Join(tmp, "Builds")), "pipelines are missing");
+                Assert.True(
+                    new[]{ "CI-Changes.json",
+                        "CI-Package.json",
+                        "CI-Publish.json",
+                        "CI-Release.json",
+                        "PR-Changes.json",
+                        "PR-Package.json" }
+                            .ToList()
+                            .All(f => Directory
+                                .GetFiles("Builds")
+                                .Select(extractFileName)
+                                .Contains(f)), "Missing pipeline metadata");
+                Assert.True(
+                    new[]{ "CI-Changes.yml",
+                            "CI-Package.yml",
+                            "CI-Publish.yml",
+                            "CI-Release.yml",
+                            "PR-Changes.yml",
+                            "PR-Package.yml" }
+                        .ToList()
+                        .All(f => Directory
+                            .GetFiles("Builds")
+                            .Select(extractFileName)
+                            .Contains(f)), "Missing pipeline source");
+                Assert.True(
+                    new[]{ "policies-master.json",
+                            "policies-development.json" }
+                        .ToList()
+                        .All(f => Directory
+                            .GetFiles("Builds")
+                            .Select(extractFileName)
+                            .Contains(f)), "Missing policy metadata");
+                Assert.True(Directory.Exists(Path.Join(tmp, "EnvironmentConfigs")), "environment configs are missing");
+                Assert.True(
+                    new[] { "GlobalVariables.yml" }
+                        .ToList()
+                        .All(f => Directory
+                            .GetFiles("EnvironmentConfigs")
+                            .Select(extractFileName)
+                            .Contains(f)), "Missing global variables");
+                Assert.True(
+                    new[] { "config.json" } // this should be a constant when moving to a mock
+                        .ToList()
+                        .All(f => Directory
+                            .GetFiles("EnvironmentConfigs")
+                            .Select(extractFileName)
+                            .Contains(f)), "Missing environment configuration");
+                Assert.True(Directory.Exists(Path.Join(tmp, "Libs")), "Libs are missing");
+                File.ReadAllText(Path.Join(tmp, ".project-config.json"))
+                    .Should().Contain(@"""RepositoryType"": ""App""", "Applied repository type was not App");
+                File.ReadAllText(Path.Join(tmp, ".project-config.json"))
+                    .Should().Contain(@"""BaseLayer"": ""Core""", "Base Layer should be Core");
+                File.ReadAllText(Path.Join(tmp, "cmfpackage.json"))
+                    .Should().NotContain(@"CriticalManufacturing.DeploymentMetadata", "VM Dependency should not be included in root package");
+                File.ReadAllText(Path.Join(tmp, "cmfpackage.json"))
+                    .Should().Contain(@"Cmf.Environment", "Container Dependency should be included in root package");
             }
             finally
             {
@@ -481,7 +762,10 @@ namespace tests.Specs
                 azureDevOpsCollectionUrl = new Uri("http://azure-devops.example/collection"),
                 ISOLocation = fileSystem.FileInfo.New("."),
                 agentPool = "agents",
-                MESVersion = "9.9.9"
+                BaseVersion = "9.9.9",
+                DevTasksVersion = "1.1.1",
+                HTMLStarterVersion = "1.1.1",
+                yoGeneratorVersion = "1.1.1"
             };
             initMoq.Object.Execute(args);
             
@@ -491,10 +775,12 @@ namespace tests.Specs
                 );
         }
 
-        [Fact]
-        public void Business()
+        [Theory]
+        [InlineData(BaseLayer.Core)]
+        [InlineData(BaseLayer.MES)]
+        public void Business(BaseLayer layer)
         {
-            RunNew(new BusinessCommand(), "Cmf.Custom.Business", extraAsserts: args =>
+            RunNew(new BusinessCommand(), "Cmf.Custom.Business", mesVersion: "9.1.0", baseLayer: layer, extraAsserts: args =>
             {
                 var (pkgVersion, dir) = args;
                 Assert.True(File.Exists($"Cmf.Custom.Business/Cmf.Custom.Common/tenantConstants.cs"), "Constants file is missing or has wrong name");
@@ -502,7 +788,20 @@ namespace tests.Specs
                 // namespace checks
                 Assert.True(File.ReadAllText("Cmf.Custom.Business/Cmf.Custom.Common/tenantConstants.cs").Contains("namespace Cmf.Custom.tenant.Common"), "Constants namespace is wrong name");
                 // assembly name checks
-                Assert.True(File.ReadAllText("Cmf.Custom.Business/Cmf.Custom.Common/Cmf.Custom.tenant.Common.csproj").Contains("<AssemblyName>Cmf.Custom.tenant.Common</AssemblyName>"), "Constants assembly name is wrong name");
+                var commonCsproj = File.ReadAllText("Cmf.Custom.Business/Cmf.Custom.Common/Cmf.Custom.tenant.Common.csproj");
+                Assert.True(commonCsproj.Contains("<AssemblyName>Cmf.Custom.tenant.Common</AssemblyName>"), "Constants assembly name is wrong name");
+                if (layer == BaseLayer.Core)
+                {
+                    commonCsproj.Should().NotContain("Cmf.Navigo");
+                    commonCsproj.Should().NotContain("Pkgcmf_common_customactionutilities");
+                    commonCsproj.Should().NotContain("cmf.common.customactionutilities");
+                }
+                else
+                {
+                    commonCsproj.Should().Contain("Cmf.Navigo");
+                    commonCsproj.Should().Contain("Pkgcmf_common_customactionutilities");
+                    commonCsproj.Should().Contain("cmf.common.customactionutilities");
+                }
             });
         }
 
@@ -512,25 +811,60 @@ namespace tests.Specs
             RunNew(new DataCommand(), "Cmf.Custom.Data");
         }
 
-        [Fact, Trait("TestCategory", "LongRunning")]
-        public void UI()
+        [Theory, Trait("TestCategory", "LongRunning")]
+        [InlineData(BaseLayer.MES)]
+        [InlineData(BaseLayer.Core)]
+        public void UI(BaseLayer layer)
         {
-            UI_internal(null);
+            UI_internal(null, layer);
         }
         
-        private void UI_internal(string scaffoldingDir)
+        private void UI_internal(string scaffoldingDir, BaseLayer layer)
         {
-            RunNew(new HTMLCommand(), "Cmf.Custom.HTML", scaffoldingDir: scaffoldingDir, extraArguments: new string[]
+            RunNew(new HTMLCommand(), "Cmf.Custom.HTML", scaffoldingDir: scaffoldingDir, baseLayer: layer, extraArguments: new string[]
             {
                 "--htmlPkg", TestUtilities.GetFixturePath("prodPkg", "Cmf.Presentation.HTML.9.9.9.zip"),
             }, extraAsserts: args =>
             {
+                var configJson = File.ReadAllText("Cmf.Custom.HTML/apps/customization.web/config.json");
+                try
+                {
+                    JsonConvert.DeserializeObject(configJson);
+                }
+                catch (Exception e)
+                {
+                    Assert.Fail($"config.json is malformed: {e.Message}");
+                }
                 Assert.True(File.Exists($"Cmf.Custom.HTML/.dev-tasks.json"), "dev-tasks file is missing or has wrong name. Was cloning HTML-starter unsuccessful?");
                 Assert.True(File.ReadAllText("Cmf.Custom.HTML/.dev-tasks.json").Contains("\"isWebAppCompilable\": true"), "Web app is not compilable");
                 Assert.True(Directory.Exists($"Cmf.Custom.HTML/apps/customization.web"), "WebApp dir is missing or has wrong name. Was running the application generator unsuccessful?");
                 Assert.True(File.Exists($"Cmf.Custom.HTML/apps/customization.web/config.json"), "Config file is missing or has wrong name");
-                Assert.True(File.ReadAllText("Cmf.Custom.HTML/apps/customization.web/config.json").Contains("test.package"), "Product package is not in config.json");
+                Assert.True(configJson.Contains("test.package"), "Product package is not in config.json");
                 Assert.True(File.Exists($"Cmf.Custom.HTML/apps/customization.web/index.html"), "Index file is missing or has wrong name");
+                if (layer == BaseLayer.Core)
+                {
+                    configJson
+                        .Should().Contain("core-ui-web", "wrong base package in config.json");
+                    File.ReadAllText($"Cmf.Custom.HTML/apps/customization.web/package.json").Should()
+                        .Contain("@criticalmanufacturing/core-ui-web");
+                    File.ReadAllText($"Cmf.Custom.HTML/cmfpackage.json").Should()
+                        .Contain("node_modules/@criticalmanufacturing/core-ui-web/bundles");
+                    configJson
+                        .Should().NotContain("cmf.mes", "config.json should not have any MES packages");    
+                }
+                else
+                {
+                    configJson
+                        .Should().Contain("mes-ui-web", "wrong base package in config.json");
+                    File.ReadAllText($"Cmf.Custom.HTML/apps/customization.web/package.json").Should()
+                        .Contain("@criticalmanufacturing/mes-ui-web");
+                    File.ReadAllText($"Cmf.Custom.HTML/cmfpackage.json").Should()
+                        .Contain("node_modules/@criticalmanufacturing/mes-ui-web/bundles");
+                    configJson
+                        .Should().Contain("cmf.mes", "config.json should not have a MES packages");
+                }
+                
+                
             });
         }
         
@@ -642,6 +976,10 @@ namespace tests.Specs
             Assert.Equal(PackageType.IoT.ToString(), TestUtilities.GetPackageProperty("packageType", $"{packageId}/{packageFolder}/cmfpackage.json"), "Package Type does not match expected");
             Assert.Equal(TestUtilities.GetPackageProperty("version", $"{packageId}/cmfpackage.json"),
                 TestUtilities.GetPackageProperty("version", $"{packageId}/{packageFolder}/cmfpackage.json"), "Version does not match expected");
+            File.ReadAllText(Path.Join(dir, packageId, "cmfpackage.json"))
+                .Should().Contain(@"CriticalManufacturing.DeploymentMetadata", "VM Dependency should not be included in root package");
+            File.ReadAllText(Path.Join(dir, packageId, "cmfpackage.json"))
+                .Should().Contain(@"Cmf.Environment", "VM Dependency should not be included in root package");
         }
 
         [Fact]
@@ -971,7 +1309,11 @@ namespace tests.Specs
             Assert.True(File.Exists($"{dir}/Cmf.Custom.SecurityPortal/config.json"), "Package config.json is missing");
         }
 
-        private TestConsole RunNew<T>(T newCommand, string packageId, string scaffoldingDir = null, string[] extraArguments = null, bool defaultAsserts = true, Action<(string, string)> extraAsserts = null, string mesVersion = "8.2.0") where T : TemplateCommand
+        private TestConsole RunNew<T>(T newCommand, string packageId, string scaffoldingDir = null,
+            string[] extraArguments = null, bool defaultAsserts = true, Action<(string, string)> extraAsserts = null,
+            string mesVersion = "8.2.0",
+            BaseLayer baseLayer = BaseLayer.MES,
+            RepositoryType repositoryType = RepositoryType.Customization) where T : TemplateCommand
         {
             var dir = scaffoldingDir ?? TestUtilities.GetTmpDirectory();
 
@@ -991,7 +1333,11 @@ namespace tests.Specs
                     var projCfg = Path.Join(dir, ".project-config.json");
                     if (File.Exists(projCfg))
                     {
-                        File.WriteAllText(projCfg, File.ReadAllText(projCfg).Replace(@"""MESVersion"": ""8.2.0""", $@"""MESVersion"": ""{mesVersion}"""));
+                        File.WriteAllText(projCfg, File.ReadAllText(projCfg)
+                            .Replace(@"""MESVersion"": ""8.2.0""", $@"""MESVersion"": ""{mesVersion}""")
+                            .Replace(@"""BaseLayer"": ""MES""", $@"""BaseLayer"": ""{baseLayer}""")
+                            .Replace(@"""RepositoryType"": ""Customization""", $@"""RepositoryType"": ""{repositoryType}""")
+                        );
                     }
                 }
 

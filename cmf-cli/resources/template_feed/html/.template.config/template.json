@@ -50,6 +50,11 @@
       "type": "parameter",
       "datatype": "string",
       "replaces": "<%= $CLI_PARAM_rootRelativePath %>"
+    },
+    "baseWebPackage": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_baseWebPackage %>"
     }
   }
 }

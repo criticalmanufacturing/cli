@@ -6,8 +6,11 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
 using System.Text.Json;
+using Cmf.CLI.Constants;
+using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Enums;
 using Cmf.CLI.Utilities;
 
 namespace Cmf.CLI.Commands.New
@@ -37,11 +40,17 @@ namespace Cmf.CLI.Commands.New
         protected override List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args, JsonDocument projectConfig)
         {
             var mesVersion = projectConfig.RootElement.GetProperty("MESVersion").GetString();
+            var includeMESNugets = true;
             
             var version = Version.Parse(mesVersion);
             if (version.Major > 8)
             {
                 this.CommandName = "business9";
+                var bl = projectConfig.RootElement.GetProperty("BaseLayer").GetString();
+                var couldParse = Enum.TryParse<BaseLayer>(bl, out var baseLayerValue);
+                var baseLayer = couldParse ? baseLayerValue : CliConstants.DefaultBaseLayer;
+                includeMESNugets = baseLayer == BaseLayer.MES;
+                Log.Debug($"Project is targeting base layer {baseLayer} ({bl} {couldParse} {baseLayerValue}), so scaffolding {(includeMESNugets ? "with" : "without")} MES nugets.");
             }
 
             // calculate relative path to local environment and create a new symbol for it
@@ -62,7 +71,8 @@ namespace Cmf.CLI.Commands.New
             {
                 "--MESVersion", mesVersion,
                 "--localEnvRelativePath", relativePathToLocalEnv,
-                "--deploymentMetadataRelativePath", relativePathToDeploymentMetadata
+                "--deploymentMetadataRelativePath", relativePathToDeploymentMetadata,
+                "--includeMESNugets", includeMESNugets.ToString()
             });
             return args;
         }

@@ -1,5 +1,7 @@
 {
   "ProjectName": "CF58AABF",
+  "RepositoryType": "Customization",
+  "BaseLayer": "MES",
   "NPMRegistry": "http://npm_registry/",
   "NuGetRegistry": "htt://nuget_registry/",
   "AzureDevopsCollectionURL": "http://ad/collection",

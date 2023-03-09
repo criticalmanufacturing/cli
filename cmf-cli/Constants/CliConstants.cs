@@ -1,6 +1,5 @@
-using System.Management.Automation.Runspaces;
-using System.Security.Authentication.ExtendedProtection;
 using System.Text.RegularExpressions;
+using Cmf.CLI.Enums;
 
 namespace Cmf.CLI.Constants
 {
@@ -85,8 +84,20 @@ namespace Cmf.CLI.Constants
         /// </summary>
         public const string DefaultStrategyPath = "$.tenants.config.$(tenant).strategies";
 
+        /// <summary>
+        /// regex to determine repository name from the url
+        /// </summary>
         public static readonly Regex RepoRegex = new Regex(@"^(?<proto>\w+):\/\/(?<host>[^\/]+)\/(?<collection>[^/]+)\/(?<project>[^\/]+\/)?_git\/(?<repo>.+)\/?$", RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
 
+        /// <summary>
+        /// Default repository type
+        /// </summary>
+        public const RepositoryType DefaultRepositoryType = RepositoryType.Customization;
+
+        /// <summary>
+        /// Default base layer for repository
+        /// </summary>
+        public const BaseLayer DefaultBaseLayer = BaseLayer.MES;
         #endregion
 
         #region Security Portal

@@ -7,10 +7,13 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Cmf.CLI.Builders;
+using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Enums;
 using Cmf.CLI.Utilities;
+using Namotion.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -23,6 +26,7 @@ namespace Cmf.CLI.Commands.New
     public class HTMLCommand : UILayerTemplateCommand
     {
         private JsonDocument projectConfig = null;
+        private string baseWebPackage = null;
 
         /// <inheritdoc />
         public HTMLCommand() : base("html", PackageType.HTML)
@@ -62,7 +66,8 @@ namespace Cmf.CLI.Commands.New
 
             args.AddRange(new[]
             {
-                "--rootRelativePath", relativePathToRoot
+                "--rootRelativePath", relativePathToRoot,
+                "--baseWebPackage", this.baseWebPackage
             });
 
             return args;
@@ -76,7 +81,20 @@ namespace Cmf.CLI.Commands.New
         /// <param name="htmlPackage">The MES Presentation HTML package path</param>
         public void Execute(IDirectoryInfo workingDir, string version, IFileInfo htmlPackage)
         {
+            if (!htmlPackage.Exists)
+            {
+                throw new CliException($"Cannot find HTML package {htmlPackage.FullName}");
+            }
+            var bl = FileSystemUtilities.ReadProjectConfig(this.fileSystem).RootElement.GetProperty("BaseLayer").GetString();
+            var couldParse = Enum.TryParse<BaseLayer>(bl, out var baseLayerValue);
+            var baseLayer = couldParse ? baseLayerValue : CliConstants.DefaultBaseLayer;
+            this.baseWebPackage = baseLayer == BaseLayer.MES
+                ? "@criticalmanufacturing/mes-ui-web"
+                : "@criticalmanufacturing/core-ui-web";
+            Log.Debug($"Project is targeting base layer {baseLayer} ({bl} {couldParse} {baseLayerValue}), so scaffolding with base web package {baseWebPackage}");
+            
             base.Execute(workingDir, version); // create package base - generate cmfpackage.json
+            
             var nameIdx = Array.FindIndex(base.executedArgs, item => string.Equals(item, "--name"));
             var pkgName = base.executedArgs[nameIdx + 1];
             var htmlStarterVersion = projectConfig.RootElement.GetProperty("HTMLStarterVersion").GetString();
@@ -153,12 +171,12 @@ $@"{{
             this.fileSystem.File.WriteAllText(htmlDevTasksConfigPath, htmlDevTasksConfigJson);
             var htmlWebAppConfigPath = this.fileSystem.Path.GetTempFileName();
             var htmlWebAppConfigJson =
-@"{
-    ""answers"": {
+$@"{{
+    ""answers"": {{
         ""appName"": ""web"",
-        ""basePackage"": ""@criticalmanufacturing/mes-ui-web""
-    }
-}";
+        ""basePackage"": ""{this.baseWebPackage}""
+    }}
+}}";
             this.fileSystem.File.WriteAllText(htmlWebAppConfigPath, htmlWebAppConfigJson);
 
             // create web app
@@ -190,17 +208,46 @@ $@"{{
             var htmlPkgConfigJsonStr = FileSystemUtilities.GetFileContentFromPackage(htmlPackage.FullName, "config.json");
             // replace tokens that would break Json parse
             htmlPkgConfigJsonStr = Regex.Replace(htmlPkgConfigJsonStr, @"\$\([^\)]+\)", "0", RegexOptions.Multiline);
-            dynamic htmlPkgConfigJson = JsonConvert.DeserializeObject(htmlPkgConfigJsonStr);
+            dynamic htmlPkgConfigJson = null;
+            try
+            {
+                htmlPkgConfigJson = JsonConvert.DeserializeObject(htmlPkgConfigJsonStr);
+            }
+            catch (Exception e)
+            {
+                throw new CliException("Could not load ISO config.json", e);
+            }
+            var htmlPkgPackages =
+                (htmlPkgConfigJson.packages.available as JArray).Where(p => baseLayer == BaseLayer.MES || !p.Value<string>().Contains("cmf.mes"));
 
             // config.json
             var configJsonPath = this.fileSystem.Path.Join(pkgFolder.FullName, "apps",
                 this.fileSystem.Path.Join("customization.web", "config.json"));
             var configJsonStr = fileSystem.File.ReadAllText(configJsonPath);
+            if (!configJsonStr.Contains("$("))
+            {
+                // config.json has no tokens and can be malformed. We need to make sure it parses, so we inject some dummy values that will be thrown away later
+                Log.Debug("Generated config.json does not contain tokens and is possibly malformed. Setting some dummy values so we can deserialize it.");
+                configJsonStr = configJsonStr
+                    .Replace("\"port\": ", "\"port\": 0")
+                    .Replace("\"enableSsl\": ,", "\"enableSsl\": false,");
+
+                configJsonStr = Regex.Replace(configJsonStr, "\"isLoadBalancerEnabled\": (false)?\r?\n",
+                    "\"isLoadBalancerEnabled\": false\n");
+            }
             configJsonStr = Regex.Replace(configJsonStr, @"\$\([^\)]+\)", "0", RegexOptions.Multiline);
-            dynamic configJsonJson = JsonConvert.DeserializeObject(configJsonStr);
+            dynamic configJsonJson = null;
+            try
+            {
+                configJsonJson = JsonConvert.DeserializeObject(configJsonStr);
+            }
+            catch (Exception e)
+            {
+                throw new CliException("Could not load webapp config.json", e);
+            }
             if (configJsonJson == null)
             {
-                throw new CliException("Could not load config.json");
+                throw new CliException("Could not load webapp config.json");
             }
             var restPort = int.Parse(projectConfig.RootElement.GetProperty("RESTPort").GetString());
             configJsonJson.host.rest.enableSsl = false;
@@ -211,8 +258,8 @@ $@"{{
             configJsonJson.general.defaultDomain = projectConfig.RootElement.GetProperty("DefaultDomain").GetString();
             configJsonJson.general.environmentName = $"{projectName}Local";
             configJsonJson.version = $"{projectName} $(Build.BuildNumber) - {mesVersion}";
-            configJsonJson.packages.available = JArray.FromObject((htmlPkgConfigJson.packages.available as JArray).Concat(injectAppsPackage ? new [] { new JValue("cmf.core.app") } : Array.Empty<JToken>()));
-            configJsonJson.packages.bundlePath = "node_modules/@criticalmanufacturing/mes-ui-web/bundles";
+            configJsonJson.packages.available = JArray.FromObject(htmlPkgPackages.Concat(injectAppsPackage ? new [] { new JValue("cmf.core.app") } : Array.Empty<JToken>()));
+            configJsonJson.packages.bundlePath = $"node_modules/{this.baseWebPackage}/bundles";
             configJsonStr = JsonConvert.SerializeObject(configJsonJson, Formatting.Indented);
             this.fileSystem.File.WriteAllText(configJsonPath, configJsonStr);
             Log.Verbose("Updated config.json");
@@ -225,10 +272,8 @@ $@"{{
             var webAppPkgJsonPath = this.fileSystem.Path.Join(webAppPath, "package.json");
             var projectRoot = FileSystemUtilities.GetProjectRoot(this.fileSystem);
             var relativePathToRoot =
-                //this.fileSystem.Path.Join( //always two levels deep, this is the depth of the business solution projects
                 this.fileSystem.Path.GetRelativePath(
                         webAppPath, projectRoot.FullName)
-                    //);
                     .Replace("\\", "/");
             var webAppPkgJsonStr = fileSystem.File.ReadAllText(webAppPkgJsonPath);
             dynamic webAppPkgJson = JsonConvert.DeserializeObject(webAppPkgJsonStr);
