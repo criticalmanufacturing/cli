@@ -745,13 +745,19 @@ namespace Cmf.CLI.Core.Objects
                 tokens.Add(element.Name.LocalName.ToLowerInvariant(), token);
             }
 
+            PackageType cliPackageType = PackageType.Generic;
+            if (tokens.ContainsKey("clipackagetype"))
+            {
+                Enum.TryParse(tokens["clipackagetype"], out cliPackageType);
+            }
+
             // TODO: we're extracting only the essentials here for `cmf ls` but we can get extra data from the manifests
             var cmfPackage = new CmfPackage(
                 tokens.ContainsKey("name") ? tokens["name"] : null,
                 tokens["packageid"],
                 tokens["version"],
                 tokens.ContainsKey("description") ? tokens["description"] : null,
-                PackageType.Generic,
+                cliPackageType,
                 "",
                 "",
                 false,
