@@ -227,6 +227,23 @@ namespace tests.Specs
         }
 
         [Fact]
+        public void CheckThatContentWasPacked_DoNothingBecauseContentWasAlreadyPacked()
+        {
+            var fileSystem = MockPackage.Html;
+            var outputDir = fileSystem.DirectoryInfo.New("output");
+
+            var packCommand = new PackCommand(fileSystem);
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), outputDir, false);
+            IEnumerable<IFileInfo> assembledFiles = fileSystem.DirectoryInfo.New("output").EnumerateFiles("Cmf.Custom.HTML.1.1.0.zip").ToList();
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), outputDir, false);
+            
+            IEnumerable<IFileInfo> assembledFilesOnSecondRun = fileSystem.DirectoryInfo.New("output").EnumerateFiles("Cmf.Custom.HTML.1.1.0.zip").ToList();
+            assembledFilesOnSecondRun.Should().HaveCount(1);
+            assembledFilesOnSecondRun.Should().HaveCount(assembledFiles.Count());
+            assembledFiles.ElementAt(0).LastWriteTime.Should().Be(assembledFilesOnSecondRun.ElementAt(0).LastWriteTime);
+        }
+
+        [Fact]
         public void DontCheckThatContentWasPacked_IfMeta()
         {
             var fileSystem = MockPackage.Root_Empty;
