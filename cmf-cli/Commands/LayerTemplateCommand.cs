@@ -86,7 +86,7 @@ namespace Cmf.CLI.Commands
             ));
         }
 
-        private (string, string)? GeneratePackageName(IDirectoryInfo workingDir)
+        protected (string, string)? GeneratePackageName(IDirectoryInfo workingDir)
         {
 
             string featureName = null;

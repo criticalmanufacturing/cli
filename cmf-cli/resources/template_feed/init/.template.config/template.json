@@ -177,6 +177,11 @@
       "datatype": "string",
       "replaces": "<%= $CLI_PARAM_YoGeneratorVersion %>"
     },
+    "ngxSchematicsVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_NGXSchematicsVersion %>"
+    },
     "nugetVersion": {
       "type": "parameter",
       "datatype": "string",

@@ -16,6 +16,7 @@
   "DevTasksVersion": "<%= $CLI_PARAM_DevTasksVersion %>",
   "HTMLStarterVersion": "<%= $CLI_PARAM_HTMLStarterVersion %>",
   "YoGeneratorVersion": "<%= $CLI_PARAM_YoGeneratorVersion %>",
+  "NGXSchematicsVersion": "<%= $CLI_PARAM_NGXSchematicsVersion %>",
   "NugetVersion": "<%= $CLI_PARAM_NugetVersion %>",
   "TestScenariosNugetVersion": "<%= $CLI_PARAM_TestScenariosNugetVersion %>",
   "IsSslEnabled": "<%= $CLI_PARAM_IsSslEnabled %>",
