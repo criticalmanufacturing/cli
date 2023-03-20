@@ -18,21 +18,17 @@ public class NgCommand : ProcessCommand, IBuildCommand
 
     public override ProcessBuildStep[] GetSteps()
     {
-        var args = new List<string>
+        var npx = new NPXCommand()
         {
-            this.Command
+            Command = "@angular/cli@15", // TODO: for future MES versions, we should determine the ng version automatically
+            Args = new List<string> { this.Command }.Concat(this.Args ?? Array.Empty<string>()).ToArray()
         };
-
-        return new[]
+        var steps = npx.GetSteps();
+        return steps.Select(s =>
         {
-            new ProcessBuildStep()
-            {
-                Command = "ng" + (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ".cmd" : ""),
-                Args = args.Concat(this.Args ?? Array.Empty<string>()).ToArray(),
-                WorkingDirectory = this.WorkingDirectory,
-                EnvironmentVariables = new() { { "NODE_OPTIONS", "--max-old-space-size=8192" } }
-            }
-        };
+            s.EnvironmentVariables = new() { { "NODE_OPTIONS", "--max-old-space-size=8192" } };
+            return s;
+        }).ToArray();
     }
 
     public string DisplayName { get; set; }
