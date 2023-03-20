@@ -4,6 +4,7 @@ using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
 using Cmf.CLI.Constants;
+using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Enums;
@@ -328,18 +329,12 @@ namespace Cmf.CLI.Commands
             {
                 args.AddRange(new [] {"--MESVersion", x.BaseVersion});
             }
-            if (x.DevTasksVersion != null)
-            {
-                args.AddRange(new [] {"--DevTasksVersion", x.DevTasksVersion});
-            }
-            if (x.HTMLStarterVersion != null)
-            {
-                args.AddRange(new [] {"--HTMLStarterVersion", x.HTMLStarterVersion});
-            }
-            if (x.yoGeneratorVersion != null)
-            {
-                args.AddRange(new [] {"--yoGeneratorVersion", x.yoGeneratorVersion});
-            }
+            
+            args.AddRange(new [] {"--DevTasksVersion", x.DevTasksVersion ?? ""});
+            args.AddRange(new [] {"--HTMLStarterVersion", x.HTMLStarterVersion ?? ""});
+            args.AddRange(new [] {"--yoGeneratorVersion", x.yoGeneratorVersion ?? ""});
+            args.AddRange(new [] {"--ngxSchematicsVersion", x.ngxSchematicsVersion ?? ""});
+            
             if (x.nugetVersion != null)
             {
                 args.AddRange(new [] {"--nugetVersion", x.nugetVersion});

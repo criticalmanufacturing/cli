@@ -25,13 +25,21 @@ namespace Cmf.CLI.Builders
         /// The command.
         /// </value>
         public string Command { get; set; }
+
+        /// <summary>
+        /// Should for npx output to always be colorized
+        /// </summary>
+        public bool ForceColorOutput { get; set; } = true;
         
         /// <inheritdoc />
         public override ProcessBuildStep[] GetSteps()
         {
             var args = this.Args?.ToList() ?? new List<string>();
             args.Insert(0, this.Command);
-            args.AddRange(new[] { "--color", "always" });
+            if (this.ForceColorOutput)
+            {
+                args.AddRange(new[] { "--color", "always" });
+            }
             return new[]
             {
                 new ProcessBuildStep()

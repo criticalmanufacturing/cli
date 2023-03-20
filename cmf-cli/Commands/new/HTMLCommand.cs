@@ -44,11 +44,11 @@ namespace Cmf.CLI.Commands.New
             base.GetBaseCommandConfig(cmd);
             cmd.AddOption(new Option<IFileInfo>(
                 aliases: new[] { "--htmlPkg", "--htmlPackage" },
-                description: "Path to the MES Presentation HTML package",
+                description: "Path to the MES Presentation HTML package (required for MES versions up to 9.x)",
                 isDefault: false,
                 parseArgument: argResult => Parse<IFileInfo>(argResult)
             )
-            { IsRequired = true });
+            { IsRequired = false });
             cmd.Handler = CommandHandler.Create<IDirectoryInfo, string, IFileInfo>(this.Execute);
         }
 
@@ -67,7 +67,8 @@ namespace Cmf.CLI.Commands.New
             args.AddRange(new[]
             {
                 "--rootRelativePath", relativePathToRoot,
-                "--baseWebPackage", this.baseWebPackage
+                "--baseWebPackage", this.baseWebPackage,
+                "--npmRegistry", this.projectConfig.RootElement.GetProperty("NPMRegistry").ToString()
             });
 
             return args;
@@ -81,6 +82,25 @@ namespace Cmf.CLI.Commands.New
         /// <param name="htmlPackage">The MES Presentation HTML package path</param>
         public void Execute(IDirectoryInfo workingDir, string version, IFileInfo htmlPackage)
         {
+            var mesVersionStr = (projectConfig ?? FileSystemUtilities.ReadProjectConfig(this.fileSystem)).RootElement.GetProperty("MESVersion").GetString();
+
+            var mesVersion = Version.Parse(mesVersionStr);
+            if (mesVersion.Major > 9)
+            {
+                this.ExecuteV10(workingDir, version);
+            }
+            else
+            {
+                this.ExecuteV9(workingDir, version, htmlPackage);
+            }
+        }
+
+        public void ExecuteV9(IDirectoryInfo workingDir, string version, IFileInfo htmlPackage)
+        {
+            if (htmlPackage == null)
+            {
+                throw new CliException("--htmlPkg option is required for MES versions up to 9.x");
+            }
             if (!htmlPackage.Exists)
             {
                 throw new CliException($"Cannot find HTML package {htmlPackage.FullName}");
@@ -300,6 +320,56 @@ $@"{{
                 Args = new[] { "--update" },
             }).Exec();
             Log.Information("HTML package generated");
+        }
+
+        public void ExecuteV10(IDirectoryInfo workingDir, string version)
+        {
+            var bl = FileSystemUtilities.ReadProjectConfig(this.fileSystem).RootElement.GetProperty("BaseLayer").GetString();
+            var ngxSchematicsExists = FileSystemUtilities.ReadProjectConfig(this.fileSystem).RootElement
+                .TryGetProperty("NGXSchematicsVersion", out var ngxSchematicsVersionProp);
+            if (!ngxSchematicsExists)
+            {
+                throw new CliException("Seems like the repository scaffolding was run on a previous version of MES. Please re-init for versions 10+.");
+            }
+            var ngxSchematicsVersion = ngxSchematicsVersionProp.GetString();
+            var couldParse = Enum.TryParse<BaseLayer>(bl, out var baseLayerValue);
+            var baseLayer = couldParse ? baseLayerValue : CliConstants.DefaultBaseLayer;
+            this.baseWebPackage = baseLayer == BaseLayer.MES
+                ? "@criticalmanufacturing/mes-ui-web"
+                : "@criticalmanufacturing/core-ui-web";
+            Log.Debug($"Project is targeting base layer {baseLayer} ({bl} {couldParse} {baseLayerValue}), so scaffolding with base web package {baseWebPackage}");
+            
+            this.CommandName = "html10";
+            base.Execute(workingDir, version); // create package base - generate cmfpackage.json
+            
+            // this won't return null because it has to success on the base.Execute call
+            var ngCliVersion = "15"; // v15 for MES 10
+            var packageName = base.GeneratePackageName(workingDir)!.Value.Item1;
+            var mesVersionStr = projectConfig.RootElement.GetProperty("MESVersion").GetString();
+
+            var mesVersion = Version.Parse(mesVersionStr);
+            var schematicsVersion = !string.IsNullOrEmpty(ngxSchematicsVersion) ? ngxSchematicsVersion : $"@release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Revision}";
+            
+            Log.Debug($"Creating new web application {packageName}");
+            // ng new <packageName> --routing false --style less
+            new NPXCommand()
+            {
+                Command = $"@angular/cli@{ngCliVersion}",
+                Args = new []{ "new", packageName, "--routing", "false", "--style", "less" },
+                WorkingDirectory = workingDir,
+                ForceColorOutput = false
+            }.Exec();
+            
+            Log.Debug($"Adding @criticalmanufacturing/ngx-schematics@{schematicsVersion} to the package, which can be used to scaffold new components and libraries");
+            // cd <packageName>
+            // ng add --skip-confirmation @criticalmanufacturing/ngx-schematics [--npmRegistry http://npm.example/] --lint --base-app <Core|MES>
+            new NPXCommand()
+            {
+                Command = $"@angular/cli@{ngCliVersion}",
+                Args = new []{ "add", "--registry", this.projectConfig.RootElement.GetProperty("NPMRegistry").ToString(), "--skip-confirmation", $"@criticalmanufacturing/ngx-schematics@{schematicsVersion}", "--lint", "--base-app", baseLayer.ToString() },
+                WorkingDirectory = workingDir.GetDirectories(packageName).First(),
+                ForceColorOutput = false
+            }.Exec();
         }
     }
 }
