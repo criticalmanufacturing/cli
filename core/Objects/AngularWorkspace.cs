@@ -9,31 +9,34 @@ namespace Cmf.CLI.Core.Objects
     public class AngularWorkspace
     {
         public Dictionary<string, IDirectoryInfo> PackagesToBuild { get; protected set; }
+        public IEnumerable<Project> Projects;
 
         private IDirectoryInfo WorkingDirectory;
-
         private IEnumerable<Project> Libraries;
         private IEnumerable<Project> Applications;
 
         public AngularWorkspace(IDirectoryInfo cwd)
         {
             WorkingDirectory = cwd;
-            LoadProjects();
+            Projects = GetProjects();
             PackagesToBuild = GetPackagesToBuild();
         }
 
-        private void LoadProjects()
+        private IEnumerable<Project> GetProjects()
         {
             var angularjsonStr = File.ReadAllText(WorkingDirectory.GetFiles("angular.json")[0].FullName);
             var angularjson = JsonConvert.DeserializeObject<dynamic>(angularjsonStr);
-            var libs = new List<Project>();
+            var projects = new List<Project>();
 
             foreach (var project in angularjson.projects)
             {
-                libs.Add(new Project(project, WorkingDirectory));
+                projects.Add(new Project(project, WorkingDirectory));
             }
-            Libraries = libs.Where(lib => lib.Type == "library");
-            Applications = libs.Where(lib => lib.Type == "application");
+
+            Libraries = projects.Where(lib => lib.Type == "library");
+            Applications = projects.Where(lib => lib.Type == "application");
+
+            return projects;
         }
 
         private Dictionary<string, IDirectoryInfo> GetPackagesToBuild()
@@ -43,7 +46,7 @@ namespace Cmf.CLI.Core.Objects
                 return new
                 {
                     Name = lib.Name,
-                    Pkg = lib.PackageJson.name,
+                    Pkg = lib.PackageJson.Content.name,
                     Deps = lib.Dependencies
                 };
             }).ToList();
@@ -69,7 +72,7 @@ namespace Cmf.CLI.Core.Objects
 
                     if (deps.Count == 0)
                     {
-                        packagesToBuild[lib] = Libraries.FirstOrDefault(l => l.Name.Equals(lib)).Directory;
+                        packagesToBuild[lib] = Libraries.FirstOrDefault(l => l.Name.Equals(lib)).PackageJson.File.Directory;
                         libDeps.Remove(lib);
                     }
                 }
@@ -78,7 +81,7 @@ namespace Cmf.CLI.Core.Objects
             // add application packages
             foreach (var app in Applications)
             {
-                packagesToBuild[app.Name] = app.Directory;
+                packagesToBuild[app.Name] = app.PackageJson.File.Directory;
             }
 
             return packagesToBuild;
@@ -89,15 +92,17 @@ namespace Cmf.CLI.Core.Objects
     {
         public string Name { get; protected set; }
         public string Type { get; protected set; }
-
-        public IDirectoryInfo Directory { get; protected set; }
-
-        public dynamic PackageJson;
-
+        public PackageJson PackageJson { get; protected set; }
+        public PackageJson PackageLock { get; protected set; }
         public List<string> Dependencies { get; protected set; }
+
+        protected dynamic _Project;
+        protected IDirectoryInfo _Cwd;
 
         public Project(dynamic project, IDirectoryInfo cwd)
         {
+            _Project = project;
+            _Cwd = cwd;
             Name = project.Name;
             Type = project.Value.projectType?.ToString();
             GetPackageJson();
@@ -105,25 +110,36 @@ namespace Cmf.CLI.Core.Objects
             Log.Debug($"Loaded package {Name}");
         }
 
-        private void LoadPackageJson(dynamic project, IDirectoryInfo cwd)
+        private void GetPackageJson()
         {
+            // package.json
             string packageJsonPath = "package.json";
-            if (!string.IsNullOrEmpty(project.Value.root?.ToString()))
+            if (!string.IsNullOrEmpty(_Project.Value.root?.ToString()))
             {
-                packageJsonPath = $"{project.Value.root?.ToString()}/{packageJsonPath}";
+                packageJsonPath = $"{_Project.Value.root?.ToString()}/{packageJsonPath}";
             }
+            var packageJsonFile = _Cwd.GetFiles(packageJsonPath).FirstOrDefault();
+            PackageJson = new PackageJson(packageJsonFile);
 
-            var packageJsonFile = cwd.GetFiles(packageJsonPath).FirstOrDefault();
-            var packagejsonStr = File.ReadAllText(packageJsonFile?.FullName);
-            PackageJson = JsonConvert.DeserializeObject<dynamic>(packagejsonStr);
+            // package-lock.json
+            string packageLockPath = "package-lock.json";
+            if (!string.IsNullOrEmpty(_Project.Value.root?.ToString()))
+            {
+                packageLockPath = $"{_Project.Value.root?.ToString()}/{packageLockPath}";
+            }
+            var packageLockFile = _Cwd.GetFiles(packageLockPath).FirstOrDefault();
 
-            Directory = packageJsonFile?.Directory;
+            // In some cases we don't have the package-lockW
+            if(packageLockFile != null)
+            {
+                PackageLock = new PackageJson(packageLockFile);
+            }         
         }
 
-        private void LoadDependencies()
+        private void GetDependencies()
         {
-            var peerDependencies = PackageJson.peerDependencies?.ToObject<Dictionary<string, string>>().Keys;
-            var dependencies = PackageJson.dependencies.ToObject<Dictionary<string, string>>().Keys;
+            var peerDependencies = PackageJson.Content.peerDependencies?.ToObject<Dictionary<string, string>>().Keys;
+            var dependencies = PackageJson.Content.dependencies.ToObject<Dictionary<string, string>>().Keys;
             Dependencies = new List<string>();
             Dependencies.AddRange(dependencies);
             Dependencies.AddRange(peerDependencies ?? new List<string>());
