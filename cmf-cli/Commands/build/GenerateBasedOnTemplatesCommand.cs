@@ -1,8 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
+using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
@@ -18,7 +20,7 @@ namespace Cmf.CLI.Commands
     /// </summary>
     /// <seealso cref="PowershellCommand" />
     [CmfCommand(name: "generateBasedOnTemplates", Parent = "help", ParentId = "build_help")]
-    public class GenerateBasedOnTemplatesCommand : PowershellCommand
+    public class GenerateBasedOnTemplatesCommand : BaseCommand
     {
         /// <summary>
         /// Configure command
@@ -53,24 +55,108 @@ namespace Cmf.CLI.Commands
                     Log.Warning($"Using legacy menu item IDs! This package will not be deployable with other packages using legacy IDs, as collisions will happen!");
                     useLegacyFormat = true;
                 }
-                var pars = new Dictionary<string, string>
-                {
-                    {"basePath", helpRoot},
-                    {"path", helpPackagePath},
-                    {"project", useLegacyFormat ? project : pkgName}
-                };
-                var result = this.ExecutePwshScriptSync(pars);
-                Console.WriteLine(String.Join(Environment.NewLine, result));
+                
+                Generate(helpPackagePath, useLegacyFormat ? project : pkgName);
             }
         }
 
-        /// <summary>
-        /// Gets the powershell script.
-        /// </summary>
-        /// <returns></returns>
-        protected override string GetPowershellScript()
+        private void Generate(string path, string project)
         {
-            return ResourceUtilities.GetEmbeddedResourceContent("Tools/GenerateBasedOnTemplates.ps1");
+            string templateSuffix = "_template";
+
+            string GetTitle(string content)
+            {
+                string title = content;
+                int indexOfNewLine = title.IndexOf(Environment.NewLine);
+                if (indexOfNewLine > 0)
+                {
+                    title = title.Substring(0, indexOfNewLine);
+                }
+
+                title = title.Replace("#", "");
+                title = title.Trim();
+                return title;
+            }
+
+            string GetDescription(string content)
+            {
+                string description = "-";
+                string overviewHeader = "## Overview";
+                int indexOfOverview = content.IndexOf(overviewHeader);
+                if (indexOfOverview > 0)
+                {
+                    description = content;
+                    indexOfOverview += overviewHeader.Length;
+                    description = description.Substring(indexOfOverview, description.Length - indexOfOverview);
+                    int indexOfNextSection = description.IndexOf("##");
+                    if (indexOfNextSection > 0)
+                    {
+                        description = description.Substring(0, indexOfNextSection);
+                    }
+
+                    description = description.Trim();
+                }
+
+                return description;
+            }
+
+            var directory = this.fileSystem.DirectoryInfo.New(path);
+            var templateFiles = directory.GetFiles($"*{templateSuffix}", SearchOption.AllDirectories);
+            foreach (IFileInfo templateFile in templateFiles)
+            {
+                if (templateFile.Name == templateSuffix)
+                {
+                    continue;
+                }
+
+                string template = templateFile.Name;
+                string name = template.Replace(templateSuffix, "");
+                string outputFile = $"{name}.md";
+                Log.Debug($"template: {template}");
+                Log.Debug($"outputFile: {outputFile}");
+                string baseFolder = templateFile.FullName.Replace(templateFile.Name, "");
+                Log.Debug($"BaseFolder: {baseFolder}");
+                string filesPath = this.fileSystem.Path.GetFullPath(this.fileSystem.Path.Combine(baseFolder, name));
+                IFileInfo[] files = this.fileSystem.DirectoryInfo.New(filesPath).GetFiles("*.md").OrderBy(f => f.FullName).ToArray();
+                Log.Debug($"Number of files: {files.Length}");
+                string output = "";
+                string templateContent = this.fileSystem.File.ReadAllText(templateFile.FullName, Encoding.UTF8);
+                bool isTableMode = templateContent.Contains("@TableData@");
+                bool isIndexMode = templateContent.Contains("@IndexData@");
+                string toReplaceToken = isTableMode ? "@TableData@" : "@IndexData@";
+                foreach (IFileInfo file in files)
+                {
+                    string fileContent = this.fileSystem.File.ReadAllText(file.FullName);
+                    string fileName = this.fileSystem.Path.GetFileNameWithoutExtension(file.FullName);
+
+                    // Title
+                    string title = GetTitle(fileContent);
+                    string folderPath =
+                        file.FullName.Substring(0, file.FullName.LastIndexOf(this.fileSystem.Path.DirectorySeparatorChar));
+                    folderPath = folderPath.Substring(folderPath.IndexOf($"assets{this.fileSystem.Path.DirectorySeparatorChar}") +
+                                                      ("assets" + this.fileSystem.Path.DirectorySeparatorChar).Length);
+                    folderPath = folderPath.Replace(this.fileSystem.Path.DirectorySeparatorChar.ToString(), ">");
+
+                    string link = $"/{project}/{folderPath}>{fileName}";
+                    if (isIndexMode)
+                    {
+                        // Index Mode
+                        output += $"* [{title}]({link}){Environment.NewLine}";
+                    }
+                    else
+                    {
+                        if (isTableMode)
+                        {
+                            // Table Mode
+                            string description = GetDescription(fileContent);
+                            output += $"| [{title}]({link}) | {description} |{Environment.NewLine}";
+                        }
+                    }
+                }
+
+                string newContent = templateContent.Replace(toReplaceToken, output);
+                this.fileSystem.File.WriteAllText(this.fileSystem.Path.Combine(baseFolder, outputFile), newContent, Encoding.UTF8);
+            }
         }
     }
 }
