@@ -12,6 +12,7 @@ using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Utilities;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Cmf.CLI.Commands.New
 {
@@ -22,6 +23,7 @@ namespace Cmf.CLI.Commands.New
     public class HelpCommand : UILayerTemplateCommand
     {
         private JsonDocument projectConfig = null;
+        private string schematicsVersion = "";
 
         /// <inheritdoc />
         public HelpCommand() : base("help", PackageType.Help)
@@ -39,10 +41,10 @@ namespace Cmf.CLI.Commands.New
             base.GetBaseCommandConfig(cmd);
             cmd.AddOption(new Option<IFileInfo>(
                 aliases: new[] { "--docPkg", "--documentationPackage" },
-                description: "Path to the MES documentation package",
+                description: "Path to the MES documentation package (required for MES versions up to 9.x)",
                 parseArgument: argResult => Parse<IFileInfo>(argResult)
             )
-            { IsRequired = true });
+            { IsRequired = false });
             cmd.Handler = CommandHandler.Create<IDirectoryInfo, string, IFileInfo>(this.Execute);
         }
 
@@ -60,7 +62,10 @@ namespace Cmf.CLI.Commands.New
 
             args.AddRange(new []
             {
-                "--rootRelativePath", relativePathToRoot 
+                "--rootRelativePath", relativePathToRoot,
+                "--ngxSchematicsVersion", this.schematicsVersion,
+                "--npmRegistry", this.projectConfig.RootElement.GetProperty("NPMRegistry").ToString(),
+                "--MESVersion", this.projectConfig.RootElement.GetProperty("MESVersion").ToString(),
             });
 
             return args;
@@ -74,6 +79,31 @@ namespace Cmf.CLI.Commands.New
         /// <param name="documentationPackage">The MES documentation package path</param>
         public void Execute(IDirectoryInfo workingDir, string version, IFileInfo documentationPackage)
         {
+            var mesVersionStr = (projectConfig ?? FileSystemUtilities.ReadProjectConfig(this.fileSystem)).RootElement.GetProperty("MESVersion").GetString();
+            Log.Debug($"Trying scaffolding a help package for base version {mesVersionStr}");
+            var mesVersion = Version.Parse(mesVersionStr!);
+            if (mesVersion.Major > 9)
+            {
+                Log.Debug("Running v>=10 template");
+                this.ExecuteV10(workingDir, version);
+            }
+            else
+            {
+                Log.Debug("Running v<10 template");
+                this.ExecuteV9(workingDir, version, documentationPackage);
+            }
+        }
+        
+        public void ExecuteV9(IDirectoryInfo workingDir, string version, IFileInfo documentationPackage)
+        {
+            if (documentationPackage == null)
+            {
+                throw new CliException("--docPkg option is required for MES versions up to 9.x");
+            }
+            if (!documentationPackage.Exists)
+            {
+                throw new CliException($"Cannot find Documentation package {documentationPackage.FullName}");
+            }
             base.Execute(workingDir, version); // create package base - generate cmfpackage.json
             var nameIdx = Array.FindIndex(base.executedArgs, item => string.Equals(item, "--name"));
             var pkgName = base.executedArgs[nameIdx + 1];
@@ -267,6 +297,72 @@ $@"{{
             var webAppGulpFile= fileSystem.File.ReadAllText(webAppGulpFilePath);
             this.fileSystem.File.WriteAllText(webAppGulpFilePath, webAppGulpFile.Replace("defaultPort: 7000", "defaultPort: 7001"));
             Log.Information("Help package generated");
+        }
+
+        public void ExecuteV10(IDirectoryInfo workingDir, string version)
+        {
+            var localProjectConfig = FileSystemUtilities.ReadProjectConfig(this.fileSystem);
+            var ngxSchematicsExists = localProjectConfig.RootElement
+                .TryGetProperty("NGXSchematicsVersion", out var ngxSchematicsVersionProp);
+            if (!ngxSchematicsExists)
+            {
+                throw new CliException("Seems like the repository scaffolding was run on a previous version of MES. Please re-init for versions 10+.");
+            }
+            var ngxSchematicsVersion = ngxSchematicsVersionProp.GetString();
+            var mesVersionStr = localProjectConfig.RootElement.GetProperty("MESVersion").GetString();
+
+            var mesVersion = Version.Parse(mesVersionStr!);
+            this.schematicsVersion = !string.IsNullOrEmpty(ngxSchematicsVersion) ? ngxSchematicsVersion : $"@release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}";
+
+            this.CommandName = "help10";
+            base.Execute(workingDir, version); // create package base and web application
+            // this won't return null because it has to success on the base.Execute call
+            var ngCliVersion = "15"; // TODO: v15 for MES 10, but should be determined automatically
+            var nameIdx = Array.FindIndex(base.executedArgs, item => string.Equals(item, "--name"));
+            var packageName = base.executedArgs[nameIdx + 1];
+            
+            // ng generate library <docPackage>
+            var pkgFolder = workingDir.GetDirectories(packageName).FirstOrDefault();
+            if (!pkgFolder?.Exists ?? false)
+            {
+                throw new CliException($"Package folder {pkgFolder.Name} does not exist. This is a template error. Please open an issue on GitHub.");
+            }
+            
+            Log.Verbose("Executing npm install, this will take a while...");
+            (new NPMCommand() { Command = "install", WorkingDirectory = pkgFolder }).Exec();
+
+            var projectName = packageName.Replace(".", "-").ToLowerInvariant();
+            var assetsPkgName = $"cmf-docs-area-{projectName.ToLowerInvariant()}";
+            
+            new NPXCommand()
+            {
+                Command = $"@angular/cli@{ngCliVersion}",
+                Args = new []{ "generate", "library", assetsPkgName },
+                WorkingDirectory = pkgFolder,
+                ForceColorOutput = false
+            }.Exec();
+            
+            // generate the assets structure in projects/<docPackage>/assets
+            var tenant = localProjectConfig.RootElement.GetProperty("Tenant").GetString();
+            Log.Verbose("Generating assets...");
+            base.ExecuteTemplate("helpSrcPkg", new []
+            {
+                "--output", this.fileSystem.Path.Join(pkgFolder!.FullName, "projects"),
+                "--name", assetsPkgName,
+                "--dfPackageName", projectName,
+                "--Tenant", tenant,
+                "--v10metadata", true.ToString(),
+                "--dfPackageNamePascalCase", string.Join("", projectName.Split("-").Select(seg => Regex.Replace(seg, @"\b(\w)", m => m.Value.ToUpper())))
+            });
+            
+            // register assets in angular.json
+            var angularJsonFile =
+                this.fileSystem.FileInfo.New(this.fileSystem.Path.Join(pkgFolder!.FullName, "angular.json"));
+            var content = fileSystem.File.ReadAllText(angularJsonFile.FullName);
+            dynamic json = JsonConvert.DeserializeObject(content);
+            var assets = json!.projects.DocumentationPortal.architect.build.options.assets;
+            (assets as JArray)!.Add(new JObject() { {"glob", "**/*"}, {"input", $"projects/{assetsPkgName}/assets"}, {"output", $"assets/{assetsPkgName}"} } );
+            fileSystem.File.WriteAllText(angularJsonFile.FullName, JsonConvert.SerializeObject(json, Formatting.Indented));
         }
     }
 }

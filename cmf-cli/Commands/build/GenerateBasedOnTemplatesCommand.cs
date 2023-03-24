@@ -38,9 +38,13 @@ namespace Cmf.CLI.Commands
         {
             var regex = new Regex("\"?id\"?:\\s+[\"'](.*)[\"']"); // match for menu item IDs
             
+            var mesVersionStr = FileSystemUtilities.ReadProjectConfig(this.fileSystem).RootElement.GetProperty("MESVersion").GetString();
+            Log.Debug($"Generating markdown for a help package for base version {mesVersionStr}");
+            var mesVersion = Version.Parse(mesVersionStr!);
+
             var helpRoot = FileSystemUtilities.GetPackageRootByType(Environment.CurrentDirectory, PackageType.Help, this.fileSystem).FullName;
             var project = FileSystemUtilities.ReadProjectConfig(this.fileSystem).RootElement.GetProperty("Tenant").GetString();
-            var helpPackagesRoot = this.fileSystem.Path.Join(helpRoot, "src", "packages");
+            var helpPackagesRoot = (mesVersion.Major > 9) ? this.fileSystem.Path.Join(helpRoot, "projects") : this.fileSystem.Path.Join(helpRoot, "src", "packages");
             var helpPackages = this.fileSystem.Directory.GetDirectories(helpPackagesRoot);
             var pkgName = CmfPackage.Load(this.fileSystem.FileInfo.New(this.fileSystem.Path.Join(helpRoot, CliConstants.CmfPackageFileName))).PackageId.ToLowerInvariant();
             foreach (var helpPackagePath in helpPackages)
@@ -56,7 +60,7 @@ namespace Cmf.CLI.Commands
                     useLegacyFormat = true;
                 }
                 
-                Generate(helpPackagePath, useLegacyFormat ? project : pkgName);
+                Generate(helpPackagePath, useLegacyFormat ? project : ( (mesVersion.Major > 9) ? pkgName.Replace(".", "-").ToLowerInvariant() : pkgName));
             }
         }
 
@@ -67,14 +71,15 @@ namespace Cmf.CLI.Commands
             string GetTitle(string content)
             {
                 string title = content;
-                int indexOfNewLine = title.IndexOf(Environment.NewLine);
+                int indexOfNewLine = title.IndexOf("\n");
                 if (indexOfNewLine > 0)
                 {
                     title = title.Substring(0, indexOfNewLine);
                 }
 
                 title = title.Replace("#", "");
-                title = title.Trim();
+                title = title.Trim(); 
+                // Log.Debug($"Got title: '{title}'");
                 return title;
             }
 
@@ -130,6 +135,7 @@ namespace Cmf.CLI.Commands
                     string fileName = this.fileSystem.Path.GetFileNameWithoutExtension(file.FullName);
 
                     // Title
+                    // Log.Debug($"Getting title for file {file.FullName}");
                     string title = GetTitle(fileContent);
                     string folderPath =
                         file.FullName.Substring(0, file.FullName.LastIndexOf(this.fileSystem.Path.DirectorySeparatorChar));

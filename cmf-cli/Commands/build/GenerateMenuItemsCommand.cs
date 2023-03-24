@@ -46,6 +46,10 @@ namespace Cmf.CLI.Commands
         {
             var helpRoot = FileSystemUtilities.GetPackageRootByType(Environment.CurrentDirectory, PackageType.Help, this.fileSystem).FullName;
             var project = FileSystemUtilities.ReadProjectConfig(this.fileSystem).RootElement.GetProperty("Tenant").GetString();
+            
+            var mesVersionStr = FileSystemUtilities.ReadProjectConfig(this.fileSystem).RootElement.GetProperty("MESVersion").GetString();
+            Log.Debug($"Generating menu items database for a help package for base version {mesVersionStr}");
+            var mesVersion = Version.Parse(mesVersionStr!);
 
             if (project == null)
             {
@@ -58,8 +62,8 @@ namespace Cmf.CLI.Commands
 
             var regex = new Regex("\"?id\"?:\\s+[\"'](.*)[\"']"); // match for menu item IDs
 
-            var packagesDir = this.fileSystem.DirectoryInfo.New(this.fileSystem.Path.Join(helpRoot, "src", "packages"));
-            var helpPackages = packagesDir.GetDirectories("cmf.docs.area.*");
+            var packagesDir = (mesVersion.Major > 9) ? this.fileSystem.DirectoryInfo.New(this.fileSystem.Path.Join(helpRoot, "projects")) : this.fileSystem.DirectoryInfo.New(this.fileSystem.Path.Join(helpRoot, "src", "packages"));
+            var helpPackages = packagesDir.GetDirectories("cmf.docs.area.*".Replace(".", (mesVersion.Major > 9) ? "-" : "."));
 
             void GetMetadataFromFolder(IDirectoryInfo current, List<object> metadata, IDirectoryInfo parent = null)
             {

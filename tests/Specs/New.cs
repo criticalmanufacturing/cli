@@ -933,12 +933,25 @@ namespace tests.Specs
             });
         }
 
-        [Fact]
-        public void Help_FailNoPackage()
+        [Theory]
+        [InlineData("9.0.0", true)]
+        [InlineData("10.0.0", false), Trait("TestCategory", "LongRunning")]
+        public void Help_FailNoPackage(string mesVersion, bool shouldDisplayError)
         {
-            var console = RunNew(new Cmf.CLI.Commands.New.HelpCommand(), "Cmf.Custom.Help", defaultAsserts: false);
+            var console = RunNew(new Cmf.CLI.Commands.New.HelpCommand(), "Cmf.Custom.Help", defaultAsserts: false, mesVersion: mesVersion);
             var stderr = console.Error.ToString();
-            Assert.True(stderr.Trim().Equals("Option '--docPkg' is required."), "Should exit with missing package error");
+            if (shouldDisplayError)
+            {
+                (stderr ?? "").Trim()
+                    .Should().Contain("--docPkg option is required for MES versions up to 9.x",
+                        "Should exit with missing package error");
+            }
+            else
+            {
+                (stderr ?? "").Trim()
+                    .Should().NotContain("--docPkg option is required for MES versions up to 9.x",
+                        "Should exit with missing package error");
+            }
         }
 
         [Fact]

@@ -21,7 +21,8 @@ public class NgCommand : ProcessCommand, IBuildCommand
         var npx = new NPXCommand()
         {
             Command = "@angular/cli@15", // TODO: for future MES versions, we should determine the ng version automatically
-            Args = new List<string> { this.Command }.Concat(this.Args ?? Array.Empty<string>()).ToArray()
+            Args = new List<string> { this.Command }.Concat(this.Args ?? Array.Empty<string>()).ToArray(),
+            ForceColorOutput = false
         };
         var steps = npx.GetSteps();
         return steps.Select(s =>

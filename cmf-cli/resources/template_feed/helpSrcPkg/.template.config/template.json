@@ -65,6 +65,35 @@
       "type": "parameter",
       "datatype": "string",
       "replaces": "<%= $CLI_PARAM_rootRelativePath %>"
+    },
+    "dfPackageNamePascalCase": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_DFPackageNamePascalCase %>"
+    },
+    "v10metadata": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": false,
+      "description": "Generates MES v10 metadata if true, v9 if false"
     }
-  }
+  },
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "condition": "!v10metadata",
+          "exclude": [
+            "Help.Src.Package/metadata/src/lib/**"
+          ]
+        },
+        {
+          "condition": "v10metadata",
+          "exclude": [
+            "Help.Src.Package/src/*.ts"
+          ]
+        }
+      ]
+    }
+  ]
 }
