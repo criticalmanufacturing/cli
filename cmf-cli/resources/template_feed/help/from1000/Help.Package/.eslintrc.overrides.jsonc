@@ -1,0 +1,19 @@
+/**
+ * ------------------------C A U T I O N----------------------------
+ * Please don't include this file on the eslint of any new libraries
+ * This should be only used to compile old code
+ */
+{
+    "overrides": [
+        {
+            "files": [
+                "*.ts"
+            ],
+            "rules": {
+                "@angular-eslint/no-inputs-metadata-property": "off",
+                "@angular-eslint/no-outputs-metadata-property": "off",
+                "@angular-eslint/component-class-suffix": "off"
+            }
+        }
+    ]
+}

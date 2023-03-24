@@ -1,0 +1,42 @@
+{
+  "ref": "Help",
+  "debug": {
+    "isEnabled": true
+  },
+  "host": {
+    "rest": {
+      "enableSsl": false,
+      "address": "",
+      "port": 0,
+      "timeout": 120000
+    },
+    "tenant": {
+      "name": ""
+    },
+    "loadBalancer": {
+      "enableSsl": false,
+      "address": "",
+      "urlSuffix": "discoveryservice",
+      "port": 0,
+      "timeout": 120000
+    },
+    "useExternalAuthentication": false,
+    "isLoadBalancerEnabled": false
+  },
+  "general": {
+    "supportedCultures": [
+      "en-US",
+      "zh-CN"
+    ],
+    "supportedThemes": [
+      "cmf.style.blue"
+    ],
+    "defaultDomain": "",
+    "startup": {
+      "startupCulture": "en-US",
+      "startupTheme": "cmf.style.blue"
+    },
+    "localizationFiles": ""
+  },
+  "version": "<%= $CLI_PARAM_MESVersion %>"
+}
