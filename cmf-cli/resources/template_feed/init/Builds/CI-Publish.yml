@@ -53,8 +53,8 @@ steps:
 # Configuration Artifact
 - template: .tasks/copy-configurations-files.yml
   parameters:
-    configurationDir: $(configurationDir)
-    packageDir: $(packageDir)
+    ConfigurationDir: $(configurationDir)
+    PackageDir: $(packageDir)
 
 # Publish Configurations Artifact
 - task: PublishBuildArtifacts@1

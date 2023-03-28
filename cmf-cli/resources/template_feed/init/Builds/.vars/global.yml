@@ -28,10 +28,10 @@ variables:
   # Iso Image Path
   ISOImagePath: '<%= $CLI_PARAM_ISOLocation %>'
   # Current refspec to get the tools for the package (by default, development branch)
-  CommonBranch: refs/heads/development'
+  CommonBranch: 'refs/heads/development'
   # Node version to use in the pipelines
   NodeVersion: 12.20.2
-  # Defines if the CD-VM or CD-Containers should rename the restore point in the end
+  # Defines if the CI-Release or CD-Containers should rename the restore point in the end
   SetNewRestorePoint: true
-  # Defines if the CD-VM should use maintenance mode
+  # Defines if the CI-Release should use maintenance mode
   UseMaintenanceMode: false

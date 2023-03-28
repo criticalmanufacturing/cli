@@ -21,5 +21,5 @@ variables:
   CommonBranch: 'refs/tags/8.2.0'
   # Node version to use in the pipelines
   NodeVersion: 12.20.2
-  # Defines if the CD-VM should rename the restore point in the end
+  # Defines if the CI-Release should rename the restore point in the end
   SetNewRestorePoint: true

@@ -53,7 +53,7 @@ steps:
 # Publish test and coverage results
 - template: .tasks/publish-tests.yml
   parameters:
-    path: $(build.sourcesdirectory)
+    Path: $(build.sourcesdirectory)
 
 # Clean Agent Directories
 - template: .tasks/clean-agent-directories.yml

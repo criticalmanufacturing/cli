@@ -15,7 +15,7 @@ pr: none
 resources:
   pipelines:
   - pipeline: CIPublish
-    source: CI-Builds/CI-Publish
+    source: <%= $CLI_PARAM_PipelinesFolder %>\CI-Builds\CI-Publish
     trigger: true
 
 variables:
@@ -119,18 +119,21 @@ stages:
     - template: .tasks/drop-db.yml
       parameters:
         DB: Online
+        DBName: $(EnvConfig.SYSTEM_NAME)
         ServerName: $(EnvConfig.DATABASE_ONLINE_MSSQL_ADDRESS)
 
     # Drop ODS
     - template: .tasks/drop-db.yml
       parameters:
         DB: ODS
+        DBName: $(EnvConfig.SYSTEM_NAME)ODS
         ServerName: $(EnvConfig.DATABASE_ODS_MSSQL_ADDRESS)
 
     # Drop DWH
     - template: .tasks/drop-db.yml
       parameters:
         DB: DWH
+        DBName: $(EnvConfig.SYSTEM_NAME)DWH
         ServerName: $(EnvConfig.DATABASE_DWH_MSSQL_ADDRESS)
 
     # Copy Backup
@@ -155,7 +158,7 @@ stages:
       )
     )
   jobs:
-  - deployment: Deployment
+  - job: Deployment
     displayName: Customization
     workspace:
       clean: all
@@ -198,20 +201,10 @@ stages:
     # Load EnvironmentConfig and Package Info
     - template: .tasks/load-config.yml
 
-    # Delete previous Backup
-    - pwsh: |
-        Remove-Item -Path $(EnvConfig.DATABASE_NETWORK_SHARE)/Cmf.FullBackup.*.zip -Force -Verbose
-        Remove-Item -Path $(EnvConfig.DATABASE_NETWORK_SHARE)/*.bak -Force -Verbose
-        Remove-Item -Path $(EnvConfig.DATABASE_NETWORK_SHARE)/FullBackup -Force -Verbose -Recurse -ErrorAction Ignore
-      displayName: Delete previous Backup
-
     # Backup
-    - pwsh: |
-        New-Item -ItemType Directory -Path "$(EnvConfig.DATABASE_NETWORK_SHARE)" -Name "FullBackup" -Force
-        & tools\CmfDeploy.exe backup --parameters "$(EnvConfig.ConfigPath)" --packageSources .\DFPackages
-        Move-Item -Path $(EnvConfig.DATABASE_NETWORK_SHARE)/Cmf.FullBackup.*.zip -Destination $(EnvConfig.DATABASE_NETWORK_SHARE)/FullBackup -Force
-      displayName: Backup
-      workingDirectory: C:\tools\Cmf.Deployment.Framework
+    - template: .tasks/containers-db-backup.yml
+      parameters:
+        DailyBackup: false
 
     # Clean Agent Directories
     - template: .tasks/clean-agent-directories.yml
@@ -300,20 +293,10 @@ stages:
     # Load EnvironmentConfig and Package Info
     - template: .tasks/load-config.yml
 
-    # Delete previous Backup
-    - pwsh: |
-        Remove-Item -Path $(EnvConfig.DATABASE_NETWORK_SHARE)/Cmf.FullBackup.*.zip -Force -Verbose
-        Remove-Item -Path $(EnvConfig.DATABASE_NETWORK_SHARE)/*.bak -Force -Verbose
-      displayName: Delete previous Backup
-
     # Backup
-    - pwsh: |
-        New-Item -ItemType Directory -Path "$(EnvConfig.DATABASE_NETWORK_SHARE)" -Name "DailyBackup" -Force
-        & tools\CmfDeploy.exe backup --parameters "$(EnvConfig.ConfigPath)" --packageSources .\DFPackages
-        Move-Item -Path $(EnvConfig.DATABASE_NETWORK_SHARE)/Cmf.FullBackup.*.zip -Destination $(EnvConfig.DATABASE_NETWORK_SHARE)/DailyBackup -Force
-        Move-Item -Path $(EnvConfig.DATABASE_NETWORK_SHARE)/*.bak -Destination $(EnvConfig.DATABASE_NETWORK_SHARE)/DailyBackup -Force
-      displayName: Backup
-      workingDirectory: C:\tools\Cmf.Deployment.Framework
+    - template: .tasks/containers-db-backup.yml
+      parameters:
+        DailyBackup: true
 
     # Clean Agent Directories
     - template: .tasks/clean-agent-directories.yml
@@ -363,7 +346,7 @@ stages:
     steps:
       - checkout: none
 
-      # Extract dlls
+      # Extract Test Packages
       - pwsh: |
           $artifactPath = "$(CandidatePackages)/Tests/*.zip"
           if (Get-ChildItem -Path $artifactPath)
@@ -373,7 +356,8 @@ stages:
               Expand-Archive $_ -DestinationPath $targetDirectory -Force -Verbose
             }
           }
-        displayName: Extract dlls
+          Copy-Item -Path "$(CandidatePackages)/Configurations/RunSettings" -Destination "$(Build.ArtifactStagingDirectory)/TestExecution/RunSettings" -Recurse -Force -Verbose
+        displayName: Extract Test Packages
 
       # Copy Copy global.json to root
       - task: CopyFiles@2
@@ -430,55 +414,15 @@ stages:
         deploy:
           steps:
           - checkout: none
+          - download: none
 
           # Load EnvironmentConfig and Package Info
           - template: .tasks/load-config.yml
 
-          # Get Date
-          - pwsh: |
-              $date=$(Get-Date -Format "yyyyMMdd");
-              Write-Host "##vso[task.setvariable variable=date]$date"
-            displayName: Get Date
-
-          # Tag Git Source
-          - task: git-tag-on-release-task@9
-            displayName: Tag Git Source
-            inputs:
-              staticTagName: $(EnvConfig.Product.Tenant.Name)-$(date)-$(EnvConfig.PackageVersion)
-
-          # Retain indefinitely current release
-          - task: retainPipeline@3
-            displayName: Retain indefinitely current release
-            inputs:
-              lock: true
-
-          # Download Package Artifacts
-          - task: DownloadBuildArtifacts@0
-            displayName: Download Package
-            inputs:
-              buildType: specific
-              project: $(System.TeamProject)
-              pipeline: CI-Publish
-              specificBuildWithTriggering: true
-              buildVersionToDownload: specific
-              buildId: $(resources.pipeline.CIPublish.runID)
-              downloadType: single
-              artifactName: Package
-              downloadPath: $(ApprovedPackages)
-
-          # Download Tests Artifacts
-          - task: DownloadBuildArtifacts@0
-            displayName: Download Tests
-            inputs:
-              buildType: specific
-              project: $(System.TeamProject)
-              pipeline: CI-Publish
-              specificBuildWithTriggering: true
-              buildVersionToDownload: specific
-              buildId: $(resources.pipeline.CIPublish.runID)
-              downloadType: single
-              artifactName: Tests
-              downloadPath: $(ApprovedPackages)
+          # Tag, Retain and move packages to approved folder
+          - template: .tasks/approve-release.yml
+            parameters:
+              Tenant: $(EnvConfig.TENANT_NAME)
 
           # Clean Agent Directories
           - template: .tasks/clean-agent-directories.yml
@@ -507,8 +451,10 @@ stages:
 
     # Copy full backup packages to stack package path
     - pwsh:   |
-        New-Item -Type Directory $(EnvConfig.DATABASE_NETWORK_SHARE)/Approved -Force
+        New-Item -Type Directory $(EnvConfig.DATABASE_NETWORK_SHARE)/Approved -Force -Verbose
         Copy-Item -Path $(EnvConfig.DATABASE_NETWORK_SHARE)/FullBackup/Cmf.FullBackup.*.zip -Destination $(EnvConfig.DATABASE_NETWORK_SHARE)/Approved -Verbose -Force -Recurse
+        $date = (Get-Date).ToString("yyyyMMdd")
+        Rename-Item FullBackup -NewName "FullBackup-$date" -Verbose
       displayName: Copy Cmf.FullBackup packages
 
     # Clean Agent Directories

@@ -1,8 +1,8 @@
 # Drop Database
 parameters:
   DB: ''
-  DBName: $(EnvConfig.Product.SystemName)
-  ServerName: $(EnvConfig.PackageProduct.Database.${{parameters.DB}}.Database.Server)
+  DBName: ''
+  ServerName: ''
 steps:
 - task: SqlDacpacDeploymentOnMachineGroup@0
   displayName: Drop ${{parameters.DB}} database
@@ -18,5 +18,5 @@ steps:
     ServerName: ${{parameters.ServerName}}
     DatabaseName: master
     AuthScheme: sqlServerAuthentication
-    SqlUsername: $(Database${{ parameters.DB}}User)
-    SqlPassword: $(Database${{ parameters.DB}}Password)
+    SqlUsername: $(Database${{parameters.DB}}User)
+    SqlPassword: $(Database${{parameters.DB}}Password)

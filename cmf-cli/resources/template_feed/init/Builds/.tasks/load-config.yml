@@ -9,7 +9,7 @@ steps:
     }
     else
     {
-        $CmfPackageJsonFile = Get-Item "$(CandidatePackages)//Configurations/cmfpackage.json"
+        $CmfPackageJsonFile = Get-Item "$(CandidatePackages)/Configurations/cmfpackage.json"
         $CmfPackageJson = Get-Content -Raw -Path $CmfPackageJsonFile | ConvertFrom-Json
         $PackageId = $CmfPackageJson."packageId"
         $PackageVersion = $CmfPackageJson."version"
