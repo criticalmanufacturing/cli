@@ -5,7 +5,7 @@ steps:
     {
         $parameters = "$(EnvConfig.ConfigPath)"
         Set-Location -Path $(DriveLetter)
-        $scriptPath = ".\tools\CmfDeploy.exe install --packageToInstall=$(EnvConfig.PackageToInstall) --parameters='$(EnvConfig.ConfigPath)' --packageSources='$(CandidatePackages)',$(DriveLetter) --logFileLocation '$(CandidatePackages)' --licenseId '$(LicenseName)' --token $(CustomerPortalPAT)"
+        $scriptPath = ".\tools\CmfDeploy.exe install --packageToInstall=$(EnvConfig.PackageToInstall) --parameters='$(EnvConfig.ConfigPath)' --packageSources='$(CandidatePackages)',$(DriveLetter) --logFileLocation '$(CandidatePackages)'"
         Write-Host("Script to run: " + $scriptPath)
         Invoke-Expression $scriptPath | Out-Host
         if($LASTEXITCODE)

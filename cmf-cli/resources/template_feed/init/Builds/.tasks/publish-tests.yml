@@ -1,7 +1,5 @@
 parameters:
-- name: path
-  type: string
-  default: false
+  Path: ''
 
 steps:
 - pwsh: |
@@ -16,7 +14,7 @@ steps:
   displayName: Restore .NET tools
 
 # run dotnet-coverage
-- pwsh: dotnet tool run dotnet-coverage merge -o "${{ parameters.path }}/Merged.Cobertura.xml" -f "Cobertura" -r "coverage.cobertura.xml"
+- pwsh: dotnet tool run dotnet-coverage merge -o "${{ parameters.Path }}/Merged.Cobertura.xml" -f "Cobertura" -r "coverage.cobertura.xml"
   displayName: Run reportgenerator
   condition: and(succeeded(), eq(variables.generateCoverageReport, 'Yes'))
 
@@ -26,11 +24,11 @@ steps:
   condition: always()
   inputs:
     testRunner: VSTest
-    testResultsFiles: '${{ parameters.path }}/**/*.trx'
+    testResultsFiles: '${{ parameters.Path }}/**/*.trx'
 
 # Publish Code Coverage
 - task: PublishCodeCoverageResults@1
   displayName: Publishing Code Coverage
   inputs:
     codeCoverageTool: Cobertura
-    summaryFileLocation: '${{ parameters.path }}/Merged.Cobertura.xml'
+    summaryFileLocation: '${{ parameters.Path }}/Merged.Cobertura.xml'

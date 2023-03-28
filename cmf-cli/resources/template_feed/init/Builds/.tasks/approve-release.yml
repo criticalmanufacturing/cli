@@ -1,0 +1,54 @@
+parameters:
+  Tenant: ''
+
+steps:
+# Get Date
+- pwsh: |
+    $date=$(Get-Date -Format "yyyyMMdd");
+    Write-Host "##vso[task.setvariable variable=date]$date"
+  displayName: Get Date
+
+# Tag Git Source
+- task: git-tag-on-release-task@9
+  displayName: Tag Git Source
+  inputs:
+    staticTagName: ${{parameters.Tenant}}-$(date)-$(EnvConfig.PackageVersion)
+
+# Retain indefinitely current release
+- task: retainPipeline@3
+  displayName: Retain indefinitely current release
+  inputs:
+    lock: true
+
+# Download Package Artifacts
+- task: DownloadBuildArtifacts@0
+  displayName: Download Package Artifact
+  inputs:
+    buildType: specific
+    project: $(System.TeamProject)
+    pipeline: CI-Publish
+    specificBuildWithTriggering: true
+    buildVersionToDownload: specific
+    buildId: $(resources.pipeline.CIPublish.runID)
+    downloadType: single
+    artifactName: Package
+    downloadPath: $(Build.ArtifactStagingDirectory)
+
+# Download Tests Artifacts
+- task: DownloadBuildArtifacts@0
+  displayName: Download Tests Artifact
+  inputs:
+    buildType: specific
+    project: $(System.TeamProject)
+    pipeline: CI-Publish
+    specificBuildWithTriggering: true
+    buildVersionToDownload: specific
+    buildId: $(resources.pipeline.CIPublish.runID)
+    downloadType: single
+    artifactName: Tests
+    downloadPath: $(Build.ArtifactStagingDirectory)
+
+- pwsh: |
+    Copy-Item -Path $(Build.ArtifactStagingDirectory)/Package -Destination $(ApprovedPackages) -Recurse -Force -Verbose
+    Copy-Item -Path $(Build.ArtifactStagingDirectory)/Tests -Destination $(ApprovedPackages) -Recurse -Force -Verbose
+  displayName: Copy Artifacts to $(ApprovedPackages)

@@ -1,0 +1,59 @@
+parameters:
+  DailyBackup: false
+
+steps:
+# Full Backup
+- pwsh: |
+    $file = "$(Agent.TempDirectory)/backup_parameters.json"
+    $json = @"
+    {
+      "Product.SystemName": "$(EnvConfig.SYSTEM_NAME)",
+      "Product.Database.BackupShare": "$('$(EnvConfig.DATABASE_NETWORK_SHARE)' -replace '\\', '\\')",
+      "Product.BackupDatabase.UseCompression": true,
+      "Package[Product.Database.Online].Database.Server": "$('$(EnvConfig.DATABASE_ONLINE_MSSQL_ADDRESS)' -replace '\\', '\\')",
+      "Package[Product.Database.Online].Database.User": "$('$(DatabaseOnlineUser)' -replace '\\', '\\')",
+      "Package[Product.Database.Online].Database.Password": "$('$(DatabaseOnlinePassword)' -replace '\\', '\\')",
+      "Package[Product.Database.Ods].Database.Server": "$('$(EnvConfig.DATABASE_ODS_MSSQL_ADDRESS)' -replace '\\', '\\')",
+      "Package[Product.Database.Ods].Database.User": "$('$(DatabaseODSUser)' -replace '\\', '\\')",
+      "Package[Product.Database.Ods].Database.Password": "$('$(DatabaseODSPassword)' -replace '\\', '\\')",
+      "Package[Product.Database.Dwh].Database.Server": "$('$(EnvConfig.DATABASE_DWH_MSSQL_ADDRESS)' -replace '\\', '\\')",
+      "Package[Product.Database.Dwh].Database.User": "$('$(DatabaseDWHUser)' -replace '\\', '\\')",
+      "Package[Product.Database.Dwh].Database.Password": "$('$(DatabaseDWHPassword)' -replace '\\', '\\')"
+    }
+    "@
+    $json | Set-Content $file
+
+    New-Item -ItemType Directory -Path "$(EnvConfig.DATABASE_NETWORK_SHARE)" -Name "FullBackup" -Force
+
+    & tools\CmfDeploy.exe backup --parameters "$(Agent.TempDirectory)/backup_parameters.json" --packageSources .\DFPackages
+
+    Move-Item -Path $(EnvConfig.DATABASE_NETWORK_SHARE)/Cmf.FullBackup.*.zip -Destination $(EnvConfig.DATABASE_NETWORK_SHARE)/FullBackup -Force
+    Remove-Item -Path $(EnvConfig.DATABASE_NETWORK_SHARE)/*.bak -Force -Verbose
+  displayName: Full Backup
+  workingDirectory: C:\tools\Cmf.Deployment.Framework
+  condition: eq('${{ parameters.DailyBackup }}', false)
+
+# Daily Backup
+- pwsh: |
+    $file = "$(Agent.TempDirectory)/backup_parameters.json"
+    $json = @"
+    {
+      "Product.SystemName": "$(EnvConfig.SYSTEM_NAME)",
+      "Product.Database.BackupShare": "$('$(EnvConfig.DATABASE_NETWORK_SHARE)' -replace '\\', '\\')",
+      "Product.BackupDatabase.UseCompression": true,
+      "Package[Product.Database.Online].Database.Server": "$('$(EnvConfig.DATABASE_ONLINE_MSSQL_ADDRESS)' -replace '\\', '\\')",
+      "Package[Product.Database.Online].Database.User": "$('$(DatabaseOnlineUser)' -replace '\\', '\\')",
+      "Package[Product.Database.Online].Database.Password": "$('$(DatabaseOnlinePassword)' -replace '\\', '\\')"
+    }
+    "@
+    $json | Set-Content $file
+
+    New-Item -ItemType Directory -Path "$(EnvConfig.DATABASE_NETWORK_SHARE)" -Name "DailyBackup" -Force
+
+    & tools\CmfDeploy.exe backup --parameters "$(Agent.TempDirectory)/backup_parameters.json" --packageSources .\DFPackages
+
+    Move-Item -Path $(EnvConfig.DATABASE_NETWORK_SHARE)/Cmf.FullBackup.*.zip -Destination $(EnvConfig.DATABASE_NETWORK_SHARE)/DailyBackup -Force
+    Move-Item -Path $(EnvConfig.DATABASE_NETWORK_SHARE)/*.bak -Destination $(EnvConfig.DATABASE_NETWORK_SHARE)/DailyBackup -Force
+  displayName: Daily Backup
+  workingDirectory: C:\tools\Cmf.Deployment.Framework
+  condition: eq('${{ parameters.DailyBackup }}', true)

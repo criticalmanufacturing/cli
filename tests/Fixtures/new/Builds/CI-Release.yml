@@ -1,9 +1,6 @@
 # CM DS Continuous Integration Release Pipeline
 pool:
-  name: <%= $CLI_PARAM_AgentPool %>
-//#if (agentType == "Cloud")
-  vmImage: 'ubuntu-latest'
-//#endif
+  name: agent_pool
 
 # A pipeline with no CI trigger
 trigger: none
@@ -15,7 +12,7 @@ pr: none
 resources:
   pipelines:
   - pipeline: CIPublish
-    source: <%= $CLI_PARAM_PipelinesFolder %>\CI-Builds\CI-Publish
+    source: CI-Builds\CI-Publish
     trigger: true
 
 variables:
@@ -30,9 +27,9 @@ parameters:
   - name: Environment
     displayName: Environment name
     type: string
-    default: <%= $CLI_PARAM_EnvironmentName %>
+    default: system_name
     values:
-      - <%= $CLI_PARAM_EnvironmentName %>
+      - system_name
   # Stages to Run
   - name: executeAllStages
     displayName: Execute all Stages
@@ -341,7 +338,7 @@ stages:
     steps:
     - checkout: none
 
-    # Extract Test Packages
+    # Extract dlls
     - pwsh: |
         $artifactPath = "$(CandidatePackages)/Tests/*.zip"
         if (Get-ChildItem -Path $artifactPath)
@@ -351,8 +348,7 @@ stages:
             Expand-Archive $_ -DestinationPath $targetDirectory -Force -Verbose
           }
         }
-        Copy-Item -Path (CandidatePackages)/Configurations/RunSettings -Destination $(Build.ArtifactStagingDirectory)/TestExecution/RunSettings -Recurse -Force -Verbose
-      displayName: Extract Test Packages
+      displayName: Extract dlls
 
     # Copy Copy global.json to root
     - task: CopyFiles@2
@@ -413,10 +409,51 @@ stages:
           # Load EnvironmentConfig and Package Info
           - template: .tasks/load-config.yml
 
-          # Tag, Retain and move packages to approved folder
-          - template: .tasks/approve-release.yml
-            parameters:
-              Tenant: $(EnvConfig.Product.Tenant.Name)
+          # Get Date
+          - pwsh: |
+              $date=$(Get-Date -Format "yyyyMMdd");
+              Write-Host "##vso[task.setvariable variable=date]$date"
+            displayName: Get Date
+
+          # Tag Git Source
+          - task: git-tag-on-release-task@9
+            displayName: Tag Git Source
+            inputs:
+              staticTagName: $(EnvConfig.Product.Tenant.Name)-$(date)-$(EnvConfig.PackageVersion)
+
+          # Retain indefinitely current release
+          - task: retainPipeline@3
+            displayName: Retain indefinitely current release
+            inputs:
+              lock: true
+
+          # Download Package Artifacts
+          - task: DownloadBuildArtifacts@0
+            displayName: Download Package
+            inputs:
+              buildType: specific
+              project: $(System.TeamProject)
+              pipeline: CI-Publish
+              specificBuildWithTriggering: true
+              buildVersionToDownload: specific
+              buildId: $(resources.pipeline.CIPublish.runID)
+              downloadType: single
+              artifactName: Package
+              downloadPath: $(ApprovedPackages)
+
+          # Download Tests Artifacts
+          - task: DownloadBuildArtifacts@0
+            displayName: Download Tests
+            inputs:
+              buildType: specific
+              project: $(System.TeamProject)
+              pipeline: CI-Publish
+              specificBuildWithTriggering: true
+              buildVersionToDownload: specific
+              buildId: $(resources.pipeline.CIPublish.runID)
+              downloadType: single
+              artifactName: Tests
+              downloadPath: $(ApprovedPackages)
 
           # Clean Agent Directories
           - template: .tasks/clean-agent-directories.yml
@@ -445,13 +482,43 @@ stages:
 
     # Rename RestorePoint to $(RestoreIdentifier)
     - pwsh: |
-        Set-Location "$(EnvConfig.Product.Database.BackupShare)" -Verbose
-        $date = (Get-Date).ToString("yyyyMMdd")
-        Rename-Item "$(RestoreIdentifier)" -NewName "$(RestoreIdentifier)-$date" -Verbose
+        $BackupLocation = $(EnvConfigProduct.Database.BackupShare)
 
-        Get-ChildItem "$(EnvConfig.PackageId)_$(EnvConfig.PackageVersion)" | Rename-Item -NewName { $_.Name -Replace "$(EnvConfig.PackageId)_$(EnvConfig.PackageVersion)", "$(RestoreIdentifier)" } -Verbose
-        Rename-Item "$(EnvConfig.PackageId)_$(EnvConfig.PackageVersion)" -NewName "$(RestoreIdentifier)" -Verbose
-      displayName: Set RestorePoint as new $(RestoreIdentifier)
+        Set-Location $BackupLocation -Verbose
+
+        $originalKeyword = "$(RestoreIdentifier)"
+        $restorePointKeyword = "$(EnvConfig.PackageId)_$(EnvConfig.PackageVersion)"
+        $date = (Get-Date).ToString("yyyyMMdd")
+        $oldRestorePointName = "Before-$(EnvConfig.Product.Tenant.Name)-$date-$(EnvConfig.PackageVersion)"
+
+        $originalFolderSearch = (Get-ChildItem -Filter $originalKeyword -Directory)
+        $restorePointFolder =  (Get-ChildItem -Filter $restorePointKeyword -Directory)[0]
+
+        # Rename Original Folder if exists
+        if ($originalFolderSearch)
+        {
+          $originalFolder =  (Get-ChildItem -Filter $originalKeyword -Directory)[0]
+          Rename-Item -Path $originalFolder -NewName $oldRestorePointName -Verbose -Force
+          Set-Location $oldRestorePointName -Verbose
+          $oldRestorePointFiles = Get-ChildItem -Filter "*$originalKeyword*" -File -Verbose
+          foreach ($oldRestorePointFile in $oldRestorePointFiles) {
+              Rename-Item -Path $oldRestorePointFile -NewName ($oldRestorePointFile.Name -replace $originalKeyword, $oldRestorePointName) -Verbose
+          }
+
+          Set-Location $BackupLocation -Verbose
+        }
+
+        Copy-Item -Path $restorePointFolder $originalKeyword -Verbose -Force -Recurse
+
+        $originalFolder =  (Get-ChildItem -Filter $originalKeyword -Directory)[0]
+        Set-Location $originalFolder -Verbose
+        $restorePointFiles = Get-ChildItem -Filter "*$restorePointKeyword*" -File -Verbose
+        foreach ($restorePointFile in $restorePointFiles) {
+            Rename-Item -Path $restorePointFile -NewName ($restorePointFile.Name -replace $restorePointKeyword, $originalKeyword) -Verbose -Force
+        }
+
+        Set-Location $BackupLocation -Verbose
+      displayName: Rename RestorePoint to $(RestoreIdentifier)
 
     # Clean Agent Directories
     - template: .tasks/clean-agent-directories.yml

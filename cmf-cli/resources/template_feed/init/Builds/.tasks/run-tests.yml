@@ -3,15 +3,15 @@ parameters:
   TestRunTitle: ''
 steps:
 - task: VSTest@2
-displayName: Run Tests - ${{parameters.TestRunTitle}}
-inputs:
-  testAssemblyVer2: ${{parameters.TestAssembly}}
-  searchFolder: $(System.DefaultWorkingDirectory)
-  resultsFolder: $(Agent.TempDirectory)\TestResults
-  runSettingsFile: TestExecution\RunSettings\$(RunSettings)'
-  testRunTitle: ${{parameters.TestRunTitle}} Tests
-  rerunFailedTests: true
-  rerunType: basedOnTestFailurePercentage
-  rerunFailedThreshold: 30
-  rerunMaxAttempts: 3
-continueOnError: true
+  displayName: Run Tests - ${{parameters.TestRunTitle}}
+  inputs:
+    testAssemblyVer2: ${{parameters.TestAssembly}}
+    searchFolder: $(Build.ArtifactStagingDirectory)/TestExecution/
+    resultsFolder: $(Agent.TempDirectory)/TestResults
+    runSettingsFile: $(CandidatePackages)/Configurations/RunSettings/$(RunSettings)
+    testRunTitle: ${{parameters.TestRunTitle}} Tests
+    rerunFailedTests: true
+    rerunType: basedOnTestFailurePercentage
+    rerunFailedThreshold: 100
+    rerunMaxAttempts: 3
+  continueOnError: true

@@ -1,23 +1,23 @@
 parameters:
-  configurationDir: $(Build.ArtifactStagingDirectory)/Configurations
-  packageDir: ''
+  ConfigurationDir: $(Build.ArtifactStagingDirectory)/Configurations
+  PackageDir: ''
 
 steps:
 # Copy dependencies.json to Configurations~
 - task: CopyFiles@2
   displayName: Copy dependencies.json to Configurations
   inputs:
-    SourceFolder: ${{ parameters.packageDir }}
+    SourceFolder: ${{ parameters.PackageDir }}
     Contents: |
       dependencies.json
     FlattenFolders: true
-    TargetFolder: ${{ parameters.configurationDir }}
+    TargetFolder: ${{ parameters.ConfigurationDir }}
 
 # Remove dependencies.json
 - task: DeleteFiles@1
   displayName: Remove dependencies.json from source
   inputs:
-    SourceFolder: ${{ parameters.packageDir }}
+    SourceFolder: ${{ parameters.PackageDir }}
     Contents: dependencies.json
 
 # Copy global.json and cmfpackage.json to Configurations
@@ -28,7 +28,7 @@ steps:
       global.json
       cmfpackage.json
     FlattenFolders: true
-    TargetFolder: ${{ parameters.configurationDir }}
+    TargetFolder: ${{ parameters.ConfigurationDir }}
 
 # Copy Runsettings to Configurations
 - task: CopyFiles@2
@@ -36,7 +36,7 @@ steps:
   inputs:
     Contents: |
       **/*.runsettings
-    TargetFolder: ${{ parameters.configurationDir }}/Runsettings
+    TargetFolder: ${{ parameters.ConfigurationDir }}/Runsettings
     flattenFolders: true
 
 # Copy EnvironmentConfigs to Configurations

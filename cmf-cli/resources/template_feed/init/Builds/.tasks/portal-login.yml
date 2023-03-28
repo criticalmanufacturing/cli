@@ -1,3 +1,3 @@
 steps:
 - pwsh: $(Agent.TempDirectory)/node_modules/@criticalmanufacturing/portal/bin/cmf-portal.exe login --token $(CustomerPortalPAT) --verbose
-  displayName: Portal Login 
+  displayName: Portal Login

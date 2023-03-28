@@ -3,32 +3,32 @@ parameters:
   EnvironmentConfigName: ''
   BackupRestoreIdentifier: ''
 steps:
-  - task: DownloadBuildArtifacts@0
-    displayName: Download Common BackupRestoreTools
-    inputs:
-      buildType: specific
-      project: COMMON
-      pipeline: CI-BackupRestoreTools
-      specificBuildWithTriggering: true
-      buildVersionToDownload: latestFromBranch
-      branchName: $(CommonBranch)
-      downloadType: specific
-      downloadPath: _CommonTools
+- task: DownloadBuildArtifacts@0
+  displayName: Download Common BackupRestoreTools
+  inputs:
+    buildType: specific
+    project: COMMON
+    pipeline: CI-BackupRestoreTools
+    specificBuildWithTriggering: true
+    buildVersionToDownload: latestFromBranch
+    branchName: $(CommonBranch)
+    downloadType: specific
+    downloadPath: _CommonTools
 
-  - task: ExtractFiles@1
-    displayName: Extract Common BackupRestoreTools
-    inputs:
-      archiveFilePatterns: _CommonTools/Cmf.BackupRestore.Tools/*.zip
-      destinationFolder: Package
-      cleanDestinationFolder: true
+- task: ExtractFiles@1
+  displayName: Extract Common BackupRestoreTools
+  inputs:
+    archiveFilePatterns: _CommonTools/Cmf.BackupRestore.Tools/*.zip
+    destinationFolder: Package
+    cleanDestinationFolder: true
 
-  - powershell: |
-      New-Item -Type Directory Package/EnvironmentConfigs -Force
-      Copy-Item -Path "${{ parameters.EnvironmentConfigPath }}" -Destination Package/EnvironmentConfigs -Force -Verbose
-    displayName: Copy ${{ parameters.EnvironmentConfigName }} to Package/EnvironmentConfigs
+- powershell: |
+    New-Item -Type Directory Package/EnvironmentConfigs -Force
+    Copy-Item -Path "${{ parameters.EnvironmentConfigPath }}" -Destination Package/EnvironmentConfigs -Force -Verbose
+  displayName: Copy ${{ parameters.EnvironmentConfigName }} to Package/EnvironmentConfigs
 
-  - powershell: ./Package/DeploymentTools/SystemBackup.ps1 -EnvironmentConfigName ${{ parameters.EnvironmentConfigName }} -InteractiveMode:$false -backupIdentifier ${{ parameters.BackupRestoreIdentifier }} -FullBackup:$false -BackupDBOnline:$true -BackupDBODS:$true -BackupDBDWH:$true -doNotStopHosts:$true
-    displayName: Backup - Database
+- powershell: ./Package/DeploymentTools/SystemBackup.ps1 -EnvironmentConfigName ${{ parameters.EnvironmentConfigName }} -InteractiveMode:$false -backupIdentifier ${{ parameters.BackupRestoreIdentifier }} -FullBackup:$false -BackupDBOnline:$true -BackupDBODS:$true -BackupDBDWH:$true -doNotStopHosts:$true
+  displayName: Backup - Database
 
-  - powershell: ./Package/DeploymentTools/SystemBackup.ps1 -EnvironmentConfigName ${{ parameters.EnvironmentConfigName }} -InteractiveMode:$false -backupIdentifier ${{ parameters.BackupRestoreIdentifier }} -FullBackup:$false -BackupBusinessTier:$true -BackupUIHtml:$true -BackupUIHelp:$true -doNotStopHosts:$true
-    displayName: Backup - Application Server
+- powershell: ./Package/DeploymentTools/SystemBackup.ps1 -EnvironmentConfigName ${{ parameters.EnvironmentConfigName }} -InteractiveMode:$false -backupIdentifier ${{ parameters.BackupRestoreIdentifier }} -FullBackup:$false -BackupBusinessTier:$true -BackupUIHtml:$true -BackupUIHelp:$true -doNotStopHosts:$true
+  displayName: Backup - Application Server
