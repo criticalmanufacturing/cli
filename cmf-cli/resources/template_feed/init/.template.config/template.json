@@ -117,7 +117,7 @@
           {
             "type": "const",
             "value": "development"
-          }        
+          }
         ],
         "separator": "\\"
       }
@@ -138,12 +138,12 @@
         ]
       }
     },
-//    "CIRepo_MainBranch-JSON": {
-//      "type": "derived",
-//      "replaces": "\"<%= $CLI_PARAM_CIRepo_MainBranch %>\"",
-//      "valueSource": "CIRepo_MainBranch",
-//      "valueTransform": "jsonEncode"
-//    },
+    //    "CIRepo_MainBranch-JSON": {
+    //      "type": "derived",
+    //      "replaces": "\"<%= $CLI_PARAM_CIRepo_MainBranch %>\"",
+    //      "valueSource": "CIRepo_MainBranch",
+    //      "valueTransform": "jsonEncode"
+    //    },
     "DeliveredRepo-JSON": {
       "type": "derived",
       "replaces": "\"<%= $CLI_PARAM_DeliveredRepo %>\"",
@@ -209,7 +209,7 @@
       "valueSource": "pipelinesFolderJSON-withquotes",
       "valueTransform": "stripQuotes"
     },
-    
+
     // from infra
     "nugetRegistry": {
       "type": "parameter",
@@ -253,6 +253,12 @@
       "datatype": "string",
       "replaces": "<%= $CLI_PARAM_ISOLocation %>"
     },
+    "ISOLocation_JSON": {
+      "type": "derived",
+      "replaces": "\"<%= $CLI_PARAM_ISOLocation_JSON %>\"",
+      "valueSource": "ISOLocation",
+      "valueTransform": "jsonEncode"
+    },
     "cmfCliRepository": {
       "type": "parameter",
       "datatype": "string",
@@ -263,7 +269,7 @@
       "datatype": "string",
       "replaces": "<%= $CLI_PARAM_CmfPipelineRepository %>"
     },
-    
+
     // from config
     "EnvironmentName": {
       "type": "parameter",
