@@ -348,7 +348,7 @@ $@"{{
             var mesVersionStr = projectConfig.RootElement.GetProperty("MESVersion").GetString();
 
             var mesVersion = Version.Parse(mesVersionStr);
-            var schematicsVersion = !string.IsNullOrEmpty(ngxSchematicsVersion) ? ngxSchematicsVersion : $"@release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Revision}";
+            var schematicsVersion = !string.IsNullOrEmpty(ngxSchematicsVersion) ? ngxSchematicsVersion : $"@release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}";
             
             Log.Debug($"Creating new web application {packageName}");
             // ng new <packageName> --routing false --style less
@@ -366,7 +366,7 @@ $@"{{
             new NPXCommand()
             {
                 Command = $"@angular/cli@{ngCliVersion}",
-                Args = new []{ "add", "--registry", this.projectConfig.RootElement.GetProperty("NPMRegistry").ToString(), "--skip-confirmation", $"@criticalmanufacturing/ngx-schematics@{schematicsVersion}", "--lint", "--base-app", baseLayer.ToString() },
+                Args = new []{ "add", "--registry", this.projectConfig.RootElement.GetProperty("NPMRegistry").ToString(), "--skip-confirmation", $"@criticalmanufacturing/ngx-schematics@{schematicsVersion}", "--lint", "--base-app", baseLayer.ToString(), "--version", $"release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}" },
                 WorkingDirectory = workingDir.GetDirectories(packageName).First(),
                 ForceColorOutput = false
             }.Exec();
