@@ -5,7 +5,7 @@
     "cli"
   ],
   "description": "Generate a new HTML package",
-  "name": "HTML Package (MES > 10)",
+  "name": "HTML Package (> MES 10)",
   "identity": "cmf-cli.new.html10",
   "groupIdentity": "cmf-cli.new.html10",
   "shortName": "html10",
