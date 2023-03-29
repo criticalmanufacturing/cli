@@ -76,7 +76,8 @@ namespace Cmf.CLI.Commands.New
                 
                 // template symbols
                 "--name", packageName,
-                "--packageVersion", version
+                "--packageVersion", version,
+                "--MESVersion", FileSystemUtilities.ReadProjectConfig(this.fileSystem).RootElement.GetProperty("MESVersion").ToString()
             };
             
             base.RunCommand(args);
