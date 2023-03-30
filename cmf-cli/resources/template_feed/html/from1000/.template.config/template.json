@@ -60,6 +60,15 @@
       "type": "parameter",
       "datatype": "string",
       "replaces": "<%= $CLI_PARAM_baseWebPackage %>"
+    },
+    "packageNameLowercase": {
+      "type": "generated",
+      "generator": "casing",
+      "parameters": {
+        "source":"name",
+        "toLower": true
+      },
+      "replaces": "<%= $CLI_PARAM_CustomPackageNameLowerCase %>"
     }
   }
 }
