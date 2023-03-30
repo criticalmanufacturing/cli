@@ -7,7 +7,7 @@
   "isUniqueInstall": false,
   "contentToPack": [
     {
-      "source": "dist/**",
+      "source": "dist/<%= $CLI_PARAM_CustomPackageNameLowerCase %>/**",
       "target": "",
       "ignoreFiles": [
         ".npmignore"
