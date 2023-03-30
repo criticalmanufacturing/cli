@@ -111,12 +111,17 @@ namespace Cmf.CLI.Commands
                 
                 // check metadata file for menuGroupIds, to see if they are fully qualified or not
                 var metadataFile = helpPackage.GetFiles("src/*.metadata.ts").FirstOrDefault();
-                var metadataContent = metadataFile.ReadToString();
-                var matchedIds = regex.Matches(metadataContent);
-                if (matchedIds.Any(m => m.Captures.Any(id => !id.Value.Contains("."))))
+                if (metadataFile?.Exists ?? false)
                 {
-                    Log.Warning($"Using legacy menu item IDs! This package will not be deployable with other packages using legacy IDs, as collisions will happen!");
+                    var metadataContent = metadataFile.ReadToString();
+                    var matchedIds = regex.Matches(metadataContent);
+                    if (matchedIds.Any(m => m.Captures.Any(id => !id.Value.Contains("."))))
+                    {
+                        Log.Warning(
+                            $"Using legacy menu item IDs! This package will not be deployable with other packages using legacy IDs, as collisions will happen!");
+                    }
                 }
+
                 GetMetadataFromFolder(assetsPath, helpPackageMetadata);
 
                 var menuItemsJson = this.fileSystem.Path.Join(assetsPath.FullName, "__generatedMenuItems.json");
