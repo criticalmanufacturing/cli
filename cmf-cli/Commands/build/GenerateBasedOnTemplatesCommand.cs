@@ -51,15 +51,19 @@ namespace Cmf.CLI.Commands
             {
                 var helpPackage = this.fileSystem.DirectoryInfo.New(helpPackagePath);
                 var metadataFile = helpPackage.GetFiles("src/*.metadata.ts").FirstOrDefault();
-                var metadataContent = metadataFile.ReadToString();
-                var matchedIds = regex.Matches(metadataContent);
                 var useLegacyFormat = false;
-                if (matchedIds.Any(m => m.Captures.Any(id => !id.Value.Contains("."))))
+                if (metadataFile?.Exists ?? false)
                 {
-                    Log.Warning($"Using legacy menu item IDs! This package will not be deployable with other packages using legacy IDs, as collisions will happen!");
-                    useLegacyFormat = true;
+                    var metadataContent = metadataFile.ReadToString();
+                    var matchedIds = regex.Matches(metadataContent);
+                    if (matchedIds.Any(m => m.Captures.Any(id => !id.Value.Contains("."))))
+                    {
+                        Log.Warning(
+                            $"Using legacy menu item IDs! This package will not be deployable with other packages using legacy IDs, as collisions will happen!");
+                        useLegacyFormat = true;
+                    }
                 }
-                
+
                 Generate(helpPackagePath, useLegacyFormat ? project : ( (mesVersion.Major > 9) ? pkgName.Replace(".", "-").ToLowerInvariant() : pkgName));
             }
         }

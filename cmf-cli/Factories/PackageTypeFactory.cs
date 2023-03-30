@@ -47,7 +47,7 @@ namespace Cmf.CLI.Factories
                 PackageType.Generic => new GenericPackageTypeHandler(cmfPackage),
                 PackageType.Business => new BusinessPackageTypeHandler(cmfPackage),
                 PackageType.HTML => HtmlHandler(cmfPackage),
-                PackageType.Help => new HelpPackageTypeHandler(cmfPackage),
+                PackageType.Help => HelpHandler(cmfPackage),
                 PackageType.IoT => new IoTPackageTypeHandler(cmfPackage),
                 PackageType.IoTData => cmfPackage.HandlerVersion switch
                 {
@@ -70,6 +70,20 @@ namespace Cmf.CLI.Factories
             };
 
             return packageTypeHandler;
+        }
+
+        private static IPackageTypeHandler HelpHandler(CmfPackage cmfPackage)
+        {
+            var projectConfig = FileSystemUtilities.ReadProjectConfig(ExecutionContext.Instance.FileSystem);
+            var mesVersion = projectConfig.RootElement.GetProperty("MESVersion").GetString();
+            var minimumVersion = new Version("10.0.0");
+            var targetVersion = new Version(mesVersion!);
+            if (targetVersion.CompareTo(minimumVersion) < 0)
+            {
+                return new HelpGulpPackageTypeHandler(cmfPackage);
+            }
+
+            return new HelpNgCliPackageTypeHandler(cmfPackage);
         }
 
         private static IPackageTypeHandler HtmlHandler(CmfPackage cmfPackage)

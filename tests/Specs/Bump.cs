@@ -29,6 +29,11 @@ public class Bump
 
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
+            { MockUnixSupport.Path(@"c:\.project-config.json"), new MockFileData(
+                @"{
+              ""MESVersion"": ""9.0.0""
+            }")
+            },
             { cmfPackageJson, new MockFileData(
                 @$"{{
                       ""packageId"": ""Cmf.Custom.Help"",
@@ -81,7 +86,7 @@ public class Bump
         IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile);
         packageTypeHandler.Bump(bumpVersion, "");
 
-        string cmfPackageVersion = (packageTypeHandler as HelpPackageTypeHandler).CmfPackage.Version;
+        string cmfPackageVersion = (packageTypeHandler as HelpGulpPackageTypeHandler).CmfPackage.Version;
         dynamic packageFile = JsonConvert.DeserializeObject(fileSystem.File.ReadAllText(npmPackageJson));
         string packageFileVersion = packageFile.version;
         string metadataFile = fileSystem.File.ReadAllText(metadataTS);
