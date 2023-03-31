@@ -19,6 +19,7 @@ using Assert = tests.AssertWithMessage;
 using Cmf.Common.Cli.TestUtilities;
 using Moq;
 using Newtonsoft.Json;
+using Cmf.CLI.Core.Commands;
 
 namespace tests.Specs
 {
