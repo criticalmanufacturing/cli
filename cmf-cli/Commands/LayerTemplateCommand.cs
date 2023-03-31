@@ -8,6 +8,7 @@ using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+using Cmf.CLI.Core.Commands;
 
 namespace Cmf.CLI.Commands
 {

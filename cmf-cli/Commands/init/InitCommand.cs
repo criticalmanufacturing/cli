@@ -6,6 +6,7 @@ using System.IO.Abstractions;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Commands;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Enums;
 using Cmf.CLI.Utilities;

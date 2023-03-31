@@ -3,6 +3,7 @@ using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
 using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Commands;
 using Cmf.CLI.Utilities;
 
 
