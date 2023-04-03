@@ -15,7 +15,7 @@ try
 
     var registryAddress = Environment.GetEnvironmentVariable("cmf_<%= $CLI_PARAM_PluginBinary %>_registry");
 
-    var rootCommand = await StartupModule.Configure(
+    var (rootCommand, parser) = await StartupModule.Configure(
         packageName: "<%= $CLI_PARAM_PluginName %>",
         envVarPrefix: "cmf_<%= $CLI_PARAM_PluginBinary %>",
         description: "<%= $CLI_PARAM_PluginDescription %>",
@@ -23,7 +23,7 @@ try
 
     using var activity = ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!.StartActivity("Main");
 
-    var result = await rootCommand?.InvokeAsync(args);
+    var result = await parser?.InvokeAsync(args);
     activity?.SetTag("execution.success", true);
     return result;
 }
