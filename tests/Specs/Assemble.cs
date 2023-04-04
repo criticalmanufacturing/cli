@@ -851,7 +851,7 @@ namespace tests.Specs
             ExecutionContext.Initialize(fileSystem);
             
             var assembleCommand = new AssembleCommand(fileSystem);
-            assembleCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName(root), fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key), null, null, true);
+            assembleCommand.Execute(fileSystem.DirectoryInfo.New(root), fileSystem.DirectoryInfo.New(assembleOutputDir.Key), null, null, true);
         }
     }
 }

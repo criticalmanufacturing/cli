@@ -40,7 +40,7 @@ namespace tests.Specs
             });
 
             ExecutionContext.Initialize(fileSystem);
-            IFileInfo manifestFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.DeploymentFrameworkManifestFileName}");
+            IFileInfo manifestFile = fileSystem.FileInfo.New($"repo/{CliConstants.DeploymentFrameworkManifestFileName}");
 
             string message = string.Empty;
             CmfPackage cmfPackage = null;
@@ -59,7 +59,7 @@ namespace tests.Specs
             Assert.Equal(cliPackageType, cmfPackage.PackageType.ToString());
             Assert.Equal(packageRoot.Value, cmfPackage.Version);
             Assert.Equal(packageDep1.Value, cmfPackage.Dependencies[0].Version);
-            Assert.Equal(true, cmfPackage.Dependencies[0].IsMissing);
+            Assert.True(cmfPackage.Dependencies[0].IsMissing);
         }
     }
 }
