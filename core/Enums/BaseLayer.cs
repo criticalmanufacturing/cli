@@ -1,4 +1,4 @@
-namespace Cmf.CLI.Enums;
+namespace Cmf.CLI.Core.Enums;
 
 public enum BaseLayer
 {

@@ -43,6 +43,7 @@ namespace Cmf.CLI.Core
                 .AddSingleton(npmClient ?? new NPMClient())
                 .AddSingleton<IVersionService>(new VersionService(packageName))
                 .AddSingleton<ITelemetryService>(new TelemetryService(packageName))
+                .AddSingleton<IProjectConfigService, ProjectConfigService>()
                 .BuildServiceProvider();
 
             // initialize Telemetry

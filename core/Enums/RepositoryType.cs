@@ -1,4 +1,4 @@
-namespace Cmf.CLI.Enums;
+namespace Cmf.CLI.Core.Enums;
 
 /// <summary>
 ///  the type of repository we are initializing

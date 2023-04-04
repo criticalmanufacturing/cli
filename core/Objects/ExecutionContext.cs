@@ -26,6 +26,11 @@ namespace Cmf.CLI.Core.Objects
         /// The current execution RepositoriesConfig object
         /// </summary>
         public RepositoriesConfig RepositoriesConfig { get; set; }
+        
+        /// <summary>
+        /// the current repository's project config
+        /// </summary>
+        public ProjectConfig ProjectConfig { get; private set; }
 
         /// <summary>
         /// Get the current (executing) version of the CLI
@@ -46,7 +51,7 @@ namespace Cmf.CLI.Core.Objects
         /// true if we're running a development/unstable version 
         /// </summary>
         public static bool IsDevVersion => CurrentVersion.Contains("-");
-        
+
         /// <summary>
         /// IoC container for services
         /// NOTE: As we already have this ExecutionContext object, we're not enabling Hosting, but instead we are hosting the container in the execution context
@@ -70,6 +75,14 @@ namespace Cmf.CLI.Core.Objects
             // private constructor, can only obtain instance via the Instance property
             this.fileSystem = fileSystem;
             this.RepositoriesConfig = FileSystemUtilities.ReadRepositoriesConfig(fileSystem);
+            if (ServiceProvider != null)
+            {
+                IProjectConfigService pcs = ServiceProvider.GetService<IProjectConfigService>();
+                if (pcs != null)
+                {
+                    this.ProjectConfig = pcs.Load(fileSystem);
+                }
+            }
         }
 
         /// <summary>

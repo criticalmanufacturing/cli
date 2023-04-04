@@ -1,5 +1,5 @@
 using System.Text.RegularExpressions;
-using Cmf.CLI.Enums;
+using Cmf.CLI.Core.Enums;
 
 namespace Cmf.CLI.Constants
 {
