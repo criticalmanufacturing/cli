@@ -1,17 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.CommandLine;
-using System.CommandLine.Invocation;
-using System.Diagnostics;
-using System.IO;
 using System.IO.Abstractions;
 using System.Text.Json;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Enums;
-using Cmf.CLI.Enums;
-using Cmf.CLI.Utilities;
 
 namespace Cmf.CLI.Commands.New
 {

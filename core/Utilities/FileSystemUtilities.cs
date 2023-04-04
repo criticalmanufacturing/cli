@@ -316,8 +316,10 @@ namespace Cmf.CLI.Utilities
         /// <returns></returns>
         public static JsonDocument ReadProjectConfig(IFileSystem fileSystem)
         {
+            Log.Debug("Loading .project-config.json (legacy mode)");
             var projectCfg = fileSystem.Path.Join(GetProjectRoot(fileSystem)?.FullName, CoreConstants.ProjectConfigFileName);
             var json = fileSystem.File.ReadAllText(projectCfg);
+            Log.Debug("Loaded .project-config.json (legacy mode)");
             return JsonDocument.Parse(json);
         }
 

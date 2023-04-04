@@ -44,7 +44,10 @@ namespace Cmf.CLI.Core.Objects
         {
             if (reader.TokenType == JsonToken.String)
             {
-                return new Uri((serializer.Deserialize(reader, typeof(string)) as string)!, UriKind.Absolute);
+                var value = (serializer.Deserialize(reader, typeof(string)) as string);
+                if (string.IsNullOrEmpty(value))
+                    return null;
+                return new Uri(value, UriKind.Absolute);
             }
 
             return hasExistingValue ? existingValue : null;

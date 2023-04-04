@@ -4,32 +4,16 @@ using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
 using Cmf.CLI.Constants;
-using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Commands;
+using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
-using Cmf.CLI.Enums;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 
 namespace Cmf.CLI.Commands
 {
-    /// <summary>
-    /// Azure DevOps Agent Type
-    /// </summary>
-    public enum AgentType
-    {
-        /// <summary>
-        /// Cloud agents
-        /// </summary>
-        Cloud,
-        /// <summary>
-        /// Self-host agents
-        /// </summary>
-        Hosted
-    }
-
     // this is public because Execute is public by convention but never invoked externally
     // so this class mirrors the command internal structure and is never used outside
     // ReSharper disable once ClassNeverInstantiated.Global

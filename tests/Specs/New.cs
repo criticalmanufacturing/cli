@@ -12,7 +12,6 @@ using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Commands;
 using Cmf.CLI.Commands.New;
 using Cmf.CLI.Core.Objects;
-using Cmf.CLI.Enums;
 using FluentAssertions;
 using Xunit;
 using Assert = tests.AssertWithMessage;
