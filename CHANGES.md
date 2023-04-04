@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.4.3](https://github.com/criticalmanufacturing/cli/compare/3.4.3-1...3.4.3) (2023-03-21)
+
+### [3.4.3-1](https://github.com/criticalmanufacturing/cli/compare/3.4.3-0...3.4.3-1) (2023-03-14)
+
+
+### Features
+
+* updated FromManifest to deserialize cliPackageType ([c47285a](https://github.com/criticalmanufacturing/cli/commits/c47285a572319ff0687f300eaec88b612712ecf1))
+
+### [3.4.3-0](https://github.com/criticalmanufacturing/cli/compare/3.4.2...3.4.3-0) (2023-03-08)
+
+
+### Bug Fixes
+
+* loading repos from repositories.json should create absolute Uris ([57a8d89](https://github.com/criticalmanufacturing/cli/commits/57a8d890678d2ca2d68de76812d610dba4f34c4e))
+
 ### [3.4.2](https://github.com/criticalmanufacturing/cli/compare/3.4.2-0...3.4.2) (2023-03-06)
 
 * **core**: enhancements for plugin development

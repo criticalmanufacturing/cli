@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.IO;
@@ -31,7 +31,7 @@ namespace tests.Specs
             {
                 {
                     "/test/cmfpackage.json", new MockFileData(
-                        @$"{{
+                @$"{{
                   ""packageId"": ""{packageRoot.Key}"",
                   ""version"": ""{packageRoot.Value}"",
                   ""description"": ""This package deploys Critical Manufacturing Customization"",
@@ -89,7 +89,7 @@ namespace tests.Specs
             Assert.True(dependenciesJsonFile?.Exists ?? false, "Dependencies file does not exist");
             Assert.Equal("{}", dependenciesJsonFile.OpenText().ReadToEnd());
         }
-        
+
         [Fact]
         public void Assemble_FromCIRepoTwice_OriginalFileIsDeleted()
         {
@@ -181,7 +181,7 @@ namespace tests.Specs
             {
                 {
                     "/test/cmfpackage.json", new MockFileData(
-                        @$"{{
+                @$"{{
                   ""packageId"": ""{packageRoot.Key}"",
                   ""version"": ""{packageRoot.Value}"",
                   ""description"": ""This package deploys Critical Manufacturing Customization"",
@@ -227,7 +227,7 @@ namespace tests.Specs
         
         [Fact]
         public void Assemble_MainPackageIsNotRoot()
-        {
+            {
             string cirepo = @"/cirepo";
             KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.1.0");
             KeyValuePair<string, string> packageDep = new("CriticalManufacturing.DeploymentMetadata", "8.3.0");
@@ -275,7 +275,7 @@ namespace tests.Specs
                 {
                     @$"{cirepo}/{packageDep2.Key}.{packageDep2.Value}.zip",
                     new DFPackageBuilder().CreateManifest(packageDep2.Key, packageDep2.Value).ToMockFileData()
-                }
+            }
             });
 
             var assembleCommand = new AssembleCommand(fileSystem);
@@ -288,7 +288,7 @@ namespace tests.Specs
                 
         [Fact]
         public void Assemble_MainPackageDoesNotExist()
-        {
+            {
             string cirepo = @"/cirepo";
             KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.1.0");
             KeyValuePair<string, string> packageDep = new("CriticalManufacturing.DeploymentMetadata", "8.3.0");
@@ -331,11 +331,11 @@ namespace tests.Specs
                 {
                     @$"{cirepo}/{packageDep2.Key}.{packageDep2.Value}.zip",
                     new DFPackageBuilder().CreateManifest(packageDep2.Key, packageDep2.Value).ToMockFileData()
-                }
+            }
             });
 
             var assembleCommand = new AssembleCommand(fileSystem);
-            
+
             var act = () => assembleCommand.Execute(fileSystem.DirectoryInfo.New("test"),
                 fileSystem.DirectoryInfo.New(assembleOutputDir.Key),
                 new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = cirepo }.Uri, null, false);
@@ -358,7 +358,7 @@ namespace tests.Specs
             {
                 {
                     "/test/cmfpackage.json", new MockFileData(
-                        @$"{{
+                @$"{{
                   ""packageId"": ""{packageRoot.Key}"",
                   ""version"": ""{packageRoot.Value}"",
                   ""description"": ""This package deploys Critical Manufacturing Customization"",
@@ -439,7 +439,7 @@ namespace tests.Specs
             {
                 {
                     "/test/cmfpackage.json", new MockFileData(
-                        @$"{{
+                @$"{{
                   ""packageId"": ""{packageRoot.Key}"",
                   ""version"": ""{packageRoot.Value}"",
                   ""description"": ""This package deploys Critical Manufacturing Customization"",
@@ -590,14 +590,14 @@ namespace tests.Specs
         {
             string cirepo = @"/cirepo";
             KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.1.0");
-            KeyValuePair<string, string> packageDep1 = new("CriticalManufacturing.DeploymentMetadata", "8.3.0");
+            KeyValuePair<string, string> packageDep1 = new("CriticalManufacturing.DeploymentMetadata", "8.3.0");            
             KeyValuePair<string, MockDirectoryData> assembleOutputDir = new("/test/assemble/", new());
 
             var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
             {
                 {
                     "/test/cmfpackage.json", new MockFileData(
-                        @$"{{
+                @$"{{
                   ""packageId"": ""{packageRoot.Key}"",
                   ""version"": ""{packageRoot.Value}"",
                   ""description"": ""This package deploys Critical Manufacturing Customization"",
@@ -658,7 +658,7 @@ namespace tests.Specs
             {
                 {
                     "/test/cmfpackage.json", new MockFileData(
-                        @$"{{
+                @$"{{
                   ""packageId"": ""{packageRoot.Key}"",
                   ""version"": ""{packageRoot.Value}"",
                   ""description"": ""This package deploys Critical Manufacturing Customization"",
@@ -750,22 +750,22 @@ namespace tests.Specs
                   ]
                 }}")
                 },
-                {
+            {
                     @$"{cirepo1}/{packageRoot.Key}.{packageRoot.Value}.zip",
                     new DFPackageBuilder().CreateManifest(packageRoot.Key, packageRoot.Value).ToMockFileData()
                 },
             });
 
-            var assembleCommand = new AssembleCommand(fileSystem);
+                var assembleCommand = new AssembleCommand(fileSystem);
 
             var act = () => assembleCommand.Execute(fileSystem.DirectoryInfo.New("test"),
                 fileSystem.DirectoryInfo.New(assembleOutputDir.Key), null, null, false);
             act.Should().Throw<Exception>().WithMessage($"Missing mandatory option cirepo");
-        }
+            }
 
         [Fact]
         public void Assemble_ConfigureCommand()
-        {
+            {
             Command cmd = new Command("assemble", "Assemble a package");
             new AssembleCommand().Configure(cmd);
             var parseResult = cmd.Parse("dir --outputDir output");
@@ -778,12 +778,80 @@ namespace tests.Specs
             
             cmd.Arguments.Should().HaveCount(1);
             cmd.Arguments.Should().Contain(a => a.Name == "workingDir");
-            
-            cmd.Handler.Should().NotBeNull();
 
+            cmd.Handler.Should().NotBeNull();
+            
             parseResult.Should().NotBeNull();
             parseResult.GetValueForArgument(cmd.Arguments.ElementAt(0)).ToString().Should().Be("dir");
             parseResult.GetValueForOption(cmd.Options.First(o=> o.Aliases.Contains("--outputDir"))).ToString().Should().Be("output");
+        }
+
+        [Fact]
+        public void Assemble_FromRepositoriesJson()
+        {
+            string cirepo = MockUnixSupport.Path(@"y:\cirepo");
+            string approvedrepo = MockUnixSupport.Path(@"y:\approvedrepo");
+            string root = MockUnixSupport.Path(@"x:\test");
+            
+            KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.1.0");
+            KeyValuePair<string, string> packageDep = new("CriticalManufacturing.DeploymentMetadata", "8.3.0");
+            KeyValuePair<string, string> packageDep1 = new("Cmf.Custom.Business", "1.1.0");
+            KeyValuePair<string, string> packageDep2 = new("Cmf.Custom.Html", "1.1.0");
+            KeyValuePair<string, string> packageTest = new("Cmf.Custom.Tests", "1.1.0");
+            KeyValuePair<string, MockDirectoryData> assembleOutputDir = new($"/test/assemble/", new());
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { MockUnixSupport.Path($"{root}/cmfpackage.json"), new MockFileData(
+                    @$"{{
+                  ""packageId"": ""{packageRoot.Key}"",
+                  ""version"": ""{packageRoot.Value}"",
+                  ""description"": ""This package deploys Critical Manufacturing Customization"",
+                  ""packageType"": ""Root"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": false,
+                  ""dependencies"": [
+                    {{
+                         ""id"": ""{packageDep.Key}"",
+                        ""version"": ""{packageDep.Value}""
+                    }},
+                    {{
+                         ""id"": ""{packageDep1.Key}"",
+                        ""version"": ""{packageDep1.Value}""
+                    }},
+                    {{
+                        ""id"": ""{packageDep2.Key}"",
+                        ""version"": ""{packageDep2.Value}""
+                    }}
+                  ],
+                  ""testPackages"": [
+                    {{
+                         ""id"": ""{packageTest.Key}"",
+                        ""version"": ""{packageTest.Value}""
+                    }}
+                  ]
+                }}")},
+                {
+                    MockUnixSupport.Path($"{root}/repositories.json"), new MockFileData(
+                    @$"{{
+                        ""CIRepository"": ""{cirepo.Replace(@"\", @"\\")}"",
+                        ""Repositories"": [
+                            ""{approvedrepo.Replace(@"\", @"\\")}""
+                        ]
+                    }}"
+                )},
+                { assembleOutputDir.Key, assembleOutputDir.Value },
+                { @$"{cirepo}/{packageRoot.Key}.{packageRoot.Value}.zip", new DFPackageBuilder().CreateManifest(packageRoot.Key, packageRoot.Value, new() { { packageDep1.Key, packageDep1.Value}  }, new() { { packageTest.Key, packageTest.Value} }).ToMockFileData() },
+                { @$"{cirepo}/{packageDep1.Key}.{packageDep1.Value}.zip", new DFPackageBuilder().CreateManifest(packageDep1.Key, packageDep1.Value).ToMockFileData() },
+                { @$"{cirepo}/{packageDep2.Key}.{packageDep2.Value}.zip", new DFPackageBuilder().CreateManifest(packageDep2.Key, packageDep2.Value).ToMockFileData() },
+                { @$"{cirepo}/{packageTest.Key}.{packageTest.Value}.zip", new DFPackageBuilder().CreateManifest(packageTest.Key, packageTest.Value).ToMockFileData() },
+                { $"{approvedrepo}/.gitkeep", ""}
+            });
+
+            fileSystem.Directory.SetCurrentDirectory(root);
+            ExecutionContext.Initialize(fileSystem);
+            
+            var assembleCommand = new AssembleCommand(fileSystem);
+            assembleCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName(root), fileSystem.DirectoryInfo.FromDirectoryName(assembleOutputDir.Key), null, null, true);
         }
     }
 }
