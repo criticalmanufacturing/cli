@@ -4,6 +4,7 @@ using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Commands;
+using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 
 
@@ -78,7 +79,7 @@ namespace Cmf.CLI.Commands.New
                 // template symbols
                 "--name", packageName,
                 "--packageVersion", version,
-                "--MESVersion", FileSystemUtilities.ReadProjectConfig(this.fileSystem).RootElement.GetProperty("MESVersion").ToString()
+                "--MESVersion", ExecutionContext.Instance.ProjectConfig.MESVersion.ToString()
             };
             
             base.RunCommand(args);

@@ -11,6 +11,7 @@ using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -23,7 +24,6 @@ namespace Cmf.CLI.Commands.New
     [CmfCommand("html", ParentId = "new")]
     public class HTMLCommand : UILayerTemplateCommand
     {
-        private JsonDocument projectConfig = null;
         private string baseWebPackage = null;
 
         /// <inheritdoc />
@@ -51,7 +51,7 @@ namespace Cmf.CLI.Commands.New
         }
 
         /// <inheritdoc />
-        protected override List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args, JsonDocument projectConfig)
+        protected override List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args)
         {
             var relativePathToRoot =
                 this.fileSystem.Path.Join("..", //always one level deeper
@@ -60,13 +60,11 @@ namespace Cmf.CLI.Commands.New
                         projectRoot.FullName)
                 ).Replace("\\", "/");
 
-            this.projectConfig = projectConfig;
-
             args.AddRange(new[]
             {
                 "--rootRelativePath", relativePathToRoot,
                 "--baseWebPackage", this.baseWebPackage,
-                "--npmRegistry", this.projectConfig.RootElement.GetProperty("NPMRegistry").ToString()
+                "--npmRegistry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.OriginalString
             });
 
             return args;
@@ -80,10 +78,7 @@ namespace Cmf.CLI.Commands.New
         /// <param name="htmlPackage">The MES Presentation HTML package path</param>
         public void Execute(IDirectoryInfo workingDir, string version, IFileInfo htmlPackage)
         {
-            var mesVersionStr = (projectConfig ?? FileSystemUtilities.ReadProjectConfig(this.fileSystem)).RootElement.GetProperty("MESVersion").GetString();
-
-            var mesVersion = Version.Parse(mesVersionStr);
-            if (mesVersion.Major > 9)
+            if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major > 9)
             {
                 this.ExecuteV10(workingDir, version);
             }
@@ -103,19 +98,17 @@ namespace Cmf.CLI.Commands.New
             {
                 throw new CliException($"Cannot find HTML package {htmlPackage.FullName}");
             }
-            var bl = FileSystemUtilities.ReadProjectConfig(this.fileSystem).RootElement.GetProperty("BaseLayer").GetString();
-            var couldParse = Enum.TryParse<BaseLayer>(bl, out var baseLayerValue);
-            var baseLayer = couldParse ? baseLayerValue : CliConstants.DefaultBaseLayer;
+            var baseLayer = ExecutionContext.Instance.ProjectConfig.BaseLayer ?? CliConstants.DefaultBaseLayer;
             this.baseWebPackage = baseLayer == BaseLayer.MES
                 ? "@criticalmanufacturing/mes-ui-web"
                 : "@criticalmanufacturing/core-ui-web";
-            Log.Debug($"Project is targeting base layer {baseLayer} ({bl} {couldParse} {baseLayerValue}), so scaffolding with base web package {baseWebPackage}");
+            Log.Debug($"Project is targeting base layer {baseLayer}, so scaffolding with base web package {baseWebPackage}");
             
             base.Execute(workingDir, version); // create package base - generate cmfpackage.json
             
             var nameIdx = Array.FindIndex(base.executedArgs, item => string.Equals(item, "--name"));
             var pkgName = base.executedArgs[nameIdx + 1];
-            var htmlStarterVersion = projectConfig.RootElement.GetProperty("HTMLStarterVersion").GetString();
+            var htmlStarterVersion = ExecutionContext.Instance.ProjectConfig.HTMLStarterVersion;
             // clone HTMLStarter content in the folder
             var pkgFolder = workingDir.GetDirectories(pkgName).FirstOrDefault();
             if (!pkgFolder?.Exists ?? false)
@@ -132,13 +125,13 @@ namespace Cmf.CLI.Commands.New
             {
                 throw new CliException("Could not load package.json");
             }
-            var devTasksVersion = projectConfig.RootElement.GetProperty("DevTasksVersion").GetString();
-            var yoGeneratorVersion = projectConfig.RootElement.GetProperty("YoGeneratorVersion").GetString();
-            var projectName = projectConfig.RootElement.GetProperty("ProjectName").GetString();
-            var repositoryURL = projectConfig.RootElement.GetProperty("RepositoryURL").GetString();
-            var tenant = projectConfig.RootElement.GetProperty("Tenant").GetString();
-            rootPkgJson.devDependencies["@criticalmanufacturing/dev-tasks"] = devTasksVersion;
-            rootPkgJson.devDependencies["@criticalmanufacturing/generator-html"] = yoGeneratorVersion;
+            var devTasksVersion = ExecutionContext.Instance.ProjectConfig.DevTasksVersion;
+            var yoGeneratorVersion = ExecutionContext.Instance.ProjectConfig.YoGeneratorVersion;
+            var projectName = ExecutionContext.Instance.ProjectConfig.ProjectName;
+            var repositoryURL = ExecutionContext.Instance.ProjectConfig.RepositoryURL;
+            var tenant = ExecutionContext.Instance.ProjectConfig.Tenant;
+            rootPkgJson.devDependencies["@criticalmanufacturing/dev-tasks"] = devTasksVersion.ToString();
+            rootPkgJson.devDependencies["@criticalmanufacturing/generator-html"] = yoGeneratorVersion.ToString();
             rootPkgJson.devDependencies["@types/node"] = "^12.0.0";
             rootPkgJson.name = $"customization.{tenant?.ToLowerInvariant()}";
             rootPkgJson.description = $"HTML customization package for {projectName}";
@@ -155,9 +148,9 @@ namespace Cmf.CLI.Commands.New
             {
                 throw new CliException("Could not load .dev-tasks.json");
             }
-            var npmRegistry = projectConfig.RootElement.GetProperty("NPMRegistry").GetString();
-            var mesVersion = projectConfig.RootElement.GetProperty("MESVersion").GetString();
-            var targetVersion = new Version(mesVersion!);
+            var npmRegistry = ExecutionContext.Instance.ProjectConfig.NPMRegistry;
+            var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            var targetVersion = mesVersion;
             var injectAppsPackage = targetVersion.CompareTo(new Version("8.3.0")) >= 0;
             if (injectAppsPackage)
             {
@@ -167,7 +160,7 @@ namespace Cmf.CLI.Commands.New
             devTasksJson.webAppPrefix = "customization";
             devTasksJson.registry = npmRegistry;
             devTasksJson.isWebAppCompilable = true;
-            devTasksJson.channel = $"release-{mesVersion?.Replace(".", "")}";
+            devTasksJson.channel = $"release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}";
             devTasksStr = JsonConvert.SerializeObject(devTasksJson, Formatting.Indented);
             this.fileSystem.File.WriteAllText(devTasksPath, devTasksStr);
             Log.Verbose("Updated .dev-tasks.json");
@@ -183,7 +176,7 @@ $@"{{
         ""packagePrefix"": ""customization"",
         ""registry"": ""{npmRegistry}"",
         ""confirmSkip"": ""y"",
-        ""channel"": ""release-{mesVersion?.Replace(".", "")}""
+        ""channel"": ""release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}""
     }}
 }}";
             this.fileSystem.File.WriteAllText(htmlDevTasksConfigPath, htmlDevTasksConfigJson);
@@ -267,13 +260,13 @@ $@"{{
             {
                 throw new CliException("Could not load webapp config.json");
             }
-            var restPort = int.Parse(projectConfig.RootElement.GetProperty("RESTPort").GetString());
+            var restPort = ExecutionContext.Instance.ProjectConfig.RESTPort;
             configJsonJson.host.rest.enableSsl = false;
             configJsonJson.host.rest.address = "localhost";
             configJsonJson.host.rest.port = restPort;
             configJsonJson.host.isLoadBalancerEnabled = false;
             configJsonJson.host.tenant.name = tenant;
-            configJsonJson.general.defaultDomain = projectConfig.RootElement.GetProperty("DefaultDomain").GetString();
+            configJsonJson.general.defaultDomain = ExecutionContext.Instance.ProjectConfig.DefaultDomain;
             configJsonJson.general.environmentName = $"{projectName}Local";
             configJsonJson.version = $"{projectName} $(Build.BuildNumber) - {mesVersion}";
             configJsonJson.packages.available = JArray.FromObject(htmlPkgPackages.Concat(injectAppsPackage ? new [] { new JValue("cmf.core.app") } : Array.Empty<JToken>()));
@@ -322,20 +315,17 @@ $@"{{
 
         public void ExecuteV10(IDirectoryInfo workingDir, string version)
         {
-            var bl = FileSystemUtilities.ReadProjectConfig(this.fileSystem).RootElement.GetProperty("BaseLayer").GetString();
-            var ngxSchematicsExists = FileSystemUtilities.ReadProjectConfig(this.fileSystem).RootElement
-                .TryGetProperty("NGXSchematicsVersion", out var ngxSchematicsVersionProp);
-            if (!ngxSchematicsExists)
+            var ngxSchematicsVersion = ExecutionContext.Instance.ProjectConfig.NGXSchematicsVersion;
+            if (ngxSchematicsVersion == null)
             {
                 throw new CliException("Seems like the repository scaffolding was run on a previous version of MES. Please re-init for versions 10+.");
             }
-            var ngxSchematicsVersion = ngxSchematicsVersionProp.GetString();
-            var couldParse = Enum.TryParse<BaseLayer>(bl, out var baseLayerValue);
-            var baseLayer = couldParse ? baseLayerValue : CliConstants.DefaultBaseLayer;
+            
+            var baseLayer = ExecutionContext.Instance.ProjectConfig.BaseLayer ?? CliConstants.DefaultBaseLayer;
             this.baseWebPackage = baseLayer == BaseLayer.MES
                 ? "@criticalmanufacturing/mes-ui-web"
                 : "@criticalmanufacturing/core-ui-web";
-            Log.Debug($"Project is targeting base layer {baseLayer} ({bl} {couldParse} {baseLayerValue}), so scaffolding with base web package {baseWebPackage}");
+            Log.Debug($"Project is targeting base layer {baseLayer}, so scaffolding with base web package {baseWebPackage}");
             
             this.CommandName = "html10";
             base.Execute(workingDir, version); // create package base - generate cmfpackage.json
@@ -343,10 +333,9 @@ $@"{{
             // this won't return null because it has to success on the base.Execute call
             var ngCliVersion = "15"; // v15 for MES 10
             var packageName = base.GeneratePackageName(workingDir)!.Value.Item1;
-            var mesVersionStr = projectConfig.RootElement.GetProperty("MESVersion").GetString();
+            var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
 
-            var mesVersion = Version.Parse(mesVersionStr);
-            var schematicsVersion = !string.IsNullOrEmpty(ngxSchematicsVersion) ? ngxSchematicsVersion : $"@release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}";
+            var schematicsVersion = ngxSchematicsVersion.ToString() ?? $"@release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}";
             
             Log.Debug($"Creating new web application {packageName}");
             // ng new <packageName> --routing false --style less
@@ -364,7 +353,7 @@ $@"{{
             new NPXCommand()
             {
                 Command = $"@angular/cli@{ngCliVersion}",
-                Args = new []{ "add", "--registry", this.projectConfig.RootElement.GetProperty("NPMRegistry").ToString(), "--skip-confirmation", $"@criticalmanufacturing/ngx-schematics@{schematicsVersion}", "--lint", "--base-app", baseLayer.ToString(), "--version", $"release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}" },
+                Args = new []{ "add", "--registry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.OriginalString, "--skip-confirmation", $"@criticalmanufacturing/ngx-schematics@{schematicsVersion}", "--lint", "--base-app", baseLayer.ToString(), "--version", $"release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}" },
                 WorkingDirectory = workingDir.GetDirectories(packageName).First(),
                 ForceColorOutput = false
             }.Exec();

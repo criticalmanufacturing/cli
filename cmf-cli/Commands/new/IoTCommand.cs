@@ -5,6 +5,7 @@ using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
 
 namespace Cmf.CLI.Commands.New
 {
@@ -31,11 +32,11 @@ namespace Cmf.CLI.Commands.New
 
 
         /// <inheritdoc />
-        protected override List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args, JsonDocument projectConfig)
+        protected override List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args)
         {
-            var npmRegistry = projectConfig.RootElement.GetProperty("NPMRegistry").GetString();
-            var devTasksVersion = projectConfig.RootElement.GetProperty("DevTasksVersion").GetString();
-            var repoType = projectConfig.RootElement.GetProperty("RepositoryType").GetString() ?? CliConstants.DefaultRepositoryType.ToString();
+            var npmRegistry = ExecutionContext.Instance.ProjectConfig.NPMRegistry;
+            var devTasksVersion = ExecutionContext.Instance.ProjectConfig.DevTasksVersion;
+            var repoType = ExecutionContext.Instance.ProjectConfig.RepositoryType ?? CliConstants.DefaultRepositoryType;
             Log.Debug($"Creating IoT Package at {workingDir} for repo type {repoType} using registry {npmRegistry}");
 
             // calculate relative path to local environment and create a new symbol for it
@@ -49,9 +50,9 @@ namespace Cmf.CLI.Commands.New
             args.AddRange(new[]
             {
                 "--rootInnerRelativePath", relativePathToRoot,
-                "--DevTasksVersion", devTasksVersion,
-                "--npmRegistry", npmRegistry,
-                "--repositoryType", repoType
+                "--DevTasksVersion", devTasksVersion.ToString(),
+                "--npmRegistry", npmRegistry.OriginalString,
+                "--repositoryType", repoType.ToString()
             });
 
             return args;

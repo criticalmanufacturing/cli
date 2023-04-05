@@ -29,7 +29,7 @@ namespace Cmf.Common.Cli.Commands.New
         }
 
         /// <inheritdoc />
-        protected override List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args, JsonDocument projectConfig)
+        protected override List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args)
         {
             return args;
         }

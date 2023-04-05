@@ -7,6 +7,7 @@ using Cmf.CLI.Factories;
 using Cmf.CLI.Handlers;
 using Cmf.CLI.Interfaces;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Xunit;
 
@@ -80,6 +81,9 @@ public class Bump
             }
         });
 
+        ExecutionContext.ServiceProvider = (new ServiceCollection())
+            .AddSingleton<IProjectConfigService>(new ProjectConfigService())
+            .BuildServiceProvider();
         ExecutionContext.Initialize(fileSystem);
 
         IFileInfo cmfpackageFile = fileSystem.FileInfo.New(cmfPackageJson);

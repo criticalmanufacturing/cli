@@ -74,10 +74,8 @@ namespace Cmf.CLI.Factories
 
         private static IPackageTypeHandler HelpHandler(CmfPackage cmfPackage)
         {
-            var projectConfig = FileSystemUtilities.ReadProjectConfig(ExecutionContext.Instance.FileSystem);
-            var mesVersion = projectConfig.RootElement.GetProperty("MESVersion").GetString();
+            var targetVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
             var minimumVersion = new Version("10.0.0");
-            var targetVersion = new Version(mesVersion!);
             if (targetVersion.CompareTo(minimumVersion) < 0)
             {
                 return new HelpGulpPackageTypeHandler(cmfPackage);
@@ -88,10 +86,8 @@ namespace Cmf.CLI.Factories
 
         private static IPackageTypeHandler HtmlHandler(CmfPackage cmfPackage)
         {
-            var projectConfig = FileSystemUtilities.ReadProjectConfig(ExecutionContext.Instance.FileSystem);
-            var mesVersion = projectConfig.RootElement.GetProperty("MESVersion").GetString();
+            var targetVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
             var minimumVersion = new Version("10.0.0");
-            var targetVersion = new Version(mesVersion!);
             if (targetVersion.CompareTo(minimumVersion) < 0)
             {
                 return new HtmlGulpPackageTypeHandler(cmfPackage);

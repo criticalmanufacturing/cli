@@ -5,6 +5,7 @@ using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
 using System.Text.Json;
@@ -19,6 +20,7 @@ using Cmf.Common.Cli.TestUtilities;
 using Moq;
 using Newtonsoft.Json;
 using Cmf.CLI.Core.Commands;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace tests.Specs
 {
@@ -26,6 +28,12 @@ namespace tests.Specs
     {
         public New()
         {
+            System.Environment.SetEnvironmentVariable("cmf_cli_internal_disable_projectconfig_cache", "1");
+                
+            ExecutionContext.ServiceProvider = (new ServiceCollection())
+                .AddSingleton<IProjectConfigService>(new ProjectConfigService())
+                .BuildServiceProvider();
+
             var newCommand = new NewCommand();
             var cmd = new Command("x");
             newCommand.Configure(cmd);
@@ -968,6 +976,15 @@ namespace tests.Specs
             string packageFolder = "IoTData";
 
             TestUtilities.CopyFixture("new", new DirectoryInfo(dir));
+            var projCfg = Path.Join(dir, ".project-config.json");
+            if (File.Exists(projCfg))
+            {
+                File.WriteAllText(projCfg, File.ReadAllText(projCfg)
+                    .Replace("install_path", MockUnixSupport.Path(@"x:\install_path").Replace(@"\", @"\\"))
+                    .Replace("backup_share", MockUnixSupport.Path(@"y:\backup_share").Replace(@"\", @"\\"))
+                    .Replace("temp_folder", MockUnixSupport.Path(@"z:\temp_folder").Replace(@"\", @"\\"))
+                );
+            }
             RunNew(new IoTCommand(), packageId, dir);
 
             // Validate IoT Data
@@ -990,6 +1007,15 @@ namespace tests.Specs
             string packageFolder = "IoTPackages";
 
             TestUtilities.CopyFixture("new", new DirectoryInfo(dir));
+            var projCfg = Path.Join(dir, ".project-config.json");
+            if (File.Exists(projCfg))
+            {
+                File.WriteAllText(projCfg, File.ReadAllText(projCfg)
+                    .Replace("install_path", MockUnixSupport.Path(@"x:\install_path").Replace(@"\", @"\\"))
+                    .Replace("backup_share", MockUnixSupport.Path(@"y:\backup_share").Replace(@"\", @"\\"))
+                    .Replace("temp_folder", MockUnixSupport.Path(@"z:\temp_folder").Replace(@"\", @"\\"))
+                );
+            }
             RunNew(new IoTCommand(), packageId, dir);
 
             // Validate IoT Package
@@ -1058,6 +1084,16 @@ namespace tests.Specs
 
                 // place new fixture: an init'd repository
                 TestUtilities.CopyFixture("new", new DirectoryInfo(dir));
+                
+                var projCfg = Path.Join(dir, ".project-config.json");
+                if (File.Exists(projCfg))
+                {
+                    File.WriteAllText(projCfg, File.ReadAllText(projCfg)
+                        .Replace("install_path", MockUnixSupport.Path(@"x:\install_path").Replace(@"\", @"\\"))
+                        .Replace("backup_share", MockUnixSupport.Path(@"y:\backup_share").Replace(@"\", @"\\"))
+                        .Replace("temp_folder", MockUnixSupport.Path(@"z:\temp_folder").Replace(@"\", @"\\"))
+                    );
+                }
 
                 var newCommand = new TestCommand();
                 var cmd = new Command("x");
@@ -1112,6 +1148,15 @@ namespace tests.Specs
             {
                 Directory.SetCurrentDirectory(dir);
                 TestUtilities.CopyFixture("new", new DirectoryInfo(dir));
+                var projCfg = Path.Join(dir, ".project-config.json");
+                if (File.Exists(projCfg))
+                {
+                    File.WriteAllText(projCfg, File.ReadAllText(projCfg)
+                        .Replace("install_path", MockUnixSupport.Path(@"x:\install_path").Replace(@"\", @"\\"))
+                        .Replace("backup_share", MockUnixSupport.Path(@"y:\backup_share").Replace(@"\", @"\\"))
+                        .Replace("temp_folder", MockUnixSupport.Path(@"z:\temp_folder").Replace(@"\", @"\\"))
+                    );
+                }
 
                 RunNew(new BusinessCommand(), "Cmf.Custom.Business", scaffoldingDir: dir);
                 RunNew(new DataCommand(), "Cmf.Custom.Data", scaffoldingDir: dir);
@@ -1179,6 +1224,16 @@ namespace tests.Specs
             {
                 Directory.SetCurrentDirectory(dir);
                 TestUtilities.CopyFixture("new", new DirectoryInfo(dir));
+                
+                var projCfg = Path.Join(dir, ".project-config.json");
+                if (File.Exists(projCfg))
+                {
+                    File.WriteAllText(projCfg, File.ReadAllText(projCfg)
+                        .Replace("install_path", MockUnixSupport.Path(@"x:\install_path").Replace(@"\", @"\\"))
+                        .Replace("backup_share", MockUnixSupport.Path(@"y:\backup_share").Replace(@"\", @"\\"))
+                        .Replace("temp_folder", MockUnixSupport.Path(@"z:\temp_folder").Replace(@"\", @"\\"))
+                    );
+                }
 
                 RunFeature_WithoutPrefix(scaffoldingDir: dir);
                 var console = RunNew(new BusinessCommand(), "Cmf.Custom.Business", scaffoldingDir: dir, defaultAsserts: false);
@@ -1210,6 +1265,16 @@ namespace tests.Specs
                 Directory.SetCurrentDirectory(dir);
                 TestUtilities.CopyFixture("new", new DirectoryInfo(dir));
                 TestUtilities.CopyFixture("featureBase", new DirectoryInfo(dir));
+                
+                var projCfg = Path.Join(dir, ".project-config.json");
+                if (File.Exists(projCfg))
+                {
+                    File.WriteAllText(projCfg, File.ReadAllText(projCfg)
+                        .Replace("install_path", MockUnixSupport.Path(@"x:\install_path").Replace(@"\", @"\\"))
+                        .Replace("backup_share", MockUnixSupport.Path(@"y:\backup_share").Replace(@"\", @"\\"))
+                        .Replace("temp_folder", MockUnixSupport.Path(@"z:\temp_folder").Replace(@"\", @"\\"))
+                    );
+                }
 
                 var pkgDir = Path.Join(dir, "Features", "TestFeature");
                 const string packageId = "Cmf.Custom.TestFeature.Business";
@@ -1246,6 +1311,16 @@ namespace tests.Specs
                 Directory.SetCurrentDirectory(dir);
                 TestUtilities.CopyFixture("new", new DirectoryInfo(dir));
                 TestUtilities.CopyFixture("featureBase", new DirectoryInfo(dir));
+                
+                var projCfg = Path.Join(dir, ".project-config.json");
+                if (File.Exists(projCfg))
+                {
+                    File.WriteAllText(projCfg, File.ReadAllText(projCfg)
+                        .Replace("install_path", MockUnixSupport.Path(@"x:\install_path").Replace(@"\", @"\\"))
+                        .Replace("backup_share", MockUnixSupport.Path(@"y:\backup_share").Replace(@"\", @"\\"))
+                        .Replace("temp_folder", MockUnixSupport.Path(@"z:\temp_folder").Replace(@"\", @"\\"))
+                    );
+                }
 
                 var pkgDir = Path.Join(dir, "Features", "TestFeature");
                 const string packageId = "Cmf.Custom.TestFeature.Help";
@@ -1291,6 +1366,15 @@ namespace tests.Specs
                 Directory.SetCurrentDirectory(dir);
                 TestUtilities.CopyFixture("new", new DirectoryInfo(dir));
                 TestUtilities.CopyFixture("featureBase", new DirectoryInfo(dir));
+                var projCfg = Path.Join(dir, ".project-config.json");
+                if (File.Exists(projCfg))
+                {
+                    File.WriteAllText(projCfg, File.ReadAllText(projCfg)
+                        .Replace("install_path", MockUnixSupport.Path(@"x:\install_path").Replace(@"\", @"\\"))
+                        .Replace("backup_share", MockUnixSupport.Path(@"y:\backup_share").Replace(@"\", @"\\"))
+                        .Replace("temp_folder", MockUnixSupport.Path(@"z:\temp_folder").Replace(@"\", @"\\"))
+                    );
+                }
 
                 var pkgDir = Path.Join(dir, "Features", "TestFeature");
                 const string packageId = "Cmf.Custom.TestFeature.HTML";
@@ -1322,6 +1406,15 @@ namespace tests.Specs
         {
             string dir = TestUtilities.GetTmpDirectory();
             TestUtilities.CopyFixture("new", new DirectoryInfo(dir));
+            var projCfg = Path.Join(dir, ".project-config.json");
+            if (File.Exists(projCfg))
+            {
+                File.WriteAllText(projCfg, File.ReadAllText(projCfg)
+                    .Replace("install_path", MockUnixSupport.Path(@"x:\install_path").Replace(@"\", @"\\"))
+                    .Replace("backup_share", MockUnixSupport.Path(@"y:\backup_share").Replace(@"\", @"\\"))
+                    .Replace("temp_folder", MockUnixSupport.Path(@"z:\temp_folder").Replace(@"\", @"\\"))
+                );
+            }
 
             Random rnd = new Random();
             string pkgVersion = $"{rnd.Next(10)}.{rnd.Next(10)}.{rnd.Next(10)}";
@@ -1363,9 +1456,14 @@ namespace tests.Specs
                             .Replace(@"""MESVersion"": ""8.2.0""", $@"""MESVersion"": ""{mesVersion}""")
                             .Replace(@"""BaseLayer"": ""MES""", $@"""BaseLayer"": ""{baseLayer}""")
                             .Replace(@"""RepositoryType"": ""Customization""", $@"""RepositoryType"": ""{repositoryType}""")
+                            .Replace("install_path", MockUnixSupport.Path(@"x:\install_path").Replace(@"\", @"\\"))
+                            .Replace("backup_share", MockUnixSupport.Path(@"y:\backup_share").Replace(@"\", @"\\"))
+                            .Replace("temp_folder", MockUnixSupport.Path(@"z:\temp_folder").Replace(@"\", @"\\"))
                         );
                     }
                 }
+
+                ExecutionContext.Initialize(new FileSystem());
 
                 var cmd = new Command("x");
                 newCommand.Configure(cmd);

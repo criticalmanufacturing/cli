@@ -6,6 +6,7 @@ using Cmf.CLI.Handlers;
 using System;
 using System.IO;
 using System.IO.Abstractions.TestingHelpers;
+using Microsoft.Extensions.DependencyInjection;
 using tests.Objects;
 using Xunit;
 
@@ -13,6 +14,13 @@ namespace tests.Specs
 {
     public class PackageTypeHandler
     {
+        public PackageTypeHandler()
+        {
+            ExecutionContext.ServiceProvider = (new ServiceCollection())
+                .AddSingleton<IProjectConfigService>(new ProjectConfigService())
+                .BuildServiceProvider();
+        }
+        
         [Fact]
         public void GetContentToPack_WithNonExistentIgnoreFiles()
         {

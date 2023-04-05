@@ -38,12 +38,11 @@ namespace Cmf.CLI.Commands
         {
             var regex = new Regex("\"?id\"?:\\s+[\"'](.*)[\"']"); // match for menu item IDs
             
-            var mesVersionStr = FileSystemUtilities.ReadProjectConfig(this.fileSystem).RootElement.GetProperty("MESVersion").GetString();
-            Log.Debug($"Generating markdown for a help package for base version {mesVersionStr}");
-            var mesVersion = Version.Parse(mesVersionStr!);
+            var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            Log.Debug($"Generating markdown for a help package for base version {mesVersion}");
 
             var helpRoot = FileSystemUtilities.GetPackageRootByType(Environment.CurrentDirectory, PackageType.Help, this.fileSystem).FullName;
-            var project = FileSystemUtilities.ReadProjectConfig(this.fileSystem).RootElement.GetProperty("Tenant").GetString();
+            var project = ExecutionContext.Instance.ProjectConfig.Tenant;
             var helpPackagesRoot = (mesVersion.Major > 9) ? this.fileSystem.Path.Join(helpRoot, "projects") : this.fileSystem.Path.Join(helpRoot, "src", "packages");
             var helpPackages = this.fileSystem.Directory.GetDirectories(helpPackagesRoot);
             var pkgName = CmfPackage.Load(this.fileSystem.FileInfo.New(this.fileSystem.Path.Join(helpRoot, CliConstants.CmfPackageFileName))).PackageId.ToLowerInvariant();
