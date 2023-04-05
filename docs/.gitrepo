@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/ingydotnet/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/criticalmanufacturing/cli
+	branch = documentation
+	commit = 9e928eab1742da912b9d89edd39e75e0e6aa94d7
+	parent = bb0c98fb1051e77a8456ae8b5acd7c7c7439eb6d
+	method = merge
+	cmdver = 0.4.5
