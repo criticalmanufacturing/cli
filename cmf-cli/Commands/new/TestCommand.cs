@@ -6,6 +6,7 @@ using System.IO.Abstractions;
 using System.Text.Json;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 
 namespace Cmf.CLI.Commands.New
@@ -38,7 +39,7 @@ namespace Cmf.CLI.Commands.New
         }
 
         /// <inheritdoc />
-        protected override List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args, JsonDocument projectConfig)
+        protected override List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args)
         {
             return args;
         }
@@ -51,8 +52,8 @@ namespace Cmf.CLI.Commands.New
         {
             var packageName = "Cmf.Custom.Tests";
             var projectRoot = FileSystemUtilities.GetProjectRoot(this.fileSystem);
-            var projectConfig = FileSystemUtilities.ReadProjectConfig(this.fileSystem);
-            var tenant = projectConfig.RootElement.GetProperty("Tenant").GetString();
+            var projectConfig = ExecutionContext.Instance.ProjectConfig;
+            var tenant = projectConfig.Tenant;
             var args = new List<string>()
             {
                 // engine options
@@ -65,28 +66,28 @@ namespace Cmf.CLI.Commands.New
                 "--Tenant", tenant
             };
 
-            var restPort = projectConfig.RootElement.GetProperty("RESTPort").GetString();
-            var mesVersion = projectConfig.RootElement.GetProperty("MESVersion").GetString();
-            var htmlPort = projectConfig.RootElement.GetProperty("HTMLPort").GetString();
-            var vmHostname = projectConfig.RootElement.GetProperty("vmHostname").GetString();
-            var testScenariosNugetVersion = projectConfig.RootElement.GetProperty("TestScenariosNugetVersion").GetString();
-            var isSslEnabled = projectConfig.RootElement.GetProperty("IsSslEnabled").GetString();
+            var restPort = projectConfig.RESTPort;
+            var mesVersion = projectConfig.MESVersion;
+            var htmlPort = projectConfig.HTMLPort;
+            var vmHostname = projectConfig.vmHostname;
+            var testScenariosNugetVersion = projectConfig.TestScenariosNugetVersion;
+            var isSslEnabled = projectConfig.IsSslEnabled;
             args.AddRange(new[]
             {
                 "--vmHostname", vmHostname,
-                "--RESTPort", restPort,
-                "--testScenariosNugetVersion", testScenariosNugetVersion,
-                "--HTMLPort", htmlPort,
-                "--MESVersion", mesVersion
+                "--RESTPort", restPort.ToString(),
+                "--testScenariosNugetVersion", testScenariosNugetVersion.ToString(),
+                "--HTMLPort", htmlPort.ToString(),
+                "--MESVersion", mesVersion.ToString()
             });
 
-            if (string.Equals(isSslEnabled, "True"))
+            if (isSslEnabled)
             {
                 args.Add("--IsSslEnabled");
             }
             
             #region version-specific bits
-            args.AddRange(new []{ "--targetFramework", Version.Parse(mesVersion).Major > 8 ? "net6.0" : "netcoreapp3.1" });
+            args.AddRange(new []{ "--targetFramework", mesVersion.Major > 8 ? "net6.0" : "netcoreapp3.1" });
             #endregion
 
             this.executedArgs = args.ToArray();

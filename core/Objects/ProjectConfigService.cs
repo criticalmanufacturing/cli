@@ -17,9 +17,9 @@ public class ProjectConfigService : IProjectConfigService
     public ProjectConfig ProjectConfig { get; private set; }
     public ProjectConfig Load(IFileSystem fileSystem)
     {
-        if (ProjectConfig == null)
+        if (System.Environment.GetEnvironmentVariable("cmf_cli_internal_disable_projectconfig_cache") != null || ProjectConfig == null)
         {
-            if (isInsideProject == null)
+            if (System.Environment.GetEnvironmentVariable("cmf_cli_internal_disable_projectconfig_cache") != null || isInsideProject == null)
             {
                 var projectCfg = fileSystem.Path.Join(FileSystemUtilities.GetProjectRoot(fileSystem)?.FullName,
                     CoreConstants.ProjectConfigFileName);

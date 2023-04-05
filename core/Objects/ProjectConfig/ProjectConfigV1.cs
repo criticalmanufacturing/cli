@@ -9,8 +9,8 @@ namespace Cmf.CLI.Core.Objects;
 public class ProjectConfigV1
 {
     public string ProjectName { get; set; }
-    public RepositoryType RepositoryType { get; set; }
-    public BaseLayer BaseLayer { get; set; }
+    public RepositoryType? RepositoryType { get; set; }
+    public BaseLayer? BaseLayer { get; set; }
     [Newtonsoft.Json.JsonConverter(typeof(UriConverter))]
     public Uri NPMRegistry { get; set; }
     [Newtonsoft.Json.JsonConverter(typeof(UriConverter))]
@@ -57,6 +57,9 @@ public class ProjectConfigV1
     public int? GatewayPort { get; set; }
     public string ReleaseEnvironmentConfig { get; set; }
     public Uri ISOLocation { get; set; }
+
+    public string Organization { get; set; }
+    public string Product { get; set; }
 }
 
 public class BooleanJsonConverter : Newtonsoft.Json.JsonConverter

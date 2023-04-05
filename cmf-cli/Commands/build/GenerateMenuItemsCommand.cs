@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 
 namespace Cmf.CLI.Commands 
@@ -45,11 +46,10 @@ namespace Cmf.CLI.Commands
         public void Execute()
         {
             var helpRoot = FileSystemUtilities.GetPackageRootByType(Environment.CurrentDirectory, PackageType.Help, this.fileSystem).FullName;
-            var project = FileSystemUtilities.ReadProjectConfig(this.fileSystem).RootElement.GetProperty("Tenant").GetString();
+            var project = ExecutionContext.Instance.ProjectConfig.Tenant;
             
-            var mesVersionStr = FileSystemUtilities.ReadProjectConfig(this.fileSystem).RootElement.GetProperty("MESVersion").GetString();
-            Log.Debug($"Generating menu items database for a help package for base version {mesVersionStr}");
-            var mesVersion = Version.Parse(mesVersionStr!);
+            var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            Log.Debug($"Generating menu items database for a help package for base version {mesVersion}");
 
             if (project == null)
             {

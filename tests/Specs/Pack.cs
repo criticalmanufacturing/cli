@@ -19,12 +19,20 @@ using FluentAssertions;
 using tests.Objects;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Factories;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 
 namespace tests.Specs
 {
     public class Pack
     {
+        public Pack()
+        {
+            ExecutionContext.ServiceProvider = (new ServiceCollection())
+                .AddSingleton<IProjectConfigService>(new ProjectConfigService())
+                .BuildServiceProvider();
+        }
+
         [Fact]
         public void Args_Paths_BothSpecified()
         {
@@ -268,6 +276,16 @@ namespace tests.Specs
             string dir = $"{TestUtilities.GetTmpDirectory()}/securityPortal";
             TestUtilities.CopyFixture("pack/securityPortal", new DirectoryInfo(dir));
 
+            var projCfg = Path.Join(dir, ".project-config.json");
+            if (File.Exists(projCfg))
+            {
+                File.WriteAllText(projCfg, File.ReadAllText(projCfg)
+                    .Replace("install_path", MockUnixSupport.Path(@"x:\install_path").Replace(@"\", @"\\"))
+                    .Replace("backup_share", MockUnixSupport.Path(@"y:\backup_share").Replace(@"\", @"\\"))
+                    .Replace("temp_folder", MockUnixSupport.Path(@"z:\temp_folder").Replace(@"\", @"\\"))
+                );
+            }
+            
             Directory.SetCurrentDirectory(dir);
 
             string _workingDir = dir;
@@ -315,6 +333,7 @@ namespace tests.Specs
                 }}")
             }});
 
+            ExecutionContext.Initialize(mockFS);
             var pkg = CmfPackage.Load(mockFS.FileSystem.FileInfo.New(MockUnixSupport.Path(@"c:\.pkg.json")), true,
                 mockFS);
             var _ = new IoTPackageTypeHandler(pkg);

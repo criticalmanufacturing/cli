@@ -314,6 +314,7 @@ namespace Cmf.CLI.Utilities
         /// Reads the project configuration.
         /// </summary>
         /// <returns></returns>
+        [Obsolete("Use ExecutionContext.Instance.ProjectConfig")]
         public static JsonDocument ReadProjectConfig(IFileSystem fileSystem)
         {
             Log.Debug("Loading .project-config.json (legacy mode)");

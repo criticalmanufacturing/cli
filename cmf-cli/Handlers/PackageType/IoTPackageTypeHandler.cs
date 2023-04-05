@@ -30,9 +30,7 @@ namespace Cmf.CLI.Handlers
         public IoTPackageTypeHandler(CmfPackage cmfPackage) : base(cmfPackage)
         {
             var minimumVersion = new Version("8.3.5");
-            var projectConfig = FileSystemUtilities.ReadProjectConfig(this.fileSystem);
-            var mesVersion = projectConfig.RootElement.GetProperty("MESVersion").GetString();
-            var targetVersion = new Version(mesVersion!);
+            var targetVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
             if (targetVersion.CompareTo(minimumVersion) < 0)
             {
                 Log.Debug(
