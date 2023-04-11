@@ -1,26 +1,17 @@
-﻿using System;
+﻿using Cmf.CLI.Commands;
+using Cmf.Common.Cli.TestUtilities;
+using FluentAssertions;
+using Moq;
+using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Abstractions;
-using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
-using System.Text.Json;
-using Cmf.CLI.Core.Enums;
-using Cmf.CLI.Commands;
-using Cmf.CLI.Commands.New;
-using Cmf.CLI.Core.Objects;
-using FluentAssertions;
 using Xunit;
 using Assert = tests.AssertWithMessage;
-using Cmf.Common.Cli.TestUtilities;
-using Moq;
-using Newtonsoft.Json;
-using Cmf.CLI.Core.Commands;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace tests.Specs
 {
@@ -93,7 +84,7 @@ namespace tests.Specs
                 Directory.SetCurrentDirectory(cur);
                 Directory.Delete(tmp, true);
             }
-        }      
+        }
 
         [Fact]
         public void Init_Fail_MissingMandatoryArgumentsAndOptions()
@@ -109,7 +100,7 @@ namespace tests.Specs
             Assert.Contains("Required argument missing for command: 'x'", console.Error.ToString());
             foreach (var optionName in new[]
                  {
-                     "BaseVersion", "nugetVersion", "testScenariosNugetVersion", "deploymentDir"
+                     "baseVersion", "nugetVersion", "testScenariosNugetVersion", "deploymentDir"
                  })
             {
                 Assert.Contains($"Option '--{optionName}' is required.", console.Error.ToString());
@@ -331,7 +322,7 @@ namespace tests.Specs
                 Assert.True(File.Exists("cmfpackage.json"), "root cmfpackage is missing");
                 Assert.True(File.Exists("global.json"), "global .NET versioning is missing");
                 Assert.True(File.Exists("NuGet.Config"), "global NuGet feeds config is missing");
-               
+
                 Assert.True(Directory.Exists(Path.Join(tmp, "Libs")), "Libs are missing");
                 File.ReadAllText(Path.Join(tmp, ".project-config.json"))
                     .Should().Contain(@"""RepositoryType"": ""App""", "Applied repository type was not App");

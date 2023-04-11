@@ -1,13 +1,13 @@
-using System;
-using System.Diagnostics;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
 using Cmf.CLI.Utilities;
 using OpenTelemetry;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using System;
+using System.Diagnostics;
+using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 
 namespace Cmf.CLI.Core.Objects;
 
@@ -63,7 +63,7 @@ public class TelemetryService : ITelemetryService
     {
         this.Name = name;
 
-        cmfCLIEnableTelemetryEnvVarName = $"{ ExecutionContext.EnvVarPrefix ?? "cmf_cli" }_enable_telemetry";
+        cmfCLIEnableTelemetryEnvVarName = $"{ExecutionContext.EnvVarPrefix ?? "cmf_cli"}_enable_telemetry";
         cmfCLITelemetryHostEnvVarName = $"{ExecutionContext.EnvVarPrefix ?? "cmf_cli"}_telemetry_host";
         cmfCLIEnableExtendedTelemetryEnvVarName = $"{ExecutionContext.EnvVarPrefix ?? "cmf_cli"}_enable_extended_telemetry";
         cmfCLITelemetryEnableConsoleExporterEnvVarName = $"{ExecutionContext.EnvVarPrefix ?? "cmf_cli"}_telemetry_enable_console_exporter";
@@ -151,24 +151,28 @@ public class TelemetryService : ITelemetryService
         // let's get our own tracer just for unhandled exceptions. for timing reasons, we don't want to pull an ActivitySource here and just directly record this event
         var serviceName = ExecutionContext.PackageId;
         var serviceVersion = ExecutionContext.CurrentVersion;
-        var tracer = Provider.GetTracer(serviceName, serviceVersion);
-        var span = tracer.StartSpan("Unhandled Exception");
-        span.SetAttribute("event", "error");
-        span.SetAttribute("exception", exception.Message);
-        span.SetAttribute("stacktrace", exception.StackTrace);
-        span.SetAttribute("ip",
-            Dns.GetHostAddresses(Dns.GetHostName())
-                .FirstOrDefault((Func<IPAddress, bool>)(ha => ha.AddressFamily == AddressFamily.InterNetwork))?.ToString());
-        span.SetAttribute("hostname", Environment.MachineName);
-        span.SetAttribute("username", Environment.UserName);
-        span.SetAttribute("cwd", Environment.CurrentDirectory);
-        var e = exception.InnerException;
-        for (var i = 1; e != null; i++, e = e.InnerException)
+
+        if (Provider != null)
         {
-            span.SetAttribute($"inner.{i}.exception", e.Message)
-                .SetAttribute($"inner.{i}.stacktrace", e.StackTrace);
+            var tracer = Provider?.GetTracer(serviceName, serviceVersion);
+            var span = tracer.StartSpan("Unhandled Exception");
+            span.SetAttribute("event", "error");
+            span.SetAttribute("exception", exception.Message);
+            span.SetAttribute("stacktrace", exception.StackTrace);
+            span.SetAttribute("ip",
+                Dns.GetHostAddresses(Dns.GetHostName())
+                    .FirstOrDefault((Func<IPAddress, bool>)(ha => ha.AddressFamily == AddressFamily.InterNetwork))?.ToString());
+            span.SetAttribute("hostname", Environment.MachineName);
+            span.SetAttribute("username", Environment.UserName);
+            span.SetAttribute("cwd", Environment.CurrentDirectory);
+            var e = exception.InnerException;
+            for (var i = 1; e != null; i++, e = e.InnerException)
+            {
+                span.SetAttribute($"inner.{i}.exception", e.Message)
+                    .SetAttribute($"inner.{i}.stacktrace", e.StackTrace);
+            }
+            span.End();
+            Provider?.ForceFlush();
         }
-        span.End();
-        Provider.ForceFlush();
     }
 }

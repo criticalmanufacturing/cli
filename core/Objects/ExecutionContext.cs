@@ -1,6 +1,8 @@
-using System.IO.Abstractions;
+using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Generic;
+using System.IO.Abstractions;
 
 namespace Cmf.CLI.Core.Objects
 {
@@ -26,7 +28,7 @@ namespace Cmf.CLI.Core.Objects
         /// The current execution RepositoriesConfig object
         /// </summary>
         public RepositoriesConfig RepositoriesConfig { get; set; }
-        
+
         /// <summary>
         /// the current repository's project config
         /// </summary>
@@ -36,12 +38,12 @@ namespace Cmf.CLI.Core.Objects
         /// Get the current (executing) version of the CLI
         /// </summary>
         public static string CurrentVersion => (ServiceProvider.GetService<IVersionService>()!.CurrentVersion) ?? "dev";
-        
+
         /// <summary>
         /// Get or set the latest vetsion of the CLI. Use this if the CLI checks for new versions
         /// </summary>
         public static string LatestVersion { get; set; }
-        
+
         /// <summary>
         /// Get the package id of the current running application
         /// </summary>
@@ -69,6 +71,11 @@ namespace Cmf.CLI.Core.Objects
         /// example: telemetry service envars use this prefix
         /// </summary>
         public static string EnvVarPrefix { get; set; }
+
+        /// <summary>
+        /// Cache of the Related Packages
+        /// </summary>
+        public static Dictionary<string, KeyValuePair<RelatedPackage, IPackageTypeHandler>> RelatedPackages = new();
 
         private ExecutionContext(IFileSystem fileSystem)
         {

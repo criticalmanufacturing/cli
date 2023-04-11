@@ -61,11 +61,38 @@ namespace Cmf.CLI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Command is only valid for Packages of Type IoT.
+        /// </summary>
+        internal static string CommandIsOnlyValidForPackageOfTypeIoT {
+            get {
+                return ResourceManager.GetString("CommandIsOnlyValidForPackageOfTypeIoT", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Get Package {0}.{1}....
         /// </summary>
         internal static string GetPackage {
             get {
                 return ResourceManager.GetString("GetPackage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This Command does not apply to your version, version must be at least {0}.
+        /// </summary>
+        internal static string InvalidVersionForCommand {
+            get {
+                return ResourceManager.GetString("InvalidVersionForCommand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please provide and scaffold an HTML package.
+        /// </summary>
+        internal static string IoTV10HTMLPackageMustBeProvided {
+            get {
+                return ResourceManager.GetString("IoTV10HTMLPackageMustBeProvided", resourceCulture);
             }
         }
         

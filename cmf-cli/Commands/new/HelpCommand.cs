@@ -1,12 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
-using System.IO.Abstractions;
-using System.Linq;
-using System.Text.Json;
-using System.Text.RegularExpressions;
 using Cmf.CLI.Builders;
+using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Enums;
@@ -14,6 +7,13 @@ using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.CommandLine;
+using System.CommandLine.NamingConventionBinder;
+using System.IO.Abstractions;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Cmf.CLI.Commands.New
 {
@@ -34,7 +34,7 @@ namespace Cmf.CLI.Commands.New
         public HelpCommand(IFileSystem fileSystem) : base("help", PackageType.Help, fileSystem)
         {
         }
-        
+
         /// <inheritdoc />
         public override void Configure(Command cmd)
         {
@@ -58,7 +58,7 @@ namespace Cmf.CLI.Commands.New
                         projectRoot.FullName)
                 ).Replace("\\", "/");
 
-            args.AddRange(new []
+            args.AddRange(new[]
             {
                 "--rootRelativePath", relativePathToRoot,
                 "--ngxSchematicsVersion", this.schematicsVersion,
@@ -88,7 +88,7 @@ namespace Cmf.CLI.Commands.New
                 this.ExecuteV9(workingDir, version, documentationPackage);
             }
         }
-        
+
         public void ExecuteV9(IDirectoryInfo workingDir, string version, IFileInfo documentationPackage)
         {
             if (documentationPackage == null)
@@ -110,7 +110,7 @@ namespace Cmf.CLI.Commands.New
                 throw new CliException($"Package folder {pkgFolder.Name} does not exist. This is a template error. Please open an issue on GitHub.");
             }
             this.CloneHTMLStarter(htmlStarterVersion, pkgFolder);
-            
+
             // root package.json
             var rootPkgJsonPath = this.fileSystem.Path.Join(pkgFolder.FullName, "package.json");
             var json = fileSystem.File.ReadAllText(rootPkgJsonPath);
@@ -132,7 +132,7 @@ namespace Cmf.CLI.Commands.New
             json = JsonConvert.SerializeObject(rootPkgJson, Formatting.Indented);
             this.fileSystem.File.WriteAllText(rootPkgJsonPath, json);
             Log.Verbose("Updated package.json");
-            
+
             // .dev-tasks.json
             var devTasksPath = this.fileSystem.Path.Join(pkgFolder.FullName, ".dev-tasks.json");
             var devTasksStr = fileSystem.File.ReadAllText(devTasksPath);
@@ -156,7 +156,7 @@ namespace Cmf.CLI.Commands.New
             (new NPMCommand() { Command = "install", WorkingDirectory = pkgFolder }).Exec();
 
             var helpDevTasksConfigPath = this.fileSystem.Path.GetTempFileName();
-            var helpDevTasksConfigJson = 
+            var helpDevTasksConfigJson =
 $@"{{
     ""answers"": {{
         ""packagePrefix"": ""cmf.docs.area"",
@@ -167,7 +167,7 @@ $@"{{
 }}";
             this.fileSystem.File.WriteAllText(helpDevTasksConfigPath, helpDevTasksConfigJson);
             var helpWebAppConfigPath = this.fileSystem.Path.GetTempFileName();
-            var helpWebAppConfigJson = 
+            var helpWebAppConfigJson =
 @"{
     ""answers"": {
         ""appName"": ""web"",
@@ -176,7 +176,7 @@ $@"{{
     }
 }";
             this.fileSystem.File.WriteAllText(helpWebAppConfigPath, helpWebAppConfigJson);
-            
+
             // create web app
             // npx yeoman-gen-run --name @criticalmanufacturing/html --config "$pathHTMLConfig"
             Log.Verbose("Generate web app, this will take a while...");
@@ -184,7 +184,7 @@ $@"{{
             {
                 Command = "yeoman-gen-run",
                 WorkingDirectory = pkgFolder,
-                Args = new []
+                Args = new[]
                 {
                     "--name", "@criticalmanufacturing/html", "--config", helpDevTasksConfigPath
                 }
@@ -194,23 +194,23 @@ $@"{{
             {
                 Command = "yeoman-gen-run",
                 WorkingDirectory = pkgFolder,
-                Args = new []
+                Args = new[]
                 {
                     "--name", "@criticalmanufacturing/html:application", "cmf.docs.area.web", "--config", helpWebAppConfigPath
                 }
             }).Exec();
             Log.Verbose("Web app generated!");
-            
-            
+
+
             Log.Debug("Obtaining sources from MES Documentation package...");
             var docPkgConfigJsonStr = FileSystemUtilities.GetFileContentFromPackage(documentationPackage.FullName, "config.json");
             // replace tokens that would break Json parse
             docPkgConfigJsonStr = Regex.Replace(docPkgConfigJsonStr, @"\$\([^\)]+\)", "0", RegexOptions.Multiline);
             dynamic docPkgConfigJson = JsonConvert.DeserializeObject(docPkgConfigJsonStr);
             var docPkgIndexHtml = FileSystemUtilities.GetFileContentFromPackage(documentationPackage.FullName, "index.html");
-            
+
             // config.json
-            var configJsonPath = this.fileSystem.Path.Join(pkgFolder.FullName, "apps", 
+            var configJsonPath = this.fileSystem.Path.Join(pkgFolder.FullName, "apps",
                 this.fileSystem.Path.Join("cmf.docs.area.web", "config.json"));
             var configJsonStr = fileSystem.File.ReadAllText(configJsonPath);
             configJsonStr = Regex.Replace(configJsonStr, @"\$\([^\)]+\)", "0", RegexOptions.Multiline);
@@ -237,9 +237,9 @@ $@"{{
             configJsonStr = JsonConvert.SerializeObject(configJsonJson, Formatting.Indented);
             this.fileSystem.File.WriteAllText(configJsonPath, configJsonStr);
             Log.Verbose("Updated config.json");
-            
+
             //index.html (copied from Documentation package)
-            var indexHtmlPath = this.fileSystem.Path.Join(pkgFolder.FullName, "apps", 
+            var indexHtmlPath = this.fileSystem.Path.Join(pkgFolder.FullName, "apps",
                 this.fileSystem.Path.Join("cmf.docs.area.web", "index.html"));
             this.fileSystem.File.WriteAllText(indexHtmlPath, docPkgIndexHtml.Replace("<base href=\"/Help/\">", "<base href=\"/\">"));
 
@@ -248,7 +248,7 @@ $@"{{
             var tenant = ExecutionContext.Instance.ProjectConfig.Tenant;
             var assetsPkgName = $"cmf.docs.area.{pkgName.ToLowerInvariant()}";
             var helpPkgConfigPath = this.fileSystem.Path.GetTempFileName();
-            var helpPkgConfigJson = 
+            var helpPkgConfigJson =
 $@"{{
     ""answers"": {{
         ""packageName"": ""{assetsPkgName}"",
@@ -260,7 +260,7 @@ $@"{{
             {
                 Command = "yeoman-gen-run",
                 WorkingDirectory = pkgFolder,
-                Args = new []
+                Args = new[]
                 {
                     // the package name must be in the same argument as the generator name: this is a yeoman-gen-run limitation:
                     // when yeoman-gen-run runs env.run(genName, doneFunc), genName gets split into [name, ...args] which causes args to be empty
@@ -269,9 +269,9 @@ $@"{{
                 }
             }).Exec();
             Log.Verbose("Generated documentation package");
-            
+
             Log.Verbose("Generating assets...");
-            base.ExecuteTemplate("helpSrcPkg", new []
+            base.ExecuteTemplate("helpSrcPkg", new[]
             {
                 "--output", this.fileSystem.Path.Join(pkgFolder.FullName, "src", "packages"),
                 "--name", assetsPkgName,
@@ -279,17 +279,17 @@ $@"{{
                 "--Tenant", tenant,
                 "--force"
             });
-            
+
             Log.Verbose("Changing web app port and package type...");
             // replace type of package gulpfile
-            var assetsPkgGulpFilePath = this.fileSystem.Path.Join(pkgFolder.FullName, "src", 
+            var assetsPkgGulpFilePath = this.fileSystem.Path.Join(pkgFolder.FullName, "src",
                 this.fileSystem.Path.Join("packages", assetsPkgName, "gulpfile.js"));
-            var assetsPkgGulpFile= fileSystem.File.ReadAllText(assetsPkgGulpFilePath);
+            var assetsPkgGulpFile = fileSystem.File.ReadAllText(assetsPkgGulpFilePath);
             this.fileSystem.File.WriteAllText(assetsPkgGulpFilePath, assetsPkgGulpFile.Replace("type: 'module'", "type: 'documentation'"));
             // replace port of webapp gulpfile
-            var webAppGulpFilePath = this.fileSystem.Path.Join(pkgFolder.FullName, 
+            var webAppGulpFilePath = this.fileSystem.Path.Join(pkgFolder.FullName,
                 this.fileSystem.Path.Join("apps", "cmf.docs.area.web", "gulpfile.js"));
-            var webAppGulpFile= fileSystem.File.ReadAllText(webAppGulpFilePath);
+            var webAppGulpFile = fileSystem.File.ReadAllText(webAppGulpFilePath);
             this.fileSystem.File.WriteAllText(webAppGulpFilePath, webAppGulpFile.Replace("defaultPort: 7000", "defaultPort: 7001"));
             Log.Information("Help package generated");
         }
@@ -301,7 +301,7 @@ $@"{{
             {
                 throw new CliException("Seems like the repository scaffolding was run on a previous version of MES. Please re-init for versions 10+.");
             }
-            
+
             var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
 
             this.schematicsVersion = ngxSchematicsVersion.ToString() ?? $"@release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}";
@@ -312,32 +312,32 @@ $@"{{
             var ngCliVersion = "15"; // TODO: v15 for MES 10, but should be determined automatically
             var nameIdx = Array.FindIndex(base.executedArgs, item => string.Equals(item, "--name"));
             var packageName = base.executedArgs[nameIdx + 1];
-            
+
             // ng generate library <docPackage>
             var pkgFolder = workingDir.GetDirectories(packageName).FirstOrDefault();
             if (!pkgFolder?.Exists ?? false)
             {
                 throw new CliException($"Package folder {pkgFolder.Name} does not exist. This is a template error. Please open an issue on GitHub.");
             }
-            
+
             Log.Verbose("Executing npm install, this will take a while...");
             (new NPMCommand() { Command = "install", WorkingDirectory = pkgFolder }).Exec();
 
             var projectName = packageName.Replace(".", "-").ToLowerInvariant();
             var assetsPkgName = $"cmf-docs-area-{projectName.ToLowerInvariant()}";
-            
+
             new NPXCommand()
             {
                 Command = $"@angular/cli@{ngCliVersion}",
-                Args = new []{ "generate", "library", assetsPkgName },
+                Args = new[] { "generate", "library", assetsPkgName },
                 WorkingDirectory = pkgFolder,
                 ForceColorOutput = false
             }.Exec();
-            
+
             // generate the assets structure in projects/<docPackage>/assets
             var tenant = ExecutionContext.Instance.ProjectConfig.Tenant;
             Log.Verbose("Generating assets...");
-            base.ExecuteTemplate("helpSrcPkg", new []
+            base.ExecuteTemplate("helpSrcPkg", new[]
             {
                 "--output", this.fileSystem.Path.Join(pkgFolder!.FullName, "projects"),
                 "--name", assetsPkgName,
@@ -346,14 +346,14 @@ $@"{{
                 "--v10metadata", true.ToString(),
                 "--dfPackageNamePascalCase", string.Join("", projectName.Split("-").Select(seg => Regex.Replace(seg, @"\b(\w)", m => m.Value.ToUpper())))
             });
-            
+
             // register assets in angular.json
             var angularJsonFile =
-                this.fileSystem.FileInfo.New(this.fileSystem.Path.Join(pkgFolder!.FullName, "angular.json"));
+                this.fileSystem.FileInfo.New(this.fileSystem.Path.Join(pkgFolder!.FullName, CliConstants.AngularJson));
             var content = fileSystem.File.ReadAllText(angularJsonFile.FullName);
             dynamic json = JsonConvert.DeserializeObject(content);
             var assets = json!.projects.DocumentationPortal.architect.build.options.assets;
-            (assets as JArray)!.Add(new JObject() { {"glob", "**/*"}, {"input", $"projects/{assetsPkgName}/assets"}, {"output", $"assets/{assetsPkgName}"} } );
+            (assets as JArray)!.Add(new JObject() { { "glob", "**/*" }, { "input", $"projects/{assetsPkgName}/assets" }, { "output", $"assets/{assetsPkgName}" } });
             fileSystem.File.WriteAllText(angularJsonFile.FullName, JsonConvert.SerializeObject(json, Formatting.Indented));
         }
     }

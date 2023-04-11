@@ -117,9 +117,19 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="CommandIsOnlyValidForPackageOfTypeIoT" xml:space="preserve">
+    <value>Command is only valid for Packages of Type IoT</value>
+  </data>
   <data name="GetPackage" xml:space="preserve">
     <value>Get Package {0}.{1}...</value>
     <comment>0 - Id; 1 - Version</comment>
+  </data>
+  <data name="InvalidVersionForCommand" xml:space="preserve">
+    <value>This Command does not apply to your version, version must be at least {0}</value>
+    <comment>0 - Version of MES</comment>
+  </data>
+  <data name="IoTV10HTMLPackageMustBeProvided" xml:space="preserve">
+    <value>Please provide and scaffold an HTML package</value>
   </data>
   <data name="MissingMandatoryDependency" xml:space="preserve">
     <value>Mandatory Dependency {0}.{1} not found</value>
