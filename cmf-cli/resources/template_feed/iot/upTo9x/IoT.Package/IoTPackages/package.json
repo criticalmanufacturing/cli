@@ -8,7 +8,7 @@
     },
     "devDependencies": {
         "@criticalmanufacturing/dev-tasks": "<%= $CLI_PARAM_DevTasksVersion %>",
-        "@criticalmanufacturing/generator-iot": "80x",
+        "@criticalmanufacturing/generator-iot": "91x",
         "gulp": "^3.9.1",
         "run-sequence": "~1.1.0",
         "yargs": "~4.8.0",

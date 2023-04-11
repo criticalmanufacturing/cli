@@ -1,5 +1,5 @@
-using System.Text.RegularExpressions;
 using Cmf.CLI.Core.Enums;
+using System.Text.RegularExpressions;
 
 namespace Cmf.CLI.Constants
 {
@@ -59,7 +59,7 @@ namespace Cmf.CLI.Constants
         /// The root package default keyword
         /// </summary>
         public const string RootPackageDefaultKeyword = "cmf-root-package";
-        
+
         /// <summary>
         /// Driver keyword for IoT Packages
         /// </summary>
@@ -93,6 +93,11 @@ namespace Cmf.CLI.Constants
         /// Default base layer for repository
         /// </summary>
         public const BaseLayer DefaultBaseLayer = BaseLayer.MES;
+
+        /// <summary>
+        /// Name of angular json file
+        /// </summary>
+        public const string AngularJson = "angular.json";
         #endregion
 
         #region Security Portal

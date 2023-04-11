@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
-using Newtonsoft.Json;
 
 namespace Cmf.CLI.Core.Objects
 {
@@ -130,10 +130,10 @@ namespace Cmf.CLI.Core.Objects
             var packageLockFile = _Cwd.GetFiles(packageLockPath).FirstOrDefault();
 
             // In some cases we don't have the package-lockW
-            if(packageLockFile != null)
+            if (packageLockFile != null)
             {
                 PackageLock = new PackageJson(packageLockFile);
-            }         
+            }
         }
 
         private void GetDependencies()

@@ -1,6 +1,5 @@
 ﻿using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Enums;
-using Cmf.CLI.Core.Utilities;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -259,14 +258,13 @@ namespace Cmf.CLI.Core.Objects
         public List<ProcessBuildStep> BuildSteps { get; set; }
 
         /// <summary>
-        /// Gets or sets the build packages.
+        /// Gets or sets the Related packages, and sets what are the expected behavior.
         /// </summary>
         /// <value>
-        /// Packages that should be build before the context package
+        /// Packages that should be built/packed before/after the context package
         /// </value>
         [JsonProperty(Order = 22)]
-        [JsonConverter(typeof(ListAbstractionsDirectoryConverter))]
-        public List<IDirectoryInfo> BuildablePackages { get; set; }
+        public List<RelatedPackage> RelatedPackages { get; set; }
 
         /// <summary>
         /// Gets or sets the target directory where the dependencies contents should be extracted.
@@ -605,12 +603,12 @@ namespace Cmf.CLI.Core.Objects
         }
 
         /// <summary>
-        /// Shoulds the serialize Buildable Packages
+        /// Shoulds the serialize Related Packages
         /// </summary>
-        /// <returns>returns false if Buildable Packages is null or empty</returns>
-        public bool ShouldSerializeBuildablePackages()
+        /// <returns>returns false if Related Packages is null or empty</returns>
+        public bool ShouldSerializeRelatedPackages()
         {
-            return BuildablePackages.HasAny();
+            return RelatedPackages.HasAny();
         }
 
         /// <summary>

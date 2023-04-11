@@ -1,15 +1,15 @@
+using Cmf.CLI.Constants;
+using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Interfaces;
+using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Factories;
+using Cmf.CLI.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using System.IO;
 using System.IO.Abstractions;
-using Cmf.CLI.Constants;
-using Cmf.CLI.Core.Attributes;
-using Cmf.CLI.Core.Objects;
-using Cmf.CLI.Factories;
-using Cmf.CLI.Interfaces;
-using Cmf.CLI.Utilities;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Cmf.CLI.Commands
 {

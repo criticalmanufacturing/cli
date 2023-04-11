@@ -112,7 +112,7 @@ namespace Cmf.CLI.Commands
                 description: "Deployments directory"
             ){ IsRequired = true });
             cmd.AddOption(new Option<string>(
-                aliases: new[] { "--BaseVersion", "--MESVersion" },
+                aliases: new[] { "--baseVersion", "--MESVersion" },
                 description: "Target CM framework/MES version"
             ) { IsRequired = true });
             cmd.AddOption(new Option<string>(

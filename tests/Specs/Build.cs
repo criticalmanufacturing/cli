@@ -1,7 +1,5 @@
 using Cmf.CLI.Builders;
-using Cmf.CLI.Commands.restore;
 using Cmf.CLI.Constants;
-using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Core.Utilities;
 using Cmf.CLI.Factories;
@@ -259,7 +257,7 @@ public class Build
         };
 
         StringWriter standardOutput = (new Logging()).GetLogStringWriter();
-        businessPackageTypeHandler.Build(true);
+        businessPackageTypeHandler.Build(false);
         Assert.Contains("Executing 'Run Build Command'", standardOutput.ToString().Trim());
     }
 
@@ -273,7 +271,7 @@ public class Build
 
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
             {
-                { $"{url}/cmfpackage.json", new MockFileData(
+                { $"{url}/{CliConstants.CmfPackageFileName}", new MockFileData(
                 @$"{{
                   ""packageId"": ""{packageRoot.Key}"",
                   ""version"": ""{packageRoot.Value}"",
@@ -462,7 +460,7 @@ public class Build
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
-    public void DataBuild_WithBuildablePackages(bool withBuildableSteps)
+    public void DataBuild_WithRelatedPackages(bool withRelatedSteps)
     {
         KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.1.0");
         KeyValuePair<string, string> packageData = new("Cmf.Custom.Data", "1.1.0");
@@ -484,7 +482,7 @@ public class Build
             }}")}
         });
 
-        if (!withBuildableSteps)
+        if (!withRelatedSteps)
         {
             // data cmfpackage file
             fileSystem.AddFile($"{packageData.Key}/{CliConstants.CmfPackageFileName}", new MockFileData(
@@ -522,8 +520,14 @@ public class Build
                         ""contentType"": ""DEE""
                     }}
                     ],
-                    ""buildablePackages"": [
-                        ""../Cmf.Custom.Business""
+                    ""relatedPackages"": [
+                        {{
+                            ""path"": ""../Cmf.Custom.Business"",
+                            ""preBuild"": true,
+                            ""postBuild"": false,
+                            ""prePack"": false,
+                            ""postPack"": false
+                        }}
                     ]
                 }}"));
 
@@ -544,7 +548,16 @@ public class Build
                     "".cmfpackageignore""
                   ]
                 }}
-              ]
+              ],
+                ""relatedPackages"": [
+                    {{
+                        ""path"": ""../{packageData.Key}"",
+                        ""preBuild"": true,
+                        ""postBuild"": false,
+                        ""prePack"": false,
+                        ""postPack"": false
+                    }}
+                ]
             }}"));
 
             // business sln
@@ -619,32 +632,26 @@ public class Build
         }
 
         ExecutionContext.Initialize(fileSystem);
+        ExecutionContext.RelatedPackages = new();
 
         IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"Cmf.Custom.Data/{CliConstants.CmfPackageFileName}");
         DataPackageTypeHandlerV2 packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile) as DataPackageTypeHandlerV2;
 
-        packageTypeHandler.BuildablePackagesHandlers
+        packageTypeHandler.RelatedPackagesHandlers
             .HasAny()
-            .Should().Be(withBuildableSteps);
+            .Should().Be(withRelatedSteps);
 
-        packageTypeHandler.BuildablePackagesHandlers
-            .Any(BuildablePackageHandler =>
+        ExecutionContext.RelatedPackages.HasAny().Should().Be(withRelatedSteps);
+
+        packageTypeHandler.RelatedPackagesHandlers
+            .Any(RelatedPackagesHandler =>
             {
                 bool result = false;
-                if (BuildablePackageHandler is BusinessPackageTypeHandler)
-                {
-                    var businessPackageTypeHandler = BuildablePackageHandler as BusinessPackageTypeHandler;
-                    if (businessPackageTypeHandler.BuildSteps[0] is ExecuteCommand<RestoreCommand>)
-                    {
-                        var buildStep = (businessPackageTypeHandler.BuildSteps[0] as ExecuteCommand<RestoreCommand>);
-                        if (buildStep.Command is RestoreCommand)
-                        {
-                            result = true;
-                        }
-                    }
-                }
-                return result;
+
+                RelatedPackagesHandler.Key.Path.Name.Should().Be("Cmf.Custom.Business");
+
+                return true;
             })
-            .Should().Be(withBuildableSteps);
+            .Should().Be(withRelatedSteps);
     }
 }

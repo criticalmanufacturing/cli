@@ -1,4 +1,4 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-dotnet test --filter TestCategory!=LongRunning
+dotnet test --filter "(TestCategory!=LongRunning)&(TestCategory!=Node12)"

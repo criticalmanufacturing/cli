@@ -1,26 +1,24 @@
+using Cmf.CLI.Commands;
+using Cmf.CLI.Commands.New;
+using Cmf.CLI.Core.Commands;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
+using Cmf.Common.Cli.TestUtilities;
+using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
-using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
 using System.Text.Json;
-using Cmf.CLI.Core.Enums;
-using Cmf.CLI.Commands;
-using Cmf.CLI.Commands.New;
-using Cmf.CLI.Core.Objects;
-using FluentAssertions;
 using Xunit;
 using Assert = tests.AssertWithMessage;
-using Cmf.Common.Cli.TestUtilities;
-using Moq;
-using Newtonsoft.Json;
-using Cmf.CLI.Core.Commands;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace tests.Specs
 {
@@ -29,7 +27,7 @@ namespace tests.Specs
         public New()
         {
             System.Environment.SetEnvironmentVariable("cmf_cli_internal_disable_projectconfig_cache", "1");
-                
+
             ExecutionContext.ServiceProvider = (new ServiceCollection())
                 .AddSingleton<IProjectConfigService>(new ProjectConfigService())
                 .BuildServiceProvider();
@@ -42,7 +40,7 @@ namespace tests.Specs
             cmd.Invoke(new[] {
                 "--reset"
             }, console);
-        }       
+        }
 
         [Theory]
         [InlineData(BaseLayer.Core)]
@@ -80,14 +78,14 @@ namespace tests.Specs
             RunNew(new DataCommand(), "Cmf.Custom.Data");
         }
 
-        [Theory, Trait("TestCategory", "LongRunning")]
+        [Theory, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node12")]
         [InlineData(BaseLayer.MES)]
         [InlineData(BaseLayer.Core)]
         public void UI(BaseLayer layer)
         {
             UI_internal(null, layer);
         }
-        
+
         private void UI_internal(string scaffoldingDir, BaseLayer layer)
         {
             RunNew(new HTMLCommand(), "Cmf.Custom.HTML", scaffoldingDir: scaffoldingDir, baseLayer: layer, extraArguments: new string[]
@@ -119,7 +117,7 @@ namespace tests.Specs
                     File.ReadAllText($"Cmf.Custom.HTML/cmfpackage.json").Should()
                         .Contain("node_modules/@criticalmanufacturing/core-ui-web/bundles");
                     configJson
-                        .Should().NotContain("cmf.mes", "config.json should not have any MES packages");    
+                        .Should().NotContain("cmf.mes", "config.json should not have any MES packages");
                 }
                 else
                 {
@@ -132,12 +130,10 @@ namespace tests.Specs
                     configJson
                         .Should().Contain("cmf.mes", "config.json should not have a MES packages");
                 }
-                
-                
             });
         }
-        
-        [Theory, Trait("TestCategory", "LongRunning")]
+
+        [Theory, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node12")]
         [InlineData("8.2.0", false)]
         [InlineData("9.1.0", true)]
         public void UI_WithAppsPackage(string mesVersion, bool isCoreAppPresent)
@@ -179,7 +175,7 @@ namespace tests.Specs
             }
         }
 
-        [Fact, Trait("TestCategory", "LongRunning")]
+        [Fact, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node12")]
         public void Help()
         {
             Help_internal();
@@ -222,10 +218,16 @@ namespace tests.Specs
             }
         }
 
-        [Fact]
+        [Fact(Skip = "requires an NPM registry")]
         public void IoT()
         {
             RunNew(new IoTCommand(), "Cmf.Custom.IoT");
+        }
+
+        [Fact(Skip = "requires an NPM registry")]
+        public void IoTV10()
+        {
+            RunNew(new IoTCommand(), "Cmf.Custom.IoT", mesVersion: "10.0.0");
         }
 
         [Fact]
@@ -259,7 +261,7 @@ namespace tests.Specs
                 TestUtilities.GetPackageProperty("version", $"{packageId}/{packageFolder}/cmfpackage.json"), "Version does not match expected");
         }
 
-        [Fact]
+        [Fact(Skip = "requires an NPM registry")]
         public void IoTPackage()
         {
             string dir = TestUtilities.GetTmpDirectory();
@@ -290,9 +292,46 @@ namespace tests.Specs
             Assert.Equal(TestUtilities.GetPackageProperty("version", $"{packageId}/cmfpackage.json"),
                 TestUtilities.GetPackageProperty("version", $"{packageId}/{packageFolder}/cmfpackage.json"), "Version does not match expected");
             File.ReadAllText(Path.Join(dir, packageId, "cmfpackage.json"))
-                .Should().Contain(@"CriticalManufacturing.DeploymentMetadata", "VM Dependency should not be included in root package");
+                .Should().Contain(@"CriticalManufacturing.DeploymentMetadata", "VM Dependency should be included in root package");
             File.ReadAllText(Path.Join(dir, packageId, "cmfpackage.json"))
                 .Should().Contain(@"Cmf.Environment", "VM Dependency should not be included in root package");
+        }
+
+        [Fact(Skip = "requires an NPM registry")]
+        public void IoTPackageV10()
+        {
+            string dir = TestUtilities.GetTmpDirectory();
+            string packageId = "Cmf.Custom.IoT";
+            string packageIdData = "Cmf.Custom.IoT.Packages";
+            string packageFolder = "IoTPackages";
+
+            TestUtilities.CopyFixture("new", new DirectoryInfo(dir));
+            var projCfg = Path.Join(dir, ".project-config.json");
+            if (File.Exists(projCfg))
+            {
+                File.WriteAllText(projCfg, File.ReadAllText(projCfg)
+                    .Replace("8.2.0", "10.0.0")
+                    .Replace("install_path", MockUnixSupport.Path(@"x:\install_path").Replace(@"\", @"\\"))
+                    .Replace("backup_share", MockUnixSupport.Path(@"y:\backup_share").Replace(@"\", @"\\"))
+                    .Replace("temp_folder", MockUnixSupport.Path(@"z:\temp_folder").Replace(@"\", @"\\"))
+                );
+            }
+            RunNew(new IoTCommand(), packageId, dir, mesVersion: "10.0.0");
+
+            // Validate IoT Package
+            Assert.True(Directory.Exists($"{packageId}/{packageFolder}"), "Package folder is missing");
+            Assert.True(Directory.Exists($"{packageId}/{packageFolder}/src"), "src is missing");
+            Assert.True(File.Exists($"{packageId}/{packageFolder}/angular.json"), "angular.json is missing");
+            Assert.True(File.Exists($"{packageId}/{packageFolder}/package.json"), "package.json is missing");
+
+            Assert.Equal(packageIdData, TestUtilities.GetPackageProperty("packageId", $"{packageId}/{packageFolder}/cmfpackage.json"), "Package Id does not match expected");
+            Assert.Equal(PackageType.IoT.ToString(), TestUtilities.GetPackageProperty("packageType", $"{packageId}/{packageFolder}/cmfpackage.json"), "Package Type does not match expected");
+            Assert.Equal(TestUtilities.GetPackageProperty("version", $"{packageId}/cmfpackage.json"),
+                TestUtilities.GetPackageProperty("version", $"{packageId}/{packageFolder}/cmfpackage.json"), "Version does not match expected");
+            File.ReadAllText(Path.Join(dir, packageId, "cmfpackage.json"))
+                .Should().Contain(@"CriticalManufacturing.DeploymentMetadata", "VM Dependency should be included in root package");
+            File.ReadAllText(Path.Join(dir, packageId, "cmfpackage.json"))
+                .Should().Contain(@"Cmf.Environment", "VM Dependency should be included in root package");
         }
 
         [Fact]
@@ -345,7 +384,7 @@ namespace tests.Specs
 
                 // place new fixture: an init'd repository
                 TestUtilities.CopyFixture("new", new DirectoryInfo(dir));
-                
+
                 var projCfg = Path.Join(dir, ".project-config.json");
                 if (File.Exists(projCfg))
                 {
@@ -485,7 +524,7 @@ namespace tests.Specs
             {
                 Directory.SetCurrentDirectory(dir);
                 TestUtilities.CopyFixture("new", new DirectoryInfo(dir));
-                
+
                 var projCfg = Path.Join(dir, ".project-config.json");
                 if (File.Exists(projCfg))
                 {
@@ -526,7 +565,7 @@ namespace tests.Specs
                 Directory.SetCurrentDirectory(dir);
                 TestUtilities.CopyFixture("new", new DirectoryInfo(dir));
                 TestUtilities.CopyFixture("featureBase", new DirectoryInfo(dir));
-                
+
                 var projCfg = Path.Join(dir, ".project-config.json");
                 if (File.Exists(projCfg))
                 {
@@ -557,7 +596,7 @@ namespace tests.Specs
             }
         }
 
-        [Fact, Trait("TestCategory", "LongRunning")]
+        [Fact, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node12")]
         public void Features_Help()
         {
             var dir = TestUtilities.GetTmpDirectory();
@@ -572,7 +611,7 @@ namespace tests.Specs
                 Directory.SetCurrentDirectory(dir);
                 TestUtilities.CopyFixture("new", new DirectoryInfo(dir));
                 TestUtilities.CopyFixture("featureBase", new DirectoryInfo(dir));
-                
+
                 var projCfg = Path.Join(dir, ".project-config.json");
                 if (File.Exists(projCfg))
                 {
@@ -612,7 +651,7 @@ namespace tests.Specs
             }
         }
 
-        [Fact, Trait("TestCategory", "LongRunning")]
+        [Fact, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node12")]
         public void Features_UI()
         {
             var dir = TestUtilities.GetTmpDirectory();

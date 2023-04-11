@@ -1,12 +1,11 @@
 ﻿
-using System;
-using System.IO;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Handlers;
-using Cmf.CLI.Interfaces;
 using Cmf.CLI.Utilities;
+using System;
 using System.IO.Abstractions;
 
 namespace Cmf.CLI.Factories

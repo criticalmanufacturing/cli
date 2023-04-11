@@ -1,15 +1,16 @@
-﻿using System;
-using Newtonsoft.Json;
-using System.Collections.Generic;
-using System.IO.Abstractions;
-using System.Linq;
-using Cmf.CLI.Builders;
+﻿using Cmf.CLI.Builders;
+using Cmf.CLI.Commands.New;
 using Cmf.CLI.Commands.restore;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.IO.Abstractions;
+using System.Linq;
 
 namespace Cmf.CLI.Handlers
 {
@@ -19,10 +20,6 @@ namespace Cmf.CLI.Handlers
     /// <seealso cref="PresentationPackageTypeHandler" />
     public class IoTPackageTypeHandler : PresentationPackageTypeHandler
     {
-        #region Private Methods
-
-        #endregion
-
         /// <summary>
         /// Initializes a new instance of the <see cref="IoTPackageTypeHandler" /> class.
         /// </summary>
@@ -31,11 +28,96 @@ namespace Cmf.CLI.Handlers
         {
             var minimumVersion = new Version("8.3.5");
             var targetVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            IBuildCommand[] buildCommands = Array.Empty<IBuildCommand>();
+
             if (targetVersion.CompareTo(minimumVersion) < 0)
             {
                 Log.Debug(
-                    $"MES version lower than {minimumVersion.ToString()}, skipping DeployRepositoryFiles and GenerateRepositoryIndex steps. Make sure you have alternative steps in your manifest.");
+                    $"MES version lower than {minimumVersion}, skipping DeployRepositoryFiles and GenerateRepositoryIndex steps. Make sure you have alternative steps in your manifest.");
             }
+            else if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 10)
+            {
+                buildCommands = new IBuildCommand[]
+                {
+                    new ExecuteCommand<RestoreCommand>()
+                    {
+                        Command = new RestoreCommand(),
+                        DisplayName = "cmf restore",
+                        Execute = command =>
+                        {
+                            command.Execute(cmfPackage.GetFileInfo().Directory, null);
+                        }
+                    },
+                    new NPMCommand()
+                    {
+                       DisplayName = "NPM Install",
+                       Command = "install",
+                       Args = new[] {"--force"},
+                       WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                    },
+                    new NPMCommand()
+                    {
+                       DisplayName = "NPM Build",
+                       Command = "run build",
+                       Args = new[] {"--force"},
+                       WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                    },
+                    new NPMCommand()
+                    {
+                       DisplayName = "NPM Test",
+                       Command = "run test",
+                       Args = new[] {"--force"},
+                       Test = true,
+                       WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                    }
+                };
+            }
+            else
+            {
+                buildCommands = new IBuildCommand[]
+                {
+                    new ExecuteCommand<RestoreCommand>()
+                    {
+                        Command = new RestoreCommand(),
+                        DisplayName = "cmf restore",
+                        Execute = command =>
+                        {
+                            command.Execute(cmfPackage.GetFileInfo().Directory, null);
+                        }
+                    },
+                    new NPMCommand()
+                    {
+                       DisplayName = "NPM Install",
+                       Command = "install",
+                       Args = new[] {"--force"},
+                       WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                    },
+                    new NPMCommand()
+                    {
+                       DisplayName = "NPM Build",
+                       Command = "run build -ws",
+                       Args = new[] {"--force"},
+                       WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                    },
+                    new NPMCommand()
+                    {
+                       DisplayName = "NPM Test",
+                       Command = "run test -ws",
+                       Args = new[] {"--force"},
+                       WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                    },
+                   new ExecuteCommand<IoTLibCommand>()
+                    {
+                        Command = new IoTLibCommand(),
+                        DisplayName = "cmf iot lib command",
+                        Execute = command =>
+                        {
+                            command.Execute(cmfPackage.GetFileInfo().Directory);
+                        }
+                    },
+                };
+            }
+
             cmfPackage.SetDefaultValues
             (
                 targetDirectory:
@@ -69,7 +151,7 @@ namespace Cmf.CLI.Handlers
                         {
                             OnExecute = $"$(Package[{cmfPackage.PackageId}].TargetDirectory)/runtimePackages/PublishToDirectory.ps1"
                         },
-                        
+
                         new Step(StepType.DeployRepositoryFiles)
                         {
                             ContentPath = "runtimePackages/**"
@@ -77,9 +159,9 @@ namespace Cmf.CLI.Handlers
                         new Step(StepType.GenerateRepositoryIndex)
                     }.Where(step =>
                             // if MES version is inferior to 8.3.5, the DeployRepositoryFiles and GenerateRepositoryIndex steps are not supported
-                            targetVersion.CompareTo(minimumVersion) >= 0 || step.Type != StepType.DeployRepositoryFiles && step.Type != StepType.GenerateRepositoryIndex   
-                        ).ToList() 
-                        
+                            targetVersion.CompareTo(minimumVersion) >= 0 || step.Type != StepType.DeployRepositoryFiles && step.Type != StepType.GenerateRepositoryIndex
+                        ).ToList()
+
             );
 
             DefaultContentToIgnore.AddRange(new List<string>()
@@ -91,50 +173,7 @@ namespace Cmf.CLI.Handlers
                 "README.md"
             });
 
-            BuildSteps = new IBuildCommand[]
-            {
-                new ExecuteCommand<RestoreCommand>()
-                {
-                    Command = new RestoreCommand(),
-                    DisplayName = "cmf restore",
-                    Execute = command =>
-                    {
-                        command.Execute(cmfPackage.GetFileInfo().Directory, null);
-                    }
-                },
-                new NPMCommand()
-                {
-                   DisplayName = "NPM Install",
-                   Command = "install",
-                   Args = new[] {"--force"},
-                   WorkingDirectory = cmfPackage.GetFileInfo().Directory
-                },
-                new GulpCommand()
-                {
-                   GulpFile = "gulpfile.js",
-                   Task = "install",
-                   DisplayName = "Gulp Install",
-                   GulpJS = "node_modules/gulp/bin/gulp.js",
-                   WorkingDirectory = cmfPackage.GetFileInfo().Directory
-                },
-                new GulpCommand()
-                {
-                   GulpFile = "gulpfile.js",
-                   Task = "build",
-                   DisplayName = "Gulp Build",
-                   GulpJS = "node_modules/gulp/bin/gulp.js",
-                   WorkingDirectory = cmfPackage.GetFileInfo().Directory
-                },
-                new GulpCommand()
-                {
-                    GulpFile = "gulpfile.js",
-                    Task = "cliTest",
-                    DisplayName = "Gulp Test",
-                    GulpJS = "node_modules/gulp/bin/gulp.js",
-                    WorkingDirectory = cmfPackage.GetFileInfo().Directory,
-                    Test = true
-                }
-            };
+            BuildSteps = buildCommands;
 
             cmfPackage.DFPackageType = PackageType.Presentation;
         }
@@ -212,14 +251,18 @@ namespace Cmf.CLI.Handlers
 
                         string outputDirPath = $"{packageOutputDir}/runtimePackages";
 
-                        NPMCommand npmCommand = new NPMCommand()
+                        // Is not Supported in workspaces
+                        if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 10)
                         {
-                            DisplayName = "npm shrinkwrap",
-                            Args = new string[] { "shrinkwrap" },
-                            WorkingDirectory = packDirectory
-                        };
+                            NPMCommand npmCommand = new NPMCommand()
+                            {
+                                DisplayName = "npm shrinkwrap",
+                                Args = new string[] { "shrinkwrap" },
+                                WorkingDirectory = packDirectory
+                            };
 
-                        npmCommand.Exec();
+                            npmCommand.Exec();
+                        }
 
                         CmdCommand cmdCommand = new CmdCommand()
                         {
@@ -258,6 +301,5 @@ namespace Cmf.CLI.Handlers
 
             base.Pack(packageOutputDir, outputDir);
         }
-
     }
 }

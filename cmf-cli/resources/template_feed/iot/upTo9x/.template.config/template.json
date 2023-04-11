@@ -8,7 +8,7 @@
   "name": "IoT Package",
   "identity": "cmf-cli.new.iot",
   "groupIdentity": "cmf-cli.new.iot",
-  "shortName": "iot",
+  "shortName": "iot-upto9x",
   // You can create the project using this short name instead of the one above.
   "tags": {
     "language": "C#",
