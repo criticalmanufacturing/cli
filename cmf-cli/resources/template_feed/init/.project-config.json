@@ -4,10 +4,6 @@
   "BaseLayer": "<%= $CLI_PARAM_BaseLayer %>",
   "NPMRegistry": "<%= $CLI_PARAM_NPMRegistry %>",
   "NuGetRegistry": "<%= $CLI_PARAM_NuGetRegistry %>",
-  "AzureDevopsCollectionURL": "<%= $CLI_PARAM_AzureDevopsCollectionURL %>",
-  "AgentPool": "<%= $CLI_PARAM_AgentPool %>",
-  "AgentType": "<%= $CLI_PARAM_AgentType %>",
-  "RepositoryURL": "<%= $CLI_PARAM_RepositoryURL %>",
   "EnvironmentName": "<%= $CLI_PARAM_EnvironmentName %>",
   "DefaultDomain": "<%= $CLI_PARAM_DefaultDomain %>",
   "RESTPort": "<%= $CLI_PARAM_RESTPort %>",
@@ -34,5 +30,7 @@
   "HTMLPort": "<%= $CLI_PARAM_HTMLPort %>",
   "GatewayPort": "<%= $CLI_PARAM_GatewayPort %>",
   "ReleaseEnvironmentConfig": "<%= $CLI_PARAM_ReleaseEnvironmentConfig %>",
-  "ISOLocation": "<%= $CLI_PARAM_ISOLocation_JSON %>"
+  "ISOLocation": "<%= $CLI_PARAM_ISOLocation_JSON %>",
+  "DeploymentDir": "<%= $CLI_PARAM_DeploymentDir %>",
+  "DeliveredRepo": "<%= $CLI_PARAM_DeliveredRepo %>"
 }

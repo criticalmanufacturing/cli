@@ -85,11 +85,6 @@ namespace Cmf.CLI.Constants
         public const string DefaultStrategyPath = "$.tenants.config.$(tenant).strategies";
 
         /// <summary>
-        /// regex to determine repository name from the url
-        /// </summary>
-        public static readonly Regex RepoRegex = new Regex(@"^(?<proto>\w+):\/\/(?<host>[^\/]+)\/(?<collection>[^/]+)\/(?<project>[^\/]+\/)?_git\/(?<repo>.+)\/?$", RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
-
-        /// <summary>
         /// Default repository type
         /// </summary>
         public const RepositoryType DefaultRepositoryType = RepositoryType.Customization;

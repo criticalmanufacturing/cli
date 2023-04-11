@@ -4,10 +4,6 @@
   "BaseLayer": "MES",
   "NPMRegistry": "http://npm_registry/",
   "NuGetRegistry": "htt://nuget_registry/",
-  "AzureDevopsCollectionURL": "http://ad/collection",
-  "AgentPool": "agent_pool",
-  "AgentType": "Hosted",
-  "RepositoryURL": "https://repo_url/collection/project/_git/repo",
   "EnvironmentName": "system_name",
   "DefaultDomain": "DOMAIN",
   "RESTPort": "1234",
@@ -33,5 +29,9 @@
   "TemporaryPath": "temp_folder",
   "HTMLPort": "443",
   "GatewayPort": "5678",
-  "ReleaseEnvironmentConfig": "config.json"
+  "ReleaseEnvironmentConfig": "config.json",
+  "ISOLocation": "\\\\some_location\\mes_10.0.0.iso",
+  "CmfCliRepository": "https://registry.npmjs.com",
+  "DeploymentDir": "\\\\share\\deployment_dir",
+  "DeliveredRepo": "\\\\share\\deployment_dir\\Delivered"
 }

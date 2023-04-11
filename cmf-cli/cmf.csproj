@@ -59,28 +59,7 @@
   <ItemGroup>
     <EmbeddedResource Remove="resources\template_feed\**" />
     <Compile Remove="resources\template_feed\**" />
-    <None Include="resources\template_feed\**\.template.config\template.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="resources\template_feed\**">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="resources\template_feed\**\*.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="resources\template_feed\**\*.csproj">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="resources\template_feed\**\*.sln">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="resources\template_feed\database\**\*.sqlproj">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="resources\template_feed\**\.tasks\**">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="resources\template_feed\**\.vars\**">
+    <None Include="resources\template_feed\**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
