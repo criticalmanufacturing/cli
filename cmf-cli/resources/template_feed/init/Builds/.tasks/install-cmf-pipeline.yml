@@ -1,7 +1,0 @@
-steps:
-# set node version
-- template: use-node-version.yml
-
-- pwsh: npm install --no-save @criticalmanufacturing/cmf-pipeline@$(CmfPipelineVersion) --registry $(CmfPipelineRepository)
-  displayName: Install cmf-pipeline@$(CmfPipelineVersion)
-  workingDirectory: $(Agent.TempDirectory)

@@ -2,8 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-
-    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,9 +25,5 @@
   <ItemGroup>
     <ProjectReference Include="..\cmf-cli\cmf.csproj" />
     <ProjectReference Include="..\core\core.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="Fixtures\new\Builds\.vars\global.yml" />
   </ItemGroup>
 </Project>

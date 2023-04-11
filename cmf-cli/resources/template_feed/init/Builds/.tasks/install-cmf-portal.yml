@@ -1,7 +1,0 @@
-steps:
-# set node version
-- template: use-node-version.yml
-
-- pwsh: npm install --no-save @criticalmanufacturing/portal --registry ${{ variables.CmfCliRepository }}
-  displayName: Install cmf-portal
-  workingDirectory: $(Agent.TempDirectory)
