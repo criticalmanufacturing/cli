@@ -32,7 +32,6 @@ theme:
     - navigation.top
     - search.suggest
     - search.highlight
-    
 repo_url: https://github.com/criticalmanufacturing/cli
 repo_name: criticalmanufacturing/cli
 edit_uri: edit/documentation/src
@@ -42,6 +41,7 @@ plugins:
   - awesome-pages
   - section-index
   - with-pdf:
+      enabled_if_env: ENABLE_PDF_EXPORT
       output_path: /output/cmf-cli.pdf
       cover_subtitle: ""
 markdown_extensions:
