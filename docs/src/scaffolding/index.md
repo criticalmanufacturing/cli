@@ -4,7 +4,12 @@
 
 Though `@criticalmanufacturing/cli` runs with the latest `node` version, to run scaffolding commands the versions required by the target MES version are __mandatory__.
 
-For MES v8, the recommended versions are:
+For **MES v10**, the recommended versions are:
+
+- latest node 18 (Hydrogen)
+- latest npm 9 (should come with node)
+
+For MES v8 and v9, the recommended versions are:
 
 - latest node 12 (Erbium)
 - latest npm 6 (should come with node)
@@ -15,8 +20,12 @@ npm install -g windows-build-tools
 npm install -g gulp@3.9.1
 npm install -g yo@3.1.1
 ```
+For **MES v10**, you will also need [angular cli](https://angular.io/cli)
+```
+npm install -g @angular/cli
+```
 
-### Infrastructure
+### NuGet and NPM repositories
 Rarely changing information, possibly sensitive, like NuGet or NPM repositories and respective access credentials are considered infrastructure. More information on how to set up your own is available at [Infrastructure](./infrastructure.md)
 
 ### Environment Config
@@ -32,7 +41,7 @@ cmf init --config <config file.json> --infra...
 ```
 
 ## Scaffolding a repository
-Let's start by cloning the empty repository. 
+Let's start by cloning the empty repository.
 
 ```
 git clone https://git.example/repo.git
@@ -44,25 +53,33 @@ Move into the repository folder
 cd repo
 ```
 
-For a classic project example, check the [traditional](./single.md) structure documentation.
+For a classic project example, check the [traditional](./Traditional) structure documentation.
 
-For more advanced structures, you'll probably be using [Features](./features.md).
+For more advanced structures, you'll probably be using [Features](./Feature Package).
 
+## Pipelines
+By default, our scaffolding doesn't provide any built-in CI/CD pipelines, giving you the flexibility to choose any tool/platform that suits your needs.
 
+However, we can share as a reference our internal process:
 
-## Continuous Integration and Delivery
-The scaffolding templates provide a few pipelines designed for [Azure DevOps](https://dev.azure.com/). They work both in [Azure DevOps Server](https://azure.microsoft.com/en-us/services/devops/server/) and [Azure DevOps Services](https://dev.azure.com/).
+### Pull Requests (PRs)
+For each changed package, we run the command `cmf build --test`, which compiles the package and runs unit tests if available, comparing with the target branch.
+> We consider a package as "changed" when any file is modified inside a folder with a *cmfpackage.json* file.
 
-> **IMPORTANT**: Only the pipelines for Pull Request and for Package generation (CI-Changes and CI-Package) are designed to run outside of Critical Manufacturing infrastructure. We currently do not support running the Continuous Delivery part of the pipelines in a client infrastructure.
+An alternative is to run `cmf build --test` for all packages.
 
-The YAML files are available in the Builds folder at the repository root. Next to them are some JSON files which contain the metadata for the pipelines in Azure DevOps format, which can be used by directly invoking the Azure DevOps API. These files are in git ignore and they should **not** be committed, as they can contain secrets in plain text, such as Nuget credentials.
+### Continuous Integration (CI)
+After merging code into the main branch, we perform the following steps:
 
-> _For CMFers_: you can use an internal tool to import the pipeline metadata, as well as the branch policies. Check "How To Import Builds" in the COMMON wiki at Docs/Pipelines.
+1. Run `cmf build --test` to ensure successful building of all packages and passing of unit tests.
+2. Run `cmf pack` to generate a package that can be installed via DevOps Center or Critical Manufacturing Setup.
 
-The **CD-Containers** pipeline requires a secret to be created into the Azure DevOps library. Check more details in the [pipeline import document](./pipeline_import.md#secrets).
+### Continuous Deployment (CD)
+#### Traditional (Windows VMs)
+1. Follow the instructions in the [documentation](https://help.criticalmanufacturing.com/9.1/InstallationGuide/Installation)
+2. In the Package Sources step, add the path where your packages are located.
 
-## Manual Pipeline import
-For non-CMFs, it's simple to import the pipelines. Check out [this document](./pipeline_import.md).
-
-## External Users
-There is more available information for non-CMFers at [External Users](./external.md).
+#### Containers
+1. Follow the instructions in the [documentation](https://portal.criticalmanufacturing.com/Info/CustomerPortal.Support/devops_center%3Eguide%3Eupgrade_mes_customer_environment)
+2. Copy the generated packages to the folder defined in volume **Boot Packages**.
+3. In the Configuration > General Data step, set the Package to Install as `RootPackageId@PackageVersion`

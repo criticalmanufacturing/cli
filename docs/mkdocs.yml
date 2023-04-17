@@ -32,7 +32,6 @@ theme:
     - navigation.top
     - search.suggest
     - search.highlight
-    
 repo_url: https://github.com/criticalmanufacturing/cli
 repo_name: criticalmanufacturing/cli
 edit_uri: edit/documentation/src
@@ -40,6 +39,7 @@ plugins:
   - search
   - mermaid2
   - awesome-pages
+  - section-index
   - with-pdf:
       output_path: /output/cmf-cli.pdf
       cover_subtitle: ""
@@ -53,5 +53,5 @@ markdown_extensions:
             class: mermaid
             format: !!python/name:mermaid2.fence_mermaid
   - pymdownx.tabbed:
-      alternate_style: true 
+      alternate_style: true
 

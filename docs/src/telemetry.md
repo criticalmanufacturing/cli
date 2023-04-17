@@ -24,6 +24,3 @@ Enabling telemetry can be done via environment variables:
 - `cmf_cli_enable_extended_telemetry` - enable extended telemetry. Note the above warnings regarding the impact of keeping this on. To enable, set to `true` or `1`, do not set or set to `false` or `0` to disable.
 - `cmf_cli_telemetry_enable_console_exporter` - also print the telemetry information to the console. This is for auditing or troubleshooting as it makes the console output extremely verbose
 - `cmf_cli_telemetry_host` - specify an alternate telemetry endpoint (if you're hosting your own)
-
-## Pipelines
-**NOTE: The CI-Package pipeline is shipped with telemetry ON**. The provided pipelines are built for Critical Manufacturing use and provided as an example for the user to build their own. As at CM we keep telemetry on for troubleshooting, the generated pipelines have telemetry on. To disable, search for the `cmf_cli_enable_telemetry` environment variable in the pipeline YAML and disable it.
