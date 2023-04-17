@@ -9,6 +9,7 @@ build:
     RUN pip3 install -r requirements.txt
     RUN apt update && apt install -y python3-pip python3-cffi python3-brotli libpango-1.0-0 libpangoft2-1.0-0
     COPY . .
+    ENV ENABLE_PDF_EXPORT=1
     RUN mkdocs build
     RUN touch /app/book/.nojekyll # disable GitHub pages parsing
     SAVE ARTIFACT /app/book /dist AS LOCAL dist
