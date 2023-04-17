@@ -4,66 +4,56 @@ A "traditional project" does not contain [feature packages](./features.md), is d
 
 These projects are usually composed of Business, UI, Help and Master Data customization, with optionally Exported Objects and IoT.
 
-The objective is to obtain a structure equivalent to what `solgen` provided.
 
 Please consult each commands help page for details of what each switch does.
 
 ## Initialize the repository
 
-These types of projects usually fully own their git repository and as such need to be initialized to obtain the base repo structure, as well as the build pipelines if we are targeting Azure DevOps.
+These types of projects usually fully own their git repository and as such need to be initialized to obtain the base repo structure.
 
 This is done with the `cmf init` command:
 
-=== "Classic"
+=== "MES v10"
     ```pwsh
-    cmf init Example `
-        --infra ..\COMMON\infrastructure\CMF-internal.json `
-        -c Example.json `
-        --repositoryUrl https://tfs.criticalmanufacturing.com/Projects/Test/_git/Test `
-        --MESVersion 8.2.1 `
-        --DevTasksVersion 8.2.0 `
-        --HTMLStarterVersion 8.0.0 `
-        --yoGeneratorVersion 8.1.1 `
-        --nugetVersion 8.2.1 `
-        --testScenariosNugetVersion 8.2.1 `
-        --deploymentDir \\vm-project.criticalmanufacturing.com\Deployments `
-        --ISOLocation \\setups\CriticalManufacturing.iso `
+    cmf init ExampleProject `
+        --infra ..\infrastructure\infra.json `
+        --config ..\config\ExampleEnvironment.json `
+        --repositoryUrl https://repository.local/Projects/Test/_git/Test `
+        --MESVersion 10.0.0 `
+        --ngxSchematicsVersion 10.0.0 `
+        --nugetVersion 10.0.0 `
+        --testScenariosNugetVersion 10.0.0 `
+        --deploymentDir \\directory\Deployments `
+        --ISOLocation \\directory\CriticalManufacturing.iso `
         --version 1.0.0
     ```
-=== "Containers"
+=== "up to MES v9"
     ```pwsh
-    cmf init Example `
-        --infra ..\COMMON\infrastructure\CMF-internal.json `
-        -c Example.json `
-        --repositoryUrl https://tfs.criticalmanufacturing.com/Projects/Test/_git/Test `
-        --MESVersion 8.2.1 `
-        --DevTasksVersion 8.2.0 `
+    cmf init ExampleProject `
+        --infra ..\infrastructure\infra.json `
+        --config ..\config\ExampleEnvironment.json `
+        --repositoryUrl https://repository.local/Projects/Test/_git/Test `
+        --MESVersion 9.0.11 `
+        --DevTasksVersion 9.0.4 `
         --HTMLStarterVersion 8.0.0 `
         --yoGeneratorVersion 8.1.1 `
-        --nugetVersion 8.2.1 `
-        --testScenariosNugetVersion 8.2.1 `
+        --nugetVersion 9.0.11 `
+        --testScenariosNugetVersion 9.0.11 `
         --deploymentDir \\vm-project.criticalmanufacturing.com\Deployments `
         --ISOLocation \\setups\CriticalManufacturing.iso `
         --version 1.0.0 `
-        --releaseCustomerEnvironment EnvironmentName `
-        --releaseSite EnvironmentSite `
-        --releaseDeploymentPackage \@criticalmanufacturing\mes:8.3.1 `
-        --releaseLicense EnvironmentLicense `
-        --releaseDeploymentTarget EnvironmentTarget
     ```
-    `EnvironmentTarget` can take any value recognized by the Portal SDK, which can be found [here](https://github.com/criticalmanufacturing/portal-sdk/blob/main/src/Common/DeploymentTarget.cs).
 
 Note: The `` ` `` character escapes multiline commands in `powershell`. For bash, the `\` character does the same thing.
 
 The infrastructure file specifies the repositories to be used to get the project dependencies.
-If you are scaffolding a Deployment Services project, there is a CMF-internal.json infra file which specifies our internal infrastructure. It's in the **COMMON** project, **Tools** repository, at `/infrastructure`.
-If scaffolding a customer or partner project, you will need to create this infrastructure file first. Check [Infrastructure](./infrastructure.md) for more details.
+You will need to create this infrastructure file first. Check [Infrastructure](./infrastructure.md) for more details.
 
-As in previous scenarios, the versions for the various input options must be previously determined. Unlike with `solgen`, `cmf init` will not assume default/current values for these options.
+As in previous scenarios, the versions for the various input options must be previously determined. `cmf init` will not assume default/current values for these options.
 
-This will also create a root package, which may or may not be shipped to the customer. Unlike with `solgen`, this root package has no dependencies, initially. Each time a layer package is created, it will be registered in the higher level package found. For a traditional repository, this will be the root package.
+This will also create a root package, which may or may not be shipped to the customer. This root package has no dependencies, initially. Each time a layer package is created, it will be registered in the higher level package found. For a traditional repository, this will be the root package.
 
-If you are using version cmf-cli version 2x, follow the instructions defined in the [Post-scaffolding package tailoring](./post-scaffolding-package-tailoring.md). You will not be able to generate the layer packages before doing this. In version 3, this is already done by the CLI.
+If you are currently using version cmf-cli version 2x, follow the instructions defined in the [Post-scaffolding package tailoring](./post-scaffolding-package-tailoring.md). You will not be able to generate the layer packages before doing this. In version 3, this is already done by the CLI.
 
 ## Layer packages
 
@@ -77,10 +67,10 @@ The business package is straightforward and is generated with the `cmf new busin
 cmf new business --version 1.0.0
 ```
 
-This creates a [.NET](https://en.wikipedia.org/wiki/.NET) solution for backend development. Please note that unlike with `solgen`, the Actions project is not included in the business solution.
+This creates a [.NET](https://en.wikipedia.org/wiki/.NET) solution for backend development. Actions project is not included in the business solution.
 
 ### Master Data
-The Master Data package includes also the Exported Objects. Unlike in a `solgen` solution, Exported Objects are loaded via Master Data and not using a specific ExportedObjects sub-package.
+The Master Data package includes also the Exported Objects. Exported Objects are loaded via Master Data and not using a specific ExportedObjects sub-package.
 
 As the Master Data package also includes the Process Rules, it can optionally register the Actions package in a specific Business solution. For the traditional scenario, the command would be:
 
@@ -89,21 +79,38 @@ cmf new data --version 1.0.0 --businessPackage .\Cmf.Custom.Business\
 ```
 
 ### UI
-The UI and Help packages are also scaffolded differently from a `solgen` project. To fully scaffold these solutions, the corresponding Deployment Framework package needs to be specified. These can be found in the MES ISO/disk. Make sure you use the correct version: a mismatch may cause all kinds of problems when running.
+=== "MES v10"
+    The html and help packages are straightforward and are generated with the `cmf new html` and `cmf new help` commands:
 
-The corresponding commands are:
+    The corresponding commands are:
 
-#### HTML
-```
-cmf new html --version 1.0.0 --htmlPackage H:\packages\Cmf.Presentation.HTML.8.2.1.zip
-```
+    #### HTML
+    ```
+    cmf new html --version 1.0.0
+    ```
 
-If you require NPM registry authentication, the current procedure is to include the auth information in the apps\customization.web\.npmrc file as is standard.
+    If you require NPM registry authentication, the current procedure is to include the auth information in the apps\customization.web\.npmrc file as is standard.
 
-#### Help
-```
-cmf new help --version 1.0.0 --documentationPackage H:\packages\Cmf.Documentation.8.2.1.zip
-```
+    #### Help
+    ```
+    cmf new help --version 1.0.0
+    ```
+=== "up to MES v9"
+    To fully scaffold UI and Help solutions, the corresponding Deployment Framework package needs to be specified. These can be found in the MES ISO/disk. Make sure you use the correct version: a mismatch may cause all kinds of problems when running.
+
+    The corresponding commands are:
+
+    #### HTML
+    ```
+    cmf new html --version 1.0.0 --htmlPackage H:\packages\Cmf.Presentation.HTML.10.0.0.zip
+    ```
+
+    If you require NPM registry authentication, the current procedure is to include the auth information in the apps\customization.web\.npmrc file as is standard.
+
+    #### Help
+    ```
+    cmf new help --version 1.0.0 --documentationPackage H:\packages\Cmf.Documentation.10.0.0.zip
+    ```
 
 ### IoT
 The IoT package contains both IoTData and IoTPackages as sub-packages. They are always created together.
