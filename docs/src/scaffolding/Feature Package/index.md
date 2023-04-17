@@ -15,7 +15,7 @@ In these cases, projects are usually structured in a **Feature Packages** arrang
 
 ## Initialize the Repository
 
-In case we are creating the first package in the repository, we need to initialize it in the same way as we do for a traditional project. Check the **Initialize the repository** section of the [traditional scaffolding instructions](./single.md).
+In case we are creating the first package in the repository, we need to initialize it in the same way as we do for a traditional project. Check the **Initialize the repository** section of the [traditional scaffolding instructions](./../Traditional).
 
 ## Creating a Feature Package
 A **Feature Package** is a metapackage that can include one or more layer packages, e.g. we can have a Feature package that includes only a Business package.
@@ -39,7 +39,7 @@ After creating a Feature package, it is not longer possible to create new layer 
 
 ## Creating Layer packages in a Feature package
 
-Creating layer packages works exactly in the same way as for a [traditional project](./single.md), but the `cmf new` command should run from inside the feature package:
+Creating layer packages works exactly in the same way as for a [traditional project](./../Traditional), but the `cmf new` command should run from inside the feature package:
 
 ```bash
 > cd Features/Cmf.Custom.Baseline
