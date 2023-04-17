@@ -3,7 +3,7 @@
   "RepositoryType": "Customization",
   "BaseLayer": "MES",
   "NPMRegistry": "http://npm_registry/",
-  "NuGetRegistry": "htt://nuget_registry/",
+  "NuGetRegistry": "http://nuget_registry/",
   "EnvironmentName": "system_name",
   "DefaultDomain": "DOMAIN",
   "RESTPort": "1234",
@@ -33,5 +33,6 @@
   "ISOLocation": "\\\\some_location\\mes_10.0.0.iso",
   "CmfCliRepository": "https://registry.npmjs.com",
   "DeploymentDir": "\\\\share\\deployment_dir",
-  "DeliveredRepo": "\\\\share\\deployment_dir\\Delivered"
+  "DeliveredRepo": "\\\\share\\deployment_dir\\Delivered",
+  "CIRepo": "\\\\share\\deployment_dir\\CIPackages"
 }

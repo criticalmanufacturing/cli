@@ -298,7 +298,6 @@ namespace tests.Specs
             Debug.WriteLine("Generating at " + tmp);
 
             var projectName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
-            var repoUrl = "https://repo_url/collection/project/_git/repo";
             var deploymentDir = "\\\\share\\deployment_dir";
             var isoLocation = "\\\\share\\iso_location";
             var pkgVersion = $"{rnd.Next(10)}.{rnd.Next(10)}.{rnd.Next(10)}";
