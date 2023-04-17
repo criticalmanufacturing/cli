@@ -32,5 +32,6 @@
   "ReleaseEnvironmentConfig": "<%= $CLI_PARAM_ReleaseEnvironmentConfig %>",
   "ISOLocation": "<%= $CLI_PARAM_ISOLocation_JSON %>",
   "DeploymentDir": "<%= $CLI_PARAM_DeploymentDir %>",
-  "DeliveredRepo": "<%= $CLI_PARAM_DeliveredRepo %>"
+  "DeliveredRepo": "<%= $CLI_PARAM_DeliveredRepo %>",
+  "CIrepo": "<%= $CLI_PARAM_CIRepo %>"
 }
