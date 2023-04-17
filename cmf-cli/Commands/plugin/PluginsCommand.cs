@@ -23,7 +23,7 @@ public class PluginsCommand : BaseCommand
     public void Execute(Uri[] registry)
     {
         var npmClient = ExecutionContext.ServiceProvider.GetService<INPMClient>();
-        var packages = npmClient.FindPlugins(registry);
+        var packages = npmClient.FindPlugins(registry?.Length > 0 ? registry : null); // null implies using the default registry
         foreach (var package in packages)
         {
             Log.Render(new Markup($"[bold deepskyblue1] {package.Name}[/]   {(package.IsOfficial ? "[default on green3] :check_mark:  Official Plugin [/]" : "")}"));
