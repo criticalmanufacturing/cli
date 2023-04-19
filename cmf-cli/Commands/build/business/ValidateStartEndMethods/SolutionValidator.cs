@@ -101,11 +101,14 @@ internal class SolutionValidator
                     switch (classType)
                     {
                         case ClassType.Controller:
-                            processor = _serviceProvider.GetRequiredService<IOrchestrationStartMethodProcessor>();
-                            break;
+                            if (methodParameterList.ContainsInputObject())
+								processor = _serviceProvider.GetRequiredService<IOrchestrationStartMethodProcessor>();
+
+							break;
 
                         case ClassType.Orchestration:
-                            processor = _serviceProvider.GetRequiredService<IOrchestrationStartMethodProcessor>();
+							if (methodParameterList.ContainsInputObject())
+								processor = _serviceProvider.GetRequiredService<IOrchestrationStartMethodProcessor>();
                             break;
 
                         case ClassType.EntityType:
@@ -125,11 +128,13 @@ internal class SolutionValidator
                     switch (classType)
                     {
                         case ClassType.Controller:
-                            processor = _serviceProvider.GetRequiredService<IOrchestrationEndMethodProcessor>();
+							if (methodParameterList.ContainsInputObject())
+								processor = _serviceProvider.GetRequiredService<IOrchestrationEndMethodProcessor>();
                             break;
 
                         case ClassType.Orchestration:
-                            processor = _serviceProvider.GetRequiredService<IOrchestrationEndMethodProcessor>();
+							if (methodParameterList.ContainsInputObject())
+								processor = _serviceProvider.GetRequiredService<IOrchestrationEndMethodProcessor>();
                             break;
 
                         case ClassType.EntityType:
@@ -147,7 +152,7 @@ internal class SolutionValidator
 
                 if (processor != null)
                 {
-                    processor.SetValues(namespaceName, className, methodName, methodParameterList, outputType);
+                    processor.SetValues(namespaceName, className, methodName, methodParameterList, outputType, classType);
                     processor.Process(statementToProcess);
                 }
             }

@@ -41,21 +41,24 @@ internal class OrchestrationEndMethodProcessor : BaseProcessor, IOrchestrationEn
 
     private void ValidateOutputParameter(IEnumerable<SyntaxNode> arguments)
     {
-        foreach (var objectArgument in arguments)
+        if (_outputType.EndsWith("Output"))
         {
-            if (objectArgument.IsKind(SyntaxKind.ObjectCreationExpression))
-            {
-                var ObjectArgumentList = objectArgument.ChildNodes().Where(x => x.IsKind(SyntaxKind.ArgumentList)).FirstOrDefault() as ArgumentListSyntax;
-                var dictionaryKey = ObjectArgumentList is null ? string.Empty : ObjectArgumentList.Arguments[0].ToString().Trim('"');
-                var dictionaryValue = ObjectArgumentList?.Arguments[1].ToString();
+			foreach (var objectArgument in arguments)
+			{
+				if (objectArgument.IsKind(SyntaxKind.ObjectCreationExpression))
+				{
+					var ObjectArgumentList = objectArgument.ChildNodes().Where(x => x.IsKind(SyntaxKind.ArgumentList)).FirstOrDefault() as ArgumentListSyntax;
+					var dictionaryKey = ObjectArgumentList is null ? string.Empty : ObjectArgumentList.Arguments[0].ToString().Trim('"');
+					var dictionaryValue = ObjectArgumentList?.Arguments[1].ToString();
 
-                if (dictionaryKey.EqualsToItselfOrNameOfItself(_outputType))
-                {
-                    return;
-                }
-            }
-        }
+					if (dictionaryKey.EqualsToItselfOrNameOfItself(_outputType))
+					{
+						return;
+					}
+				}
+			}
 
-        Log.Warning(string.Format(ErrorMessages.MethodParameterMissingOrIncorrectlyNamed, StartEndMethodString, _namespaceName, _className, _methodName, _outputType));
+			Log.Warning(string.Format(ErrorMessages.MethodParameterMissingOrIncorrectlyNamed, StartEndMethodString, _namespaceName, _className, _methodName, _outputType));
+		}        
     }
 }
