@@ -8,12 +8,24 @@ namespace Cmf.CLI.Commands.build.business.ValidateStartEndMethods.Extensions;
 
 internal static class ChildSyntaxListExtensions
 {
-    internal static KeyValuePair<string, string> GetParameterNameValuePair(this ParameterSyntax parameterSyntax)
+    internal static KeyValuePair<string, string> GetParameterNameValuePair(this ParameterSyntax parameterSyntax, bool isEntityType)
     {
-        var key = parameterSyntax.ChildNodes()?.Where(x => x.IsKind(SyntaxKind.IdentifierName) || x.IsKind(SyntaxKind.PredefinedType)).FirstOrDefault()?.ChildTokens().FirstOrDefault().Text;
-        var value = parameterSyntax.ChildTokens().Where(y => y.IsKind(SyntaxKind.IdentifierToken)).FirstOrDefault().Text;
+        string key;
+        string value;
 
-        key ??= string.Empty;
+        if (isEntityType)
+        {
+			value = parameterSyntax.ChildTokens().Where(y => y.IsKind(SyntaxKind.IdentifierToken)).FirstOrDefault().Text;
+			key = value.ToUpper(1);
+		}
+		else
+        {
+			key = parameterSyntax.ChildNodes()?.Where(x => x.IsKind(SyntaxKind.IdentifierName)).FirstOrDefault()?.ChildTokens().FirstOrDefault().Text;
+			value = parameterSyntax.ChildTokens().Where(y => y.IsKind(SyntaxKind.IdentifierToken)).FirstOrDefault().Text;
+
+            // In this case the type of the parameter is a int, long, etc.
+			key ??= value.ToUpper(1);
+		}		
 
         return new KeyValuePair<string, string>(key, value);
     }

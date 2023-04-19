@@ -1,4 +1,5 @@
 ﻿using Cmf.CLI.Commands.build.business.ValidateStartEndMethods.Abstractions.Processors;
+using Cmf.CLI.Commands.build.business.ValidateStartEndMethods.Enums;
 using Cmf.CLI.Commands.build.business.ValidateStartEndMethods.Extensions;
 using Cmf.CLI.Core;
 using Microsoft.CodeAnalysis;
@@ -16,6 +17,7 @@ internal abstract class BaseProcessor : IBaseProcessor
     protected string _methodName = string.Empty;
     protected List<KeyValuePair<string, string>> _parameterNames = new();
     protected string _outputType = string.Empty;
+    private ClassType _classType; 
 
     internal BaseProcessor()
     {
@@ -25,13 +27,13 @@ internal abstract class BaseProcessor : IBaseProcessor
 
     public string StartEndMethodString => IsStartMethod ? "StartMethod" : "EndMethod";
 
-    public void SetValues(string namespaceName, string className, string methodName, IEnumerable<ParameterSyntax> parameters, string outputType)
+    public void SetValues(string namespaceName, string className, string methodName, IEnumerable<ParameterSyntax> parameters, string outputType, ClassType classType)
     {
         _namespaceName = namespaceName;
         _className = className;
         _methodName = methodName;
         _parameterNames = new();
-        _parameterNames.AddRange(parameters.Where(x => x.IsKind(SyntaxKind.Parameter)).Select(x => x.GetParameterNameValuePair()));
+        _parameterNames.AddRange(parameters.Where(x => x.IsKind(SyntaxKind.Parameter)).Select(x => x.GetParameterNameValuePair(classType == ClassType.EntityType)));
         _outputType = outputType;
     }
 
