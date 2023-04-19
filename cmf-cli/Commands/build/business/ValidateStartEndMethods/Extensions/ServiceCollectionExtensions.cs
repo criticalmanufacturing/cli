@@ -6,10 +6,13 @@ namespace Cmf.CLI.Commands.build.business.ValidateStartEndMethods.Extensions;
 
 internal static class ServiceCollectionExtensions
 {
-    public static void AddProcessors(this ServiceCollection services)
-    {
-        // Add classes
-        services.AddScoped<IOrchestrationStartMethodProcessor, OrchestrationStartMethodProcessor>();
-        services.AddScoped<IOrchestrationEndMethodProcessor, OrchestrationEndMethodProcessor>();
-    }
+	public static void AddProcessors(this ServiceCollection services)
+	{
+		// Add factories
+		services.AddScoped<IProcessorFactory, ProcessorFactory>();
+
+		// Add classes
+		services.AddScoped<IOrchestrationStartMethodProcessor, OrchestrationStartMethodProcessor>();
+		services.AddScoped<IOrchestrationEndMethodProcessor, OrchestrationEndMethodProcessor>();
+	}
 }

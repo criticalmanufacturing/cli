@@ -2,9 +2,8 @@
 using Cmf.CLI.Commands.build.business.ValidateStartEndMethods.Enums;
 using Cmf.CLI.Commands.build.business.ValidateStartEndMethods.Extensions;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.Extensions.DependencyInjection;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,149 +12,81 @@ namespace Cmf.CLI.Commands.build.business.ValidateStartEndMethods;
 
 internal class SolutionValidator
 {
-    private readonly IServiceProvider _serviceProvider;
-    private readonly string _solutionPath;
-    private readonly IList<string> _files;
+	private readonly IProcessorFactory _processorFactory;
+	private readonly string _solutionPath;
+	private readonly IList<string> _files;
 
-    public SolutionValidator(IServiceProvider serviceProvider, string solutionPath, IEnumerable<string> files)
-    {
-        _serviceProvider = serviceProvider;
-        _solutionPath = solutionPath;
-        _files = files.ToList();
-    }
+	public SolutionValidator(IProcessorFactory processorFactory, string solutionPath, IEnumerable<string> files)
+	{
+		_processorFactory = processorFactory;
+		_solutionPath = solutionPath;
+		_files = files.ToList();
+	}
 
-    public async Task ValidateSolution()
-    {
-        var solutionLoader = new SolutionLoader(_solutionPath);
-        var workspace = solutionLoader.ReLoadSolution();
-        var projects = workspace.CurrentSolution.Projects;
+	public async Task ValidateSolution()
+	{
+		var solutionLoader = new SolutionLoader(_solutionPath);
+		var workspace = solutionLoader.ReLoadSolution();
+		var projects = workspace.CurrentSolution.Projects;
 
-        foreach (var project in projects)
-        {
-            foreach (var document in project.Documents)
-            {
-                if (!_files.Any() || _files.Contains(document.Name))
-                {
-                    var syntaxTree = await document.GetSyntaxTreeAsync();
+		foreach (var project in projects)
+		{
+			foreach (var document in project.Documents)
+			{
+				if (!_files.Any() || _files.Contains(document.Name))
+				{
+					var syntaxTree = await document.GetSyntaxTreeAsync();
 
-                    if (syntaxTree is null)
-                    {
-                        continue;
-                    }
+					if (syntaxTree is null)
+					{
+						continue;
+					}
 
-                    var namespaceNodes = syntaxTree.GetRoot().DescendantNodes().OfType<NamespaceDeclarationSyntax>();
+					var namespaceNodes = syntaxTree.GetRoot().DescendantNodes().OfType<NamespaceDeclarationSyntax>();
 
-                    foreach (var namespaceNode in namespaceNodes)
-                    {
-                        var classDeclarations = namespaceNode.ChildNodes().OfType<ClassDeclarationSyntax>();
+					foreach (var namespaceNode in namespaceNodes)
+					{
+						var classDeclarations = namespaceNode.ChildNodes().OfType<ClassDeclarationSyntax>();
 
-                        foreach (var classDeclaration in classDeclarations)
-                        {
-                            var methodNodes = classDeclaration.ChildNodes().OfType<MethodDeclarationSyntax>();
-                            var classIdentifierToken = classDeclaration.Identifier;
-                            var classType = classDeclaration.GetClassType();
+						foreach (var classDeclaration in classDeclarations)
+						{
+							var methodNodes = classDeclaration.ChildNodes().OfType<MethodDeclarationSyntax>();
+							var classIdentifierToken = classDeclaration.Identifier;
+							var classType = classDeclaration.GetClassType();
 
-                            if (classType != ClassType.Other)
-                            {
-                                foreach (MethodDeclarationSyntax methodNode in methodNodes)
-                                {
-                                    ProcessMethod(methodNode, namespaceNode, classType, classIdentifierToken);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+							if (classType != ClassType.Other)
+							{
+								foreach (MethodDeclarationSyntax methodNode in methodNodes)
+								{
+									ProcessMethod(namespaceNode, classType, methodNode, classIdentifierToken);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 
-    public void ProcessMethod(MethodDeclarationSyntax methodNode, NamespaceDeclarationSyntax namespaceNode, ClassType classType, SyntaxToken classIdentifierToken)
-    {
-        var block = methodNode.Body;
-        var methodName = methodNode.Identifier.ValueText;
-        var outputType = methodNode.ReturnType is null ? string.Empty : methodNode.ReturnType.ToString();
-        var methodParameterList = methodNode.ParameterList.Parameters;
-        var namespaceName = namespaceNode.Name.ToString();
-        var className = classIdentifierToken.ToString();
+	public void ProcessMethod(NamespaceDeclarationSyntax namespaceNode, ClassType classType, MethodDeclarationSyntax methodNode, SyntaxToken classIdentifierToken)
+	{
+		var block = methodNode.Body;
 
-        if (block is null)
-        {
-            return;
-        }
+		if (block is null)
+		{
+			return;
+		}
 
-        foreach (var statement in block.DescendantNodes())
-        {
-            var statementToProcess = statement;
+		var methodName = methodNode.Identifier.ValueText;
+		var outputType = methodNode.ReturnType is null ? string.Empty : methodNode.ReturnType.ToString();
+		var parameters = methodNode.ParameterList.Parameters;
+		var namespaceName = namespaceNode.Name.ToString();
+		var className = classIdentifierToken.ToString();
 
-            if (statement.IsTryStatement())
-            {
-                statementToProcess = statement.GetEndMethodExpression();
-            }
-
-            if (statementToProcess != null)
-            {
-                IBaseProcessor processor = null;
-
-                if (statementToProcess.IsStartMethod())
-                {
-                    switch (classType)
-                    {
-                        case ClassType.Controller:
-                            if (methodParameterList.ContainsInputObject())
-								processor = _serviceProvider.GetRequiredService<IOrchestrationStartMethodProcessor>();
-
-							break;
-
-                        case ClassType.Orchestration:
-							if (methodParameterList.ContainsInputObject())
-								processor = _serviceProvider.GetRequiredService<IOrchestrationStartMethodProcessor>();
-                            break;
-
-                        case ClassType.EntityType:
-                            // TODO: EntityType
-                            break;
-
-                        case ClassType.EntityTypeCollection:
-                            // TODO: EntityTypeCollection
-                            break;
-
-                        default:
-                            break;
-                    }
-                }
-                else if (statementToProcess.IsEndMethod())
-                {
-                    switch (classType)
-                    {
-                        case ClassType.Controller:
-							if (methodParameterList.ContainsInputObject())
-								processor = _serviceProvider.GetRequiredService<IOrchestrationEndMethodProcessor>();
-                            break;
-
-                        case ClassType.Orchestration:
-							if (methodParameterList.ContainsInputObject())
-								processor = _serviceProvider.GetRequiredService<IOrchestrationEndMethodProcessor>();
-                            break;
-
-                        case ClassType.EntityType:
-                            // TODO: EntityType
-                            break;
-
-                        case ClassType.EntityTypeCollection:
-                            // TODO: EntityTypeCollection
-                            break;
-
-                        default:
-                            break;
-                    }
-                }
-
-                if (processor != null)
-                {
-                    processor.SetValues(namespaceName, className, methodName, methodParameterList, outputType, classType);
-                    processor.Process(statementToProcess);
-                }
-            }
-        }
-    }
+		foreach (var statement in block.DescendantNodes().Where(x => x.IsKind(SyntaxKind.ExpressionStatement) && (x.IsStartMethod() || x.IsEndMethod())))
+		{
+			IBaseProcessor processor = _processorFactory.Create(classType, namespaceName, className, methodName, outputType, parameters, statement);
+			processor?.Process();
+		}
+	}
 }

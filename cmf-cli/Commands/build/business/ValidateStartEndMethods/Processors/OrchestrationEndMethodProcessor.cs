@@ -11,38 +11,49 @@ namespace Cmf.CLI.Commands.build.business.ValidateStartEndMethods.Processors;
 
 internal class OrchestrationEndMethodProcessor : BaseProcessor, IOrchestrationEndMethodProcessor
 {
-    public override bool IsStartMethod => false;
+	public override bool IsStartMethod => false;
 
-    public override void Process(SyntaxNode statement)
-    {
-        base.Process(statement);
+	public override void Process()
+	{
+		base.Process();
 
-        var statementArguments = statement.DescendantNodes().OfType<ArgumentListSyntax>().FirstOrDefault();
+		var statementArguments = _statementToProcess.DescendantNodes().OfType<ArgumentListSyntax>().FirstOrDefault();
 
-        if (statementArguments is null)
-        {
-            return;
-        }
+		if (statementArguments is null)
+		{
+			return;
+		}
 
-        // TODO: Validate EntityTypeId
+		// TODO: Validate EntityTypeId
 
-        // TODO: Validate EntityId
+		// TODO: Validate EntityId
 
-        ValidateOutputParameter(statementArguments.Arguments.Select(x => x.ChildNodes()).Aggregate((l1, l2) => l1.Concat(l2)));
-    }
+		ValidateOutputParameter(statementArguments.Arguments.Select(x => x.ChildNodes()).Aggregate((l1, l2) => l1.Concat(l2)));
 
-    public override void ValidateParameterCount(ArgumentListSyntax statementArguments)
-    {
-        if (statementArguments.Arguments.Count != 3 + _parameterNames.Count)
-        {
-            Log.Warning(string.Format(ErrorMessages.MethodHasIncorrectNumberOfParameters, StartEndMethodString, _namespaceName, _className, _methodName, statementArguments.Arguments.Count, 2 + _parameterNames.Count));
-        }
-    }
+		ValidateInputOutputAndMethodNameEquality();
+	}
 
-    private void ValidateOutputParameter(IEnumerable<SyntaxNode> arguments)
-    {
-        if (_outputType.EndsWith("Output"))
-        {
+	public override void ValidateParameterCount(ArgumentListSyntax statementArguments)
+	{
+		if (statementArguments.Arguments.Count != 3 + _parameterNames.Count)
+		{
+			Log.Warning(string.Format(ErrorMessages.MethodHasIncorrectNumberOfParameters, StartEndMethodString, _className, _methodName, statementArguments.Arguments.Count, 2 + _parameterNames.Count));
+		}
+	}
+
+	private void ValidateInputOutputAndMethodNameEquality()
+	{
+		var _inputTypeName = _parameterNames.FirstOrDefault(x => x.Key.EndsWith("Input")).Key[..^5];
+		var _outputTypeName = _outputType[..^6];
+
+		if (_inputTypeName != _outputTypeName || _inputTypeName != _methodName)
+			Log.Warning(string.Format(ErrorMessages.InputOutputMethodDoNotCoincide, _className, _methodName));
+	}
+
+	private void ValidateOutputParameter(IEnumerable<SyntaxNode> arguments)
+	{
+		if (_outputType.EndsWith("Output"))
+		{
 			foreach (var objectArgument in arguments)
 			{
 				if (objectArgument.IsKind(SyntaxKind.ObjectCreationExpression))
@@ -58,7 +69,7 @@ internal class OrchestrationEndMethodProcessor : BaseProcessor, IOrchestrationEn
 				}
 			}
 
-			Log.Warning(string.Format(ErrorMessages.MethodParameterMissingOrIncorrectlyNamed, StartEndMethodString, _namespaceName, _className, _methodName, _outputType));
-		}        
-    }
+			Log.Warning(string.Format(ErrorMessages.MethodParameterMissingOrIncorrectlyNamed, StartEndMethodString, _className, _methodName, _outputType));
+		}
+	}
 }

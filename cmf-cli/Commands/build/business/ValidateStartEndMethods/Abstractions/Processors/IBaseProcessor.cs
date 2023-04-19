@@ -7,13 +7,13 @@ namespace Cmf.CLI.Commands.build.business.ValidateStartEndMethods.Abstractions.P
 
 internal interface IBaseProcessor
 {
-    bool IsStartMethod { get; }
+	bool IsStartMethod { get; }
 
-    string StartEndMethodString { get; }
+	string StartEndMethodString { get; }
 
-    void SetValues(string namespaceName, string className, string methodName, IEnumerable<ParameterSyntax> parameters, string outputType, ClassType classType);
+	void SetValues(ClassType classType, string namespaceName, string className, string methodName, string outputType, IEnumerable<ParameterSyntax> parameters, SyntaxNode statementToProcess);
 
-    void ValidateParameterCount(ArgumentListSyntax statementArguments);
+	void ValidateParameterCount(ArgumentListSyntax statementArguments);
 
-    void Process(SyntaxNode statement);
+	void Process();
 }

@@ -8,13 +8,13 @@ namespace Cmf.CLI.Commands.build.business.ValidateStartEndMethods.Extensions;
 
 internal static class ListExtensions
 {
-    internal static bool ContainsKeyValue<TKey, TValue>(this IList<KeyValuePair<TKey, TValue>> list, TKey? key, TValue? value)
-    {
-        if (key is null || value is null)
-            return false;
+	internal static bool ContainsKeyValue<TKey, TValue>(this IList<KeyValuePair<TKey, TValue>> list, TKey? key, TValue? value)
+	{
+		if (key is null || value is null)
+			return false;
 
-        return list.Contains(new KeyValuePair<TKey, TValue>(key, value));
-    }
+		return list.Contains(new KeyValuePair<TKey, TValue>(key, value));
+	}
 
 	internal static bool ContainsInputObject(this SeparatedSyntaxList<ParameterSyntax> list)
 	{
@@ -25,7 +25,7 @@ internal static class ListExtensions
 			if (identifierToken != null && identifierToken.ToString().EndsWith("Input"))
 				return true;
 		}
-		
-		return false;		
+
+		return false;
 	}
 }
