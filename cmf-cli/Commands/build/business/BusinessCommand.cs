@@ -1,8 +1,5 @@
-﻿using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
-using System.IO.Abstractions;
-using Cmf.CLI.Core.Attributes;
-using Cmf.CLI.Core.Commands;
+﻿using Cmf.CLI.Core.Attributes;
+using System.CommandLine;
 
 namespace Cmf.CLI.Commands.build.business
 {
@@ -10,14 +7,12 @@ namespace Cmf.CLI.Commands.build.business
 	/// "new" command group
 	/// </summary>
 	[CmfCommand("business", Id = "build_business", ParentId = "build")]
-	public class BusinessCommand : TemplateCommand
+	public class BusinessCommand : BaseCommand
 	{
-		private Command _cmd;
-
 		/// <summary>
 		/// constructor
 		/// </summary>
-		public BusinessCommand() : base("business")
+		public BusinessCommand()
 		{
 		}
 
@@ -26,16 +21,6 @@ namespace Cmf.CLI.Commands.build.business
 		/// </summary>
 		/// <param name="cmd"></param>
 		public override void Configure(Command cmd)
-		{
-			_cmd = cmd;
-			cmd.Handler = CommandHandler.Create(Execute);
-		}
-
-		/// <summary>
-		/// Execute command
-		/// </summary>
-		/// <param name="reset"></param>
-		public void Execute()
 		{
 		}
 	}

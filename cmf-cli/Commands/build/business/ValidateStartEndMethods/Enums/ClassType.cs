@@ -2,9 +2,8 @@
 
 public enum ClassType
 {
-    Controller,
-    Orchestration,
-    EntityType,
-    EntityTypeCollection,
-    Other
+	ControllerOrOrchestration,
+	EntityType,
+	EntityTypeCollection,
+	Other
 }

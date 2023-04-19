@@ -8,35 +8,35 @@ namespace Cmf.CLI.Commands.build.business.ValidateStartEndMethods;
 /// </summary>
 public class SolutionLoader
 {
-    private readonly string _solutionPath;
+	private readonly string _solutionPath;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="SolutionLoader"/> class.
-    /// </summary>
-    /// <param name="logger">The logger.</param>
-    /// <param name="solutionPath">The solution path.</param>
-    public SolutionLoader(string solutionPath)
-    {
-        _solutionPath = solutionPath;
-    }
+	/// <summary>
+	/// Initializes a new instance of the <see cref="SolutionLoader"/> class.
+	/// </summary>
+	/// <param name="logger">The logger.</param>
+	/// <param name="solutionPath">The solution path.</param>
+	public SolutionLoader(string solutionPath)
+	{
+		_solutionPath = solutionPath;
+	}
 
-    /// <summary>
-    /// LoadSolution from path
-    /// </summary>
-    /// <returns></returns>
-    public MSBuildWorkspace ReLoadSolution()
-    {
-        if (!MSBuildLocator.IsRegistered)
-        {
-            MSBuildLocator.RegisterDefaults();
-        }
+	/// <summary>
+	/// LoadSolution from path
+	/// </summary>
+	/// <returns></returns>
+	public MSBuildWorkspace ReLoadSolution()
+	{
+		if (!MSBuildLocator.IsRegistered)
+		{
+			MSBuildLocator.RegisterDefaults();
+		}
 
-        var _ = typeof(Microsoft.CodeAnalysis.CSharp.Formatting.CSharpFormattingOptions);
+		var _ = typeof(Microsoft.CodeAnalysis.CSharp.Formatting.CSharpFormattingOptions);
 
-        var workspace = MSBuildWorkspace.Create();
+		var workspace = MSBuildWorkspace.Create();
 
-        workspace.OpenSolutionAsync(_solutionPath).Wait();
+		workspace.OpenSolutionAsync(_solutionPath).Wait();
 
-        return workspace;
-    }
+		return workspace;
+	}
 }

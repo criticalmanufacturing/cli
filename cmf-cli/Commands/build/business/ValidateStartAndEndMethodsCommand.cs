@@ -1,12 +1,11 @@
 ﻿using Cmf.CLI.Commands.build.business.ValidateStartEndMethods;
+using Cmf.CLI.Commands.build.business.ValidateStartEndMethods.Abstractions.Processors;
 using Cmf.CLI.Commands.build.business.ValidateStartEndMethods.Extensions;
 using Cmf.CLI.Core.Attributes;
 using Microsoft.Extensions.DependencyInjection;
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
-using System.CommandLine.Parsing;
 using System.IO.Abstractions;
-using System.Linq;
 using System.Text;
 
 namespace Cmf.CLI.Commands.build.business;
@@ -40,8 +39,10 @@ public class ValidateStartAndEndMethodsCommand : BaseCommand
 		var filesArgument = new Argument<string[]>(
 			name: "files",
 			description: "The files to validate"
-		);
-		filesArgument.Arity = ArgumentArity.ZeroOrMore;
+		)
+		{
+			Arity = ArgumentArity.ZeroOrMore
+		};
 
 		cmd.AddArgument(filesArgument);
 
@@ -65,7 +66,7 @@ public class ValidateStartAndEndMethodsCommand : BaseCommand
 		services.AddProcessors();
 		var serviceProvider = services.BuildServiceProvider();
 
-		var solutionValidator = new SolutionValidator(serviceProvider, solutionPath, files);
+		var solutionValidator = new SolutionValidator(serviceProvider.GetService<IProcessorFactory>(), solutionPath, files);
 		solutionValidator.ValidateSolution().Wait();
 	}
 }

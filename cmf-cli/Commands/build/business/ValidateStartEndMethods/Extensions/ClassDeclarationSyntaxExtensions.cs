@@ -5,29 +5,29 @@ namespace Cmf.CLI.Commands.build.business.ValidateStartEndMethods.Extensions;
 
 internal static class ClassDeclarationSyntaxExtensions
 {
-    public static ClassType GetClassType(this ClassDeclarationSyntax classDeclaration)
-    {
-        var name = classDeclaration.Identifier.ToString();
+	public static ClassType GetClassType(this ClassDeclarationSyntax classDeclaration)
+	{
+		var name = classDeclaration.Identifier.ToString();
 
-        if (name.EndsWith("Controller") &&
-            classDeclaration.BaseList != null &&
-            classDeclaration.BaseList.Types.Count > 0 &&
-            classDeclaration.BaseList.Types[0].Type.ToString().Equals("ControllerBase"))
-        {
-            return ClassType.Controller;
-        }
+		if (name.EndsWith("Controller") &&
+			classDeclaration.BaseList != null &&
+			classDeclaration.BaseList.Types.Count > 0 &&
+			classDeclaration.BaseList.Types[0].Type.ToString().Equals("ControllerBase"))
+		{
+			return ClassType.ControllerOrOrchestration;
+		}
 
-        if (name.EndsWith("Orchestration"))
-        {
-            return ClassType.Orchestration;
-        }
+		if (name.EndsWith("Orchestration"))
+		{
+			return ClassType.ControllerOrOrchestration;
+		}
 
-        if (classDeclaration.BaseList != null && classDeclaration.BaseList.Types.Count > 0)
-        {
-            // TODO: EntityTypeCollection
-            // TODO: EntityType
-        }
+		if (classDeclaration.BaseList != null && classDeclaration.BaseList.Types.Count > 0)
+		{
+			// TODO: EntityTypeCollection
+			// TODO: EntityType
+		}
 
-        return ClassType.Other;
-    }
+		return ClassType.Other;
+	}
 }
