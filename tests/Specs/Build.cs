@@ -1,29 +1,23 @@
 using Cmf.CLI.Builders;
-using Cmf.CLI.Commands;
 using Cmf.CLI.Commands.restore;
 using Cmf.CLI.Constants;
-using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Core.Utilities;
 using Cmf.CLI.Factories;
 using Cmf.CLI.Handlers;
-using Cmf.CLI.Interfaces;
 using Cmf.CLI.Utilities;
 using Cmf.Common.Cli.TestUtilities;
 using FluentAssertions;
 using Moq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using Spectre.Console.Rendering;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
-using System.Security.Policy;
 using Xunit;
-using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 namespace tests.Specs;
 

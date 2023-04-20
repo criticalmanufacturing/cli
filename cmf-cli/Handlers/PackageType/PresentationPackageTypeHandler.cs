@@ -11,8 +11,6 @@ using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
-using Microsoft.TemplateEngine.Edge.Mount;
-using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 namespace Cmf.CLI.Handlers
 {
