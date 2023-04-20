@@ -1,6 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using System.Linq;
 
 namespace Cmf.CLI.Commands.build.business.ValidateStartEndMethods.Extensions;
 

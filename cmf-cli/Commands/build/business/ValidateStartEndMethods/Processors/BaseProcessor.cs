@@ -1,7 +1,7 @@
-﻿using Cmf.CLI.Commands.build.business.ValidateStartEndMethods.Abstractions.Processors;
+﻿using Cmf.CLI.Commands.build.business.ValidateStartEndMethods.Abstractions;
+using Cmf.CLI.Commands.build.business.ValidateStartEndMethods.Abstractions.Processors;
 using Cmf.CLI.Commands.build.business.ValidateStartEndMethods.Enums;
 using Cmf.CLI.Commands.build.business.ValidateStartEndMethods.Extensions;
-using Cmf.CLI.Core;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -18,9 +18,11 @@ internal abstract class BaseProcessor : IBaseProcessor
 	protected List<KeyValuePair<string, string>> _parameterNames = new();
 	protected string _outputType = string.Empty;
 	protected SyntaxNode _statementToProcess;
+	protected readonly IValidateLogger _logger;
 
-	internal BaseProcessor()
+	internal BaseProcessor(IValidateLogger logger)
 	{
+		_logger = logger;
 	}
 
 	public abstract bool IsStartMethod { get; }
@@ -46,7 +48,7 @@ internal abstract class BaseProcessor : IBaseProcessor
 
 		if (statementArguments is null)
 		{
-			Log.Warning(string.Format(ErrorMessages.MethodHasNoParameters, StartEndMethodString, _className, _methodName));
+			_logger.Warning(string.Format(ErrorMessages.MethodHasNoParameters, StartEndMethodString, _className, _methodName));
 			return;
 		}
 
@@ -79,22 +81,7 @@ internal abstract class BaseProcessor : IBaseProcessor
 
 			if (!containsParameter)
 			{
-				Log.Warning(string.Format(ErrorMessages.MethodParameterMissingOrIncorrectlyNamed, StartEndMethodString, _className, _methodName, parameter.Key));
-			}
-		}
-
-		foreach (var objectArgument in arguments)
-		{
-			if (objectArgument.IsKind(SyntaxKind.ObjectCreationExpression))
-			{
-				var ObjectArgumentList = objectArgument.ChildNodes().Where(x => x.IsKind(SyntaxKind.ArgumentList)).FirstOrDefault() as ArgumentListSyntax;
-				var dictionaryKey = ObjectArgumentList?.Arguments[0].ToString().Trim('"').ToLower(1);
-				var dictionaryValue = ObjectArgumentList?.Arguments[1].ToString();
-
-				if (_parameterNames.ContainsKeyValue(dictionaryKey, dictionaryValue))
-				{
-					Log.Warning(string.Format(ErrorMessages.MethodParameterMissingOrIncorrectlyNamed, StartEndMethodString, _className, _methodName, dictionaryKey));
-				}
+				_logger.Warning(string.Format(ErrorMessages.MethodParameterMissingOrIncorrectlyNamed, StartEndMethodString, _className, _methodName, parameter.Key));
 			}
 		}
 	}
