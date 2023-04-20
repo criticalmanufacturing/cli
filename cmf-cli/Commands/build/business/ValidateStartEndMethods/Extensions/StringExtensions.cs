@@ -17,7 +17,7 @@ internal static class StringExtensions
 	private static string ToUpperOrLower(string value, int numberOfChars, bool toLower)
 	{
 		StringBuilder sb = new();
-		int i;		
+		int i;
 
 		for (i = 0; i < numberOfChars && i < value.Length; i++)
 		{

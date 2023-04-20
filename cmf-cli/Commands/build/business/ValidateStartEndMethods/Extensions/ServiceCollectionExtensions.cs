@@ -1,4 +1,5 @@
-﻿using Cmf.CLI.Commands.build.business.ValidateStartEndMethods.Abstractions.Processors;
+﻿using Cmf.CLI.Commands.build.business.ValidateStartEndMethods.Abstractions;
+using Cmf.CLI.Commands.build.business.ValidateStartEndMethods.Abstractions.Processors;
 using Cmf.CLI.Commands.build.business.ValidateStartEndMethods.Processors;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -9,10 +10,13 @@ internal static class ServiceCollectionExtensions
 	public static void AddProcessors(this ServiceCollection services)
 	{
 		// Add factories
-		services.AddScoped<IProcessorFactory, ProcessorFactory>();
+		services.AddSingleton<IProcessorFactory, ProcessorFactory>();
 
 		// Add classes
-		services.AddScoped<IOrchestrationStartMethodProcessor, OrchestrationStartMethodProcessor>();
-		services.AddScoped<IOrchestrationEndMethodProcessor, OrchestrationEndMethodProcessor>();
+		services.AddTransient<IOrchestrationStartMethodProcessor, OrchestrationStartMethodProcessor>();
+		services.AddTransient<IOrchestrationEndMethodProcessor, OrchestrationEndMethodProcessor>();
+
+		// Add logger
+		services.AddSingleton<IValidateLogger, ValidateLogger>();
 	}
 }

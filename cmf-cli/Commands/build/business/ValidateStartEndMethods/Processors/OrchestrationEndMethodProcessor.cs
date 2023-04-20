@@ -1,6 +1,6 @@
-﻿using Cmf.CLI.Commands.build.business.ValidateStartEndMethods.Abstractions.Processors;
+﻿using Cmf.CLI.Commands.build.business.ValidateStartEndMethods.Abstractions;
+using Cmf.CLI.Commands.build.business.ValidateStartEndMethods.Abstractions.Processors;
 using Cmf.CLI.Commands.build.business.ValidateStartEndMethods.Extensions;
-using Cmf.CLI.Core;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -11,6 +11,10 @@ namespace Cmf.CLI.Commands.build.business.ValidateStartEndMethods.Processors;
 
 internal class OrchestrationEndMethodProcessor : BaseProcessor, IOrchestrationEndMethodProcessor
 {
+	public OrchestrationEndMethodProcessor(IValidateLogger logger) : base(logger)
+	{
+	}
+
 	public override bool IsStartMethod => false;
 
 	public override void Process()
@@ -37,7 +41,7 @@ internal class OrchestrationEndMethodProcessor : BaseProcessor, IOrchestrationEn
 	{
 		if (statementArguments.Arguments.Count != 3 + _parameterNames.Count)
 		{
-			Log.Warning(string.Format(ErrorMessages.MethodHasIncorrectNumberOfParameters, StartEndMethodString, _className, _methodName, statementArguments.Arguments.Count, 2 + _parameterNames.Count));
+			_logger.Warning(string.Format(ErrorMessages.MethodHasIncorrectNumberOfParameters, StartEndMethodString, _className, _methodName, statementArguments.Arguments.Count, 2 + _parameterNames.Count));
 		}
 	}
 
@@ -47,7 +51,7 @@ internal class OrchestrationEndMethodProcessor : BaseProcessor, IOrchestrationEn
 		var _outputTypeName = _outputType[..^6];
 
 		if (_inputTypeName != _outputTypeName || _inputTypeName != _methodName)
-			Log.Warning(string.Format(ErrorMessages.InputOutputMethodDoNotCoincide, _className, _methodName));
+			_logger.Warning(string.Format(ErrorMessages.InputOutputMethodDoNotCoincide, _className, _methodName));
 	}
 
 	private void ValidateOutputParameter(IEnumerable<SyntaxNode> arguments)
@@ -69,7 +73,7 @@ internal class OrchestrationEndMethodProcessor : BaseProcessor, IOrchestrationEn
 				}
 			}
 
-			Log.Warning(string.Format(ErrorMessages.MethodParameterMissingOrIncorrectlyNamed, StartEndMethodString, _className, _methodName, _outputType));
+			_logger.Warning(string.Format(ErrorMessages.MethodParameterMissingOrIncorrectlyNamed, StartEndMethodString, _className, _methodName, _outputType));
 		}
 	}
 }
