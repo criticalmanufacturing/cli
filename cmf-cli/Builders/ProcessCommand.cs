@@ -74,7 +74,7 @@ namespace Cmf.CLI.Builders
                 process.WaitForExit();
                 if (process.ExitCode != 0)
                 {
-                    throw new CliException($"Command '{command} {String.Join(' ', step.Args)}' did not finished successfully: Exit code {process.ExitCode}. Please check the log for more details");
+                    throw new CliException($"Command '{command} {String.Join(' ', step.Args)}' did not finish successfully: Exit code {process.ExitCode}. Please check the log for more details");
                 }
                 process.Dispose();
             }
