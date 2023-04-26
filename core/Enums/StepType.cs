@@ -68,6 +68,10 @@
         /// <summary>
         /// Generate Service History Id
         /// </summary>
-        GenerateServiceHistoryId = 12
+        GenerateServiceHistoryId = 12,
+        /// <summary>
+        /// Tag a file. This is similar to DeployFiles with the tag option set
+        /// </summary>
+        TaggedFile = 13
     }
 }
