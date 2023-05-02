@@ -18,7 +18,6 @@ This is done with the `cmf init` command:
     cmf init ExampleProject `
         --infra ..\infrastructure\infra.json `
         --config ..\config\ExampleEnvironment.json `
-        --repositoryUrl https://repository.local/Projects/Test/_git/Test `
         --MESVersion 10.0.0 `
         --ngxSchematicsVersion 10.0.0 `
         --nugetVersion 10.0.0 `
