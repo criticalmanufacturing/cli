@@ -101,14 +101,14 @@ cmf new data --version 1.0.0 --businessPackage .\Cmf.Custom.Business\
 
     #### HTML
     ```
-    cmf new html --version 1.0.0 --htmlPackage H:\packages\Cmf.Presentation.HTML.10.0.0.zip
+    cmf new html --version 1.0.0 --htmlPackage H:\packages\Cmf.Presentation.HTML.9.1.8.zip
     ```
 
     If you require NPM registry authentication, the current procedure is to include the auth information in the apps\customization.web\.npmrc file as is standard.
 
     #### Help
     ```
-    cmf new help --version 1.0.0 --documentationPackage H:\packages\Cmf.Documentation.10.0.0.zip
+    cmf new help --version 1.0.0 --documentationPackage H:\packages\Cmf.Documentation.9.1.8.zip
     ```
 
 ### IoT
