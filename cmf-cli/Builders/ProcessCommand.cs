@@ -61,6 +61,12 @@ namespace Cmf.CLI.Builders
                 {
                     foreach (var envVar in step.EnvironmentVariables)
                     {
+                        // if the key is already exists we should remove it before to avoid errors
+                        if (ps.EnvironmentVariables.ContainsKey(envVar.Key))
+                        {
+                            ps.EnvironmentVariables.Remove(envVar.Key);
+                        }
+
                         ps.EnvironmentVariables.Add(envVar.Key, envVar.Value);
                     }
                 }                
