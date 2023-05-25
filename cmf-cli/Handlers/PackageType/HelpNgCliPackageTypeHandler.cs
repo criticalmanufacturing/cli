@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Cmf.CLI.Builders;
 using Cmf.CLI.Commands;
@@ -37,7 +38,22 @@ namespace Cmf.CLI.Handlers
                     {
                         new Step(StepType.DeployFiles)
                         {
-                            ContentPath = "**"
+                            ContentPath = "**" // TODO: remove assets/config.json from the deployed files, should only apply transform
+                        },
+                        new Step(StepType.TaggedFile)
+                        {
+                            ContentPath = "index.html",
+                            TagFile = true
+                        },
+                        new Step(StepType.TaggedFile)
+                        {
+                            ContentPath = "ngsw.json",
+                            TagFile = true
+                        },
+                        new Step(StepType.TaggedFile)
+                        {
+                            ContentPath = "assets/config.json",
+                            TagFile = true
                         }
                     }
             );
@@ -78,6 +94,7 @@ namespace Cmf.CLI.Handlers
 
             // Projects BuildSteps
             Workspace = new AngularWorkspace(cmfPackage.GetFileInfo().Directory);
+            var apps = Workspace.Projects.Where(lib => lib.Type == "application").Select(p => p.Name).ToList();
             foreach (var package in Workspace.PackagesToBuild)
             {
                 BuildSteps = BuildSteps.Concat(new IBuildCommand[]
@@ -86,10 +103,13 @@ namespace Cmf.CLI.Handlers
                     {
                         DisplayName = $"ng build {package.Key}",
                         Command = "build",
+                        Args = String.Equals(package.Key, this.CmfPackage.PackageId, StringComparison.InvariantCultureIgnoreCase) ? new []{ "--", "--base-href", "$(APPLICATION_BASE_HREF)" } : Array.Empty<string>(),
                         WorkingDirectory = package.Value
                     }
                 }).ToArray();
             }
+            
+            BuildSteps = BuildSteps.Append(new NgBuildFileTokenReplacerCommand(this.fileSystem, apps, cmfPackage)).ToArray();
         }
 
         /// <summary>
