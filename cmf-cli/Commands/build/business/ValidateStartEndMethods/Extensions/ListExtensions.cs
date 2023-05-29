@@ -8,7 +8,7 @@ namespace Cmf.CLI.Commands.build.business.ValidateStartEndMethods.Extensions;
 
 internal static class ListExtensions
 {
-	internal static bool ContainsKeyValue<TKey, TValue>(this IList<KeyValuePair<TKey, TValue>> list, TKey? key, TValue? value)
+	internal static bool ContainsKeyValue<TKey, TValue>(this IList<KeyValuePair<TKey, TValue>> list, TKey key, TValue value)
 	{
 		if (key is null || value is null)
 			return false;
