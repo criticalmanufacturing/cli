@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Cmf.CLI.Builders;
+using Cmf.CLI.Commands.html;
 using Cmf.CLI.Commands.restore;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
@@ -78,6 +79,12 @@ namespace Cmf.CLI.Handlers
                     Command  = "install",
                     Args = new []{ "--force" },
                     WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                },
+                new ExecuteCommand<LinkLBOsCommand>()
+                {
+                    DisplayName = "Link LBOs",
+                    Command = new LinkLBOsCommand(),
+                    Execute = command => command.Execute(cmfPackage.GetFileInfo().Directory)
                 }
             };
 
