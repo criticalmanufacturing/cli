@@ -94,7 +94,7 @@ namespace Cmf.CLI.Core
 
             if (ExecutionContext.IsDevVersion)
             {
-                Log.Information(
+                Log.Warning(
                     $"You are using {ExecutionContext.PackageId} development version {ExecutionContext.CurrentVersion}. This in unsupported in production and should only be used for testing.");
             }
 
