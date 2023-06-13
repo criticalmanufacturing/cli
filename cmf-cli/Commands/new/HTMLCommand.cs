@@ -333,6 +333,7 @@ $@"{{
             // this won't return null because it has to success on the base.Execute call
             var ngCliVersion = "15"; // v15 for MES 10
             var packageName = base.GeneratePackageName(workingDir)!.Value.Item1;
+            var packageDir = workingDir.GetDirectories(packageName).First();
             var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
 
             var schematicsVersion = ngxSchematicsVersion.ToString() ?? $"@release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}";
@@ -346,7 +347,6 @@ $@"{{
                 WorkingDirectory = workingDir,
                 ForceColorOutput = false
             }.Exec();
-            
             Log.Debug($"Adding @criticalmanufacturing/ngx-schematics@{schematicsVersion} to the package, which can be used to scaffold new components and libraries");
             // cd <packageName>
             // ng add --skip-confirmation @criticalmanufacturing/ngx-schematics [--npmRegistry http://npm.example/] --lint --base-app <Core|MES>
@@ -354,9 +354,54 @@ $@"{{
             {
                 Command = $"@angular/cli@{ngCliVersion}",
                 Args = new []{ "add", "--registry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.OriginalString, "--skip-confirmation", $"@criticalmanufacturing/ngx-schematics@{schematicsVersion}", "--lint", "--base-app", baseLayer.ToString(), "--version", $"release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}" },
-                WorkingDirectory = workingDir.GetDirectories(packageName).First(),
+                WorkingDirectory = packageDir,
                 ForceColorOutput = false
             }.Exec();
+
+            // build
+            new BuildCommand(fileSystem).Execute(packageDir);
+
+            // config.json
+            var configJsonPath = this.fileSystem.Path.Join(packageDir.FullName, "src",
+                this.fileSystem.Path.Join("assets", "config.json"));
+            var configJsonStr = fileSystem.File.ReadAllText(configJsonPath);
+            if (!configJsonStr.Contains("$("))
+            {
+                // config.json has no tokens and can be malformed. We need to make sure it parses, so we inject some dummy values that will be thrown away later
+                Log.Debug("Generated config.json does not contain tokens and is possibly malformed. Setting some dummy values so we can deserialize it.");
+                configJsonStr = configJsonStr
+                    .Replace("\"port\": ", "\"port\": 0")
+                    .Replace("\"enableSsl\": ,", "\"enableSsl\": false,");
+
+                configJsonStr = Regex.Replace(configJsonStr, "\"isLoadBalancerEnabled\": (false)?\r?\n",
+                    "\"isLoadBalancerEnabled\": false\n");
+            }
+            configJsonStr = Regex.Replace(configJsonStr, @"\$\([^\)]+\)", "0", RegexOptions.Multiline);
+            dynamic configJsonJson = null;
+            try
+            {
+                configJsonJson = JsonConvert.DeserializeObject(configJsonStr);
+            }
+            catch (Exception e)
+            {
+                throw new CliException("Could not load webapp config.json", e);
+            }
+            if (configJsonJson == null)
+            {
+                throw new CliException("Could not load webapp config.json");
+            }
+            var restPort = ExecutionContext.Instance.ProjectConfig.RESTPort;
+            configJsonJson.host.rest.enableSsl = false;
+            configJsonJson.host.rest.address = "localhost";
+            configJsonJson.host.rest.port = restPort;
+            configJsonJson.host.isLoadBalancerEnabled = false;
+            configJsonJson.host.tenant.name = ExecutionContext.Instance.ProjectConfig.Tenant;
+            configJsonJson.general.defaultDomain = ExecutionContext.Instance.ProjectConfig.DefaultDomain;
+            configJsonJson.general.environmentName = ExecutionContext.Instance.ProjectConfig.EnvironmentName;
+            configJsonJson.version = $"{ExecutionContext.Instance.ProjectConfig.ProjectName} $(Build.BuildNumber) - {mesVersion}";
+            configJsonStr = JsonConvert.SerializeObject(configJsonJson, Formatting.Indented);
+            this.fileSystem.File.WriteAllText(configJsonPath, configJsonStr);
+            Log.Verbose("Updated config.json");
         }
     }
 }

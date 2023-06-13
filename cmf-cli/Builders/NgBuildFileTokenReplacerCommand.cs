@@ -34,10 +34,12 @@ internal class NgBuildFileTokenReplacerCommand : IBuildCommand
             }
             public Task Exec()
             {
+                var workingDir = cmfPackage.GetFileInfo().Directory;
+
                 foreach (var app in apps)
                 {
                     // place tokens in assets/config.json
-                    var configJsonPath = this.fileSystem.FileInfo.New($"dist/{app}/assets/config.json");
+                    var configJsonPath = this.fileSystem.FileInfo.New($"{workingDir}/dist/{app}/assets/config.json");
                     if (configJsonPath.Exists)
                     {
                         Log.Debug($"Placing tokens in config.json at {configJsonPath.FullName}");
@@ -64,7 +66,7 @@ internal class NgBuildFileTokenReplacerCommand : IBuildCommand
                         // place app name in index.html
                         // TODO get app name from cmfapp.json
                         var appName = ExecutionContext.Instance.ProjectConfig.ProjectName;
-                        var indexPath = this.fileSystem.FileInfo.New($"dist/{app}/index.html");
+                        var indexPath = this.fileSystem.FileInfo.New($"{workingDir}/dist/{app}/index.html");
                         if (indexPath.Exists)
                         {
                             Log.Debug($"Setting App Name '{appName}' as title in {indexPath.FullName}");
@@ -79,7 +81,7 @@ internal class NgBuildFileTokenReplacerCommand : IBuildCommand
                     }
                     
                     // fix trailing slash in ngsw.json
-                    var ngswPath = this.fileSystem.FileInfo.New($"dist/{app}/ngsw.json");
+                    var ngswPath = this.fileSystem.FileInfo.New($"{workingDir}/dist/{app}/ngsw.json");
                     if (ngswPath.Exists)
                     {
                         Log.Debug($"Placing tokens in ngsw.json at {ngswPath.FullName}");
