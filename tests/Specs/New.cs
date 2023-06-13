@@ -689,15 +689,39 @@ namespace tests.Specs
             Assert.True(File.Exists($"{dir}/Cmf.Custom.SecurityPortal/config.json"), "Package config.json is missing");
         }
 
+        [Fact(Skip = "awaiting for NGXSchematics public release"), Trait("TestCategory", "LongRunning")]
+        public void UI_v10()
+        {
+            UI_internal_v10();
+        }
+
+        private void UI_internal_v10()
+        {
+            RunNew(new HTMLCommand(), "Cmf.Custom.HTML", mesVersion: "10.0.2", extraAsserts: args =>
+            {
+                var configJson = File.ReadAllText("Cmf.Custom.HTML/src/assets/config.json");
+                try
+                {
+                    JsonConvert.DeserializeObject(configJson);
+                }
+                catch (Exception e)
+                {
+                    Assert.Fail($"config.json is malformed: {e.Message}");
+                }
+            });
+        }
+
         private TestConsole RunNew<T>(T newCommand, string packageId, string scaffoldingDir = null,
             string[] extraArguments = null, bool defaultAsserts = true, Action<(string, string)> extraAsserts = null,
             string mesVersion = "8.2.0",
+            string ngxSchematicsVersion = "1.1.0",
             BaseLayer baseLayer = BaseLayer.MES,
             RepositoryType repositoryType = RepositoryType.Customization) where T : TemplateCommand
         {
             var dir = scaffoldingDir ?? TestUtilities.GetTmpDirectory();
 
-            var rnd = new Random();
+            
+             var rnd = new Random();
             var pkgVersion = $"{rnd.Next(10)}.{rnd.Next(10)}.{rnd.Next(10)}";
 
             var cur = Directory.GetCurrentDirectory();
@@ -717,6 +741,8 @@ namespace tests.Specs
                             .Replace(@"""MESVersion"": ""8.2.0""", $@"""MESVersion"": ""{mesVersion}""")
                             .Replace(@"""BaseLayer"": ""MES""", $@"""BaseLayer"": ""{baseLayer}""")
                             .Replace(@"""RepositoryType"": ""Customization""", $@"""RepositoryType"": ""{repositoryType}""")
+                            .Replace(@"""NGXSchematicsVersion"": ""10.0.0""", $@"""NGXSchematicsVersion"": ""{ngxSchematicsVersion}""")
+                            .Replace(@"""NPMRegistry"": ""http://npm_registry/""", $@"""NPMRegistry"": ""http://cmf-nuget:4873/""")
                             .Replace("install_path", MockUnixSupport.Path(@"x:\install_path").Replace(@"\", @"\\"))
                             .Replace("backup_share", MockUnixSupport.Path(@"y:\backup_share").Replace(@"\", @"\\"))
                             .Replace("temp_folder", MockUnixSupport.Path(@"z:\temp_folder").Replace(@"\", @"\\"))
@@ -742,13 +768,15 @@ namespace tests.Specs
                 if (defaultAsserts)
                 {
                     string errors = console.Error.ToString().Trim();
-                    Assert.True(errors.Length == 0, $"Errors found in console: {errors}");
-                    Assert.True(Directory.Exists(packageId), "Package folder is missing");
-                    Assert.True(File.Exists($"{packageId}/cmfpackage.json"), "Package cmfpackage.json is missing");
-                    Assert.Equal(packageId, TestUtilities.GetPackageProperty("packageId", $"{packageId}/cmfpackage.json"), "Package Id does not match expected");
-                    Assert.Equal(pkgVersion, TestUtilities.GetPackageProperty("version", $"{packageId}/cmfpackage.json"), "Package version does not match expected");
+                    errors.Length.Should().Be(0, $"Errors found in console: {errors}");
+                    Directory.Exists(packageId).Should().BeTrue();
+                    File.Exists($"{packageId}/cmfpackage.json").Should().BeTrue();
+                    TestUtilities.GetPackageProperty("packageId", $"{packageId}/cmfpackage.json").Should().Be(packageId);
+                    TestUtilities.GetPackageProperty("version", $"{packageId}/cmfpackage.json").Should().Be(pkgVersion);
+
                     var pkg = TestUtilities.GetPackage("cmfpackage.json");
                     pkg.GetProperty("dependencies").EnumerateArray().ToArray().FirstOrDefault(d => d.GetProperty("id").GetString() == packageId).Should().NotBeNull("Package not found in root package dependencies");
+
                 }
 
                 if (extraAsserts != null)
