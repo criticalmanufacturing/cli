@@ -94,7 +94,7 @@ namespace Cmf.CLI.Handlers
 
             // Projects BuildSteps
             Workspace = new AngularWorkspace(cmfPackage.GetFileInfo().Directory);
-            var apps = Workspace.Projects.Where(lib => lib.Type == "application").Select(p => p.Name).ToList();
+            var apps = Workspace.Projects.Where(lib => lib.Type == "application").Select(p => (p.PackageJson.Content.name as JValue)?.Value as string ?? p.Name).ToList();
             foreach (var package in Workspace.PackagesToBuild)
             {
                 BuildSteps = BuildSteps.Concat(new IBuildCommand[]
