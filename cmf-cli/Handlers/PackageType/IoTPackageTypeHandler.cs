@@ -55,20 +55,30 @@ namespace Cmf.CLI.Handlers
                        Args = new[] {"--force"},
                        WorkingDirectory = cmfPackage.GetFileInfo().Directory
                     },
-                    new NPMCommand()
+                    new GulpCommand()
                     {
-                       DisplayName = "NPM Build",
-                       Command = "run build",
-                       Args = new[] {"--force"},
+                       GulpFile = "gulpfile.js",
+                       Task = "install",
+                       DisplayName = "Gulp Install",
+                       GulpJS = "node_modules/gulp/bin/gulp.js",
                        WorkingDirectory = cmfPackage.GetFileInfo().Directory
                     },
-                    new NPMCommand()
+                    new GulpCommand()
                     {
-                       DisplayName = "NPM Test",
-                       Command = "run test",
-                       Args = new[] {"--force"},
-                       Test = true,
+                       GulpFile = "gulpfile.js",
+                       Task = "build",
+                       DisplayName = "Gulp Build",
+                       GulpJS = "node_modules/gulp/bin/gulp.js",
                        WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                    },
+                    new GulpCommand()
+                    {
+                        GulpFile = "gulpfile.js",
+                        Task = "cliTest",
+                        DisplayName = "Gulp Test",
+                        GulpJS = "node_modules/gulp/bin/gulp.js",
+                        WorkingDirectory = cmfPackage.GetFileInfo().Directory,
+                        Test = true
                     }
                 };
             }
