@@ -35,7 +35,8 @@ namespace Cmf.CLI.Handlers
                 Log.Debug(
                     $"MES version lower than {minimumVersion}, skipping DeployRepositoryFiles and GenerateRepositoryIndex steps. Make sure you have alternative steps in your manifest.");
             }
-            else if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 10)
+
+            if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 10)
             {
                 buildCommands = new IBuildCommand[]
                 {
