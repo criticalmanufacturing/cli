@@ -65,12 +65,16 @@ namespace Cmf.CLI.Commands.New
 
             var packageName = base.GeneratePackageName(workingDir)!.Value.Item1;
 
+            if (!string.IsNullOrEmpty(devTasksVersion?.ToString()))
+            {
+                args.AddRange(new[] { "--DevTasksVersion", devTasksVersion.ToString() });
+            }
+
             args.AddRange(new[]
             {
                 "--iotdata", $"{packageName}.Data",
                 "--iotpackages", $"{packageName}.Packages",
                 "--rootInnerRelativePath", relativePathToRoot,
-                "--DevTasksVersion", devTasksVersion.ToString(),
                 "--npmRegistry", npmRegistry.OriginalString,
                 "--repositoryType", repoType.ToString()
             });

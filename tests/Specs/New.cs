@@ -218,7 +218,7 @@ namespace tests.Specs
             }
         }
 
-        [Fact(Skip = "requires an NPM registry")]
+        [Fact]
         public void IoT()
         {
             RunNew(new IoTCommand(), "Cmf.Custom.IoT");
@@ -759,8 +759,8 @@ namespace tests.Specs
         {
             var dir = scaffoldingDir ?? TestUtilities.GetTmpDirectory();
 
-            
-             var rnd = new Random();
+
+            var rnd = new Random();
             var pkgVersion = $"{rnd.Next(10)}.{rnd.Next(10)}.{rnd.Next(10)}";
 
             var cur = Directory.GetCurrentDirectory();
