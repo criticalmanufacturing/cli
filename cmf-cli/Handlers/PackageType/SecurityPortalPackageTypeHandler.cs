@@ -79,7 +79,7 @@ namespace Cmf.CLI.Handlers
 
                 FinalArchive(packageOutputDir, outputDir);
 
-                Log.Information($"{outputDir.FullName}/{CmfPackage.ZipPackageName} created");
+                Log.Debug($"{outputDir.FullName}/{CmfPackage.ZipPackageName} created");
 
             }
             else
