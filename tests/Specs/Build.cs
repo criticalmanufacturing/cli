@@ -632,7 +632,6 @@ public class Build
         }
 
         ExecutionContext.Initialize(fileSystem);
-        ExecutionContext.RelatedPackages = new();
 
         IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"Cmf.Custom.Data/{CliConstants.CmfPackageFileName}");
         DataPackageTypeHandlerV2 packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile) as DataPackageTypeHandlerV2;
@@ -641,14 +640,12 @@ public class Build
             .HasAny()
             .Should().Be(withRelatedSteps);
 
-        ExecutionContext.RelatedPackages.HasAny().Should().Be(withRelatedSteps);
+        packageTypeHandler.RelatedPackagesHandlers.HasAny().Should().Be(withRelatedSteps);
 
         packageTypeHandler.RelatedPackagesHandlers
             .Any(RelatedPackagesHandler =>
             {
-                bool result = false;
-
-                RelatedPackagesHandler.Key.Path.Name.Should().Be("Cmf.Custom.Business");
+                RelatedPackagesHandler.Key.CmfPackage.PackageName.Should().Be("Cmf.Custom.Business.1.1.0");
 
                 return true;
             })

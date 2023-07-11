@@ -21,6 +21,7 @@ using Cmf.CLI.Constants;
 using Cmf.CLI.Factories;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using NuGet.Packaging;
 
 namespace tests.Specs
 {
@@ -492,5 +493,83 @@ namespace tests.Specs
 
             Assert.Equal("Mandatory Dependency criticalmanufacturing.deploymentmetadata and cmf.environment. not found", message);
         }
+
+        [Fact]
+        public void Data_WithRelatedPackages()
+        {
+            KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.1.0");
+            KeyValuePair<string, string> packageDep1 = new("Cmf.Custom.Data", "1.1.0");
+            KeyValuePair<string, string> packageDep2 = new("Cmf.Custom.Data.Related", "1.1.0");
+
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { "/repo/cmfpackage.json", new MockFileData(
+                @$"{{
+                  ""packageId"": ""{packageRoot.Key}"",
+                  ""version"": ""{packageRoot.Value}"",
+                  ""packageType"": ""Root"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": false,
+                  ""dependencies"": [
+                    {{
+                         ""id"": ""{packageDep1.Key}"",
+                        ""version"": ""{packageDep1.Value}""
+                    }}
+                  ]
+                }}")},
+                { "/repo/Cmf.Custom.Data/cmfpackage.json", new MockFileData(
+                @$"{{
+                  ""packageId"": ""{packageDep1.Key}"",
+                  ""version"": ""{packageDep1.Value}"",
+                  ""packageType"": ""Data"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": true,
+                  ""contentToPack"": [
+                    {{
+                        ""source"": ""{MockUnixSupport.Path("folder1\\file1.txt").Replace("\\", "\\\\")}"",
+                        ""target"": """"
+                    }}
+                  ],
+                  ""relatedPackages"": [
+                    {{
+                        ""path"": ""Cmf.Custom.Data.Related"",
+                        ""postPack"": true
+                    }}
+                  ]
+                }}")},
+                { "/repo/Cmf.Custom.Data/Cmf.Custom.Data.Related/cmfpackage.json", new MockFileData(
+                @$"{{
+                  ""packageId"": ""{packageDep2.Key}"",
+                  ""version"": ""{packageDep2.Value}"",
+                  ""packageType"": ""Data"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": true,
+                  ""contentToPack"": [
+                    {{
+                        ""source"": ""{MockUnixSupport.Path("folder2\\file2.txt").Replace("\\", "\\\\")}"",
+                        ""target"": """"
+                    }}
+                  ]
+                }}")},
+                { "/repo/Cmf.Custom.Data/folder1/file1.txt", new MockFileData("file1-content")},
+                { "/repo/Cmf.Custom.Data/Cmf.Custom.Data.Related/folder2/file2.txt", new MockFileData("file2-content")},
+            });
+
+            var packCommand = new PackCommand(fileSystem);
+            var outputFolder = fileSystem.DirectoryInfo.New("output");
+            packCommand.Execute(fileSystem.DirectoryInfo.New("/repo/Cmf.Custom.Data"), outputFolder, false);
+            IEnumerable<IFileInfo> packedFiles = outputFolder.EnumerateFiles().ToList();
+
+
+            var depFile1 = packedFiles.FirstOrDefault(x => x.Name.Equals($"{packageDep1.Key}.{packageDep1.Value}.zip"));
+            var depFile2 = packedFiles.FirstOrDefault(x => x.Name.Equals($"{packageDep2.Key}.{packageDep2.Value}.zip"));
+
+            depFile1.Should().NotBeNull();
+            depFile2.Should().NotBeNull();
+
+            TestUtilities.ValidateZipContent(fileSystem, depFile1, new() { "Cmf.Foundation.Services.HostService.dll.config", "manifest.xml", "file1.txt" });
+            TestUtilities.ValidateZipContent(fileSystem, depFile2, new() { "Cmf.Foundation.Services.HostService.dll.config", "manifest.xml", "file2.txt" });
+        }
+
     }
 }

@@ -20,8 +20,7 @@ namespace Cmf.CLI.Core.Objects
         /// <value>
         /// The path.
         /// </value>
-        [JsonConverter(typeof(AbstractionsDirectoryConverter))]
-        public IDirectoryInfo Path { get; set; }
+        public string Path { get; set; }
 
         /// <summary>
         /// Should trigger build before the root triggered package
@@ -56,13 +55,14 @@ namespace Cmf.CLI.Core.Objects
         public bool PostPack { get; set; }
 
         [JsonIgnore]
+        public CmfPackage CmfPackage { get; set; }
+
+        [JsonIgnore]
         public bool IsSet { get; set; }
         #endregion
 
         #region Public Methods
 
-        /// <summary>
-        /// Indicates whether the current object is equal to another object of the same type.
         /// </summary>
         /// <param name="other">An object to compare with this object.</param>
         /// <returns>
@@ -71,7 +71,7 @@ namespace Cmf.CLI.Core.Objects
         public bool Equals(RelatedPackage other)
         {
             return other != null &&
-                   Path.FullName.IgnoreCaseEquals(other.Path.FullName);
+                   Path.IgnoreCaseEquals(other.Path);
         }
 
         #endregion

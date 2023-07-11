@@ -75,7 +75,7 @@ namespace Cmf.CLI.Core.Objects
         /// <summary>
         /// Cache of the Related Packages
         /// </summary>
-        public static Dictionary<string, KeyValuePair<RelatedPackage, IPackageTypeHandler>> RelatedPackages = new();
+        public static RelatedPackageCollection RelatedPackagesCache { get; set; }
 
         private ExecutionContext(IFileSystem fileSystem)
         {
@@ -90,6 +90,8 @@ namespace Cmf.CLI.Core.Objects
                     this.ProjectConfig = pcs.Load(fileSystem);
                 }
             }
+
+            RelatedPackagesCache = new();
         }
 
         /// <summary>

@@ -187,7 +187,7 @@ namespace Cmf.CLI.Commands.New
 
             iotCustomPackage.RelatedPackages = new()
             {
-                new RelatedPackage() { Path = fileSystem.DirectoryInfo.New(this.fileSystem.Path.GetRelativePath(iotCustomPackageWorkDir.FullName, fileSystem.DirectoryInfo.New(htmlPackageLocation).FullName)), PreBuild = true, PrePack = true }
+                new RelatedPackage() { Path = htmlPackageDir.FullName, PreBuild = true, PrePack = true }
             };
 
             iotCustomPackage.SaveCmfPackage();
