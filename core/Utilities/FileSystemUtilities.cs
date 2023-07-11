@@ -437,7 +437,7 @@ namespace Cmf.CLI.Utilities
                 packageOutputDir.Refresh();
             }
 
-            Log.Information($"Generating {cmfPackage.PackageName}");
+            Log.Debug($"Generating output folder {cmfPackage.PackageName}");
             packageOutputDir.Create();
 
             return packageOutputDir;
