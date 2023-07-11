@@ -80,6 +80,7 @@ namespace Cmf.CLI.Handlers
                 FinalArchive(packageOutputDir, outputDir);
 
                 Log.Debug($"{outputDir.FullName}/{CmfPackage.ZipPackageName} created");
+                Log.Information($"{CmfPackage.PackageName} packed");
 
             }
             else

@@ -109,6 +109,7 @@ namespace Cmf.CLI.Handlers
         public PackageTypeHandler(CmfPackage cmfPackage, IFileSystem fileSystem)
         {
             CmfPackage = cmfPackage;
+            this.fileSystem = fileSystem;
             DefaultContentToIgnore = new List<string>()
             {
                 ".gitattributes",
@@ -132,26 +133,14 @@ namespace Cmf.CLI.Handlers
             }
             else
             {
-                DependenciesFolder = fileSystem.DirectoryInfo.New(Path.Join(cmfPackage.GetFileInfo().Directory.FullName, "Dependencies"));
+                DependenciesFolder = fileSystem.DirectoryInfo.New(this.fileSystem.Path.Join(cmfPackage.GetFileInfo().Directory.FullName, "Dependencies"));
             }
-
-            this.fileSystem = fileSystem;
 
             RelatedPackagesHandlers = new();
 
             foreach (var relatedPackage in CmfPackage.RelatedPackages ?? new())
             {
-                IFileInfo buildablePackageJson = fileSystem.FileInfo.New(Path.Join(relatedPackage.Path.FullName, CoreConstants.CmfPackageFileName));
-                if (buildablePackageJson?.Exists ?? false)
-                {
-                    ExecutionContext.RelatedPackages.TryGetValue(relatedPackage.Path.FullName, out KeyValuePair<RelatedPackage, IPackageTypeHandler> relatedPackagePackageTypeHandler);
-                    ExecutionContext.RelatedPackages.TryAdd(relatedPackage.Path.FullName, relatedPackagePackageTypeHandler);
-                    RelatedPackagesHandlers.TryAdd(relatedPackage, relatedPackagePackageTypeHandler.Value);
-                }
-                else
-                {
-                    Log.Warning(string.Format(CoreMessages.NotFound, buildablePackageJson));
-                }
+                RelatedPackagesHandlers.Add(relatedPackage, PackageTypeFactory.GetPackageTypeHandler(relatedPackage.CmfPackage));
             }
         }
 
@@ -166,7 +155,7 @@ namespace Cmf.CLI.Handlers
         /// <exception cref="CliException"></exception>
         internal virtual void GenerateDeploymentFrameworkManifest(IDirectoryInfo packageOutputDir)
         {
-            Log.Information("Generating DeploymentFramework manifest");
+            Log.Debug("Generating DeploymentFramework manifest");
             string path = $"{packageOutputDir.FullName}/{CliConstants.DeploymentFrameworkManifestFileName}";
 
             // Get Template
@@ -462,7 +451,7 @@ namespace Cmf.CLI.Handlers
                                 continue;
                             }
 
-                            string destPackFile = $"{packageOutputDir.FullName}/{_target}/{packFile.Name}";
+                            string destPackFile = this.fileSystem.Path.Join(packageOutputDir.FullName, _target, packFile.Name);
                             filesToPack.Add(new()
                             {
                                 ContentToPack = contentToPack,
@@ -477,64 +466,6 @@ namespace Cmf.CLI.Handlers
             }
 
             return filesToPack;
-        }
-
-        /// <summary>
-        /// Adds the package where the command was run as Set, in order to be disregard for the related Packages
-        /// </summary>
-        private void SetAnchorPackage()
-        {
-            if (ExecutionContext.RelatedPackages.TryGetValue(this.CmfPackage.GetFileInfo().DirectoryName, out KeyValuePair<RelatedPackage, IPackageTypeHandler> relatedPackagePackageTypeHandler) &&
-                !relatedPackagePackageTypeHandler.Equals(default(KeyValuePair<RelatedPackage, IPackageTypeHandler>)))
-            {
-                relatedPackagePackageTypeHandler.Key.IsSet = true;
-                ExecutionContext.RelatedPackages[this.CmfPackage.GetFileInfo().DirectoryName] = relatedPackagePackageTypeHandler;
-            }
-            else if (ExecutionContext.RelatedPackages.ContainsKey(this.CmfPackage.GetFileInfo().DirectoryName))
-            {
-                ExecutionContext.RelatedPackages[this.CmfPackage.GetFileInfo().DirectoryName] = new KeyValuePair<RelatedPackage, IPackageTypeHandler>(new RelatedPackage()
-                {
-                    IsSet = true,
-                    Path = this.CmfPackage.GetFileInfo().Directory
-                }, this);
-            }
-            else
-            {
-                ExecutionContext.RelatedPackages.TryAdd(this.CmfPackage.GetFileInfo().DirectoryName, new KeyValuePair<RelatedPackage, IPackageTypeHandler>(new RelatedPackage()
-                {
-                    IsSet = true,
-                    Path = this.CmfPackage.GetFileInfo().Directory
-                }, this));
-            }
-        }
-
-        /// <summary>
-        /// Sets the Related Packages as Set and executes an Action of the related package Handler
-        /// </summary>
-        /// <param name="relatedPackagesActions"></param>
-        /// <param name="pre"></param>
-        /// <param name="post"></param>
-        /// <param name="action"></param>
-        private void SetRelatedPackages(RelatedPackagesActions relatedPackagesActions, bool pre = false, bool post = false, Action<IPackageTypeHandler> action = null)
-        {
-            foreach (var handler in RelatedPackagesHandlers.Where(handler =>
-                ((relatedPackagesActions == RelatedPackagesActions.Build && handler.Key.PreBuild == pre || handler.Key.PostBuild == post) ||
-                (relatedPackagesActions == RelatedPackagesActions.Pack && handler.Key.PrePack == pre || handler.Key.PostPack == post)) &&
-                    !(ExecutionContext.RelatedPackages.TryGetValue(this.CmfPackage.GetFileInfo().DirectoryName, out KeyValuePair<RelatedPackage, IPackageTypeHandler> relatedPackagePackageTypeHandler) &&
-                        relatedPackagePackageTypeHandler.Key.IsSet)))
-            {
-                ExecutionContext.RelatedPackages.TryGetValue(handler.Key.Path.FullName, out KeyValuePair<RelatedPackage, IPackageTypeHandler> relatedHandlers);
-
-                if (relatedHandlers.Equals(default(KeyValuePair<RelatedPackage, IPackageTypeHandler>)))
-                {
-                    IFileInfo buildablePackageJson = fileSystem.FileInfo.New(Path.Join(handler.Key.Path.FullName, CoreConstants.CmfPackageFileName));
-
-                    handler.Key.IsSet = true;
-                    ExecutionContext.RelatedPackages[handler.Key.Path.FullName] = new KeyValuePair<RelatedPackage, IPackageTypeHandler>(handler.Key, relatedHandlers.Value ?? PackageTypeFactory.GetPackageTypeHandler(buildablePackageJson));
-                }
-
-                action(ExecutionContext.RelatedPackages[handler.Key.Path.FullName].Value);
-            }
         }
 
         #endregion Private Methods
@@ -584,9 +515,11 @@ namespace Cmf.CLI.Handlers
         {
             #region Pre-Build Actions
 
-            SetRelatedPackages(RelatedPackagesActions.Build, pre: true, action: (packageHandler) => { packageHandler.Build(test); });
-
-            SetAnchorPackage();
+            foreach(var relatedPackageHandler in RelatedPackagesHandlers.Where(rp => !rp.Key.IsSet && rp.Key.PreBuild))
+            {
+                relatedPackageHandler.Value.Build();
+                relatedPackageHandler.Key.IsSet = true;
+            }
 
             #endregion Pre-Build Actions
 
@@ -601,7 +534,11 @@ namespace Cmf.CLI.Handlers
 
             #region Post-Build Actions
 
-            SetRelatedPackages(RelatedPackagesActions.Build, post: true, action: (packageHandler) => { packageHandler.Build(test); });
+            foreach (var relatedPackageHandler in RelatedPackagesHandlers.Where(rp => !rp.Key.IsSet && rp.Key.PostBuild))
+            {
+                relatedPackageHandler.Value.Build();
+                relatedPackageHandler.Key.IsSet = true;
+            }
 
             #endregion Post-Build Actions
         }
@@ -615,9 +552,12 @@ namespace Cmf.CLI.Handlers
         {
             #region Pre-Pack Actions
 
-            SetRelatedPackages(RelatedPackagesActions.Pack, pre: true, action: (packageHandler) => { packageHandler.Pack(packageOutputDir, outputDir); });
-
-            SetAnchorPackage();
+            foreach (var relatedPackageHandler in RelatedPackagesHandlers.Where(rp => !rp.Key.IsSet && rp.Key.PrePack))
+            {
+                var relatedPackagPackageOutputDir = FileSystemUtilities.GetPackageOutputDir(relatedPackageHandler.Key.CmfPackage, packageOutputDir, fileSystem);
+                relatedPackageHandler.Value.Pack(relatedPackagPackageOutputDir, outputDir);
+                relatedPackageHandler.Key.IsSet = true;
+            }
 
             #endregion Pre-Pack Actions
 
@@ -649,11 +589,17 @@ namespace Cmf.CLI.Handlers
 
             FinalArchive(packageOutputDir, outputDir);
 
-            Log.Information($"{outputDir.FullName}/{CmfPackage.ZipPackageName} created");
+            Log.Debug($"{outputDir.FullName}/{CmfPackage.ZipPackageName} created");
+            Log.Information($"{CmfPackage.PackageName} packed");
 
             #region Post-Pack Actions
 
-            SetRelatedPackages(RelatedPackagesActions.Pack, post: true, action: (packageHandler) => { packageHandler.Pack(packageOutputDir, outputDir); });
+            foreach (var relatedPackageHandler in RelatedPackagesHandlers.Where(rp => !rp.Key.IsSet && rp.Key.PostPack))
+            {
+                var relatedPackagPackageOutputDir = FileSystemUtilities.GetPackageOutputDir(relatedPackageHandler.Key.CmfPackage, packageOutputDir, fileSystem);
+                relatedPackageHandler.Value.Pack(relatedPackagPackageOutputDir, outputDir);
+                relatedPackageHandler.Key.IsSet = true;
+            }
 
             #endregion Post-Pack Actions
         }

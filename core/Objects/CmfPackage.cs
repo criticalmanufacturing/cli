@@ -11,6 +11,8 @@ using System.IO;
 using System.IO.Abstractions;
 using System.IO.Compression;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
 namespace Cmf.CLI.Core.Objects
@@ -44,13 +46,13 @@ namespace Cmf.CLI.Core.Objects
         public IFileSystem FileSystem => fileSystem;
 
         /// <summary>
-        /// Gets the name of the package.
+        /// Gets the file name of the package.
         /// </summary>
         /// <value>
-        /// The name of the package.
+        /// The file name of the package.
         /// </value>
         [JsonIgnore]
-        public string PackageName { get; private set; }
+        public string PackageName => $"{PackageId}.{Version}";
 
         /// <summary>
         /// Gets the name of the zip package.
@@ -59,7 +61,7 @@ namespace Cmf.CLI.Core.Objects
         /// The name of the zip package.
         /// </value>
         [JsonIgnore]
-        public string ZipPackageName { get; private set; }
+        public string ZipPackageName => $"{PackageName}.zip";
 
         #endregion Internal Properties
 
@@ -264,7 +266,7 @@ namespace Cmf.CLI.Core.Objects
         /// Packages that should be built/packed before/after the context package
         /// </value>
         [JsonProperty(Order = 22)]
-        public List<RelatedPackage> RelatedPackages { get; set; }
+        public RelatedPackageCollection RelatedPackages { get; set; }
 
         /// <summary>
         /// Gets or sets the target directory where the dependencies contents should be extracted.
@@ -323,9 +325,6 @@ namespace Cmf.CLI.Core.Objects
             XmlInjection = xmlInjection;
             WaitForIntegrationEntries = waitForIntegrationEntries;
             TestPackages = testPackages;
-
-            PackageName = $"{PackageId}.{Version}";
-            ZipPackageName = $"{PackageName}.zip";
         }
 
         /// <summary>
@@ -344,6 +343,11 @@ namespace Cmf.CLI.Core.Objects
             this.fileSystem = fileSystem;
         }
 
+        public CmfPackage(IFileInfo fileInfo) : this(ExecutionContext.Instance.FileSystem)
+        {
+            FileInfo = fileInfo;
+        }
+
         /// <summary>
         /// Initialize CmfPackage with PackageId, Version and Uri
         /// </summary>
@@ -352,9 +356,6 @@ namespace Cmf.CLI.Core.Objects
             PackageId = packageId ?? throw new ArgumentNullException(nameof(packageId));
             Version = version ?? throw new ArgumentNullException(nameof(version));
             Uri = uri;
-
-            PackageName = $"{PackageId}.{Version}";
-            ZipPackageName = $"{PackageName}.zip";
         }
 
         #endregion Constructors
@@ -647,7 +648,52 @@ namespace Cmf.CLI.Core.Objects
             cmfPackage.Location = PackageLocation.Local;
             cmfPackage.fileSystem = fileSystem;
 
+            cmfPackage.RelatedPackages?.Load(cmfPackage);
+
             return cmfPackage;
+        }
+
+        /// <summary>
+        /// Load Method for an instantiated CmfPackage object
+        /// </summary>
+        /// <param name="setDefaultValues"></param>
+        /// <exception cref="CliException"></exception>
+        public void Load(bool setDefaultValues = false)
+        {
+            if (!FileInfo.Exists)
+            {
+                throw new CliException(string.Format(CoreMessages.NotFound, FileInfo.FullName));
+            }
+
+            string fileContent = FileInfo.ReadToString();
+            JsonConvert.PopulateObject(fileContent, this);
+            IsToSetDefaultValues = setDefaultValues;
+            Location = PackageLocation.Local;
+
+            RelatedPackages?.Load(this);
+
+        }
+
+        /// <summary>
+        /// Similar to Load, but without deserialization.
+        /// Only sets PackageId and Version
+        /// </summary>
+        /// <exception cref="CliException"></exception>
+        public void Peek()
+        {
+            if (!FileInfo.Exists)
+            {
+                throw new CliException(string.Format(CoreMessages.NotFound, FileInfo.FullName));
+            }
+
+            Location = PackageLocation.Local;
+
+            string fileContent = FileInfo.ReadToString();
+            string packageIdPattern = "\"packageId\"\\s*:\\s*\"(.*?)\"";
+            string versionPattern = "\"version\"\\s*:\\s*\"(.*?)\"";
+
+            PackageId = Regex.Match(fileContent, packageIdPattern).Groups[1].Value;
+            Version = Regex.Match(fileContent, versionPattern).Groups[1].Value;
         }
 
         /// <summary>

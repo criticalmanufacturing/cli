@@ -72,7 +72,7 @@ namespace Cmf.CLI.Commands.New
                 var listOfLibs = workingDir.EnumerateDirectories().FirstOrDefault(dir => dir.Name == "dist").EnumerateDirectories();
                 cmfPackage.RelatedPackages.ForEach(relatedPackage =>
                 {
-                    if (relatedPackage.Path.GetFile(CliConstants.AngularJson) != null)
+                    if (relatedPackage.CmfPackage.GetFileInfo().Directory.GetFile(CliConstants.AngularJson) != null)
                     {
                         foreach (var lib in listOfLibs)
                         {
@@ -80,7 +80,7 @@ namespace Cmf.CLI.Commands.New
                             {
                                 DisplayName = "npm link dist",
                                 Args = new string[] { "link", lib.FullName },
-                                WorkingDirectory = relatedPackage.Path
+                                WorkingDirectory = relatedPackage.CmfPackage.GetFileInfo().Directory
                             }.Exec();
                         }
                     }
