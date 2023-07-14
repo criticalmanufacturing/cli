@@ -35,7 +35,7 @@ namespace Cmf.CLI.Handlers
                         },
                         new Step(StepType.DeployFiles)
                         {
-                            ContentPath = "**/*.dll"
+                            ContentPath = "**/!(Cmf.Custom.*.BusinessObjects.*.dll)"
                         },
                         new Step(StepType.Generic)
                         {
