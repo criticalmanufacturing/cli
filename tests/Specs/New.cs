@@ -218,15 +218,16 @@ namespace tests.Specs
             }
         }
 
-        [Fact(Skip = "requires an NPM registry")]
+        [Fact]
         public void IoT()
         {
             RunNew(new IoTCommand(), "Cmf.Custom.IoT");
         }
 
-        [Fact(Skip = "requires an NPM registry")]
+        [Fact, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Internal")]
         public void IoTV10()
         {
+
             RunNew(new IoTCommand(), "Cmf.Custom.IoT", mesVersion: "10.0.0");
         }
 
@@ -261,7 +262,7 @@ namespace tests.Specs
                 TestUtilities.GetPackageProperty("version", $"{packageId}/{packageFolder}/cmfpackage.json"), "Version does not match expected");
         }
 
-        [Fact(Skip = "requires an NPM registry")]
+        [Fact]
         public void IoTPackage()
         {
             string dir = TestUtilities.GetTmpDirectory();
@@ -297,7 +298,7 @@ namespace tests.Specs
                 .Should().Contain(@"Cmf.Environment", "VM Dependency should not be included in root package");
         }
 
-        [Fact(Skip = "requires an NPM registry")]
+        [Fact, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Internal")]
         public void IoTPackageV10()
         {
             string dir = TestUtilities.GetTmpDirectory();
@@ -332,6 +333,7 @@ namespace tests.Specs
                 .Should().Contain(@"CriticalManufacturing.DeploymentMetadata", "VM Dependency should be included in root package");
             File.ReadAllText(Path.Join(dir, packageId, "cmfpackage.json"))
                 .Should().Contain(@"Cmf.Environment", "VM Dependency should be included in root package");
+            var relatedPackages = TestUtilities.GetPackageProperty("relatedPackages", $"{packageId}/{packageFolder}/cmfpackage.json");
         }
 
         [Fact]
@@ -728,7 +730,7 @@ namespace tests.Specs
             Assert.True(File.Exists($"{dir}/Cmf.Custom.SecurityPortal/config.json"), "Package config.json is missing");
         }
 
-        [Fact(Skip = "awaiting for NGXSchematics public release"), Trait("TestCategory", "LongRunning")]
+        [Fact, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Internal")]
         public void UI_v10()
         {
             UI_internal_v10();
