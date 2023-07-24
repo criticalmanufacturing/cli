@@ -8,6 +8,7 @@ using Cmf.CLI.Utilities;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
+using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 
@@ -191,7 +192,7 @@ namespace Cmf.CLI.Commands.New
 
             iotCustomPackage.RelatedPackages = new()
             {
-                new RelatedPackage() { Path = htmlPackageDir.FullName, PreBuild = true, PrePack = true }
+                new RelatedPackage() { Path = fileSystem.Path.GetRelativePath(iotCustomPackageWorkDir.FullName, htmlPackageDir.FullName), PreBuild = true, PrePack = true }
             };
 
             iotCustomPackage.SaveCmfPackage();
