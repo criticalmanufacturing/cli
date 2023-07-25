@@ -64,6 +64,21 @@ namespace Cmf.Common.Cli.TestUtilities
         }
 
         /// <summary>
+        /// Copies the fixture package to a directory
+        /// </summary>
+        /// <param name="packageName"></param>
+        /// <param name="target"></param>
+        public static void CopyFixturePackage(string packageName, DirectoryInfo target)
+        {
+            target = Directory.CreateDirectory(Path.Join(target.FullName, packageName));
+            var source = new DirectoryInfo(System.IO.Path.GetFullPath(
+                Path.Join(
+            AppDomain.CurrentDomain.BaseDirectory,
+                        "..", "..", "..", "Fixtures", "new-packages", packageName)));
+            CopyAll(source, target);
+        }
+
+        /// <summary>
         /// Copies all files from a source directory to a target directory
         /// </summary>
         /// <param name="source"></param>
