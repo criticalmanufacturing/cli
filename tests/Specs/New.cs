@@ -218,121 +218,69 @@ namespace tests.Specs
             }
         }
 
-        [Fact]
-        public void IoT()
-        {
-            RunNew(new IoTCommand(), "Cmf.Custom.IoT");
-        }
-
-        [Fact, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Internal")]
-        public void IoTV10()
-        {
-
-            RunNew(new IoTCommand(), "Cmf.Custom.IoT", mesVersion: "10.0.0");
-        }
-
-        [Fact]
-        public void IoTData()
+        [Theory]
+        [InlineData("9.0.0")]
+        [InlineData("10.0.0"), Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Internal")]
+        [InlineData("10.0.0", true), Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Internal")]
+        public void IoT(string mesVersion, bool htmlPackageLocationFullPath = false)
         {
             string dir = TestUtilities.GetTmpDirectory();
             string packageId = "Cmf.Custom.IoT";
+
+            string packageIdPackages = "Cmf.Custom.IoT.Packages";
+            string packageFolderPackages = mesVersion == "9.0.0" ? "IoTPackages" : packageIdPackages;
+
             string packageIdData = "Cmf.Custom.IoT.Data";
-            string packageFolder = "IoTData";
+            string packageFolderData = mesVersion == "9.0.0" ? "IoTData" : packageIdData;
 
-            TestUtilities.CopyFixture("new", new DirectoryInfo(dir));
-            var projCfg = Path.Join(dir, ".project-config.json");
-            if (File.Exists(projCfg))
+            CopyNewFixture(dir, mesVersion: mesVersion);
+            if (mesVersion == "9.0.0")
             {
-                File.WriteAllText(projCfg, File.ReadAllText(projCfg)
-                    .Replace("install_path", MockUnixSupport.Path(@"x:\install_path").Replace(@"\", @"\\"))
-                    .Replace("backup_share", MockUnixSupport.Path(@"y:\backup_share").Replace(@"\", @"\\"))
-                    .Replace("temp_folder", MockUnixSupport.Path(@"z:\temp_folder").Replace(@"\", @"\\"))
-                );
+                RunNew(new IoTCommand(), packageId, scaffoldingDir: dir);
             }
-            RunNew(new IoTCommand(), packageId, dir);
-
-            // Validate IoT Data
-            Assert.True(Directory.Exists($"{packageId}/{packageFolder}"), "Package folder is missing");
-            Assert.True(Directory.Exists($"{packageId}/{packageFolder}/MasterData"), "Folder MasterData is missing");
-            Assert.True(Directory.Exists($"{packageId}/{packageFolder}/AutomationWorkFlows"), "Folder AutomationWorkFlows is missing");
-
-            Assert.Equal(packageIdData, TestUtilities.GetPackageProperty("packageId", $"{packageId}/{packageFolder}/cmfpackage.json"), "Package Id does not match expected");
-            Assert.Equal(PackageType.IoTData.ToString(), TestUtilities.GetPackageProperty("packageType", $"{packageId}/{packageFolder}/cmfpackage.json"), "Package Type does not match expected");
-            Assert.Equal(TestUtilities.GetPackageProperty("version", $"{packageId}/cmfpackage.json"),
-                TestUtilities.GetPackageProperty("version", $"{packageId}/{packageFolder}/cmfpackage.json"), "Version does not match expected");
-        }
-
-        [Fact]
-        public void IoTPackage()
-        {
-            string dir = TestUtilities.GetTmpDirectory();
-            string packageId = "Cmf.Custom.IoT";
-            string packageIdData = "Cmf.Custom.IoT.Packages";
-            string packageFolder = "IoTPackages";
-
-            TestUtilities.CopyFixture("new", new DirectoryInfo(dir));
-            var projCfg = Path.Join(dir, ".project-config.json");
-            if (File.Exists(projCfg))
+            else
             {
-                File.WriteAllText(projCfg, File.ReadAllText(projCfg)
-                    .Replace("install_path", MockUnixSupport.Path(@"x:\install_path").Replace(@"\", @"\\"))
-                    .Replace("backup_share", MockUnixSupport.Path(@"y:\backup_share").Replace(@"\", @"\\"))
-                    .Replace("temp_folder", MockUnixSupport.Path(@"z:\temp_folder").Replace(@"\", @"\\"))
-                );
+                var htmlPackageName = "Cmf.Custom.Html";
+                var targetDir = new DirectoryInfo(dir);
+
+                TestUtilities.CopyFixturePackage(htmlPackageName, targetDir);
+                string htmlPackageLocation = htmlPackageLocationFullPath ? htmlPackageName : Path.Join(targetDir.FullName, htmlPackageName);
+                RunNew(new IoTCommand(), packageId, mesVersion: mesVersion, scaffoldingDir: dir, extraArguments: new string[] { "--htmlPackageLocation", htmlPackageLocation });
             }
-            RunNew(new IoTCommand(), packageId, dir);
 
-            // Validate IoT Package
-            Assert.True(Directory.Exists($"{packageId}/{packageFolder}"), "Package folder is missing");
-            Assert.True(Directory.Exists($"{packageId}/{packageFolder}/src"), "Folder MasterData is missing");
-            Assert.True(File.Exists($"{packageId}/{packageFolder}/.dev-tasks.json"), "Folder AutomationWorkFlows is missing");
-            Assert.True(File.Exists($"{packageId}/{packageFolder}/package.json"), "Folder AutomationWorkFlows is missing");
-
-            Assert.Equal(packageIdData, TestUtilities.GetPackageProperty("packageId", $"{packageId}/{packageFolder}/cmfpackage.json"), "Package Id does not match expected");
-            Assert.Equal(PackageType.IoT.ToString(), TestUtilities.GetPackageProperty("packageType", $"{packageId}/{packageFolder}/cmfpackage.json"), "Package Type does not match expected");
-            Assert.Equal(TestUtilities.GetPackageProperty("version", $"{packageId}/cmfpackage.json"),
-                TestUtilities.GetPackageProperty("version", $"{packageId}/{packageFolder}/cmfpackage.json"), "Version does not match expected");
             File.ReadAllText(Path.Join(dir, packageId, "cmfpackage.json"))
-                .Should().Contain(@"CriticalManufacturing.DeploymentMetadata", "VM Dependency should be included in root package");
+                .Should().Contain(@"CriticalManufacturing.DeploymentMetadata");
             File.ReadAllText(Path.Join(dir, packageId, "cmfpackage.json"))
-                .Should().Contain(@"Cmf.Environment", "VM Dependency should not be included in root package");
-        }
+                .Should().Contain(@"Cmf.Environment");
 
-        [Fact, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Internal")]
-        public void IoTPackageV10()
-        {
-            string dir = TestUtilities.GetTmpDirectory();
-            string packageId = "Cmf.Custom.IoT";
-            string packageIdData = "Cmf.Custom.IoT.Packages";
-            string packageFolder = "IoTPackages";
 
-            TestUtilities.CopyFixture("new", new DirectoryInfo(dir));
-            var projCfg = Path.Join(dir, ".project-config.json");
-            if (File.Exists(projCfg))
+            Directory.Exists($"{packageId}/{packageFolderPackages}").Should().BeTrue();
+            TestUtilities.GetPackageProperty("packageId", $"{packageId}/{packageFolderPackages}/cmfpackage.json").Should().Be(packageIdPackages);
+            TestUtilities.GetPackageProperty("packageType", $"{packageId}/{packageFolderPackages}/cmfpackage.json").Should().Be(PackageType.IoT.ToString());
+            File.Exists($"{packageId}/{packageFolderPackages}/package.json").Should().BeTrue();
+
+            Directory.Exists($"{packageId}/{packageFolderData}").Should().BeTrue();
+            TestUtilities.GetPackageProperty("packageId", $"{packageId}/{packageFolderData}/cmfpackage.json").Should().Be(packageIdData);
+            TestUtilities.GetPackageProperty("packageType", $"{packageId}/{packageFolderData}/cmfpackage.json").Should().Be(PackageType.IoTData.ToString());
+            Directory.Exists($"{packageId}/{packageFolderData}/MasterData").Should().BeTrue();
+            Directory.Exists($"{packageId}/{packageFolderData}/AutomationWorkFlows").Should().BeTrue();
+
+            if(mesVersion == "9.0.0")
             {
-                File.WriteAllText(projCfg, File.ReadAllText(projCfg)
-                    .Replace("8.2.0", "10.0.0")
-                    .Replace("install_path", MockUnixSupport.Path(@"x:\install_path").Replace(@"\", @"\\"))
-                    .Replace("backup_share", MockUnixSupport.Path(@"y:\backup_share").Replace(@"\", @"\\"))
-                    .Replace("temp_folder", MockUnixSupport.Path(@"z:\temp_folder").Replace(@"\", @"\\"))
-                );
+                File.Exists($"{packageId}/{packageFolderPackages}/.dev-tasks.json").Should().BeTrue();
+                Directory.Exists($"{packageId}/{packageFolderPackages}/src").Should().BeTrue();
+                
             }
-            RunNew(new IoTCommand(), packageId, dir, mesVersion: "10.0.0");
+            else
+            {
+                var relatedPackages = TestUtilities.GetPackage($"{packageId}/{packageFolderPackages}/cmfpackage.json").GetProperty("relatedPackages")[0];
+                relatedPackages.GetProperty("path").GetString().Should().Be("..\\..\\Cmf.Custom.Html");
+                relatedPackages.GetProperty("preBuild").GetBoolean().Should().BeTrue();
+                relatedPackages.GetProperty("postBuild").GetBoolean().Should().BeFalse();
+                relatedPackages.GetProperty("prePack").GetBoolean().Should().BeTrue();
+                relatedPackages.GetProperty("postPack").GetBoolean().Should().BeFalse();
+            }
 
-            // Validate IoT Package
-            Assert.True(Directory.Exists($"{packageId}/{packageFolder}"), "Package folder is missing");
-            Assert.True(Directory.Exists($"{packageId}/{packageFolder}/src"), "src is missing");
-            Assert.True(File.Exists($"{packageId}/{packageFolder}/angular.json"), "angular.json is missing");
-            Assert.True(File.Exists($"{packageId}/{packageFolder}/package.json"), "package.json is missing");
-
-            Assert.Equal(packageIdData, TestUtilities.GetPackageProperty("packageId", $"{packageId}/{packageFolder}/cmfpackage.json"), "Package Id does not match expected");
-            Assert.Equal(PackageType.IoT.ToString(), TestUtilities.GetPackageProperty("packageType", $"{packageId}/{packageFolder}/cmfpackage.json"), "Package Type does not match expected");
-            Assert.Equal(TestUtilities.GetPackageProperty("version", $"{packageId}/cmfpackage.json"),
-                TestUtilities.GetPackageProperty("version", $"{packageId}/{packageFolder}/cmfpackage.json"), "Version does not match expected");
-            File.ReadAllText(Path.Join(dir, packageId, "cmfpackage.json"))
-                .Should().Contain(@"CriticalManufacturing.DeploymentMetadata", "VM Dependency should be included in root package");
-            File.ReadAllText(Path.Join(dir, packageId, "cmfpackage.json"))
-                .Should().Contain(@"Cmf.Environment", "VM Dependency should be included in root package");
         }
 
         [Fact]
@@ -761,7 +709,7 @@ namespace tests.Specs
             var dir = scaffoldingDir ?? TestUtilities.GetTmpDirectory();
 
             
-             var rnd = new Random();
+            var rnd = new Random();
             var pkgVersion = $"{rnd.Next(10)}.{rnd.Next(10)}.{rnd.Next(10)}";
 
             var cur = Directory.GetCurrentDirectory();
@@ -773,21 +721,7 @@ namespace tests.Specs
                 // place new fixture: an init'd repository
                 if (scaffoldingDir == null)
                 {
-                    TestUtilities.CopyFixture("new", new DirectoryInfo(dir));
-                    var projCfg = Path.Join(dir, ".project-config.json");
-                    if (File.Exists(projCfg))
-                    {
-                        File.WriteAllText(projCfg, File.ReadAllText(projCfg)
-                            .Replace(@"""MESVersion"": ""8.2.0""", $@"""MESVersion"": ""{mesVersion}""")
-                            .Replace(@"""BaseLayer"": ""MES""", $@"""BaseLayer"": ""{baseLayer}""")
-                            .Replace(@"""RepositoryType"": ""Customization""", $@"""RepositoryType"": ""{repositoryType}""")
-                            .Replace(@"""NGXSchematicsVersion"": ""10.0.0""", $@"""NGXSchematicsVersion"": ""{ngxSchematicsVersion}""")
-                            .Replace(@"""NPMRegistry"": ""http://npm_registry/""", $@"""NPMRegistry"": ""http://cmf-nuget:4873/""")
-                            .Replace("install_path", MockUnixSupport.Path(@"x:\install_path").Replace(@"\", @"\\"))
-                            .Replace("backup_share", MockUnixSupport.Path(@"y:\backup_share").Replace(@"\", @"\\"))
-                            .Replace("temp_folder", MockUnixSupport.Path(@"z:\temp_folder").Replace(@"\", @"\\"))
-                        );
-                    }
+                    CopyNewFixture(dir, mesVersion, ngxSchematicsVersion, baseLayer, repositoryType);
                 }
 
                 ExecutionContext.Initialize(new FileSystem());
@@ -845,6 +779,29 @@ namespace tests.Specs
                 }
             }
             return console;
+        }
+
+        private void CopyNewFixture(string dir,
+            string mesVersion = "8.2.0",
+            string ngxSchematicsVersion = "1.1.0",
+            BaseLayer baseLayer = BaseLayer.MES,
+            RepositoryType repositoryType = RepositoryType.Customization)
+        {
+            TestUtilities.CopyFixture("new", new DirectoryInfo(dir));
+            var projCfg = Path.Join(dir, ".project-config.json");
+            if (File.Exists(projCfg))
+            {
+                File.WriteAllText(projCfg, File.ReadAllText(projCfg)
+                    .Replace(@"""MESVersion"": ""8.2.0""", $@"""MESVersion"": ""{mesVersion}""")
+                    .Replace(@"""BaseLayer"": ""MES""", $@"""BaseLayer"": ""{baseLayer}""")
+                    .Replace(@"""RepositoryType"": ""Customization""", $@"""RepositoryType"": ""{repositoryType}""")
+                    .Replace(@"""NGXSchematicsVersion"": ""10.0.0""", $@"""NGXSchematicsVersion"": ""{ngxSchematicsVersion}""")
+                    .Replace(@"""NPMRegistry"": ""http://npm_registry/""", $@"""NPMRegistry"": ""http://cmf-nuget:4873/""")
+                    .Replace("install_path", MockUnixSupport.Path(@"x:\install_path").Replace(@"\", @"\\"))
+                    .Replace("backup_share", MockUnixSupport.Path(@"y:\backup_share").Replace(@"\", @"\\"))
+                    .Replace("temp_folder", MockUnixSupport.Path(@"z:\temp_folder").Replace(@"\", @"\\"))
+                );
+            }
         }
     }
 }

@@ -1,0 +1,17 @@
+{
+  "packageId": "Cmf.Custom.HTML",
+  "version": "8.2.8",
+  "description": "Cmf Custom tenant Cmf.Custom.HTML Package",
+  "packageType": "Html",
+  "isInstallable": true,
+  "isUniqueInstall": false,
+  "contentToPack": [
+    {
+      "source": "dist/cmf.custom.html/**",
+      "target": "",
+      "ignoreFiles": [
+        ".npmignore"
+      ]
+    }
+  ]
+}
