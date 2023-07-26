@@ -1,12 +1,11 @@
 ﻿
-using System;
-using System.IO;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Handlers;
-using Cmf.CLI.Interfaces;
 using Cmf.CLI.Utilities;
+using System;
 using System.IO.Abstractions;
 
 namespace Cmf.CLI.Factories
@@ -40,14 +39,14 @@ namespace Cmf.CLI.Factories
         /// </exception>
         public static IPackageTypeHandler GetPackageTypeHandler(CmfPackage cmfPackage, bool setDefaultValues = false)
         {
-            PackageTypeHandler packageTypeHandler;
+            IPackageTypeHandler packageTypeHandler;
             packageTypeHandler = cmfPackage.PackageType switch
             {
                 PackageType.Root => new RootPackageTypeHandler(cmfPackage),
                 PackageType.Generic => new GenericPackageTypeHandler(cmfPackage),
                 PackageType.Business => new BusinessPackageTypeHandler(cmfPackage),
-                PackageType.HTML => new HtmlPackageTypeHandler(cmfPackage),
-                PackageType.Help => new HelpPackageTypeHandler(cmfPackage),
+                PackageType.HTML => HtmlHandler(cmfPackage),
+                PackageType.Help => HelpHandler(cmfPackage),
                 PackageType.IoT => new IoTPackageTypeHandler(cmfPackage),
                 PackageType.IoTData => cmfPackage.HandlerVersion switch
                 {
@@ -70,6 +69,30 @@ namespace Cmf.CLI.Factories
             };
 
             return packageTypeHandler;
+        }
+
+        private static IPackageTypeHandler HelpHandler(CmfPackage cmfPackage)
+        {
+            var targetVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            var minimumVersion = new Version("10.0.0");
+            if (targetVersion.CompareTo(minimumVersion) < 0)
+            {
+                return new HelpGulpPackageTypeHandler(cmfPackage);
+            }
+
+            return new HelpNgCliPackageTypeHandler(cmfPackage);
+        }
+
+        private static IPackageTypeHandler HtmlHandler(CmfPackage cmfPackage)
+        {
+            var targetVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            var minimumVersion = new Version("10.0.0");
+            if (targetVersion.CompareTo(minimumVersion) < 0)
+            {
+                return new HtmlGulpPackageTypeHandler(cmfPackage);
+            }
+
+            return new HtmlNgCliPackageTypeHandler(cmfPackage);
         }
     }
 }

@@ -30,7 +30,7 @@ namespace Cmf.CLI.Commands
         /// </summary>
         /// <param name="versionTag"></param>
         /// <param name="target"></param>
-        protected void CloneHTMLStarter(string versionTag, IDirectoryInfo target)
+        protected void CloneHTMLStarter(Version versionTag, IDirectoryInfo target)
         {
             if (target?.Exists != true)
             {
@@ -47,7 +47,7 @@ namespace Cmf.CLI.Commands
             // git fetch
             (new GitCommand() { Command = "fetch", WorkingDirectory = target }).Exec();
             // git pull origin $vars['HTMLStarterVersion']
-            (new GitCommand() { Command = "pull", WorkingDirectory = target, Args = new[] { "origin", versionTag } }).Exec();
+            (new GitCommand() { Command = "pull", WorkingDirectory = target, Args = new[] { "origin", versionTag.ToString() } }).Exec();
             Log.Debug("delete .git folder");
             this.DeleteFolderWithReadOnlyFiles(target.GetDirectories(".git").FirstOrDefault());
             // delete apps/.gitkeep

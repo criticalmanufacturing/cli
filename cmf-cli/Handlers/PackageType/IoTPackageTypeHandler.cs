@@ -1,15 +1,16 @@
-﻿using System;
-using Newtonsoft.Json;
-using System.Collections.Generic;
-using System.IO.Abstractions;
-using System.Linq;
-using Cmf.CLI.Builders;
+﻿using Cmf.CLI.Builders;
+using Cmf.CLI.Commands.New;
 using Cmf.CLI.Commands.restore;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.IO.Abstractions;
+using System.Linq;
 
 namespace Cmf.CLI.Handlers
 {
@@ -19,10 +20,6 @@ namespace Cmf.CLI.Handlers
     /// <seealso cref="PresentationPackageTypeHandler" />
     public class IoTPackageTypeHandler : PresentationPackageTypeHandler
     {
-        #region Private Methods
-
-        #endregion
-
         /// <summary>
         /// Initializes a new instance of the <see cref="IoTPackageTypeHandler" /> class.
         /// </summary>
@@ -30,14 +27,108 @@ namespace Cmf.CLI.Handlers
         public IoTPackageTypeHandler(CmfPackage cmfPackage) : base(cmfPackage)
         {
             var minimumVersion = new Version("8.3.5");
-            var projectConfig = FileSystemUtilities.ReadProjectConfig(this.fileSystem);
-            var mesVersion = projectConfig.RootElement.GetProperty("MESVersion").GetString();
-            var targetVersion = new Version(mesVersion!);
+            var targetVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            IBuildCommand[] buildCommands = Array.Empty<IBuildCommand>();
+
             if (targetVersion.CompareTo(minimumVersion) < 0)
             {
                 Log.Debug(
-                    $"MES version lower than {minimumVersion.ToString()}, skipping DeployRepositoryFiles and GenerateRepositoryIndex steps. Make sure you have alternative steps in your manifest.");
+                    $"MES version lower than {minimumVersion}, skipping DeployRepositoryFiles and GenerateRepositoryIndex steps. Make sure you have alternative steps in your manifest.");
             }
+
+            if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 10)
+            {
+                buildCommands = new IBuildCommand[]
+                {
+                    new ExecuteCommand<RestoreCommand>()
+                    {
+                        Command = new RestoreCommand(),
+                        DisplayName = "cmf restore",
+                        Execute = command =>
+                        {
+                            command.Execute(cmfPackage.GetFileInfo().Directory, null);
+                        }
+                    },
+                    new NPMCommand()
+                    {
+                       DisplayName = "NPM Install",
+                       Command = "install",
+                       Args = new[] {"--force"},
+                       WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                    },
+                    new GulpCommand()
+                    {
+                       GulpFile = "gulpfile.js",
+                       Task = "install",
+                       DisplayName = "Gulp Install",
+                       GulpJS = "node_modules/gulp/bin/gulp.js",
+                       WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                    },
+                    new GulpCommand()
+                    {
+                       GulpFile = "gulpfile.js",
+                       Task = "build",
+                       DisplayName = "Gulp Build",
+                       GulpJS = "node_modules/gulp/bin/gulp.js",
+                       WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                    },
+                    new GulpCommand()
+                    {
+                        GulpFile = "gulpfile.js",
+                        Task = "cliTest",
+                        DisplayName = "Gulp Test",
+                        GulpJS = "node_modules/gulp/bin/gulp.js",
+                        WorkingDirectory = cmfPackage.GetFileInfo().Directory,
+                        Test = true
+                    }
+                };
+            }
+            else
+            {
+                buildCommands = new IBuildCommand[]
+                {
+                    new ExecuteCommand<RestoreCommand>()
+                    {
+                        Command = new RestoreCommand(),
+                        DisplayName = "cmf restore",
+                        Execute = command =>
+                        {
+                            command.Execute(cmfPackage.GetFileInfo().Directory, null);
+                        }
+                    },
+                    new NPMCommand()
+                    {
+                       DisplayName = "NPM Install",
+                       Command = "install",
+                       Args = new[] {"--force"},
+                       WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                    },
+                    new NPMCommand()
+                    {
+                       DisplayName = "NPM Build",
+                       Command = "run build -ws",
+                       Args = new[] {"--force"},
+                       WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                    },
+                    new NPMCommand()
+                    {
+                       DisplayName = "NPM Test",
+                       Command = "run test -ws",
+                       Args = new[] {"--force"},
+                       WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                    },
+                   new ExecuteCommand<IoTLibCommand>()
+                    {
+                        Command = new IoTLibCommand(),
+                        DisplayName = "cmf iot lib command",
+                        Execute = command =>
+                        {
+                            command.Execute(cmfPackage.GetFileInfo().Directory);
+                        }
+                    },
+                };
+            }
+
             cmfPackage.SetDefaultValues
             (
                 targetDirectory:
@@ -71,7 +162,7 @@ namespace Cmf.CLI.Handlers
                         {
                             OnExecute = $"$(Package[{cmfPackage.PackageId}].TargetDirectory)/runtimePackages/PublishToDirectory.ps1"
                         },
-                        
+
                         new Step(StepType.DeployRepositoryFiles)
                         {
                             ContentPath = "runtimePackages/**"
@@ -79,9 +170,9 @@ namespace Cmf.CLI.Handlers
                         new Step(StepType.GenerateRepositoryIndex)
                     }.Where(step =>
                             // if MES version is inferior to 8.3.5, the DeployRepositoryFiles and GenerateRepositoryIndex steps are not supported
-                            targetVersion.CompareTo(minimumVersion) >= 0 || step.Type != StepType.DeployRepositoryFiles && step.Type != StepType.GenerateRepositoryIndex   
-                        ).ToList() 
-                        
+                            targetVersion.CompareTo(minimumVersion) >= 0 || step.Type != StepType.DeployRepositoryFiles && step.Type != StepType.GenerateRepositoryIndex
+                        ).ToList()
+
             );
 
             DefaultContentToIgnore.AddRange(new List<string>()
@@ -93,56 +184,7 @@ namespace Cmf.CLI.Handlers
                 "README.md"
             });
 
-            BuildSteps = new IBuildCommand[]
-            {
-                new ExecuteCommand<RestoreCommand>()
-                {
-                    Command = new RestoreCommand(),
-                    DisplayName = "cmf restore",
-                    Execute = command =>
-                    {
-                        command.Execute(cmfPackage.GetFileInfo().Directory, null);
-                    }
-                },
-                new NPMCommand()
-                {
-                   DisplayName = "NPM Install",
-                   Command = "install",
-                   Args = new[] {"--force"},
-                   WorkingDirectory = cmfPackage.GetFileInfo().Directory
-                },
-                new GulpCommand()
-                {
-                   GulpFile = "gulpfile.js",
-                   Task = "install",
-                   DisplayName = "Gulp Install",
-                   GulpJS = "node_modules/gulp/bin/gulp.js",
-                   WorkingDirectory = cmfPackage.GetFileInfo().Directory
-                },
-                new GulpCommand()
-                {
-                   GulpFile = "gulpfile.js",
-                   Task = "build",
-                   DisplayName = "Gulp Build",
-                   GulpJS = "node_modules/gulp/bin/gulp.js",
-                   WorkingDirectory = cmfPackage.GetFileInfo().Directory
-                },
-                new GulpCommand()
-                {
-                    GulpFile = "gulpfile.js",
-                    Task = "cliTest",
-                    DisplayName = "Gulp Test",
-                    GulpJS = "node_modules/gulp/bin/gulp.js",
-                    WorkingDirectory = cmfPackage.GetFileInfo().Directory,
-                    Test = true
-                },
-                new ConsistencyCheckCommand()
-                {
-                    DisplayName = "Consistency Check Validator Command",
-                    FileSystem = this.fileSystem,
-                    WorkingDirectory = cmfPackage.GetFileInfo().Directory
-                }
-            };
+            BuildSteps = buildCommands;
 
             cmfPackage.DFPackageType = PackageType.Presentation;
         }
@@ -210,7 +252,7 @@ namespace Cmf.CLI.Handlers
                     foreach (IDirectoryInfo packDirectory in packDirectories)
                     {
                         string inputDirPath = packDirectory.FullName;
-                        IFileInfo packConfig = this.fileSystem.FileInfo.FromFileName($"{inputDirPath}/packconfig.json");
+                        IFileInfo packConfig = this.fileSystem.FileInfo.New($"{inputDirPath}/packconfig.json");
                         if (!packConfig.Exists)
                         {
                             Log.Warning("packconfig.json doesn't exist! packagePacker will not run.");
@@ -220,14 +262,18 @@ namespace Cmf.CLI.Handlers
 
                         string outputDirPath = $"{packageOutputDir}/runtimePackages";
 
-                        NPMCommand npmCommand = new NPMCommand()
+                        // Is not Supported in workspaces
+                        if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 10)
                         {
-                            DisplayName = "npm shrinkwrap",
-                            Args = new string[] { "shrinkwrap" },
-                            WorkingDirectory = packDirectory
-                        };
+                            NPMCommand npmCommand = new NPMCommand()
+                            {
+                                DisplayName = "npm shrinkwrap",
+                                Args = new string[] { "shrinkwrap" },
+                                WorkingDirectory = packDirectory
+                            };
 
-                        npmCommand.Exec();
+                            npmCommand.Exec();
+                        }
 
                         CmdCommand cmdCommand = new CmdCommand()
                         {
@@ -242,7 +288,7 @@ namespace Cmf.CLI.Handlers
                 }
                 else if (contentToPack.Action == PackAction.Untar)
                 {
-                    IFileInfo tgzFile = this.fileSystem.FileInfo.FromFileName($"{CmfPackage.GetFileInfo().Directory.FullName}/{contentToPack.Source}");
+                    IFileInfo tgzFile = this.fileSystem.FileInfo.New($"{CmfPackage.GetFileInfo().Directory.FullName}/{contentToPack.Source}");
                     CmdCommand cmdCommand = new CmdCommand()
                     {
                         DisplayName = "tar -xzvf",
@@ -257,8 +303,8 @@ namespace Cmf.CLI.Handlers
 
                     string packDirectoryName = packageJson == null ? tgzFile.Directory.Name : packageJson.name;
 
-                    IDirectoryInfo packageDirectory = this.fileSystem.DirectoryInfo.FromDirectoryName($"{packageOutputDir}/package");
-                    IDirectoryInfo destinationDirectory = this.fileSystem.DirectoryInfo.FromDirectoryName($"{packageOutputDir}/{contentToPack.Target}/{packDirectoryName}");
+                    IDirectoryInfo packageDirectory = this.fileSystem.DirectoryInfo.New($"{packageOutputDir}/package");
+                    IDirectoryInfo destinationDirectory = this.fileSystem.DirectoryInfo.New($"{packageOutputDir}/{contentToPack.Target}/{packDirectoryName}");
                     destinationDirectory.Parent.Create();
                     packageDirectory.MoveTo(destinationDirectory.FullName);
                 }
@@ -266,6 +312,5 @@ namespace Cmf.CLI.Handlers
 
             base.Pack(packageOutputDir, outputDir);
         }
-
     }
 }

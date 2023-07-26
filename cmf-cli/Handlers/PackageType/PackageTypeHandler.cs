@@ -3,8 +3,9 @@ using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Core.Objects;
-using Cmf.CLI.Interfaces;
+using Cmf.CLI.Factories;
 using Cmf.CLI.Utilities;
 using System;
 using System.Collections;
@@ -66,12 +67,12 @@ namespace Cmf.CLI.Handlers
         internal IBuildCommand[] BuildSteps;
 
         /// <summary>
-        /// Gets or sets the BuildablePackagesHandlers
+        /// Gets or sets the RelatedPackagesHandlers
         /// </summary>
         /// <value>
-        /// The BuildablePackagesHandlers
+        /// The RelatedPackagesHandlers
         /// </value>
-        internal List<IPackageTypeHandler> BuildablePackagesHandlers;
+        internal Dictionary<RelatedPackage, IPackageTypeHandler> RelatedPackagesHandlers = new();
 
         #endregion Protected Properties
 
@@ -108,6 +109,7 @@ namespace Cmf.CLI.Handlers
         public PackageTypeHandler(CmfPackage cmfPackage, IFileSystem fileSystem)
         {
             CmfPackage = cmfPackage;
+            this.fileSystem = fileSystem;
             DefaultContentToIgnore = new List<string>()
             {
                 ".gitattributes",
@@ -127,14 +129,19 @@ namespace Cmf.CLI.Handlers
             if (!string.IsNullOrWhiteSpace(cmfPackage.DependenciesDirectory))
             {
                 omitIdentifier = true;
-                DependenciesFolder = fileSystem.DirectoryInfo.FromDirectoryName(cmfPackage.DependenciesDirectory);
+                DependenciesFolder = fileSystem.DirectoryInfo.New(cmfPackage.DependenciesDirectory);
             }
             else
             {
-                DependenciesFolder = fileSystem.DirectoryInfo.FromDirectoryName(Path.Join(cmfPackage.GetFileInfo().Directory.FullName, "Dependencies"));
+                DependenciesFolder = fileSystem.DirectoryInfo.New(this.fileSystem.Path.Join(cmfPackage.GetFileInfo().Directory.FullName, "Dependencies"));
             }
 
-            this.fileSystem = fileSystem;
+            RelatedPackagesHandlers = new();
+
+            foreach (var relatedPackage in CmfPackage.RelatedPackages ?? new())
+            {
+                RelatedPackagesHandlers.Add(relatedPackage, PackageTypeFactory.GetPackageTypeHandler(relatedPackage.CmfPackage));
+            }
         }
 
         #endregion Constructors
@@ -148,7 +155,7 @@ namespace Cmf.CLI.Handlers
         /// <exception cref="CliException"></exception>
         internal virtual void GenerateDeploymentFrameworkManifest(IDirectoryInfo packageOutputDir)
         {
-            Log.Information("Generating DeploymentFramework manifest");
+            Log.Debug("Generating DeploymentFramework manifest");
             string path = $"{packageOutputDir.FullName}/{CliConstants.DeploymentFrameworkManifestFileName}";
 
             // Get Template
@@ -182,7 +189,7 @@ namespace Cmf.CLI.Handlers
                 {
                     foreach (string xmlInjectionFile in CmfPackage.XmlInjection)
                     {
-                        IFileInfo xmlFile = this.fileSystem.FileInfo.FromFileName($"{CmfPackage.GetFileInfo().Directory}/{xmlInjectionFile}");
+                        IFileInfo xmlFile = this.fileSystem.FileInfo.New($"{CmfPackage.GetFileInfo().Directory}/{xmlInjectionFile}");
                         string xmlFileContent = xmlFile.ReadToString();
 
                         if (!xmlFile.Exists || string.IsNullOrEmpty(xmlFileContent))
@@ -444,12 +451,12 @@ namespace Cmf.CLI.Handlers
                                 continue;
                             }
 
-                            string destPackFile = $"{packageOutputDir.FullName}/{_target}/{packFile.Name}";
+                            string destPackFile = this.fileSystem.Path.Join(packageOutputDir.FullName, _target, packFile.Name);
                             filesToPack.Add(new()
                             {
                                 ContentToPack = contentToPack,
                                 Source = packFile,
-                                Target = this.fileSystem.FileInfo.FromFileName(destPackFile)
+                                Target = this.fileSystem.FileInfo.New(destPackFile)
                             });
                         }
 
@@ -506,6 +513,16 @@ namespace Cmf.CLI.Handlers
         /// </summary>
         public virtual void Build(bool test)
         {
+            #region Pre-Build Actions
+
+            foreach(var relatedPackageHandler in RelatedPackagesHandlers.Where(rp => !rp.Key.IsSet && rp.Key.PreBuild))
+            {
+                relatedPackageHandler.Value.Build();
+                relatedPackageHandler.Key.IsSet = true;
+            }
+
+            #endregion Pre-Build Actions
+
             foreach (var step in BuildSteps)
             {
                 if (!step.Test || step.Test == test)
@@ -514,6 +531,16 @@ namespace Cmf.CLI.Handlers
                     step.Exec();
                 }
             }
+
+            #region Post-Build Actions
+
+            foreach (var relatedPackageHandler in RelatedPackagesHandlers.Where(rp => !rp.Key.IsSet && rp.Key.PostBuild))
+            {
+                relatedPackageHandler.Value.Build();
+                relatedPackageHandler.Key.IsSet = true;
+            }
+
+            #endregion Post-Build Actions
         }
 
         /// <summary>
@@ -523,6 +550,17 @@ namespace Cmf.CLI.Handlers
         /// <param name="outputDir">The output dir.</param>
         public virtual void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir)
         {
+            #region Pre-Pack Actions
+
+            foreach (var relatedPackageHandler in RelatedPackagesHandlers.Where(rp => !rp.Key.IsSet && rp.Key.PrePack))
+            {
+                var relatedPackagPackageOutputDir = FileSystemUtilities.GetPackageOutputDir(relatedPackageHandler.Key.CmfPackage, packageOutputDir, fileSystem);
+                relatedPackageHandler.Value.Pack(relatedPackagPackageOutputDir, outputDir);
+                relatedPackageHandler.Key.IsSet = true;
+            }
+
+            #endregion Pre-Pack Actions
+
             var filesToPack = GetContentToPack(packageOutputDir);
             if (CmfPackage.ContentToPack.HasAny() && !filesToPack.HasAny())
             {
@@ -536,7 +574,7 @@ namespace Cmf.CLI.Handlers
                 FilesToPack.ForEach(fileToPack =>
                 {
                     Log.Debug($"Packing '{fileToPack.Source.FullName} to {fileToPack.Target.FullName} by contentToPack rule (Action: {fileToPack.ContentToPack.Action.ToString()}, Source: {fileToPack.ContentToPack.Source}, Target: {fileToPack.ContentToPack.Target})");
-                    IDirectoryInfo _targetFolder = this.fileSystem.DirectoryInfo.FromDirectoryName(fileToPack.Target.Directory.FullName);
+                    IDirectoryInfo _targetFolder = this.fileSystem.DirectoryInfo.New(fileToPack.Target.Directory.FullName);
                     if (!_targetFolder.Exists)
                     {
                         _targetFolder.Create();
@@ -551,7 +589,19 @@ namespace Cmf.CLI.Handlers
 
             FinalArchive(packageOutputDir, outputDir);
 
-            Log.Information($"{outputDir.FullName}/{CmfPackage.ZipPackageName} created");
+            Log.Debug($"{outputDir.FullName}/{CmfPackage.ZipPackageName} created");
+            Log.Information($"{CmfPackage.PackageName} packed");
+
+            #region Post-Pack Actions
+
+            foreach (var relatedPackageHandler in RelatedPackagesHandlers.Where(rp => !rp.Key.IsSet && rp.Key.PostPack))
+            {
+                var relatedPackagPackageOutputDir = FileSystemUtilities.GetPackageOutputDir(relatedPackageHandler.Key.CmfPackage, packageOutputDir, fileSystem);
+                relatedPackageHandler.Value.Pack(relatedPackagPackageOutputDir, outputDir);
+                relatedPackageHandler.Key.IsSet = true;
+            }
+
+            #endregion Post-Pack Actions
         }
 
         /// <summary>
@@ -614,7 +664,7 @@ namespace Cmf.CLI.Handlers
                     Log.Debug($"Found package {identifier} at {dependency.CmfPackage.Uri.AbsoluteUri}");
                     if (dependency.CmfPackage.Uri.IsDirectory())
                     {
-                        using (Stream zipToOpen = this.fileSystem.FileInfo.FromFileName(dependency.CmfPackage.Uri.LocalPath).OpenRead())
+                        using (Stream zipToOpen = this.fileSystem.FileInfo.New(dependency.CmfPackage.Uri.LocalPath).OpenRead())
                         {
                             using (ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read))
                             {

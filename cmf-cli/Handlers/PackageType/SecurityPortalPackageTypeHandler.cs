@@ -67,7 +67,7 @@ namespace Cmf.CLI.Handlers
                 string fileContent = ResourceUtilities.GetEmbeddedResourceContent($"{CliConstants.FolderTemplates}/{CmfPackage.PackageType}/{CliConstants.CmfPackagePresentationConfig}");
 
                 fileContent = fileContent.Replace(CliConstants.TokenPackageId, packageName);
-                fileContent = fileContent.Replace(CliConstants.StrategyPath, CliConstants.DefaultStrategyPath).Replace(CliConstants.Tenant, FileSystemUtilities.ReadProjectConfig(this.fileSystem).RootElement.GetProperty("Tenant").GetString());
+                fileContent = fileContent.Replace(CliConstants.StrategyPath, CliConstants.DefaultStrategyPath).Replace(CliConstants.Tenant, ExecutionContext.Instance.ProjectConfig.Tenant);
                 fileContent = fileContent.Replace(CliConstants.Strategy, type);
                 fileContent = fileContent.Replace(CliConstants.MetadataUrl, metadataUrl);
                 fileContent = fileContent.Replace(CliConstants.RedirectUrl, redirectUrl);
@@ -79,7 +79,8 @@ namespace Cmf.CLI.Handlers
 
                 FinalArchive(packageOutputDir, outputDir);
 
-                Log.Information($"{outputDir.FullName}/{CmfPackage.ZipPackageName} created");
+                Log.Debug($"{outputDir.FullName}/{CmfPackage.ZipPackageName} created");
+                Log.Information($"{CmfPackage.PackageName} packed");
 
             }
             else

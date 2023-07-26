@@ -1,29 +1,22 @@
 using Cmf.CLI.Builders;
-using Cmf.CLI.Commands;
-using Cmf.CLI.Commands.restore;
 using Cmf.CLI.Constants;
-using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Core.Utilities;
 using Cmf.CLI.Factories;
 using Cmf.CLI.Handlers;
-using Cmf.CLI.Interfaces;
 using Cmf.CLI.Utilities;
 using Cmf.Common.Cli.TestUtilities;
 using FluentAssertions;
 using Moq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using Spectre.Console.Rendering;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
-using System.Security.Policy;
 using Xunit;
-using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 namespace tests.Specs;
 
@@ -49,7 +42,7 @@ public class Build
         var txtWriter = new StringWriter();
         var writer = new JsonTextWriter(txtWriter);
         var converter = new AbstractionsDirectoryConverter();
-        var dirInfo = fileSystem.DirectoryInfo.FromDirectoryName("/test");
+        var dirInfo = fileSystem.DirectoryInfo.New("/test");
         converter.WriteJson(writer, dirInfo, JsonSerializer.Create());
 
         txtWriter.ToString().Should().Be(@"""/test""", "directory path does not match");
@@ -82,7 +75,7 @@ public class Build
         var converter = new AbstractionsDirectoryConverter();
         var dirInfo = converter.ReadJson(reader, typeof(IDirectoryInfo), null, JsonSerializer.Create()) as IDirectoryInfo;
         Assert.NotNull(dirInfo);
-        dirInfo.FullName.Should().Be(fileSystem.DirectoryInfo.FromDirectoryName(MockUnixSupport.Path("C:\\test")).FullName,
+        dirInfo.FullName.Should().Be(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("C:\\test")).FullName,
             "expected directory path does not match");
     }
 
@@ -118,7 +111,7 @@ public class Build
         {
             Command = "npm.cmd",
             Args = new[] { "run", "build:clean" },
-            WorkingDirectory = fileSystem.DirectoryInfo.FromDirectoryName(".")
+            WorkingDirectory = fileSystem.DirectoryInfo.New(".")
         };
 
         expectedStep.Should().Be(step);
@@ -146,7 +139,7 @@ public class Build
         {
             Command = "npm.cmd",
             Args = new[] { "run", "build:clean" },
-            WorkingDirectory = fileSystem.DirectoryInfo.FromDirectoryName(".")
+            WorkingDirectory = fileSystem.DirectoryInfo.New(".")
         };
         var serializer = new JsonSerializer();
         var txtWriter = new StringWriter();
@@ -237,7 +230,7 @@ public class Build
             });
 
         ExecutionContext.Initialize(fileSystem);
-        IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"{url}/{CliConstants.CmfPackageFileName}");
+        IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"{url}/{CliConstants.CmfPackageFileName}");
         fileSystem.Directory.SetCurrentDirectory(url);
 
         string message = string.Empty;
@@ -264,7 +257,7 @@ public class Build
         };
 
         StringWriter standardOutput = (new Logging()).GetLogStringWriter();
-        businessPackageTypeHandler.Build(true);
+        businessPackageTypeHandler.Build(false);
         Assert.Contains("Executing 'Run Build Command'", standardOutput.ToString().Trim());
     }
 
@@ -278,7 +271,7 @@ public class Build
 
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
             {
-                { $"{url}/cmfpackage.json", new MockFileData(
+                { $"{url}/{CliConstants.CmfPackageFileName}", new MockFileData(
                 @$"{{
                   ""packageId"": ""{packageRoot.Key}"",
                   ""version"": ""{packageRoot.Value}"",
@@ -335,7 +328,7 @@ public class Build
             });
 
         ExecutionContext.Initialize(fileSystem);
-        IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"{url}/{CliConstants.CmfPackageFileName}");
+        IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"{url}/{CliConstants.CmfPackageFileName}");
         fileSystem.Directory.SetCurrentDirectory(url);
 
         string message = string.Empty;
@@ -433,7 +426,7 @@ public class Build
             });
 
         ExecutionContext.Initialize(fileSystem);
-        IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"{url}/{CliConstants.CmfPackageFileName}");
+        IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"{url}/{CliConstants.CmfPackageFileName}");
         fileSystem.Directory.SetCurrentDirectory(url);
 
         string message = string.Empty;
@@ -467,7 +460,7 @@ public class Build
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
-    public void DataBuild_WithBuildablePackages(bool withBuildableSteps)
+    public void DataBuild_WithRelatedPackages(bool withRelatedSteps)
     {
         KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.1.0");
         KeyValuePair<string, string> packageData = new("Cmf.Custom.Data", "1.1.0");
@@ -489,7 +482,7 @@ public class Build
             }}")}
         });
 
-        if (!withBuildableSteps)
+        if (!withRelatedSteps)
         {
             // data cmfpackage file
             fileSystem.AddFile($"{packageData.Key}/{CliConstants.CmfPackageFileName}", new MockFileData(
@@ -527,8 +520,14 @@ public class Build
                         ""contentType"": ""DEE""
                     }}
                     ],
-                    ""buildablePackages"": [
-                        ""../Cmf.Custom.Business""
+                    ""relatedPackages"": [
+                        {{
+                            ""path"": ""../Cmf.Custom.Business"",
+                            ""preBuild"": true,
+                            ""postBuild"": false,
+                            ""prePack"": false,
+                            ""postPack"": false
+                        }}
                     ]
                 }}"));
 
@@ -549,7 +548,16 @@ public class Build
                     "".cmfpackageignore""
                   ]
                 }}
-              ]
+              ],
+                ""relatedPackages"": [
+                    {{
+                        ""path"": ""../{packageData.Key}"",
+                        ""preBuild"": true,
+                        ""postBuild"": false,
+                        ""prePack"": false,
+                        ""postPack"": false
+                    }}
+                ]
             }}"));
 
             // business sln
@@ -625,31 +633,22 @@ public class Build
 
         ExecutionContext.Initialize(fileSystem);
 
-        IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"Cmf.Custom.Data/{CliConstants.CmfPackageFileName}");
+        IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"Cmf.Custom.Data/{CliConstants.CmfPackageFileName}");
         DataPackageTypeHandlerV2 packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile) as DataPackageTypeHandlerV2;
 
-        packageTypeHandler.BuildablePackagesHandlers
+        packageTypeHandler.RelatedPackagesHandlers
             .HasAny()
-            .Should().Be(withBuildableSteps);
+            .Should().Be(withRelatedSteps);
 
-        packageTypeHandler.BuildablePackagesHandlers
-            .Any(BuildablePackageHandler =>
+        packageTypeHandler.RelatedPackagesHandlers.HasAny().Should().Be(withRelatedSteps);
+
+        packageTypeHandler.RelatedPackagesHandlers
+            .Any(RelatedPackagesHandler =>
             {
-                bool result = false;
-                if (BuildablePackageHandler is BusinessPackageTypeHandler)
-                {
-                    var businessPackageTypeHandler = BuildablePackageHandler as BusinessPackageTypeHandler;
-                    if (businessPackageTypeHandler.BuildSteps[0] is ExecuteCommand<RestoreCommand>)
-                    {
-                        var buildStep = (businessPackageTypeHandler.BuildSteps[0] as ExecuteCommand<RestoreCommand>);
-                        if (buildStep.Command is RestoreCommand)
-                        {
-                            result = true;
-                        }
-                    }
-                }
-                return result;
+                RelatedPackagesHandler.Key.CmfPackage.PackageName.Should().Be("Cmf.Custom.Business.1.1.0");
+
+                return true;
             })
-            .Should().Be(withBuildableSteps);
+            .Should().Be(withRelatedSteps);
     }
 }

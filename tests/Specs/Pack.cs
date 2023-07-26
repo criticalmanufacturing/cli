@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Cmf.CLI.Commands;
 using Xunit;
 using System.CommandLine;
-using System.CommandLine.Invocation;
+using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.IO;
 using System.IO;
 using System.IO.Abstractions;
@@ -19,12 +19,21 @@ using FluentAssertions;
 using tests.Objects;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Factories;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using NuGet.Packaging;
 
 namespace tests.Specs
 {
     public class Pack
     {
+        public Pack()
+        {
+            ExecutionContext.ServiceProvider = (new ServiceCollection())
+                .AddSingleton<IProjectConfigService>(new ProjectConfigService())
+                .BuildServiceProvider();
+        }
+
         [Fact]
         public void Args_Paths_BothSpecified()
         {
@@ -153,12 +162,12 @@ namespace tests.Specs
             var fileSystem = MockPackage.Html;
 
             var packCommand = new PackCommand(fileSystem);
-            packCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.FromDirectoryName("output"), false);
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.New("output"), false);
 
-            IEnumerable<IFileInfo> assembledFiles = fileSystem.DirectoryInfo.FromDirectoryName("output").EnumerateFiles("Cmf.Custom.HTML.1.1.0.zip").ToList();
+            IEnumerable<IFileInfo> assembledFiles = fileSystem.DirectoryInfo.New("output").EnumerateFiles("Cmf.Custom.HTML.1.1.0.zip").ToList();
             Assert.Single(assembledFiles);
 
-            using (Stream zipToOpen = fileSystem.FileStream.Create(assembledFiles.First().FullName, FileMode.Open))
+            using (Stream zipToOpen = fileSystem.FileStream.New(assembledFiles.First().FullName, FileMode.Open))
             {
                 using (ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read))
                 {
@@ -188,12 +197,12 @@ namespace tests.Specs
             var fileSystem = MockPackage.Html_OnlyLBOs;
 
             var packCommand = new PackCommand(fileSystem);
-            packCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.FromDirectoryName("output"), false);
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.New("output"), false);
 
-            IEnumerable<IFileInfo> assembledFiles = fileSystem.DirectoryInfo.FromDirectoryName("output").EnumerateFiles("Cmf.Custom.HTML.1.1.0.zip").ToList();
+            IEnumerable<IFileInfo> assembledFiles = fileSystem.DirectoryInfo.New("output").EnumerateFiles("Cmf.Custom.HTML.1.1.0.zip").ToList();
             Assert.Single(assembledFiles);
 
-            using (Stream zipToOpen = fileSystem.FileStream.Create(assembledFiles.First().FullName, FileMode.Open))
+            using (Stream zipToOpen = fileSystem.FileStream.New(assembledFiles.First().FullName, FileMode.Open))
             {
                 using (ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read))
                 {
@@ -222,8 +231,25 @@ namespace tests.Specs
             var fileSystem = MockPackage.Html_MissingDeclaredContent;
 
             var packCommand = new PackCommand(fileSystem);
-            var exception = Assert.Throws<CliException>(() => packCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.FromDirectoryName("output"), false));
+            var exception = Assert.Throws<CliException>(() => packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.New("output"), false));
             exception.Message.Should().Contain("Nothing was found on ContentToPack Sources");
+        }
+
+        [Fact]
+        public void CheckThatContentWasPacked_DoNothingBecauseContentWasAlreadyPacked()
+        {
+            var fileSystem = MockPackage.Html;
+            var outputDir = fileSystem.DirectoryInfo.New("output");
+
+            var packCommand = new PackCommand(fileSystem);
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), outputDir, false);
+            IEnumerable<IFileInfo> assembledFiles = fileSystem.DirectoryInfo.New("output").EnumerateFiles("Cmf.Custom.HTML.1.1.0.zip").ToList();
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), outputDir, false);
+            
+            IEnumerable<IFileInfo> assembledFilesOnSecondRun = fileSystem.DirectoryInfo.New("output").EnumerateFiles("Cmf.Custom.HTML.1.1.0.zip").ToList();
+            assembledFilesOnSecondRun.Should().HaveCount(1);
+            assembledFilesOnSecondRun.Should().HaveCount(assembledFiles.Count());
+            assembledFiles.ElementAt(0).LastWriteTime.Should().Be(assembledFilesOnSecondRun.ElementAt(0).LastWriteTime);
         }
 
         [Fact]
@@ -232,7 +258,7 @@ namespace tests.Specs
             var fileSystem = MockPackage.Root_Empty;
 
             var packCommand = new PackCommand(fileSystem);
-            packCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName(MockUnixSupport.Path("c:\\repo")), fileSystem.DirectoryInfo.FromDirectoryName("output"), false);
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\repo")), fileSystem.DirectoryInfo.New("output"), false);
         }
 
         [Fact]
@@ -241,7 +267,7 @@ namespace tests.Specs
             var fileSystem = MockPackage.Html_EmptyContentToPack;
 
             var packCommand = new PackCommand(fileSystem);
-            var exception = Assert.Throws<CliException>(() => packCommand.Execute(fileSystem.DirectoryInfo.FromDirectoryName(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.FromDirectoryName("output"), false));
+            var exception = Assert.Throws<CliException>(() => packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.New("output"), false));
             exception.Message.Should().Contain("Missing mandatory property ContentToPack in file");
         }
 
@@ -251,6 +277,16 @@ namespace tests.Specs
             string dir = $"{TestUtilities.GetTmpDirectory()}/securityPortal";
             TestUtilities.CopyFixture("pack/securityPortal", new DirectoryInfo(dir));
 
+            var projCfg = Path.Join(dir, ".project-config.json");
+            if (File.Exists(projCfg))
+            {
+                File.WriteAllText(projCfg, File.ReadAllText(projCfg)
+                    .Replace("install_path", MockUnixSupport.Path(@"x:\install_path").Replace(@"\", @"\\"))
+                    .Replace("backup_share", MockUnixSupport.Path(@"y:\backup_share").Replace(@"\", @"\\"))
+                    .Replace("temp_folder", MockUnixSupport.Path(@"z:\temp_folder").Replace(@"\", @"\\"))
+                );
+            }
+            
             Directory.SetCurrentDirectory(dir);
 
             string _workingDir = dir;
@@ -298,7 +334,8 @@ namespace tests.Specs
                 }}")
             }});
 
-            var pkg = CmfPackage.Load(mockFS.FileSystem.FileInfo.FromFileName(MockUnixSupport.Path(@"c:\.pkg.json")), true,
+            ExecutionContext.Initialize(mockFS);
+            var pkg = CmfPackage.Load(mockFS.FileSystem.FileInfo.New(MockUnixSupport.Path(@"c:\.pkg.json")), true,
                 mockFS);
             var _ = new IoTPackageTypeHandler(pkg);
 
@@ -366,12 +403,12 @@ namespace tests.Specs
 
             ExecutionContext.Initialize(fileSystem);
 
-            IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"Cmf.Custom.{packageType}/cmfpackage.json");
+            IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"Cmf.Custom.{packageType}/cmfpackage.json");
             PresentationPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile, true) as PresentationPackageTypeHandler;
 
-            packageTypeHandler.GeneratePresentationConfigFile(fileSystem.DirectoryInfo.FromDirectoryName("output"));
+            packageTypeHandler.GeneratePresentationConfigFile(fileSystem.DirectoryInfo.New("output"));
 
-            IFileInfo configJsonFile = fileSystem.FileInfo.FromFileName(MockUnixSupport.Path(@"output\\config.json").Replace("\\", "\\\\"));
+            IFileInfo configJsonFile = fileSystem.FileInfo.New(MockUnixSupport.Path(@"output\\config.json").Replace("\\", "\\\\"));
             dynamic configJsonFileContent = JsonConvert.DeserializeObject(fileSystem.File.ReadAllText(configJsonFile.FullName));
 
             string customizationVersion = configJsonFileContent.customizationVersion?.ToString();
@@ -398,19 +435,19 @@ namespace tests.Specs
             });
             ExecutionContext.Initialize(fileSystem);
 
-            IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"repo/{CliConstants.CmfPackageFileName}");
 
             string message = string.Empty;
             try
             {
                 var packCommand = new PackCommand(fileSystem);
-                packCommand.Execute(cmfpackageFile.Directory, fileSystem.DirectoryInfo.FromDirectoryName("output"), false);
+                packCommand.Execute(cmfpackageFile.Directory, fileSystem.DirectoryInfo.New("output"), false);
             }
             catch (Exception ex)
             {
                 message = ex.Message;
             }
-            string fileLocation = fileSystem.FileInfo.FromFileName("/repo/cmfpackage.json").FullName;
+            string fileLocation = fileSystem.FileInfo.New("/repo/cmfpackage.json").FullName;
 
             Assert.Equal(@$"Missing mandatory property ContentToPack in file {fileLocation}", message);
         }
@@ -441,13 +478,13 @@ namespace tests.Specs
             });
 
             ExecutionContext.Initialize(fileSystem);
-            IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"repo/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"repo/{CliConstants.CmfPackageFileName}");
 
             string message = string.Empty;
             try
             {
                 var packCommand = new PackCommand(fileSystem);
-                packCommand.Execute(cmfpackageFile.Directory, fileSystem.DirectoryInfo.FromDirectoryName("output"), false);
+                packCommand.Execute(cmfpackageFile.Directory, fileSystem.DirectoryInfo.New("output"), false);
             }
             catch (Exception ex)
             {
@@ -456,5 +493,83 @@ namespace tests.Specs
 
             Assert.Equal("Mandatory Dependency criticalmanufacturing.deploymentmetadata and cmf.environment. not found", message);
         }
+
+        [Fact]
+        public void Data_WithRelatedPackages()
+        {
+            KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.1.0");
+            KeyValuePair<string, string> packageDep1 = new("Cmf.Custom.Data", "1.1.0");
+            KeyValuePair<string, string> packageDep2 = new("Cmf.Custom.Data.Related", "1.1.0");
+
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { "/repo/cmfpackage.json", new MockFileData(
+                @$"{{
+                  ""packageId"": ""{packageRoot.Key}"",
+                  ""version"": ""{packageRoot.Value}"",
+                  ""packageType"": ""Root"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": false,
+                  ""dependencies"": [
+                    {{
+                         ""id"": ""{packageDep1.Key}"",
+                        ""version"": ""{packageDep1.Value}""
+                    }}
+                  ]
+                }}")},
+                { "/repo/Cmf.Custom.Data/cmfpackage.json", new MockFileData(
+                @$"{{
+                  ""packageId"": ""{packageDep1.Key}"",
+                  ""version"": ""{packageDep1.Value}"",
+                  ""packageType"": ""Data"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": true,
+                  ""contentToPack"": [
+                    {{
+                        ""source"": ""{MockUnixSupport.Path("folder1\\file1.txt").Replace("\\", "\\\\")}"",
+                        ""target"": """"
+                    }}
+                  ],
+                  ""relatedPackages"": [
+                    {{
+                        ""path"": ""Cmf.Custom.Data.Related"",
+                        ""postPack"": true
+                    }}
+                  ]
+                }}")},
+                { "/repo/Cmf.Custom.Data/Cmf.Custom.Data.Related/cmfpackage.json", new MockFileData(
+                @$"{{
+                  ""packageId"": ""{packageDep2.Key}"",
+                  ""version"": ""{packageDep2.Value}"",
+                  ""packageType"": ""Data"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": true,
+                  ""contentToPack"": [
+                    {{
+                        ""source"": ""{MockUnixSupport.Path("folder2\\file2.txt").Replace("\\", "\\\\")}"",
+                        ""target"": """"
+                    }}
+                  ]
+                }}")},
+                { "/repo/Cmf.Custom.Data/folder1/file1.txt", new MockFileData("file1-content")},
+                { "/repo/Cmf.Custom.Data/Cmf.Custom.Data.Related/folder2/file2.txt", new MockFileData("file2-content")},
+            });
+
+            var packCommand = new PackCommand(fileSystem);
+            var outputFolder = fileSystem.DirectoryInfo.New("output");
+            packCommand.Execute(fileSystem.DirectoryInfo.New("/repo/Cmf.Custom.Data"), outputFolder, false);
+            IEnumerable<IFileInfo> packedFiles = outputFolder.EnumerateFiles().ToList();
+
+
+            var depFile1 = packedFiles.FirstOrDefault(x => x.Name.Equals($"{packageDep1.Key}.{packageDep1.Value}.zip"));
+            var depFile2 = packedFiles.FirstOrDefault(x => x.Name.Equals($"{packageDep2.Key}.{packageDep2.Value}.zip"));
+
+            depFile1.Should().NotBeNull();
+            depFile2.Should().NotBeNull();
+
+            TestUtilities.ValidateZipContent(fileSystem, depFile1, new() { "Cmf.Foundation.Services.HostService.dll.config", "manifest.xml", "file1.txt" });
+            TestUtilities.ValidateZipContent(fileSystem, depFile2, new() { "Cmf.Foundation.Services.HostService.dll.config", "manifest.xml", "file2.txt" });
+        }
+
     }
 }

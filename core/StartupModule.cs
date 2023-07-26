@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Builder;
-using System.Linq;
+using System.CommandLine.Parsing;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
 using Cmf.CLI.Core.Commands;
 using Cmf.CLI.Core.Objects;
@@ -27,7 +25,7 @@ namespace Cmf.CLI.Core
         /// <param name="description">Description used for the root command</param>
         /// <param name="args">ar</param>
         /// <param name="npmClient">The NPM client. if is not set, we assume NPMClient implementation by default</param>
-        public static async Task<RootCommand> Configure(string packageName, string envVarPrefix, string description, string[] args, INPMClient npmClient = null)
+        public static async Task<Tuple<RootCommand, Parser>> Configure(string packageName, string envVarPrefix, string description, string[] args, INPMClient npmClient = null)
         {
             // in a scenario that cli is not running on a terminal,
             // the AnsiConsole.Profile.Width defaults to 80,which is a low value and causes unexpected break lines.
@@ -45,6 +43,7 @@ namespace Cmf.CLI.Core
                 .AddSingleton(npmClient ?? new NPMClient())
                 .AddSingleton<IVersionService>(new VersionService(packageName))
                 .AddSingleton<ITelemetryService>(new TelemetryService(packageName))
+                .AddSingleton<IProjectConfigService, ProjectConfigService>()
                 .BuildServiceProvider();
 
             // initialize Telemetry
@@ -65,21 +64,13 @@ namespace Cmf.CLI.Core
             // add LogLevelOption
             rootCommand.AddOption(LoggerHelpers.LogLevelOption);
 
-            // TODO: review this, maybe shoud be an command option like loglevel
-            if (args.Length == 1 && args.Has("-v"))
-            {
-                rootCommand.Invoke(new[] { "--version" });
-                return null;
-            }
-
             BaseCommand.AddChildCommands(rootCommand);
 
-            new CommandLineBuilder(rootCommand)
-                .UseVersionOption()
-                .UseHelp() // TODO: add custom handler
+            var parser = new CommandLineBuilder(rootCommand)
+                .UseVersionOption(new [] { "--version", "-v"})
+                .UseHelp()
                 .UseEnvironmentVariableDirective()
                 .UseParseDirective()
-                .UseDebugDirective()
                 .UseSuggestDirective()
                 .RegisterWithDotnetSuggest()
                 .UseTypoCorrections()
@@ -88,7 +79,7 @@ namespace Cmf.CLI.Core
                 .CancelOnProcessTermination()
                 .Build();
 
-            return rootCommand;
+            return new (rootCommand, parser);
         }
 
         /// <summary>
@@ -103,7 +94,7 @@ namespace Cmf.CLI.Core
 
             if (ExecutionContext.IsDevVersion)
             {
-                Log.Information(
+                Log.Warning(
                     $"You are using {ExecutionContext.PackageId} development version {ExecutionContext.CurrentVersion}. This in unsupported in production and should only be used for testing.");
             }
 

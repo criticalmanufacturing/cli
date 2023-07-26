@@ -2,8 +2,9 @@ using System;
 using System.IO.Abstractions.TestingHelpers;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.Invocation;
+using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.IO;
+using System.CommandLine.Parsing;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
@@ -12,6 +13,7 @@ using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Commands;
 
 using Cmf.CLI.Utilities;
+using Cmf.Common.Cli.TestUtilities;
 using tests.Objects;
 using Assert = tests.AssertWithMessage;
 using Xunit;
@@ -85,9 +87,9 @@ namespace tests.Specs
 
 
             //var ls = new ListDependenciesCommand(fileSystem);
-            //ls.Execute(fileSystem.DirectoryInfo.FromDirectoryName(@"c:\test"), null);
+            //ls.Execute(fileSystem.DirectoryInfo.New(@"c:\test"), null);
 
-            CmfPackage cmfPackage = CmfPackage.Load(fileSystem.FileInfo.FromFileName("/test/cmfpackage.json"), setDefaultValues: true, fileSystem);
+            CmfPackage cmfPackage = CmfPackage.Load(fileSystem.FileInfo.New("/test/cmfpackage.json"), setDefaultValues: true, fileSystem);
             cmfPackage.LoadDependencies(null, null, true);
             Assert.Equal("Cmf.Custom.Package", cmfPackage.PackageId, "Root package name doesn't match expected");
             Assert.Equal(3, cmfPackage.Dependencies.Count, "Root package doesn't have expected dependencies");
@@ -183,7 +185,7 @@ namespace tests.Specs
                         </deploymentPackage>").ToByteArray()) }
             });
             
-            CmfPackage cmfPackage = CmfPackage.Load(fileSystem.FileInfo.FromFileName("/test/cmfpackage.json"), setDefaultValues: true, fileSystem);
+            CmfPackage cmfPackage = CmfPackage.Load(fileSystem.FileInfo.New("/test/cmfpackage.json"), setDefaultValues: true, fileSystem);
             ExecutionContext.Initialize(fileSystem);
             cmfPackage.LoadDependencies(new []{ repoUri }, null, true);
             Assert.Equal("Cmf.Custom.Package", cmfPackage.PackageId, "Root package name doesn't match expected");
@@ -234,7 +236,7 @@ namespace tests.Specs
 
           var console = new TestConsole();
           cmd.Invoke(new[] {
-            "-r", "d:\\xpto", "e:\\packages"
+            "-r", "d:\\xpto", "-r", "e:\\packages"
           }, console);
           
           var curDir = new DirectoryInfo(System.IO.Directory.GetCurrentDirectory());
@@ -263,7 +265,7 @@ namespace tests.Specs
 
           var console = new TestConsole();
           cmd.Invoke(new[] {
-            "-r", "d:\\xpto", "http://repository.example"
+            "-r", "d:\\xpto", "-r", "http://repository.example"
           }, console);
           
           var curDir = new DirectoryInfo(System.IO.Directory.GetCurrentDirectory());
@@ -294,7 +296,7 @@ namespace tests.Specs
 
           var console = new TestConsole();
           cmd.Invoke(new[] {
-            "-r", "..\\xpto", "\\root_dir"
+            "-r", "..\\xpto", "-r", "\\root_dir"
           }, console);
           
           var curDir = new DirectoryInfo(System.IO.Directory.GetCurrentDirectory());

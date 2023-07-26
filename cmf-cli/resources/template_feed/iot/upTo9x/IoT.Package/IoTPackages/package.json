@@ -1,0 +1,17 @@
+{
+    "private": true,
+    "packageId": "<%= $CLI_PARAM_CustomPackageName %>.Packages",
+    "version": "<%= $CLI_PARAM_CustomPackageVersion %>",
+    "scripts": {
+        "preinstall": "node npm.preinstall.js",
+        "postinstall": "node npm.postinstall.js"
+    },
+    "devDependencies": {
+        "@criticalmanufacturing/dev-tasks": "<%= $CLI_PARAM_DevTasksVersion %>",
+        "@criticalmanufacturing/generator-iot": "91x",
+        "gulp": "^3.9.1",
+        "run-sequence": "~1.1.0",
+        "yargs": "~4.8.0",
+        "yeoman-environment": "2.7.0"
+    }
+}

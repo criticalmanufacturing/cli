@@ -14,11 +14,15 @@
 		<OutputPath>..\Release</OutputPath>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="cmf.common.customactionutilities" Version="<%= $CLI_PARAM_MESVersion %>" GeneratePathProperty="true" />
 		<PackageReference Include="Cmf.Foundation.BusinessObjects" Version="<%= $CLI_PARAM_MESVersion %>"/>
+<!--#if (includeMESNugets) { -->
+		<PackageReference Include="cmf.common.customactionutilities" Version="<%= $CLI_PARAM_MESVersion %>" GeneratePathProperty="true" />
 		<PackageReference Include="Cmf.Navigo.BusinessObjects" Version="<%= $CLI_PARAM_MESVersion %>"/>
+<!--//#endif -->
 	</ItemGroup>
+<!--#if (includeMESNugets) { -->
 	<ItemGroup>
 		<None Include="$(Pkgcmf_common_customactionutilities)\lib\$(TargetFramework)\*" CopyToOutputDirectory="PreserveNewest" />
 	</ItemGroup>
+<!--//#endif -->
 </Project>

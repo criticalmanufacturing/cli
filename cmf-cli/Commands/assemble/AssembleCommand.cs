@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.Invocation;
+using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
 using System.Linq;
 using Cmf.CLI.Constants;
@@ -112,7 +112,7 @@ namespace Cmf.CLI.Commands
                 ExecutionContext.Instance.RepositoriesConfig.Repositories.InsertRange(0, repos);
             }
 
-            IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName($"{workingDir}/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"{workingDir}/{CliConstants.CmfPackageFileName}");
 
             CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: false, fileSystem: fileSystem);
 
@@ -153,7 +153,7 @@ namespace Cmf.CLI.Commands
 
             if (includeTestPackages)
             {
-                IDirectoryInfo outputTestDir = this.fileSystem.DirectoryInfo.FromDirectoryName(outputDir + CliConstants.FolderTests);
+                IDirectoryInfo outputTestDir = this.fileSystem.DirectoryInfo.New(outputDir + CliConstants.FolderTests);
                 if (!outputTestDir.Exists)
                 {
                     outputTestDir.Create();
@@ -202,7 +202,7 @@ namespace Cmf.CLI.Commands
             }
             else
             {
-                IDirectoryInfo testOutputDir = this.fileSystem.DirectoryInfo.FromDirectoryName(outputDir + "/Tests");
+                IDirectoryInfo testOutputDir = this.fileSystem.DirectoryInfo.New(outputDir + "/Tests");
 
                 foreach (Dependency testPackage in cmfPackage.TestPackages)
                 {

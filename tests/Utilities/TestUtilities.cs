@@ -1,10 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.CommandLine;
+using System.CommandLine.Builder;
+using System.CommandLine.Parsing;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Abstractions;
 using System.IO.Compression;
 using System.Linq;
 using System.Text.Json;
+using FluentAssertions;
+using Xunit;
 
 namespace Cmf.Common.Cli.TestUtilities
 {
@@ -54,6 +60,21 @@ namespace Cmf.Common.Cli.TestUtilities
                 System.IO.Path.Join(
             AppDomain.CurrentDomain.BaseDirectory,
                         "..", "..", "..", "Fixtures", fixtureName)));
+            CopyAll(source, target);
+        }
+
+        /// <summary>
+        /// Copies the fixture package to a directory
+        /// </summary>
+        /// <param name="packageName"></param>
+        /// <param name="target"></param>
+        public static void CopyFixturePackage(string packageName, DirectoryInfo target)
+        {
+            target = Directory.CreateDirectory(Path.Join(target.FullName, packageName));
+            var source = new DirectoryInfo(System.IO.Path.GetFullPath(
+                Path.Join(
+            AppDomain.CurrentDomain.BaseDirectory,
+                        "..", "..", "..", "Fixtures", "new-packages", packageName)));
             CopyAll(source, target);
         }
 
@@ -119,9 +140,44 @@ namespace Cmf.Common.Cli.TestUtilities
             }
         }
 
-        #endregion
+        /// <summary>
+        /// Create a minimal parser to invoke commands with
+        /// The default parser brings a lot of extras that we don't require in the tests
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <returns></returns>
+        public static Parser GetParser(Command cmd)
+        {
+            return new CommandLineBuilder(cmd)
+                .UseEnvironmentVariableDirective()
+                .UseParseDirective()
+                .UseParseErrorReporting()
+                .UseExceptionHandler()
+                .CancelOnProcessTermination()
+                .Build();
+        }
 
-        #region public Methods
+        /// <summary>
+        /// Validates the content of the zip.
+        /// </summary>
+        /// <param name="fileSystem">The file system.</param>
+        /// <param name="zipFile">The zip file.</param>
+        /// <param name="expectedFiles">The expected files.</param>
+        public static void ValidateZipContent(IFileSystem fileSystem, IFileInfo zipFile, List<string> expectedFiles)
+        {
+            using Stream zipToOpen = fileSystem.FileStream.New(zipFile.FullName, FileMode.Open);
+            using ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read);
+            // these tuples allow us to rewrite entry paths
+            var entriesToExtract = new List<Tuple<ZipArchiveEntry, string>>();
+            entriesToExtract.AddRange(zip.Entries.Select(selector: entry => new Tuple<ZipArchiveEntry, string>(entry, entry.FullName)));
+
+            expectedFiles.Count.Should().Be(entriesToExtract.Count);
+
+            foreach (var expectedFile in expectedFiles)
+            {
+                entriesToExtract.FirstOrDefault(x => x.Item2.Equals(expectedFile)).Should().NotBeNull();
+            }
+        }
 
         #endregion
     }

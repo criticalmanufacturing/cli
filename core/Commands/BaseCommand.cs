@@ -136,8 +136,8 @@ namespace Cmf.CLI.Core.Commands
 
             return typeof(T) switch
             {
-                {} dirType when dirType == typeof(IDirectoryInfo) => (T)this.fileSystem.DirectoryInfo.FromDirectoryName(path),
-                {} fileType when fileType == typeof(IFileInfo) => (T)this.fileSystem.FileInfo.FromFileName(path),
+                {} dirType when dirType == typeof(IDirectoryInfo) => (T)this.fileSystem.DirectoryInfo.New(path),
+                {} fileType when fileType == typeof(IFileInfo) => (T)this.fileSystem.FileInfo.New(path),
                 _ => throw new ArgumentOutOfRangeException("This method only parses directory or file paths")
             };
         }

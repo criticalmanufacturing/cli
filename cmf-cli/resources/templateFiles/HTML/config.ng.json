@@ -1,0 +1,5 @@
+{
+  $(JDTInjection)
+  "cacheId": "$(cacheId)",
+  "customizationVersion": "$(version)"
+}

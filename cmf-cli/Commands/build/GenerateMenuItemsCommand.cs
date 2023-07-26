@@ -1,14 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.Invocation;
+using System.CommandLine.NamingConventionBinder;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using Cmf.CLI.Commands;
-using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Enums;
@@ -48,7 +46,10 @@ namespace Cmf.CLI.Commands
         public void Execute()
         {
             var helpRoot = FileSystemUtilities.GetPackageRootByType(Environment.CurrentDirectory, PackageType.Help, this.fileSystem).FullName;
-            var project = FileSystemUtilities.ReadProjectConfig(this.fileSystem).RootElement.GetProperty("Tenant").GetString();
+            var project = ExecutionContext.Instance.ProjectConfig.Tenant;
+            
+            var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            Log.Debug($"Generating menu items database for a help package for base version {mesVersion}");
 
             if (project == null)
             {
@@ -61,8 +62,8 @@ namespace Cmf.CLI.Commands
 
             var regex = new Regex("\"?id\"?:\\s+[\"'](.*)[\"']"); // match for menu item IDs
 
-            var packagesDir = this.fileSystem.DirectoryInfo.FromDirectoryName(this.fileSystem.Path.Join(helpRoot, "src", "packages"));
-            var helpPackages = packagesDir.GetDirectories("cmf.docs.area.*");
+            var packagesDir = (mesVersion.Major > 9) ? this.fileSystem.DirectoryInfo.New(this.fileSystem.Path.Join(helpRoot, "projects")) : this.fileSystem.DirectoryInfo.New(this.fileSystem.Path.Join(helpRoot, "src", "packages"));
+            var helpPackages = packagesDir.GetDirectories("cmf.docs.area.*".Replace(".", (mesVersion.Major > 9) ? "-" : "."));
 
             void GetMetadataFromFolder(IDirectoryInfo current, List<object> metadata, IDirectoryInfo parent = null)
             {
@@ -110,12 +111,17 @@ namespace Cmf.CLI.Commands
                 
                 // check metadata file for menuGroupIds, to see if they are fully qualified or not
                 var metadataFile = helpPackage.GetFiles("src/*.metadata.ts").FirstOrDefault();
-                var metadataContent = metadataFile.ReadToString();
-                var matchedIds = regex.Matches(metadataContent);
-                if (matchedIds.Any(m => m.Captures.Any(id => !id.Value.Contains("."))))
+                if (metadataFile?.Exists ?? false)
                 {
-                    Log.Warning($"Using legacy menu item IDs! This package will not be deployable with other packages using legacy IDs, as collisions will happen!");
+                    var metadataContent = metadataFile.ReadToString();
+                    var matchedIds = regex.Matches(metadataContent);
+                    if (matchedIds.Any(m => m.Captures.Any(id => !id.Value.Contains("."))))
+                    {
+                        Log.Warning(
+                            $"Using legacy menu item IDs! This package will not be deployable with other packages using legacy IDs, as collisions will happen!");
+                    }
                 }
+
                 GetMetadataFromFolder(assetsPath, helpPackageMetadata);
 
                 var menuItemsJson = this.fileSystem.Path.Join(assetsPath.FullName, "__generatedMenuItems.json");

@@ -1,6 +1,5 @@
 ﻿using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Enums;
-using Cmf.CLI.Core.Utilities;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -12,6 +11,8 @@ using System.IO;
 using System.IO.Abstractions;
 using System.IO.Compression;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
 namespace Cmf.CLI.Core.Objects
@@ -45,13 +46,13 @@ namespace Cmf.CLI.Core.Objects
         public IFileSystem FileSystem => fileSystem;
 
         /// <summary>
-        /// Gets the name of the package.
+        /// Gets the file name of the package.
         /// </summary>
         /// <value>
-        /// The name of the package.
+        /// The file name of the package.
         /// </value>
         [JsonIgnore]
-        public string PackageName { get; private set; }
+        public string PackageName => $"{PackageId}.{Version}";
 
         /// <summary>
         /// Gets the name of the zip package.
@@ -60,7 +61,7 @@ namespace Cmf.CLI.Core.Objects
         /// The name of the zip package.
         /// </value>
         [JsonIgnore]
-        public string ZipPackageName { get; private set; }
+        public string ZipPackageName => $"{PackageName}.zip";
 
         #endregion Internal Properties
 
@@ -259,14 +260,13 @@ namespace Cmf.CLI.Core.Objects
         public List<ProcessBuildStep> BuildSteps { get; set; }
 
         /// <summary>
-        /// Gets or sets the build packages.
+        /// Gets or sets the Related packages, and sets what are the expected behavior.
         /// </summary>
         /// <value>
-        /// Packages that should be build before the context package
+        /// Packages that should be built/packed before/after the context package
         /// </value>
         [JsonProperty(Order = 22)]
-        [JsonConverter(typeof(ListAbstractionsDirectoryConverter))]
-        public List<IDirectoryInfo> BuildablePackages { get; set; }
+        public RelatedPackageCollection RelatedPackages { get; set; }
 
         /// <summary>
         /// Gets or sets the target directory where the dependencies contents should be extracted.
@@ -325,9 +325,6 @@ namespace Cmf.CLI.Core.Objects
             XmlInjection = xmlInjection;
             WaitForIntegrationEntries = waitForIntegrationEntries;
             TestPackages = testPackages;
-
-            PackageName = $"{PackageId}.{Version}";
-            ZipPackageName = $"{PackageName}.zip";
         }
 
         /// <summary>
@@ -346,6 +343,11 @@ namespace Cmf.CLI.Core.Objects
             this.fileSystem = fileSystem;
         }
 
+        public CmfPackage(IFileInfo fileInfo) : this(ExecutionContext.Instance.FileSystem)
+        {
+            FileInfo = fileInfo;
+        }
+
         /// <summary>
         /// Initialize CmfPackage with PackageId, Version and Uri
         /// </summary>
@@ -354,9 +356,6 @@ namespace Cmf.CLI.Core.Objects
             PackageId = packageId ?? throw new ArgumentNullException(nameof(packageId));
             Version = version ?? throw new ArgumentNullException(nameof(version));
             Uri = uri;
-
-            PackageName = $"{PackageId}.{Version}";
-            ZipPackageName = $"{PackageName}.zip";
         }
 
         #endregion Constructors
@@ -605,12 +604,12 @@ namespace Cmf.CLI.Core.Objects
         }
 
         /// <summary>
-        /// Shoulds the serialize Buildable Packages
+        /// Shoulds the serialize Related Packages
         /// </summary>
-        /// <returns>returns false if Buildable Packages is null or empty</returns>
-        public bool ShouldSerializeBuildablePackages()
+        /// <returns>returns false if Related Packages is null or empty</returns>
+        public bool ShouldSerializeRelatedPackages()
         {
-            return BuildablePackages.HasAny();
+            return RelatedPackages.HasAny();
         }
 
         /// <summary>
@@ -649,7 +648,52 @@ namespace Cmf.CLI.Core.Objects
             cmfPackage.Location = PackageLocation.Local;
             cmfPackage.fileSystem = fileSystem;
 
+            cmfPackage.RelatedPackages?.Load(cmfPackage);
+
             return cmfPackage;
+        }
+
+        /// <summary>
+        /// Load Method for an instantiated CmfPackage object
+        /// </summary>
+        /// <param name="setDefaultValues"></param>
+        /// <exception cref="CliException"></exception>
+        public void Load(bool setDefaultValues = false)
+        {
+            if (!FileInfo.Exists)
+            {
+                throw new CliException(string.Format(CoreMessages.NotFound, FileInfo.FullName));
+            }
+
+            string fileContent = FileInfo.ReadToString();
+            JsonConvert.PopulateObject(fileContent, this);
+            IsToSetDefaultValues = setDefaultValues;
+            Location = PackageLocation.Local;
+
+            RelatedPackages?.Load(this);
+
+        }
+
+        /// <summary>
+        /// Similar to Load, but without deserialization.
+        /// Only sets PackageId and Version
+        /// </summary>
+        /// <exception cref="CliException"></exception>
+        public void Peek()
+        {
+            if (!FileInfo.Exists)
+            {
+                throw new CliException(string.Format(CoreMessages.NotFound, FileInfo.FullName));
+            }
+
+            Location = PackageLocation.Local;
+
+            string fileContent = FileInfo.ReadToString();
+            string packageIdPattern = "\"packageId\"\\s*:\\s*\"(.*?)\"";
+            string versionPattern = "\"version\"\\s*:\\s*\"(.*?)\"";
+
+            PackageId = Regex.Match(fileContent, packageIdPattern).Groups[1].Value;
+            Version = Regex.Match(fileContent, versionPattern).Groups[1].Value;
         }
 
         /// <summary>

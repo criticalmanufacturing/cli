@@ -1,14 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.CommandLine;
-using System.CommandLine.Invocation;
-using System.Diagnostics;
-using System.IO;
 using System.IO.Abstractions;
 using System.Text.Json;
+using Cmf.CLI.Constants;
+using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Enums;
-using Cmf.CLI.Utilities;
+using Cmf.CLI.Core.Objects;
 
 namespace Cmf.CLI.Commands.New
 {
@@ -34,14 +32,17 @@ namespace Cmf.CLI.Commands.New
         }
 
         /// <inheritdoc />
-        protected override List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args, JsonDocument projectConfig)
+        protected override List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args)
         {
-            var mesVersion = projectConfig.RootElement.GetProperty("MESVersion").GetString();
+            var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            var includeMESNugets = true;
             
-            var version = Version.Parse(mesVersion);
-            if (version.Major > 8)
+            if (mesVersion.Major > 8)
             {
                 this.CommandName = "business9";
+                var baseLayer = ExecutionContext.Instance.ProjectConfig.BaseLayer ?? CliConstants.DefaultBaseLayer;
+                includeMESNugets = baseLayer == BaseLayer.MES;
+                Log.Debug($"Project is targeting base layer {baseLayer}, so scaffolding {(includeMESNugets ? "with" : "without")} MES nugets.");
             }
 
             // calculate relative path to local environment and create a new symbol for it
@@ -60,9 +61,10 @@ namespace Cmf.CLI.Commands.New
 
             args.AddRange(new []
             {
-                "--MESVersion", mesVersion,
+                "--MESVersion", mesVersion.ToString(),
                 "--localEnvRelativePath", relativePathToLocalEnv,
-                "--deploymentMetadataRelativePath", relativePathToDeploymentMetadata
+                "--deploymentMetadataRelativePath", relativePathToDeploymentMetadata,
+                "--includeMESNugets", includeMESNugets.ToString()
             });
             return args;
         }

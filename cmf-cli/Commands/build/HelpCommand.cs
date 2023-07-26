@@ -1,5 +1,5 @@
-using System.CommandLine;
 using Cmf.CLI.Core.Attributes;
+using System.CommandLine;
 
 namespace Cmf.CLI.Commands
 {

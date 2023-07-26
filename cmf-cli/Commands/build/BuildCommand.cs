@@ -1,14 +1,13 @@
-using System.CommandLine;
-using System.CommandLine.Invocation;
-using System.IO;
-using System.IO.Abstractions;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Factories;
-using Cmf.CLI.Interfaces;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+using System.CommandLine;
+using System.CommandLine.NamingConventionBinder;
+using System.IO.Abstractions;
 
 namespace Cmf.CLI.Commands
 {
@@ -72,7 +71,7 @@ namespace Cmf.CLI.Commands
         public void Execute(IDirectoryInfo packagePath, bool test = false)
         {
             using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
-            IFileInfo cmfpackageFile = this.fileSystem.FileInfo.FromFileName($"{packagePath}/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{packagePath}/{CliConstants.CmfPackageFileName}");
 
             IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile, setDefaultValues: false);
 

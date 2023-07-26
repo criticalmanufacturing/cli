@@ -1,17 +1,14 @@
-using System;
-using System.CommandLine;
-using System.CommandLine.Invocation;
-using System.IO;
-using System.IO.Abstractions;
-using System.Linq;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Factories;
-using Cmf.CLI.Interfaces;
 using Cmf.CLI.Utilities;
-
 using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.CommandLine;
+using System.CommandLine.NamingConventionBinder;
+using System.IO.Abstractions;
 
 namespace Cmf.CLI.Commands.restore
 {
@@ -55,7 +52,7 @@ namespace Cmf.CLI.Commands.restore
             if (packageRoot != null)
             {
                 var packagePath = this.fileSystem.Path.GetRelativePath(this.fileSystem.Directory.GetCurrentDirectory(), packageRoot.FullName);
-                arg.SetDefaultValue(this.fileSystem.DirectoryInfo.FromDirectoryName(packagePath));
+                arg.SetDefaultValue(this.fileSystem.DirectoryInfo.New(packagePath));
             }
             cmd.Handler = CommandHandler.Create<IDirectoryInfo, Uri[]>(Execute);
         }
@@ -68,7 +65,7 @@ namespace Cmf.CLI.Commands.restore
         public void Execute(IDirectoryInfo packagePath, Uri[] repos)
         {
             using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
-            IFileInfo cmfpackageFile = this.fileSystem.FileInfo.FromFileName($"{packagePath}/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{packagePath}/{CliConstants.CmfPackageFileName}");
             IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile, setDefaultValues: false);
             if (repos != null)
             {

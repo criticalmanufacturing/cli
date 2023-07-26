@@ -1,0 +1,33 @@
+{
+  "packageId": "<%= $CLI_PARAM_CustomPackageName %>",
+  "version": "<%= $CLI_PARAM_CustomPackageVersion %>",
+  "description": "Cmf Custom <%= $CLI_PARAM_Tenant %> <%= $CLI_PARAM_CustomPackageName %> Package",
+  "packageType": "Html",
+  "isInstallable": true,
+  "isUniqueInstall": false,
+  "contentToPack": [
+    {
+      "source": "src/packages/*",
+      "target": "node_modules",
+      "ignoreFiles": [
+        ".npmignore"
+      ]
+    },
+    {
+      "source": "apps/customization.web/node_modules/<%= $CLI_PARAM_baseWebPackage %>/bundles",
+      "target": ""
+    },
+    {
+      "source": "<%= $CLI_PARAM_rootRelativePath %>/Libs/LBOs/TypeScript/APIReference*",
+      "target": "node_modules/cmf.lbos"
+    },
+    {
+      "source": "<%= $CLI_PARAM_rootRelativePath %>/Libs/LBOs/TypeScript/cmf.lbos.*",
+      "target": "node_modules/cmf.lbos"
+    },
+    {
+      "source": "<%= $CLI_PARAM_rootRelativePath %>/Libs/LBOs/TypeScript/package.json",
+      "target": "node_modules/cmf.lbos"
+    }
+  ]
+}

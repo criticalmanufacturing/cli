@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.Invocation;
+using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text.Json;
@@ -9,6 +9,7 @@ using Cmf.CLI.Builders;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 
 namespace Cmf.CLI.Commands.New
@@ -43,7 +44,7 @@ namespace Cmf.CLI.Commands.New
         }
 
         /// <inheritdoc />
-        protected override List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args, JsonDocument projectConfig)
+        protected override List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args)
         {
             var relativePathToRoot =
                 this.fileSystem.Path.Join("..", //always one level deeper
@@ -58,9 +59,8 @@ namespace Cmf.CLI.Commands.New
             });
             
             #region version-specific bits
-            var config = FileSystemUtilities.ReadProjectConfig(this.fileSystem);
-            var x = config.RootElement.EnumerateObject();
-            var version = Version.Parse(x.FirstOrDefault(y => y.NameEquals("MESVersion")).Value.ToString());
+
+            var version = ExecutionContext.Instance.ProjectConfig.MESVersion;
             args.AddRange(new []{ "--targetFramework", version.Major > 8 ? "net6.0" : "netstandard2.0" });
             #endregion
 
@@ -105,7 +105,7 @@ namespace Cmf.CLI.Commands.New
                     var slnAddCmd = new DotnetCommand()
                     {
                         Command = "sln",
-                        Solution = this.fileSystem.FileInfo.FromFileName(businessSlnPath),
+                        Solution = this.fileSystem.FileInfo.New(businessSlnPath),
                         Args = new[]
                         {
                             "add",

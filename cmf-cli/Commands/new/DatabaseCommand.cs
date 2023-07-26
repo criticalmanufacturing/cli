@@ -29,7 +29,7 @@ namespace Cmf.CLI.Commands.New
         }
 
         /// <inheritdoc />
-        protected override List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args, JsonDocument projectConfig)
+        protected override List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args)
         {
             var relativePathToRoot =
                 this.fileSystem.Path.Join("..", "..", //always two levels deeper

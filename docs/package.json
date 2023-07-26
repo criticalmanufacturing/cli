@@ -1,0 +1,16 @@
+{
+  "name": "cli-docs",
+  "version": "1.0.0",
+  "description": "@criticalmanufacturing/cli docs",
+  "scripts": {
+    "clean:mkdocs": "rm -fr dist && docker stop cli_docs && docker rm cli_docs && docker rmi cli/docs",
+    "build:mkdocs": "docker build --rm -t cli/docs -f mkdocs/Dockerfile .",
+    "serve:mkdocs": "docker run -d --name cli_docs -p 8081:80 cli/docs",
+    "dist:mkdocs": "docker cp cli_docs:/usr/share/nginx/html/ dist",
+
+    "help:init": "git clone https://github.com/valeriangalliat/help2md.git",
+    "help:gen": "node gen-cmds.js"
+  },
+  "author": "Marco Silva <marcosilva@criticalmanufacturing.com>",
+  "license": "BSD-3-Clause"
+}

@@ -1,13 +1,14 @@
-using System.Collections.Generic;
-using System.IO.Abstractions;
-using System.IO.Abstractions.TestingHelpers;
 using Cmf.CLI.Constants;
+using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Factories;
 using Cmf.CLI.Handlers;
-using Cmf.CLI.Interfaces;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
 using Xunit;
 
 namespace tests.Specs;
@@ -29,6 +30,11 @@ public class Bump
 
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
+            { MockUnixSupport.Path(@"c:\.project-config.json"), new MockFileData(
+                @"{
+              ""MESVersion"": ""9.0.0""
+            }")
+            },
             { cmfPackageJson, new MockFileData(
                 @$"{{
                       ""packageId"": ""Cmf.Custom.Help"",
@@ -75,13 +81,16 @@ public class Bump
             }
         });
 
+        ExecutionContext.ServiceProvider = (new ServiceCollection())
+            .AddSingleton<IProjectConfigService>(new ProjectConfigService())
+            .BuildServiceProvider();
         ExecutionContext.Initialize(fileSystem);
 
-        IFileInfo cmfpackageFile = fileSystem.FileInfo.FromFileName(cmfPackageJson);
+        IFileInfo cmfpackageFile = fileSystem.FileInfo.New(cmfPackageJson);
         IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile);
         packageTypeHandler.Bump(bumpVersion, "");
 
-        string cmfPackageVersion = (packageTypeHandler as HelpPackageTypeHandler).CmfPackage.Version;
+        string cmfPackageVersion = (packageTypeHandler as HelpGulpPackageTypeHandler).CmfPackage.Version;
         dynamic packageFile = JsonConvert.DeserializeObject(fileSystem.File.ReadAllText(npmPackageJson));
         string packageFileVersion = packageFile.version;
         string metadataFile = fileSystem.File.ReadAllText(metadataTS);

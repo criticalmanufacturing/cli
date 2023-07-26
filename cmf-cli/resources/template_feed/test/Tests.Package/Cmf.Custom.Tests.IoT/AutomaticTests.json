@@ -1,24 +1,24 @@
 {
     "id": "REPLACE_IN_COMMANDLINE",
     "cache": "%TEST_DATA_LOCATION%/Packages",
-    "monitorApplication": "C:/IoT_ASMSMT/Monitor@7.0.1-71391/src/index.js",
+    "monitorApplication": "C:/path/Monitor@7.0.1-71391/src/index.js",
     "repository": {
       "type": "Npm",
       "settings": {
-        "url": "http://vm-asm:4873"
+        "url": "http://registry:4873"
       }
     },
     "system": {
-      "tenantName": "ASM",
+      "tenantName": "",
       "address": "localhost",
       "port": "6183",
       "timeout": 60000,
       "useSSL": "false",
       "authentication": {
-        "domain": "CMF",
+        "domain": "",
         "mode": "Password",
-        "password": "qaz123WSX",
-        "username": "cmfsu"
+        "password": "",
+        "username": ""
       }
     },
     "storage": {

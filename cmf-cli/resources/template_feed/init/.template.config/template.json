@@ -48,6 +48,20 @@
       "datatype": "string",
       "replaces": "<%= $CLI_PARAM_DeploymentDir %>"
     },
+    "repositoryType": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The type of repository to scaffold",
+      "displayName": "Repository Type",
+      "replaces": "<%= $CLI_PARAM_RepositoryType %>"
+    },
+    "baseLayer": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The layer to which this repo will be applied: Core or MES",
+      "displayName": "Base Layer",
+      "replaces": "<%= $CLI_PARAM_BaseLayer %>"
+    },
     "repositoryUrl": {
       "type": "parameter",
       "datatype": "string",
@@ -103,7 +117,7 @@
           {
             "type": "const",
             "value": "development"
-          }        
+          }
         ],
         "separator": "\\"
       }
@@ -124,12 +138,12 @@
         ]
       }
     },
-//    "CIRepo_MainBranch-JSON": {
-//      "type": "derived",
-//      "replaces": "\"<%= $CLI_PARAM_CIRepo_MainBranch %>\"",
-//      "valueSource": "CIRepo_MainBranch",
-//      "valueTransform": "jsonEncode"
-//    },
+    //    "CIRepo_MainBranch-JSON": {
+    //      "type": "derived",
+    //      "replaces": "\"<%= $CLI_PARAM_CIRepo_MainBranch %>\"",
+    //      "valueSource": "CIRepo_MainBranch",
+    //      "valueTransform": "jsonEncode"
+    //    },
     "DeliveredRepo-JSON": {
       "type": "derived",
       "replaces": "\"<%= $CLI_PARAM_DeliveredRepo %>\"",
@@ -163,6 +177,11 @@
       "datatype": "string",
       "replaces": "<%= $CLI_PARAM_YoGeneratorVersion %>"
     },
+    "ngxSchematicsVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_NGXSchematicsVersion %>"
+    },
     "nugetVersion": {
       "type": "parameter",
       "datatype": "string",
@@ -190,7 +209,7 @@
       "valueSource": "pipelinesFolderJSON-withquotes",
       "valueTransform": "stripQuotes"
     },
-    
+
     // from infra
     "nugetRegistry": {
       "type": "parameter",
@@ -234,6 +253,12 @@
       "datatype": "string",
       "replaces": "<%= $CLI_PARAM_ISOLocation %>"
     },
+    "ISOLocation_JSON": {
+      "type": "derived",
+      "replaces": "\"<%= $CLI_PARAM_ISOLocation_JSON %>\"",
+      "valueSource": "ISOLocation",
+      "valueTransform": "jsonEncode"
+    },
     "cmfCliRepository": {
       "type": "parameter",
       "datatype": "string",
@@ -244,7 +269,7 @@
       "datatype": "string",
       "replaces": "<%= $CLI_PARAM_CmfPipelineRepository %>"
     },
-    
+
     // from config
     "EnvironmentName": {
       "type": "parameter",

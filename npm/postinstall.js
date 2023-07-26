@@ -78,6 +78,7 @@ async function install(callback) {
             fs.writeFileSync(zip, response.data);
             debug(`Extracting zip file ${zip} to ${src}`);
             (new AdmZip(zip)).extractAllTo(src);
+            rimraf.sync(zip);
         } catch (e) {
             error(e);
             callback(`Could not install version ${opts.version} on your platform ${process.platform}/${process.arch}: ${e.message}`);

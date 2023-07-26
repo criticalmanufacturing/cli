@@ -51,7 +51,7 @@ namespace Cmf.CLI.Handlers
                 new JSONValidatorCommand()
                 {
                     DisplayName = "JSON Validator Command",
-                    FilesToValidate = GetContentToPack(this.fileSystem.DirectoryInfo.FromDirectoryName("."))
+                    FilesToValidate = GetContentToPack(this.fileSystem.DirectoryInfo.New("."))
                 }
             };
 
@@ -66,13 +66,13 @@ namespace Cmf.CLI.Handlers
         {
             FileSystemUtilities.CopyInstallDependenciesFiles(packageOutputDir, PackageType.Data, this.fileSystem);
 
-            string globalVariablesPath = this.fileSystem.Path.Join(packageOutputDir.FullName, "EnvironmentConfigs", "GlobalVariables.yml");
+            string globalVariablesPath = this.fileSystem.Path.Join(packageOutputDir.FullName, "Builds/.vars", "global.yml");
 
             string globalVariablesFile = this.fileSystem.File.ReadAllText(globalVariablesPath);
             globalVariablesFile = globalVariablesFile.Replace(CliConstants.TokenVersion, CmfPackage.Version);
             this.fileSystem.File.WriteAllText(globalVariablesPath, globalVariablesFile);
 
-            IFileInfo runCustomizationInstallDF = this.fileSystem.FileInfo.FromFileName(this.fileSystem.Path.Join(packageOutputDir.FullName, "RunCustomizationInstallDF.ps1"));
+            IFileInfo runCustomizationInstallDF = this.fileSystem.FileInfo.New(this.fileSystem.Path.Join(packageOutputDir.FullName, "RunCustomizationInstallDF.ps1"));
 
             string fileContent = runCustomizationInstallDF.ReadToString();
 

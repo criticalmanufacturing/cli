@@ -1,0 +1,58 @@
+site_name: "@criticalmanufacturing/cli Documentation"
+site_author: Critical Manufacturing SA
+copyright: 2009-present Critical Manufacturing SA
+extra_css:
+  - stylesheets/extra.css
+docs_dir: src
+site_dir: book
+theme:
+  name: material
+  logo: assets/cmf-logo.png
+  favicon: assets/favicon.ico
+  font:
+    text: Open Sans
+    code: Source Code Pro
+  palette:
+    - scheme: default
+      primary: white
+      accent: blue
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - scheme: slate
+      primary: grey
+      accent: blue
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.top
+    - search.suggest
+    - search.highlight
+repo_url: https://github.com/criticalmanufacturing/cli
+repo_name: criticalmanufacturing/cli
+edit_uri: edit/documentation/src
+plugins:
+  - search
+  - mermaid2
+  - awesome-pages
+  - section-index
+  - with-pdf:
+      enabled_if_env: ENABLE_PDF_EXPORT
+      output_path: /output/cmf-cli.pdf
+      cover_subtitle: ""
+markdown_extensions:
+  - toc:
+      toc_depth: 3
+  - admonition
+  - pymdownx.superfences:
+      custom_fences:
+          - name: mermaid
+            class: mermaid
+            format: !!python/name:mermaid2.fence_mermaid
+  - pymdownx.tabbed:
+      alternate_style: true
+

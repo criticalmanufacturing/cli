@@ -1,4 +1,0 @@
-{
-  "name": "<%= $CLI_PARAM_EnvironmentName %>",
-  "description": "CI-Release environment"
-}

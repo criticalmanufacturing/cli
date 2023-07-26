@@ -1,108 +1,92 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
-    <TargetName>cmf</TargetName>
-    <RootNamespace>Cmf.CLI</RootNamespace>
-    <PackAsTool>true</PackAsTool>
-    <ToolCommandName>cmf</ToolCommandName>
-    <PackageOutputPath>./nupkg</PackageOutputPath>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <AssemblyName>cmf</AssemblyName>
-    <GenerateDocumentationFile>false</GenerateDocumentationFile>
-    <DocumentationFile>../docs/cmf/cmf.xml</DocumentationFile>
-    <DefaultDocumentationFileNameMode>Name</DefaultDocumentationFileNameMode>
-    <DefaultDocumentationNestedTypeVisibility>Namespace</DefaultDocumentationNestedTypeVisibility>
-    <DefaultDocumentationGeneratedPages>Namespaces</DefaultDocumentationGeneratedPages>
-    <Version>3.4.3</Version>
-  </PropertyGroup>
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net6.0</TargetFramework>
+        <TargetName>cmf</TargetName>
+        <RootNamespace>Cmf.CLI</RootNamespace>
+        <PackAsTool>true</PackAsTool>
+        <ToolCommandName>cmf</ToolCommandName>
+        <PackageOutputPath>./nupkg</PackageOutputPath>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <AssemblyName>cmf</AssemblyName>
+        <GenerateDocumentationFile>false</GenerateDocumentationFile>
+        <DocumentationFile>../docs/cmf/cmf.xml</DocumentationFile>
+        <DefaultDocumentationFileNameMode>Name</DefaultDocumentationFileNameMode>
+        <DefaultDocumentationNestedTypeVisibility>Namespace</DefaultDocumentationNestedTypeVisibility>
+        <DefaultDocumentationGeneratedPages>Namespaces</DefaultDocumentationGeneratedPages>
+        <Version>4.0.0</Version>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="DefaultDocumentation" Version="0.7.4">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.2" />
-    <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.1.3" />
-    <PackageReference Include="Microsoft.TemplateEngine.Cli" Version="5.0.0-rtm.20509.1" />
-    <PackageReference Include="Microsoft.TemplateEngine.Core" Version="5.0.204" />
-    <PackageReference Include="Microsoft.TemplateEngine.Edge" Version="5.0.204" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="Spectre.Console" Version="0.43.0" />
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20574.7" />
-    <PackageReference Include="System.IO.Abstractions" Version="13.2.38" />
-    <PackageReference Include="System.Management.Automation" Version="7.1.3" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="nupkg\**" />
-    <EmbeddedResource Remove="nupkg\**" />
-    <None Remove="nupkg\**" />
-    <EmbeddedResource Update="CliMessages.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>CliMessages.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <Compile Update="CliMessages.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>CliMessages.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="DefaultDocumentation" Version="0.8.2">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.Build.Locator" Version="1.5.5" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.5.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="4.5.0" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
+        <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.1.3" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+        <PackageReference Include="Spectre.Console" Version="0.46.0" />
+        <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+        <PackageReference Include="System.CommandLine.NamingConventionBinder" Version="2.0.0-beta4.22272.1" />
+        <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
+        <PackageReference Include="System.IO.Abstractions" Version="19.2.1" />
+        <PackageReference Include="System.Management.Automation" Version="7.1.3" />
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Remove="nupkg\**" />
+        <EmbeddedResource Remove="nupkg\**" />
+        <None Remove="nupkg\**" />
+        <EmbeddedResource Update="CliMessages.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>CliMessages.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+        <Compile Update="CliMessages.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>CliMessages.resx</DependentUpon>
+        </Compile>
+    </ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="CliMessages.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>CliMessages.resx</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="resources\**" />
-  </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Include="CliMessages.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>CliMessages.resx</DependentUpon>
+        </EmbeddedResource>
+        <EmbeddedResource Include="resources\**" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Remove="resources\template_feed\**" />
-    <Compile Remove="resources\template_feed\**" />
-    <None Include="resources\template_feed\**\.template.config\template.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="resources\template_feed\**">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="resources\template_feed\**\*.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="resources\template_feed\**\*.csproj">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="resources\template_feed\**\*.sln">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="resources\template_feed\database\**\*.sqlproj">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="resources\template_feed\**\.tasks\**">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Remove="resources\template_feed\**" />
+        <Compile Remove="resources\template_feed\**" />
+        <None Include="resources\template_feed\**">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="installDependencies\Data\GenerateLBOs.ps1" />
-  </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Include="installDependencies\Data\GenerateLBOs.ps1" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <None Update="installDependencies\**">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+    <ItemGroup>
+        <None Update="installDependencies\**">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
+    <ItemGroup>
+        <Folder Include="Properties\" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <None Include="..\.editorconfig" Link=".editorconfig" />
-  </ItemGroup>
+    <ItemGroup>
+        <None Include="..\.editorconfig" Link=".editorconfig" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\core\core.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\core\core.csproj" />
+    </ItemGroup>
 </Project>

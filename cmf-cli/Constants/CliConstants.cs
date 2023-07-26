@@ -1,5 +1,4 @@
-using System.Management.Automation.Runspaces;
-using System.Security.Authentication.ExtendedProtection;
+using Cmf.CLI.Core.Enums;
 using System.Text.RegularExpressions;
 
 namespace Cmf.CLI.Constants
@@ -60,7 +59,7 @@ namespace Cmf.CLI.Constants
         /// The root package default keyword
         /// </summary>
         public const string RootPackageDefaultKeyword = "cmf-root-package";
-        
+
         /// <summary>
         /// Driver keyword for IoT Packages
         /// </summary>
@@ -85,8 +84,20 @@ namespace Cmf.CLI.Constants
         /// </summary>
         public const string DefaultStrategyPath = "$.tenants.config.$(tenant).strategies";
 
-        public static readonly Regex RepoRegex = new Regex(@"^(?<proto>\w+):\/\/(?<host>[^\/]+)\/(?<collection>[^/]+)\/(?<project>[^\/]+\/)?_git\/(?<repo>.+)\/?$", RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
+        /// <summary>
+        /// Default repository type
+        /// </summary>
+        public const RepositoryType DefaultRepositoryType = RepositoryType.Customization;
 
+        /// <summary>
+        /// Default base layer for repository
+        /// </summary>
+        public const BaseLayer DefaultBaseLayer = BaseLayer.MES;
+
+        /// <summary>
+        /// Name of angular json file
+        /// </summary>
+        public const string AngularJson = "angular.json";
         #endregion
 
         #region Security Portal

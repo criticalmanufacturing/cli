@@ -1,16 +1,15 @@
 ﻿using Cmf.CLI.Utilities;
 using System;
 using System.CommandLine;
-using System.Linq;
 using System.Threading.Tasks;
 using Cmf.CLI.Commands;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Objects;
 using Microsoft.Extensions.DependencyInjection;
 using Cmf.CLI.Core.Enums;
-using Cmf.CLI.Constants;
-using System.CommandLine.Builder;
-using System.Diagnostics;
+using System.CommandLine.Parsing;
+using System.Linq;
+using System.Reflection;
 
 namespace Cmf.CLI
 {
@@ -28,7 +27,7 @@ namespace Cmf.CLI
         {
             try
             {
-                var rootCommand = await StartupModule.Configure(
+                var (rootCommand, parser) = await StartupModule.Configure(
                     packageName: "@criticalmanufacturing/cli",
                     envVarPrefix: "cmf_cli",
                     description: "Critical Manufacturing CLI",
@@ -40,8 +39,28 @@ namespace Cmf.CLI
                 
                 if (rootCommand != null)
                 {
+                    var nonPluginCommands = rootCommand.Children.Where(symbol => symbol is Command).ToList();
                     BaseCommand.AddPluginCommands(rootCommand);
-                    result = await rootCommand.InvokeAsync(args);
+                    var pluginCommands =
+                        rootCommand.Children.Where(cmd => cmd is Command && nonPluginCommands.All(np => np.Name != cmd.Name)).ToList();
+
+                    if (args.Length > 0 && pluginCommands.FirstOrDefault(pc => pc.Name == args[0]) is Command pluginMatch)
+                    {
+                        // we are executing a plugin. we should forward all arguments (except the first) to the plugin
+                        var pluginArgs = args[1..];
+
+                        // we should invoke this through the System.CommandLine API but right now we'd have to generate a new pipeline. We'll revisit this in a next version, as it's expected the pipeline instantiation gets more flexible.
+                        var type = pluginMatch!.Handler!.GetType();
+                        var method = type.GetField("_handlerDelegate", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)!;
+                        var del = method.GetValue(pluginMatch.Handler) as Delegate;
+                        var pluginCommand = del!.Target as PluginCommand;
+                        pluginCommand!.Execute(pluginArgs);
+                        result = 0;
+                    }
+                    else
+                    {
+                        result = await parser.InvokeAsync(args);
+                    }
                 }
                  
                 activity?.SetTag("execution.success", true);

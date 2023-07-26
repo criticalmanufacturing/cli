@@ -26,17 +26,6 @@ namespace Cmf.CLI.Handlers
         /// <param name="cmfPackage">The CMF package.</param>
         public IoTDataPackageTypeHandlerV2(CmfPackage cmfPackage) : base(cmfPackage)
         {
-            IBuildCommand[] BuildStepsIoTData = new IBuildCommand[]
-            {
-                new ConsistencyCheckCommand()
-                {
-                    DisplayName = "Consistency Check Validator Command",
-                    FileSystem = this.fileSystem,
-                    WorkingDirectory = cmfPackage.GetFileInfo().Directory
-        }
-            }; 
-
-            BuildSteps = BuildSteps.Concat(BuildStepsIoTData).ToArray();
         }
 
         /// <summary>

@@ -1,19 +1,12 @@
-
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.IO.Abstractions;
-using System.Linq;
 using Cmf.CLI.Builders;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
-using Cmf.CLI.Commands.restore;
-using Cmf.CLI.Core.Constants;
-using Cmf.CLI.Factories;
-using Cmf.CLI.Interfaces;
+using System.Collections.Generic;
+using System.IO.Abstractions;
+using System.Linq;
 
 namespace Cmf.CLI.Handlers
 {
@@ -64,35 +57,16 @@ namespace Cmf.CLI.Handlers
                 new JSONValidatorCommand()
                 {
                     DisplayName = "JSON Validator Command",
-                    FilesToValidate = GetContentToPack(fileSystem.DirectoryInfo.FromDirectoryName("."))
+                    FilesToValidate = GetContentToPack(fileSystem.DirectoryInfo.New("."))
                 }
             };
 
             cmfPackage.DFPackageType = PackageType.Business; // necessary because we restart the host during installation
 
-            BuildablePackagesHandlers = new();
-
-            foreach (var buildablePackageFolder in CmfPackage.BuildablePackages ?? new())
-            {
-                IFileInfo buildablePackageJson = fileSystem.FileInfo.FromFileName(Path.Join(buildablePackageFolder.FullName, CoreConstants.CmfPackageFileName));
-                if (buildablePackageJson?.Exists ?? false)
-                {
-                    BuildablePackagesHandlers.Add(PackageTypeFactory.GetPackageTypeHandler(buildablePackageJson));
-                }
-                else
-                {
-                    Log.Warning(string.Format(CoreMessages.NotFound, buildablePackageJson));
-                }
-            }
         }
 
         public override void Build(bool test)
         {
-            foreach (var buildablePackage in BuildablePackagesHandlers)
-            {
-                buildablePackage.Build(test);
-            }
-
             base.Build(test);
         }
 

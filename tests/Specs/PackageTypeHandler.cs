@@ -6,6 +6,7 @@ using Cmf.CLI.Handlers;
 using System;
 using System.IO;
 using System.IO.Abstractions.TestingHelpers;
+using Microsoft.Extensions.DependencyInjection;
 using tests.Objects;
 using Xunit;
 
@@ -13,6 +14,13 @@ namespace tests.Specs
 {
     public class PackageTypeHandler
     {
+        public PackageTypeHandler()
+        {
+            ExecutionContext.ServiceProvider = (new ServiceCollection())
+                .AddSingleton<IProjectConfigService>(new ProjectConfigService())
+                .BuildServiceProvider();
+        }
+        
         [Fact]
         public void GetContentToPack_WithNonExistentIgnoreFiles()
         {
@@ -27,10 +35,10 @@ namespace tests.Specs
             string exceptionMessage = string.Empty;
             try
             {
-                var cmfPackage = fileSystem.FileInfo.FromFileName(CliConstants.CmfPackageFileName);
+                var cmfPackage = fileSystem.FileInfo.New(CliConstants.CmfPackageFileName);
                 var packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfPackage) as PresentationPackageTypeHandler;
 
-                packageTypeHandler.GetContentToPack(fileSystem.DirectoryInfo.FromDirectoryName("output"));
+                packageTypeHandler.GetContentToPack(fileSystem.DirectoryInfo.New("output"));
             }
             catch (Exception ex)
             {
@@ -57,7 +65,7 @@ namespace tests.Specs
             string exceptionMessage = string.Empty;
             try
             {
-                var cmfPackage = fileSystem.FileInfo.FromFileName(CliConstants.CmfPackageFileName);
+                var cmfPackage = fileSystem.FileInfo.New(CliConstants.CmfPackageFileName);
                 var packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfPackage);
             }
             catch (Exception ex)

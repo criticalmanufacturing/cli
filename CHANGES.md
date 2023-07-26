@@ -2,6 +2,140 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.0.0](https://github.com/criticalmanufacturing/cli/compare/4.0.0-10...4.0.0) (2023-07-25)
+
+## [4.0.0-10](https://github.com/criticalmanufacturing/cli/compare/4.0.0-9...4.0.0-10) (2023-07-17)
+
+## [4.0.0-9](https://github.com/criticalmanufacturing/cli/compare/4.0.0-8...4.0.0-9) (2023-07-13)
+
+
+### Bug Fixes
+
+* guard DevTasksVersion ([20fcfcb](https://github.com/criticalmanufacturing/cli/commits/20fcfcb8fbf1508dab46d1f97d2284d10862c097))
+* reference Nuget.Versioning directly, as we use it for SemanticVersion types ([9bbd982](https://github.com/criticalmanufacturing/cli/commits/9bbd9828f78a25b311fba94403053aabf0a3f9b2))
+
+## [4.0.0-8](https://github.com/criticalmanufacturing/cli/compare/4.0.0-7...4.0.0-8) (2023-07-03)
+
+
+### Bug Fixes
+
+* iot for versions lesser than v835 ([#319](https://github.com/criticalmanufacturing/cli/issues/319)) ([7264300](https://github.com/criticalmanufacturing/cli/commits/7264300fe707d6819ffd10483c7686e9e8e2cd78))
+
+## [4.0.0-7](https://github.com/criticalmanufacturing/cli/compare/4.0.0-6...4.0.0-7) (2023-07-03)
+
+
+### Bug Fixes
+
+* change on V9 IoT Build Process ([01428ea](https://github.com/criticalmanufacturing/cli/commits/01428eacd051892d18548181bd88155af79d8f8d))
+
+## [4.0.0-6](https://github.com/criticalmanufacturing/cli/compare/4.0.0-5...4.0.0-6) (2023-06-29)
+
+
+### Features
+
+* **new:** add Support for New IoT V10 ([a024784](https://github.com/criticalmanufacturing/cli/commits/a02478412d7ece47148117ebfed7b92c2f18f151))
+
+## [4.0.0-5](https://github.com/criticalmanufacturing/cli/compare/4.0.0-4...4.0.0-5) (2023-06-22)
+
+
+### Bug Fixes
+
+* **build:** use package name instead of workspace key for token replacer ([8216a71](https://github.com/criticalmanufacturing/cli/commits/8216a715dc934a108611b337ee804b970d3f3c55))
+
+## [4.0.0-4](https://github.com/criticalmanufacturing/cli/compare/4.0.0-3...4.0.0-4) (2023-05-30)
+
+
+### ⚠ BREAKING CHANGES
+
+* **LBOs:** remove deprecated LBO generation script
+
+### Features
+
+* **help packages:** add token placer as we do for html ([08102a9](https://github.com/criticalmanufacturing/cli/commits/08102a970933e3f3184e02fbeea73e439174faae))
+* **LBOs:** automatically link LBOs when building UI packages ([1109ad2](https://github.com/criticalmanufacturing/cli/commits/1109ad2f49349156b86ea31b8a98f8713956af30))
+
+
+### Under the hood
+
+* **LBOs:** remove deprecated LBO generation script ([ed5ec3a](https://github.com/criticalmanufacturing/cli/commits/ed5ec3ae964259e8e6e9be01880844ffe141612f))
+
+## [4.0.0-3](https://github.com/criticalmanufacturing/cli/compare/4.0.0-2...4.0.0-3) (2023-05-16)
+
+## [4.0.0-2](https://github.com/criticalmanufacturing/cli/compare/4.0.0-1...4.0.0-2) (2023-05-08)
+
+
+### Features
+
+* add validate start/end methods command ([d9e24fa](https://github.com/criticalmanufacturing/cli/commits/d9e24fa9721f5e3a3f5436abd358335d9451673b))
+
+
+### Under the hood
+
+* **build:** remove .NET bundling from bundle (testing) builds ([60f0328](https://github.com/criticalmanufacturing/cli/commits/60f03284430332ffe130ce421955ec3c8796c66b))
+
+## [4.0.0-1](https://github.com/criticalmanufacturing/cli/compare/4.0.0-0...4.0.0-1) (2023-04-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* **plugins:** -- is no longer needed/supported: all params are sent to plugin
+* **pipelines:** deprecate pipelines scaffolding
+
+### Bug Fixes
+
+* **plugins:** pass null to NPMClient if no registry was specified ([b8b11af](https://github.com/criticalmanufacturing/cli/commits/b8b11af59a93ee53d925d280c94d330e76cf1e9b))
+
+
+### Under the hood
+
+* **installation:** remove temporary zip file from github releases ([7293ca9](https://github.com/criticalmanufacturing/cli/commits/7293ca9a046f138ccf648639385ddb89ac9fa93b))
+* **pipelines:** deprecate pipelines scaffolding ([114a53f](https://github.com/criticalmanufacturing/cli/commits/114a53f06d99356d2ebcefa310a2bf21dc67f218)), closes [#268](https://github.com/criticalmanufacturing/cli/issues/268) [#288](https://github.com/criticalmanufacturing/cli/issues/288)
+* **plugins:** bypass System.CommandLine API when invoking plugins ([4ba5e6f](https://github.com/criticalmanufacturing/cli/commits/4ba5e6fb1c633f5ebe436c096aef3ef0c6c6c871))
+* support pre-release ngxSchematics and yeoman generators ([2f3bb51](https://github.com/criticalmanufacturing/cli/commits/2f3bb51221a969698dcfcc9ee07ef128e3beef09))
+
+## [4.0.0-0](https://github.com/criticalmanufacturing/cli/compare/3.4.3...4.0.0-0) (2023-04-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* **pipelines:** remove Docker Variables
+* **pipelines:** GlobalVariables file was moved and renamed from
+EnvironmentConfigs/GlobalVariables.ymlto Builds/.vars/global.yml
+* **pipelines:** Environment(yml) variables file was moved and renamed from
+EnvironmentConfigs/ENV_NAME.yml to Builds/.vars/ENV_NAME.yml
+* **pipelines:** split all tasks in small pipeline templates that can be reused
+* revert Consistency Check
+* invoke execution via Parser instead of RootCommand, with a custom invocation pipeline
+* upgrade dotnet command line api dependencies to the latest beta
+
+### Features
+
+* build MES v10 help packages ([807564c](https://github.com/criticalmanufacturing/cli/commits/807564ca320f4b987b97017754b47cbeea8051e9))
+* **build:** support @angular/cli managed HTML package ([f9f0f96](https://github.com/criticalmanufacturing/cli/commits/f9f0f964d36d615037518564115b9fae32f464ea))
+* **bump:** support @angular/cli managed HTML packages ([8090bee](https://github.com/criticalmanufacturing/cli/commits/8090bee3bb236df5a0ccb0f8fde4707b96356e94))
+* **new:** allow scaffolding HTML packages for MES v10 ([c59345f](https://github.com/criticalmanufacturing/cli/commits/c59345f2f8aa561e31d63604299bbb4e638a1373))
+* **pipelines:** add Authentication Variables closes [#253](https://github.com/criticalmanufacturing/cli/issues/253) ([731b738](https://github.com/criticalmanufacturing/cli/commits/731b738392b41bb64ea13d0fc8f0cdb87bee36b6))
+* scaffold a reference doc package for MES v10 ([7a9e2c8](https://github.com/criticalmanufacturing/cli/commits/7a9e2c8b5e22ffb66c2d95bb45ac6257869390ce))
+* support scaffolding apps in `cmf init` ([cf41659](https://github.com/criticalmanufacturing/cli/commits/cf41659ad48df876fb1ad73744668d83b144d206))
+
+
+### Bug Fixes
+
+* missing MES version token replacement in new Feature command ([91406d5](https://github.com/criticalmanufacturing/cli/commits/91406d5d93fad1956b260193fc56c663c12ad91b))
+
+
+* **pipelines:** improvements on CI-Release and CD-Containers ([b6b77dc](https://github.com/criticalmanufacturing/cli/commits/b6b77dcfac782f9a55a646963e83a01cd55cf3ec))
+* upgrade dotnet command line api dependencies to the latest beta ([5281ff1](https://github.com/criticalmanufacturing/cli/commits/5281ff1d727a8d1452da0e7a34b9d812be50cddb))
+
+
+### Under the hood
+
+* invoke execution via Parser instead of RootCommand, with a custom invocation pipeline ([d9f35b1](https://github.com/criticalmanufacturing/cli/commits/d9f35b1bbbf43b92b0452b7c4ee26db97405a603))
+* move TemplaceCommand to Core ([a037440](https://github.com/criticalmanufacturing/cli/commits/a037440e6f20fa1d828e74753c15ae46cb7dc03c))
+* **pipelines:** move all environment related variables to Builds/.vars ([eb1f5d2](https://github.com/criticalmanufacturing/cli/commits/eb1f5d2c3149eeedd78f7d4b2875a33c91dd91c7))
+* read project-config as a versioned object instead of a JsonDocument ([41cb620](https://github.com/criticalmanufacturing/cli/commits/41cb620386a9d77e3ae776d7fca58d1ce4423417))
+* revert Consistency Check ([9d60396](https://github.com/criticalmanufacturing/cli/commits/9d60396cfb6de359297dfb47330f3ce8d8c6d440))
+
 ### [3.4.3](https://github.com/criticalmanufacturing/cli/compare/3.4.3-1...3.4.3) (2023-03-21)
 
 ### [3.4.3-1](https://github.com/criticalmanufacturing/cli/compare/3.4.3-0...3.4.3-1) (2023-03-14)

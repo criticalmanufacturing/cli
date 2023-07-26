@@ -1,0 +1,6 @@
+mkdocs
+mkdocs-material
+mkdocs-mermaid2-plugin
+mkdocs-awesome-pages-plugin
+mkdocs-with-pdf
+mkdocs-section-index

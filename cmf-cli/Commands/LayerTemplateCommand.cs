@@ -1,14 +1,14 @@
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.Invocation;
+using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
 using System.Text.Json;
 using System.Linq;
-using Cmf.CLI.Core;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+using Cmf.CLI.Core.Commands;
 
 namespace Cmf.CLI.Commands
 {
@@ -87,23 +87,23 @@ namespace Cmf.CLI.Commands
             ));
         }
 
-        private (string, string)? GeneratePackageName(IDirectoryInfo workingDir)
+        protected (string, string)? GeneratePackageName(IDirectoryInfo workingDir)
         {
 
             string featureName = null;
             var projectRoot = FileSystemUtilities.GetProjectRoot(this.fileSystem, throwException: true);
 
             //load .project-config
-            var projectConfig = FileSystemUtilities.ReadProjectConfig(this.fileSystem);
+            var projectConfig = ExecutionContext.Instance.ProjectConfig;
             var organization = Constants.CliConstants.DefaultOrganization;
             var product = Constants.CliConstants.DefaultProduct;
-            if (projectConfig.RootElement.TryGetProperty("Organization", out JsonElement element))
+            if (!string.IsNullOrWhiteSpace(projectConfig.Organization))
             {
-                organization = element.GetString();
+                organization = projectConfig.Organization;
             }
-            if (projectConfig.RootElement.TryGetProperty("Product", out JsonElement element2))
+            if (!string.IsNullOrWhiteSpace(projectConfig.Product))
             {
-                product = element2.GetString();
+                product = projectConfig.Product;
             }
             var packageName = $"{organization}.{product}.{this.packageType}";
 
@@ -156,8 +156,7 @@ namespace Cmf.CLI.Commands
             var (packageName, featureName) = names.Value;
 
             //load .project-config
-            var projectConfig = FileSystemUtilities.ReadProjectConfig(this.fileSystem);
-            var tenant = projectConfig.RootElement.GetProperty("Tenant").GetString();
+            var tenant = ExecutionContext.Instance.ProjectConfig.Tenant;
             var args = new List<string>()
             {
                 // engine options
@@ -171,7 +170,7 @@ namespace Cmf.CLI.Commands
             };
 
             var projectRoot = FileSystemUtilities.GetProjectRoot(this.fileSystem);
-            args = this.GenerateArgs(projectRoot, workingDir, args, projectConfig);
+            args = this.GenerateArgs(projectRoot, workingDir, args);
             this.executedArgs = args.ToArray();
             base.RunCommand(args);
             if (registerInParent)
@@ -188,6 +187,6 @@ namespace Cmf.CLI.Commands
         /// <param name="args">the base arguments: output, package name, version, id segment and tenant</param>
         /// <param name="projectConfig">a JsonDocument with the .project-config.json content</param>
         /// <returns>the complete list of arguments</returns>
-        protected abstract List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args, JsonDocument projectConfig);
+        protected abstract List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args);
     }
 }

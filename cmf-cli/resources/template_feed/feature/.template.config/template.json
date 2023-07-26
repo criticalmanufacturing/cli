@@ -33,6 +33,11 @@
       "description": "The custom package version",
       "displayName": "Package Version",
       "replaces": "<%= $CLI_PARAM_CustomPackageVersion %>"
+    },
+    "MESVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_MESVersion %>"
     }
   }
 }

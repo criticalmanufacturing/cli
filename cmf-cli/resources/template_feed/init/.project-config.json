@@ -1,11 +1,9 @@
 {
   "ProjectName": "<%= $CLI_PARAM_ProjectName %>",
+  "RepositoryType": "<%= $CLI_PARAM_RepositoryType %>",
+  "BaseLayer": "<%= $CLI_PARAM_BaseLayer %>",
   "NPMRegistry": "<%= $CLI_PARAM_NPMRegistry %>",
   "NuGetRegistry": "<%= $CLI_PARAM_NuGetRegistry %>",
-  "AzureDevopsCollectionURL": "<%= $CLI_PARAM_AzureDevopsCollectionURL %>",
-  "AgentPool": "<%= $CLI_PARAM_AgentPool %>",
-  "AgentType": "<%= $CLI_PARAM_AgentType %>",
-  "RepositoryURL": "<%= $CLI_PARAM_RepositoryURL %>",
   "EnvironmentName": "<%= $CLI_PARAM_EnvironmentName %>",
   "DefaultDomain": "<%= $CLI_PARAM_DefaultDomain %>",
   "RESTPort": "<%= $CLI_PARAM_RESTPort %>",
@@ -14,6 +12,7 @@
   "DevTasksVersion": "<%= $CLI_PARAM_DevTasksVersion %>",
   "HTMLStarterVersion": "<%= $CLI_PARAM_HTMLStarterVersion %>",
   "YoGeneratorVersion": "<%= $CLI_PARAM_YoGeneratorVersion %>",
+  "NGXSchematicsVersion": "<%= $CLI_PARAM_NGXSchematicsVersion %>",
   "NugetVersion": "<%= $CLI_PARAM_NugetVersion %>",
   "TestScenariosNugetVersion": "<%= $CLI_PARAM_TestScenariosNugetVersion %>",
   "IsSslEnabled": "<%= $CLI_PARAM_IsSslEnabled %>",
@@ -30,5 +29,9 @@
   "TemporaryPath": "<%= $CLI_PARAM_TemporaryPath %>",
   "HTMLPort": "<%= $CLI_PARAM_HTMLPort %>",
   "GatewayPort": "<%= $CLI_PARAM_GatewayPort %>",
-  "ReleaseEnvironmentConfig": "<%= $CLI_PARAM_ReleaseEnvironmentConfig %>"
+  "ReleaseEnvironmentConfig": "<%= $CLI_PARAM_ReleaseEnvironmentConfig %>",
+  "ISOLocation": "<%= $CLI_PARAM_ISOLocation_JSON %>",
+  "DeploymentDir": "<%= $CLI_PARAM_DeploymentDir %>",
+  "DeliveredRepo": "<%= $CLI_PARAM_DeliveredRepo %>",
+  "CIrepo": "<%= $CLI_PARAM_CIRepo %>"
 }
