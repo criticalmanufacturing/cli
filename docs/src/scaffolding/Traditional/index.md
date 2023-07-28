@@ -31,7 +31,6 @@ This is done with the `cmf init` command:
     cmf init ExampleProject `
         --infra ..\infrastructure\infra.json `
         --config ..\config\ExampleEnvironment.json `
-        --repositoryUrl https://repository.local/Projects/Test/_git/Test `
         --MESVersion 9.0.11 `
         --DevTasksVersion 9.0.4 `
         --HTMLStarterVersion 8.0.0 `
