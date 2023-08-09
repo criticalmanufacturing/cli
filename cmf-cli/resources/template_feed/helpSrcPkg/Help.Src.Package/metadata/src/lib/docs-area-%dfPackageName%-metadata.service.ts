@@ -72,7 +72,7 @@ export class DocsArea<%= $CLI_PARAM_DFPackageNamePascalCase %>MetadataService ex
                       });
                     }
                 }.prototype,
-                title: 'DevOps'
+                title: '<%= $CLI_PARAM_Tenant %>'
               }
         ];
     }
