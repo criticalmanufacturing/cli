@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
+using System.CommandLine.Parsing;
 using System.IO.Abstractions;
+using System.Linq;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Commands;
-using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
@@ -74,15 +75,17 @@ namespace Cmf.CLI.Commands
         public override void Configure(Command cmd)
         {
             cmd.AddArgument(new Argument<string>(
-                name: "projectName"
+                name: "projectName",
+                parse: (argResult) => ParseArgument<string>(argResult)
             ));
             cmd.AddArgument(new Argument<string>(
                 name: "rootPackageName",
-                getDefaultValue: () => "Cmf.Custom.Package"
+                parse: (argResult) => ParseArgument<string>(argResult, "Cmf.Custom.Package"),
+                isDefault: true
             ));
             cmd.AddArgument(new Argument<IDirectoryInfo>(
                 name: "workingDir",
-                parse: (argResult) => Parse<IDirectoryInfo>(argResult, "."),
+                parse: (argResult) => ParseArgument<IDirectoryInfo>(argResult, "."),
                 isDefault: true
             )
             {
@@ -251,10 +254,7 @@ namespace Cmf.CLI.Commands
 
             if (x.nugetRegistry == null ||
                 x.npmRegistry == null ||
-                //x.azureDevOpsCollectionUrl == null ||
                 x.ISOLocation == null
-                //||
-                //x.agentPool == null
                 )
             {
                 throw new CliException("Missing infrastructure options. Either specify an infrastructure file with [--infrastructure] or specify each infrastructure option separately.");
@@ -333,6 +333,55 @@ namespace Cmf.CLI.Commands
                 x.config.CopyTo(this.fileSystem.Path.Join(envConfigPath, x.config.Name));
                 this.fileSystem.FileInfo.New(this.fileSystem.Path.Join(envConfigPath, ".gitkeep")).Delete();
             }
+        }
+
+        bool isToIgnoreOptionToken = false;
+        /// <summary>
+        /// parse argument specific for InitCommand
+        /// This is needed until this issue is not fixed:
+        /// https://github.com/dotnet/command-line-api/issues/1879#issuecomment-1689816336
+        /// this method will check if the argument value starts with - and will ignore
+        /// that value and also the next token
+        /// </summary>
+        /// <typeparam name="T">the (target) type of the argument/parameter</typeparam>
+        /// <param name="argResult">the arguments to parse</param>
+        /// <param name="default">the default value if no value is passed for the argument</param>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        /// <returns></returns>
+        private T ParseArgument<T>(ArgumentResult argResult, string @default = null)
+        {
+            var argValue = @default;
+
+            if (!isToIgnoreOptionToken && argResult.Tokens.Any())
+            {
+                var isOptionAndShouldBeIgnored = isToIgnoreOptionToken || (bool)argResult.Tokens?.FirstOrDefault()?.Value.StartsWith("-");
+                if (isOptionAndShouldBeIgnored)
+                {
+                    isToIgnoreOptionToken = true;
+                }
+                else
+                {
+                    argValue = argResult.Tokens.First().Value;
+                }
+            }
+            //reset flag
+            else
+            {
+                isToIgnoreOptionToken = false;
+            }
+
+            if (string.IsNullOrEmpty(argValue))
+            {
+                return default;
+            }
+
+            return typeof(T) switch
+            {
+                { } dirType when dirType == typeof(IDirectoryInfo) => (T)this.fileSystem.DirectoryInfo.New(argValue),
+                { } fileType when fileType == typeof(IFileInfo) => (T)this.fileSystem.FileInfo.New(argValue),
+                { } stringType when stringType == typeof(string) => (T)(object)argValue,
+                _ => throw new ArgumentOutOfRangeException("This method only parses paths or strings")
+            };
         }
     }
 }
