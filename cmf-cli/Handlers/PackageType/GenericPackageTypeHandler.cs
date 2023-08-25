@@ -1,7 +1,7 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Cmf.CLI.Builders;
 using Cmf.CLI.Core.Objects;
-
 
 namespace Cmf.CLI.Handlers
 {
@@ -23,7 +23,11 @@ namespace Cmf.CLI.Handlers
                 isInstallable: false
             );
 
-            BuildSteps = cmfPackage.BuildSteps?.Select(pbs => new SingleStepCommand() { BuildStep = pbs} as IBuildCommand).ToArray();
+            IEnumerable<IBuildCommand> buildSteps = cmfPackage.BuildSteps?.Select(pbs => new SingleStepCommand() { BuildStep = pbs } as IBuildCommand);
+
+            if (buildSteps != null && buildSteps.Any()) {
+                BuildSteps = buildSteps.ToArray();
+            }
         }
     }
 }
