@@ -651,4 +651,113 @@ public class Build
             })
             .Should().Be(withRelatedSteps);
     }
+
+    [Fact]
+    public void GenericBuildWithout_BuildSteps()
+    {
+        string url = TestUtilities.GetTmpDirectory();
+
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { $"{url}/cmfpackage.json", new MockFileData(
+                @$"{{
+                  ""packageId"": ""Generic.Package"",
+                  ""version"": ""1.0.0"",
+                  ""description"": ""This package deploys Critical Manufacturing Customization"",
+                  ""packageType"": ""Generic"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": false,
+                  ""dependencies"": [
+                  ]
+                }}")}
+        });
+
+        ExecutionContext.Initialize(fileSystem);
+        IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"{url}/{CliConstants.CmfPackageFileName}");
+        fileSystem.Directory.SetCurrentDirectory(url);
+
+        string message = string.Empty;
+        CmfPackage cmfPackage = null;
+        try
+        {
+            // Reading cmfPackage
+            cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true);
+        }
+        catch (Exception ex)
+        {
+            message = ex.Message;
+        }
+
+        GenericPackageTypeHandler businessPackageTypeHandler = new GenericPackageTypeHandler(cmfPackage);
+
+        StringWriter standardOutput = (new Logging()).GetLogStringWriter();
+        businessPackageTypeHandler.Build(false);
+        Assert.True(string.IsNullOrWhiteSpace(standardOutput.ToString().Trim()));
+    }
+
+    [Fact]
+    public void GenericBuildWith_BuildSteps()
+    {
+        string url = TestUtilities.GetTmpDirectory();
+
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { $"{url}/cmfpackage.json", new MockFileData(
+                @$"{{
+                ""packageId"": ""Generic.Package"",
+                ""version"": ""1.0.0"",
+                ""description"": ""This package deploys Critical Manufacturing Customization"",
+                ""packageType"": ""Generic"",
+                ""isInstallable"": true,
+                ""isUniqueInstall"": false,
+                ""buildSteps"": [
+                {{
+                    ""command"" : ""dotnet"",
+                    ""args"": [
+                    ""build"",
+                    ""solution1.sln""
+                    ],
+                    ""workingDirectory"" : ""./directory1""
+                }}
+                ],
+                ""steps"": [
+                {{
+                    ""type"": ""DeployFiles"",
+                    ""contentPath"": ""**/**""
+                }}
+                ]}}"
+            )}
+        });
+
+        ExecutionContext.Initialize(fileSystem);
+        IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"{url}/{CliConstants.CmfPackageFileName}");
+        fileSystem.Directory.SetCurrentDirectory(url);
+
+        string message = string.Empty;
+        CmfPackage cmfPackage = null;
+        try
+        {
+            // Reading cmfPackage
+            cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true);
+        }
+        catch (Exception ex)
+        {
+            message = ex.Message;
+        }
+
+        var mock = new Mock<IBuildCommand>();
+        mock.Setup(m => m.Exec());
+        mock.SetupAllProperties();
+        mock.Object.Test = false;
+        mock.Object.DisplayName = "Run Build Command";
+        GenericPackageTypeHandler businessPackageTypeHandler = new GenericPackageTypeHandler(cmfPackage);
+        businessPackageTypeHandler.BuildSteps = new IBuildCommand[]
+        {
+            mock.Object
+        };
+
+        StringWriter standardOutput = (new Logging()).GetLogStringWriter();
+        businessPackageTypeHandler.Build(false);
+        Assert.Contains("Executing 'Run Build Command'", standardOutput.ToString().Trim());
+    }
 }
