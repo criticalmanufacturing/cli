@@ -12,6 +12,7 @@ using Cmf.CLI.Utilities;
 using Microsoft.TemplateEngine.Abstractions;
 using Microsoft.TemplateEngine.Abstractions.TemplatePackage;
 using Microsoft.TemplateEngine.Edge;
+using Microsoft.TemplateEngine.Edge.Template;
 using Microsoft.TemplateEngine.IDE;
 using Microsoft.TemplateEngine.Utils;
 using Newtonsoft.Json;
@@ -61,19 +62,29 @@ namespace Cmf.CLI.Core.Commands
             Log.Debug($"Going to generate template {templateName}");
             // TODO: args needs to become a dictionary
             var parameters = new Dictionary<string, string>();
-            var argList = args.ToList().Aggregate(new List<List<string>>(), (list, s) =>
+            List<List<string>> argList = null;
+            try
             {
-                if (s.StartsWith("--"))
+                argList = args.ToList().Aggregate(new List<List<string>>(), (list, s) =>
                 {
-                    list.Add(new List<string>() { s });
-                }
-                else
-                {
-                    list.Last().Add(s);
-                }
+                    if (s?.StartsWith("--") ?? false)
+                    {
+                        list.Add(new List<string>() { s });
+                    }
+                    else
+                    {
+                        list.Last().Add(s);
+                    }
 
-                return list;
-            });
+                    return list;
+                });
+            }
+            catch (Exception e)
+            {
+                Log.Debug(e.Message);
+                Log.Debug(e.StackTrace);
+                throw;
+            }
             foreach (var list in argList)
             {
                 switch (list.Count)
@@ -129,9 +140,14 @@ namespace Cmf.CLI.Core.Commands
             try
             {
                 var result = await bootstrapper.CreateAsync(template!, name, outputPath, parameters);
-                Log.Debug($"{result.Status.ToString()}: {result.ErrorMessage}");
+                Log.Debug($"Template creation result: {result.Status.ToString()}: {result.ErrorMessage}");
+                if (result.Status != CreationResultStatus.Success)
+                {
+                    throw new CliException(
+                        $"Template generation failed with status {result.Status}: {result.ErrorMessage}");
+                }
             }
-            catch (Exception e)
+            catch (Exception e) // TODO: rethink this catch here
             {
                 Log.Exception(e);
             }
