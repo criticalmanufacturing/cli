@@ -339,5 +339,106 @@ namespace tests.Specs
                 Directory.Delete(tmp, true);
             }
         }
+
+        [Fact]
+        public void Init_With_Extra_Unknown_Option()
+        {
+            var rnd = new Random();
+            var tmp = TestUtilities.GetTmpDirectory();
+
+            var projectName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
+            var deploymentDir = "\\\\share\\deployment_dir";
+            var isoLocation = "\\\\share\\iso_location";
+            var pkgVersion = $"{rnd.Next(10)}.{rnd.Next(10)}.{rnd.Next(10)}";
+
+            var cur = Directory.GetCurrentDirectory();
+            try
+            {
+                var console = new TestConsole();
+                Directory.SetCurrentDirectory(tmp);
+
+                var initCommand = new InitCommand();
+                var cmd = new Command("x");
+                initCommand.Configure(cmd);
+
+                TestUtilities.GetParser(cmd).Invoke(new[]
+                {
+                    projectName,
+                    "--infra", TestUtilities.GetFixturePath("init", "infrastructure.json"),
+                    "-c", TestUtilities.GetFixturePath("init", "config.json"),
+                    "--MESVersion", "8.2.0",
+                    "--DevTasksVersion", "8.1.0",
+                    "--HTMLStarterVersion", "8.0.0",
+                    "--yoGeneratorVersion", "8.1.0",
+                    "--nugetVersion", "8.2.0",
+                    "--testScenariosNugetVersion", "8.2.0",
+                    "--deploymentDir", deploymentDir,
+                    "--ISOLocation", isoLocation,
+                    "--version", pkgVersion,
+                    "Cmf.Custom.Package",
+                    tmp,
+                    "--ExtraUnknownOption", "RandomValue"
+                }, console);
+
+
+                console.Error.ToString().Should().Contain("Unrecognized command or argument '--ExtraUnknownOption'");
+                console.Error.ToString().Should().Contain("Unrecognized command or argument 'RandomValue'.");
+
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                Directory.Delete(tmp, true);
+            }
+        }
+
+        [Fact]
+        public void Init_With_Unknown_Option_Instead_Of_Argument()
+        {
+            var rnd = new Random();
+            var tmp = TestUtilities.GetTmpDirectory();
+
+            var projectName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
+            var deploymentDir = "\\\\share\\deployment_dir";
+            var isoLocation = "\\\\share\\iso_location";
+            var pkgVersion = $"{rnd.Next(10)}.{rnd.Next(10)}.{rnd.Next(10)}";
+
+            var cur = Directory.GetCurrentDirectory();
+            try
+            {
+                var console = new TestConsole();
+                Directory.SetCurrentDirectory(tmp);
+
+                var initCommand = new InitCommand();
+                var cmd = new Command("x");
+                initCommand.Configure(cmd);
+
+                TestUtilities.GetParser(cmd).Invoke(new[]
+                {
+                    projectName,
+                    "--infra", TestUtilities.GetFixturePath("init", "infrastructure.json"),
+                    "-c", TestUtilities.GetFixturePath("init", "config.json"),
+                    "--MESVersion", "8.2.0",
+                    "--DevTasksVersion", "8.1.0",
+                    "--HTMLStarterVersion", "8.0.0",
+                    "--yoGeneratorVersion", "8.1.0",
+                    "--nugetVersion", "8.2.0",
+                    "--testScenariosNugetVersion", "8.2.0",
+                    "--deploymentDir", deploymentDir,
+                    "--ISOLocation", isoLocation,
+                    "--version", pkgVersion,
+                    "--UnknownOption", "RandomValue"
+                }, console);
+
+
+                console.Error.ToString().Should().BeEmpty();
+
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                Directory.Delete(tmp, true);
+            }
+        }
     }
 }

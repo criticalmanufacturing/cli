@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.0.1](https://github.com/criticalmanufacturing/cli/compare/4.0.1-2...4.0.1) (2023-09-27)
+
+### [4.0.1-2](https://github.com/criticalmanufacturing/cli/compare/4.0.1-1...4.0.1-2) (2023-09-19)
+
+
+### Bug Fixes
+
+* **build:** install and build lbos package ([35444f7](https://github.com/criticalmanufacturing/cli/commits/35444f70f16926ff35c6b59b21e82b50eb405b7b))
+
+### [4.0.1-1](https://github.com/criticalmanufacturing/cli/compare/4.0.1-0...4.0.1-1) (2023-08-28)
+
+
+### Bug Fixes
+
+* **build:** check generic type build steps ([1988729](https://github.com/criticalmanufacturing/cli/commits/1988729b3fbf2caebe89eef50c8e0aa96d6e6db2))
+
+### [4.0.1-0](https://github.com/criticalmanufacturing/cli/compare/4.0.0...4.0.1-0) (2023-08-25)
+
+
+### Bug Fixes
+
+* **init:** workaround for System.CommandLine bug that considers unknown option as argument values ([fae1507](https://github.com/criticalmanufacturing/cli/commits/fae1507c4437bd58b5ceae0b63b29e7f0fddd911))
+* **new help:** menugroup typo on helpsrc packages ([9453ed7](https://github.com/criticalmanufacturing/cli/commits/9453ed7347f0d7741299f16ebbb49ddbe8053cb8))
+
 ## [4.0.0](https://github.com/criticalmanufacturing/cli/compare/4.0.0-10...4.0.0) (2023-07-25)
 
 ## [4.0.0-10](https://github.com/criticalmanufacturing/cli/compare/4.0.0-9...4.0.0-10) (2023-07-17)

@@ -62,6 +62,10 @@ namespace Cmf.CLI.Handlers
                     }
             );
 
+            var projectRoot = FileSystemUtilities.GetProjectRoot(this.fileSystem);
+            var tsLBOsPath = this.fileSystem.Path.Join(projectRoot.FullName, "Libs", "LBOs", "TypeScript");
+            var tsLBOsDir = this.fileSystem.DirectoryInfo.New(tsLBOsPath);
+
             BuildSteps = new IBuildCommand[]
             {
                 new ExecuteCommand<RestoreCommand>()
@@ -80,6 +84,20 @@ namespace Cmf.CLI.Handlers
                     Args = new []{ "--force" },
                     WorkingDirectory = cmfPackage.GetFileInfo().Directory
                 },
+                new NPMCommand()
+                {
+                    DisplayName = "NPM Install LBOs",
+                    Command  = "install",
+                    Args = new []{ "--force" },
+                    WorkingDirectory = tsLBOsDir
+                },
+                new NPMCommand()
+                {
+                    DisplayName = "Build LBOs",
+                    Command  = "run",
+                    Args = new []{ "build" },
+                    WorkingDirectory = tsLBOsDir
+                },
                 new ExecuteCommand<LinkLBOsCommand>()
                 {
                     DisplayName = "Link LBOs",
@@ -87,7 +105,6 @@ namespace Cmf.CLI.Handlers
                     Execute = command => command.Execute(cmfPackage.GetFileInfo().Directory)
                 }
             };
-
             cmfPackage.DFPackageType = PackageType.Presentation;
 
             // Projects BuildSteps
