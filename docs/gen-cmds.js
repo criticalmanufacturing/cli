@@ -33,7 +33,7 @@ if (myArgs.length < 1) {
 
 commands.split("\n").forEach(c => {
     c = c.split(" ").splice(1).join(" ").trimEnd(); // remove "cmf "
-    const outFile = `./src/commands/${c.replace(/\s/g, "_")}.md`;
+    const outFile = `./src/reference/commands/${c.replace(/\s/g, "_")}.md`;
     if (!fs.existsSync(outFile)) {
         fs.writeFileSync(outFile, 
             `# ${c}

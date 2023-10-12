@@ -53,9 +53,9 @@ Move into the repository folder
 cd repo
 ```
 
-For a classic project example, check the [traditional](./Traditional) structure documentation.
+For a classic project example, check the [traditional](./traditional/index.md) structure documentation.
 
-For more advanced structures, you'll probably be using [Features](./Feature Package).
+For more advanced structures, you'll probably be using [Features](./feature-package/index.md).
 
 ## Pipelines
 By default, our scaffolding doesn't provide any built-in CI/CD pipelines, giving you the flexibility to choose any tool/platform that suits your needs.

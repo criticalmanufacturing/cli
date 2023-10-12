@@ -1,6 +1,6 @@
 # Traditional scaffolding
 
-A "traditional project" does not contain [feature packages](./../Feature Package), is developed entirely by one team in one repository and is delivered directly to one customer.
+A "traditional project" does not contain [feature packages](../feature-package/index.md), is developed entirely by one team in one repository and is delivered directly to one customer.
 
 These projects are usually composed of Business, UI, Help and Master Data customization, with optionally Exported Objects and IoT.
 
@@ -51,7 +51,7 @@ As in previous scenarios, the versions for the various input options must be pre
 
 This will also create a root package, which may or may not be shipped to the customer. This root package has no dependencies, initially. Each time a layer package is created, it will be registered in the higher level package found. For a traditional repository, this will be the root package.
 
-If you are currently using version cmf-cli version 2x, follow the instructions defined in the [Post-scaffolding package tailoring](./../Post-Scaffolding%20Tailoring). You will not be able to generate the layer packages before doing this. In version 3, this is already done by the CLI.
+If you are currently using version cmf-cli version 2x, follow the instructions defined in the [Post-scaffolding package tailoring](../post-scaffolding-tailoring/index.md). You will not be able to generate the layer packages before doing this. In version 3, this is already done by the CLI.
 
 ## Layer packages
 
