@@ -27,4 +27,11 @@
     <ProjectReference Include="..\cmf-cli\cmf.csproj" />
     <ProjectReference Include="..\core\core.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Fixtures\new-packages\Cmf.Custom.Business\Business.sln" />
+    <None Include="Fixtures\new-packages\Cmf.Custom.Business\Cmf.Custom.Common\Cmf.Custom.tenant.Common.csproj" />
+    <None Include="Fixtures\new-packages\Cmf.Custom.Business\Cmf.Custom.Orchestration\Cmf.Custom.tenant.Orchestration.csproj" />
+    <None Include="Fixtures\new-packages\Cmf.Custom.Business\Cmf.Custom.Services\Cmf.Custom.tenant.Services.csproj" />
+  </ItemGroup>
 </Project>

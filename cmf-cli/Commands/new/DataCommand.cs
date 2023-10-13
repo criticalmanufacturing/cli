@@ -6,6 +6,7 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Text.Json;
 using Cmf.CLI.Builders;
+using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Enums;
@@ -89,9 +90,11 @@ namespace Cmf.CLI.Commands.New
                 {
                     var nameIdx = Array.FindIndex(base.executedArgs, item => string.Equals(item, "--name"));
                     var tenantIdx = Array.FindIndex(base.executedArgs, item => string.Equals(item, "--Tenant"));
+                    var packageName = base.executedArgs[nameIdx + 1];
+
                     var csproj = this.fileSystem.Path.Join(
-                        workingDir.FullName, 
-                        base.executedArgs[nameIdx + 1],
+                        workingDir.FullName,
+                        packageName,
                         this.fileSystem.Path.Join(
                             "DEEs",
                             $"Cmf.Custom.{base.executedArgs[tenantIdx + 1]}.Actions.csproj"));
@@ -116,6 +119,21 @@ namespace Cmf.CLI.Commands.New
 
                     Log.Information($"Adding new project {csproj} to solution {businessSlnPath}");
                     slnAddCmd.Exec();
+
+                    #region Link To Business Package
+
+                    IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{workingDir}/{packageName}/{CliConstants.CmfPackageFileName}");
+                    var dataPackage = CmfPackage.Load(cmfpackageFile, true, fileSystem);
+
+                    dataPackage.RelatedPackages = new()
+                    {
+                        new RelatedPackage() { Path = fileSystem.Path.GetRelativePath(dataPackage.GetFileInfo().Directory.FullName, businessPackage.FullName), PreBuild = true, PrePack = false }
+                    };
+
+                    dataPackage.SaveCmfPackage();
+
+                    #endregion
+
                 }
             }
         }
