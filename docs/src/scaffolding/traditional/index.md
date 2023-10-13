@@ -109,13 +109,19 @@ cmf new data --version 1.0.0 --businessPackage .\Cmf.Custom.Business\
     ```
     cmf new help --version 1.0.0 --documentationPackage H:\packages\Cmf.Documentation.9.1.8.zip
     ```
-
 ### IoT
-The IoT package contains both IoTData and IoTPackages as sub-packages. They are always created together.
-```
-cmf new iot --version 1.0.0
-```
-
+=== "MES v10"
+    The IoT package contains both IoTData and IoTPackages as sub-packages. They are always created together.
+    ```
+    cmf new iot --version 1.0.0 --htmlPackageLocation Cmf.Custom.Baseline.HTML
+    ```
+    Make sure to follow all the steps [here](../angular-15-iot-packages.md). Otherwise you can have unexpected errors in the package.
+=== "up to MES v9"
+    The IoT package contains both IoTData and IoTPackages as sub-packages. They are always created together.
+    ```
+    cmf new iot --version 1.0.0
+    ```
+---
 ### Database
 The database package contains both Pre, Post and Reporting sub-packages.
 ```
