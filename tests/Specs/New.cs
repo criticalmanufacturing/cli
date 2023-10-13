@@ -15,6 +15,7 @@ using System.CommandLine.Parsing;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
+using System.IO.Packaging;
 using System.Linq;
 using System.Text.Json;
 using Xunit;
@@ -76,6 +77,37 @@ namespace tests.Specs
         public void Data()
         {
             RunNew(new DataCommand(), "Cmf.Custom.Data");
+        }
+
+        [Fact]
+        public void Data_WithBusiness()
+        {
+            var dir = TestUtilities.GetTmpDirectory();
+            // init
+            CopyNewFixture(dir);
+
+
+            var packageId = "Cmf.Custom.Data";
+            var businessPackageName = "Cmf.Custom.Business";
+            var targetDir = new DirectoryInfo(dir);
+            TestUtilities.CopyFixturePackage(businessPackageName, targetDir);
+            string businessPackageLocation = Path.Join(targetDir.FullName, businessPackageName);
+
+            RunNew(new DataCommand(), packageId, scaffoldingDir: dir,
+                mesVersion: "10.1.2",
+                extraArguments: new string[]
+                {
+                    "--businessPackage", businessPackageLocation,
+                },
+                extraAsserts: args =>
+                {
+                    var relatedPackages = TestUtilities.GetPackage($"{packageId}/cmfpackage.json").GetProperty("relatedPackages")[0];
+                    relatedPackages.GetProperty("path").GetString().Should().Be(MockUnixSupport.Path($"..\\{businessPackageName}"));
+                    relatedPackages.GetProperty("preBuild").GetBoolean().Should().BeTrue();
+                    relatedPackages.GetProperty("postBuild").GetBoolean().Should().BeFalse();
+                    relatedPackages.GetProperty("prePack").GetBoolean().Should().BeFalse();
+                    relatedPackages.GetProperty("postPack").GetBoolean().Should().BeFalse();
+                });
         }
 
         [Theory, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node12")]
