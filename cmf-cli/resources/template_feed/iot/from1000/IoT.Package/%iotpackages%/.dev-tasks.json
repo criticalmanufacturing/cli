@@ -1,0 +1,9 @@
+{
+  "isWebAppCompilable": false,
+  "dependencies": [
+  ],
+  "packages": [
+  ],
+  "registry": "<%= $CLI_PARAM_NPMRegistry %>",
+  "channel": "*"
+}

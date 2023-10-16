@@ -5,6 +5,7 @@ using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
@@ -168,24 +169,37 @@ namespace Cmf.CLI.Commands.New
                 ForceColorOutput = false
             }.Exec();
 
-            // Install IoT Yeoman
-            Log.Debug($"Installing Yeoman");
+            // Add package.json extra bits
+            Log.Debug($"Overriding package.json");
 
-            new NPMCommand()
+            var rootPkgJsonPath = this.fileSystem.Path.Join(iotCustomPackageWorkDir.FullName, "package.json");
+            var packagejson = fileSystem.File.ReadAllText(rootPkgJsonPath);
+            dynamic rootPkgJson = JsonConvert.DeserializeObject(packagejson);
+
+            if (rootPkgJson == null)
             {
-                DisplayName = "npm yeoman",
-                Args = new string[] { "install", "yo", "--save-dev" },
-                WorkingDirectory = iotCustomPackageWorkDir
-            }.Exec();
+                throw new CliException("Could not load package.json");
+            }
 
-            Log.Debug($"Installing Yeoman IoT Generator");
+            rootPkgJson.scripts["build:libs"] = "npm run build -ws && gulp build";
+            rootPkgJson.scripts["postinstall"] = "npm run postinstall:graceful-fs && npm run postinstall:typescript";
+            rootPkgJson.scripts["postinstall:graceful-fs"] = "rimraf node_modules\\vinyl-fs\\node_modules\\graceful-fs";
+            rootPkgJson.scripts["postinstall:typescript"] = "rimraf node_modules\\@criticalmanufacturing\\dev-tasks\\node_modules\\typescript";
 
-            new NPMCommand()
-            {
-                DisplayName = "npm yeoman generator-iot",
-                Args = new string[] { "install", $"@criticalmanufacturing/generator-iot@{mesVersion.Major}{mesVersion.Minor}x", "--save-dev" },
-                WorkingDirectory = iotCustomPackageWorkDir
-            }.Exec();
+            rootPkgJson.devDependencies["@criticalmanufacturing/dev-tasks"] = "dev";
+            rootPkgJson.devDependencies["@criticalmanufacturing/generator-iot"] = $@"{mesVersion.Major}{mesVersion.Minor}x";
+
+            rootPkgJson.devDependencies["yo"] = "^4.3.1";
+            rootPkgJson.devDependencies["gulp"] = "3.9.1";
+            rootPkgJson.devDependencies["rimraf"] = "^4.1.2";
+            rootPkgJson.devDependencies["run-sequence"] = "2.2.1";
+            rootPkgJson.devDependencies["graceful-fs"] = "4.2.10";
+            rootPkgJson.devDependencies["concurrently"] = "^7.6.0";
+
+            packagejson = JsonConvert.SerializeObject(rootPkgJson, Formatting.Indented);
+            this.fileSystem.File.WriteAllText(rootPkgJsonPath, packagejson);
+
+            Log.Debug($"Overrided package.json");
 
             #region Link To HTML Package
 
