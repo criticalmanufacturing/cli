@@ -103,12 +103,12 @@ namespace Cmf.CLI.Handlers
                     {
                         DisplayName = $"ng build {package.Key}",
                         Command = "build",
-                        Args = String.Equals(package.Key, this.CmfPackage.PackageId, StringComparison.InvariantCultureIgnoreCase) ? new []{ "--", "--base-href", "$(APPLICATION_BASE_HREF)" } : Array.Empty<string>(),
+                        Args = String.Equals(package.Value.Name, this.CmfPackage.PackageId, StringComparison.InvariantCultureIgnoreCase) ? new []{ "--base-href", "$(APPLICATION_BASE_HREF)" } : Array.Empty<string>(),
                         WorkingDirectory = package.Value
                     }
                 }).ToArray();
             }
-            
+
             BuildSteps = BuildSteps.Append(new NgBuildFileTokenReplacerCommand(this.fileSystem, apps, cmfPackage)).ToArray();
         }
 
@@ -146,7 +146,7 @@ namespace Cmf.CLI.Handlers
 
                     // if package-lock also refer the package in the packages list
                     Dictionary<string, dynamic> packages = project.PackageLock.Content.packages.ToObject<Dictionary<string, dynamic>>();
-                    if(packages.ContainsKey("") && packages[""].name == project.Name)
+                    if (packages.ContainsKey("") && packages[""].name == project.Name)
                     {
                         packages[""].version = project.PackageJson.Content.version;
                         project.PackageLock.Content.packages = JObject.FromObject(packages);
