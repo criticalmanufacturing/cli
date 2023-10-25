@@ -274,11 +274,11 @@ namespace tests.Specs
             else
             {
                 var relatedPackages = TestUtilities.GetPackage($"{packageId}/{packageFolderPackages}/cmfpackage.json").GetProperty("relatedPackages")[0];
-                relatedPackages.GetProperty("path").GetString().Should().Be("..\\..\\Cmf.Custom.Html");
-                relatedPackages.GetProperty("preBuild").GetBoolean().Should().BeTrue();
-                relatedPackages.GetProperty("postBuild").GetBoolean().Should().BeFalse();
-                relatedPackages.GetProperty("prePack").GetBoolean().Should().BeTrue();
-                relatedPackages.GetProperty("postPack").GetBoolean().Should().BeFalse();
+                relatedPackages.GetProperty("path").GetString().Should().Be(MockUnixSupport.Path("..\\..\\Cmf.Custom.Html"));
+                relatedPackages.GetProperty("preBuild").GetBoolean().Should().BeFalse();
+                relatedPackages.GetProperty("postBuild").GetBoolean().Should().BeTrue();
+                relatedPackages.GetProperty("prePack").GetBoolean().Should().BeFalse();
+                relatedPackages.GetProperty("postPack").GetBoolean().Should().BeTrue();
             }
 
         }
