@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.0.2](https://github.com/criticalmanufacturing/cli/compare/4.0.2-0...4.0.2) (2023-10-16)
+
+### [4.0.2-0](https://github.com/criticalmanufacturing/cli/compare/4.0.1...4.0.2-0) (2023-10-03)
+
+
+### Bug Fixes
+
+* **iot:** transform step only makes sense for MES <v10 ([e05d18d](https://github.com/criticalmanufacturing/cli/commits/e05d18d72fb1867379ef86d595e79731cd02f06f))
+
+
+### Under the hood
+
+* improve error handling running templates ([710e50b](https://github.com/criticalmanufacturing/cli/commits/710e50b8262d4bf2d7bbd6aeb5eff4b4c31f63da))
+
 ### [4.0.1](https://github.com/criticalmanufacturing/cli/compare/4.0.1-2...4.0.1) (2023-09-27)
 
 ### [4.0.1-2](https://github.com/criticalmanufacturing/cli/compare/4.0.1-1...4.0.1-2) (2023-09-19)
