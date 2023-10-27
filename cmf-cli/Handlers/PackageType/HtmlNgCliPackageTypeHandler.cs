@@ -84,20 +84,6 @@ namespace Cmf.CLI.Handlers
                     Args = new []{ "--force" },
                     WorkingDirectory = cmfPackage.GetFileInfo().Directory
                 },
-                new NPMCommand()
-                {
-                    DisplayName = "NPM Install LBOs",
-                    Command  = "install",
-                    Args = new []{ "--force" },
-                    WorkingDirectory = tsLBOsDir
-                },
-                new NPMCommand()
-                {
-                    DisplayName = "Build LBOs",
-                    Command  = "run",
-                    Args = new []{ "build" },
-                    WorkingDirectory = tsLBOsDir
-                },
                 new ExecuteCommand<LinkLBOsCommand>()
                 {
                     DisplayName = "Link LBOs",
