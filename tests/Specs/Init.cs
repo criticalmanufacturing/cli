@@ -1,6 +1,9 @@
 ﻿using Cmf.CLI.Commands;
+using Cmf.CLI.Constants;
+using Cmf.CLI.Core.Objects;
 using Cmf.Common.Cli.TestUtilities;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -17,6 +20,13 @@ namespace tests.Specs
 {
     public class Init
     {
+        public Init()
+        {
+                ExecutionContext.ServiceProvider = (new ServiceCollection())
+                    .AddSingleton<IVersionService>(new VersionService(CliConstants.PackageName))
+                    .BuildServiceProvider();
+        }
+
         [Fact]
         public void Init_()
         {
