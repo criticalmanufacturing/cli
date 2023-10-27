@@ -7,6 +7,7 @@ using System.IO.Abstractions;
 using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Xml.Linq;
 using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Enums;
@@ -95,6 +96,36 @@ namespace Cmf.CLI.Utilities
         public static bool IgnoreCaseEquals(this string str, string value)
         {
             return str != null && value != null && str.Equals(value, System.StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        /// <summary>
+        /// Converts a string to kebab-case
+        /// </summary>
+        /// <param name="str">the input string</param>
+        /// <returns>the kebab-case equivalent</returns>
+        public static string ToKebabCase(this string str)
+        {
+            // converts a pascal case string to kebab case
+            var kebabCase = new StringBuilder();
+
+            for (var i = 0; i < str.Length; i++)
+            {
+                var currentChar = str[i];
+                if (char.IsUpper(currentChar))
+                {
+                    if (i > 0 && !char.IsUpper(str[i - 1]) &&  ((str[i - 1]>='A' && str[i - 1]<='Z') || (str[i - 1]>='a' && str[i - 1]<='z')))
+                    {
+                        kebabCase.Append('-');
+                    }
+                    kebabCase.Append(Char.ToLower(currentChar));
+                }
+                else
+                {
+                    kebabCase.Append(currentChar);
+                }
+            }
+
+            return kebabCase.ToString();
         }
 
         /// <summary>
