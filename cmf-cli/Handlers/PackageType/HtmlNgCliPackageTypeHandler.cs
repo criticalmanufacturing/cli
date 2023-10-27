@@ -104,7 +104,7 @@ namespace Cmf.CLI.Handlers
                     {
                         DisplayName = $"ng build {package.Key}",
                         Command = "build",
-                        Args = apps.Contains(package.Key) ? new []{ "--base-href", "$(APPLICATION_BASE_HREF)" } : Array.Empty<string>(),
+                        Args = apps.Contains(package.Key.ToKebabCase()) ? new []{ "--base-href", "$(APPLICATION_BASE_HREF)" } : Array.Empty<string>(),
                         WorkingDirectory = package.Value
                     }
                 }).ToArray();
