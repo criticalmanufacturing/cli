@@ -8,7 +8,7 @@ The relation between the HTML package will have to be added manually. In order t
 ```json
 "relatedPackages": [
 {
-    "path": "..\Cmf.Custom.Baseline.IoT\Cmf.Custom.Baseline.IoT.Packages",
+    "path": "../Cmf.Custom.Baseline.IoT/Cmf.Custom.Baseline.IoT.Packages",
     "preBuild": true,
     "postBuild": false,
     "prePack": false,
@@ -18,7 +18,7 @@ The relation between the HTML package will have to be added manually. In order t
 In the `package.json` of the html package add a new entry for the custom iot package. For example, if you created a new library called connect-iot-controller-engine-custom-tasks:
 
 ```sh
-npm install ../Cmf.Custom.Baseline.IoT/Cmf.Custom.Baseline.IoT
+npm install ../Cmf.Custom.Baseline.IoT/Cmf.Custom.Baseline.IoT.Packages
 ```
 This will add this entry in the `package.json`:
 ```json
