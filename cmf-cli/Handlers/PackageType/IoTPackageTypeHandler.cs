@@ -85,6 +85,12 @@ namespace Cmf.CLI.Handlers
             }
             else
             {
+                var packageJson = cmfPackage.GetFileInfo().Directory!.GetFiles("package.json").FirstOrDefault();
+                var gulpfile = cmfPackage.GetFileInfo().Directory!.GetFiles("gulpfile.js").FirstOrDefault();
+                var hasGulp = (packageJson?.Exists ?? false) && 
+                              packageJson.ReadToString().Contains("\"gulp\"") &&
+                              (gulpfile?.Exists ?? false);
+
                 buildCommands = new IBuildCommand[]
                 {
                     new ExecuteCommand<RestoreCommand>()
@@ -102,7 +108,9 @@ namespace Cmf.CLI.Handlers
                        Command = "install",
                        Args = new[] {"--force"},
                        WorkingDirectory = cmfPackage.GetFileInfo().Directory
-                    },
+                    }
+                }.Concat(hasGulp ? new IBuildCommand[] {
+                    
                     new GulpCommand()
                     {
                         GulpFile = "gulpfile.js",
@@ -119,7 +127,9 @@ namespace Cmf.CLI.Handlers
                         DisplayName = "Gulp Build",
                         GulpJS = "node_modules/gulp/bin/gulp.js",
                         WorkingDirectory = cmfPackage.GetFileInfo().Directory
-                    },
+                    }
+                } : Array.Empty<IBuildCommand>()).Concat(new IBuildCommand[] {
+                    
                     new NPMCommand()
                     {
                        DisplayName = "NPM Build",
@@ -137,13 +147,13 @@ namespace Cmf.CLI.Handlers
                    new ExecuteCommand<IoTLibCommand>()
                     {
                         Command = new IoTLibCommand(),
-                        DisplayName = "cmf iot lib command",
+                        DisplayName = "Running `cmf iot lib`",
                         Execute = command =>
                         {
                             command.Execute(cmfPackage.GetFileInfo().Directory);
                         }
                     },
-                };
+                }).ToArray();
             }
 
             cmfPackage.SetDefaultValues
