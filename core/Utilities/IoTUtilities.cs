@@ -53,7 +53,7 @@ namespace Cmf.CLI.Utilities
                     string packageName = converters["reference"]["package"]["name"]?.ToString()?.Split("/")[1]?.Replace("connect-iot-", "");
                     if (packageNames == null || !string.IsNullOrEmpty(packageNames) && packageNames.Contains(packageName))
                     {
-                        string currentVersion = converters["reference"]["package"]["version"]?.Split("-")[0];
+                        string currentVersion = converters["reference"]["package"]["version"]?.ToString().Split("-")[0];
 
                         converters["reference"]["package"]["version"] = GenericUtilities.RetrieveNewVersion(currentVersion, version, buildNr);
                     }
