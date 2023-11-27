@@ -7,7 +7,7 @@
   "isUniqueInstall": false,
   "contentToPack": [
     {
-      "source": "projects/*",
+      "source": "dist/*",
       "target": "node_modules",
       "ignoreFiles": [
         ".npmignore"
