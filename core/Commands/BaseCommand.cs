@@ -123,22 +123,23 @@ namespace Cmf.CLI.Core.Commands
         /// <returns></returns>
         protected T Parse<T>(ArgumentResult argResult, string @default = null)
         {
-            var path = @default;
+            var argValue = @default;
             if (argResult.Tokens.Any())
             {
-                path = argResult.Tokens.First().Value;
+                argValue = argResult.Tokens.First().Value;
             }
 
-            if (string.IsNullOrEmpty(path))
+            if (string.IsNullOrEmpty(argValue))
             {
                 return default(T);
             }
 
             return typeof(T) switch
             {
-                {} dirType when dirType == typeof(IDirectoryInfo) => (T)this.fileSystem.DirectoryInfo.New(path),
-                {} fileType when fileType == typeof(IFileInfo) => (T)this.fileSystem.FileInfo.New(path),
-                _ => throw new ArgumentOutOfRangeException("This method only parses directory or file paths")
+                {} dirType when dirType == typeof(IDirectoryInfo) => (T)this.fileSystem.DirectoryInfo.New(argValue),
+                {} fileType when fileType == typeof(IFileInfo) => (T)this.fileSystem.FileInfo.New(argValue),
+                {} stringType when stringType == typeof(string) => (T)(object)argValue,
+                _ => throw new ArgumentOutOfRangeException("This method only parses directories, file paths or strings")
             };
         }
     }
