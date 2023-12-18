@@ -1,6 +1,7 @@
+using Cmf.CLI.Commands;
+using Cmf.CLI.Core;
 using System;
 using System.Threading.Tasks;
-using Cmf.CLI.Commands;
 
 namespace Cmf.CLI.Builders
 {
@@ -36,6 +37,14 @@ namespace Cmf.CLI.Builders
         public bool Test { get; set; } = false;
 
         /// <summary>
+        /// Gets or sets the condition. This will impact the Exec
+        /// </summary>
+        /// <value>
+        /// The execute.
+        /// </value>
+        public Func<bool> ConditionForExecute = () => { return true; };
+
+        /// <summary>
         /// Gets or sets the execute.
         /// </summary>
         /// <value>
@@ -44,21 +53,36 @@ namespace Cmf.CLI.Builders
         public Action<T> Execute { get; set; }
 
         /// <summary>
+        /// Condition if true. You can execute this instance.
+        /// </summary>
+        /// <returns></returns>
+        public bool Condition()
+        {
+            return this.ConditionForExecute();
+        }
+
+        /// <summary>
         /// Executes this instance.
         /// </summary>
         /// <returns></returns>
         public Task Exec()
         {
-            dynamic command = this.Command;
-            if (this.Execute != null)
+            if (this.Condition())
             {
-                this.Execute(this.Command);
+                dynamic command = this.Command;
+                if (this.Execute != null)
+                {
+                    this.Execute(this.Command);
+                }
+                else
+                {
+                    command.Execute();
+                }
             }
             else
             {
-                command.Execute();
+                Log.Debug($"Command: {this.DisplayName} will not be executed as its condition was not met");
             }
-
             return null;
         }
     }
