@@ -1,7 +1,8 @@
+using Cmf.CLI.Core.Objects;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using Cmf.CLI.Core.Objects;
 
 namespace Cmf.CLI.Builders
 {
@@ -51,6 +52,19 @@ namespace Cmf.CLI.Builders
         /// The arguments.
         /// </value>
         public string[] Args { get; set; }
+
+        /// <summary>
+        /// Gets or sets the condition.
+        /// </summary>
+        /// <value>
+        /// The execute.
+        /// </value>
+        public Func<bool> ConditionForExecute = () => { return true; };
+
+        public override bool Condition()
+        {
+            return this.ConditionForExecute();
+        }
 
         /// <summary>
         /// Gets the steps.

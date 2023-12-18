@@ -9,6 +9,7 @@ using Cmf.CLI.Utilities;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 
@@ -85,6 +86,10 @@ namespace Cmf.CLI.Handlers
             }
             else
             {
+                // TODO:
+                // Validate what happens if LINT IS NOT KNOWN
+
+
                 buildCommands = new IBuildCommand[]
                 {
                     new ExecuteCommand<RestoreCommand>()
@@ -102,6 +107,43 @@ namespace Cmf.CLI.Handlers
                        Command = "install",
                        Args = new[] {"--force"},
                        WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                    },
+                    new NPMCommand()
+                    {
+                       DisplayName = "NPM Lint",
+                       Command = "run lint",
+                       WorkingDirectory = cmfPackage.GetFileInfo().Directory,
+                       ConditionForExecute = () =>
+                       {
+                           var directory = this.fileSystem.DirectoryInfo.New(this.fileSystem.Path.Join(cmfPackage.GetFileInfo().Directory.FullName,"projects"));
+                           var srcCodeDirs = directory.GetDirectories("",SearchOption.TopDirectoryOnly);
+
+                           var packageJsons = new List<IFileInfo>();
+                           foreach(var srcDir in srcCodeDirs)
+                           {
+                               var packageJson = srcDir.GetFiles($"package.json", SearchOption.TopDirectoryOnly)?.FirstOrDefault();
+                               if(packageJson != null)
+                               {
+                                   packageJsons.Add(packageJson);
+                               }
+                           }
+
+                           if(packageJsons == null && !packageJsons.Any())
+                           {
+                               return false;
+                           }
+                           foreach (var packageJson in packageJsons )
+                           {
+                                var json = fileSystem.File.ReadAllText(packageJson.FullName);
+                                dynamic packageJsonContent = JsonConvert.DeserializeObject(json);
+
+                                if(packageJsonContent?["scripts"] == null || packageJsonContent?["scripts"]?["lint"] == null)
+                                {
+                                    return false;
+                                }
+                           }
+                           return true;
+                       }
                     },
                     new NPMCommand()
                     {
@@ -209,31 +251,34 @@ namespace Cmf.CLI.Handlers
         {
             base.Bump(version, buildNr, bumpInformation);
 
-            #region GetCustomPackages
-
-            // Get Dev Tasks
-            string parentDirectory = CmfPackage.GetFileInfo().DirectoryName;
-            string devTasksFile = this.fileSystem.Directory.GetFiles(parentDirectory, ".dev-tasks.json")[0];
-
-            string devTasksJson = this.fileSystem.File.ReadAllText(devTasksFile);
-            dynamic devTasksJsonObject = JsonConvert.DeserializeObject(devTasksJson);
-
-            string packageNames = devTasksJsonObject["packagesBuildBump"]?.ToString();
-
-            if (string.IsNullOrEmpty(packageNames))
+            if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 10)
             {
-                packageNames = devTasksJsonObject["packages"]?.ToString();
+                #region GetCustomPackages
+
+                // Get Dev Tasks
+                string parentDirectory = CmfPackage.GetFileInfo().DirectoryName;
+                string devTasksFile = this.fileSystem.Directory.GetFiles(parentDirectory, ".dev-tasks.json")[0];
+
+                string devTasksJson = this.fileSystem.File.ReadAllText(devTasksFile);
+                dynamic devTasksJsonObject = JsonConvert.DeserializeObject(devTasksJson);
+
+                string packageNames = devTasksJsonObject["packagesBuildBump"]?.ToString();
+
+                if (string.IsNullOrEmpty(packageNames))
+                {
+                    packageNames = devTasksJsonObject["packages"]?.ToString();
+                }
+
+                if (string.IsNullOrEmpty(packageNames))
+                {
+                    throw new CliException(string.Format(CliMessages.MissingMandatoryProperty, packageNames));
+                }
+
+                #endregion GetCustomPackages
+
+                // IoT -> src -> Package XPTO
+                IoTUtilities.BumpIoTCustomPackages(CmfPackage.GetFileInfo().DirectoryName, version, buildNr, packageNames, this.fileSystem);
             }
-
-            if (string.IsNullOrEmpty(packageNames))
-            {
-                throw new CliException(string.Format(CliMessages.MissingMandatoryProperty, packageNames));
-            }
-
-            #endregion GetCustomPackages
-
-            // IoT -> src -> Package XPTO
-            IoTUtilities.BumpIoTCustomPackages(CmfPackage.GetFileInfo().DirectoryName, version, buildNr, packageNames, this.fileSystem);
         }
 
         /// <summary>

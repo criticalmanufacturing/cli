@@ -70,7 +70,7 @@ namespace Cmf.CLI.Commands.New
                 }
 
                 var listOfLibs = workingDir.EnumerateDirectories().FirstOrDefault(dir => dir.Name == "dist").EnumerateDirectories();
-                cmfPackage.RelatedPackages.ForEach(relatedPackage =>
+                cmfPackage.RelatedPackages?.ForEach(relatedPackage =>
                 {
                     if (relatedPackage.CmfPackage.GetFileInfo().Directory.GetFile(CliConstants.AngularJson) != null)
                     {
