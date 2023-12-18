@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
@@ -24,7 +25,7 @@ namespace Cmf.CLI.Core.Objects
 
         private IEnumerable<Project> GetProjects()
         {
-            var angularjsonStr = File.ReadAllText(WorkingDirectory.GetFiles("angular.json")[0].FullName);
+            var angularjsonStr = WorkingDirectory.FileSystem.File.ReadAllText(WorkingDirectory.GetFiles("angular.json")[0].FullName);
             var angularjson = JsonConvert.DeserializeObject<dynamic>(angularjsonStr);
             var projects = new List<Project>();
 
@@ -119,6 +120,10 @@ namespace Cmf.CLI.Core.Objects
                 packageJsonPath = $"{_Project.Value.root?.ToString()}/{packageJsonPath}";
             }
             var packageJsonFile = _Cwd.GetFiles(packageJsonPath).FirstOrDefault();
+            if (packageJsonFile == null)
+            {
+                throw new Exception($"No package.json found at {packageJsonPath}");
+            }
             PackageJson = new PackageJson(packageJsonFile);
 
             // package-lock.json
@@ -139,9 +144,9 @@ namespace Cmf.CLI.Core.Objects
         private void GetDependencies()
         {
             var peerDependencies = PackageJson.Content.peerDependencies?.ToObject<Dictionary<string, string>>().Keys;
-            var dependencies = PackageJson.Content.dependencies.ToObject<Dictionary<string, string>>().Keys;
+            var dependencies = PackageJson.Content.dependencies?.ToObject<Dictionary<string, string>>().Keys;
             Dependencies = new List<string>();
-            Dependencies.AddRange(dependencies);
+            Dependencies.AddRange(dependencies ?? new List<string>());
             Dependencies.AddRange(peerDependencies ?? new List<string>());
 
             Log.Debug($"Loaded dependencies from package {Name}:\n{string.Join("\n", Dependencies)}");
@@ -157,7 +162,7 @@ namespace Cmf.CLI.Core.Objects
         public PackageJson(IFileInfo file)
         {
             File = file;
-            var packagejsonStr = System.IO.File.ReadAllText(File?.FullName);
+            var packagejsonStr = File.FileSystem.File.ReadAllText(File?.FullName);
             Log.Debug($"Loading file {File?.FullName}");
             Content = JsonConvert.DeserializeObject<dynamic>(packagejsonStr);
         }

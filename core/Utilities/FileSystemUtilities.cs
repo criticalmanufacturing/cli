@@ -448,11 +448,12 @@ namespace Cmf.CLI.Utilities
         /// </summary>
         /// <param name="packageFile"></param>
         /// <returns></returns>
-        public static XDocument GetManifestFromPackage(string packageFile)
+        public static XDocument GetManifestFromPackage(string packageFile, IFileSystem fileSystem = null)
         {
+            fileSystem ??= new FileSystem();
             XDocument dFManifest = null;
 
-            using (FileStream zipToOpen = new(packageFile, FileMode.Open))
+            using (var zipToOpen = fileSystem.FileStream.New(packageFile, FileMode.Open))
             {
                 using (ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read))
                 {
