@@ -10,6 +10,7 @@ using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.IO.Compression;
 using System.Linq;
+using System.Xml.Linq;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Handlers;
@@ -18,6 +19,7 @@ using Cmf.Common.Cli.TestUtilities;
 using FluentAssertions;
 using tests.Objects;
 using Cmf.CLI.Constants;
+using Cmf.CLI.Core;
 using Cmf.CLI.Factories;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -569,6 +571,105 @@ namespace tests.Specs
 
             TestUtilities.ValidateZipContent(fileSystem, depFile1, new() { "Cmf.Foundation.Services.HostService.dll.config", "manifest.xml", "file1.txt" });
             TestUtilities.ValidateZipContent(fileSystem, depFile2, new() { "Cmf.Foundation.Services.HostService.dll.config", "manifest.xml", "file2.txt" });
+        }
+        
+        [Fact]
+        public void HTML_ShouldPackWithDefaultValuesIfRelated()
+        {
+            KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.1.0");
+            KeyValuePair<string, string> packageDep1 = new("Cmf.Custom.Data", "1.1.0");
+            KeyValuePair<string, string> packageDep2 = new("Cmf.Custom.HTML.Related", "1.1.0");
+
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                // project config file
+                { ".project-config.json", new MockFileData(
+                    @$"{{
+                        ""MESVersion"": ""10.1.0""
+                    }}")},
+                {
+                    $"/repo/{packageDep1.Key}/{packageDep2.Key}/angular.json", new MockFileData(
+                        $@"{{
+                            ""projects"": {{
+                                ""{packageDep2.Key}"": {{""projectType"": ""application""}}
+                            }}
+                        }}"
+                )},
+                {
+                    $"/repo/{packageDep1.Key}/{packageDep2.Key}/package.json", new MockFileData(
+                        $@"{{""name"": ""{packageDep2.Key.ToKebabCase()}""}}"
+                        )
+                },
+                { "/repo/cmfpackage.json", new MockFileData(
+                @$"{{
+                  ""packageId"": ""{packageRoot.Key}"",
+                  ""version"": ""{packageRoot.Value}"",
+                  ""packageType"": ""Root"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": false,
+                  ""dependencies"": [
+                    {{
+                         ""id"": ""{packageDep1.Key}"",
+                        ""version"": ""{packageDep1.Value}""
+                    }}
+                  ]
+                }}")},
+                { $"/repo/{packageDep1.Key}/cmfpackage.json", new MockFileData(
+                @$"{{
+                  ""packageId"": ""{packageDep1.Key}"",
+                  ""version"": ""{packageDep1.Value}"",
+                  ""packageType"": ""Data"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": true,
+                  ""contentToPack"": [
+                    {{
+                        ""source"": ""{MockUnixSupport.Path("folder1\\file1.txt").Replace("\\", "\\\\")}"",
+                        ""target"": """"
+                    }}
+                  ],
+                  ""relatedPackages"": [
+                    {{
+                        ""path"": ""{packageDep2.Key}"",
+                        ""postPack"": true
+                    }}
+                  ]
+                }}")},
+                { $"/repo/{packageDep1.Key}/{packageDep2.Key}/cmfpackage.json", new MockFileData(
+                @$"{{
+                  ""packageId"": ""{packageDep2.Key}"",
+                  ""version"": ""{packageDep2.Value}"",
+                  ""packageType"": ""HTML"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": true,
+                  ""contentToPack"": [
+                    {{
+                        ""source"": ""{MockUnixSupport.Path("folder2\\file2.txt").Replace("\\", "\\\\")}"",
+                        ""target"": """"
+                    }}
+                  ]
+                }}")},
+                { $"/repo/{packageDep1.Key}/folder1/file1.txt", new MockFileData("file1-content")},
+                { $"/repo/{packageDep1.Key}/{packageDep2.Key}/folder2/file2.txt", new MockFileData("file2-content")},
+            });
+
+            var packCommand = new PackCommand(fileSystem);
+            var outputFolder = fileSystem.DirectoryInfo.New("output");
+            packCommand.Execute(fileSystem.DirectoryInfo.New("/repo/Cmf.Custom.Data"), outputFolder, false);
+            IEnumerable<IFileInfo> packedFiles = outputFolder.EnumerateFiles().ToList();
+            
+            var depFile2 = packedFiles.FirstOrDefault(x => x.Name.Equals($"{packageDep2.Key}.{packageDep2.Value}.zip"));
+            depFile2.Should().NotBeNull();
+
+            var manifest = FileSystemUtilities.GetManifestFromPackage(depFile2.FullName, fileSystem);
+            XElement rootNode = manifest.Element("deploymentPackage", true);
+            if (rootNode == null)
+            {
+                throw new CliException(string.Format(CoreMessages.InvalidManifestFile));
+            }
+
+            var steps = rootNode.Elements().FirstOrDefault(e => e.Name.LocalName == "steps");
+            Assert.NotNull(steps);
+            steps.Elements().Count().Should().Be(4, "HTML package should have 4 installation steps");
         }
 
     }
