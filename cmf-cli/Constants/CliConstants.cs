@@ -5,6 +5,8 @@ namespace Cmf.CLI.Constants
 {
     public static class CliConstants
     {
+        public const string PackageName = "@criticalmanufacturing/cli";
+
         #region Folders
 
         /// <summary>

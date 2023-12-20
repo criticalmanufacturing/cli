@@ -27,7 +27,7 @@
     "build:prod:singlefile:osx": "dotnet publish ./cmf-cli/cmf.csproj -c Release -r osx-x64 -o dist/osx-x64 --self-contained /p:PublishSingleFile=true",
     "publish": "cd npm && npm publish --tag next && cd ..",
     "publish:live": "cd npm && npm publish --tag latest && cd ..",
-    "publish:dev": "DEV_VERSION=0.0.0-$(git branch --show-current)-$(date '+%Y%m%d%H%M') npm run bump:npm:dev && npm run build:bundle && cd npm && npm publish --tag $(git branch --show-current) --registry http://vm-it.cmf.criticalmanufacturing.com:4873 && cd ..",
+    "publish:dev": "DEV_VERSION=0.0.0-$(git branch --show-current)-$(date '+%Y%m%d%H%M') npm run bump:npm:dev && npm run build:bundle && cd npm && npm publish --tag $(git branch --show-current) --registry https://dev.criticalmanufacturing.io/repository/npm-releases/ && cd ..",
     "bump:npm:pre": "cd npm && npm version prerelease --no-git-tag-version && cd ..",
     "bump:npm:pre:breaking": "cd npm && npm version premajor --no-git-tag-version && cd ..",
     "bump:npm:pre:feature": "cd npm && npm version preminor --no-git-tag-version && cd ..",

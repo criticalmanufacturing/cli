@@ -1,7 +1,7 @@
 nav:
     - index.md
-    - Traditional
-    - Feature Package
+    - Traditional: traditional
+    - Feature Package: feature-package
     - migrationPaths.md
-    - Post-Scaffolding Tailoring
+    - Post Scaffolding Tailoring: post-scaffolding-tailoring
     - ...

@@ -1,12 +1,3 @@
-using Cmf.CLI.Commands;
-using Cmf.CLI.Commands.New;
-using Cmf.CLI.Core.Commands;
-using Cmf.CLI.Core.Enums;
-using Cmf.CLI.Core.Objects;
-using Cmf.Common.Cli.TestUtilities;
-using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
@@ -17,6 +8,16 @@ using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
 using System.Text.Json;
+using Cmf.CLI.Commands;
+using Cmf.CLI.Commands.New;
+using Cmf.CLI.Constants;
+using Cmf.CLI.Core.Commands;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
+using Cmf.Common.Cli.TestUtilities;
+using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using Xunit;
 using Assert = tests.AssertWithMessage;
 
@@ -30,6 +31,7 @@ namespace tests.Specs
 
             ExecutionContext.ServiceProvider = (new ServiceCollection())
                 .AddSingleton<IProjectConfigService>(new ProjectConfigService())
+                .AddSingleton<IVersionService>(new VersionService(CliConstants.PackageName))
                 .BuildServiceProvider();
 
             var newCommand = new NewCommand();
@@ -76,6 +78,36 @@ namespace tests.Specs
         public void Data()
         {
             RunNew(new DataCommand(), "Cmf.Custom.Data");
+        }
+
+        [Fact]
+        public void Data_WithBusiness()
+        {
+            var dir = TestUtilities.GetTmpDirectory();
+            // init
+            CopyNewFixture(dir);
+
+            var packageId = "Cmf.Custom.Data";
+            var businessPackageName = "Cmf.Custom.Business";
+            var targetDir = new DirectoryInfo(dir);
+            TestUtilities.CopyFixturePackage(businessPackageName, targetDir);
+            string businessPackageLocation = Path.Join(targetDir.FullName, businessPackageName);
+
+            RunNew(new DataCommand(), packageId, scaffoldingDir: dir,
+                mesVersion: "10.1.2",
+                extraArguments: new string[]
+                {
+                    "--businessPackage", businessPackageLocation,
+                },
+                extraAsserts: args =>
+                {
+                    var relatedPackages = TestUtilities.GetPackage($"{packageId}/cmfpackage.json").GetProperty("relatedPackages")[0];
+                    relatedPackages.GetProperty("path").GetString().Should().Be(MockUnixSupport.Path($"..\\{businessPackageName}"));
+                    relatedPackages.GetProperty("preBuild").GetBoolean().Should().BeTrue();
+                    relatedPackages.GetProperty("postBuild").GetBoolean().Should().BeFalse();
+                    relatedPackages.GetProperty("prePack").GetBoolean().Should().BeFalse();
+                    relatedPackages.GetProperty("postPack").GetBoolean().Should().BeFalse();
+                });
         }
 
         [Theory, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node12")]
@@ -253,7 +285,6 @@ namespace tests.Specs
             File.ReadAllText(Path.Join(dir, packageId, "cmfpackage.json"))
                 .Should().Contain(@"Cmf.Environment");
 
-
             Directory.Exists($"{packageId}/{packageFolderPackages}").Should().BeTrue();
             TestUtilities.GetPackageProperty("packageId", $"{packageId}/{packageFolderPackages}/cmfpackage.json").Should().Be(packageIdPackages);
             TestUtilities.GetPackageProperty("packageType", $"{packageId}/{packageFolderPackages}/cmfpackage.json").Should().Be(PackageType.IoT.ToString());
@@ -265,22 +296,20 @@ namespace tests.Specs
             Directory.Exists($"{packageId}/{packageFolderData}/MasterData").Should().BeTrue();
             Directory.Exists($"{packageId}/{packageFolderData}/AutomationWorkFlows").Should().BeTrue();
 
-            if(mesVersion == "9.0.0")
+            if (mesVersion == "9.0.0")
             {
                 File.Exists($"{packageId}/{packageFolderPackages}/.dev-tasks.json").Should().BeTrue();
                 Directory.Exists($"{packageId}/{packageFolderPackages}/src").Should().BeTrue();
-                
             }
             else
             {
                 var relatedPackages = TestUtilities.GetPackage($"{packageId}/{packageFolderPackages}/cmfpackage.json").GetProperty("relatedPackages")[0];
-                relatedPackages.GetProperty("path").GetString().Should().Be("..\\..\\Cmf.Custom.Html");
-                relatedPackages.GetProperty("preBuild").GetBoolean().Should().BeTrue();
-                relatedPackages.GetProperty("postBuild").GetBoolean().Should().BeFalse();
-                relatedPackages.GetProperty("prePack").GetBoolean().Should().BeTrue();
-                relatedPackages.GetProperty("postPack").GetBoolean().Should().BeFalse();
+                relatedPackages.GetProperty("path").GetString().Should().Be(MockUnixSupport.Path("..\\..\\Cmf.Custom.Html"));
+                relatedPackages.GetProperty("preBuild").GetBoolean().Should().BeFalse();
+                relatedPackages.GetProperty("postBuild").GetBoolean().Should().BeTrue();
+                relatedPackages.GetProperty("prePack").GetBoolean().Should().BeFalse();
+                relatedPackages.GetProperty("postPack").GetBoolean().Should().BeTrue();
             }
-
         }
 
         [Fact]
@@ -708,7 +737,6 @@ namespace tests.Specs
         {
             var dir = scaffoldingDir ?? TestUtilities.GetTmpDirectory();
 
-            
             var rnd = new Random();
             var pkgVersion = $"{rnd.Next(10)}.{rnd.Next(10)}.{rnd.Next(10)}";
 
@@ -750,7 +778,6 @@ namespace tests.Specs
 
                     var pkg = TestUtilities.GetPackage("cmfpackage.json");
                     pkg.GetProperty("dependencies").EnumerateArray().ToArray().FirstOrDefault(d => d.GetProperty("id").GetString() == packageId).Should().NotBeNull("Package not found in root package dependencies");
-
                 }
 
                 if (extraAsserts != null)

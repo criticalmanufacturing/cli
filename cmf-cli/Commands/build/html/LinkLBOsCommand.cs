@@ -2,6 +2,7 @@ using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using System.Diagnostics;
 using System.IO.Abstractions;
+using Cmf.CLI.Builders;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
@@ -56,6 +57,22 @@ public class LinkLBOsCommand : BaseCommand
         Log.Debug($"Checking if {tsLBOsPath} exists...");
         if (fileSystem.Directory.Exists(tsLBOsPath))
         {
+            var tsLBOsDir = fileSystem.DirectoryInfo.New(tsLBOsPath);
+            new NPMCommand()
+            {
+                DisplayName = "NPM Install LBOs",
+                Command = "install",
+                Args = new[] { "--force" },
+                WorkingDirectory = tsLBOsDir
+            }.Exec()?.Wait();
+            new NPMCommand()
+            {
+                DisplayName = "Build LBOs",
+                Command = "run",
+                Args = new[] { "build" },
+                WorkingDirectory = tsLBOsDir
+            }.Exec()?.Wait();
+            
             var packageRoot = cmfPackage.GetFileInfo().DirectoryName;
             var linkTargetPath = this.fileSystem.Path.Join(packageRoot, "node_modules", "cmf-lbos");
             var linkTarget = this.fileSystem.DirectoryInfo.New(linkTargetPath);
@@ -71,7 +88,7 @@ public class LinkLBOsCommand : BaseCommand
         else
         {
             // if there are no LBOs we don't need to do anything
-            Log.Verbose($"Path '{tsLBOsPath}' does not exist, not linking anything.");
+            Log.Verbose($"Path '{tsLBOsPath}' does not exist, not doing anything.");
         }
     }
 }

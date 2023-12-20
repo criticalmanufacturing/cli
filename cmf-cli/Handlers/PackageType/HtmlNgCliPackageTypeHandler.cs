@@ -84,20 +84,6 @@ namespace Cmf.CLI.Handlers
                     Args = new []{ "--force" },
                     WorkingDirectory = cmfPackage.GetFileInfo().Directory
                 },
-                new NPMCommand()
-                {
-                    DisplayName = "NPM Install LBOs",
-                    Command  = "install",
-                    Args = new []{ "--force" },
-                    WorkingDirectory = tsLBOsDir
-                },
-                new NPMCommand()
-                {
-                    DisplayName = "Build LBOs",
-                    Command  = "run",
-                    Args = new []{ "build" },
-                    WorkingDirectory = tsLBOsDir
-                },
                 new ExecuteCommand<LinkLBOsCommand>()
                 {
                     DisplayName = "Link LBOs",
@@ -118,7 +104,7 @@ namespace Cmf.CLI.Handlers
                     {
                         DisplayName = $"ng build {package.Key}",
                         Command = "build",
-                        Args = apps.Contains(package.Key) ? new []{ "--base-href", "$(APPLICATION_BASE_HREF)" } : Array.Empty<string>(),
+                        Args = apps.Contains(package.Key.ToKebabCase()) ? new []{ "--base-href", "$(APPLICATION_BASE_HREF)" } : Array.Empty<string>(),
                         WorkingDirectory = package.Value
                     }
                 }).ToArray();
