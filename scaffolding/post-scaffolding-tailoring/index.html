@@ -11,8 +11,10 @@
       
       
       
-        <link rel="prev" href="../infrastructure/">
+        <link rel="prev" href="../migrationPaths/">
       
+      
+        <link rel="next" href="../angular-15-iot-packages/">
       
       
       <link rel="icon" href="../../assets/favicon.ico">
@@ -20,7 +22,7 @@
     
     
       
-        <title>Exported Objects package - @criticalmanufacturing/cli Documentation</title>
+        <title>Post Scaffolding Tailoring - @criticalmanufacturing/cli Documentation</title>
       
     
     
@@ -74,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#exported-objects-package" class="md-skip">
+        <a href="#post-scaffolding-package-tailoring" class="md-skip">
           Skip to content
         </a>
       
@@ -107,7 +109,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Exported Objects package
+              Post Scaffolding Tailoring
             
           </span>
         </div>
@@ -1323,10 +1325,30 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../post-scaffolding-tailoring/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Post Scaffolding Tailoring
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -1335,6 +1357,44 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#to-version-3x" class="md-nav__link">
+    <span class="md-ellipsis">
+      to version 3x:
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#to-version-2x" class="md-nav__link">
+    <span class="md-ellipsis">
+      to version 2x:
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1386,19 +1446,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../pkg_exportedobjects/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1407,7 +1458,6 @@
   
 
       </a>
-      
     </li>
   
 
@@ -1440,6 +1490,32 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#to-version-3x" class="md-nav__link">
+    <span class="md-ellipsis">
+      to version 3x:
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#to-version-2x" class="md-nav__link">
+    <span class="md-ellipsis">
+      to version 2x:
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1456,26 +1532,113 @@
   
 
 
-<h1 id="exported-objects-package">Exported Objects package</h1>
-<p>Even though the CLI does not provide scaffolding for an <code>ExportedObjects</code> package, as it generally is better to include these in Master Data packages, it is possible to create such a package and the tool will pack it as with any other package type.</p>
-<p>As an example, an ExportedObjects package manifest looks like this:</p>
-<div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;packageId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Cmf.Custom.Baseline.ExportedObjects&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Baseline Exported Objects Package&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;packageType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ExportedObjects&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;isInstallable&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;isUniqueInstall&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;contentToPack&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;source&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;$(version)/*&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;target&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ExportedObjects&quot;</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">  </span><span class="p">]</span>
-<span class="p">}</span>
-</code></pre></div>
-<p>You would create a <code>cmfpackage.json</code> file inside the objects folder with this content. This will pack any XML file in a folder named after the current package version, so in this case <code>1.0.0</code> and place it in the package file in an <code>ExportedObjects</code> folder.</p>
-<p>Afterwards, do not forget to add this new package as a dependency of your root/feature package, to make sure it gets installed when required.</p>
+<h1 id="post-scaffolding-package-tailoring">Post-scaffolding package tailoring</h1>
+<p>The packages generated by <code>cmf new</code> are as neutral as possible, so to be compatible with as many deployment scenarios as possible. However, some tailoring is advised for specific targets. This tailoring allows the packages to better adapt to their deployment target, eliminating the need of manual steps when installing.</p>
+<p>Below are some tailoring options for specific targets. It's recommended that these changes are applied according to your target environment.</p>
+<h2 id="to-version-3x"><strong>to version 3x:</strong></h2>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Containers</label><label for="__tabbed_1_2">Deployment Framework</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<ul>
+<li><strong>Tests MasterData Package</strong><ul>
+<li><strong>Add</strong> the property
+<div class="highlight"><pre><span></span><code><span class="nt">&quot;isToSetDefaultSteps&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+</code></pre></div></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="tabbed-block">
+<ul>
+<li><strong>Business Package</strong><ul>
+<li><strong>Remove</strong> steps:
+  <div class="highlight"><pre><span></span><code><span class="nt">&quot;steps&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;order&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Generic&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;onExecute&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;$(Agent.Root)/agent/scripts/stop_host.ps1&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;order&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DeployFiles&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;ContentPath&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;**/!(Cmf.Custom.*.BusinessObjects*).dll&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;order&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Generic&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;onExecute&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;$(Agent.Root)/agent/scripts/start_host.ps1&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">]</span>
+</code></pre></div></li>
+</ul>
+</li>
+<li><strong>Data, IoTData and Tests MasterData Package</strong><ul>
+<li><strong>Remove</strong> steps:
+  <div class="highlight"><pre><span></span><code><span class="nt">&quot;steps&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;order&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Generic&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;onExecute&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;$(Agent.Root)/agent/scripts/stop_host.ps1&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;order&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TransformFile&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;file&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Cmf.Foundation.Services.HostService.dll.config&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;tagFile&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;order&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Generic&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;onExecute&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;$(Agent.Root)/agent/scripts/start_host.ps1&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;order&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DeployFiles&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;ContentPath&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;GenerateLBOs.ps1&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;order&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Generic&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;onExecute&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;$(Package[Cmf.Custom.Package].TargetDirectory)/GenerateLBOs.ps1&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">]</span>
+</code></pre></div></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<h2 id="to-version-2x"><strong>to version 2x:</strong></h2>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Containers</label><label for="__tabbed_2_2">Deployment Framework</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<ul>
+<li><strong>Root Package</strong><ul>
+<li><strong>Add</strong> to dependencies
+<div class="highlight"><pre><span></span><code><span class="nt">&quot;dependencies&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Cmf.Environment&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;8.3.0&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">]</span>
+</code></pre></div></li>
+</ul>
+</li>
+<li><strong>Business Package</strong><ul>
+<li><strong>Add</strong> to steps:
+<div class="highlight"><pre><span></span><code><span class="nt">&quot;steps&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;order&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DeployFiles&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;ContentPath&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;**/!(Cmf.Custom.*.BusinessObjects*).dll&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">]</span>
+</code></pre></div></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="tabbed-block">
+<ul>
+<li><strong>Root and IoT Root Package</strong><ul>
+<li><strong>Add</strong> to dependencies
+  <div class="highlight"><pre><span></span><code><span class="nt">&quot;dependencies&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CriticalManufacturing.DeploymentMetadata&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;8.3.0&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">]</span>
+</code></pre></div></li>
+</ul>
+</li>
+<li><strong>Business Package</strong><ul>
+<li><strong>Add</strong> to steps:
+  <div class="highlight"><pre><span></span><code><span class="nt">&quot;steps&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;order&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Generic&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;onExecute&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;$(Agent.Root)/agent/scripts/stop_host.ps1&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;order&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DeployFiles&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;ContentPath&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;**/!(Cmf.Custom.*.BusinessObjects*).dll&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;order&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Generic&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;onExecute&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;$(Agent.Root)/agent/scripts/start_host.ps1&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">]</span>
+</code></pre></div></li>
+</ul>
+</li>
+<li><strong>Data, IoTData and Tests MasterData Package</strong><ul>
+<li><strong>Add</strong> to steps:
+  <div class="highlight"><pre><span></span><code><span class="nt">&quot;steps&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;order&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Generic&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;onExecute&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;$(Agent.Root)/agent/scripts/stop_host.ps1&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;order&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TransformFile&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;file&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Cmf.Foundation.Services.HostService.dll.config&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;tagFile&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;order&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Generic&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;onExecute&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;$(Agent.Root)/agent/scripts/start_host.ps1&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;order&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DeployFiles&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;ContentPath&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;GenerateLBOs.ps1&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;order&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Generic&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;onExecute&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;$(Package[Cmf.Custom.Package].TargetDirectory)/GenerateLBOs.ps1&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">]</span>
+</code></pre></div></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Make sure that the order of the steps is the same referenced in this document.</p>
+</div>
 
 
 

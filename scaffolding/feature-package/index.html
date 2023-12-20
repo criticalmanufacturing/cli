@@ -11,8 +11,10 @@
       
       
       
-        <link rel="prev" href="../infrastructure/">
+        <link rel="prev" href="../traditional/">
       
+      
+        <link rel="next" href="../migrationPaths/">
       
       
       <link rel="icon" href="../../assets/favicon.ico">
@@ -20,7 +22,7 @@
     
     
       
-        <title>Exported Objects package - @criticalmanufacturing/cli Documentation</title>
+        <title>Feature Package - @criticalmanufacturing/cli Documentation</title>
       
     
     
@@ -74,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#exported-objects-package" class="md-skip">
+        <a href="#feature-package-scaffolding" class="md-skip">
           Skip to content
         </a>
       
@@ -107,7 +109,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Exported Objects package
+              Feature Package
             
           </span>
         </div>
@@ -1281,10 +1283,30 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../feature-package/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Feature Package
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -1293,6 +1315,53 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#initialize-the-repository" class="md-nav__link">
+    <span class="md-ellipsis">
+      Initialize the Repository
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-a-feature-package" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating a Feature Package
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-layer-packages-in-a-feature-package" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating Layer packages in a Feature package
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1386,19 +1455,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../pkg_exportedobjects/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1407,7 +1467,6 @@
   
 
       </a>
-      
     </li>
   
 
@@ -1440,6 +1499,41 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#initialize-the-repository" class="md-nav__link">
+    <span class="md-ellipsis">
+      Initialize the Repository
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-a-feature-package" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating a Feature Package
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-layer-packages-in-a-feature-package" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating Layer packages in a Feature package
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1456,26 +1550,35 @@
   
 
 
-<h1 id="exported-objects-package">Exported Objects package</h1>
-<p>Even though the CLI does not provide scaffolding for an <code>ExportedObjects</code> package, as it generally is better to include these in Master Data packages, it is possible to create such a package and the tool will pack it as with any other package type.</p>
-<p>As an example, an ExportedObjects package manifest looks like this:</p>
-<div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;packageId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Cmf.Custom.Baseline.ExportedObjects&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Baseline Exported Objects Package&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;packageType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ExportedObjects&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;isInstallable&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;isUniqueInstall&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;contentToPack&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;source&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;$(version)/*&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;target&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ExportedObjects&quot;</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">  </span><span class="p">]</span>
-<span class="p">}</span>
+<h1 id="feature-package-scaffolding">Feature package scaffolding</h1>
+<p>A traditional project structure targets the scenario where one team does all of the development for a project with a single target, e.g. a customization team deploying MES to a single factory or a set of factories with the exact same customization.</p>
+<p>However, some projects are more complex. A single team can target a multi-site deployment in which the sites target a set of common features, but complement them with site-specific features, or the common features need site-specific data packages to configure them.</p>
+<p>In these cases, projects are usually structured in a <strong>Feature Packages</strong> arrangement, in that some packages are self-contained, or in a <strong>Layered Project</strong> arrangement, in which e.g. a <em>Site</em> package, which is specific to a given site/plant, depends on a <em>Core/Baseline</em> package, which is common among all sites.</p>
+<p><code>cmf new</code> allows assembling these package in whatever structure is necessary, with a few limitations:
+- the test solution is always at the repository level, i.e. we do not have feature-level test packages
+- you cannot mix traditional packages, which exist in the repository root, with these packages
+- a feature package must always exist inside a global repository</p>
+<p><code>cmf new</code> will automatically register each package as a dependency of its parent (as per the folder structure).</p>
+<h2 id="initialize-the-repository">Initialize the Repository</h2>
+<p>In case we are creating the first package in the repository, we need to initialize it in the same way as we do for a traditional project. Check the <strong>Initialize the repository</strong> section of the <a href="../traditional/">traditional scaffolding instructions</a>.</p>
+<h2 id="creating-a-feature-package">Creating a Feature Package</h2>
+<p>A <strong>Feature Package</strong> is a metapackage that can include one or more layer packages, e.g. we can have a Feature package that includes only a Business package.</p>
+<p>A Feature package should include all necessary layer packages (business, UI, Help) needed for the Feature to work.</p>
+<p>To create a new Feature Package, run the <code>new feature</code> command at your repository root, specifying the new package name: e.g. to create the Baseline package for your project, run:</p>
+<div class="highlight"><pre><span></span><code>cmf<span class="w"> </span>new<span class="w"> </span>feature<span class="w"> </span>Cmf.Custom.Baseline<span class="w"> </span>
 </code></pre></div>
-<p>You would create a <code>cmfpackage.json</code> file inside the objects folder with this content. This will pack any XML file in a folder named after the current package version, so in this case <code>1.0.0</code> and place it in the package file in an <code>ExportedObjects</code> folder.</p>
-<p>Afterwards, do not forget to add this new package as a dependency of your root/feature package, to make sure it gets installed when required.</p>
+<p>The new feature package will be available in your repository at <code>Features\Cmf.Custom.Baseline</code>.</p>
+<p>After creating a Feature package, it is not longer possible to create new layer packages in the repository root. Any <code>new</code> command for a layer package will fail:</p>
+<div class="highlight"><pre><span></span><code>&gt;<span class="w"> </span>cmf<span class="w"> </span>new<span class="w"> </span>html
+<span class="w">  </span>Cannot<span class="w"> </span>create<span class="w"> </span>a<span class="w"> </span>root-level<span class="w"> </span>layer<span class="w"> </span>package<span class="w"> </span>when<span class="w"> </span>features<span class="w"> </span>already<span class="w"> </span>exist.
+</code></pre></div>
+<h2 id="creating-layer-packages-in-a-feature-package">Creating Layer packages in a Feature package</h2>
+<p>Creating layer packages works exactly in the same way as for a <a href="../traditional/">traditional project</a>, but the <code>cmf new</code> command should run from inside the feature package:</p>
+<div class="highlight"><pre><span></span><code>&gt;<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>Features/Cmf.Custom.Baseline
+&gt;<span class="w"> </span>cmf<span class="w"> </span>new<span class="w"> </span>business
+The<span class="w"> </span>template<span class="w"> </span><span class="s2">&quot;Business Package&quot;</span><span class="w"> </span>was<span class="w"> </span>created<span class="w"> </span>successfully.
+</code></pre></div>
+<p>The layer package name will include the feature package name fragment to distinguish it from other packages in the same repository.</p>
 
 
 

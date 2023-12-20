@@ -11,8 +11,10 @@
       
       
       
-        <link rel="prev" href="../infrastructure/">
+        <link rel="prev" href="../post-scaffolding-tailoring/">
       
+      
+        <link rel="next" href="../infrastructure/">
       
       
       <link rel="icon" href="../../assets/favicon.ico">
@@ -20,7 +22,7 @@
     
     
       
-        <title>Exported Objects package - @criticalmanufacturing/cli Documentation</title>
+        <title>Angular 15 IoT packages - @criticalmanufacturing/cli Documentation</title>
       
     
     
@@ -74,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#exported-objects-package" class="md-skip">
+        <a href="#angular-15-iot-packages" class="md-skip">
           Skip to content
         </a>
       
@@ -107,7 +109,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Exported Objects package
+              Angular 15 IoT packages
             
           </span>
         </div>
@@ -1344,10 +1346,19 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../angular-15-iot-packages/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -1356,6 +1367,7 @@
   
 
       </a>
+      
     </li>
   
 
@@ -1386,19 +1398,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../pkg_exportedobjects/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1407,7 +1410,6 @@
   
 
       </a>
-      
     </li>
   
 
@@ -1456,26 +1458,33 @@
   
 
 
-<h1 id="exported-objects-package">Exported Objects package</h1>
-<p>Even though the CLI does not provide scaffolding for an <code>ExportedObjects</code> package, as it generally is better to include these in Master Data packages, it is possible to create such a package and the tool will pack it as with any other package type.</p>
-<p>As an example, an ExportedObjects package manifest looks like this:</p>
-<div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;packageId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Cmf.Custom.Baseline.ExportedObjects&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Baseline Exported Objects Package&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;packageType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ExportedObjects&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;isInstallable&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;isUniqueInstall&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;contentToPack&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;source&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;$(version)/*&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;target&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ExportedObjects&quot;</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">  </span><span class="p">]</span>
-<span class="p">}</span>
+<h1 id="angular-15-iot-packages">Angular 15 IoT packages</h1>
+<p>Version v10 has introduced a dependency between Connect IoT customization and the GUI. This means that the GUI in order to have the Connect IoT customization, will require in compile time access to the same. If you have Connect IoT customization you must have an html package.</p>
+<p>When generating the Connect IoT customization <code>cmf new iot --htmlPackageLocation Cmf.Custom.Baseline.HTML</code> you will now have to pass a new parameter htmlPackageLocation. This will introduce an entry in the <a href="../../reference/api/cmfpackage.json/"><code>cmfpackage.json</code></a> of the iot package with the related package. When building or packing the iot package it will now build and and pack the HTML package after building the iot package.</p>
+<p>The relation between the HTML package will have to be added manually. In order to do this, in your HTML package <a href="../../reference/api/cmfpackage.json/"><code>cmfpackage.json</code></a> add an entry for Related Package in the <a href="../../reference/api/cmfpackage.json/"><code>cmfpackage.json</code></a>
+<div class="highlight"><pre><span></span><code><span class="nt">&quot;relatedPackages&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;../Cmf.Custom.Baseline.IoT/Cmf.Custom.Baseline.IoT.Packages&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;preBuild&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;postBuild&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;prePack&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;postPack&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+<span class="p">}]</span>
 </code></pre></div>
-<p>You would create a <code>cmfpackage.json</code> file inside the objects folder with this content. This will pack any XML file in a folder named after the current package version, so in this case <code>1.0.0</code> and place it in the package file in an <code>ExportedObjects</code> folder.</p>
-<p>Afterwards, do not forget to add this new package as a dependency of your root/feature package, to make sure it gets installed when required.</p>
+In the <code>package.json</code> of the html package add a new entry for the custom iot package. For example, if you created a new library called connect-iot-controller-engine-custom-tasks:</p>
+<p><div class="highlight"><pre><span></span><code>npm<span class="w"> </span>install<span class="w"> </span>../Cmf.Custom.Baseline.IoT/Cmf.Custom.Baseline.IoT.Packages
+</code></pre></div>
+This will add this entry in the <code>package.json</code>:
+<div class="highlight"><pre><span></span><code><span class="nt">&quot;@criticalmanufacturing/connect-iot-controller-engine-custom-tasks&quot;</span><span class="p">:</span><span class="w"> </span><span class="err">&quot;file:../Cmf.Custom.Baseline.IoT/Cmf.Custom.Baseline.IoT</span>
+</code></pre></div></p>
+<p>Finally, add it to the gui <code>app.module.ts</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Metadata</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">CustomTasks</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@criticalmanufacturing/connect-iot-controller-engine-custom-tasks/metadata&#39;</span><span class="p">;</span>
+<span class="w">    </span><span class="nx">MesUIModule</span><span class="p">.</span><span class="nx">forRoot</span><span class="p">({</span>
+<span class="w">      </span><span class="nx">tasks</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="nx">CustomTasks</span>
+<span class="w">      </span><span class="p">]</span>
+<span class="w">    </span><span class="p">}),</span>
+</code></pre></div>
 
 
 
