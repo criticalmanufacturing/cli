@@ -2,6 +2,37 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.0.3](https://github.com/criticalmanufacturing/cli/compare/4.0.3-3...4.0.3) (2023-12-20)
+
+### [4.0.3-3](https://github.com/criticalmanufacturing/cli/compare/4.0.3-2...4.0.3-3) (2023-12-19)
+
+### [4.0.3-2](https://github.com/criticalmanufacturing/cli/compare/4.0.3-1...4.0.3-2) (2023-12-13)
+
+
+### Bug Fixes
+
+* cast JValue to String before split ([72c12c4](https://github.com/criticalmanufacturing/cli/commits/72c12c44360a42c4e4306bce53a7d076f9199db5))
+* **pack:** transform host config only if MaintenanceId have a dot ([35565f0](https://github.com/criticalmanufacturing/cli/commits/35565f057d133c21eacd9aab708721de2ee6c655))
+
+### [4.0.3-1](https://github.com/criticalmanufacturing/cli/compare/4.0.3-0...4.0.3-1) (2023-11-07)
+
+### [4.0.3-0](https://github.com/criticalmanufacturing/cli/compare/4.0.2...4.0.3-0) (2023-10-30)
+
+
+### Features
+
+* **help/html:** Cross-env, port and prevent memory leak ([0c59e75](https://github.com/criticalmanufacturing/cli/commits/0c59e75549cd5cac63668eb74c575279cd3e1ac9))
+* **new:** add support for IoT Drivers ([d8c1c53](https://github.com/criticalmanufacturing/cli/commits/d8c1c538aafdc1aa28fa249f2f53b760ae71ccf5))
+
+
+### Bug Fixes
+
+* **build html/help:** fixed token injection for HTML and Help packages ([d77b4fe](https://github.com/criticalmanufacturing/cli/commits/d77b4fe1439d29ef25eb7122b13f37ff2d7a4b70))
+* **build html:** move install and build LBOs to link LBOs command ([d542944](https://github.com/criticalmanufacturing/cli/commits/d542944559891dfe7a7d3679e052df704e997fc6))
+* **core:** use PackageId from servide provider on template hostIdentifier ([61d8b66](https://github.com/criticalmanufacturing/cli/commits/61d8b66c14d399850a7e3e2e29bde71dd4a47a71))
+* **new data:** add business related package by default ([43a5dc7](https://github.com/criticalmanufacturing/cli/commits/43a5dc79be9790fb9e64819613458b586019ea21))
+* relatedPackage action order ([3ab2fae](https://github.com/criticalmanufacturing/cli/commits/3ab2faefe0b26878654605d87bd89c21c0404f31))
+
 ### [4.0.2](https://github.com/criticalmanufacturing/cli/compare/4.0.2-0...4.0.2) (2023-10-16)
 
 ### [4.0.2-0](https://github.com/criticalmanufacturing/cli/compare/4.0.1...4.0.2-0) (2023-10-03)
