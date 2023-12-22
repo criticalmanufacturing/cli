@@ -1,12 +1,12 @@
+using Cmf.CLI.Core;
+using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Abstractions;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Cmf.CLI.Core.Objects;
-using Cmf.CLI.Utilities;
 
 namespace Cmf.CLI.Builders
 {
@@ -42,30 +42,59 @@ namespace Cmf.CLI.Builders
         public bool Test { get; set; } = false;
 
         /// <summary>
+        /// Gets or sets the condition. 
+        /// This will impact the Condition(), the Condtion will run the Func to determine if it should reply with true or false
+        /// By Default it will return true
+        /// </summary>
+        /// <value>
+        /// A Func that if it returns true it will allow the Execute to run.
+        /// </value>
+        /// <returns>Func<bool></returns>
+        public Func<bool> ConditionForExecute = () => { return true; };
+
+        /// <summary>
+        /// This method will be used to do a run check before the Exec() is able to run.
+        /// If Condition() is false, the Exec() will not be able to run
+        /// If Condition() is true, the Exec() will run
+        /// </summary>
+        /// <returns></returns>
+        public bool Condition()
+        {
+            return ConditionForExecute();
+        }
+
+        /// <summary>
         /// Search all the json files and validate them
         /// </summary>
         /// <returns></returns>
         public Task Exec()
         {
-            foreach (var file in FilesToValidate.Where(file => file.Source.FullName.Contains(".json")))
+            if (Condition())
             {
-                //Open file for Read\Write
-                Stream fs = file.Source.Open(FileMode.OpenOrCreate, FileAccess.Read, FileShare.Read);
-
-                //Create object of StreamReader by passing FileStream object on which it needs to operates on
-                StreamReader sr = new StreamReader(fs);
-
-                //Use ReadToEnd method to read all the content from file
-                string fileContent = sr.ReadToEnd();
-
-                try
+                foreach (var file in FilesToValidate.Where(file => file.Source.FullName.Contains(".json")))
                 {
-                    var json = JsonDocument.Parse(fileContent);
+                    //Open file for Read\Write
+                    Stream fs = file.Source.Open(FileMode.OpenOrCreate, FileAccess.Read, FileShare.Read);
+
+                    //Create object of StreamReader by passing FileStream object on which it needs to operates on
+                    StreamReader sr = new StreamReader(fs);
+
+                    //Use ReadToEnd method to read all the content from file
+                    string fileContent = sr.ReadToEnd();
+
+                    try
+                    {
+                        var json = JsonDocument.Parse(fileContent);
+                    }
+                    catch (Exception)
+                    {
+                        throw new CliException($"File {file.Source.FullName} is not a valid json");
+                    }
                 }
-                catch (Exception)
-                {
-                    throw new CliException($"File {file.Source.FullName} is not a valid json");
-                }
+            }
+            else
+            {
+                Log.Debug($"Command: {this.DisplayName} will not be executed as its condition was not met");
             }
             return null;
         }

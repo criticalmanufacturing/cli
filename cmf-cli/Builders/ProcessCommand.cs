@@ -1,8 +1,8 @@
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Diagnostics;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,12 +12,13 @@ namespace Cmf.CLI.Builders
     /// <summary>
     ///
     /// </summary>
-    public abstract class ProcessCommand
+    public abstract class ProcessCommand : IProcessCommand
     {
         /// <summary>
         /// the underlying file system
         /// </summary>
         protected IFileSystem fileSystem = new FileSystem();
+
         /// <summary>
         /// Gets or sets the working directory.
         /// </summary>
@@ -37,8 +38,6 @@ namespace Cmf.CLI.Builders
         /// <returns></returns>
         public Task Exec()
         {
-            var condition = Condition();
-
             foreach (var step in this.GetSteps())
             {
                 var command = step.Command;
@@ -55,10 +54,10 @@ namespace Cmf.CLI.Builders
                     command = exePath ?? command;
                 }
 
-                if (condition)
+                if (Condition())
                 {
                     Log.Debug($"Executing '{command} {String.Join(' ', step.Args ?? Array.Empty<string>())}'");
-                    ProcessStartInfo ps = new();
+                    using var ps = ExecutionContext.ServiceProvider.GetService<IProcessStartInfoCLI>();
                     ps.FileName = command;
                     ps.WorkingDirectory = step.WorkingDirectory != null ? step.WorkingDirectory.FullName : this.WorkingDirectory.FullName;
                     ps.Arguments = String.Join(' ', step.Args);
@@ -80,18 +79,18 @@ namespace Cmf.CLI.Builders
                         }
                     }
 
-                    using var process = System.Diagnostics.Process.Start(ps);
-                    process.OutputDataReceived += (sender, args) => Log.Verbose(args.Data);
-                    process.ErrorDataReceived += (sender, args) => Log.Error(args.Data);
-                    process.BeginOutputReadLine();
-                    process.BeginErrorReadLine();
+                    ps.Start();
+                    ps.AddEventOutDataReceived((sender, args) => Log.Verbose(args.Data));
+                    ps.AddEvenErrorDataReceived((sender, args) => Log.Error(args.Data));
+                    ps.BeginOutputReadLine();
+                    ps.BeginErrorReadLine();
                     // Console.WriteLine(process.StandardOutput.ReadToEnd());
-                    process.WaitForExit();
-                    if (process.ExitCode != 0)
+                    ps.WaitForExit();
+                    if (ps.ExitCode != 0)
                     {
-                        throw new CliException($"Command '{command} {String.Join(' ', step.Args)}' did not finish successfully: Exit code {process.ExitCode}. Please check the log for more details");
+                        throw new CliException($"Command '{command} {String.Join(' ', step.Args)}' did not finish successfully: Exit code {ps.ExitCode}. Please check the log for more details");
                     }
-                    process.Dispose();
+                    ps.Dispose();
                 }
                 else
                 {

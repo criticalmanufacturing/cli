@@ -28,5 +28,13 @@ namespace Cmf.CLI.Builders
         /// </summary>
         /// <returns></returns>
         public Task Exec();
+
+        /// <summary>
+        /// This method will be used to do a run check before the Exec() is able to run.
+        /// If Condition() is false, the Exec() will not be able to run
+        /// If Condition() is true, the Exec() will run
+        /// </summary>
+        /// <returns></returns>
+        public bool Condition();
     }
 }

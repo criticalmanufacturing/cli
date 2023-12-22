@@ -1,13 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.CommandLine;
-using System.CommandLine.IO;
-using System.CommandLine.Parsing;
-using System.IO;
-using System.IO.Abstractions;
-using System.IO.Abstractions.TestingHelpers;
-using System.Linq;
-using System.Text.Json;
 using Cmf.CLI.Commands;
 using Cmf.CLI.Commands.New;
 using Cmf.CLI.Constants;
@@ -18,6 +8,16 @@ using Cmf.Common.Cli.TestUtilities;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.CommandLine;
+using System.CommandLine.IO;
+using System.CommandLine.Parsing;
+using System.IO;
+using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
+using System.Linq;
+using System.Text.Json;
 using Xunit;
 using Assert = tests.AssertWithMessage;
 
@@ -32,6 +32,7 @@ namespace tests.Specs
             ExecutionContext.ServiceProvider = (new ServiceCollection())
                 .AddSingleton<IProjectConfigService>(new ProjectConfigService())
                 .AddSingleton<IVersionService>(new VersionService(CliConstants.PackageName))
+                .AddSingleton<IProcessStartInfoCLI, ProcessStartInfoCLI>()
                 .BuildServiceProvider();
 
             var newCommand = new NewCommand();
