@@ -102,7 +102,7 @@ namespace Cmf.CLI.Core.Objects
             get => this.ps.EnvironmentVariables;
         }
 
-        public int ExitCode { get; set; }
+        public int ExitCode { get => this.Process.ExitCode; }
 
     }
 }

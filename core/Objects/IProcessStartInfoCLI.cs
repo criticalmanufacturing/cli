@@ -26,6 +26,6 @@ namespace Cmf.CLI.Core.Objects
         public void BeginErrorReadLine();
         public void WaitForExit();
 
-        public int ExitCode { get; set; }
+        public int ExitCode { get; }
     }
 }
