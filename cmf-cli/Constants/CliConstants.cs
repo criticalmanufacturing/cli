@@ -53,6 +53,11 @@ namespace Cmf.CLI.Constants
         /// </summary>
         public const string FileDependencies = "dependencies.json";
 
+        /// <summary>
+        /// The CMF package default security portal configuration
+        /// </summary>
+        public const string CmfPackageSecurityPortalConfig = "config.json";
+
         #endregion
 
         #region Generic

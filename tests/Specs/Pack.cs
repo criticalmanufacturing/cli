@@ -316,6 +316,53 @@ namespace tests.Specs
             Assert.True(configJsonContent.Contains("$.tenants.config.tenant.strategies"), "Config file does not have correct tenant");
         }
 
+        [Fact]
+        public void Pack_SecurityPortalV2()
+        {
+            string dir = $"{TestUtilities.GetTmpDirectory()}/securityPortal";
+            TestUtilities.CopyFixture("pack/securityPortalV2", new DirectoryInfo(dir));
+
+            var projCfg = Path.Join(dir, ".project-config.json");
+            if (File.Exists(projCfg))
+            {
+                File.WriteAllText(projCfg, File.ReadAllText(projCfg)
+                    .Replace("install_path", MockUnixSupport.Path(@"x:\install_path").Replace(@"\", @"\\"))
+                    .Replace("backup_share", MockUnixSupport.Path(@"y:\backup_share").Replace(@"\", @"\\"))
+                    .Replace("temp_folder", MockUnixSupport.Path(@"z:\temp_folder").Replace(@"\", @"\\"))
+                );
+            }
+
+            Directory.SetCurrentDirectory(dir);
+
+            string _workingDir = dir;
+
+            PackCommand packCommand = new PackCommand();
+            Command cmd = new Command("pack");
+            packCommand.Configure(cmd);
+
+            TestConsole console = new TestConsole();
+            cmd.Invoke(new string[] {
+            }, console);
+
+            DirectoryInfo curDir = new DirectoryInfo(System.IO.Directory.GetCurrentDirectory());
+
+            Assert.True(Directory.Exists($"{dir}/Package"), "Package folder is missing");
+            Assert.True(File.Exists($"{dir}/Package/Cmf.Custom.SecurityPortal.1.0.0.zip"), "Zip package is missing");
+
+            List<string> entries = TestUtilities.GetFileEntriesFromZip($"{dir}/Package/Cmf.Custom.SecurityPortal.1.0.0.zip");
+            Assert.True(entries.HasAny(), "Zip package is empty");
+            Assert.True(entries.HasAny(entry => entry == "manifest.xml"), "Manifest file does not exist");
+            Assert.True(entries.HasAny(entry => entry == "config.json"), "Config file does not exist");
+
+            string configJsonContent = FileSystemUtilities.GetFileContentFromPackage($"{dir}/Package/Cmf.Custom.SecurityPortal.1.0.0.zip", "config.json");
+
+            Assert.True(configJsonContent.Contains("$.tenants.config.tenant.strategies"), "Config file does not have correct tenant");
+
+            // validate transform file
+            string manifestXMLContent = FileSystemUtilities.GetFileContentFromPackage($"{dir}/Package/Cmf.Custom.SecurityPortal.1.0.0.zip", "manifest.xml");
+            Assert.Contains("<step type=\"TransformFile\" file=\"config.json\" tagFile=\"true\" relativePath=\"./src/\" />", manifestXMLContent);
+        }
+
         [Theory]
         [InlineData("8.1.0", new[] { StepType.DeployRepositoryFiles, StepType.GenerateRepositoryIndex })]
         [InlineData("9.1.0", new StepType[0])]

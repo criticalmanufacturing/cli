@@ -148,6 +148,12 @@ namespace Cmf.CLI.Core.Objects
         /// </summary>
         public bool? TargetAll { get; set; }
 
+        /// <summary>
+        /// Gets or Sets the relativePath.
+        /// Useful for step handlers that allow specifying relative paths for the content.
+        /// </summary>
+        public string? RelativePath { get; set; }
+
         #endregion
 
         #region Constructors
@@ -164,7 +170,7 @@ namespace Cmf.CLI.Core.Objects
         /// <param name="targetDatabase">The target database.</param>
         /// <param name="messageType">Type of the message.</param>
         /// <exception cref="ArgumentNullException">type</exception>
-        public Step(StepType? type, string title, string onExecute, string contentPath, string file, bool? tagFile, string targetDatabase, MessageType? messageType)
+        public Step(StepType? type, string title, string onExecute, string contentPath, string file, bool? tagFile, string targetDatabase, MessageType? messageType, string? relativePath)
         {
             Type = type ?? throw new ArgumentNullException(nameof(type));
             Title = title;
@@ -174,6 +180,7 @@ namespace Cmf.CLI.Core.Objects
             TagFile = tagFile;
             TargetDatabase = targetDatabase;
             MessageType = messageType;
+            RelativePath = relativePath;
         }
 
         /// <summary>
@@ -214,7 +221,8 @@ namespace Cmf.CLI.Core.Objects
                    File.IgnoreCaseEquals(other.File) &&
                    TagFile == other.TagFile &&
                    TargetDatabase == other.TargetDatabase &&
-                   MessageType == other.MessageType;
+                   MessageType == other.MessageType &&
+                   RelativePath == other.RelativePath;
         }
 
         #endregion
