@@ -1,26 +1,21 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.IO.Abstractions;
-using Cmf.CLI.Constants;
-using Cmf.CLI.Core;
+﻿using Cmf.CLI.Constants;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
-using Cmf.CLI.Handlers;
+using Cmf.CLI.Core;
 using Cmf.CLI.Utilities;
+using System.Collections.Generic;
+using System.IO.Abstractions;
+using System.IO;
 
 namespace Cmf.CLI.Handlers
 {
-
-    /// <summary>
-    /// Handler for SecurityPortal packages
-    /// </summary>
-    public class SecurityPortalPackageTypeHandler : PackageTypeHandler
+    public class SecurityPortalPackageTypeHandlerV2 : PackageTypeHandler
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="SecurityPortalPackageTypeHandler" /> class.
+        /// Initializes a new instance of the <see cref="SecurityPortalPackageTypeHandlerV2" /> class.
         /// </summary>
         /// <param name="cmfPackage"></param>
-        public SecurityPortalPackageTypeHandler(CmfPackage cmfPackage) : base(cmfPackage)
+        public SecurityPortalPackageTypeHandlerV2(CmfPackage cmfPackage) : base(cmfPackage)
         {
             cmfPackage.SetDefaultValues
             (
@@ -34,7 +29,8 @@ namespace Cmf.CLI.Handlers
                         new(StepType.TransformFile)
                         {
                             File = "config.json",
-                            TagFile = true
+                            TagFile = true,
+                            RelativePath = "./src/"
                         }
                     }
             );
