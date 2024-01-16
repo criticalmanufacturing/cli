@@ -1,11 +1,13 @@
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
+using NuGet.Protocol;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Cmf.CLI.Builders
@@ -90,6 +92,17 @@ namespace Cmf.CLI.Builders
                     {
                         throw new CliException($"File {file.Source.FullName} is not a valid json");
                     }
+
+                    #region Validate IoT Workflow Paths
+
+                    var matchCheckWorlflowFilePath = Regex.Matches(fileContent, @"Workflow"": ""(.*?)\\(.*?).json");
+
+                    if (matchCheckWorlflowFilePath.Any())
+                    {
+                        throw new CliException($"JSON File {file.Source.FullName} is not a valid on '{matchCheckWorlflowFilePath.Select(x => x.Value + "/r/n").ToJson()}'. Please normalize all slashes to be forward slashes /");
+                    }
+
+                    #endregion
                 }
             }
             else
