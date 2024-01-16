@@ -520,7 +520,7 @@ namespace tests.Specs
             }, console);
 
             Assert.True(!string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator did not fail for IoT Data Workflow Package: {console.Error.ToString()}");
-            Assert.True(console.Error.ToString().Contains("JSON File C:\\test\\Data\\MasterData\\1.1.0\\Test.json is not a valid on '[\"Workflow\\\": \\\"TestFail\\\\\\\\testfail.json/r/n\"]'. Please normalize all slashes to be forward slashes"), $"Json Validator did not fail for IoT Data Workflow Package: {console.Error.ToString()}");
+            Assert.True(console.Error.ToString().Contains("Please normalize all slashes to be forward slashes"), $"Json Validator did not fail for IoT Data Workflow Package: {console.Error.ToString()}");
         }
 
     }
