@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.1.0](https://github.com/criticalmanufacturing/cli/compare/4.1.0-2...4.1.0) (2024-01-18)
+
+## [4.1.0-2](https://github.com/criticalmanufacturing/cli/compare/4.1.0-1...4.1.0-2) (2024-01-11)
+
+
+### Features
+
+* **SecurityPortalPackageTypeHandler:** support sp config.json for v10 ([77d6602](https://github.com/criticalmanufacturing/cli/commits/77d66028b5dd681591f5fa169590594390eec7cf))
+
+## [4.1.0-1](https://github.com/criticalmanufacturing/cli/compare/4.1.0-0...4.1.0-1) (2024-01-05)
+
+
+### Bug Fixes
+
+* process exit code ([acbdc18](https://github.com/criticalmanufacturing/cli/commits/acbdc18d488b3f73d1b12b2583544650e4ffb2c2))
+
+## [4.1.0-0](https://github.com/criticalmanufacturing/cli/compare/4.0.3...4.1.0-0) (2024-01-02)
+
+
+### Features
+
+* add support for iot drivers ([d8713d2](https://github.com/criticalmanufacturing/cli/commits/d8713d277ec023de0c068543806e8c8b6f674c0e))
+
+
+### Bug Fixes
+
+* **related packages:** load via static method to ensure we run the default constructor ([c499d0e](https://github.com/criticalmanufacturing/cli/commits/c499d0e2a0ca0650f01179ef70f5350398082043))
+
 ### [4.0.3](https://github.com/criticalmanufacturing/cli/compare/4.0.3-3...4.0.3) (2023-12-20)
 
 ### [4.0.3-3](https://github.com/criticalmanufacturing/cli/compare/4.0.3-2...4.0.3-3) (2023-12-19)
