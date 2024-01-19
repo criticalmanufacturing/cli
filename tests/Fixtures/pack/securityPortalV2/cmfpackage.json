@@ -1,0 +1,15 @@
+﻿{
+  "packageId": "Cmf.Custom.SecurityPortal",
+  "version": "1.0.0",
+  "description": "This package deploys Cmf.Custom.SecurityPortal in Critical Manufacturing MES",
+  "packageType": "SecurityPortal",
+  "isInstallable": true,
+  "isUniqueInstall": false,
+  "dependencies": [
+  ],
+  "contentToPack": [
+    {
+      "source": "config.json"
+    }
+  ]
+}

@@ -1,20 +1,19 @@
+using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Objects;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Parsing;
-using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Reflection;
-using Cmf.CLI.Core.Attributes;
-using Cmf.CLI.Core.Objects;
 
 namespace Cmf.CLI.Core.Commands
 {
     /// <summary>
     ///
     /// </summary>
-    public abstract class BaseCommand
+    public abstract class BaseCommand : IBaseCommand
     {
         /// <summary>
         /// The underlying filesystem
@@ -72,8 +71,6 @@ namespace Cmf.CLI.Core.Commands
                 command.AddCommand(childCmd);
             }
         }
-
-        
 
         /// <summary>
         /// Finds the child commands.

@@ -1,13 +1,13 @@
-﻿using System;
+﻿using Cmf.CLI.Core.Commands;
+using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Utilities;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Parsing;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using Cmf.CLI.Core.Commands;
-using Cmf.CLI.Core.Objects;
-using Cmf.CLI.Utilities;
-using Microsoft.Extensions.DependencyInjection;
 
 [assembly: InternalsVisibleTo("tests")]
 namespace Cmf.CLI.Core
@@ -43,6 +43,7 @@ namespace Cmf.CLI.Core
                 .AddSingleton(npmClient ?? new NPMClient())
                 .AddSingleton<IVersionService>(new VersionService(packageName))
                 .AddSingleton<ITelemetryService>(new TelemetryService(packageName))
+                .AddSingleton<IProcessStartInfoCLI>(new ProcessStartInfoCLI())
                 .AddSingleton<IProjectConfigService, ProjectConfigService>()
                 .BuildServiceProvider();
 
@@ -67,7 +68,7 @@ namespace Cmf.CLI.Core
             BaseCommand.AddChildCommands(rootCommand);
 
             var parser = new CommandLineBuilder(rootCommand)
-                .UseVersionOption(new [] { "--version", "-v"})
+                .UseVersionOption(new[] { "--version", "-v" })
                 .UseHelp()
                 .UseEnvironmentVariableDirective()
                 .UseParseDirective()
@@ -79,7 +80,7 @@ namespace Cmf.CLI.Core
                 .CancelOnProcessTermination()
                 .Build();
 
-            return new (rootCommand, parser);
+            return new(rootCommand, parser);
         }
 
         /// <summary>

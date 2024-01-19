@@ -32,9 +32,9 @@ namespace Cmf.CLI.Core.Objects
         private IFileInfo FileInfo;
 
         /// <summary>
-        /// The skip set default values
+        /// Should we set the defaults values as described in the package handler?
         /// </summary>
-        private bool IsToSetDefaultValues;
+        internal bool IsToSetDefaultValues;
 
         private IFileSystem fileSystem;
 
@@ -162,10 +162,10 @@ namespace Cmf.CLI.Core.Objects
         public string Keywords { get; private set; }
 
         /// <summary>
-        /// Gets or sets the set default steps.
+        /// Should we set the default steps as described in the handler?
         /// </summary>
         /// <value>
-        /// The set default steps.
+        /// true to set the default steps; otherwise, false.
         /// </value>
         [JsonProperty(Order = 10)]
         [JsonIgnore]

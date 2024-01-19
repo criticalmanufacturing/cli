@@ -1,16 +1,14 @@
 ﻿
+using Cmf.CLI.Core;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Utilities;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
-using Cmf.CLI.Builders;
-using Cmf.CLI.Core;
-using Cmf.CLI.Core.Enums;
-using Cmf.CLI.Core.Objects;
-using Cmf.CLI.Utilities;
-using Utils = Cmf.CLI.Utilities.FileSystemUtilities;
 
 namespace Cmf.CLI.Handlers
 {
@@ -48,21 +46,9 @@ namespace Cmf.CLI.Handlers
 
             // Get Dev Tasks
             string packageNames = null;
-            string devTasksJson = null;
-            dynamic devTasksJsonObject;
             foreach (CmfPackage iotPackage in cmfPackageIoT)
             {
-                string devTasksFile = this.fileSystem.Directory.GetFiles(iotPackage.GetFileInfo().DirectoryName, ".dev-tasks.json")[0];
-
-                devTasksJson = this.fileSystem.File.ReadAllText(devTasksFile);
-                devTasksJsonObject = JsonConvert.DeserializeObject(devTasksJson);
-
-                packageNames += devTasksJsonObject["packagesBuildBump"]?.ToString();
-
-                if (string.IsNullOrEmpty(packageNames))
-                {
-                    packageNames += devTasksJsonObject["packages"]?.ToString();
-                }
+                packageNames += GetCustomPackages(iotPackage);
             }
 
             #endregion GetCustomPackages
@@ -99,6 +85,32 @@ namespace Cmf.CLI.Handlers
 
                 #endregion Bump IoT Masterdata
             }
+        }
+
+        /// <summary>
+        /// Retrieves all custom iot package names
+        /// </summary>
+        /// <param name="iotPackage"></param>
+        /// <returns></returns>
+        private string GetCustomPackages(CmfPackage iotPackage)
+        {
+            string targetDirectory = ".dev-tasks.json";
+            string targetProperties = "packages";
+
+            if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major > 10)
+            {
+                targetDirectory = "package.json";
+                targetProperties = "workspaces";
+            }
+
+            string packagesFile = this.fileSystem.Directory.GetFiles(iotPackage.GetFileInfo().DirectoryName, targetDirectory).FirstOrDefault();
+
+            string contentJson = this.fileSystem.File.ReadAllText(packagesFile);
+            dynamic contentObject = JsonConvert.DeserializeObject(contentJson);
+
+            string packageNames = string.IsNullOrEmpty(contentObject["packagesBuildBump"]?.ToString()) ? contentObject[targetProperties]?.ToString() : contentObject["packagesBuildBump"]?.ToString();
+
+            return packageNames;
         }
     }
 }
