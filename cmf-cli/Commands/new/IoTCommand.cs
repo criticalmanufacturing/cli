@@ -174,7 +174,7 @@ namespace Cmf.CLI.Commands.New
             new NPMCommand()
             {
                 DisplayName = "npm yeoman",
-                Args = new string[] { "install", "yo", "--save-dev" },
+                Args = new string[] { "install", "yo@4.3.1", "--save-dev" },
                 WorkingDirectory = iotCustomPackageWorkDir
             }.Exec();
 
