@@ -2,6 +2,8 @@ using Cmf.CLI.Core;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
@@ -22,11 +24,13 @@ internal class NgBuildFileTokenReplacerCommand : IBuildCommand
         this.apps = apps;
         this.cmfPackage = cmfPackage;
     }
+
     public string DisplayName
     {
         get { return "ng build file replacer"; }
         set { throw new NotImplementedException(); }
     }
+
     public bool Test
     {
         get { return false; }
@@ -34,7 +38,7 @@ internal class NgBuildFileTokenReplacerCommand : IBuildCommand
     }
 
     /// <summary>
-    /// Gets or sets the condition. 
+    /// Gets or sets the condition.
     /// This will impact the Condition(), the Condtion will run the Func to determine if it should reply with true or false
     /// By Default it will return true
     /// </summary>
@@ -72,7 +76,17 @@ internal class NgBuildFileTokenReplacerCommand : IBuildCommand
                 if (configJsonPath.Exists)
                 {
                     Log.Debug($"Placing tokens in config.json at {configJsonPath.FullName}");
-                    var configJsonContent = configJsonPath.ReadToString();
+
+                    JObject configJson = JObject.Parse(configJsonPath.ReadToString());
+                    configJson["customizationVersion"] = $"{cmfPackage.Version}";
+
+                    if (configJson.ContainsKey("lboGenerator"))
+                    {
+                        configJson["lboGenerator"]["urlSuffix"] = "$(APPLICATION_BASE_HREF)lbogenerator";
+                    }
+
+                    string configJsonContent = configJson.ToString(Formatting.Indented);
+
                     // TODO: replace app ref if we're packaging an app with the app name
                     // configJsonContent = Regex.Replace(configJsonContent, @"""ref"":\s*""[^""]*""", "\"ref\": \"$(APPLICATION_REF)\"");
                     configJsonContent = Regex.Replace(configJsonContent, @"""name"":\s*""[^""]*""", "\"name\": \"$(TENANT_NAME)\"");
@@ -81,14 +95,14 @@ internal class NgBuildFileTokenReplacerCommand : IBuildCommand
                     configJsonContent = Regex.Replace(configJsonContent, @"""port"":\s*[^,]*,", "\"port\": $(APPLICATION_PUBLIC_HTTP_PORT),");
                     configJsonContent = Regex.Replace(configJsonContent, @"""environmentName"":\s*""[^""]*""", "\"environmentName\": \"$(SYSTEM_NAME)\"");
                     configJsonContent = Regex.Replace(configJsonContent, @"""defaultDomain"":\s*""[^""]*""", "\"defaultDomain\": \"$(SECURITY_PORTAL_STRATEGY_LOCAL_AD_DEFAULT_DOMAIN)\"");
-                    configJsonContent = Regex.Replace(configJsonContent, @"""version"":\s*""[^""]*""", $"\"version\": \"{ExecutionContext.Instance.ProjectConfig.MESVersion}\",\n\"customizationVersion\": \"{cmfPackage.Version}\"");
+                    configJsonContent = Regex.Replace(configJsonContent, @"""version"":\s*""[^""]*""", $"\"version\": \"{ExecutionContext.Instance.ProjectConfig.MESVersion}\"");
+
                     this.fileSystem.File.WriteAllText(configJsonPath.FullName, configJsonContent);
                 }
                 else
                 {
                     Log.Warning($"Couldn't find config.json at {configJsonPath.FullName}!");
                 }
-
 
                 if (ExecutionContext.Instance.ProjectConfig.RepositoryType == RepositoryType.App)
                 {
