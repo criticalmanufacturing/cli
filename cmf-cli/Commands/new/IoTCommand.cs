@@ -1,8 +1,3 @@
-using System.Collections.Generic;
-using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
-using System.IO.Abstractions;
-using System.Linq;
 using Cmf.CLI.Builders;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
@@ -10,6 +5,11 @@ using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
+using System.Collections.Generic;
+using System.CommandLine;
+using System.CommandLine.NamingConventionBinder;
+using System.IO.Abstractions;
+using System.Linq;
 
 namespace Cmf.CLI.Commands.New
 {
@@ -174,7 +174,7 @@ namespace Cmf.CLI.Commands.New
             new NPMCommand()
             {
                 DisplayName = "npm yeoman",
-                Args = new string[] { "install", "yo", "--save-dev" },
+                Args = new string[] { "install", "yo@4.3.1", "--save-dev" },
                 WorkingDirectory = iotCustomPackageWorkDir
             }.Exec();
 
@@ -189,9 +189,10 @@ namespace Cmf.CLI.Commands.New
 
             #region Link To HTML Package
 
+            // After building the IoT Package we must ensure to also build the HTML Package
             iotCustomPackage.RelatedPackages = new()
             {
-                new RelatedPackage() { Path = fileSystem.Path.GetRelativePath(iotCustomPackageWorkDir.FullName, htmlPackageDir.FullName), PreBuild = true, PrePack = true }
+                new RelatedPackage() { Path = fileSystem.Path.GetRelativePath(iotCustomPackageWorkDir.FullName, htmlPackageDir.FullName), PostBuild = true, PostPack = true }
             };
 
             iotCustomPackage.SaveCmfPackage();

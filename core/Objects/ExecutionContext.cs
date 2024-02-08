@@ -1,7 +1,5 @@
-using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-using System.Collections.Generic;
 using System.IO.Abstractions;
 
 namespace Cmf.CLI.Core.Objects

@@ -1,0 +1,14 @@
+{
+  "packageId": "Cmf.Custom.Business",
+  "version": "1.0.0",
+  "description": "Cmf Custom tenant Cmf.Custom.Business Package",
+  "packageType": "Business",
+  "isInstallable": true,
+  "isUniqueInstall": false,
+  "contentToPack": [
+    {
+      "source": "Release/*.dll",
+      "target": ""
+    }
+  ]
+}

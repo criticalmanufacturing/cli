@@ -19,9 +19,8 @@ namespace Cmf.CLI.Core.Objects
                 if (!ExecutionContext.RelatedPackagesCache.Contains(relatedPackage))
                 {
                     ExecutionContext.RelatedPackagesCache.Add(relatedPackage);
-                    relatedPackage.CmfPackage.Load();
+                    relatedPackage.CmfPackage = CmfPackage.Load(cmfpackageJsonFile, anchorPackage.IsToSetDefaultValues);
                 }
-
             });
         }
 

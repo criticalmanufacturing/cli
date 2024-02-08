@@ -10,6 +10,7 @@ using Cmf.CLI.Core.Enums;
 using System.CommandLine.Parsing;
 using System.Linq;
 using System.Reflection;
+using Cmf.CLI.Constants;
 
 namespace Cmf.CLI
 {
@@ -28,7 +29,7 @@ namespace Cmf.CLI
             try
             {
                 var (rootCommand, parser) = await StartupModule.Configure(
-                    packageName: "@criticalmanufacturing/cli",
+                    packageName: CliConstants.PackageName,
                     envVarPrefix: "cmf_cli",
                     description: "Critical Manufacturing CLI",
                     args: args);

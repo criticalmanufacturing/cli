@@ -1,24 +1,24 @@
-using System;
-using System.Diagnostics;
-using System.IO;
-using System.IO.Abstractions;
-using System.Linq;
-using System.Threading.Tasks;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
+using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.IO.Abstractions;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Cmf.CLI.Builders
 {
     /// <summary>
     ///
     /// </summary>
-    public abstract class ProcessCommand
+    public abstract class ProcessCommand : IProcessCommand
     {
         /// <summary>
         /// the underlying file system
         /// </summary>
         protected IFileSystem fileSystem = new FileSystem();
+
         /// <summary>
         /// Gets or sets the working directory.
         /// </summary>
@@ -26,6 +26,11 @@ namespace Cmf.CLI.Builders
         /// The working directory.
         /// </value>
         public IDirectoryInfo WorkingDirectory { get; set; }
+
+        public virtual bool Condition()
+        {
+            return true;
+        }
 
         /// <summary>
         /// Executes this instance.
@@ -48,41 +53,49 @@ namespace Cmf.CLI.Builders
 
                     command = exePath ?? command;
                 }
-                Log.Debug($"Executing '{command} {String.Join(' ', step.Args ?? Array.Empty<string>())}'");
-                ProcessStartInfo ps = new();
-                ps.FileName = command;
-                ps.WorkingDirectory = step.WorkingDirectory != null ? step.WorkingDirectory.FullName : this.WorkingDirectory.FullName;
-                ps.Arguments = String.Join(' ', step.Args);
-                ps.UseShellExecute = false;
-                ps.RedirectStandardOutput = true;
-                ps.RedirectStandardError = true;
 
-                if(step.EnvironmentVariables.HasAny())
+                if (Condition())
                 {
-                    foreach (var envVar in step.EnvironmentVariables)
+                    Log.Debug($"Executing '{command} {String.Join(' ', step.Args ?? Array.Empty<string>())}'");
+                    using var ps = ExecutionContext.ServiceProvider.GetService<IProcessStartInfoCLI>();
+                    ps.FileName = command;
+                    ps.WorkingDirectory = step.WorkingDirectory != null ? step.WorkingDirectory.FullName : this.WorkingDirectory.FullName;
+                    ps.Arguments = String.Join(' ', step.Args);
+                    ps.UseShellExecute = false;
+                    ps.RedirectStandardOutput = true;
+                    ps.RedirectStandardError = true;
+
+                    if (step.EnvironmentVariables.HasAny())
                     {
-                        // if the key exists we should remove it to avoid errors
-                        if (ps.EnvironmentVariables.ContainsKey(envVar.Key))
+                        foreach (var envVar in step.EnvironmentVariables)
                         {
-                            ps.EnvironmentVariables.Remove(envVar.Key);
+                            // if the key exists we should remove it to avoid errors
+                            if (ps.EnvironmentVariables.ContainsKey(envVar.Key))
+                            {
+                                ps.EnvironmentVariables.Remove(envVar.Key);
+                            }
+
+                            ps.EnvironmentVariables.Add(envVar.Key, envVar.Value);
                         }
-
-                        ps.EnvironmentVariables.Add(envVar.Key, envVar.Value);
                     }
-                }                
 
-                using var process = System.Diagnostics.Process.Start(ps);
-                process.OutputDataReceived += (sender, args) => Log.Verbose(args.Data);
-                process.ErrorDataReceived += (sender, args) => Log.Error(args.Data);
-                process.BeginOutputReadLine();
-                process.BeginErrorReadLine();
-                // Console.WriteLine(process.StandardOutput.ReadToEnd());
-                process.WaitForExit();
-                if (process.ExitCode != 0)
-                {
-                    throw new CliException($"Command '{command} {String.Join(' ', step.Args)}' did not finish successfully: Exit code {process.ExitCode}. Please check the log for more details");
+                    ps.Start();
+                    ps.AddEventOutDataReceived((sender, args) => Log.Verbose(args.Data));
+                    ps.AddEvenErrorDataReceived((sender, args) => Log.Error(args.Data));
+                    ps.BeginOutputReadLine();
+                    ps.BeginErrorReadLine();
+                    // Console.WriteLine(process.StandardOutput.ReadToEnd());
+                    ps.WaitForExit();
+                    if (ps.ExitCode != 0)
+                    {
+                        throw new CliException($"Command '{command} {String.Join(' ', step.Args)}' did not finish successfully: Exit code {ps.ExitCode}. Please check the log for more details");
+                    }
+                    ps.Dispose();
                 }
-                process.Dispose();
+                else
+                {
+                    Log.Debug($"Command: '{command} {String.Join(' ', step.Args ?? Array.Empty<string>())}' will not be executed as its condition was not met");
+                }
             }
 
             return null;

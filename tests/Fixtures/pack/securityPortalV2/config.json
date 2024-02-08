@@ -1,0 +1,9 @@
+﻿{
+  "id": "Cmf.Custom.SecurityPortal",
+  "type": "open-id-connect",
+  "config": {
+    "metadataUrl": "https://{{SSOApplicationServerURL}}/.well-known/openid-configuration",
+    "redirectUrl": "https://{{SecurityPortalBaseURL}}/tenant/SMT/login/callback",
+    "clientId": "{{SSOApplicationGeneratedClientId}}"
+  }
+}

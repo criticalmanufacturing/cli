@@ -62,6 +62,10 @@ namespace Cmf.CLI.Handlers
                     }
             );
 
+            var projectRoot = FileSystemUtilities.GetProjectRoot(this.fileSystem);
+            var tsLBOsPath = this.fileSystem.Path.Join(projectRoot.FullName, "Libs", "LBOs", "TypeScript");
+            var tsLBOsDir = this.fileSystem.DirectoryInfo.New(tsLBOsPath);
+
             BuildSteps = new IBuildCommand[]
             {
                 new ExecuteCommand<RestoreCommand>()
@@ -87,7 +91,6 @@ namespace Cmf.CLI.Handlers
                     Execute = command => command.Execute(cmfPackage.GetFileInfo().Directory)
                 }
             };
-
             cmfPackage.DFPackageType = PackageType.Presentation;
 
             // Projects BuildSteps
@@ -101,7 +104,7 @@ namespace Cmf.CLI.Handlers
                     {
                         DisplayName = $"ng build {package.Key}",
                         Command = "build",
-                        Args = apps.Contains(package.Key) ? new []{ "--base-href", "$(APPLICATION_BASE_HREF)" } : Array.Empty<string>(),
+                        Args = apps.Contains(package.Key.ToKebabCase()) ? new []{ "--base-href", "$(APPLICATION_BASE_HREF)" } : Array.Empty<string>(),
                         WorkingDirectory = package.Value
                     }
                 }).ToArray();

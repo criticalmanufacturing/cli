@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.IO.Abstractions;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
@@ -30,7 +31,7 @@ namespace Cmf.CLI.Handlers
                 steps:
                     new List<Step>
                     {
-                        new Step(StepType.TransformFile)
+                        new(StepType.TransformFile)
                         {
                             File = "config.json",
                             TagFile = true
@@ -50,11 +51,11 @@ namespace Cmf.CLI.Handlers
         public override void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir)
         {
             Log.Debug("Generating SecurityPortal config.json");
-            string path = $"{packageOutputDir.FullName}/{CliConstants.CmfPackagePresentationConfig}";
+            string path = $"{packageOutputDir.FullName}{Path.DirectorySeparatorChar}{CliConstants.CmfPackageSecurityPortalConfig}";
 
             IDirectoryInfo cmfPackageDirectory = CmfPackage.GetFileInfo().Directory;
 
-            dynamic configJson = cmfPackageDirectory.GetFile(CliConstants.CmfPackagePresentationConfig);
+            dynamic configJson = cmfPackageDirectory.GetFile(CliConstants.CmfPackageSecurityPortalConfig);
             if (configJson != null)
             {
                 string packageName = configJson.id;
@@ -64,7 +65,7 @@ namespace Cmf.CLI.Handlers
                 string clientId = configJson.config.clientId;
 
                 // Get Template
-                string fileContent = ResourceUtilities.GetEmbeddedResourceContent($"{CliConstants.FolderTemplates}/{CmfPackage.PackageType}/{CliConstants.CmfPackagePresentationConfig}");
+                string fileContent = ResourceUtilities.GetEmbeddedResourceContent($"{CliConstants.FolderTemplates}/{CmfPackage.PackageType}/{CliConstants.CmfPackageSecurityPortalConfig}");
 
                 fileContent = fileContent.Replace(CliConstants.TokenPackageId, packageName);
                 fileContent = fileContent.Replace(CliConstants.StrategyPath, CliConstants.DefaultStrategyPath).Replace(CliConstants.Tenant, ExecutionContext.Instance.ProjectConfig.Tenant);
@@ -79,7 +80,7 @@ namespace Cmf.CLI.Handlers
 
                 FinalArchive(packageOutputDir, outputDir);
 
-                Log.Debug($"{outputDir.FullName}/{CmfPackage.ZipPackageName} created");
+                Log.Debug($"{outputDir.FullName}{Path.DirectorySeparatorChar}{CmfPackage.ZipPackageName} created");
                 Log.Information($"{CmfPackage.PackageName} packed");
 
             }

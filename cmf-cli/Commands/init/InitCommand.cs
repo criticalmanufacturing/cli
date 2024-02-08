@@ -253,9 +253,7 @@ namespace Cmf.CLI.Commands
             }
 
             if (x.nugetRegistry == null ||
-                x.npmRegistry == null ||
-                x.ISOLocation == null
-                )
+                x.npmRegistry == null)
             {
                 throw new CliException("Missing infrastructure options. Either specify an infrastructure file with [--infrastructure] or specify each infrastructure option separately.");
             }

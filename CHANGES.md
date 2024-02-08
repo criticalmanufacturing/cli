@@ -2,6 +2,103 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.1.0](https://github.com/criticalmanufacturing/cli/compare/4.1.0-2...4.1.0) (2024-01-18)
+
+## [4.1.0-2](https://github.com/criticalmanufacturing/cli/compare/4.1.0-1...4.1.0-2) (2024-01-11)
+
+
+### Features
+
+* **SecurityPortalPackageTypeHandler:** support sp config.json for v10 ([77d6602](https://github.com/criticalmanufacturing/cli/commits/77d66028b5dd681591f5fa169590594390eec7cf))
+
+## [4.1.0-1](https://github.com/criticalmanufacturing/cli/compare/4.1.0-0...4.1.0-1) (2024-01-05)
+
+
+### Bug Fixes
+
+* process exit code ([acbdc18](https://github.com/criticalmanufacturing/cli/commits/acbdc18d488b3f73d1b12b2583544650e4ffb2c2))
+
+## [4.1.0-0](https://github.com/criticalmanufacturing/cli/compare/4.0.3...4.1.0-0) (2024-01-02)
+
+
+### Features
+
+* add support for iot drivers ([d8713d2](https://github.com/criticalmanufacturing/cli/commits/d8713d277ec023de0c068543806e8c8b6f674c0e))
+
+
+### Bug Fixes
+
+* **related packages:** load via static method to ensure we run the default constructor ([c499d0e](https://github.com/criticalmanufacturing/cli/commits/c499d0e2a0ca0650f01179ef70f5350398082043))
+
+### [4.0.3](https://github.com/criticalmanufacturing/cli/compare/4.0.3-3...4.0.3) (2023-12-20)
+
+### [4.0.3-3](https://github.com/criticalmanufacturing/cli/compare/4.0.3-2...4.0.3-3) (2023-12-19)
+
+### [4.0.3-2](https://github.com/criticalmanufacturing/cli/compare/4.0.3-1...4.0.3-2) (2023-12-13)
+
+
+### Bug Fixes
+
+* cast JValue to String before split ([72c12c4](https://github.com/criticalmanufacturing/cli/commits/72c12c44360a42c4e4306bce53a7d076f9199db5))
+* **pack:** transform host config only if MaintenanceId have a dot ([35565f0](https://github.com/criticalmanufacturing/cli/commits/35565f057d133c21eacd9aab708721de2ee6c655))
+
+### [4.0.3-1](https://github.com/criticalmanufacturing/cli/compare/4.0.3-0...4.0.3-1) (2023-11-07)
+
+### [4.0.3-0](https://github.com/criticalmanufacturing/cli/compare/4.0.2...4.0.3-0) (2023-10-30)
+
+
+### Features
+
+* **help/html:** Cross-env, port and prevent memory leak ([0c59e75](https://github.com/criticalmanufacturing/cli/commits/0c59e75549cd5cac63668eb74c575279cd3e1ac9))
+* **new:** add support for IoT Drivers ([d8c1c53](https://github.com/criticalmanufacturing/cli/commits/d8c1c538aafdc1aa28fa249f2f53b760ae71ccf5))
+
+
+### Bug Fixes
+
+* **build html/help:** fixed token injection for HTML and Help packages ([d77b4fe](https://github.com/criticalmanufacturing/cli/commits/d77b4fe1439d29ef25eb7122b13f37ff2d7a4b70))
+* **build html:** move install and build LBOs to link LBOs command ([d542944](https://github.com/criticalmanufacturing/cli/commits/d542944559891dfe7a7d3679e052df704e997fc6))
+* **core:** use PackageId from servide provider on template hostIdentifier ([61d8b66](https://github.com/criticalmanufacturing/cli/commits/61d8b66c14d399850a7e3e2e29bde71dd4a47a71))
+* **new data:** add business related package by default ([43a5dc7](https://github.com/criticalmanufacturing/cli/commits/43a5dc79be9790fb9e64819613458b586019ea21))
+* relatedPackage action order ([3ab2fae](https://github.com/criticalmanufacturing/cli/commits/3ab2faefe0b26878654605d87bd89c21c0404f31))
+
+### [4.0.2](https://github.com/criticalmanufacturing/cli/compare/4.0.2-0...4.0.2) (2023-10-16)
+
+### [4.0.2-0](https://github.com/criticalmanufacturing/cli/compare/4.0.1...4.0.2-0) (2023-10-03)
+
+
+### Bug Fixes
+
+* **iot:** transform step only makes sense for MES <v10 ([e05d18d](https://github.com/criticalmanufacturing/cli/commits/e05d18d72fb1867379ef86d595e79731cd02f06f))
+
+
+### Under the hood
+
+* improve error handling running templates ([710e50b](https://github.com/criticalmanufacturing/cli/commits/710e50b8262d4bf2d7bbd6aeb5eff4b4c31f63da))
+
+### [4.0.1](https://github.com/criticalmanufacturing/cli/compare/4.0.1-2...4.0.1) (2023-09-27)
+
+### [4.0.1-2](https://github.com/criticalmanufacturing/cli/compare/4.0.1-1...4.0.1-2) (2023-09-19)
+
+
+### Bug Fixes
+
+* **build:** install and build lbos package ([35444f7](https://github.com/criticalmanufacturing/cli/commits/35444f70f16926ff35c6b59b21e82b50eb405b7b))
+
+### [4.0.1-1](https://github.com/criticalmanufacturing/cli/compare/4.0.1-0...4.0.1-1) (2023-08-28)
+
+
+### Bug Fixes
+
+* **build:** check generic type build steps ([1988729](https://github.com/criticalmanufacturing/cli/commits/1988729b3fbf2caebe89eef50c8e0aa96d6e6db2))
+
+### [4.0.1-0](https://github.com/criticalmanufacturing/cli/compare/4.0.0...4.0.1-0) (2023-08-25)
+
+
+### Bug Fixes
+
+* **init:** workaround for System.CommandLine bug that considers unknown option as argument values ([fae1507](https://github.com/criticalmanufacturing/cli/commits/fae1507c4437bd58b5ceae0b63b29e7f0fddd911))
+* **new help:** menugroup typo on helpsrc packages ([9453ed7](https://github.com/criticalmanufacturing/cli/commits/9453ed7347f0d7741299f16ebbb49ddbe8053cb8))
+
 ## [4.0.0](https://github.com/criticalmanufacturing/cli/compare/4.0.0-10...4.0.0) (2023-07-25)
 
 ## [4.0.0-10](https://github.com/criticalmanufacturing/cli/compare/4.0.0-9...4.0.0-10) (2023-07-17)

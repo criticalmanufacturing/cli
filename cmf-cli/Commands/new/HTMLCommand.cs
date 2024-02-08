@@ -1,11 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
-using System.IO.Abstractions;
-using System.Linq;
-using System.Text.Json;
-using System.Text.RegularExpressions;
 using Cmf.CLI.Builders;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
@@ -15,6 +7,13 @@ using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.CommandLine;
+using System.CommandLine.NamingConventionBinder;
+using System.IO.Abstractions;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Cmf.CLI.Commands.New
 {
@@ -103,9 +102,9 @@ namespace Cmf.CLI.Commands.New
                 ? "@criticalmanufacturing/mes-ui-web"
                 : "@criticalmanufacturing/core-ui-web";
             Log.Debug($"Project is targeting base layer {baseLayer}, so scaffolding with base web package {baseWebPackage}");
-            
+
             base.Execute(workingDir, version); // create package base - generate cmfpackage.json
-            
+
             var nameIdx = Array.FindIndex(base.executedArgs, item => string.Equals(item, "--name"));
             var pkgName = base.executedArgs[nameIdx + 1];
             var htmlStarterVersion = ExecutionContext.Instance.ProjectConfig.HTMLStarterVersion;
@@ -214,7 +213,6 @@ $@"{{
             }).Exec();
             Log.Verbose("Web app generated!");
 
-
             Log.Debug("Obtaining sources from MES Presentation HTML package...");
             var htmlPkgConfigJsonStr = FileSystemUtilities.GetFileContentFromPackage(htmlPackage.FullName, "config.json");
             // replace tokens that would break Json parse
@@ -269,7 +267,7 @@ $@"{{
             configJsonJson.general.defaultDomain = ExecutionContext.Instance.ProjectConfig.DefaultDomain;
             configJsonJson.general.environmentName = $"{projectName}Local";
             configJsonJson.version = $"{projectName} $(Build.BuildNumber) - {mesVersion}";
-            configJsonJson.packages.available = JArray.FromObject(htmlPkgPackages.Concat(injectAppsPackage ? new [] { new JValue("cmf.core.app") } : Array.Empty<JToken>()));
+            configJsonJson.packages.available = JArray.FromObject(htmlPkgPackages.Concat(injectAppsPackage ? new[] { new JValue("cmf.core.app") } : Array.Empty<JToken>()));
             configJsonJson.packages.bundlePath = $"node_modules/{this.baseWebPackage}/bundles";
             configJsonStr = JsonConvert.SerializeObject(configJsonJson, Formatting.Indented);
             this.fileSystem.File.WriteAllText(configJsonPath, configJsonStr);
@@ -320,16 +318,16 @@ $@"{{
             {
                 throw new CliException("Seems like the repository scaffolding was run on a previous version of MES. Please re-init for versions 10+.");
             }
-            
+
             var baseLayer = ExecutionContext.Instance.ProjectConfig.BaseLayer ?? CliConstants.DefaultBaseLayer;
             this.baseWebPackage = baseLayer == BaseLayer.MES
                 ? "@criticalmanufacturing/mes-ui-web"
                 : "@criticalmanufacturing/core-ui-web";
             Log.Debug($"Project is targeting base layer {baseLayer}, so scaffolding with base web package {baseWebPackage}");
-            
+
             this.CommandName = "html10";
             base.Execute(workingDir, version); // create package base - generate cmfpackage.json
-            
+
             // this won't return null because it has to success on the base.Execute call
             var ngCliVersion = "15"; // v15 for MES 10
             var packageName = base.GeneratePackageName(workingDir)!.Value.Item1;
@@ -337,13 +335,13 @@ $@"{{
             var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
 
             var schematicsVersion = ngxSchematicsVersion.ToString() ?? $"@release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}";
-            
+
             Log.Debug($"Creating new web application {packageName}");
             // ng new <packageName> --routing false --style less
             new NPXCommand()
             {
                 Command = $"@angular/cli@{ngCliVersion}",
-                Args = new []{ "new", packageName, "--routing", "false", "--style", "less" },
+                Args = new[] { "new", packageName, "--routing", "false", "--style", "less" },
                 WorkingDirectory = workingDir,
                 ForceColorOutput = false
             }.Exec();
@@ -353,10 +351,24 @@ $@"{{
             new NPXCommand()
             {
                 Command = $"@angular/cli@{ngCliVersion}",
-                Args = new []{ "add", "--registry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.OriginalString, "--skip-confirmation", $"@criticalmanufacturing/ngx-schematics@{schematicsVersion}", "--lint", "--base-app", baseLayer.ToString(), "--version", $"release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}" },
+                Args = new[] { "add", "--registry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.OriginalString, "--skip-confirmation", $"@criticalmanufacturing/ngx-schematics@{schematicsVersion}", "--lint", "--base-app", baseLayer.ToString(), "--version", $"release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}" },
                 WorkingDirectory = packageDir,
                 ForceColorOutput = false
             }.Exec();
+
+            // root package.json
+            var rootPkgJsonPath = this.fileSystem.Path.Join(packageDir.FullName, "package.json");
+            var json = fileSystem.File.ReadAllText(rootPkgJsonPath);
+            dynamic rootPkgJson = JsonConvert.DeserializeObject(json);
+            if (rootPkgJson == null)
+            {
+                throw new CliException("Could not load package.json");
+            }
+            rootPkgJson.scripts["serve"] = "cross-env NODE_OPTIONS=--max-old-space-size=8192 npm run start -- --open --port 7000";
+            rootPkgJson.devDependencies["cross-env"] = "^7.0.3";
+            json = JsonConvert.SerializeObject(rootPkgJson, Formatting.Indented);
+            this.fileSystem.File.WriteAllText(rootPkgJsonPath, json);
+            Log.Verbose("Updated package.json");
 
             // build
             new BuildCommand(fileSystem).Execute(packageDir);

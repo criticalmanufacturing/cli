@@ -134,9 +134,11 @@ namespace Cmf.CLI.Handlers
         /// <param name="cmfPackage">The CMF package.</param>
         public PresentationPackageTypeHandler(CmfPackage cmfPackage) : base(cmfPackage)
         {
-            cmfPackage.SetDefaultValues
-            (
-                steps:
+            if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 10)
+            {
+                cmfPackage.SetDefaultValues
+                (
+                    steps:
                     new List<Step>
                     {
                         new Step(StepType.DeployFiles)
@@ -150,7 +152,8 @@ namespace Cmf.CLI.Handlers
                         }
                     }
 
-            );
+                );
+            }
 
             DefaultContentToIgnore.AddRange(new List<string>
             {

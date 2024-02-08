@@ -64,7 +64,7 @@ namespace Cmf.CLI.Factories
                 PackageType.ExportedObjects => new ExportedObjectsPackageTypeHandler(cmfPackage),
                 PackageType.Database => new DatabasePackageTypeHandler(cmfPackage),
                 PackageType.Tests => new TestPackageTypeHandler(cmfPackage),
-                PackageType.SecurityPortal => new SecurityPortalPackageTypeHandler(cmfPackage),
+                PackageType.SecurityPortal => SecurityPortalHandler(cmfPackage),
                 _ => throw new CliException(string.Format(CoreMessages.PackageTypeHandlerNotImplemented, cmfPackage.PackageType.ToString()))
             };
 
@@ -93,6 +93,26 @@ namespace Cmf.CLI.Factories
             }
 
             return new HtmlNgCliPackageTypeHandler(cmfPackage);
+        }
+
+        /// <summary>
+        /// Creates the specific Security Portal package handler.
+        /// 
+        /// If the ProjectConfig's MESVersion is less than 10.0.0, a <seealso cref="SecurityPortalPackageTypeHandler"/> is created and returned.
+        /// Otherwise, a <seealso cref="SecurityPortalPackageTypeHandlerV2"/> is created and returned.
+        /// </summary>
+        /// <param name="cmfPackage"></param>
+        /// <returns></returns>
+        private static IPackageTypeHandler SecurityPortalHandler(CmfPackage cmfPackage)
+        {
+            var targetVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            var minimumVersion = new Version("10.0.0");
+            if (targetVersion.CompareTo(minimumVersion) < 0)
+            {
+                return new SecurityPortalPackageTypeHandler(cmfPackage);
+            }
+
+            return new SecurityPortalPackageTypeHandlerV2(cmfPackage);
         }
     }
 }

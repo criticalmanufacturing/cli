@@ -1,6 +1,6 @@
+using Cmf.CLI.Core;
 using System;
 using System.Threading.Tasks;
-using Cmf.CLI.Commands;
 
 namespace Cmf.CLI.Builders
 {
@@ -9,7 +9,7 @@ namespace Cmf.CLI.Builders
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <seealso cref="IBuildCommand" />
-    public class ExecuteCommand<T> : IBuildCommand where T : BaseCommand
+    public class ExecuteCommand<T> : IBuildCommand where T : Cmf.CLI.Core.Commands.IBaseCommand
     {
         /// <summary>
         /// Gets or sets the command.
@@ -36,6 +36,17 @@ namespace Cmf.CLI.Builders
         public bool Test { get; set; } = false;
 
         /// <summary>
+        /// Gets or sets the condition. 
+        /// This will impact the Condition(), the Condtion will run the Func to determine if it should reply with true or false
+        /// By Default it will return true
+        /// </summary>
+        /// <value>
+        /// A Func that if it returns true it will allow the Execute to run.
+        /// </value>
+        /// <returns>Func<bool></returns>
+        public Func<bool> ConditionForExecute = () => { return true; };
+
+        /// <summary>
         /// Gets or sets the execute.
         /// </summary>
         /// <value>
@@ -44,21 +55,38 @@ namespace Cmf.CLI.Builders
         public Action<T> Execute { get; set; }
 
         /// <summary>
+        /// This method will be used to do a run check before the Exec() is able to run.
+        /// If Condition() is false, the Exec() will not be able to run
+        /// If Condition() is true, the Exec() will run
+        /// </summary>
+        /// <returns></returns>
+        public bool Condition()
+        {
+            return this.ConditionForExecute();
+        }
+
+        /// <summary>
         /// Executes this instance.
         /// </summary>
         /// <returns></returns>
         public Task Exec()
         {
-            dynamic command = this.Command;
-            if (this.Execute != null)
+            if (this.Condition())
             {
-                this.Execute(this.Command);
+                dynamic command = this.Command;
+                if (this.Execute != null)
+                {
+                    this.Execute(this.Command);
+                }
+                else
+                {
+                    command.Execute();
+                }
             }
             else
             {
-                command.Execute();
+                Log.Debug($"Command: {this.DisplayName} will not be executed as its condition was not met");
             }
-
             return null;
         }
     }

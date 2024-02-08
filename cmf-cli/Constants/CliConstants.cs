@@ -5,6 +5,8 @@ namespace Cmf.CLI.Constants
 {
     public static class CliConstants
     {
+        public const string PackageName = "@criticalmanufacturing/cli";
+
         #region Folders
 
         /// <summary>
@@ -50,6 +52,11 @@ namespace Cmf.CLI.Constants
         /// Dependencies File Name
         /// </summary>
         public const string FileDependencies = "dependencies.json";
+
+        /// <summary>
+        /// The CMF package default security portal configuration
+        /// </summary>
+        public const string CmfPackageSecurityPortalConfig = "config.json";
 
         #endregion
 

@@ -1,20 +1,19 @@
+using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Objects;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Parsing;
-using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Reflection;
-using Cmf.CLI.Core.Attributes;
-using Cmf.CLI.Core.Objects;
 
 namespace Cmf.CLI.Core.Commands
 {
     /// <summary>
     ///
     /// </summary>
-    public abstract class BaseCommand
+    public abstract class BaseCommand : IBaseCommand
     {
         /// <summary>
         /// The underlying filesystem
@@ -73,8 +72,6 @@ namespace Cmf.CLI.Core.Commands
             }
         }
 
-        
-
         /// <summary>
         /// Finds the child commands.
         /// </summary>
@@ -123,22 +120,23 @@ namespace Cmf.CLI.Core.Commands
         /// <returns></returns>
         protected T Parse<T>(ArgumentResult argResult, string @default = null)
         {
-            var path = @default;
+            var argValue = @default;
             if (argResult.Tokens.Any())
             {
-                path = argResult.Tokens.First().Value;
+                argValue = argResult.Tokens.First().Value;
             }
 
-            if (string.IsNullOrEmpty(path))
+            if (string.IsNullOrEmpty(argValue))
             {
                 return default(T);
             }
 
             return typeof(T) switch
             {
-                {} dirType when dirType == typeof(IDirectoryInfo) => (T)this.fileSystem.DirectoryInfo.New(path),
-                {} fileType when fileType == typeof(IFileInfo) => (T)this.fileSystem.FileInfo.New(path),
-                _ => throw new ArgumentOutOfRangeException("This method only parses directory or file paths")
+                {} dirType when dirType == typeof(IDirectoryInfo) => (T)this.fileSystem.DirectoryInfo.New(argValue),
+                {} fileType when fileType == typeof(IFileInfo) => (T)this.fileSystem.FileInfo.New(argValue),
+                {} stringType when stringType == typeof(string) => (T)(object)argValue,
+                _ => throw new ArgumentOutOfRangeException("This method only parses directories, file paths or strings")
             };
         }
     }

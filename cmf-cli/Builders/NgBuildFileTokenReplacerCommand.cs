@@ -37,77 +37,109 @@ internal class NgBuildFileTokenReplacerCommand : IBuildCommand
         set { }
     }
 
+    /// <summary>
+    /// Gets or sets the condition.
+    /// This will impact the Condition(), the Condtion will run the Func to determine if it should reply with true or false
+    /// By Default it will return true
+    /// </summary>
+    /// <value>
+    /// A Func that if it returns true it will allow the Execute to run.
+    /// </value>
+    /// <returns>Func<bool></returns>
+    public Func<bool> ConditionForExecute = () => { return true; };
+
+    /// <summary>
+    /// This method will be used to do a run check before the Exec() is able to run.
+    /// If Condition() is false, the Exec() will not be able to run
+    /// If Condition() is true, the Exec() will run
+    /// </summary>
+    /// <returns></returns>
+    public bool Condition()
+    {
+        return ConditionForExecute();
+    }
+
+    /// <summary>
+    /// Executes this instance.
+    /// </summary>
+    /// <returns></returns>
     public Task Exec()
     {
-        var workingDir = cmfPackage.GetFileInfo().Directory;
-
-        foreach (var app in apps)
+        if (Condition())
         {
-            // place tokens in assets/config.json
-            var configJsonPath = this.fileSystem.FileInfo.New($"{workingDir}/dist/{app}/assets/config.json");
-            if (configJsonPath.Exists)
+            var workingDir = cmfPackage.GetFileInfo().Directory;
+
+            foreach (var app in apps)
             {
-                Log.Debug($"Placing tokens in config.json at {configJsonPath.FullName}");
-
-                JObject configJson = JObject.Parse(configJsonPath.ReadToString());
-                configJson["customizationVersion"] = $"{cmfPackage.Version}";
-
-                if (configJson.ContainsKey("lboGenerator"))
+                // place tokens in assets/config.json
+                var configJsonPath = this.fileSystem.FileInfo.New($"{workingDir}/dist/{app}/assets/config.json");
+                if (configJsonPath.Exists)
                 {
-                    configJson["lboGenerator"]["urlSuffix"] = "$(APPLICATION_BASE_HREF)lbogenerator";
-                }
+                    Log.Debug($"Placing tokens in config.json at {configJsonPath.FullName}");
+                    JObject configJson = JObject.Parse(configJsonPath.ReadToString());
+                    configJson["customizationVersion"] = $"{cmfPackage.Version}";
 
-                string configJsonContent = configJson.ToString(Formatting.Indented);
+                    if (configJson.ContainsKey("lboGenerator"))
+                    {
+                        configJson["lboGenerator"]["urlSuffix"] = "$(APPLICATION_BASE_HREF)lbogenerator";
+                    }
 
-                // TODO: replace app ref if we're packaging an app with the app name
-                // configJsonContent = Regex.Replace(configJsonContent, @"""ref"":\s*""[^""]*""", "\"ref\": \"$(APPLICATION_REF)\"");
-                configJsonContent = Regex.Replace(configJsonContent, @"""name"":\s*""[^""]*""", "\"name\": \"$(TENANT_NAME)\"");
-                configJsonContent = Regex.Replace(configJsonContent, @"""enableSsl"":\s*[^,]*,", "\"enableSsl\": $(APPLICATION_PUBLIC_HTTP_TLS_ENABLED),");
-                configJsonContent = Regex.Replace(configJsonContent, @"""address"":\s*""[^""]*""", "\"address\": \"$(APPLICATION_PUBLIC_HTTP_ADDRESS)\"");
-                configJsonContent = Regex.Replace(configJsonContent, @"""port"":\s*[^,]*,", "\"port\": $(APPLICATION_PUBLIC_HTTP_PORT),");
-                configJsonContent = Regex.Replace(configJsonContent, @"""environmentName"":\s*""[^""]*""", "\"environmentName\": \"$(SYSTEM_NAME)\"");
-                configJsonContent = Regex.Replace(configJsonContent, @"""defaultDomain"":\s*""[^""]*""", "\"defaultDomain\": \"$(SECURITY_PORTAL_STRATEGY_LOCAL_AD_DEFAULT_DOMAIN)\"");
-                configJsonContent = Regex.Replace(configJsonContent, @"""version"":\s*""[^""]*""", $"\"version\": \"{ExecutionContext.Instance.ProjectConfig.MESVersion}\"");
+                    string configJsonContent = configJson.ToString(Formatting.Indented);
 
-                this.fileSystem.File.WriteAllText(configJsonPath.FullName, configJsonContent);
-            }
-            else
-            {
-                Log.Warning($"Couldn't find config.json at {configJsonPath.FullName}!");
-            }
+                    // TODO: replace app ref if we're packaging an app with the app name
+                    // configJsonContent = Regex.Replace(configJsonContent, @"""ref"":\s*""[^""]*""", "\"ref\": \"$(APPLICATION_REF)\"");
+                    configJsonContent = Regex.Replace(configJsonContent, @"""name"":\s*""[^""]*""", "\"name\": \"$(TENANT_NAME)\"");
+                    configJsonContent = Regex.Replace(configJsonContent, @"""enableSsl"":\s*[^,]*,", "\"enableSsl\": $(APPLICATION_PUBLIC_HTTP_TLS_ENABLED),");
+                    configJsonContent = Regex.Replace(configJsonContent, @"""address"":\s*""[^""]*""", "\"address\": \"$(APPLICATION_PUBLIC_HTTP_ADDRESS)\"");
+                    configJsonContent = Regex.Replace(configJsonContent, @"""port"":\s*[^,]*,", "\"port\": $(APPLICATION_PUBLIC_HTTP_PORT),");
+                    configJsonContent = Regex.Replace(configJsonContent, @"""environmentName"":\s*""[^""]*""", "\"environmentName\": \"$(SYSTEM_NAME)\"");
+                    configJsonContent = Regex.Replace(configJsonContent, @"""defaultDomain"":\s*""[^""]*""", "\"defaultDomain\": \"$(SECURITY_PORTAL_STRATEGY_LOCAL_AD_DEFAULT_DOMAIN)\"");
+                    configJsonContent = Regex.Replace(configJsonContent, @"""version"":\s*""[^""]*""", $"\"version\": \"{ExecutionContext.Instance.ProjectConfig.MESVersion}\"");
 
-            if (ExecutionContext.Instance.ProjectConfig.RepositoryType == RepositoryType.App)
-            {
-                // place app name in index.html
-                // TODO get app name from cmfapp.json
-                var appName = ExecutionContext.Instance.ProjectConfig.ProjectName;
-                var indexPath = this.fileSystem.FileInfo.New($"{workingDir}/dist/{app}/index.html");
-                if (indexPath.Exists)
-                {
-                    Log.Debug($"Setting App Name '{appName}' as title in {indexPath.FullName}");
-                    var indexContent = indexPath.ReadToString();
-                    indexContent = Regex.Replace(indexContent, @"<title>.*</title>", $"<title>{appName}</title>");
-                    this.fileSystem.File.WriteAllText(indexPath.FullName, indexContent);
+                    this.fileSystem.File.WriteAllText(configJsonPath.FullName, configJsonContent);
                 }
                 else
                 {
-                    Log.Warning($"Couldn't find index.html at {indexPath.FullName}!");
+                    Log.Warning($"Couldn't find config.json at {configJsonPath.FullName}!");
+                }
+
+                if (ExecutionContext.Instance.ProjectConfig.RepositoryType == RepositoryType.App)
+                {
+                    // place app name in index.html
+                    // TODO get app name from cmfapp.json
+                    var appName = ExecutionContext.Instance.ProjectConfig.ProjectName;
+                    var indexPath = this.fileSystem.FileInfo.New($"{workingDir}/dist/{app}/index.html");
+                    if (indexPath.Exists)
+                    {
+                        Log.Debug($"Setting App Name '{appName}' as title in {indexPath.FullName}");
+                        var indexContent = indexPath.ReadToString();
+                        indexContent = Regex.Replace(indexContent, @"<title>.*</title>", $"<title>{appName}</title>");
+                        this.fileSystem.File.WriteAllText(indexPath.FullName, indexContent);
+                    }
+                    else
+                    {
+                        Log.Warning($"Couldn't find index.html at {indexPath.FullName}!");
+                    }
+                }
+
+                // fix trailing slash in ngsw.json
+                var ngswPath = this.fileSystem.FileInfo.New($"{workingDir}/dist/{app}/ngsw.json");
+                if (ngswPath.Exists)
+                {
+                    Log.Debug($"Placing tokens in ngsw.json at {ngswPath.FullName}");
+                    var ngswContent = ngswPath.ReadToString(); //  '\${APPLICATION_BASE_HREF}/', '${APPLICATION_BASE_HREF}';
+                    ngswContent = Regex.Replace(ngswContent, @"\$\(APPLICATION_BASE_HREF\)/", "$(APPLICATION_BASE_HREF)");
+                    this.fileSystem.File.WriteAllText(ngswPath.FullName, ngswContent);
+                }
+                else
+                {
+                    Log.Warning($"Couldn't find ngsw.json at {ngswPath.FullName}!");
                 }
             }
-
-            // fix trailing slash in ngsw.json
-            var ngswPath = this.fileSystem.FileInfo.New($"{workingDir}/dist/{app}/ngsw.json");
-            if (ngswPath.Exists)
-            {
-                Log.Debug($"Placing tokens in ngsw.json at {ngswPath.FullName}");
-                var ngswContent = ngswPath.ReadToString(); //  '\${APPLICATION_BASE_HREF}/', '${APPLICATION_BASE_HREF}';
-                ngswContent = Regex.Replace(ngswContent, @"\$\(APPLICATION_BASE_HREF\)/", "$(APPLICATION_BASE_HREF)");
-                this.fileSystem.File.WriteAllText(ngswPath.FullName, ngswContent);
-            }
-            else
-            {
-                Log.Warning($"Couldn't find ngsw.json at {ngswPath.FullName}!");
-            }
+        }
+        else
+        {
+            Log.Debug($"Command: {this.DisplayName} will not be executed as its condition was not met");
         }
 
         return null;
