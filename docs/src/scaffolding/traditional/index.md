@@ -110,6 +110,11 @@ cmf new data --version 1.0.0 --businessPackage .\Cmf.Custom.Business\
     cmf new help --version 1.0.0 --documentationPackage H:\packages\Cmf.Documentation.9.1.8.zip
     ```
 ### IoT
+=== "From MES v10.2.7 onwards"
+    The IoT package contains both IoTData and [IoTPackages](../iot-packages.md) as sub-packages. They are always created together.
+    ```
+    cmf new iot --version 1.0.0
+    ```
 === "MES v10"
     The IoT package contains both IoTData and IoTPackages as sub-packages. They are always created together.
     ```

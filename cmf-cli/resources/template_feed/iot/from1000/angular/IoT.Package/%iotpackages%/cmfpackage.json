@@ -1,0 +1,20 @@
+{
+  "packageId": "<%= $CLI_PARAM_CustomPackageName %>.Packages",
+  "version": "<%= $CLI_PARAM_CustomPackageVersion %>",
+  "description": "Cmf Custom <%= $CLI_PARAM_Tenant %> <%= $CLI_PARAM_CustomPackageName %>.Packages Package",
+  "packageType": "IoT",
+  "isInstallable": true,
+  "isUniqueInstall": false,
+  "contentToPack": [
+    {
+      "source": "projects/*",
+      "target": "node_modules",
+      "ignoreFiles": [
+        ".npmignore"
+      ]
+    }
+  ],
+  "xmlInjection": [
+    "ui.xml"
+  ]
+}

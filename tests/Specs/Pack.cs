@@ -1,10 +1,20 @@
+using Cmf.CLI.Commands;
+using Cmf.CLI.Constants;
+using Cmf.CLI.Core;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Factories;
+using Cmf.CLI.Handlers;
+using Cmf.CLI.Utilities;
+using Cmf.Common.Cli.TestUtilities;
+using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using Cmf.CLI.Commands;
-using Xunit;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.IO;
+using System.CommandLine.NamingConventionBinder;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
@@ -25,6 +35,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System.Xml.Serialization;
 using System.Text;
+using System.Xml.Linq;
+using System.Xml.Serialization;
+using tests.Objects;
+using Xunit;
 
 namespace tests.Specs
 {
@@ -337,7 +351,7 @@ namespace tests.Specs
             packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), outputDir, false);
             IEnumerable<IFileInfo> assembledFiles = fileSystem.DirectoryInfo.New("output").EnumerateFiles("Cmf.Custom.HTML.1.1.0.zip").ToList();
             packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), outputDir, false);
-            
+
             IEnumerable<IFileInfo> assembledFilesOnSecondRun = fileSystem.DirectoryInfo.New("output").EnumerateFiles("Cmf.Custom.HTML.1.1.0.zip").ToList();
             assembledFilesOnSecondRun.Should().HaveCount(1);
             assembledFilesOnSecondRun.Should().HaveCount(assembledFiles.Count());
@@ -378,7 +392,7 @@ namespace tests.Specs
                     .Replace("temp_folder", MockUnixSupport.Path(@"z:\temp_folder").Replace(@"\", @"\\"))
                 );
             }
-            
+
             Directory.SetCurrentDirectory(dir);
 
             string _workingDir = dir;
@@ -456,7 +470,7 @@ namespace tests.Specs
                 Assert.True(appEntries.HasAny(entry => entry == appManifest), "App manifest file does not exist");
                 Assert.True(appEntries.HasAny(entry => entry == "app_icon.png"), "App Icon does not exist");
                 Assert.False(appEntries.HasAny(entry => entry == "app_deployment_manifest.xml"), "Deployment manifest shouldn't exist");
-               
+
                 using FileStream zipToOpen = new(packageZipPath, FileMode.Open);
                 using ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read);
                 using Stream appStream = zip.GetEntry(appManifest).Open();
@@ -602,6 +616,63 @@ namespace tests.Specs
 
             pkg.Steps.Any(step => forbiddenStepTypes.ToList().Contains(step.Type ?? StepType.Generic)).Should()
                 .BeFalse();
+        }
+
+        [Theory]
+        [InlineData("10.2.7", StepType.IoTAutomationTaskLibrariesSync)]
+        public void IoTATLDFStepsForVersion(string version, StepType mustHave)
+        {
+            var mockFS = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { MockUnixSupport.Path(@"c:\.project-config.json"), new MockFileData(
+    $@"{{
+                ""MESVersion"": ""{version}""
+                }}")
+                },
+                {
+                    MockUnixSupport.Path("c:/cmfpackage.json"), new MockFileData(
+                $@"{{
+                      ""packageId"": ""Cmf.Custom.IoT.Packages"",
+                      ""version"": ""1.0.0"",
+                      ""description"": ""Cmf Custom IoT Package"",
+                      ""packageType"": ""IoT"",
+                      ""isInstallable"": true,
+                      ""isUniqueInstall"": false,
+                      ""contentToPack"": [
+                        {{
+                          ""source"": ""src/*"",
+                          ""target"": ""node_modules"",
+                          ""ignoreFiles"": [
+                            "".npmignore""
+                          ]
+                        }}
+                      ]
+                    }}")}, {
+                    MockUnixSupport.Path(@"c:\.pkg.json"), new MockFileData(
+                        $@"{{
+                    ""type"": ""IoT"",
+                    ""packageId"": ""xxxxx"",
+                    ""version"": ""1.0.0"",
+                    ""contentToPack"": [{{}}]
+                    }}")
+                },
+                { MockUnixSupport.Path("c:/src/awesome/package.json"), new MockFileData(@"{""name"": ""@awesome/package"",""version"": ""1.0.0""}")},
+                { MockUnixSupport.Path("c:/src/lessawesome/package.json"), new MockFileData(@"{""name"": ""lessawesome"",""version"": ""2.0.0""}")},
+            });
+
+            // cmfpackage file
+
+
+            ExecutionContext.Initialize(mockFS);
+            var pkg = CmfPackage.Load(mockFS.FileSystem.FileInfo.New(MockUnixSupport.Path(@"c:\.pkg.json")), true,
+                mockFS);
+            var _ = new IoTPackageTypeHandler(pkg);
+
+            pkg.Steps.Any(step => step.Type == mustHave).Should()
+                .BeTrue();
+            var packageStep = pkg.Steps.FirstOrDefault(step => step.Type == mustHave);
+            packageStep.Content.Should().NotBeNull();
+            packageStep.Content.Equals("@awesome/package@1.0.0,lessawesome@2.0.0");
         }
 
         [Theory]
@@ -982,7 +1053,7 @@ namespace tests.Specs
             var outputFolder = fileSystem.DirectoryInfo.New("output");
             packCommand.Execute(fileSystem.DirectoryInfo.New("/repo/Cmf.Custom.Data"), outputFolder, false);
             IEnumerable<IFileInfo> packedFiles = outputFolder.EnumerateFiles().ToList();
-            
+
             var depFile2 = packedFiles.FirstOrDefault(x => x.Name.Equals($"{packageDep2.Key}.{packageDep2.Value}.zip"));
             depFile2.Should().NotBeNull();
 
