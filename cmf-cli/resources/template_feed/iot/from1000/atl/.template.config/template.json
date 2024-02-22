@@ -1,0 +1,85 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Critical Manufacturing",
+  "classifications": [
+    "cli"
+  ],
+  "description": "Generate a new IoT package",
+  "name": "IoT Package (>= MES 102)",
+  "identity": "cmf-cli.new.iot10",
+  "groupIdentity": "cmf-cli.new.iot",
+  "shortName": "iot-from1000-atl",
+  // You can create the project using this short name instead of the one above.
+  "tags": {
+    "language": "Typescript",
+    "type": "project"
+  },
+  "sourceName": "IoT.Package",
+  "preferNameDirectory": true,
+  "symbols": {
+    "name": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The custom package name",
+      "displayName": "Package Name",
+      "replaces": "<%= $CLI_PARAM_CustomPackageName %>"
+    },
+    "iotpackages": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "Name of Package for IoT Customization",
+      "displayName": "IoT Package",
+      "replaces": "<%= $CLI_PARAM_CustomPackageName %>.Packages",
+      "fileRename": "%iotpackages%"
+    },
+    "iotdata": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "Name of Package for IoT Data",
+      "displayName": "IoT Data",
+      "replaces": "<%= $CLI_PARAM_CustomPackageName %>.Data",
+      "fileRename": "%iotdata%"
+    },
+    "packageVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The custom package version",
+      "displayName": "Package Version",
+      "replaces": "<%= $CLI_PARAM_CustomPackageVersion %>",
+      "fileRename": "%version%"
+    },
+    "Tenant": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_Tenant %>",
+      "fileRename": "%Tenant%"
+    },
+    "idSegment": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_idSegment %>",
+      "fileRename": "%idSegment%"
+    },
+    "rootInnerRelativePath": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_rootInnerRelativePath %>"
+    },
+    "DevTasksVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_DevTasksVersion %>"
+    },
+    "npmRegistry": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_NPMRegistry %>"
+    },
+    "repositoryType": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The type of repository this package will be included in",
+      "displayName": "Repository Type"
+    }
+  }
+}
