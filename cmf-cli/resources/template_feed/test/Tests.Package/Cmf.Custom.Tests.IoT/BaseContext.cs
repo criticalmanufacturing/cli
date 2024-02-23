@@ -131,7 +131,7 @@ namespace Settings
                     {
                         HostAddress = System.IO.Directory.Exists(GetString(context, "hostAdress")) ? GetString(context, "hostAdress") : string.Format("{0}:{1}", GetString(context, "hostAdress"), int.Parse(GetString(context, "hostPort"))),
                         ClientTenantName = GetString(context, "clientTenantName"),
-                        UseSsl = context.Properties.Contains("useSsl") ? bool.Parse(GetString(context, "useSsl")) : false,
+                        UseSsl = context.Properties.Contains("hostUseSSL") ? bool.Parse(GetString(context, "hostUseSSL")) : false,
                         ApplicationName = GetString(context, "applicationName"),
                         IsUsingLoadBalancer = context.Properties.Contains("useLoadBalancer") ? bool.Parse(GetString(context, "useLoadBalancer")) : false,
                         ThingsToDoAfterInitialize = null,
