@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.1.1](https://github.com/criticalmanufacturing/cli/compare/4.1.1-0...4.1.1) (2024-02-26)
+
+### [4.1.1-0](https://github.com/criticalmanufacturing/cli/compare/4.1.0...4.1.1-0) (2024-02-02)
+
+
+### Bug Fixes
+
+* **new-iot:** yoeman version ([256e372](https://github.com/criticalmanufacturing/cli/commits/256e372d4cc90a68c715559f1f501739890b23d2))
+
 ## [4.1.0](https://github.com/criticalmanufacturing/cli/compare/4.1.0-2...4.1.0) (2024-01-18)
 
 ## [4.1.0-2](https://github.com/criticalmanufacturing/cli/compare/4.1.0-1...4.1.0-2) (2024-01-11)
