@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.1.2](https://github.com/criticalmanufacturing/cli/compare/4.1.1...4.1.2) (2024-02-28)
+
+
+### Bug Fixes
+
+* downgrade 'tmp' package to maintain node 12 compat ([6b1084c](https://github.com/criticalmanufacturing/cli/commits/6b1084c6d97ca5b0ba4e65011120836e41bece3f))
+
 ### [4.1.1](https://github.com/criticalmanufacturing/cli/compare/4.1.1-0...4.1.1) (2024-02-26)
 
 ### [4.1.1-0](https://github.com/criticalmanufacturing/cli/compare/4.1.0...4.1.1-0) (2024-02-02)
