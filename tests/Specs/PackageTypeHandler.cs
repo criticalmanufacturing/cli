@@ -9,6 +9,8 @@ using System.IO.Abstractions.TestingHelpers;
 using Microsoft.Extensions.DependencyInjection;
 using tests.Objects;
 using Xunit;
+using System.Collections.Generic;
+using FluentAssertions;
 
 namespace tests.Specs
 {
@@ -75,6 +77,65 @@ namespace tests.Specs
 
             Assert.False(string.IsNullOrWhiteSpace(exceptionMessage));
             Assert.Equal(string.Format(CoreMessages.PackageTypeHandlerNotImplemented, "ProductDatabase"), exceptionMessage);
+        }
+
+        [Fact]
+        public void GetContentToPack_OrderCheck()
+        {
+            KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.1.0");
+            KeyValuePair<string, string> packageData = new("Cmf.Custom.Data", "1.1.0");
+
+
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { "/repo/cmfpackage.json", new MockFileData(
+                @$"{{
+                  ""packageId"": ""{packageRoot.Key}"",
+                  ""version"": ""{packageRoot.Value}"",
+                  ""packageType"": ""Root"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": false,
+                  ""dependencies"": [
+                    {{
+                         ""id"": ""{packageData.Key}"",
+                        ""version"": ""{packageData.Value}""
+                    }}
+                  ]
+                }}")},
+                { "/repo/Cmf.Custom.Data/cmfpackage.json", new MockFileData(
+                @$"{{
+                  ""packageId"": ""{packageData.Key}"",
+                  ""version"": ""{packageData.Value}"",
+                  ""packageType"": ""Data"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": true,
+                  ""contentToPack"": [
+                    {{
+                        ""source"": ""{MockUnixSupport.Path("folder\\*").Replace("\\", "\\\\")}"",
+                        ""target"": """"
+                    }}
+                  ]
+                }}")}
+            });
+
+            int numberOfFiles = 12;
+            for (int i = 0; i < numberOfFiles; i++)
+            {
+                fileSystem.AddFile($"/repo/Cmf.Custom.Data/folder/file_{i:000}.txt", new MockFileData($"file-content_{i:000}"));
+            }
+
+            ExecutionContext.Initialize(fileSystem);
+            var cmfPackage = fileSystem.FileInfo.New("/repo/Cmf.Custom.Data/cmfpackage.json");
+            var packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfPackage) as DataPackageTypeHandlerV2;
+
+            var contentToPack = packageTypeHandler.GetContentToPack(fileSystem.DirectoryInfo.New("output"));
+
+
+            for(int i = 0;i< numberOfFiles; i++)
+            {
+                contentToPack[i].Source.FullName.Should().EndWith($"file_{i:000}.txt");
+            }
+
         }
     }
 }
