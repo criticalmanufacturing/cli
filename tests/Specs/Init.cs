@@ -83,6 +83,8 @@ namespace tests.Specs
                 File.ReadAllText(Path.Join(tmp, ".project-config.json"))
                     .Should().Contain(@"""RepositoryType"": ""Customization""", "Default repository type was not Customization");
                 File.ReadAllText(Path.Join(tmp, ".project-config.json"))
+                    .Should().Contain(@"""DefaultDomain"": ""DOMAIN""", "Default domain is not correct");
+                File.ReadAllText(Path.Join(tmp, ".project-config.json"))
                     .Should().Contain(@"""BaseLayer"": ""MES""", "Base Layer should be MES");
                 File.ReadAllText(Path.Join(tmp, "cmfpackage.json"))
                     .Should().Contain(@"CriticalManufacturing.DeploymentMetadata", "VM Dependency should be included in root package");
@@ -450,5 +452,63 @@ namespace tests.Specs
                 Directory.Delete(tmp, true);
             }
         }
+        
+        [Fact]
+        public void Init_With_Env_Without_Domain()
+        {
+            var rnd = new Random();
+            var tmp = TestUtilities.GetTmpDirectory();
+
+            var projectName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
+            var deploymentDir = "\\\\share\\deployment_dir";
+            var isoLocation = "\\\\share\\iso_location";
+            var pkgVersion = $"{rnd.Next(10)}.{rnd.Next(10)}.{rnd.Next(10)}";
+
+            var cur = Directory.GetCurrentDirectory();
+            try
+            {
+                var console = new TestConsole();
+                Directory.SetCurrentDirectory(tmp);
+
+                var initCommand = new InitCommand();
+                var cmd = new Command("x");
+                initCommand.Configure(cmd);
+
+                TestUtilities.GetParser(cmd).Invoke(new[]
+                {
+                    projectName,
+                    "--infra", TestUtilities.GetFixturePath("init", "infrastructure.json"),
+                    "-c", TestUtilities.GetFixturePath("init", "config_no_AD.json"),
+                    "--MESVersion", "8.2.0",
+                    "--DevTasksVersion", "8.1.0",
+                    "--HTMLStarterVersion", "8.0.0",
+                    "--yoGeneratorVersion", "8.1.0",
+                    "--nugetVersion", "8.2.0",
+                    "--testScenariosNugetVersion", "8.2.0",
+                    "--deploymentDir", deploymentDir,
+                    "--ISOLocation", isoLocation,
+                    "--version", pkgVersion,
+                    "Cmf.Custom.Package",
+                    tmp
+                }, console);
+
+
+                console.Error.ToString().Should().BeEmpty();
+
+                File.Exists(".project-config.json").Should().BeTrue("project config is missing");
+                File.ReadAllText(Path.Join(tmp, ".project-config.json"))
+                    .Should().Contain(@"""DefaultDomain"": null", "Default Domain is not valid");
+                File.ReadAllText(Path.Join(tmp, ".project-config.json"))
+                    .Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(l => l.Trim())
+                    .Any(l => l.StartsWith("//")).Should().BeFalse("project config contains comments (template error)");
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                Directory.Delete(tmp, true);
+            }
+        }
+        
     }
 }

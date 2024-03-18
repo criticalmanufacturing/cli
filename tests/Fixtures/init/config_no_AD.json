@@ -1,0 +1,18 @@
+{
+    "Product.SystemName": "system_name",
+    "Product.Tenant.Name": "tenant",
+    "Product.Database.IsAlwaysOn": false,
+    "Product.Database.BackupShare": "backup_share",
+    "Package[Product.Database.Online].Database.Server": "server1\\instance",
+    "Package[Product.Database.Ods].Database.Server": "server2\\instance",
+    "Package[Product.Database.Dwh].Database.Server": "server3\\instance",
+    "Package.ReportingServices.Address": "http://reporting_services/Reports",
+    "Product.Presentation.IisConfiguration.Binding.IsSslEnabled": true,
+    "Packages.Root.TargetDirectory": "install_path",
+    "Product.ApplicationServer.Address": "app_server_address",
+    "Product.ApplicationServer.Port": "1234",
+    "Product.Gateway.Port": "5678",
+    "Product.DocumentManagement.TemporaryFolder": "temp_folder",
+    "Product.Presentation.IisConfiguration.Binding.Port": "443",
+    "Product.Security.Domain": null
+}
