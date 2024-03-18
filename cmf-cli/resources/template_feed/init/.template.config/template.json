@@ -281,8 +281,13 @@
     "DefaultDomain": {
       "type": "parameter",
       "datatype": "string",
-      "defaultValue": "",
-      "replaces": "<%= $CLI_PARAM_DefaultDomain %>"
+      "defaultValue": null
+    },
+    "DefaultDomain-JSON": {
+      "type": "derived",
+      "replaces": "\"<%= $CLI_PARAM_DefaultDomain %>\"",
+      "valueSource": "DefaultDomain",
+      "valueTransform": "jsonEncode"
     },
     "RESTPort": {
       "type": "parameter",
