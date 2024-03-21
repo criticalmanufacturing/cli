@@ -43,6 +43,14 @@ namespace Cmf.CLI.Commands
         public string nugetRegistryUsername { get; set; }
         public string nugetRegistryPassword { get; set; }
         public RepositoryType repositoryType { get; set; }
+        public string appId { get; set; }
+        public string appName { get; set; }
+        public string appDescription { get; set; }
+        public string appTargetFramework { get; set; }
+        public string appAuthor { get; set; }
+        public string appLicensedApplication { get; set; }
+        public string appIcon { get; set; }
+
         // ReSharper restore UnusedAutoPropertyAccessor.Global
         // ReSharper restore InconsistentNaming
     }
@@ -174,7 +182,44 @@ namespace Cmf.CLI.Commands
                 aliases: new[] { "--nugetRegistryPassword" },
                 description: "NuGet registry password"
             ));
-           
+
+            cmd.AddOption(new Option<string>(
+                aliases: new[] { "--appId" },
+                description: "Use only if repository type is App. Application identifier"
+            )
+            { IsRequired = false });
+
+            cmd.AddOption(new Option<string>(
+                aliases: new[] { "--appName" },
+                description: "Use only if repository type is App. Application name"
+            ) { IsRequired = false });
+
+            cmd.AddOption(new Option<string>(
+                aliases: new[] { "--appAuthor" },
+                description: "Use only if repository type is App. Application author"
+            )
+            { IsRequired = false });
+
+            cmd.AddOption(new Option<string>(
+                aliases: new[] { "--appDescription" },
+                description: "Use only if repository type is App. Application description"
+            ) { IsRequired = false });
+
+            cmd.AddOption(new Option<string>(
+                aliases: new[] { "--appTargetFramework" },
+                description: "Use only if repository type is App. Application target framework"
+            ) { IsRequired = false });
+
+            cmd.AddOption(new Option<string>(
+                aliases: new[] { "--appLicensedApplication" },
+                description: "Use only if repository type is App. Licensed application"
+            ) { IsRequired = false });
+
+            cmd.AddOption(new Option<string>(
+                aliases: new[] { "--appIcon" },
+                description: "Use only if repository type is App. Application icon"
+            ) { IsRequired = false });
+
             // Add the handler
             cmd.Handler = CommandHandler
                 .Create((InitArguments args) =>
@@ -200,6 +245,46 @@ namespace Cmf.CLI.Commands
                 "--repositoryType", x.repositoryType.ToString(),
                 "--baseLayer", x.repositoryType == RepositoryType.App ? BaseLayer.Core.ToString() : BaseLayer.MES.ToString()
             };
+
+            if (x.repositoryType == RepositoryType.App)
+            {
+                args.AddRange(new[]
+                {
+                    "--appName", x.appName,
+                    "--appId", x.appId,
+                    "--appIcon", x.appIcon ?? string.Empty,
+                    "--appDescription", x.appDescription,
+                    "--appTargetFramework", x.appTargetFramework,
+                    "--appAuthor", x.appAuthor,
+                    "--appLicensedApplication", x.appLicensedApplication
+                });
+
+                var requiredParameters = new[]
+                {
+                    new { Parameter = "appName", Value = x.appName },
+                    new { Parameter = "appId", Value = x.appId },
+                    new { Parameter = "appAuthor", Value = x.appAuthor },
+                    new { Parameter = "appDescription", Value = x.appDescription },
+                    new { Parameter = "appTargetFramework", Value = x.appTargetFramework },
+                    new { Parameter = "appLicensedApplication", Value = x.appLicensedApplication },
+                };
+
+                var errors = new List<string>();
+                const string AppParameterMissingError = "--{0} is required when repository type is App.";
+
+                foreach (var parameter in requiredParameters)
+                {
+                    if (string.IsNullOrWhiteSpace(parameter.Value))
+                    {
+                        errors.Add(string.Format(AppParameterMissingError, parameter.Parameter));
+                    }
+                }
+
+                if (errors.Count > 0)
+                {
+                    throw new CliException(string.Join(Environment.NewLine, errors));
+                }
+            }
 
             if (x.version != null)
             {
