@@ -468,6 +468,18 @@
       "datatype": "string",
       "replaces": "<%= $CLI_PARAM_DotnetSDKVersion %>"
     },
+    "appId": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "",
+      "replaces": "<%= $CLI_PARAM_AppId %>"
+    },
+    "appAuthor": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "",
+      "replaces": "<%= $CLI_PARAM_AppAuthor %>"
+    },
     "appName": {
       "type": "parameter",
       "datatype": "string",

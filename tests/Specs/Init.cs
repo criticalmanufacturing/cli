@@ -351,7 +351,7 @@ namespace tests.Specs
                 Assert.True(File.Exists("cmfapp.json"), "cmf app configuration is missing");
                 Assert.True(File.Exists("global.json"), "global .NET versioning is missing");
                 Assert.True(File.Exists("NuGet.Config"), "global NuGet feeds config is missing");
-                Assert.True(File.Exists(Path.Combine(tmp, "assets", "app_icon.png")), "App Icon is missing");
+                Assert.True(File.Exists(Path.Combine(tmp, "assets", "default_app_icon.png")), "App Icon is missing");
 
                 File.ReadAllText(Path.Join(tmp, ".project-config.json"))
                     .Should().Contain(@"""RepositoryType"": ""App""", "Applied repository type was not App");

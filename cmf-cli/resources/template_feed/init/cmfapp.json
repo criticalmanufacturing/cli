@@ -1,7 +1,8 @@
 {
-  "id": "<%= $CLI_PARAM_AppName %>",
+  "id": "<%= $CLI_PARAM_AppId %>",
   "version": "0.1.0",
   "name": "<%= $CLI_PARAM_AppName %>",
+  "author": "<%= $CLI_PARAM_AppAuthor %>",
   "description": "<%= $CLI_PARAM_AppDescription %>",
   "targetFramework": "<%= $CLI_PARAM_AppTargetFramework %>",
   "licensedApplication": "<%= $CLI_PARAM_AppLicensedApplication %>",

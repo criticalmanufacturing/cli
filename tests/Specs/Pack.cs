@@ -317,6 +317,46 @@ namespace tests.Specs
         }
 
         [Fact]
+        public void Pack_App()
+        {
+            string dir = $"{TestUtilities.GetTmpDirectory()}/app";
+            string packageName = "Cmf.Custom.Package.1.0.0.zip";
+            TestUtilities.CopyFixture("pack/app", new DirectoryInfo(dir));
+
+            var projCfg = Path.Join(dir, ".project-config.json");
+            if (File.Exists(projCfg))
+            {
+                File.WriteAllText(projCfg, File.ReadAllText(projCfg)
+                    .Replace("install_path", MockUnixSupport.Path(@"x:\install_path").Replace(@"\", @"\\"))
+                    .Replace("backup_share", MockUnixSupport.Path(@"y:\backup_share").Replace(@"\", @"\\"))
+                    .Replace("temp_folder", MockUnixSupport.Path(@"z:\temp_folder").Replace(@"\", @"\\"))
+                );
+            }
+
+            Directory.SetCurrentDirectory(dir);
+
+            string _workingDir = dir;
+
+            PackCommand packCommand = new();
+            Command cmd = new("pack");
+            packCommand.Configure(cmd);
+
+            TestConsole console = new();
+            cmd.Invoke(Array.Empty<string>(), console);
+
+            DirectoryInfo curDir = new(System.IO.Directory.GetCurrentDirectory());
+
+            Assert.True(Directory.Exists($"{dir}/Package"), "Package folder is missing");
+            Assert.True(File.Exists($"{dir}/Package/{packageName}"), "Zip package is missing");
+
+            List<string> entries = TestUtilities.GetFileEntriesFromZip($"{dir}/Package/{packageName}");
+            Assert.True(entries.HasAny(), "Zip package is empty");
+            Assert.True(entries.HasAny(entry => entry == "manifest.xml"), "Manifest file does not exist");
+            Assert.True(entries.HasAny(entry => entry == "app_manifest.xml"), "App manifest file does not exist");
+            Assert.True(entries.HasAny(entry => entry == "app_icon.png"), "App Icon does not exist");
+        }
+
+        [Fact]
         public void Pack_SecurityPortalV2()
         {
             string dir = $"{TestUtilities.GetTmpDirectory()}/securityPortal";
