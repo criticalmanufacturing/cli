@@ -1,29 +1,28 @@
+using Cmf.CLI.Commands;
+using Cmf.CLI.Constants;
+using Cmf.CLI.Core;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Factories;
+using Cmf.CLI.Handlers;
+using Cmf.CLI.Utilities;
+using Cmf.Common.Cli.TestUtilities;
+using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using Cmf.CLI.Commands;
-using Xunit;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.IO;
+using System.CommandLine.NamingConventionBinder;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.IO.Compression;
 using System.Linq;
 using System.Xml.Linq;
-using Cmf.CLI.Core.Enums;
-using Cmf.CLI.Core.Objects;
-using Cmf.CLI.Handlers;
-using Cmf.CLI.Utilities;
-using Cmf.Common.Cli.TestUtilities;
-using FluentAssertions;
 using tests.Objects;
-using Cmf.CLI.Constants;
-using Cmf.CLI.Core;
-using Cmf.CLI.Factories;
-using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
-using NuGet.Packaging;
+using Xunit;
 
 namespace tests.Specs
 {
@@ -247,7 +246,7 @@ namespace tests.Specs
             packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), outputDir, false);
             IEnumerable<IFileInfo> assembledFiles = fileSystem.DirectoryInfo.New("output").EnumerateFiles("Cmf.Custom.HTML.1.1.0.zip").ToList();
             packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), outputDir, false);
-            
+
             IEnumerable<IFileInfo> assembledFilesOnSecondRun = fileSystem.DirectoryInfo.New("output").EnumerateFiles("Cmf.Custom.HTML.1.1.0.zip").ToList();
             assembledFilesOnSecondRun.Should().HaveCount(1);
             assembledFilesOnSecondRun.Should().HaveCount(assembledFiles.Count());
@@ -288,7 +287,7 @@ namespace tests.Specs
                     .Replace("temp_folder", MockUnixSupport.Path(@"z:\temp_folder").Replace(@"\", @"\\"))
                 );
             }
-            
+
             Directory.SetCurrentDirectory(dir);
 
             string _workingDir = dir;
@@ -370,12 +369,12 @@ namespace tests.Specs
         {
             var mockFS = new MockFileSystem(new Dictionary<string, MockFileData>
             {{ MockUnixSupport.Path(@"c:\.project-config.json"), new MockFileData(
-    $@"{{
+                $@"{{
                 ""MESVersion"": ""{version}""
                 }}")
             }, {
                 MockUnixSupport.Path(@"c:\.pkg.json"), new MockFileData(
-                    $@"{{
+                $@"{{
                 ""type"": ""{PackageType.IoT}"",
                 ""packageId"": ""xxxxx"",
                 ""version"": ""9.9.9"",
@@ -390,6 +389,100 @@ namespace tests.Specs
 
             pkg.Steps.Any(step => forbiddenStepTypes.ToList().Contains(step.Type ?? StepType.Generic)).Should()
                 .BeFalse();
+        }
+
+        [Fact]
+        public void IoTDFStepsForVersionATL()
+        {
+            var version = "10.2.0";
+            var mustHaveStep = StepType.IoTAutomationTaskLibrariesSync;
+            var mockFS = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { MockUnixSupport.Path(@"c:\.project-config.json"), new MockFileData(
+    $@"{{
+                ""MESVersion"": ""{version}""
+                }}")
+                },
+                {
+                    MockUnixSupport.Path(@"c:\.pkg.json"), new MockFileData(
+                        $@"{{
+                    ""type"": ""{PackageType.IoT}"",
+                    ""packageId"": ""xxxxx"",
+                    ""version"": ""9.9.9"",
+                    ""contentToPack"": [{{}}]
+                    }}")
+                },
+                {
+                    MockUnixSupport.Path(@"c:\src\test\package.json"), new MockFileData(
+                        $@"{{
+                    ""name"": ""@awesome/test"",
+                    ""version"": ""1.0.0"",
+                    }}")
+                },
+                {
+                    MockUnixSupport.Path(@"c:\src\peanuts\package.json"), new MockFileData(
+                        $@"{{
+                    ""name"": ""peanuts"",
+                    ""version"": ""1.3.4"",
+                    }}")
+                }
+            });
+
+            ExecutionContext.Initialize(mockFS);
+            var pkg = CmfPackage.Load(mockFS.FileSystem.FileInfo.New(MockUnixSupport.Path(@"c:\.pkg.json")), true,
+                mockFS);
+            var _ = new IoTPackageTypeHandler(pkg);
+
+            pkg.Steps.Any(step => step.Type == mustHaveStep).Should().BeTrue();
+            pkg.Steps.FirstOrDefault(step => step.Type == mustHaveStep).ContentPath.Equals("awesome-test-1.0.0.tgz,peanuts-1.3.4.tgz");
+        }
+
+        [Fact]
+        public void IoTDFStepsForVersionNotATL()
+        {
+            var version = "10.2.0";
+            var mustNotHaveStep = StepType.IoTAutomationTaskLibrariesSync;
+            var mockFS = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { MockUnixSupport.Path(@"c:\.project-config.json"), new MockFileData(
+    $@"{{
+                ""MESVersion"": ""{version}""
+                }}")
+                },
+                {
+                    MockUnixSupport.Path(@"c:\.pkg.json"), new MockFileData(
+                        $@"{{
+                    ""type"": ""{PackageType.IoT}"",
+                    ""packageId"": ""xxxxx"",
+                    ""version"": ""9.9.9"",
+                    ""contentToPack"": [{{}}]
+                    }}")
+                },
+                {
+                    MockUnixSupport.Path(@"c:\projects\test\package.json"), new MockFileData(
+                        $@"{{
+                    ""name"": ""@awesome/test"",
+                    ""version"": ""1.0.0"",
+                    }}")
+                },
+                {
+                    MockUnixSupport.Path(@"c:\projects\peanuts\package.json"), new MockFileData(
+                        $@"{{
+                    ""name"": ""peanuts"",
+                    ""version"": ""1.3.4"",
+                    }}")
+                },
+                {
+                    MockUnixSupport.Path(@"c:\angular.json"), new MockFileData("{}")
+                }
+            });
+
+            ExecutionContext.Initialize(mockFS);
+            var pkg = CmfPackage.Load(mockFS.FileSystem.FileInfo.New(MockUnixSupport.Path(@"c:\.pkg.json")), true,
+                mockFS);
+            var _ = new IoTPackageTypeHandler(pkg);
+
+            pkg.Steps.Any(step => step.Type == mustNotHaveStep).Should().BeFalse();
         }
 
         [Theory]
@@ -619,7 +712,7 @@ namespace tests.Specs
             TestUtilities.ValidateZipContent(fileSystem, depFile1, new() { "Cmf.Foundation.Services.HostService.dll.config", "manifest.xml", "file1.txt" });
             TestUtilities.ValidateZipContent(fileSystem, depFile2, new() { "Cmf.Foundation.Services.HostService.dll.config", "manifest.xml", "file2.txt" });
         }
-        
+
         [Fact]
         public void HTML_ShouldPackWithDefaultValuesIfRelated()
         {
@@ -703,7 +796,7 @@ namespace tests.Specs
             var outputFolder = fileSystem.DirectoryInfo.New("output");
             packCommand.Execute(fileSystem.DirectoryInfo.New("/repo/Cmf.Custom.Data"), outputFolder, false);
             IEnumerable<IFileInfo> packedFiles = outputFolder.EnumerateFiles().ToList();
-            
+
             var depFile2 = packedFiles.FirstOrDefault(x => x.Name.Equals($"{packageDep2.Key}.{packageDep2.Value}.zip"));
             depFile2.Should().NotBeNull();
 

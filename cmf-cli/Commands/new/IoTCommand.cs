@@ -44,7 +44,12 @@ namespace Cmf.CLI.Commands.New
                 aliases: new[] { "--htmlPackageLocation" },
                 description: "Location of the HTML Package"
             ));
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, string, string>(this.Execute);
+
+            cmd.AddOption(new Option<string>(
+                aliases: new[] { "--isAngularPackage" },
+                description: "Customization package with angular"
+            ));
+            cmd.Handler = CommandHandler.Create<IDirectoryInfo, string, string, bool>(this.Execute);
         }
 
         /// <inheritdoc />
@@ -88,11 +93,24 @@ namespace Cmf.CLI.Commands.New
         /// <param name="workingDir">nearest root package</param>
         /// <param name="version">package version</param>
         /// <param name="htmlPackageLocation">location of html package</param>
-        public void Execute(IDirectoryInfo workingDir, string version, string htmlPackageLocation)
+        public void Execute(IDirectoryInfo workingDir, string version, string htmlPackageLocation, bool isAngularPackage)
         {
             if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major > 9)
             {
-                this.ExecuteV10(workingDir, version, htmlPackageLocation);
+                if (isAngularPackage)
+                {
+                    this.ExecuteV10AngularPackage(workingDir, version, htmlPackageLocation);
+                }
+                // only introduced in 10.2.0
+                else if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major > 10 || (ExecutionContext.Instance.ProjectConfig.MESVersion.Major == 10 && ExecutionContext.Instance.ProjectConfig.MESVersion.Minor >= 2))
+                {
+                    // Automation Task Library Package
+                    this.ExecuteV10ATL(workingDir, version);
+                }
+                else
+                {
+                    throw new CliException("For versions upper than 9 and less than 10.2, please use the angular customization package with flag isAngularPackage as true");
+                }
             }
             else
             {
@@ -101,7 +119,48 @@ namespace Cmf.CLI.Commands.New
             }
         }
 
-        public void ExecuteV10(IDirectoryInfo workingDir, string version, string htmlPackageLocation)
+        public void ExecuteV10ATL(IDirectoryInfo workingDir, string version)
+        {
+            this.CommandName = "iot-from1000-atl";
+            base.Execute(workingDir, version); // create package base - generate cmfpackage.json
+
+            var packageName = base.GeneratePackageName(workingDir)!.Value.Item1;
+
+            IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{workingDir}/{packageName}/{CliConstants.CmfPackageFileName}");
+            var cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true, this.fileSystem);
+            cmfPackage.LoadDependencies(null, null, true);
+
+            var iotCustomPackage = cmfPackage.Dependencies.FirstOrDefault(package => package.CmfPackage?.PackageType == PackageType.IoT).CmfPackage;
+
+            var iotRoot = cmfPackage.GetFileInfo().Directory;
+            var iotCustomPackageWorkDir = iotCustomPackage.GetFileInfo().Directory;
+            var iotCustomPackageName = base.GeneratePackageName(iotCustomPackageWorkDir)!.Value.Item1;
+
+            var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+
+            // Install IoT Yeoman
+            Log.Debug($"Installing Yeoman");
+
+            new NPMCommand()
+            {
+                DisplayName = "npm yeoman",
+                Args = new string[] { "install", "yo@4.3.1", "--save-dev" },
+                WorkingDirectory = iotCustomPackageWorkDir
+            }.Exec();
+
+            Log.Debug($"Installing Yeoman IoT Generator");
+
+            new NPMCommand()
+            {
+                DisplayName = "npm yeoman generator-iot",
+                Args = new string[] { "install", $"@criticalmanufacturing/generator-iot@{mesVersion.Major}{mesVersion.Minor}x", "--save-dev" },
+                WorkingDirectory = iotCustomPackageWorkDir
+            }.Exec();
+
+            Log.Information($"Feel free to create your task libraries by running npm run generateTaskLibrary");
+        }
+
+        public void ExecuteV10AngularPackage(IDirectoryInfo workingDir, string version, string htmlPackageLocation)
         {
             if (string.IsNullOrEmpty(htmlPackageLocation))
             {
@@ -125,7 +184,7 @@ namespace Cmf.CLI.Commands.New
                 : "@criticalmanufacturing/core-ui-web";
             Log.Debug($"Project is targeting base layer {baseLayer}, so scaffolding with base web package {baseWebPackage}");
 
-            this.CommandName = "iot-from1000";
+            this.CommandName = "iot-from1000-angular";
             base.Execute(workingDir, version); // create package base - generate cmfpackage.json
 
             // this won't return null because it has to success on the base.Execute call
