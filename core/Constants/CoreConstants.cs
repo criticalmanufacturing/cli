@@ -32,7 +32,7 @@
         public const string PackageJson = "package.json";
 
         /// <summary>
-        /// The CMF package file name
+        /// The CMF app file name
         /// </summary>
         public const string CmfAppFileName = "cmfapp.json";
 

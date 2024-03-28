@@ -486,6 +486,12 @@
       "defaultValue": "",
       "replaces": "<%= $CLI_PARAM_AppName %>"
     },
+    "appVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "",
+      "replaces": "<%= $CLI_PARAM_AppVersion %>"
+    },
     "appDescription": {
       "type": "parameter",
       "datatype": "string",

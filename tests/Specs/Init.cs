@@ -362,7 +362,7 @@ namespace tests.Specs
                 File.ReadAllText(Path.Join(tmp, "cmfapp.json"))
                     .Should().Contain($@"""id"": ""{appName}""", "Container Dependency should be included in root package");
                 File.ReadAllText(Path.Join(tmp, "cmfapp.json"))
-                    .Should().Contain($@"""version"": ""0.1.0""", "Container Dependency should be included in root package");
+                    .Should().Contain($@"""version"": ""1.0.0""", "Container Dependency should be included in root package");
                 File.ReadAllText(Path.Join(tmp, "cmfapp.json"))
                     .Should().Contain($@"""description"": ""{appDescription}""", "Container Dependency should be included in root package");
                 File.ReadAllText(Path.Join(tmp, "cmfapp.json"))

@@ -15,7 +15,7 @@ using Cmf.Common.Cli.TestUtilities;
 
 namespace tests.Specs
 {
-    public class CmfAppTests
+    public class CmfApp
     {
         [Fact]
         public void CmfApp_Manifest()
@@ -47,11 +47,11 @@ namespace tests.Specs
             IFileInfo cmfappFile = fileSystem.FileInfo.New($"repo/{CliConstants.CmfAppFileName}");
 
             string message = string.Empty;
-            CmfApp cmfAppDataObject = null;
+            Cmf.CLI.Core.Objects.CmfApp.CmfApp cmfAppDataObject = null;
             try
             {
                 // Reading cmfapp
-                cmfAppDataObject = CmfApp.Load(cmfappFile);
+                cmfAppDataObject = Cmf.CLI.Core.Objects.CmfApp.CmfApp.Load(cmfappFile);
             }
             catch (Exception ex)
             {
@@ -63,13 +63,13 @@ namespace tests.Specs
 
             CmfAppV1 app = cmfAppDataObject.Content.App;
 
-            Assert.True(app.Id == appId);
-            Assert.True(app.Version == appVersion);
-            Assert.True(app.Name == appName);
-            Assert.True(app.Author == author);
-            Assert.True(app.Description == description);
-            Assert.True(app.Framework.Version == targetFramework);
-            Assert.True(app.LicensedApplication.Name == licensedApplication);
+            Assert.Equal(app.Id, appId);
+            Assert.Equal(app.Version, appVersion);
+            Assert.Equal(app.Name, appName);
+            Assert.Equal(app.Author, author);
+            Assert.Equal(app.Description, description);
+            Assert.Equal(app.Framework.Version, targetFramework);
+            Assert.Equal(app.LicensedApplication.Name, licensedApplication);
         }
     }
 }

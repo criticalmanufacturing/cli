@@ -57,7 +57,7 @@ namespace Cmf.CLI.Handlers
         protected internal CmfPackage CmfPackage;
 
         /// <summary>
-        /// The CMF package
+        /// The CMF app data object
         /// </summary>
         protected internal CmfApp CmfApp;
 
@@ -286,7 +286,7 @@ namespace Cmf.CLI.Handlers
 
             CmfApp cmfApp = CmfApp.Load(cmfAppFile, fileSystem);
 
-            if (cmfApp.Content.App.Image.File == string.Empty)
+            if (string.IsNullOrWhiteSpace(cmfApp.Content.App.Image.File))
             {
                 string defaultIconPath = Path.Combine(
                     FileSystemUtilities.GetProjectRoot(fileSystem, throwException: true).FullName,
@@ -300,11 +300,11 @@ namespace Cmf.CLI.Handlers
                 throw new CliException(string.Format(CoreMessages.InvalidValue, cmfAppFile.FullName));
             }
 
-            CmfApp.Save(cmfApp, path);
+            cmfApp.Save(path);
             
             string iconDestinationPath = Path.Combine(packageOutputDir.FullName, CliConstants.AppIcon);
-            
-            CmfApp.SaveIcon(cmfApp, iconDestinationPath);
+
+            cmfApp.SaveIcon(iconDestinationPath);
         }
 
         /// <summary>

@@ -55,7 +55,7 @@ public record CmfAppV1
     [XmlElement(Namespace = "urn:cmf:dp:xml:ns:app-metadata-v1")] public Image Image { get; set; }
 }
 
-public record CmfAppV1_XmlContainer
+public record AppContainer
 {
     public record HeaderRec
     {
@@ -74,17 +74,14 @@ public class CmfApp
     public IFileInfo FileInfo { get; private set; }
     public PackageLocation Location { get; private set; }
     public IFileSystem FileSystem { get; private set; }
-    public CmfAppV1_XmlContainer Content { get; private set; }
+    public AppContainer Content { get; private set; }
 
     /// <summary>
-    /// Loads the specified file.
+    /// Loads CmfApp data object from a specified file using file system from the execution context.
     /// </summary>
-    /// <param name="file">The file.</param>
-    /// <param name="fileSystem">the underlying file system</param>
-    /// <returns></returns>
-    /// <exception cref="Cmf.CLI.Utilities.CliException">
-    /// </exception>
-    /// <exception cref="CliException"></exception>
+    /// <param name="file">The file to load the CmfApp from.</param>
+    /// <param name="fileSystem">Optional parameter specifying the file system to use for file operations.</param>
+    /// <returns>The loaded CmfApp instance.</returns>
     public static CmfApp Load(IFileInfo file, IFileSystem fileSystem = null)
     {
         fileSystem ??= ExecutionContext.Instance.FileSystem;
@@ -111,7 +108,7 @@ public class CmfApp
 
         CmfApp cmfApp = new()
         {
-            Content = new CmfAppV1_XmlContainer { App = cmfAppData },
+            Content = new AppContainer { App = cmfAppData },
             FileInfo = file,
             Location = PackageLocation.Local,
             FileSystem = fileSystem,
@@ -120,23 +117,30 @@ public class CmfApp
         return cmfApp;
     }
 
-
-    public static void Save(CmfApp cmfApp, string path)
+    /// <summary>
+    /// Serializes the content of the CmfApp instance and saves it to the specified path as an XML file.
+    /// </summary>
+    /// <param name="path">The path where the XML file will be saved.</param>
+    public void Save(string path)
     {
-        XmlSerializer serializer = new(typeof(CmfAppV1_XmlContainer));
+        XmlSerializer serializer = new(typeof(AppContainer));
         using StringWriter writer = new();
 
-        serializer.Serialize(writer, cmfApp.Content);
+        serializer.Serialize(writer, Content);
         string xmlString = writer.ToString();
-        cmfApp.FileSystem.File.WriteAllText(path, xmlString);
+        FileSystem.File.WriteAllText(path, xmlString);
     }
 
-    public static void SaveIcon(CmfApp cmfApp, string iconDestination)
+    /// <summary>
+    /// Saves the icon associated with the CmfApp instance to the specified destination.
+    /// </summary>
+    /// <param name="iconDestination">The destination path where the icon will be saved.</param>
+    public void SaveIcon(string iconDestination)
     {
-        string iconSource = cmfApp.Content.App.Image.File;
+        string iconSource = Content.App.Image.File;
 
-        byte[] iconBytes = cmfApp.FileSystem.File.ReadAllBytes(iconSource);
+        byte[] iconBytes = FileSystem.File.ReadAllBytes(iconSource);
 
-        cmfApp.FileSystem.File.WriteAllBytes(iconDestination, iconBytes);
+        FileSystem.File.WriteAllBytes(iconDestination, iconBytes);
     }
 }

@@ -45,6 +45,7 @@ namespace Cmf.CLI.Commands
         public RepositoryType repositoryType { get; set; }
         public string appId { get; set; }
         public string appName { get; set; }
+        public string appVersion { get; set; }
         public string appDescription { get; set; }
         public string appTargetFramework { get; set; }
         public string appAuthor { get; set; }
@@ -183,41 +184,48 @@ namespace Cmf.CLI.Commands
                 description: "NuGet registry password"
             ));
 
+            const string OnlyIfTypeAppWarning = "Use only if repository type is App.";
             cmd.AddOption(new Option<string>(
                 aliases: new[] { "--appId" },
-                description: "Use only if repository type is App. Application identifier"
+                description: $"Application identifier. {OnlyIfTypeAppWarning}"
             )
             { IsRequired = false });
 
             cmd.AddOption(new Option<string>(
                 aliases: new[] { "--appName" },
-                description: "Use only if repository type is App. Application name"
+                description: $"Application name. {OnlyIfTypeAppWarning}"
             ) { IsRequired = false });
 
             cmd.AddOption(new Option<string>(
+                aliases: new[] { "--appVersion" },
+                description: $"Application version. {OnlyIfTypeAppWarning}"
+            )
+            { IsRequired = false });
+
+            cmd.AddOption(new Option<string>(
                 aliases: new[] { "--appAuthor" },
-                description: "Use only if repository type is App. Application author"
+                description: $"Application author. {OnlyIfTypeAppWarning}"
             )
             { IsRequired = false });
 
             cmd.AddOption(new Option<string>(
                 aliases: new[] { "--appDescription" },
-                description: "Use only if repository type is App. Application description"
+                description: $"Application description. {OnlyIfTypeAppWarning}"
             ) { IsRequired = false });
 
             cmd.AddOption(new Option<string>(
                 aliases: new[] { "--appTargetFramework" },
-                description: "Use only if repository type is App. Application target framework"
+                description: $"Application target framework. {OnlyIfTypeAppWarning}"
             ) { IsRequired = false });
 
             cmd.AddOption(new Option<string>(
                 aliases: new[] { "--appLicensedApplication" },
-                description: "Use only if repository type is App. Licensed application"
+                description: $"Licensed application. {OnlyIfTypeAppWarning}"
             ) { IsRequired = false });
 
             cmd.AddOption(new Option<string>(
                 aliases: new[] { "--appIcon" },
-                description: "Use only if repository type is App. Application icon"
+                description: $"Application icon. {OnlyIfTypeAppWarning}"
             ) { IsRequired = false });
 
             // Add the handler
@@ -233,6 +241,7 @@ namespace Cmf.CLI.Commands
         /// </summary>
         internal void Execute(InitArguments x)
         {
+            const string DefaultAppVersion = "1.0.0";
             using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
             var args = new List<string>()
             {
@@ -252,17 +261,18 @@ namespace Cmf.CLI.Commands
                 {
                     "--appName", x.appName,
                     "--appId", x.appId,
+                    "--appVersion", x.appVersion ?? DefaultAppVersion,
                     "--appIcon", x.appIcon ?? string.Empty,
                     "--appDescription", x.appDescription,
                     "--appTargetFramework", x.appTargetFramework,
                     "--appAuthor", x.appAuthor,
-                    "--appLicensedApplication", x.appLicensedApplication
+                    "--appLicensedApplication", x.appLicensedApplication,
                 });
 
                 var requiredParameters = new[]
                 {
-                    new { Parameter = "appName", Value = x.appName },
                     new { Parameter = "appId", Value = x.appId },
+                    new { Parameter = "appName", Value = x.appName },
                     new { Parameter = "appAuthor", Value = x.appAuthor },
                     new { Parameter = "appDescription", Value = x.appDescription },
                     new { Parameter = "appTargetFramework", Value = x.appTargetFramework },

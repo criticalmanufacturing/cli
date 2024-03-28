@@ -4,15 +4,15 @@ using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp;
 using System.IO;
 using Xunit;
-using Cmf.CLI.Core.Utilities;
 
 namespace tests.Specs
 {
-    public class AppIconUtilitiesTests
+    public class AppIconUtilities
     {
-        private const string PNG_ICON_PATH = "valid_icon.png";
-        private const string NON_SQUARE_ICON_PATH = "non_square_icon.png";
-        private const string NON_PNG_ICON_PATH = "non_png_icon.jpg";
+        private const string PNG_ICON_FILENAME = "valid_icon.png";
+        private const string PNG_ICON_NO_EXTENSION_FILENAME = "valid_icon";
+        private const string NON_SQUARE_ICON_FILENAME = "non_square_icon.png";
+        private const string NON_PNG_ICON_FILENAME = "non_png_icon.jpg";
 
         public string TestFolder { get; private set; } = TestUtilities.GetTmpDirectory();
 
@@ -31,17 +31,19 @@ namespace tests.Specs
             }
         }
 
-        [Fact]
-        public void ValidPngIcon_ReturnsTrue()
+        [Theory]
+        [InlineData(PNG_ICON_NO_EXTENSION_FILENAME)]
+        [InlineData(PNG_ICON_FILENAME)]
+        public void ValidPngIcon_ReturnsTrue(string filename)
         {
-            var path = Path.Combine(TestFolder, PNG_ICON_PATH);
+            var path = Path.Combine(TestFolder, filename);
 
             try
             {
-                ImageCreator.CreatePngImage(Path.Combine(TestFolder, PNG_ICON_PATH), 100, 100);
-                
-                bool result = AppIconUtilities.IsIconValid(path);
-                Assert.True(result);
+                ImageCreator.CreatePngImage(Path.Combine(TestFolder, filename), 100, 100);
+
+                bool result = Cmf.CLI.Core.Utilities.AppIconUtilities.IsIconValid(path);
+                Assert.True(result, userMessage: "Icon is not valid, either not PNG or not square shaped.");
             }
             finally
             {
@@ -52,19 +54,19 @@ namespace tests.Specs
         [Fact]
         public void NonExistentIcon_ThrowsFileNotFoundException()
         {
-            Assert.Throws<FileNotFoundException>(() => AppIconUtilities.IsIconValid("nonexistent.png"));
+            Assert.Throws<FileNotFoundException>(() => Cmf.CLI.Core.Utilities.AppIconUtilities.IsIconValid("nonexistent.png"));
         }
 
         [Fact]
         public void NonSquareIcon_ThrowsCliException()
         {
-            var path = Path.Combine(TestFolder, NON_SQUARE_ICON_PATH);
+            var path = Path.Combine(TestFolder, NON_SQUARE_ICON_FILENAME);
 
             try
             {
-                ImageCreator.CreatePngImage(Path.Combine(TestFolder, NON_SQUARE_ICON_PATH), 150, 200);
-                
-                var exception = Assert.Throws<CliException>(() => AppIconUtilities.IsIconValid(path));
+                ImageCreator.CreatePngImage(Path.Combine(TestFolder, NON_SQUARE_ICON_FILENAME), 150, 200);
+
+                var exception = Assert.Throws<CliException>(() => Cmf.CLI.Core.Utilities.AppIconUtilities.IsIconValid(path));
                 Assert.Equal("The icon provided is not square shaped", exception.Message);
             }
             finally
@@ -76,13 +78,13 @@ namespace tests.Specs
         [Fact]
         public void NonPngIcon_ThrowsCliException()
         {
-            var path = Path.Combine(TestFolder, NON_PNG_ICON_PATH);
-            
+            var path = Path.Combine(TestFolder, NON_PNG_ICON_FILENAME);
+
             try
             {
-                ImageCreator.CreateJpgImage(Path.Combine(TestFolder, NON_PNG_ICON_PATH), 100, 100);
+                ImageCreator.CreateJpgImage(Path.Combine(TestFolder, NON_PNG_ICON_FILENAME), 100, 100);
 
-                var exception = Assert.Throws<CliException>(() => AppIconUtilities.IsIconValid(path));
+                var exception = Assert.Throws<CliException>(() => Cmf.CLI.Core.Utilities.AppIconUtilities.IsIconValid(path));
                 Assert.Equal("The icon provided is not PNG", exception.Message);
             }
             finally
