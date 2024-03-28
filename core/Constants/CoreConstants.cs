@@ -32,6 +32,11 @@
         public const string PackageJson = "package.json";
 
         /// <summary>
+        /// The CMF app file name
+        /// </summary>
+        public const string CmfAppFileName = "cmfapp.json";
+
+        /// <summary>
         /// The project config file name, located in the project root
         /// </summary>
         public const string ProjectConfigFileName = ".project-config.json";

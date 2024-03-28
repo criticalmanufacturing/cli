@@ -69,6 +69,10 @@
     </ItemGroup>
 
     <ItemGroup>
+      <None Remove="resources\templateFiles\app_manifest.xml" />
+    </ItemGroup>
+
+    <ItemGroup>
         <EmbeddedResource Include="installDependencies\Data\GenerateLBOs.ps1" />
     </ItemGroup>
 
