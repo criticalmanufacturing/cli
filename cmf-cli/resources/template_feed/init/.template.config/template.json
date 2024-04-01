@@ -492,12 +492,6 @@
       "defaultValue": "",
       "replaces": "<%= $CLI_PARAM_AppDescription %>"
     },
-    "appTargetFramework": {
-      "type": "parameter",
-      "datatype": "string",
-      "defaultValue": "",
-      "replaces": "<%= $CLI_PARAM_AppTargetFramework %>"
-    },
     "appLicensedApplication": {
       "type": "parameter",
       "datatype": "string",
@@ -509,6 +503,48 @@
       "datatype": "string",
       "defaultValue": "",
       "replaces": "<%= $CLI_PARAM_AppIcon %>"
+    },
+    "appId": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "",
+      "replaces": "$(CLI_PARAM_AppId)"
+    },
+    "appAuthor": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "",
+      "replaces": "$(CLI_PARAM_AppAuthor)"
+    },
+    "appName": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "",
+      "replaces": "$(CLI_PARAM_AppName)"
+    },
+    "appNameMin": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "",
+      "replaces": "$(CLI_PARAM_AppNameMin)"
+    },
+    "appDescription": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "",
+      "replaces": "$(CLI_PARAM_AppDescription)"
+    },
+    "appLicensedApplication": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "",
+      "replaces": "$(CLI_PARAM_AppLicensedApplication)"
+    },
+    "appIcon": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "",
+      "replaces": "$(CLI_PARAM_AppIcon)"
     }
   },
   "forms": {
@@ -530,6 +566,24 @@
           "condition": "appName == \"\"",
           "exclude": [
             "cmfapp.json",
+            "assets/**",
+            "assets/"
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+  },
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "condition": "appName == \"\"",
+          "exclude": [
+            "cmfapp.json",
+            "app_deployment_manifest.xml",
             "assets/**",
             "assets/"
           ]

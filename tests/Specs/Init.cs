@@ -324,12 +324,13 @@ namespace tests.Specs
                     "--infra", TestUtilities.GetFixturePath("init", "infrastructure.json"),
                     "-c", TestUtilities.GetFixturePath("init", "config.json"),
                     "--repositoryType", "App",
-                    "--MESVersion", "8.2.0",
-                    "--DevTasksVersion", "8.1.0",
-                    "--HTMLStarterVersion", "8.0.0",
-                    "--yoGeneratorVersion", "8.1.0",
-                    "--nugetVersion", "8.2.0",
-                    "--testScenariosNugetVersion", "8.2.0",
+                    "--MESVersion", targetFramework,
+                    "--DevTasksVersion", targetFramework,
+                    "--HTMLStarterVersion", targetFramework,
+                    "--yoGeneratorVersion", targetFramework,
+                    "--nugetVersion", targetFramework,
+                    "--testScenariosNugetVersion", targetFramework,
+                    "--ngxSchematicsVersion", targetFramework,
                     "--deploymentDir", deploymentDir,
                     "--ISOLocation", isoLocation,
                     "--version", pkgVersion,
@@ -337,7 +338,6 @@ namespace tests.Specs
                     "--appName", appName,
                     "--appAuthor", appAuthor,
                     "--appDescription", appDescription,
-                    "--appTargetFramework", targetFramework,
                     "--appLicensedApplication", licensedApplication,
                     tmp
                 }, console);
@@ -364,8 +364,6 @@ namespace tests.Specs
                 File.ReadAllText(Path.Join(tmp, "cmfapp.json"))
                     .Should().Contain($@"""description"": ""{appDescription}""", "Container Dependency should be included in root package");
                 File.ReadAllText(Path.Join(tmp, "cmfapp.json"))
-                    .Should().Contain($@"""targetFramework"": ""{targetFramework}""", "Container Dependency should be included in root package");
-                File.ReadAllText(Path.Join(tmp, "cmfapp.json"))
                     .Should().Contain($@"""licensedApplication"": ""{licensedApplication}""", "Container Dependency should be included in root package");
                 File.ReadAllText(Path.Join(tmp, "cmfapp.json"))
                     .Should().Contain($@"""icon"": ""{icon}""", "Container Dependency should be included in root package");
@@ -382,7 +380,6 @@ namespace tests.Specs
         [InlineData("--appName")]
         [InlineData("--appAuthor")]
         [InlineData("--appDescription")]
-        [InlineData("--appTargetFramework")]
         [InlineData("--appLicensedApplication")]
         public void Init_App_Fail_Missing_Parameters(string missingParameter)
         {
@@ -410,12 +407,12 @@ namespace tests.Specs
                 "--infra", TestUtilities.GetFixturePath("init", "infrastructure.json"),
                 "-c", TestUtilities.GetFixturePath("init", "config.json"),
                 "--repositoryType", "App",
-                "--MESVersion", "8.2.0",
-                "--DevTasksVersion", "8.1.0",
-                "--HTMLStarterVersion", "8.0.0",
-                "--yoGeneratorVersion", "8.1.0",
-                "--nugetVersion", "8.2.0",
-                "--testScenariosNugetVersion", "8.2.0",
+                "--MESVersion", targetFramework,
+                "--DevTasksVersion", targetFramework,
+                "--HTMLStarterVersion", targetFramework,
+                "--yoGeneratorVersion", targetFramework,
+                "--nugetVersion", targetFramework,
+                "--testScenariosNugetVersion", targetFramework,
                 "--deploymentDir", deploymentDir,
                 "--ISOLocation", isoLocation,
                 "--version", pkgVersion,
@@ -423,7 +420,6 @@ namespace tests.Specs
                 "--appName", appName,
                 "--appAuthor", appAuthor,
                 "--appDescription", appDescription,
-                "--appTargetFramework", targetFramework,
                 "--appLicensedApplication", licensedApplication,
                 tmp
             };

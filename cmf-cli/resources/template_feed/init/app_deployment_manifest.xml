@@ -1,0 +1,277 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<Package xsi:type="install:rootPackage"
+	xmlns="urn:cmf:dp:xml:ns:main-v1"
+	xmlns:install="urn:cmf:dp:xml:ns:install-v1"
+	xmlns:common="urn:cmf:dp:xml:ns:common-v1"
+	xmlns:deploy="urn:cmf:dp:xml:ns:deploy-v1"
+	xmlns:deploySteps="urn:cmf:dp:xml:ns:deploy-steps-v1"
+	xmlns:deployContainer="urn:cmf:dp:xml:ns:deploy-containers-v1"
+	xmlns:ui="urn:cmf:dp:xml:ns:ui-v1"
+	id="$(CLI_PARAM_AppId)"
+	label="$(CLI_PARAM_AppName)"
+	manifestVersion="1.0"
+	version="#{AppVersion}#"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="urn:cmf:dp:xml:ns:main-v1 dp-main-v1.xsd"
+>
+
+	<install:Description>$(CLI_PARAM_AppDescription)</install:Description>
+	<install:License version="#{TargetVersion}#" />
+
+	<install:LicenseAgreements>
+		<!-- This is just an example of license agreement -->
+		<common:LicenseAgreementInternal documentName="MES License Agreement" />
+	</install:LicenseAgreements>
+
+	<install:Dependencies>
+		<install:Dependency id="@criticalmanufacturing\analytics" type="Optional" version="#{TargetVersion}#"/>
+		<install:Dependency id="@criticalmanufacturing\ui" version="#{TargetVersion}#" />
+		<install:Dependency id="@criticalmanufacturing\help" version="#{TargetVersion}#" />
+		<install:Dependency id="@criticalmanufacturing\traefik-forwardauth"
+			version="#{TargetVersion}#" />
+		<install:Dependency id="@criticalmanufacturing\host" version="#{TargetVersion}#" />
+	</install:Dependencies>
+
+	<install:UserInterface>
+		<ui:Steps>
+			<!-- Generic -->
+			<ui:Step id="Cmf.Generic" order="100" label="General Data">
+				<ui:Groups>
+					<ui:Group id="Cmf.Generic.Data" order="100" label="Details">
+						<ui:Variables>
+							<ui:Variable id="SYSTEM_NAME" label="System Name" valueType="String"
+								required="true" valueDefault="$(CLI_PARAM_AppId)" order="100"
+								placeholder="Name given to the installation" />
+						</ui:Variables>
+					</ui:Group>
+
+					<ui:Group id="Cmf.Generic.Data.SystemAccess" order="200"
+						label="Access Information">
+						<ui:Variables>
+							<ui:Variable id="APPLICATION_BASE_HREF"
+								label="Application GUI Base Href"
+								valueType="String" valueDefault="/apps/$(CLI_PARAM_AppName)/"
+								required="true"
+								hidden="true" order="1500"
+								placeholder="The base href to configure the GUI application to allow request in a different path." />
+						</ui:Variables>
+					</ui:Group>
+					<ui:Group id="Cmf.Generic.Data.Installation" order="300"
+						label="Install Information">
+						<ui:Variables>
+							<ui:Variable id="ENV_MANAGER_BOOT_PACKAGE" label="Package to Install"
+								valueType="String" order="100" overridable="true"
+								valueDefault="$(CLI_PARAM_AppName)@1.0.0"
+								placeholder="Name and version of the package, e.g., PackageName@SemVer"
+								configurationLevel="Intermediate" />
+						</ui:Variables>
+					</ui:Group>
+				</ui:Groups>
+			</ui:Step>
+
+			<!-- Security -->
+			<ui:Step id="Cmf.Security" order="300" label="Security">
+				<ui:Groups>
+					<ui:Group id="Cmf.Security.Domain" order="100" label="Domain">
+						<ui:Variables>
+							<!-- ClientId + ClientSecret -->
+							<ui:Variable id="SECURITY_PORTAL_CLIENT_ID" label="Client Id"
+								valueType="String" valueDefault="$(CLI_PARAM_AppName)"
+								required="true" order="1600" placeholder="Security Portal Client Id"
+								configurationLevel="Intermediate" />
+							<ui:Variable id="SECURITY_PORTAL_CLIENT_SECRET" label="Client Secret"
+								valueType="Password" valueDefault="{{ Global.GeneratePassword() }}"
+								required="true" order="1700"
+								placeholder="Security Portal Client Secret"
+								configurationLevel="Intermediate" />
+						</ui:Variables>
+					</ui:Group>
+				</ui:Groups>
+			</ui:Step>
+		</ui:Steps>
+	</install:UserInterface>
+
+	<install:Deploy>
+		<install:Steps>
+			<!-- host -->
+			<deploy:Step xsi:type="deployContainer:containerService" name="host" label="Host"
+				image="#{ImageRegistry}#/criticalmanufacturing/core-host:#{ImageTag}#">
+				<deployContainer:Volumes>
+					<deployContainer:Volume name="$(CLI_PARAM_AppNameMin)_host_documents"
+						label="Documents Folder" internal="/opt/document" />
+					<deployContainer:Volume name="$(CLI_PARAM_AppNameMin)_logs_share"
+						optional="true" label="Logs Folder" internal="/var/log/cmf/" />
+				</deployContainer:Volumes>
+			</deploy:Step>
+
+			<!-- env manager -->
+			<deploy:Step xsi:type="deployContainer:containerService" name="envmanager" user="1001"
+				label="Environment Manager"
+				image="#{ImageRegistry}#/criticalmanufacturing/envmanager:#{ImageTag}#"
+				operatingSystem="Linux" requiresLogin="true">
+				<deployContainer:EnvironmentVariables>
+					<deployContainer:EnvironmentVariable name="DATABASE_APP_FRAMEWORK_MSSQL_NAME">{{
+						Global.Deployable.BaseSystemName }}</deployContainer:EnvironmentVariable>
+					<deployContainer:EnvironmentVariable name="APP_PACKAGE">
+						$(CLI_PARAM_AppName)@#{AppVersion}#</deployContainer:EnvironmentVariable>
+					<deployContainer:EnvironmentVariable name="CMF_DATABASE_DEE_CONDITION">true</deployContainer:EnvironmentVariable>
+				</deployContainer:EnvironmentVariables>
+
+				<deployContainer:Volumes>
+					<deployContainer:Volume name="$(CLI_PARAM_AppNameMin)_logs_share"
+						optional="true"
+						label="Logs Folder" internal="/var/log/cmf/" />
+					<deployContainer:Volume size="10" name="installation_data"
+						label="Installation Data"
+						internal="/var/opt/envmanager/installation" usage="Reference" />
+				</deployContainer:Volumes>
+			</deploy:Step>
+
+			<!-- help -->
+			<deploy:Step xsi:type="deployContainer:containerService" name="help" label="Help"
+				image="#{ImageRegistry}#/criticalmanufacturing/help:#{ImageTag}#">
+				<deployContainer:Volumes>
+					<deployContainer:Volume name="$(CLI_PARAM_AppNameMin)_logs_share"
+						optional="true"
+						label="Logs Folder" internal="/var/log/cmf/" />
+				</deployContainer:Volumes>
+			</deploy:Step>
+
+			<!-- ui -->
+			<deploy:Step xsi:type="deployContainer:containerService" name="ui" label="UI"
+				image="#{ImageRegistry}#/criticalmanufacturing/ui:#{ImageTag}#">
+				<deployContainer:Volumes>
+					<deployContainer:Volume name="$(CLI_PARAM_AppNameMin)_logs_share"
+						optional="true" label="Logs Folder" internal="/var/log/cmf/" />
+				</deployContainer:Volumes>
+			</deploy:Step>
+
+			<!-- grafana -->
+			<deploy:Step xsi:type="deployContainer:containerService" name="grafana" user="1001"
+				label="Grafana"
+				image="#{ImageRegistry}#/criticalmanufacturing/cmf-apps-grafana:1.0.1"
+				operatingSystem="Linux" requiresLogin="true">
+				<deployContainer:EnvironmentVariables>
+					<!-- Grafana Settings -->
+					<deployContainer:EnvironmentVariable name="GF_SERVER_ROOT_URL"> {{
+						"$(APPLICATION_PUBLIC_HTTP_TLS_ENABLED)" == "true" ? "https" : "http"
+						}}://$(APPLICATION_PUBLIC_HTTP_ADDRESS):$(APPLICATION_PUBLIC_HTTP_PORT)$(APPLICATION_BASE_HREF)grafana </deployContainer:EnvironmentVariable>
+					<deployContainer:EnvironmentVariable name="GF_SERVER_SERVE_FROM_SUB_PATH"> true </deployContainer:EnvironmentVariable>
+					<deployContainer:EnvironmentVariable name="GF_SECURITY_COOKIE_SAMESITE"> none </deployContainer:EnvironmentVariable>
+					<deployContainer:EnvironmentVariable name="GF_SECURITY_ALLOW_EMBEDDING"> true </deployContainer:EnvironmentVariable>
+					<deployContainer:EnvironmentVariable name="GF_AUTH_DISABLE_LOGIN_FORM"> true </deployContainer:EnvironmentVariable>
+					<deployContainer:EnvironmentVariable name="GF_AUTH_DISABLE_SIGNOUT_MENU"> true </deployContainer:EnvironmentVariable>
+					<deployContainer:EnvironmentVariable name="GF_USERS_AUTO_ASSIGN_ORG_ROLE">
+						Viewer </deployContainer:EnvironmentVariable>
+					<deployContainer:EnvironmentVariable name="GF_USERS_EDITORS_CAN_ADMIN"> true </deployContainer:EnvironmentVariable>
+					<deployContainer:EnvironmentVariable name="GF_AUTH_PROXY_ENABLED"> true </deployContainer:EnvironmentVariable>
+					<deployContainer:EnvironmentVariable name="GF_AUTH_PROXY_HEADER_NAME">
+						X-FORWARDED-USER </deployContainer:EnvironmentVariable>
+					<deployContainer:EnvironmentVariable name="GF_AUTH_PROXY_HEADER_PROPERTY">
+						username </deployContainer:EnvironmentVariable>
+					<deployContainer:EnvironmentVariable name="GF_AUTH_PROXY_AUTO_SIGN_UP"> true </deployContainer:EnvironmentVariable>
+					<deployContainer:EnvironmentVariable name="GF_AUTH_PROXY_HEADERS">
+						Role:X-Forwarded-Grafana-Role </deployContainer:EnvironmentVariable>
+					<deployContainer:EnvironmentVariable name="GF_AUTH_BASIC"> false </deployContainer:EnvironmentVariable>
+					<deployContainer:EnvironmentVariable name="INSTALLATION_ID">{{
+						Global.GetInstallationId() }}</deployContainer:EnvironmentVariable>
+					<deployContainer:EnvironmentVariable name="INSTALLATION_DATA_ROOT_PATH">
+						/var/opt/envmanager/installation/$(SYSTEM_NAME)</deployContainer:EnvironmentVariable>
+					<deployContainer:EnvironmentVariable name="DATABASE_APP_FRAMEWORK_CDM_NAME">{{
+						Global.Deployable.BaseSystemName }}CDM</deployContainer:EnvironmentVariable>
+
+					<!-- Env Manager Boot Sync -->
+					<deployContainer:EnvironmentVariable name="ENV_MANAGER_BOOT_SYNC_ENABLED">true</deployContainer:EnvironmentVariable>
+
+				</deployContainer:EnvironmentVariables>
+
+				<deployContainer:Routing>
+					<deployContainer:RoutingEntry>
+						<deployContainer:Routes>
+							<deployContainer:Route>PathPrefix(`$(APPLICATION_BASE_HREF)Grafana`,`$(APPLICATION_BASE_HREF)grafana`)
+								{{ Global.Deployable.GetInstallationScope(out bool isApp, out _) !=
+								null &amp;&amp; !isApp ? "&amp;&amp; !PathPrefix(`/apps/`)" : "" }}</deployContainer:Route>
+						</deployContainer:Routes>
+						<deployContainer:Middlewares>
+							<!-- Headers Middleware -->
+							<deployContainer:Middleware xsi:type="deployContainer:Headers"
+								name="grafana-headers">
+								<deployContainer:CustomResponseHeaders>
+									<deployContainer:CustomResponseHeader name="X-Frame-Options">
+										SAMEORIGIN</deployContainer:CustomResponseHeader>
+									<deployContainer:CustomResponseHeader
+										name="X-Content-Type-Options">NOSNIFF</deployContainer:CustomResponseHeader>
+									<deployContainer:CustomResponseHeader name="X-XSS-Protection">1;
+										mode=block</deployContainer:CustomResponseHeader>
+									<deployContainer:CustomResponseHeader name="X-Powered-By" />
+									<deployContainer:CustomResponseHeader name="Server" />
+									<deployContainer:CustomResponseHeader
+										name="Content-Security-Policy">default-src 'self';
+										form-action 'self'; frame-ancestors 'self'; script-src
+										'self' 'unsafe-inline' 'unsafe-eval' 'unsafe-hashes';
+										style-src 'self' 'unsafe-inline'; worker-src * data: blob:
+										filesystem: schemes: *; img-src * blob: data: *; connect-src
+										* data: *; font-src * data: *; frame-src * blob: data: *;
+										media-src * blob: data: *;</deployContainer:CustomResponseHeader>
+									<deployContainer:CustomResponseHeader
+										name="Access-Control-Allow-Origin"
+										condition='!string.IsNullOrWhiteSpace("$(APPLICATION_CORS_HEADER)")'></deployContainer:CustomResponseHeader>
+								</deployContainer:CustomResponseHeaders>
+								<deployContainer:AccessControlAllowOrigin>$(APPLICATION_CORS_HEADER)</deployContainer:AccessControlAllowOrigin>
+							</deployContainer:Middleware>
+							<deployContainer:Middleware xsi:type="deployContainer:ForwardAuth"
+								name="grafana-auth">
+								<deployContainer:Address>http://{{
+									Global.GetContainerName("traefik-forwardauth")
+									}}:8080/api/auth/validateGrafana</deployContainer:Address>
+								<deployContainer:AuthResponseHeaders trustForwardHeader="true">
+									<deployContainer:AuthResponseHeader>X-Forwarded-User</deployContainer:AuthResponseHeader>
+									<deployContainer:AuthResponseHeader>X-Forwarded-Grafana-Role</deployContainer:AuthResponseHeader>
+								</deployContainer:AuthResponseHeaders>
+							</deployContainer:Middleware>
+							<deployContainer:Middleware xsi:type="deployContainer:StripPrefix"
+								name="grafana"
+								forceSlash="false">
+								<deployContainer:Prefixes>
+									<deployContainer:Prefix>$(APPLICATION_BASE_HREF)Grafana</deployContainer:Prefix>
+									<deployContainer:Prefix>$(APPLICATION_BASE_HREF)grafana</deployContainer:Prefix>
+								</deployContainer:Prefixes>
+							</deployContainer:Middleware>
+						</deployContainer:Middlewares>
+						<deployContainer:EntryPoints>
+							<deployContainer:EntryPoint>web</deployContainer:EntryPoint>
+						</deployContainer:EntryPoints>
+					</deployContainer:RoutingEntry>
+				</deployContainer:Routing>
+
+				<deployContainer:Ports>
+					<deployContainer:Port internal="3000" />
+				</deployContainer:Ports>
+
+				<deployContainer:Deploy>
+					<deployContainer:RestartPolicy condition="on-failure" delay="5s" />
+					<deployContainer:Placement nodeType="Worker" />
+					<deployContainer:EnvironmentResourcesDefaults>
+						<deployContainer:Development minCPU="0.5" maxCPU="1.5" minMemory="0.5"
+							maxMemory="2" replicas="1" />
+						<deployContainer:Testing minCPU="0.5" maxCPU="1.5" minMemory="0.5"
+							maxMemory="2" replicas="1" />
+						<deployContainer:Staging minCPU="1" maxCPU="2" minMemory="2" maxMemory="3"
+							replicas="2" />
+						<deployContainer:Production minCPU="1" maxCPU="2" minMemory="2"
+							maxMemory="3" replicas="2" />
+					</deployContainer:EnvironmentResourcesDefaults>
+				</deployContainer:Deploy>
+
+				<deployContainer:Volumes>
+					<deployContainer:Volume name="grafana_share" label="Grafana Folder"
+						internal="/var/lib/grafana/" />
+					<deployContainer:Volume size="10" name="installation_data"
+						label="Installation Data"
+						internal="/var/opt/envmanager/installation" />
+				</deployContainer:Volumes>
+			</deploy:Step>
+		</install:Steps>
+	</install:Deploy>
+</Package>

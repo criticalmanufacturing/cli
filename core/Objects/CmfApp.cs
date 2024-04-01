@@ -91,6 +91,7 @@ public class CmfApp
     public PackageLocation Location { get; private set; }
     public IFileSystem FileSystem { get; private set; }
     public AppContainer Content { get; private set; }
+    public string PackageName => Content.App.Id;
 
     /// <summary>
     /// Loads CmfApp data object from a specified file using file system from the execution context.

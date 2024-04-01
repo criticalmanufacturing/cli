@@ -19,6 +19,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 
@@ -280,7 +281,7 @@ namespace Cmf.CLI.Handlers
         internal virtual void GenerateDeploymentFrameworkAppFiles(IDirectoryInfo packageOutputDir)
         {
             Log.Debug("Generating DeploymentFramework App manifest");
-            string path = Path.Combine(packageOutputDir.FullName, CliConstants.DeploymentFrameworkAppManifestFileName);
+            string path = Path.Combine(packageOutputDir.FullName, CliConstants.AppManifestFileName);
 
             IFileInfo cmfAppFile = fileSystem.FileInfo.New(CliConstants.CmfAppFileName);
 
@@ -632,6 +633,7 @@ namespace Cmf.CLI.Handlers
 
             if (ExecutionContext.Instance.ProjectConfig?.RepositoryType == RepositoryType.App)
             {
+                //throw new Exception(JsonSerializer.Serialize(ExecutionContext.Instance.ProjectConfig));
                 GenerateDeploymentFrameworkAppFiles(packageOutputDir);
             }
 

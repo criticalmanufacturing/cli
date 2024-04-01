@@ -48,7 +48,6 @@ namespace Cmf.CLI.Commands
         public string appId { get; set; }
         public string appName { get; set; }
         public string appDescription { get; set; }
-        public string appTargetFramework { get; set; }
         public string appAuthor { get; set; }
         public string appLicensedApplication { get; set; }
         public string appIcon { get; set; }
@@ -209,13 +208,8 @@ namespace Cmf.CLI.Commands
             ) { IsRequired = false });
 
             cmd.AddOption(new Option<string>(
-                aliases: new[] { "--appTargetFramework" },
-                description: $"Application target framework. {OnlyIfTypeAppWarning}"
-            ) { IsRequired = false });
-
-            cmd.AddOption(new Option<string>(
                 aliases: new[] { "--appLicensedApplication" },
-                description: $"Licensed application. {OnlyIfTypeAppWarning}"
+                description: $"License for new application. {OnlyIfTypeAppWarning}"
             ) { IsRequired = false });
 
             cmd.AddOption(new Option<string>(
@@ -257,7 +251,6 @@ namespace Cmf.CLI.Commands
                     new { Parameter = "appName", Value = x.appName },
                     new { Parameter = "appAuthor", Value = x.appAuthor },
                     new { Parameter = "appDescription", Value = x.appDescription },
-                    new { Parameter = "appTargetFramework", Value = x.appTargetFramework },
                     new { Parameter = "appLicensedApplication", Value = x.appLicensedApplication },
                 };
 
@@ -279,7 +272,7 @@ namespace Cmf.CLI.Commands
 
                 if (!string.IsNullOrEmpty(x.appIcon) && AppIconUtilities.IsIconValid(x.appIcon))
                 {
-                    Log.Information("Given icon meets criteria.");
+                    Log.Debug("Given icon meets criteria.");
                 }
 
                 args.AddRange(new[]
@@ -288,7 +281,7 @@ namespace Cmf.CLI.Commands
                     "--appId", x.appId,
                     "--appIcon", x.appIcon ?? string.Empty,
                     "--appDescription", x.appDescription,
-                    "--appTargetFramework", x.appTargetFramework,
+                    "--appTargetFramework", x.BaseVersion,
                     "--appAuthor", x.appAuthor,
                     "--appLicensedApplication", x.appLicensedApplication,
                 });
