@@ -467,6 +467,48 @@
       "type": "parameter",
       "datatype": "string",
       "replaces": "<%= $CLI_PARAM_DotnetSDKVersion %>"
+    },
+    "appId": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "",
+      "replaces": "<%= $CLI_PARAM_AppId %>"
+    },
+    "appAuthor": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "",
+      "replaces": "<%= $CLI_PARAM_AppAuthor %>"
+    },
+    "appName": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "",
+      "replaces": "<%= $CLI_PARAM_AppName %>"
+    },
+    "appDescription": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "",
+      "replaces": "<%= $CLI_PARAM_AppDescription %>"
+    },
+    "appTargetFramework": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "",
+      "replaces": "<%= $CLI_PARAM_AppTargetFramework %>"
+    },
+    "appLicensedApplication": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "",
+      "replaces": "<%= $CLI_PARAM_AppLicensedApplication %>"
+    },
+    "appIcon": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "",
+      "replaces": "<%= $CLI_PARAM_AppIcon %>"
     }
   },
   "forms": {
@@ -480,5 +522,19 @@
       "pattern": "\"([^\"]*)\"",
       "replacement": "$1"
     }
-  }
+  },
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "condition": "appName == \"\"",
+          "exclude": [
+            "cmfapp.json",
+            "assets/**",
+            "assets/"
+          ]
+        }
+      ]
+    }
+  ]
 }
