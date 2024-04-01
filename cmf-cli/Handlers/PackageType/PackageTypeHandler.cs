@@ -5,11 +5,14 @@ using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Core.Objects.CmfApp;
+using Cmf.CLI.Core.Utilities;
 using Cmf.CLI.Factories;
 using Cmf.CLI.Utilities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Compression;
@@ -52,6 +55,11 @@ namespace Cmf.CLI.Handlers
         /// The CMF package
         /// </summary>
         protected internal CmfPackage CmfPackage;
+
+        /// <summary>
+        /// The CMF app data object
+        /// </summary>
+        protected internal CmfApp CmfApp;
 
         /// <summary>
         /// The files to pack
@@ -262,6 +270,41 @@ namespace Cmf.CLI.Handlers
             }
 
             fileSystem.File.WriteAllText(path, dFManifestTemplate.ToString());
+        }
+
+        /// <summary>
+        /// Generates the deployment framework app manifest and the app icon image.
+        /// </summary>
+        /// <param name="packageOutputDir">The package output dir.</param>
+        /// <exception cref="CliException"></exception>
+        internal virtual void GenerateDeploymentFrameworkAppFiles(IDirectoryInfo packageOutputDir)
+        {
+            Log.Debug("Generating DeploymentFramework App manifest");
+            string path = Path.Combine(packageOutputDir.FullName, CliConstants.DeploymentFrameworkAppManifestFileName);
+
+            IFileInfo cmfAppFile = fileSystem.FileInfo.New(CliConstants.CmfAppFileName);
+
+            CmfApp = CmfApp.Load(cmfAppFile, fileSystem);
+
+            if (string.IsNullOrWhiteSpace(CmfApp.Content.App.Image.File))
+            {
+                string defaultIconPath = Path.Combine(
+                    FileSystemUtilities.GetProjectRoot(fileSystem, throwException: true).FullName,
+                    CliConstants.AssetsFolder,
+                    CliConstants.DefaultAppIcon);
+
+                CmfApp.Content.App.Image.File = defaultIconPath;
+            }
+            else if (!AppIconUtilities.IsIconValid(CmfApp.Content.App.Image.File))
+            {
+                throw new CliException(string.Format(CoreMessages.InvalidValue, cmfAppFile.FullName));
+            }
+
+            CmfApp.Save(path);
+            
+            string iconDestinationPath = Path.Combine(packageOutputDir.FullName, CliConstants.AppIcon);
+
+            CmfApp.SaveIcon(iconDestinationPath);
         }
 
         /// <summary>
@@ -586,6 +629,11 @@ namespace Cmf.CLI.Handlers
             CopyInstallDependencies(packageOutputDir);
 
             GenerateDeploymentFrameworkManifest(packageOutputDir);
+
+            if (ExecutionContext.Instance.ProjectConfig?.RepositoryType == RepositoryType.App)
+            {
+                GenerateDeploymentFrameworkAppFiles(packageOutputDir);
+            }
 
             FinalArchive(packageOutputDir, outputDir);
 
