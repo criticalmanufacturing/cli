@@ -15,6 +15,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cmf.Custom.<%= $CLI_PARAM_i
 		{6C3D698D-7F9E-4E39-A571-DEB63582CA52} = {6C3D698D-7F9E-4E39-A571-DEB63582CA52}
 	EndProjectSection
 EndProject
+#if (app)
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Version", "ApplicationVersion\Version.csproj", "{2F05799E-8030-4B25-98B7-2BACF606E7B1}"
+EndProject
+#endif
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
