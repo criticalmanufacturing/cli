@@ -13,6 +13,7 @@ using System.CommandLine.Parsing;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using Xunit;
 using Assert = tests.AssertWithMessage;
 
@@ -22,7 +23,7 @@ namespace tests.Specs
     {
         public Init()
         {
-                ExecutionContext.ServiceProvider = (new ServiceCollection())
+                Cmf.CLI.Core.Objects.ExecutionContext.ServiceProvider = (new ServiceCollection())
                     .AddSingleton<IVersionService>(new VersionService(CliConstants.PackageName))
                     .BuildServiceProvider();
         }
@@ -295,15 +296,19 @@ namespace tests.Specs
             initCommand.Configure(cmd);
 
             var rnd = new Random();
-            var tmp = Path.Join(Path.GetTempPath(), Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8));
-            Directory.CreateDirectory(tmp);
-
-            Debug.WriteLine("Generating at " + tmp);
+            var tmp = TestUtilities.GetTmpDirectory();
 
             var projectName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
             var deploymentDir = "\\\\share\\deployment_dir";
             var isoLocation = "\\\\share\\iso_location";
             var pkgVersion = $"{rnd.Next(10)}.{rnd.Next(10)}.{rnd.Next(10)}";
+            var appId = "TestApp";
+            var appName = "TestApp";
+            var appAuthor = "The Author";
+            var appDescription = "Some description";
+            var targetFramework = "10.2.0";
+            var licensedApplication = "Test app";
+            var icon = "";
 
             var cur = Directory.GetCurrentDirectory();
             try
@@ -316,34 +321,119 @@ namespace tests.Specs
                     "--infra", TestUtilities.GetFixturePath("init", "infrastructure.json"),
                     "-c", TestUtilities.GetFixturePath("init", "config.json"),
                     "--repositoryType", "App",
-                    "--MESVersion", "8.2.0",
-                    "--DevTasksVersion", "8.1.0",
-                    "--HTMLStarterVersion", "8.0.0",
-                    "--yoGeneratorVersion", "8.1.0",
-                    "--nugetVersion", "8.2.0",
-                    "--testScenariosNugetVersion", "8.2.0",
+                    "--MESVersion", targetFramework,
+                    "--DevTasksVersion", targetFramework,
+                    "--HTMLStarterVersion", targetFramework,
+                    "--yoGeneratorVersion", targetFramework,
+                    "--nugetVersion", targetFramework,
+                    "--testScenariosNugetVersion", targetFramework,
+                    "--ngxSchematicsVersion", targetFramework,
                     "--deploymentDir", deploymentDir,
                     "--ISOLocation", isoLocation,
                     "--version", pkgVersion,
+                    "--appId", appId,
+                    "--appName", appName,
+                    "--appAuthor", appAuthor,
+                    "--appDescription", appDescription,
+                    "--appLicensedApplication", licensedApplication,
                     tmp
                 }, console);
 
                 var extractFileName = new Func<string, string>(s => s.Split(Path.DirectorySeparatorChar).LastOrDefault());
 
+                Assert.True(Directory.Exists(Path.Join(tmp, "Libs")), "Libs are missing");
+                Assert.True(Directory.Exists(Path.Join(tmp, "assets")), "Assets are missing");
                 Assert.True(File.Exists(".project-config.json"), "project config is missing");
                 Assert.True(File.Exists("cmfpackage.json"), "root cmfpackage is missing");
+                Assert.True(File.Exists("cmfapp.json"), "cmf app configuration is missing");
                 Assert.True(File.Exists("global.json"), "global .NET versioning is missing");
                 Assert.True(File.Exists("NuGet.Config"), "global NuGet feeds config is missing");
+                Assert.True(File.Exists(Path.Combine(tmp, "assets", "default_app_icon.png")), "App Icon is missing");
 
-                Assert.True(Directory.Exists(Path.Join(tmp, "Libs")), "Libs are missing");
                 File.ReadAllText(Path.Join(tmp, ".project-config.json"))
                     .Should().Contain(@"""RepositoryType"": ""App""", "Applied repository type was not App");
                 File.ReadAllText(Path.Join(tmp, ".project-config.json"))
                     .Should().Contain(@"""BaseLayer"": ""Core""", "Base Layer should be Core");
                 File.ReadAllText(Path.Join(tmp, "cmfpackage.json"))
                     .Should().NotContain(@"CriticalManufacturing.DeploymentMetadata", "VM Dependency should not be included in root package");
-                File.ReadAllText(Path.Join(tmp, "cmfpackage.json"))
-                    .Should().Contain(@"Cmf.Environment", "Container Dependency should be included in root package");
+                File.ReadAllText(Path.Join(tmp, "cmfapp.json"))
+                    .Should().Contain($@"""id"": ""{appName}""", "Container Dependency should be included in root package");
+                File.ReadAllText(Path.Join(tmp, "cmfapp.json"))
+                    .Should().Contain($@"""description"": ""{appDescription}""", "Container Dependency should be included in root package");
+                File.ReadAllText(Path.Join(tmp, "cmfapp.json"))
+                    .Should().Contain($@"""licensedApplication"": ""{licensedApplication}""", "Container Dependency should be included in root package");
+                File.ReadAllText(Path.Join(tmp, "cmfapp.json"))
+                    .Should().Contain($@"""icon"": ""{icon}""", "Container Dependency should be included in root package");
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                Directory.Delete(tmp, true);
+            }
+        }
+
+        [Theory]
+        [InlineData("--appId")]
+        [InlineData("--appName")]
+        [InlineData("--appAuthor")]
+        [InlineData("--appDescription")]
+        [InlineData("--appLicensedApplication")]
+        public void Init_App_Fail_Missing_Parameters(string missingParameter)
+        {
+            var initCommand = new InitCommand();
+            var cmd = new Command("x");
+            initCommand.Configure(cmd);
+
+            var rnd = new Random();
+            var tmp = TestUtilities.GetTmpDirectory();
+
+            var projectName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
+            var deploymentDir = "\\\\share\\deployment_dir";
+            var isoLocation = "\\\\share\\iso_location";
+            var pkgVersion = $"{rnd.Next(10)}.{rnd.Next(10)}.{rnd.Next(10)}";
+            var appId = "TestApp";
+            var appName = "TestApp";
+            var appAuthor = "The Author";
+            var appDescription = "Some description";
+            var targetFramework = "10.0.0";
+            var licensedApplication = "Test app";
+            const string AppParameterMissingError = "{0} is required when repository type is App.";
+            var parameters = new List<string>
+            {
+                projectName,
+                "--infra", TestUtilities.GetFixturePath("init", "infrastructure.json"),
+                "-c", TestUtilities.GetFixturePath("init", "config.json"),
+                "--repositoryType", "App",
+                "--MESVersion", targetFramework,
+                "--DevTasksVersion", targetFramework,
+                "--HTMLStarterVersion", targetFramework,
+                "--yoGeneratorVersion", targetFramework,
+                "--nugetVersion", targetFramework,
+                "--testScenariosNugetVersion", targetFramework,
+                "--deploymentDir", deploymentDir,
+                "--ISOLocation", isoLocation,
+                "--version", pkgVersion,
+                "--appId", appId,
+                "--appName", appName,
+                "--appAuthor", appAuthor,
+                "--appDescription", appDescription,
+                "--appLicensedApplication", licensedApplication,
+                tmp
+            };
+
+            int missingParameterPosition = parameters.IndexOf(missingParameter);
+            parameters.RemoveAt(missingParameterPosition);
+            // remove the value also
+            parameters.RemoveAt(missingParameterPosition);
+
+            var cur = Directory.GetCurrentDirectory();
+            try
+            {
+                var console = new TestConsole();
+                Directory.SetCurrentDirectory(tmp);
+                TestUtilities.GetParser(cmd).Invoke(parameters.ToArray(), console);
+
+                console.Error.ToString().Should().Contain(string.Format(AppParameterMissingError, missingParameter));
             }
             finally
             {
