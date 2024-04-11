@@ -2,6 +2,42 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.2.0](https://github.com/criticalmanufacturing/cli/compare/4.2.0-4...4.2.0) (2024-04-11)
+
+## [4.2.0-4](https://github.com/criticalmanufacturing/cli/compare/4.2.0-3...4.2.0-4) (2024-03-21)
+
+## [4.2.0-3](https://github.com/criticalmanufacturing/cli/compare/4.2.0-2...4.2.0-3) (2024-03-19)
+
+
+### Bug Fixes
+
+* **init:** make default domain optional, environment may not have AD config ([1b95baa](https://github.com/criticalmanufacturing/cli/commits/1b95baa1df352f28f2879035a6558ad11b0cb707))
+
+## [4.2.0-2](https://github.com/criticalmanufacturing/cli/compare/4.2.0-1...4.2.0-2) (2024-03-11)
+
+
+### Bug Fixes
+
+* force order by name on getContentToPack method ([fd9ac9a](https://github.com/criticalmanufacturing/cli/commits/fd9ac9af9e6a2e1c206bd72cb5f66cda334039fa))
+* **new help:** set release tag on CM packages ([c748b77](https://github.com/criticalmanufacturing/cli/commits/c748b77501e23d284f6b3c9e12be3076701c97a2))
+
+## [4.2.0-1](https://github.com/criticalmanufacturing/cli/compare/4.2.0-0...4.2.0-1) (2024-03-04)
+
+
+### Bug Fixes
+
+* use hostUseSSL key in IoT tests runsettings template ([f7057d4](https://github.com/criticalmanufacturing/cli/commits/f7057d4613aba1fd469b9361ff79a06e6a1d138d))
+
+## [4.2.0-0](https://github.com/criticalmanufacturing/cli/compare/4.1.2...4.2.0-0) (2024-02-28)
+
+
+### Features
+
+* **data:** support for dee validation ([82dd89d](https://github.com/criticalmanufacturing/cli/commits/82dd89d1fa5edfe89a43cdc3d488a46402398d6c))
+* **data:** support for json workflow path slash validation ([8559edf](https://github.com/criticalmanufacturing/cli/commits/8559edfa7a1b7a6c450fcef6ba693e9454855b8e))
+
+### [4.1.2-0](https://github.com/criticalmanufacturing/cli/compare/4.1.1...4.1.2-0) (2024-02-26)
+
 ### [4.1.2](https://github.com/criticalmanufacturing/cli/compare/4.1.1...4.1.2) (2024-02-28)
 
 
