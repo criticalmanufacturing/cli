@@ -23,7 +23,9 @@ using Cmf.CLI.Core;
 using Cmf.CLI.Factories;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using System.Xml.Serialization;
 using NuGet.Packaging;
+using System.Text;
 
 namespace tests.Specs
 {
@@ -314,6 +316,71 @@ namespace tests.Specs
             string configJsonContent = FileSystemUtilities.GetFileContentFromPackage($"{dir}/Package/Cmf.Custom.SecurityPortal.1.0.0.zip", "config.json");
 
             Assert.True(configJsonContent.Contains("$.tenants.config.tenant.strategies"), "Config file does not have correct tenant");
+        }
+
+        [Fact]
+        public void Pack_App()
+        {
+            var cur = Directory.GetCurrentDirectory();
+
+            try
+            {
+                string dir = $"{TestUtilities.GetTmpDirectory()}/app";
+                string packageName = "Cmf.Custom.Package.1.0.0.zip";
+                string appfilesName = "MockName@1.0.0.zip";
+                TestUtilities.CopyFixture("pack/app", new DirectoryInfo(dir));
+
+                var projCfg = Path.Join(dir, ".project-config.json");
+                if (File.Exists(projCfg))
+                {
+                    File.WriteAllText(projCfg, File.ReadAllText(projCfg)
+                        .Replace("install_path", MockUnixSupport.Path(@"x:\install_path").Replace(@"\", @"\\"))
+                        .Replace("backup_share", MockUnixSupport.Path(@"y:\backup_share").Replace(@"\", @"\\"))
+                        .Replace("temp_folder", MockUnixSupport.Path(@"z:\temp_folder").Replace(@"\", @"\\"))
+                    );
+                }
+                Directory.SetCurrentDirectory(dir);
+
+                string _workingDir = dir;
+
+                PackCommand packCommand = new();
+                Command cmd = new("pack");
+                packCommand.Configure(cmd);
+
+                TestConsole console = new();
+                cmd.Invoke(Array.Empty<string>(), console);
+
+                DirectoryInfo curDir = new(System.IO.Directory.GetCurrentDirectory());
+
+                Assert.True(Directory.Exists($"{dir}/Package"), "Package folder is missing");
+
+                Assert.True(File.Exists($"{dir}/Package/{packageName}"), "Zip package is missing");
+
+                List<string> entries = TestUtilities.GetFileEntriesFromZip($"{dir}/Package/{packageName}");
+                Assert.True(entries.HasAny(), "Zip package is empty");
+                Assert.True(entries.HasAny(entry => entry == "manifest.xml"), "Manifest file does not exist");
+
+                var packageZipPath = $"{dir}/Package/{appfilesName}";
+                var appManifest = "app_manifest.xml";
+                Assert.True(File.Exists(packageZipPath), "Zip app files is missing");
+
+                List<string> appEntries = TestUtilities.GetFileEntriesFromZip(packageZipPath);
+                Assert.True(appEntries.HasAny(entry => entry == appManifest), "App manifest file does not exist");
+                Assert.True(appEntries.HasAny(entry => entry == "app_icon.png"), "App Icon does not exist");
+               
+                using FileStream zipToOpen = new(packageZipPath, FileMode.Open);
+                using ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read);
+                using Stream appStream = zip.GetEntry(appManifest).Open();
+                using StreamReader appStreamReader = new(appStream, Encoding.UTF8);
+
+                XmlSerializer serializer = new(typeof(Cmf.CLI.Core.Objects.CmfApp.AppContainer));
+                Cmf.CLI.Core.Objects.CmfApp.AppContainer manifest = (Cmf.CLI.Core.Objects.CmfApp.AppContainer)serializer.Deserialize(appStreamReader);
+                Assert.True(manifest.App.Image.File == "app_icon.png");
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+            }
         }
 
         [Fact]
