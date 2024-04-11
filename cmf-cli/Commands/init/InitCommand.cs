@@ -276,7 +276,7 @@ namespace Cmf.CLI.Commands
                 }
 
                 args.AddRange(new[]
-{
+                {
                     "--appName", x.appName,
                     "--appId", x.appId,
                     "--appIcon", x.appIcon ?? string.Empty,
@@ -416,6 +416,11 @@ namespace Cmf.CLI.Commands
                 var envConfigPath = this.fileSystem.Path.Join(FileSystemUtilities.GetProjectRoot(this.fileSystem, throwException: true).FullName, "EnvironmentConfigs");
                 x.config.CopyTo(this.fileSystem.Path.Join(envConfigPath, x.config.Name));
                 this.fileSystem.FileInfo.New(this.fileSystem.Path.Join(envConfigPath, ".gitkeep")).Delete();
+            }
+
+            if (x.repositoryType == RepositoryType.App)
+            {
+                Log.Information($"Apps need to have an ApplicationVersion package. Make sure you create at least one business package for your application using the addApplicationVersionAssembly flag");
             }
         }
 

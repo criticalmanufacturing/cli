@@ -1,0 +1,15 @@
+﻿{
+  "packageId": "Cmf.Custom.Package",
+  "version": "1.0.0",
+  "description": "This package deploys Critical Manufacturing  Customization",
+  "packageType": "Root",
+  "isInstallable": true,
+  "isUniqueInstall": false,
+  "dependencies": [
+    {
+      "id": "Cmf.Environment",
+      "version": "10.2.1",
+      "mandatory": false
+    }
+  ]
+}
