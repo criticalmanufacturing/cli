@@ -65,6 +65,7 @@ namespace Cmf.CLI.Factories
                 PackageType.Database => new DatabasePackageTypeHandler(cmfPackage),
                 PackageType.Tests => new TestPackageTypeHandler(cmfPackage),
                 PackageType.SecurityPortal => SecurityPortalHandler(cmfPackage),
+                PackageType.Grafana => new GrafanaPackageTypeHandler(cmfPackage),
                 _ => throw new CliException(string.Format(CoreMessages.PackageTypeHandlerNotImplemented, cmfPackage.PackageType.ToString()))
             };
 

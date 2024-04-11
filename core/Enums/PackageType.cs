@@ -84,5 +84,10 @@
         /// The specific product database
         /// </summary>
         ProductDatabase = 15,
+
+        /// <summary>
+        /// The Grafana
+        /// </summary>
+        Grafana = 16,
     }
 }

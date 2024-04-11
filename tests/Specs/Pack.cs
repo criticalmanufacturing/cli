@@ -161,6 +161,41 @@ namespace tests.Specs
         }
 
         [Fact]
+        public void Grafana()
+        {
+            var fileSystem = MockPackage.Grafana;
+
+            var packCommand = new PackCommand(fileSystem);
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\grafana")), fileSystem.DirectoryInfo.New("output"), false);
+
+            IEnumerable<IFileInfo> assembledFiles = fileSystem.DirectoryInfo.New("output").EnumerateFiles("Cmf.Custom.Grafana.1.1.0.zip").ToList();
+            Assert.Single(assembledFiles);
+
+            using Stream zipToOpen = fileSystem.FileStream.New(assembledFiles.First().FullName, FileMode.Open);
+            using (ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read))
+            {
+                // these tuples allow us to rewrite entry paths
+                var entriesToExtract = new List<Tuple<ZipArchiveEntry, string>>();
+                entriesToExtract.AddRange(zip.Entries.Select(selector: entry => new Tuple<ZipArchiveEntry, string>(entry, entry.FullName)));
+
+                List<string> expectedFiles = new()
+                    {
+                        "manifest.xml",
+                        "datasources/datasources.yaml",
+                        "dashboards/dashboards.yaml"
+                    };
+                Assert.Equal(expectedFiles.Count, entriesToExtract.Count);
+                foreach (var expectedFile in expectedFiles)
+                {
+                    Assert.NotNull(entriesToExtract.FirstOrDefault(x => x.Item2.Equals(expectedFile)));
+                }
+
+                //Checks if README is not inside zip
+                Assert.True(entriesToExtract.FirstOrDefault(x => x.Item2.Equals("README.md")) == default);
+            }
+        }
+
+        [Fact]
         public void HTML()
         {
             var fileSystem = MockPackage.Html;
