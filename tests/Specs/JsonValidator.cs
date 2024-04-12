@@ -1,14 +1,10 @@
-using Xunit;
-using System.IO.Abstractions.TestingHelpers;
-using System.Collections.Generic;
-
 using Cmf.CLI.Commands;
-using Cmf.CLI.Handlers;
+using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.Invocation;
-using System.IO.Abstractions;
 using System.CommandLine.IO;
+using System.IO.Abstractions.TestingHelpers;
 using tests.Objects;
+using Xunit;
 
 namespace tests.Specs
 {
@@ -365,5 +361,167 @@ namespace tests.Specs
 
             Assert.True(!string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator failed for IoT Data Workflow Package: {console.Error.ToString()}");
         }
+
+        [Fact]
+        public void Data_JsonValidator_HappyPath_Workflow()
+        {
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { "/test/cmfpackage.json", new MockFileData(
+                    @"{
+                        ""packageId"": ""Cmf.Custom.Package"",
+                        ""version"": ""1.1.0"",
+                        ""description"": ""This package deploys Critical Manufacturing Customization"",
+                        ""packageType"": ""Root"",
+                        ""isInstallable"": true,
+                        ""isUniqueInstall"": false,
+                        ""dependencies"": [
+                            {
+                                ""id"": ""Cmf.Custom.Data"",
+                                ""version"": ""1.1.0""
+                            },
+                            {
+                                ""id"": ""Cmf.Custom.IoT"",
+                                ""version"": ""1.1.0""
+                            }
+                        ]
+                    }")
+                },
+                { "/test/Data/cmfpackage.json", new CmfMockJsonData(
+                    @"{
+                      ""packageId"": ""Cmf.Custom.Data"",
+                      ""version"": ""1.1.0"",
+                      ""description"": ""Cmf Custom Data Package"",
+                      ""packageType"": ""Data"",
+                      ""isInstallable"": true,
+                      ""isUniqueInstall"": true,
+                      ""contentToPack"": [
+                        {
+                            ""source"": ""MasterData/$(version)/*"",
+                            ""target"": ""MasterData/$(version)/"",
+                            ""contentType"": ""MasterData""
+                        }
+                      ]
+                    }")
+                },
+                { "/test/Data/MasterData/1.1.0/Test.json", new MockFileData(
+                    @"{
+                        ""AutomationControllerWorkflow"": {
+                            ""1"": {
+                                ""AutomationController"": ""TestController"",
+                                ""Name"": ""Test"",
+                                ""DisplayName"": ""Test"",
+                                ""IsFile"": ""Yes"",
+                                ""Workflow"": ""Test/test.json"",
+                                ""Order"": ""1""
+                            },
+                            ""2"": {
+                                ""AutomationController"": ""TestController"",
+                                ""Name"": ""Test2"",
+                                ""DisplayName"": ""Test2"",
+                                ""IsFile"": ""Yes"",
+                                ""IsFile"": ""Yes"",
+                                ""Workflow"": ""Test2/Test2.json"",
+                                ""Order"": ""2""
+                            }
+                        }
+                    }")
+                }
+            });
+
+            BuildCommand buildCommand = new BuildCommand(fileSystem.FileSystem);
+
+            var cmd = new Command("build");
+            buildCommand.Configure(cmd);
+
+            var console = new TestConsole();
+            cmd.Invoke(new string[] {
+                "test/Data/"
+            }, console);
+
+            Assert.True(console.Error == null || string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator failed {console.Error.ToString()}");
+        }
+
+        [Fact]
+        public void Data_JsonValidator_Fail_BackSlash()
+        {
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { "/test/cmfpackage.json", new MockFileData(
+                    @"{
+                        ""packageId"": ""Cmf.Custom.Package"",
+                        ""version"": ""1.1.0"",
+                        ""description"": ""This package deploys Critical Manufacturing Customization"",
+                        ""packageType"": ""Root"",
+                        ""isInstallable"": true,
+                        ""isUniqueInstall"": false,
+                        ""dependencies"": [
+                            {
+                                ""id"": ""Cmf.Custom.Data"",
+                                ""version"": ""1.1.0""
+                            },
+                            {
+                                ""id"": ""Cmf.Custom.IoT"",
+                                ""version"": ""1.1.0""
+                            }
+                        ]
+                    }")
+                },
+                { "/test/Data/cmfpackage.json", new CmfMockJsonData(
+                    @"{
+                      ""packageId"": ""Cmf.Custom.Data"",
+                      ""version"": ""1.1.0"",
+                      ""description"": ""Cmf Custom Data Package"",
+                      ""packageType"": ""Data"",
+                      ""isInstallable"": true,
+                      ""isUniqueInstall"": true,
+                      ""contentToPack"": [
+                        {
+                            ""source"": ""MasterData/$(version)/*"",
+                            ""target"": ""MasterData/$(version)/"",
+                            ""contentType"": ""MasterData""
+                        }
+                      ]
+                    }")
+                },
+                { "/test/Data/MasterData/1.1.0/Test.json", new MockFileData(
+                    @"{
+                        ""AutomationControllerWorkflow"": {
+                            ""1"": {
+                                ""AutomationController"": ""TestController"",
+                                ""Name"": ""Test"",
+                                ""DisplayName"": ""Test"",
+                                ""IsFile"": ""Yes"",
+                                ""Workflow"": ""Test/test.json"",
+                                ""Order"": ""1""
+                            },
+                            ""2"": {
+                                ""AutomationController"": ""TestController"",
+                                ""Name"": ""TestFail"",
+                                ""DisplayName"": ""TestFail"",
+                                ""IsFile"": ""Yes"",
+                                ""IsFile"": ""Yes"",
+                                ""Workflow"": ""TestFail\\testfail.json"",
+                                ""Order"": ""2""
+                            }
+                        }
+                    }")
+                }
+            });
+
+            BuildCommand buildCommand = new BuildCommand(fileSystem.FileSystem);
+
+            var cmd = new Command("build");
+            buildCommand.Configure(cmd);
+
+            var console = new TestConsole();
+            cmd.Invoke(new string[] {
+                "test/Data/"
+            }, console);
+
+            Assert.True(!string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator did not fail for IoT Data Workflow Package: {console.Error.ToString()}");
+            Assert.True(console.Error.ToString().Contains("Please normalize all slashes to be forward slashes"), $"Json Validator did not fail for IoT Data Workflow Package: {console.Error.ToString()}");
+        }
+
     }
 }

@@ -428,7 +428,7 @@ namespace Cmf.CLI.Handlers
 
                     try
                     {
-                        _filesToPack = packageDirectory.GetFiles(_source);
+                       _filesToPack = packageDirectory.GetFiles(_source).OrderBy(file => file.Name).ToArray();
                     }
                     // Because the method GetFiles throws an exception if the folder is not found
                     // we need to catch the error and don't throw an exception

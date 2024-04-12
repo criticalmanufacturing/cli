@@ -1,23 +1,21 @@
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
-using NuGet.Protocol;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Cmf.CLI.Builders
 {
     /// <summary>
-    /// Validator for json files
+    /// Validator for DEE files
     /// </summary>
     /// <seealso cref="ProcessCommand" />
     /// <seealso cref="IBuildCommand" />
-    public class JSONValidatorCommand : IBuildCommand
+    public class DEEValidatorCommand : IBuildCommand
     {
         /// <summary>
         /// Gets or sets the command.
@@ -66,14 +64,20 @@ namespace Cmf.CLI.Builders
         }
 
         /// <summary>
-        /// Search all the json files and validate them
+        /// Search all the cs DEE files and validate them
         /// </summary>
         /// <returns></returns>
         public Task Exec()
         {
             if (Condition())
             {
-                foreach (var file in FilesToValidate.Where(file => file.Source.FullName.Contains(".json")))
+                foreach (var file in FilesToValidate.Where(file =>
+                                                    file.Source.FullName.Contains(".cs") &&
+                                                    !file.Source.FullName.Contains(".csproj") &&
+                                                    !file.Source.FullName.Contains("DeeDevBase.cs") &&
+                                                    !file.Source.FullName.Replace("\\", "/").Contains("/Properties") &&
+                                                    !file.Source.FullName.Replace("\\", "/").Contains("/bin") &&
+                                                    !file.Source.FullName.Replace("\\", "/").Contains("/obj")))
                 {
                     //Open file for Read\Write
                     Stream fs = file.Source.Open(FileMode.OpenOrCreate, FileAccess.Read, FileShare.Read);
@@ -84,24 +88,30 @@ namespace Cmf.CLI.Builders
                     //Use ReadToEnd method to read all the content from file
                     string fileContent = sr.ReadToEnd();
 
-                    try
-                    {
-                        var json = JsonDocument.Parse(fileContent);
-                    }
-                    catch (Exception)
-                    {
-                        throw new CliException($"File {file.Source.FullName} is not a valid json");
-                    }
+                    #region Validate DEE Indicators
 
-                    #region Validate IoT Workflow Paths
-
-                    var matchCheckWorlflowFilePath = Regex.Matches(fileContent, @"Workflow"": ""(.*?)\\(.*?).json");
-
-                    if (matchCheckWorlflowFilePath.Any())
+                    if (!fileContent.Contains("//---Start DEE Condition Code---") ||
+                        !fileContent.Contains("//---End DEE Condition Code---") ||
+                        !fileContent.Contains("//---Start DEE Code---") ||
+                        !fileContent.Contains("//---End DEE Code---"))
                     {
-                        throw new CliException($"JSON File {file.Source.FullName} is not a valid on '{matchCheckWorlflowFilePath.Select(x => x.Value + "/r/n").ToJson()}'. Please normalize all slashes to be forward slashes /");
+                        throw new CliException($"DEE File {file.Source.FullName} is not a valid. It does not have all the valid indicators");
                     }
 
+                    #endregion
+
+                    #region Validate UseReference
+
+                    var matches = Regex.Matches(fileContent, @"UseReference\((.*)\);");
+
+                    foreach (Group match in matches)
+                    {
+                        // Expected UseReference("x.dll", "y");
+                        if (match.Value.Length != Regex.Replace(match.Value, @"\s+", "").Length + 1)
+                        {
+                            throw new CliException($"DEE File {file.Source.FullName} is not a valid on '{match.Value}'. UseReference contains a whitespace, please refer to the valid format UseReference(\"x.dll\", \"y\");");
+                        }
+                    }
                     #endregion
                 }
             }

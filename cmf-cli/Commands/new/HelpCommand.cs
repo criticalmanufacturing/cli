@@ -276,8 +276,7 @@ $@"{{
                 "--output", this.fileSystem.Path.Join(pkgFolder.FullName, "src", "packages"),
                 "--name", assetsPkgName,
                 "--dfPackageName", pkgName.ToLowerInvariant(),
-                "--Tenant", tenant,
-                "--force"
+                "--Tenant", tenant
             });
 
             Log.Verbose("Changing web app port and package type...");

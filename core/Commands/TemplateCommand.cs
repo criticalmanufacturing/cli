@@ -277,7 +277,12 @@ namespace Cmf.CLI.Core.Commands
 
                 args.AddRange(new string[] {"--GatewayPort", configJson["Product.Gateway.Port"]?.Value ?? configJson["APPLICATION_PUBLIC_HTTP_PORT"]?.Value });
 
-                args.AddRange(new string[] {"--DefaultDomain", configJson["Product.Security.Domain"]?.Value ?? configJson["SECURITY_PORTAL_STRATEGY_LOCAL_AD_DEFAULT_DOMAIN"]?.Value});
+                var defaultDomain = configJson["Product.Security.Domain"]?.Value ??
+                                    configJson["SECURITY_PORTAL_STRATEGY_LOCAL_AD_DEFAULT_DOMAIN"]?.Value;
+                if (defaultDomain != null)
+                {
+                    args.AddRange(new string[] { "--DefaultDomain", defaultDomain });
+                }
 
                 args.AddRange(new string[] {"--ReleaseEnvironmentConfig", configFile.Name});
             } 

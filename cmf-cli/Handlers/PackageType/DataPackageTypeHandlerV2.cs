@@ -58,6 +58,11 @@ namespace Cmf.CLI.Handlers
                 {
                     DisplayName = "JSON Validator Command",
                     FilesToValidate = GetContentToPack(fileSystem.DirectoryInfo.New("."))
+                },
+                new DEEValidatorCommand()
+                {
+                    DisplayName = "DEE Validator Command",
+                    FilesToValidate = GetContentToPack(this.fileSystem.DirectoryInfo.New("."))
                 }
             };
 

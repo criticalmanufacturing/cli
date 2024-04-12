@@ -54,6 +54,20 @@
       "type": "parameter",
       "datatype": "string",
       "replaces": "<%= $CLI_PARAM_MESVersion %>"
+    },
+    "MESVersion-ReleaseTag": {
+      "type": "derived",
+      "datatype": "string",
+      "valueSource": "MESVersion",
+      "replaces": "<%= $CLI_PARAM_MESVersion-ReleaseTag %>",
+      "valueTransform": "versionToReleaseTag"
+    }
+  },
+  "forms": {
+    "versionToReleaseTag": {
+      "identifier": "replace",
+      "pattern": "(\\d+)\\.(\\d+)\\.(\\d+)",
+      "replacement": "release-$1$2$3"
     }
   }
 }
