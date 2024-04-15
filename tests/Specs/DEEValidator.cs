@@ -54,6 +54,9 @@ namespace tests.Specs
                                 {
                                     //---Start DEE Code---
 
+                                    // no explicit assembly
+                                    UseReference(""Cmf.Foundation.BusinessOrchestration.dll"", """");
+                                    
                                     // Navigo
                                     UseReference(""Cmf.Navigo.BusinessObjects.dll"", ""Cmf.Navigo.BusinessObjects"");
                                     UseReference(""Cmf.Navigo.BusinessOrchestration.dll"", ""Cmf.Navigo.BusinessOrchestration.MaterialManagement.InputObjects"");
@@ -146,6 +149,80 @@ namespace tests.Specs
             Assert.True(console.Error == null || string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator failed {console.Error.ToString()}");
         }
 
+        [Theory]
+        [InlineData("//---Start DEE Condition Code---", 
+            "//---End DEE Condition Code---",
+            "//---Start DEE Code---", 
+            "//---End DEE Code---", false)]
+        [InlineData("/** START OF USER-DEFINED VALIDATION CODE (DO NOT CHANGE OR DELETE THIS LINE!) **/",
+            "/** END OF USER-DEFINED VALIDATION CODE (DO NOT CHANGE OR DELETE THIS LINE!) **/",
+            "/** START OF USER-DEFINED CODE (DO NOT CHANGE OR DELETE THIS LINE!) **/",
+            "/** END OF USER-DEFINED CODE (DO NOT CHANGE OR DELETE THIS LINE!) **/", false)]
+        [InlineData("//---Start DEE Condition Code---", 
+            "//---End DEE Condition Code---",
+            "/** START OF USER-DEFINED CODE (DO NOT CHANGE OR DELETE THIS LINE!) **/",
+            "//---End DEE Code---", true)]
+        public void Data_DEEValidator_AlternateTags(string startConditionTag, string endConditionTag,string startTag, string endTag, bool shouldError)
+        {
+            var dee = MOCKDEE;
+            dee = dee.Replace("//---Start DEE Condition Code---", startConditionTag);
+            dee = dee.Replace("//---End DEE Condition Code---", endConditionTag);
+            dee = dee.Replace("//---Start DEE Code---", startTag);
+            dee = dee.Replace("//---End DEE Code---", endTag);
+
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { "/test/cmfpackage.json", new MockFileData(
+                    @"{
+                        ""packageId"": ""Cmf.Custom.Package"",
+                        ""version"": ""1.1.0"",
+                        ""description"": ""This package deploys Critical Manufacturing Customization"",
+                        ""packageType"": ""Root"",
+                        ""isInstallable"": true,
+                        ""isUniqueInstall"": false,
+                        ""dependencies"": [
+                            {
+                                ""id"": ""Cmf.Custom.Data"",
+                                ""version"": ""1.1.0""
+                            }
+                        ]
+                    }")
+                },
+                { "/test/Data/cmfpackage.json", new CmfMockJsonData(
+                    @"{
+                      ""packageId"": ""Cmf.Custom.Data"",
+                      ""version"": ""1.1.0"",
+                      ""description"": ""Cmf Custom Data Package"",
+                      ""packageType"": ""Data"",
+                      ""isInstallable"": true,
+                      ""isUniqueInstall"": true,
+                      ""contentToPack"": [
+                        {
+                            ""source"": ""DEEs/*"",
+                            ""target"": ""DeeRules"",
+                            ""contentType"": ""DEE""
+                        }
+                      ]
+                    }")
+                },
+                { "/test/Data/DEEs/test/test.cs", new MockFileData(dee)
+                }
+            });
+
+            BuildCommand buildCommand = new BuildCommand(fileSystem.FileSystem);
+
+            var cmd = new Command("build");
+            buildCommand.Configure(cmd);
+
+            var console = new TestConsole();
+            cmd.Invoke(new string[] {
+                "test/Data/"
+            }, console);
+
+            Assert.True(string.IsNullOrEmpty(console.Error.ToString()) == !shouldError, $"Json Validator did not fail for IoT Data Workflow Package: {console.Error.ToString()}");
+            Assert.True(console.Error.ToString().Contains("It does not have all the valid indicators") == shouldError, $"Json Validator did not fail for IoT Data Workflow Package: {console.Error.ToString()}");
+        }
+        
         [Theory]
         [InlineData(true, true, true, true)]
         [InlineData(true, false, false, false)]
