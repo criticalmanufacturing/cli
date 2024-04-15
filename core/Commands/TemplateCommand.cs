@@ -1,14 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.IO.Abstractions;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.TemplateEngine.Abstractions;
 using Microsoft.TemplateEngine.Abstractions.TemplatePackage;
 using Microsoft.TemplateEngine.Edge;
@@ -16,6 +8,13 @@ using Microsoft.TemplateEngine.Edge.Template;
 using Microsoft.TemplateEngine.IDE;
 using Microsoft.TemplateEngine.Utils;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.IO.Abstractions;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using DefaultTemplateEngineHost = Microsoft.TemplateEngine.Edge.DefaultTemplateEngineHost;
 using ExecutionContext = Cmf.CLI.Core.Objects.ExecutionContext;
 
@@ -102,7 +101,7 @@ namespace Cmf.CLI.Core.Commands
                         break;
                 }
             }
-            
+
             var name = parameters.ContainsKey("name") ? parameters["name"] : "package"; // package is a placeholder, if name isn't provided, the template doesn't use it
             var outputPath = parameters.ContainsKey("output") ? parameters["output"] : ExecutionContext.Instance.FileSystem.Directory.GetCurrentDirectory();
 
@@ -113,7 +112,7 @@ namespace Cmf.CLI.Core.Commands
             using var bootstrapper = new Bootstrapper(templateEngineHost, false);
 
             // this needs a refactor, right now we're minimizing the impact on the implemented commands
-            if (templateName == "new" && parameters.ContainsKey("debug:reinit")) 
+            if (templateName == "new" && parameters.ContainsKey("debug:reinit"))
             {
                 Log.Debug("Cleaning up the template engine store");
                 // we have to re-instantiate the engine environment settings as they are private in the bootstrapper, but are exactly the same
@@ -130,7 +129,7 @@ namespace Cmf.CLI.Core.Commands
             var t = bootstrapper.GetTemplatesAsync(default);
             t.Wait();
             var templates = t.Result;
-            Log.Debug($"Found templates:\n{string.Join("\n",templates.Select(t => t.Name))}\n");
+            Log.Debug($"Found templates:\n{string.Join("\n", templates.Select(t => t.Name))}\n");
             var template = templates.FirstOrDefault(tpl => tpl.ShortNameList.Contains(templateName));
             if (template == null)
             {
@@ -152,7 +151,7 @@ namespace Cmf.CLI.Core.Commands
                 Log.Exception(e);
             }
         }
-        
+
         internal class CmfCliPackageProviderFactory : ITemplatePackageProviderFactory
         {
             public Guid Id => new Guid("bacf2f68-3346-4097-a472-e093a2f2843a");
@@ -161,7 +160,7 @@ namespace Cmf.CLI.Core.Commands
             {
                 return new CmfCliPackageProvider(this, settings);
             }
-            
+
             private class CmfCliPackageProvider : ITemplatePackageProvider, IIdentifiedComponent
             {
                 private readonly IEngineEnvironmentSettings settings;
@@ -177,7 +176,7 @@ namespace Cmf.CLI.Core.Commands
                     List<ITemplatePackage> templatePackages = new List<ITemplatePackage>();
 
                     string assemblyLocation = ExecutionContext.Instance.FileSystem.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                    
+
                     IEnumerable<string> expandedPaths = InstallRequestPathResolution.ExpandMaskedPath(ExecutionContext.Instance.FileSystem.Path.Join(assemblyLocation, "resources", "template_feed"), settings);
                     foreach (string path in expandedPaths)
                     {
@@ -186,15 +185,15 @@ namespace Cmf.CLI.Core.Commands
                             templatePackages.Add(new TemplatePackage(this, path, settings.Host.FileSystem.GetLastWriteTimeUtc(path)));
                         }
                     }
-                    
+
                     return Task.FromResult((IReadOnlyList<ITemplatePackage>)templatePackages);
                 }
 
                 public ITemplatePackageProviderFactory Factory { get; }
                 // disable warning due to unused event (part of ITemplatePackageProvider)
-                #pragma warning disable CS0067
+#pragma warning disable CS0067
                 public event Action TemplatePackagesChanged;
-                #pragma warning restore CS0067
+#pragma warning restore CS0067
                 public Guid Id => new Guid("22a853c8-fae7-42fb-bc58-d858010becf5");
             }
 
@@ -228,7 +227,7 @@ namespace Cmf.CLI.Core.Commands
             );
         }
 
-         /// <summary>
+        /// <summary>
         /// Parse a DF exported config file
         /// </summary>
         /// <param name="configFile">the path to the config file</param>
@@ -252,7 +251,7 @@ namespace Cmf.CLI.Core.Commands
                 args.AddRange(new string[] { "--DBServerODS", configJson["Package[Product.Database.Ods].Database.Server"]?.Value ?? configJson["DATABASE_ODS_MSSQL_ADDRESS"]?.Value ?? "" });
                 args.AddRange(new string[] { "--DBServerDWH", configJson["Package[Product.Database.Dwh].Database.Server"]?.Value ?? configJson["DATABASE_DWH_MSSQL_ADDRESS"]?.Value ?? "" });
                 args.AddRange(new string[] { "--ReportServerURI", configJson["Package.ReportingServices.Address"]?.Value ?? configJson["REPORTING_SSRS_WEB_PORTAL_URL"]?.Value ?? "" });
-                if (configJson["Product.Database.IsAlwaysOn"]?.Value ?? bool.Parse(configJson["DATABASE_MSSQL_ALWAYS_ON_ENABLED"]?.Value ?? false))
+                if (configJson["Product.Database.IsAlwaysOn"]?.Value ?? bool.Parse((configJson["DATABASE_MSSQL_ALWAYS_ON_ENABLED"]?.Value ?? false).ToString()))
                 {
                     args.AddRange(new string[] { "--AlwaysOn" });
                 }
@@ -270,12 +269,12 @@ namespace Cmf.CLI.Core.Commands
                     args.AddRange(new string[] { "--TemporaryPath", configJson["Product.DocumentManagement.TemporaryFolder"]?.Value });
                 }
                 args.AddRange(new string[] { "--HTMLPort", configJson["Product.Presentation.IisConfiguration.Binding.Port"]?.Value ?? configJson["APPLICATION_PUBLIC_HTTP_PORT"]?.Value });
-                if (configJson["Product.Presentation.IisConfiguration.Binding.IsSslEnabled"]?.Value ?? bool.Parse(configJson["APPLICATION_PUBLIC_HTTP_TLS_ENABLED"]?.Value ?? false))
+                if (configJson["Product.Presentation.IisConfiguration.Binding.IsSslEnabled"]?.Value ?? bool.Parse((configJson["APPLICATION_PUBLIC_HTTP_TLS_ENABLED"]?.Value ?? false).ToString()))
                 {
-                    args.AddRange(new string[] {"--IsSslEnabled"});    
+                    args.AddRange(new string[] { "--IsSslEnabled" });
                 }
 
-                args.AddRange(new string[] {"--GatewayPort", configJson["Product.Gateway.Port"]?.Value ?? configJson["APPLICATION_PUBLIC_HTTP_PORT"]?.Value });
+                args.AddRange(new string[] { "--GatewayPort", configJson["Product.Gateway.Port"]?.Value ?? configJson["APPLICATION_PUBLIC_HTTP_PORT"]?.Value });
 
                 var defaultDomain = configJson["Product.Security.Domain"]?.Value ??
                                     configJson["SECURITY_PORTAL_STRATEGY_LOCAL_AD_DEFAULT_DOMAIN"]?.Value;
@@ -284,8 +283,8 @@ namespace Cmf.CLI.Core.Commands
                     args.AddRange(new string[] { "--DefaultDomain", defaultDomain });
                 }
 
-                args.AddRange(new string[] {"--ReleaseEnvironmentConfig", configFile.Name});
-            } 
+                args.AddRange(new string[] { "--ReleaseEnvironmentConfig", configFile.Name });
+            }
             return args;
         }
 
@@ -309,8 +308,8 @@ namespace Cmf.CLI.Core.Commands
                 var package = this.GetPackageInFolder(parentPackageDir.FullName);
                 if (package != null)
                 {
-                    var deps = isTestPackage ? 
-                        package.TestPackages ??= new DependencyCollection() : 
+                    var deps = isTestPackage ?
+                        package.TestPackages ??= new DependencyCollection() :
                         package.Dependencies;
                     var doesNotExist = deps.FirstOrDefault(dep => dep.Id == packageName && dep.Version == version) == null;
                     if (doesNotExist)
