@@ -90,10 +90,14 @@ namespace Cmf.CLI.Builders
 
                     #region Validate DEE Indicators
 
-                    if (!fileContent.Contains("//---Start DEE Condition Code---") ||
+                    if ((!fileContent.Contains("//---Start DEE Condition Code---") ||
                         !fileContent.Contains("//---End DEE Condition Code---") ||
                         !fileContent.Contains("//---Start DEE Code---") ||
-                        !fileContent.Contains("//---End DEE Code---"))
+                        !fileContent.Contains("//---End DEE Code---")) &&
+                        (!fileContent.Contains("/** START OF USER-DEFINED VALIDATION CODE (DO NOT CHANGE OR DELETE THIS LINE!) **/") ||
+                        !fileContent.Contains("/** END OF USER-DEFINED VALIDATION CODE (DO NOT CHANGE OR DELETE THIS LINE!) **/") ||
+                        !fileContent.Contains("/** START OF USER-DEFINED CODE (DO NOT CHANGE OR DELETE THIS LINE!) **/") ||
+                        !fileContent.Contains("/** END OF USER-DEFINED CODE (DO NOT CHANGE OR DELETE THIS LINE!) **/")))
                     {
                         throw new CliException($"DEE File {file.Source.FullName} is not a valid. It does not have all the valid indicators");
                     }
