@@ -25,6 +25,7 @@
       <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.4.0" />
       <PackageReference Include="Spectre.Console" Version="0.46.0" />
       <PackageReference Include="System.CommandLine.NamingConventionBinder" Version="2.0.0-beta4.22272.1" />
+      <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
       <PackageReference Include="System.IO.Abstractions" Version="19.2.1" />
       <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
       <PackageReference Include="Microsoft.TemplateEngine.Edge" Version="6.0.406" />

@@ -11,28 +11,26 @@ using System.IO;
 using System.IO.Abstractions;
 using System.IO.Compression;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
 namespace Cmf.CLI.Core.Objects
 {
     /// <summary>
-    ///
     /// </summary>
-    /// <seealso cref="CmfPackage" />
+    /// <seealso cref="CmfPackage"/>
     [JsonObject]
     public class CmfPackage : IEquatable<CmfPackage>
     {
         #region Private Properties
 
         /// <summary>
-        /// The file information
+        ///     The file information
         /// </summary>
         private IFileInfo FileInfo;
 
         /// <summary>
-        /// Should we set the defaults values as described in the package handler?
+        ///     Should we set the defaults values as described in the package handler?
         /// </summary>
         internal bool IsToSetDefaultValues;
 
@@ -46,19 +44,19 @@ namespace Cmf.CLI.Core.Objects
         public IFileSystem FileSystem => fileSystem;
 
         /// <summary>
-        /// Gets the file name of the package.
+        ///     Gets the file name of the package.
         /// </summary>
         /// <value>
-        /// The file name of the package.
+        ///     The file name of the package.
         /// </value>
         [JsonIgnore]
         public string PackageName => $"{PackageId}.{Version}";
 
         /// <summary>
-        /// Gets the name of the zip package.
+        ///     Gets the name of the zip package.
         /// </summary>
         /// <value>
-        /// The name of the zip package.
+        ///     The name of the zip package.
         /// </value>
         [JsonIgnore]
         public string ZipPackageName => $"{PackageName}.zip";
@@ -68,212 +66,212 @@ namespace Cmf.CLI.Core.Objects
         #region Public Properties
 
         /// <summary>
-        /// Gets the name.
+        ///     Gets the name.
         /// </summary>
         /// <value>
-        /// The name.
+        ///     The name.
         /// </value>
         [JsonProperty(Order = 0)]
         public string Name { get; private set; }
 
         /// <summary>
-        /// Gets or sets the package identifier.
+        ///     Gets or sets the package identifier.
         /// </summary>
         /// <value>
-        /// The package identifier.
+        ///     The package identifier.
         /// </value>
         [JsonProperty(Order = 1)]
         public string PackageId { get; private set; }
 
         /// <summary>
-        /// Gets or sets the version.
+        ///     Gets or sets the version.
         /// </summary>
         /// <value>
-        /// The version.
+        ///     The version.
         /// </value>
         [JsonProperty(Order = 2)]
         public string Version { get; private set; }
 
         /// <summary>
-        /// Gets or sets the description.
+        ///     Gets or sets the description.
         /// </summary>
         /// <value>
-        /// The description.
+        ///     The description.
         /// </value>
         [JsonProperty(Order = 3)]
         public string Description { get; private set; }
 
         /// <summary>
-        /// Gets or sets the type of the package.
+        ///     Gets or sets the type of the package.
         /// </summary>
         /// <value>
-        /// The type of the package.
+        ///     The type of the package.
         /// </value>
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty(Order = 4)]
         public PackageType PackageType { get; private set; }
 
         /// <summary>
-        /// Gets or sets the target directory where the package contents should be installed.
-        /// This is used when the package is installed using Deployment Framework and ignored when it is installed using Environment Manager.
+        ///     Gets or sets the target directory where the package contents should be installed. This is used when the package is installed using Deployment
+        ///     Framework and ignored when it is installed using Environment Manager.
         /// </summary>
         /// <value>
-        /// The target directory.
+        ///     The target directory.
         /// </value>
         [JsonProperty(Order = 5)]
         public string TargetDirectory { get; private set; }
 
         /// <summary>
-        /// Gets or sets the target layer, which means the container in which the packages contents should be installed.
-        /// This is used when the package is installed using Environment Manager and ignored when it is installed using Deployment Framework.
+        ///     Gets or sets the target layer, which means the container in which the packages contents should be installed. This is used when the package is
+        ///     installed using Environment Manager and ignored when it is installed using Deployment Framework.
         /// </summary>
         /// <value>
-        /// The target layer.
+        ///     The target layer.
         /// </value>
         [JsonProperty(Order = 6)]
         public string TargetLayer { get; private set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether this instance is installable.
+        ///     Gets or sets a value indicating whether this instance is installable.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if this instance is installable; otherwise, <c>false</c>.
+        ///     <c>true</c> if this instance is installable; otherwise, <c>false</c>.
         /// </value>
         [JsonProperty(Order = 7)]
         public bool? IsInstallable { get; private set; }
 
         /// <summary>
-        /// Gets or sets the is unique install.
+        ///     Gets or sets the is unique install.
         /// </summary>
         /// <value>
-        /// The is unique install.
+        ///     The is unique install.
         /// </value>
         [JsonProperty(Order = 8)]
         public bool? IsUniqueInstall { get; private set; }
 
         /// <summary>
-        /// Gets or sets the is root package.
+        ///     Gets or sets the is root package.
         /// </summary>
         /// <value>
-        /// The is root package.
+        ///     The is root package.
         /// </value>
         [JsonProperty(Order = 9)]
         [JsonIgnore]
         public string Keywords { get; private set; }
 
         /// <summary>
-        /// Should we set the default steps as described in the handler?
+        ///     Should we set the default steps as described in the handler?
         /// </summary>
         /// <value>
-        /// true to set the default steps; otherwise, false.
+        ///     true to set the default steps; otherwise, false.
         /// </value>
         [JsonProperty(Order = 10)]
         [JsonIgnore]
         public bool? IsToSetDefaultSteps { get; private set; }
 
         /// <summary>
-        /// Gets or sets the dependencies.
+        ///     Gets or sets the dependencies.
         /// </summary>
         /// <value>
-        /// The dependencies.
+        ///     The dependencies.
         /// </value>
         [JsonProperty(Order = 11)]
         public DependencyCollection Dependencies { get; private set; }
 
         /// <summary>
-        /// Gets or sets the steps.
+        ///     Gets or sets the steps.
         /// </summary>
         /// <value>
-        /// The steps.
+        ///     The steps.
         /// </value>
         [JsonProperty(Order = 12)]
         public List<Step> Steps { get; set; }
 
         /// <summary>
-        /// Gets or sets the content to pack.
+        ///     Gets or sets the content to pack.
         /// </summary>
         /// <value>
-        /// The content to pack.
+        ///     The content to pack.
         /// </value>
         [JsonProperty(Order = 13)]
         public List<ContentToPack> ContentToPack { get; private set; }
 
         /// <summary>
-        /// Gets or sets the deployment framework UI file.
+        ///     Gets or sets the deployment framework UI file.
         /// </summary>
         /// <value>
-        /// The deployment framework UI file.
+        ///     The deployment framework UI file.
         /// </value>
         [JsonProperty(Order = 14)]
         public List<string> XmlInjection { get; private set; }
 
         /// <summary>
-        /// Gets or sets the Test Package Id.
+        ///     Gets or sets the Test Package Id.
         /// </summary>
         /// <value>
-        /// The Test Package Id.
+        ///     The Test Package Id.
         /// </value>
         [JsonProperty(Order = 15)]
         public DependencyCollection TestPackages { get; set; }
 
         /// <summary>
-        /// The location of the package
+        ///     The location of the package
         /// </summary>
         [JsonProperty(Order = 16)]
         [JsonIgnore]
         public PackageLocation Location { get; private set; }
 
         /// <summary>
-        /// Handler Version
+        ///     Handler Version
         /// </summary>
         [JsonProperty(Order = 17)]
         public int HandlerVersion { get; private set; }
 
         /// <summary>
-        /// Should the Deployment Framework wait for the Integration Entries created by the package
-        /// This fails the package installation if any Integration Entry fails
+        ///     Should the Deployment Framework wait for the Integration Entries created by the package This fails the package installation if any Integration
+        ///     Entry fails
         /// </summary>
         [JsonProperty(Order = 18)]
         public bool? WaitForIntegrationEntries { get; private set; }
 
         /// <summary>
-        /// The Uri of the package
+        ///     The Uri of the package
         /// </summary>
         [JsonProperty(Order = 19)]
         [JsonIgnore]
         public Uri Uri { get; private set; }
 
         /// <summary>
-        /// The df package type
+        ///     The df package type
         /// </summary>
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty(Order = 20)]
         public PackageType? DFPackageType { get; set; }
 
         /// <summary>
-        /// Gets or sets the build steps.
+        ///     Gets or sets the build steps.
         /// </summary>
         /// <value>
-        /// The build steps.
+        ///     The build steps.
         /// </value>
         [JsonProperty(Order = 21)]
         public List<ProcessBuildStep> BuildSteps { get; set; }
 
         /// <summary>
-        /// Gets or sets the Related packages, and sets what are the expected behavior.
+        ///     Gets or sets the Related packages, and sets what are the expected behavior.
         /// </summary>
         /// <value>
-        /// Packages that should be built/packed before/after the context package
+        ///     Packages that should be built/packed before/after the context package
         /// </value>
         [JsonProperty(Order = 22)]
         public RelatedPackageCollection RelatedPackages { get; set; }
 
         /// <summary>
-        /// Gets or sets the target directory where the dependencies contents should be extracted.
-        /// This is used when the package dependencies are restored in the restore and build commands.
+        ///     Gets or sets the target directory where the dependencies contents should be extracted. This is used when the package dependencies are restored
+        ///     in the restore and build commands.
         /// </summary>
         /// <value>
-        /// The dependencies target directory.
+        ///     The dependencies target directory.
         /// </value>
         [JsonProperty(Order = 23)]
         public string DependenciesDirectory { get; set; }
@@ -283,25 +281,59 @@ namespace Cmf.CLI.Core.Objects
         #region Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CmfPackage"/> class.
+        ///     Initializes a new instance of the <see cref="CmfPackage"/> class.
         /// </summary>
-        /// <param name="name">The name.</param>
-        /// <param name="packageId">The package identifier.</param>
-        /// <param name="version">The version.</param>
-        /// <param name="description">The description.</param>
-        /// <param name="packageType">Type of the package.</param>
-        /// <param name="targetDirectory">The target directory.</param>
-        /// <param name="targetLayer">The target layer.</param>
-        /// <param name="isInstallable">The is installable.</param>
-        /// <param name="isUniqueInstall">The is unique install.</param>
-        /// <param name="keywords">The keywords.</param>
-        /// <param name="isToSetDefaultSteps">The is to set default steps.</param>
-        /// <param name="dependencies">The dependencies.</param>
-        /// <param name="steps">The steps.</param>
-        /// <param name="contentToPack">The content to pack.</param>
-        /// <param name="xmlInjection">The XML injection.</param>
-        /// <param name="waitForIntegrationEntries">should wait for integration entries to complete</param>
-        /// <param name="testPackages">The test Packages.</param>
+        /// <param name="name">
+        ///     The name.
+        /// </param>
+        /// <param name="packageId">
+        ///     The package identifier.
+        /// </param>
+        /// <param name="version">
+        ///     The version.
+        /// </param>
+        /// <param name="description">
+        ///     The description.
+        /// </param>
+        /// <param name="packageType">
+        ///     Type of the package.
+        /// </param>
+        /// <param name="targetDirectory">
+        ///     The target directory.
+        /// </param>
+        /// <param name="targetLayer">
+        ///     The target layer.
+        /// </param>
+        /// <param name="isInstallable">
+        ///     The is installable.
+        /// </param>
+        /// <param name="isUniqueInstall">
+        ///     The is unique install.
+        /// </param>
+        /// <param name="keywords">
+        ///     The keywords.
+        /// </param>
+        /// <param name="isToSetDefaultSteps">
+        ///     The is to set default steps.
+        /// </param>
+        /// <param name="dependencies">
+        ///     The dependencies.
+        /// </param>
+        /// <param name="steps">
+        ///     The steps.
+        /// </param>
+        /// <param name="contentToPack">
+        ///     The content to pack.
+        /// </param>
+        /// <param name="xmlInjection">
+        ///     The XML injection.
+        /// </param>
+        /// <param name="waitForIntegrationEntries">
+        ///     should wait for integration entries to complete
+        /// </param>
+        /// <param name="testPackages">
+        ///     The test Packages.
+        /// </param>
         [JsonConstructor]
         public CmfPackage(string name, string packageId, string version, string description, PackageType packageType,
                           string targetDirectory, string targetLayer, bool? isInstallable, bool? isUniqueInstall, string keywords,
@@ -328,16 +360,17 @@ namespace Cmf.CLI.Core.Objects
         }
 
         /// <summary>
-        /// initialize an empty CmfPackage
+        ///     initialize an empty CmfPackage
         /// </summary>
         public CmfPackage() : this(fileSystem: new FileSystem())
         {
         }
 
         /// <summary>
-        /// Initialize an empty CmfPackage with a specific file system
+        ///     Initialize an empty CmfPackage with a specific file system
         /// </summary>
-        /// <param name="fileSystem"></param>
+        /// <param name="fileSystem">
+        /// </param>
         public CmfPackage(IFileSystem fileSystem)
         {
             this.fileSystem = fileSystem;
@@ -349,7 +382,7 @@ namespace Cmf.CLI.Core.Objects
         }
 
         /// <summary>
-        /// Initialize CmfPackage with PackageId, Version and Uri
+        ///     Initialize CmfPackage with PackageId, Version and Uri
         /// </summary>
         public CmfPackage(string packageId, string version, Uri uri)
         {
@@ -363,7 +396,7 @@ namespace Cmf.CLI.Core.Objects
         #region Public Methods
 
         /// <summary>
-        /// Validates the package.
+        ///     Validates the package.
         /// </summary>
         public void ValidatePackage()
         {
@@ -400,11 +433,13 @@ namespace Cmf.CLI.Core.Objects
         }
 
         /// <summary>
-        /// Indicates whether the current object is equal to another object of the same type.
+        ///     Indicates whether the current object is equal to another object of the same type.
         /// </summary>
-        /// <param name="other">An object to compare with this object.</param>
+        /// <param name="other">
+        ///     An object to compare with this object.
+        /// </param>
         /// <returns>
-        ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
+        ///     <see langword="true"/> if the current object is equal to the <paramref name="other"/> parameter; otherwise, <see langword="false"/>.
         /// </returns>
         public bool Equals(CmfPackage other)
         {
@@ -426,10 +461,10 @@ namespace Cmf.CLI.Core.Objects
         }
 
         /// <summary>
-        /// Gets or sets the file information.
+        ///     Gets or sets the file information.
         /// </summary>
         /// <returns>
-        /// The file information.
+        ///     The file information.
         /// </returns>
         public IFileInfo GetFileInfo()
         {
@@ -437,26 +472,45 @@ namespace Cmf.CLI.Core.Objects
         }
 
         /// <summary>
-        /// Gets or sets the file information.
+        ///     Gets or sets the file information.
         /// </summary>
-        /// <param name="value">The file information.</param>
+        /// <param name="value">
+        ///     The file information.
+        /// </param>
         public void SetFileInfo(IFileInfo value)
         {
             FileInfo = value;
         }
 
         /// <summary>
-        /// Sets the defaults.
+        ///     Sets the defaults.
         /// </summary>
-        /// <param name="name">The name.</param>
-        /// <param name="targetDirectory">The target directory.</param>
-        /// <param name="targetLayer">The target layer container.</param>
-        /// <param name="isInstallable">The is installable.</param>
-        /// <param name="isUniqueInstall">The is unique install.</param>
-        /// <param name="keywords">The keywords.</param>
-        /// <param name="waitForIntegrationEntries">should we wait for integration entries to complete</param>
-        /// <param name="steps">The steps.</param>
-        /// <exception cref="CliException"></exception>
+        /// <param name="name">
+        ///     The name.
+        /// </param>
+        /// <param name="targetDirectory">
+        ///     The target directory.
+        /// </param>
+        /// <param name="targetLayer">
+        ///     The target layer container.
+        /// </param>
+        /// <param name="isInstallable">
+        ///     The is installable.
+        /// </param>
+        /// <param name="isUniqueInstall">
+        ///     The is unique install.
+        /// </param>
+        /// <param name="keywords">
+        ///     The keywords.
+        /// </param>
+        /// <param name="waitForIntegrationEntries">
+        ///     should we wait for integration entries to complete
+        /// </param>
+        /// <param name="steps">
+        ///     The steps.
+        /// </param>
+        /// <exception cref="CliException">
+        /// </exception>
         public void SetDefaultValues(
             string name = null,
             string targetDirectory = null,
@@ -506,23 +560,31 @@ namespace Cmf.CLI.Core.Objects
         }
 
         /// <summary>
-        /// Sets the version.
+        ///     Sets the version.
         /// </summary>
-        /// <param name="version">The version.</param>
-        /// <exception cref="NotImplementedException"></exception>
+        /// <param name="version">
+        ///     The version.
+        /// </param>
+        /// <exception cref="NotImplementedException">
+        /// </exception>
         public void SetVersion(string version)
         {
             Version = version;
         }
 
         /// <summary>
-        /// Builds a dependency tree by attaching the CmfPackage objects to the parent's dependencies
-        /// Can run recursively and fetch packages from a DF repository.
-        /// Supports cycles
+        ///     Builds a dependency tree by attaching the CmfPackage objects to the parent's dependencies Can run recursively and fetch packages from a DF
+        ///     repository. Supports cycles
         /// </summary>
-        /// <param name="repoUris">the address of the package repositories (currently only folders are supported)</param>
-        /// <param name="recurse">should we run recursively</param>
-        /// <returns>this CmfPackage for chaining, but the method itself is mutable</returns>
+        /// <param name="repoUris">
+        ///     the address of the package repositories (currently only folders are supported)
+        /// </param>
+        /// <param name="recurse">
+        ///     should we run recursively
+        /// </param>
+        /// <returns>
+        ///     this CmfPackage for chaining, but the method itself is mutable
+        /// </returns>
         public void LoadDependencies(IEnumerable<Uri> repoUris, StatusContext ctx, bool recurse = false)
         {
             using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity("CmfPackage LoadDependencies");
@@ -586,36 +648,44 @@ namespace Cmf.CLI.Core.Objects
         }
 
         /// <summary>
-        /// Should Serialize Handler Version
+        ///     Should Serialize Handler Version
         /// </summary>
-        /// <returns>returns false if handler version is 0 otherwise true</returns>
+        /// <returns>
+        ///     returns false if handler version is 0 otherwise true
+        /// </returns>
         public bool ShouldSerializeHandlerVersion()
         {
             return HandlerVersion != 0;
         }
 
         /// <summary>
-        /// Shoulds the serialize DF package type.
+        ///     Shoulds the serialize DF package type.
         /// </summary>
-        /// <returns>returns false if DF Package Type is null and Package Type is different then Generic, otherwise true</returns>
+        /// <returns>
+        ///     returns false if DF Package Type is null and Package Type is different then Generic, otherwise true
+        /// </returns>
         public bool ShouldSerializeDFPackageType()
         {
             return DFPackageType != null && PackageType == PackageType.Generic;
         }
 
         /// <summary>
-        /// Shoulds the serialize Related Packages
+        ///     Shoulds the serialize Related Packages
         /// </summary>
-        /// <returns>returns false if Related Packages is null or empty</returns>
+        /// <returns>
+        ///     returns false if Related Packages is null or empty
+        /// </returns>
         public bool ShouldSerializeRelatedPackages()
         {
             return RelatedPackages.HasAny();
         }
 
         /// <summary>
-        /// Should the Dependencies Directory be serialized
+        ///     Should the Dependencies Directory be serialized
         /// </summary>
-        /// <returns>returns false if Dependencies Directory is null or empty</returns>
+        /// <returns>
+        ///     returns false if Dependencies Directory is null or empty
+        /// </returns>
         public bool ShouldSerializeDependenciesDirectory()
         {
             return !string.IsNullOrWhiteSpace(DependenciesDirectory);
@@ -624,15 +694,22 @@ namespace Cmf.CLI.Core.Objects
         #region Static Methods
 
         /// <summary>
-        /// Loads the specified file.
+        ///     Loads the specified file.
         /// </summary>
-        /// <param name="file">The file.</param>
-        /// <param name="setDefaultValues"></param>
-        /// <param name="fileSystem">the underlying file system</param>
-        /// <returns></returns>
+        /// <param name="file">
+        ///     The file.
+        /// </param>
+        /// <param name="setDefaultValues">
+        /// </param>
+        /// <param name="fileSystem">
+        ///     the underlying file system
+        /// </param>
+        /// <returns>
+        /// </returns>
         /// <exception cref="Cmf.CLI.Utilities.CliException">
         /// </exception>
-        /// <exception cref="CliException"></exception>
+        /// <exception cref="CliException">
+        /// </exception>
         public static CmfPackage Load(IFileInfo file, bool setDefaultValues = false, IFileSystem fileSystem = null)
         {
             fileSystem ??= ExecutionContext.Instance.FileSystem;
@@ -654,10 +731,12 @@ namespace Cmf.CLI.Core.Objects
         }
 
         /// <summary>
-        /// Load Method for an instantiated CmfPackage object
+        ///     Load Method for an instantiated CmfPackage object
         /// </summary>
-        /// <param name="setDefaultValues"></param>
-        /// <exception cref="CliException"></exception>
+        /// <param name="setDefaultValues">
+        /// </param>
+        /// <exception cref="CliException">
+        /// </exception>
         public void Load(bool setDefaultValues = false)
         {
             if (!FileInfo.Exists)
@@ -671,14 +750,13 @@ namespace Cmf.CLI.Core.Objects
             Location = PackageLocation.Local;
 
             RelatedPackages?.Load(this);
-
         }
 
         /// <summary>
-        /// Similar to Load, but without deserialization.
-        /// Only sets PackageId and Version
+        ///     Similar to Load, but without deserialization. Only sets PackageId and Version
         /// </summary>
-        /// <exception cref="CliException"></exception>
+        /// <exception cref="CliException">
+        /// </exception>
         public void Peek()
         {
             if (!FileInfo.Exists)
@@ -697,12 +775,17 @@ namespace Cmf.CLI.Core.Objects
         }
 
         /// <summary>
-        /// Gets the URI from repos.
+        ///     Gets the URI from repos.
         /// </summary>
-        /// <param name="repoDirectories">The repo directories.</param>
-        /// <param name="packageId"></param>
-        /// <param name="version"></param>
-        /// <returns></returns>
+        /// <param name="repoDirectories">
+        ///     The repo directories.
+        /// </param>
+        /// <param name="packageId">
+        /// </param>
+        /// <param name="version">
+        /// </param>
+        /// <returns>
+        /// </returns>
         public static CmfPackage LoadFromRepo(IDirectoryInfo[] repoDirectories, string packageId, string version)
         {
             if (version is null)
@@ -744,12 +827,20 @@ namespace Cmf.CLI.Core.Objects
         }
 
         /// <summary>
-        /// Create a CmfPackage object from a DF package manifest
+        ///     Create a CmfPackage object from a DF package manifest
         /// </summary>
-        /// <param name="manifest">the manifest content</param>
-        /// <param name="setDefaultValues">should set default values</param>
-        /// <param name="fileSystem">the underlying file system</param>
-        /// <returns>a CmfPackage</returns>
+        /// <param name="manifest">
+        ///     the manifest content
+        /// </param>
+        /// <param name="setDefaultValues">
+        ///     should set default values
+        /// </param>
+        /// <param name="fileSystem">
+        ///     the underlying file system
+        /// </param>
+        /// <returns>
+        ///     a CmfPackage
+        /// </returns>
         public static CmfPackage FromManifest(string manifest, bool setDefaultValues = false, IFileSystem fileSystem = null)
         {
             fileSystem ??= new FileSystem();
@@ -827,10 +918,10 @@ namespace Cmf.CLI.Core.Objects
         #region Utilities
 
         /// <summary>
-        /// Determines whether [is root package].
+        ///     Determines whether [is root package].
         /// </summary>
         /// <returns>
-        ///   <c>true</c> if [is root package] [the specified CMF package]; otherwise, <c>false</c>.
+        ///     <c>true</c> if [is root package] [the specified CMF package]; otherwise, <c>false</c>.
         /// </returns>
         public bool IsRootPackage()
         {
@@ -838,7 +929,7 @@ namespace Cmf.CLI.Core.Objects
         }
 
         /// <summary>
-        /// Saves the CMF package.
+        ///     Saves the CMF package.
         /// </summary>
         public void SaveCmfPackage()
         {
@@ -861,20 +952,70 @@ namespace Cmf.CLI.Core.Objects
         }
 
         /// <summary>
-        /// Equalses the specified object.
+        ///     Updates the version of a dependency in a given package.
         /// </summary>
-        /// <param name="obj">The object.</param>
-        /// <returns></returns>
+        /// <param name="updatedPackage">
+        ///     The package to find and update the Version in the parent package Dependencies.
+        /// </param>
+        public void UpdateDependency(CmfPackage updatedPackage)
+        {
+            Dependency dependency = null;
+
+            if (dependency.IsNullOrEmpty() && Dependencies.HasAny())
+            {
+                dependency = Dependencies.FirstOrDefault(dep => dep.Id.IgnoreCaseEquals(updatedPackage.PackageId));
+            }
+
+            if (dependency.IsNullOrEmpty() && TestPackages.HasAny())
+            {
+                dependency = TestPackages.FirstOrDefault(dep => dep.Id.IgnoreCaseEquals(updatedPackage.PackageId));
+            }
+
+            if (!dependency.IsNullOrEmpty())
+            {
+                dependency.Version = updatedPackage.Version;
+                SaveCmfPackage();
+            }
+        }
+
+        /// <summary>
+        ///     Renames all folders with a specific version in their name with the new version.
+        /// </summary>
+        /// <param name="oldVersion">
+        ///     Version number of the folders that need to be renamed.
+        /// </param>
+        public void RenameVersionFolders(string oldVersion)
+        {
+            // Gets all Version folders inside current package
+            foreach (IDirectoryInfo folder in GetFileInfo().Directory.GetDirectories(oldVersion, SearchOption.AllDirectories).Where(dir => dir.FullName.Split(PackageId).Length - 1 == 1))
+            {
+                string oldPath = folder.FullName;
+                string newPath = folder.FullName.Replace(oldVersion, Version);
+                folder.MoveTo(newPath);
+                Log.Information($"Will rename '{oldPath}' to '{newPath}'");
+            }
+        }
+
+        /// <summary>
+        ///     Equalses the specified object.
+        /// </summary>
+        /// <param name="obj">
+        ///     The object.
+        /// </param>
+        /// <returns>
+        /// </returns>
         public override bool Equals(object obj)
         {
             return Equals(obj as CmfPackage);
         }
 
         /// <summary>
-        /// Gets the hash code.
+        ///     Gets the hash code.
         /// </summary>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
+        /// <returns>
+        /// </returns>
+        /// <exception cref="NotImplementedException">
+        /// </exception>
         public override int GetHashCode()
         {
             throw new NotImplementedException();

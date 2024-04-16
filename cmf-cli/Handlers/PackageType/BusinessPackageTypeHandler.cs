@@ -10,15 +10,16 @@ using System.Text.RegularExpressions;
 namespace Cmf.CLI.Handlers
 {
     /// <summary>
-    ///
     /// </summary>
-    /// <seealso cref="PackageTypeHandler" />
+    /// <seealso cref="PackageTypeHandler"/>
     public class BusinessPackageTypeHandler : PackageTypeHandler
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="BusinessPackageTypeHandler" /> class.
+        ///     Initializes a new instance of the <see cref="BusinessPackageTypeHandler"/> class.
         /// </summary>
-        /// <param name="cmfPackage">The CMF package.</param>
+        /// <param name="cmfPackage">
+        ///     The CMF package.
+        /// </param>
         public BusinessPackageTypeHandler(CmfPackage cmfPackage) : base(cmfPackage)
         {
             cmfPackage.SetDefaultValues(
@@ -67,7 +68,6 @@ namespace Cmf.CLI.Handlers
                     Command = "build",
                     DisplayName = "Build Business Solution",
                     Solution = this.fileSystem.FileInfo.New(Path.Join(cmfPackage.GetFileInfo().Directory.FullName, "Business.sln")),
-                    Configuration = "Release",
                     WorkingDirectory = cmfPackage.GetFileInfo().Directory,
                     Args = new [] { "--no-restore "}
                 },
@@ -83,11 +83,17 @@ namespace Cmf.CLI.Handlers
         }
 
         /// <summary>
-        /// Bumps the specified CMF package.
+        ///     Bumps the specified CMF package.
         /// </summary>
-        /// <param name="version">The version.</param>
-        /// <param name="buildNr">The version for build Nr.</param>
-        /// <param name="bumpInformation">The bump information.</param>
+        /// <param name="version">
+        ///     The version.
+        /// </param>
+        /// <param name="buildNr">
+        ///     The version for build Nr.
+        /// </param>
+        /// <param name="bumpInformation">
+        ///     The bump information.
+        /// </param>
         public override void Bump(string version, string buildNr, Dictionary<string, object> bumpInformation = null)
         {
             base.Bump(version, buildNr, bumpInformation);
