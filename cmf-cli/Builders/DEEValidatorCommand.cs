@@ -71,6 +71,7 @@ namespace Cmf.CLI.Builders
         {
             if (Condition())
             {
+                var errors = new List<string>();
                 foreach (var file in FilesToValidate.Where(file =>
                                                     file.Source.FullName.Contains(".cs") &&
                                                     !file.Source.FullName.Contains(".csproj") &&
@@ -90,12 +91,16 @@ namespace Cmf.CLI.Builders
 
                     #region Validate DEE Indicators
 
-                    if (!fileContent.Contains("//---Start DEE Condition Code---") ||
+                    if ((!fileContent.Contains("//---Start DEE Condition Code---") ||
                         !fileContent.Contains("//---End DEE Condition Code---") ||
                         !fileContent.Contains("//---Start DEE Code---") ||
-                        !fileContent.Contains("//---End DEE Code---"))
+                        !fileContent.Contains("//---End DEE Code---")) &&
+                        (!fileContent.Contains("/** START OF USER-DEFINED VALIDATION CODE (DO NOT CHANGE OR DELETE THIS LINE!) **/") ||
+                        !fileContent.Contains("/** END OF USER-DEFINED VALIDATION CODE (DO NOT CHANGE OR DELETE THIS LINE!) **/") ||
+                        !fileContent.Contains("/** START OF USER-DEFINED CODE (DO NOT CHANGE OR DELETE THIS LINE!) **/") ||
+                        !fileContent.Contains("/** END OF USER-DEFINED CODE (DO NOT CHANGE OR DELETE THIS LINE!) **/")))
                     {
-                        throw new CliException($"DEE File {file.Source.FullName} is not a valid. It does not have all the valid indicators");
+                        errors.Add($"DEE File {file.Source.FullName} is not a valid. It does not have all the valid indicators");
                     }
 
                     #endregion
@@ -109,10 +114,15 @@ namespace Cmf.CLI.Builders
                         // Expected UseReference("x.dll", "y");
                         if (match.Value.Length != Regex.Replace(match.Value, @"\s+", "").Length + 1)
                         {
-                            throw new CliException($"DEE File {file.Source.FullName} is not a valid on '{match.Value}'. UseReference contains a whitespace, please refer to the valid format UseReference(\"x.dll\", \"y\");");
+                            errors.Add($"DEE File {file.Source.FullName} is not a valid on '{match.Value}'. UseReference contains a whitespace, please refer to the valid format UseReference(\"x.dll\", \"y\");");
                         }
                     }
                     #endregion
+                }
+
+                if (errors.Count > 0)
+                {
+                    throw new CliException($"DEE Validation failed with the following errors:{Environment.NewLine}{Environment.NewLine}{string.Join(Environment.NewLine, errors)}");
                 }
             }
             else

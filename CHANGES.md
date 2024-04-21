@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.2.1](https://github.com/criticalmanufacturing/cli/compare/4.2.1-0...4.2.1) (2024-04-21)
+
+### [4.2.1-0](https://github.com/criticalmanufacturing/cli/compare/4.2.0...4.2.1-0) (2024-04-16)
+
+
+### Bug Fixes
+
+* **DEE validation:** support alternate tags used by DEE Debugger ([a59a954](https://github.com/criticalmanufacturing/cli/commits/a59a95462bdb30da1e6a7a74eadeef69f26032f5))
+
+
+### Under the hood
+
+* **DEE validation:** display all errors instead of exiting on first ([81a19ab](https://github.com/criticalmanufacturing/cli/commits/81a19abf7fb7294e1580ebef4577ab1ede754218))
+
 ## [4.2.0](https://github.com/criticalmanufacturing/cli/compare/4.2.0-4...4.2.0) (2024-04-11)
 
 ## [4.2.0-4](https://github.com/criticalmanufacturing/cli/compare/4.2.0-3...4.2.0-4) (2024-03-21)
