@@ -5,6 +5,9 @@ using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
 using System.Diagnostics;
+using Cmf.CLI.Core;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Utilities;
 
 namespace Cmf.CLI.Commands
 {
@@ -62,10 +65,41 @@ namespace Cmf.CLI.Commands
             args.ToList().ForEach(arg => ps.ArgumentList.Add(arg));
             ps.UseShellExecute = false;
             ps.RedirectStandardOutput = true;
+            ps.RedirectStandardError = true;
+            
+            Action<string> outputHandler = Console.WriteLine;
+            Action<string> errorHandler = Log.Error;
 
             using var process = System.Diagnostics.Process.Start(ps);
-            Console.WriteLine(process.StandardOutput.ReadToEnd());
+            if (process == null)
+            {
+                throw new Exception("Could not spawn child command");
+            }
+            
+            process.ErrorDataReceived += (sender, args) => errorHandler(args.Data);
+            process.OutputDataReceived += (sender, args) => outputHandler(args.Data);
+            
+            process.BeginOutputReadLine();
+            process.BeginErrorReadLine();
+            
+            Console.CancelKeyPress += (sender, eventArgs) =>
+            {
+                eventArgs.Cancel = true;
+                Log.Debug("Caught SIGINT, terminating child process");
+                process.Disposed += (sender, args) => Log.Debug("Child process Disposed");
+                process.Kill(entireProcessTree: true);
+                Environment.Exit(-1);
+            };
             process.WaitForExit();
+            var exitCode = process.ExitCode;
+            Log.Debug($"Child process exited with code {exitCode}");
+
+            if (exitCode != 0)
+            {
+                Log.Debug($"Plugin did not complete successfully: {exitCode}.");
+
+                throw new CliException($"{commandName} {string.Join(" ", args)} did not finished successfully.", (ErrorCode)exitCode);
+            }
         }
     }
 }
