@@ -5,25 +5,25 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Media;
 using System.Threading.Tasks;
 
 namespace Cmf.CLI.Builders
 {
     /// <summary>
-    ///
     /// </summary>
     public abstract class ProcessCommand : IProcessCommand
     {
         /// <summary>
-        /// the underlying file system
+        ///     the underlying file system
         /// </summary>
         protected IFileSystem fileSystem = new FileSystem();
 
         /// <summary>
-        /// Gets or sets the working directory.
+        ///     Gets or sets the working directory.
         /// </summary>
         /// <value>
-        /// The working directory.
+        ///     The working directory.
         /// </value>
         public IDirectoryInfo WorkingDirectory { get; set; }
 
@@ -33,9 +33,10 @@ namespace Cmf.CLI.Builders
         }
 
         /// <summary>
-        /// Executes this instance.
+        ///     Executes this instance.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>
+        /// </returns>
         public Task Exec()
         {
             foreach (var step in this.GetSteps())
@@ -88,6 +89,11 @@ namespace Cmf.CLI.Builders
                     ps.WaitForExit();
                     if (ps.ExitCode != 0)
                     {
+                        if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+                        {
+                            // SoundPlayer is only supported on windows
+                            new SoundPlayer(@"C:\Windows\Media\chord.wav").PlaySync();
+                        }
                         throw new CliException($"Command '{command} {String.Join(' ', step.Args)}' did not finish successfully: Exit code {ps.ExitCode}. Please check the log for more details");
                     }
                     ps.Dispose();
@@ -102,9 +108,10 @@ namespace Cmf.CLI.Builders
         }
 
         /// <summary>
-        /// Gets the steps.
+        ///     Gets the steps.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>
+        /// </returns>
         public abstract ProcessBuildStep[] GetSteps();
     }
 }

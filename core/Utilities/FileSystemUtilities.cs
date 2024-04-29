@@ -1,4 +1,8 @@
-﻿using Newtonsoft.Json;
+﻿using Cmf.CLI.Core;
+using Cmf.CLI.Core.Constants;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,33 +12,47 @@ using System.Linq;
 using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
-using Cmf.CLI.Core;
-using Cmf.CLI.Core.Constants;
-using Cmf.CLI.Core.Enums;
-using Cmf.CLI.Core.Objects;
 
 namespace Cmf.CLI.Utilities
 {
     /// <summary>
-    ///
     /// </summary>
     public static class FileSystemUtilities
     {
         #region Public Methods
 
         /// <summary>
-        /// Gets the files to pack.
+        ///     Gets the files to pack.
         /// </summary>
-        /// <param name="contentToPack">The content to pack.</param>
-        /// <param name="sourceDirName">Name of the source dir.</param>
-        /// <param name="destDirName">Name of the dest dir.</param>
-        /// <param name="contentToIgnore">The content to ignore.</param>
-        /// <param name="copySubDirs">if set to <c>true</c> [copy sub dirs].</param>
-        /// <param name="isCopyDependencies">if set to <c>true</c> [is copy dependencies].</param>
-        /// <param name="filesToPack">The files to pack.</param>
-        /// <param name="fileSystem">the underlying file system</param>
-        /// <returns></returns>
-        /// <exception cref="DirectoryNotFoundException">$"Source directory does not exist or could not be found: {sourceDirName}</exception>
+        /// <param name="contentToPack">
+        ///     The content to pack.
+        /// </param>
+        /// <param name="sourceDirName">
+        ///     Name of the source dir.
+        /// </param>
+        /// <param name="destDirName">
+        ///     Name of the dest dir.
+        /// </param>
+        /// <param name="contentToIgnore">
+        ///     The content to ignore.
+        /// </param>
+        /// <param name="copySubDirs">
+        ///     if set to <c>true</c> [copy sub dirs].
+        /// </param>
+        /// <param name="isCopyDependencies">
+        ///     if set to <c>true</c> [is copy dependencies].
+        /// </param>
+        /// <param name="filesToPack">
+        ///     The files to pack.
+        /// </param>
+        /// <param name="fileSystem">
+        ///     the underlying file system
+        /// </param>
+        /// <returns>
+        /// </returns>
+        /// <exception cref="DirectoryNotFoundException">
+        ///     $"Source directory does not exist or could not be found: {sourceDirName}
+        /// </exception>
         public static List<FileToPack> GetFilesToPack(ContentToPack contentToPack, string sourceDirName, string destDirName, IFileSystem fileSystem, List<string> contentToIgnore = null, bool copySubDirs = true, bool isCopyDependencies = false, List<FileToPack> filesToPack = null)
         {
             if (filesToPack == null)
@@ -103,16 +121,30 @@ namespace Cmf.CLI.Utilities
         }
 
         /// <summary>
-        /// Directories copy.
+        ///     Directories copy.
         /// </summary>
-        /// <param name="sourceDirName">Name of the source dir.</param>
-        /// <param name="destDirName">Name of the dest dir.</param>
-        /// <param name="contentToIgnore">The exclusions.</param>
-        /// <param name="copySubDirs">if set to <c>true</c> [copy sub dirs].</param>
-        /// <param name="isCopyDependencies">if set to <c>true</c> [is copy dependencies].</param>
-        /// <param name="fileSystem">the underlying file system</param>
-        /// <exception cref="DirectoryNotFoundException">Source directory does not exist or could not be found: "
-        /// + sourceDirName</exception>
+        /// <param name="sourceDirName">
+        ///     Name of the source dir.
+        /// </param>
+        /// <param name="destDirName">
+        ///     Name of the dest dir.
+        /// </param>
+        /// <param name="contentToIgnore">
+        ///     The exclusions.
+        /// </param>
+        /// <param name="copySubDirs">
+        ///     if set to <c>true</c> [copy sub dirs].
+        /// </param>
+        /// <param name="isCopyDependencies">
+        ///     if set to <c>true</c> [is copy dependencies].
+        /// </param>
+        /// <param name="fileSystem">
+        ///     the underlying file system
+        /// </param>
+        /// <exception cref="DirectoryNotFoundException">
+        ///     Source directory does not exist or could not be found: "
+        ///     + sourceDirName
+        /// </exception>
         public static void CopyDirectory(string sourceDirName, string destDirName, IFileSystem fileSystem, List<string> contentToIgnore = null, bool copySubDirs = true, bool isCopyDependencies = false)
         {
             // Get the subdirectories for the specified directory.
@@ -164,10 +196,13 @@ namespace Cmf.CLI.Utilities
         }
 
         /// <summary>
-        /// Reads to string.
+        ///     Reads to string.
         /// </summary>
-        /// <param name="fi">The fi.</param>
-        /// <returns></returns>
+        /// <param name="fi">
+        ///     The fi.
+        /// </param>
+        /// <returns>
+        /// </returns>
         public static string ReadToString(this IFileInfo fi)
         {
             //open for read operation
@@ -186,10 +221,13 @@ namespace Cmf.CLI.Utilities
         }
 
         /// <summary>
-        /// Reads to string list.
+        ///     Reads to string list.
         /// </summary>
-        /// <param name="fi">The fi.</param>
-        /// <returns></returns>
+        /// <param name="fi">
+        ///     The fi.
+        /// </param>
+        /// <returns>
+        /// </returns>
         public static List<string> ReadToStringList(this IFileInfo fi)
         {
             List<string> result = new();
@@ -219,10 +257,13 @@ namespace Cmf.CLI.Utilities
         }
 
         /// <summary>
-        /// Gets the package root.
+        ///     Gets the package root.
         /// </summary>
-        /// <returns></returns>
-        /// <exception cref="CliException">Cannot find package root. Are you in a valid package directory?</exception>
+        /// <returns>
+        /// </returns>
+        /// <exception cref="CliException">
+        ///     Cannot find package root. Are you in a valid package directory?
+        /// </exception>
         public static IDirectoryInfo GetPackageRoot(IFileSystem fileSystem, string workingDir = null)
         {
             var cwd = fileSystem.DirectoryInfo.New(workingDir ?? fileSystem.Directory.GetCurrentDirectory());
@@ -236,11 +277,16 @@ namespace Cmf.CLI.Utilities
         }
 
         /// <summary>
-        /// Gets the project root.
+        ///     Gets the project root.
         /// </summary>
-        /// <returns></returns>
-        /// <exception cref="CliException">Cannot find project root. Are you in a valid project directory?</exception>
-        /// <exception cref="CliException">Cannot find project root. Are you in a valid project directory?</exception>
+        /// <returns>
+        /// </returns>
+        /// <exception cref="CliException">
+        ///     Cannot find project root. Are you in a valid project directory?
+        /// </exception>
+        /// <exception cref="CliException">
+        ///     Cannot find project root. Are you in a valid project directory?
+        /// </exception>
         public static IDirectoryInfo GetProjectRoot(IFileSystem fileSystem, bool throwException = false)
         {
             var cwd = fileSystem.DirectoryInfo.New(fileSystem.Directory.GetCurrentDirectory());
@@ -259,13 +305,22 @@ namespace Cmf.CLI.Utilities
         }
 
         /// <summary>
-        /// Gets the package root of type package root.
+        ///     Gets the package root of type package root.
         /// </summary>
-        /// <param name="directoryName">The current working directory</param>
-        /// <param name="packageType">Type of the package.</param>
-        /// <param name="fileSystem">the underlying file system</param>
-        /// <returns></returns>
-        /// <exception cref="CliException">Cannot find project root. Are you in a valid project directory?</exception>
+        /// <param name="directoryName">
+        ///     The current working directory
+        /// </param>
+        /// <param name="packageType">
+        ///     Type of the package.
+        /// </param>
+        /// <param name="fileSystem">
+        ///     the underlying file system
+        /// </param>
+        /// <returns>
+        /// </returns>
+        /// <exception cref="CliException">
+        ///     Cannot find project root. Are you in a valid project directory?
+        /// </exception>
         public static IDirectoryInfo GetPackageRootByType(string directoryName, PackageType packageType, IFileSystem fileSystem)
         {
             var cwd = fileSystem.DirectoryInfo.New(directoryName);
@@ -289,11 +344,37 @@ namespace Cmf.CLI.Utilities
         }
 
         /// <summary>
-        /// Reads the environment configuration.
+        ///     Retrieves all CmfPackages and orders them by PackageId, including the root CmfPackage at the beginning.
         /// </summary>
-        /// <param name="envConfigName">Name of the env configuration.</param>
-        /// <param name="fileSystem">the underlying file system</param>
-        /// <returns></returns>
+        /// <param name="IFileSystem">
+        ///     FileSystem
+        /// </param>
+        /// <returns>
+        ///     `CmfPackageCollection` object that contains all the CmfPackages loaded from subdirectories within the project root directory. The CmfPackages
+        ///     are ordered by their PackageId, and the Root CmfPackage is added to the beginning of the collection.
+        /// </returns>
+        public static CmfPackageCollection GetAllPackages(IFileSystem fileSystem)
+        {
+            IDirectoryInfo projectRoot = GetProjectRoot(fileSystem);
+            CmfPackageCollection packages = new CmfPackageCollection();
+
+            // Load all CmfPackages and Order by PackageId and add Root CmfPackage to the beginning of the sequence
+            Log.Status("Loading all CmfPackages", (_) => packages.AddRange(projectRoot.LoadCmfPackagesFromSubDirectories().OrderBy(p => p.PackageId).Prepend(CmfPackage.Load(fileSystem.FileInfo.New(fileSystem.Path.Join(projectRoot.FullName, CoreConstants.CmfPackageFileName))))));
+
+            return packages;
+        }
+
+        /// <summary>
+        ///     Reads the environment configuration.
+        /// </summary>
+        /// <param name="envConfigName">
+        ///     Name of the env configuration.
+        /// </param>
+        /// <param name="fileSystem">
+        ///     the underlying file system
+        /// </param>
+        /// <returns>
+        /// </returns>
         public static JsonDocument ReadEnvironmentConfig(string envConfigName, IFileSystem fileSystem)
         {
             if (!envConfigName.EndsWith(".json"))
@@ -311,9 +392,10 @@ namespace Cmf.CLI.Utilities
         }
 
         /// <summary>
-        /// Reads the project configuration.
+        ///     Reads the project configuration.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>
+        /// </returns>
         [Obsolete("Use ExecutionContext.Instance.ProjectConfig")]
         public static JsonDocument ReadProjectConfig(IFileSystem fileSystem)
         {
@@ -325,10 +407,14 @@ namespace Cmf.CLI.Utilities
         }
 
         /// <summary>
-        /// Read DF repositories config from filesystem
+        ///     Read DF repositories config from filesystem
         /// </summary>
-        /// <param name="fileSystem">The filesystem object</param>
-        /// <returns>a RepositoriesConfig object</returns>
+        /// <param name="fileSystem">
+        ///     The filesystem object
+        /// </param>
+        /// <returns>
+        ///     a RepositoriesConfig object
+        /// </returns>
         public static RepositoriesConfig ReadRepositoriesConfig(IFileSystem fileSystem)
         {
             var cwd = fileSystem.DirectoryInfo.New(fileSystem.Directory.GetCurrentDirectory());
@@ -360,10 +446,14 @@ namespace Cmf.CLI.Utilities
         }
 
         /// <summary>
-        /// Copies the contents of input to output. Doesn't close either stream.
+        ///     Copies the contents of input to output. Doesn't close either stream.
         /// </summary>
-        /// <param name="input">The input.</param>
-        /// <param name="output">The output.</param>
+        /// <param name="input">
+        ///     The input.
+        /// </param>
+        /// <param name="output">
+        ///     The output.
+        /// </param>
         public static void CopyStream(Stream input, Stream output)
         {
             byte[] buffer = new byte[8 * 1024];
@@ -375,11 +465,17 @@ namespace Cmf.CLI.Utilities
         }
 
         /// <summary>
-        /// Copies the install dependencies.
+        ///     Copies the install dependencies.
         /// </summary>
-        /// <param name="packageOutputDir">The package output dir.</param>
-        /// <param name="packageType">Type of the package.</param>
-        /// <param name="fileSystem">the underlying file system</param>
+        /// <param name="packageOutputDir">
+        ///     The package output dir.
+        /// </param>
+        /// <param name="packageType">
+        ///     Type of the package.
+        /// </param>
+        /// <param name="fileSystem">
+        ///     the underlying file system
+        /// </param>
         public static void CopyInstallDependenciesFiles(IDirectoryInfo packageOutputDir, PackageType packageType, IFileSystem fileSystem)
         {
             string sourceDirectory = fileSystem.Path.Join(AppDomain.CurrentDomain.BaseDirectory, CoreConstants.FolderInstallDependencies, packageType.ToString());
@@ -387,12 +483,19 @@ namespace Cmf.CLI.Utilities
         }
 
         /// <summary>
-        /// Gets the output dir.
+        ///     Gets the output dir.
         /// </summary>
-        /// <param name="cmfPackage">The CMF package.</param>
-        /// <param name="outputDir">The output dir.</param>
-        /// <param name="force">if set to <c>true</c> [force].</param>
-        /// <returns></returns>
+        /// <param name="cmfPackage">
+        ///     The CMF package.
+        /// </param>
+        /// <param name="outputDir">
+        ///     The output dir.
+        /// </param>
+        /// <param name="force">
+        ///     if set to <c>true</c> [force].
+        /// </param>
+        /// <returns>
+        /// </returns>
         public static IDirectoryInfo GetOutputDir(CmfPackage cmfPackage, IDirectoryInfo outputDir, bool force)
         {
             // Create OutputDir
@@ -421,12 +524,19 @@ namespace Cmf.CLI.Utilities
         }
 
         /// <summary>
-        /// Gets the package output dir.
+        ///     Gets the package output dir.
         /// </summary>
-        /// <param name="cmfPackage">The CMF package.</param>
-        /// <param name="packageDirectory">The package directory.</param>
-        /// <param name="fileSystem">the underlying file system</param>
-        /// <returns></returns>
+        /// <param name="cmfPackage">
+        ///     The CMF package.
+        /// </param>
+        /// <param name="packageDirectory">
+        ///     The package directory.
+        /// </param>
+        /// <param name="fileSystem">
+        ///     the underlying file system
+        /// </param>
+        /// <returns>
+        /// </returns>
         public static IDirectoryInfo GetPackageOutputDir(CmfPackage cmfPackage, IDirectoryInfo packageDirectory, IFileSystem fileSystem)
         {
             // Clear and Create packageOutputDir
@@ -444,10 +554,12 @@ namespace Cmf.CLI.Utilities
         }
 
         /// <summary>
-        /// Get Manifest File From package
+        ///     Get Manifest File From package
         /// </summary>
-        /// <param name="packageFile"></param>
-        /// <returns></returns>
+        /// <param name="packageFile">
+        /// </param>
+        /// <returns>
+        /// </returns>
         public static XDocument GetManifestFromPackage(string packageFile, IFileSystem fileSystem = null)
         {
             fileSystem ??= new FileSystem();
@@ -473,11 +585,14 @@ namespace Cmf.CLI.Utilities
         }
 
         /// <summary>
-        /// Get File Content From package
+        ///     Get File Content From package
         /// </summary>
-        /// <param name="packageFile"></param>
-        /// <param name="filename"></param>
-        /// <returns></returns>
+        /// <param name="packageFile">
+        /// </param>
+        /// <param name="filename">
+        /// </param>
+        /// <returns>
+        /// </returns>
         public static string GetFileContentFromPackage(string packageFile, string filename)
         {
             using (FileStream zipToOpen = new FileInfo(packageFile).OpenRead())
@@ -497,12 +612,19 @@ namespace Cmf.CLI.Utilities
         }
 
         /// <summary>
-        /// Create a Zip file at filePath from the directory content
+        ///     Create a Zip file at filePath from the directory content
         /// </summary>
-        /// <param name="fileSystem">The file system implementation</param>
-        /// <param name="filePath">The path of the resulting zip file</param>
-        /// <param name="directory">The directory to zip</param>
-        /// <returns></returns>
+        /// <param name="fileSystem">
+        ///     The file system implementation
+        /// </param>
+        /// <param name="filePath">
+        ///     The path of the resulting zip file
+        /// </param>
+        /// <param name="directory">
+        ///     The directory to zip
+        /// </param>
+        /// <returns>
+        /// </returns>
         public static void ZipDirectory(IFileSystem fileSystem, string filePath, IDirectoryInfo directory)
         {
             using (var memoryStream = new MemoryStream())
@@ -531,10 +653,12 @@ namespace Cmf.CLI.Utilities
         }
 
         /// <summary>
-        /// Get Directory from a FileSystem dependending if Uri is UNC
+        ///     Get Directory from a FileSystem dependending if Uri is UNC
         /// </summary>
-        /// <param name="uri"></param>
-        /// <returns></returns>
+        /// <param name="uri">
+        /// </param>
+        /// <returns>
+        /// </returns>
         public static IDirectoryInfo GetDirectory(this Uri uri)
         {
             string path = uri.IsUnc ? uri.OriginalString : uri.LocalPath;
@@ -543,20 +667,24 @@ namespace Cmf.CLI.Utilities
         }
 
         /// <summary>
-        /// Get Directory Name from a FileSystem dependending if Uri is UNC
+        ///     Get Directory Name from a FileSystem dependending if Uri is UNC
         /// </summary>
-        /// <param name="uri"></param>
-        /// <returns></returns>
+        /// <param name="uri">
+        /// </param>
+        /// <returns>
+        /// </returns>
         public static string GetDirectoryName(this Uri uri)
         {
             return GetDirectory(uri).FullName;
         }
 
         /// <summary>
-        /// Get File from a FileSystem dependending if Uri is UNC
+        ///     Get File from a FileSystem dependending if Uri is UNC
         /// </summary>
-        /// <param name="uri"></param>
-        /// <returns></returns>
+        /// <param name="uri">
+        /// </param>
+        /// <returns>
+        /// </returns>
         public static IFileInfo GetFile(this Uri uri)
         {
             string path = uri.IsUnc ? uri.OriginalString : uri.LocalPath;
@@ -565,24 +693,28 @@ namespace Cmf.CLI.Utilities
         }
 
         /// <summary>
-        /// Get Directory Name from a FileSystem dependending if Uri is UNC
+        ///     Get Directory Name from a FileSystem dependending if Uri is UNC
         /// </summary>
-        /// <param name="uri"></param>
-        /// <returns></returns>
+        /// <param name="uri">
+        /// </param>
+        /// <returns>
+        /// </returns>
         public static string GetFileName(this Uri uri)
         {
             return GetFile(uri).FullName;
         }
 
-        #endregion
+        #endregion Public Methods
 
         #region Private Methods
 
         /// <summary>
-        /// Get all files and folders from a directory
+        ///     Get all files and folders from a directory
         /// </summary>
-        /// <param name="dir"></param>
-        /// <returns></returns>
+        /// <param name="dir">
+        /// </param>
+        /// <returns>
+        /// </returns>
         private static IEnumerable<IFileSystemInfo> AllFilesAndFolders(this IDirectoryInfo dir)
         {
             foreach (var f in dir.GetFiles())
@@ -595,6 +727,6 @@ namespace Cmf.CLI.Utilities
             }
         }
 
-        #endregion
+        #endregion Private Methods
     }
 }
