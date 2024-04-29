@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.2.2](https://github.com/criticalmanufacturing/cli/compare/4.2.2-1...4.2.2) (2024-04-29)
+
+### [4.2.2-1](https://github.com/criticalmanufacturing/cli/compare/4.2.2-0...4.2.2-1) (2024-04-22)
+
+
+### Bug Fixes
+
+* **runner:** consider /usr/local installations as global ([65148a2](https://github.com/criticalmanufacturing/cli/commits/65148a2805718d9cb2a6f817ccd1bb2db2053b31))
+
+### [4.2.2-0](https://github.com/criticalmanufacturing/cli/compare/4.2.1...4.2.2-0) (2024-04-21)
+
+
+### Bug Fixes
+
+* **plugins:** allow instant streaming of plugin outputs and errors ([0fe1dab](https://github.com/criticalmanufacturing/cli/commits/0fe1dab4a9907d52fc6381fe505b748dbc403a97))
+
 ### [4.2.1](https://github.com/criticalmanufacturing/cli/compare/4.2.1-0...4.2.1) (2024-04-21)
 
 ### [4.2.1-0](https://github.com/criticalmanufacturing/cli/compare/4.2.0...4.2.1-0) (2024-04-16)
