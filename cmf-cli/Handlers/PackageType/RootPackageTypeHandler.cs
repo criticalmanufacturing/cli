@@ -91,7 +91,7 @@ namespace Cmf.CLI.Handlers
             CmfApp.SaveIcon(iconPath);
             CmfApp.Content.App.Image.File = CliConstants.AppIcon;
 
-            string manifestPath = fileSystem.Path.Join(packageOutputDir.FullName, CliConstants.DeploymentFrameworkAppManifestFileName);
+            string manifestPath = fileSystem.Path.Join(packageOutputDir.FullName, CliConstants.AppManifestFileName);
             CmfApp.Save(manifestPath);
 
             string appPackage = $"{CmfApp.Content.App.Name}@{CmfPackage.Version}.zip";

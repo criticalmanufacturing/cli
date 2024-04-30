@@ -278,6 +278,7 @@ namespace Cmf.CLI.Commands
                 args.AddRange(new[]
                 {
                     "--appName", x.appName,
+                    "--appNameLowerNoSpaces", x.appName.ToLower().Replace(" ", ""),
                     "--appId", x.appId,
                     "--appIcon", x.appIcon ?? string.Empty,
                     "--appDescription", x.appDescription,
