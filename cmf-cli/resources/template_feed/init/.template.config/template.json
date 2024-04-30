@@ -486,6 +486,12 @@
       "defaultValue": "",
       "replaces": "<%= $CLI_PARAM_AppName %>"
     },
+    "appNameLowerNoSpaces": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "",
+      "replaces": "<%= $CLI_PARAM_AppNameLowerNoSpaces %>"
+    },
     "appDescription": {
       "type": "parameter",
       "datatype": "string",
@@ -524,6 +530,7 @@
           "condition": "appName == \"\"",
           "exclude": [
             "cmfapp.json",
+            "app_deployment_manifest.xml",
             "assets/**",
             "assets/"
           ]

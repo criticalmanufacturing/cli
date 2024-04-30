@@ -10,10 +10,8 @@ using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.IO;
 using System.CommandLine.Parsing;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using Xunit;
 using Assert = tests.AssertWithMessage;
 
@@ -346,6 +344,7 @@ namespace tests.Specs
                 Assert.True(File.Exists(".project-config.json"), "project config is missing");
                 Assert.True(File.Exists("cmfpackage.json"), "root cmfpackage is missing");
                 Assert.True(File.Exists("cmfapp.json"), "cmf app configuration is missing");
+                Assert.True(File.Exists("app_deployment_manifest.xml"), "app deployment manifest is missing");
                 Assert.True(File.Exists("global.json"), "global .NET versioning is missing");
                 Assert.True(File.Exists("NuGet.Config"), "global NuGet feeds config is missing");
                 Assert.True(File.Exists(Path.Combine(tmp, "assets", "default_app_icon.png")), "App Icon is missing");

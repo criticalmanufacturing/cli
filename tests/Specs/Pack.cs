@@ -367,6 +367,7 @@ namespace tests.Specs
                 List<string> appEntries = TestUtilities.GetFileEntriesFromZip(packageZipPath);
                 Assert.True(appEntries.HasAny(entry => entry == appManifest), "App manifest file does not exist");
                 Assert.True(appEntries.HasAny(entry => entry == "app_icon.png"), "App Icon does not exist");
+                Assert.False(appEntries.HasAny(entry => entry == "app_deployment_manifest.xml"), "Deployment manifest shouldn't exist");
                
                 using FileStream zipToOpen = new(packageZipPath, FileMode.Open);
                 using ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read);
