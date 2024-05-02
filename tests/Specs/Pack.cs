@@ -163,7 +163,60 @@ namespace tests.Specs
         [Fact]
         public void Grafana()
         {
-            var fileSystem = MockPackage.Grafana;
+            string version = "1.1.0";
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { MockUnixSupport.Path(@"c:\.project-config.json"), new MockFileData(
+                    @"{
+                        ""ProjectName"": ""MockGrafana"",
+                        ""Tenant"": ""MockTenant"",
+                        ""MESVersion"": ""10.2.1"",
+                        ""NGXSchematicsVersion"": ""1.3.3"",
+                        ""RepositoryType"": ""App"",
+                    }")
+                },
+                { MockUnixSupport.Path(@"c:\grafana\1.1.0\dashboards\dashboards.yaml"), new MockFileData(
+                    @"{
+                    apiVersion: 1
+                    providers:
+                      - name: Default   
+                        folder: CoolApp
+                        type: file
+                        options:
+                          path:  /etc/grafana/provisioning/dashboards
+                          foldersFromFilesStructure: true
+                    }")},
+                { MockUnixSupport.Path(@"c:\grafana\1.1.0\datasources\datasources.yaml"), new MockFileData(
+                    @"{
+                    apiVersion: 1
+                    datasources:
+                      ~
+                    }")},
+                { MockUnixSupport.Path(@"c:\grafana\cmfpackage.json"), new MockFileData(
+                $@"{{
+                    ""packageId"": ""Cmf.Custom.Grafana"",
+                    ""version"": ""{version}"",
+                    ""description"": ""Cmf Custom Grafana Package"",
+                    ""packageType"": ""Generic"",
+                    ""targetLayer"": ""grafana"",
+                    ""isInstallable"": true,
+                    ""isUniqueInstall"": true,
+	                ""steps"": [
+		                {{
+			                ""order"": ""1"",
+			                ""type"": ""DeployFiles"",
+			                ""ContentPath"": ""**/**""
+		                }}
+	                ],
+                    ""buildsteps"": [],
+                    ""contentToPack"": [
+                    {{
+                        ""source"": ""{MockUnixSupport.Path($"{version}\\*").Replace("\\", "\\\\")}"",
+                        ""target"": """"
+                    }}
+                  ]
+                }}")}
+            });
 
             var packCommand = new PackCommand(fileSystem);
             packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\grafana")), fileSystem.DirectoryInfo.New("output"), false);
