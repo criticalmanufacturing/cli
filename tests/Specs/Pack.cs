@@ -215,7 +215,8 @@ namespace tests.Specs
                         ""target"": """"
                     }}
                   ]
-                }}")}
+                }}")},
+                {MockUnixSupport.Path(@"c:\grafana\README.md"), new MockFileData("") }
             });
 
             var packCommand = new PackCommand(fileSystem);

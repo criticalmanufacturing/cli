@@ -39,22 +39,5 @@ namespace Cmf.CLI.Handlers
                 BuildSteps = buildSteps.ToArray();
             }
         }
-
-        /// <summary>
-        /// Pack a Data package
-        /// </summary>
-        /// <param name="packageOutputDir">source directory</param>
-        /// <param name="outputDir">output directory</param>
-        public override void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir)
-        {
-            const string readmeFilename = "README.md";
-
-            if (outputDir.FileSystem.File.Exists(readmeFilename))
-            {
-                outputDir.FileSystem.File.Delete(readmeFilename);
-            }
-
-            base.Pack(packageOutputDir, outputDir);
-        }
     }
 }
