@@ -6,12 +6,12 @@ This information is for local development only!
 
 In order to create custom data sources or dashboards you should put them in the respective folders.
 
-If you are building an app and want to use the gRPC Data Manager data source you can import the following configuration into your local grafana instance:
+If you are building an app and want to use the gRPC Data Manager data source you can import the following configuration into your local grafana instance (the variables between <> should be replaced):
 
 ``` json
 {
   "id": 1,
-  "uid": "KHanA1bVk",
+  "uid": "<deployed-datasource-uid>",
   "orgId": 1,
   "name": "CMF gRPC Datasource",
   "type": "criticalmanufacturing-grpc-datasource",
@@ -24,7 +24,7 @@ If you are building an app and want to use the gRPC Data Manager data source you
   "basicAuth": false,
   "isDefault": false,
   "jsonData": {
-    "endpoint": "datamanager.resourcemonitordevos1.apps.vmrhosdsclt1.cmf.criticalmanufacturing.com:80"
+    "endpoint": "<data-manager-url>:<port>"
   },
   "readOnly": false
 }
