@@ -5,7 +5,7 @@ datasources:
   - name: CMF gRPC Datasource
     type: criticalmanufacturing-grpc-datasource
     jsonData:
-      endpoint: #container-name:port#
+      endpoint: <data-manager-url>:<port>
 #else
   ~
 #endif
