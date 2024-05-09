@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <PackageId>CriticalManufacturing.CLI.Core</PackageId>
         <RootNamespace>Cmf.CLI.Core</RootNamespace>
         <Version>4.4.0</Version>
@@ -14,6 +14,7 @@
         <PackageTags>Critical Manufacturing;Cmf;CM;CLI</PackageTags>
         <IsPackable>true</IsPackable>
         <PackageOutputPath>./nupkg</PackageOutputPath>
+        <LangVersion>default</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
