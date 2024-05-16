@@ -23,7 +23,9 @@ using Cmf.CLI.Core;
 using Cmf.CLI.Factories;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using System.Xml.Serialization;
 using NuGet.Packaging;
+using System.Text;
 
 namespace tests.Specs
 {
@@ -156,6 +158,95 @@ namespace tests.Specs
             Assert.Equal("Package", _outputDir);
             Assert.NotNull(_force);
             Assert.False(_force ?? true);
+        }
+
+        [Fact]
+        public void Grafana()
+        {
+            string version = "1.1.0";
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { MockUnixSupport.Path(@"c:\.project-config.json"), new MockFileData(
+                    @"{
+                        ""ProjectName"": ""MockGrafana"",
+                        ""Tenant"": ""MockTenant"",
+                        ""MESVersion"": ""10.2.1"",
+                        ""NGXSchematicsVersion"": ""1.3.3"",
+                        ""RepositoryType"": ""App"",
+                    }")
+                },
+                { MockUnixSupport.Path(@"c:\grafana\1.1.0\dashboards\dashboards.yaml"), new MockFileData(
+                    @"{
+                    apiVersion: 1
+                    providers:
+                      - name: Default   
+                        folder: CoolApp
+                        type: file
+                        options:
+                          path:  /etc/grafana/provisioning/dashboards
+                          foldersFromFilesStructure: true
+                    }")},
+                { MockUnixSupport.Path(@"c:\grafana\1.1.0\datasources\datasources.yaml"), new MockFileData(
+                    @"{
+                    apiVersion: 1
+                    datasources:
+                      ~
+                    }")},
+                { MockUnixSupport.Path(@"c:\grafana\cmfpackage.json"), new MockFileData(
+                $@"{{
+                    ""packageId"": ""Cmf.Custom.Grafana"",
+                    ""version"": ""{version}"",
+                    ""description"": ""Cmf Custom Grafana Package"",
+                    ""packageType"": ""Generic"",
+                    ""targetLayer"": ""grafana"",
+                    ""isInstallable"": true,
+                    ""isUniqueInstall"": true,
+	                ""steps"": [
+		                {{
+			                ""order"": ""1"",
+			                ""type"": ""DeployFiles"",
+			                ""ContentPath"": ""**/**""
+		                }}
+	                ],
+                    ""buildsteps"": [],
+                    ""contentToPack"": [
+                    {{
+                        ""source"": ""{MockUnixSupport.Path($"{version}\\*").Replace("\\", "\\\\")}"",
+                        ""target"": """"
+                    }}
+                  ]
+                }}")},
+                {MockUnixSupport.Path(@"c:\grafana\README.md"), new MockFileData("") }
+            });
+
+            var packCommand = new PackCommand(fileSystem);
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\grafana")), fileSystem.DirectoryInfo.New("output"), false);
+
+            IEnumerable<IFileInfo> assembledFiles = fileSystem.DirectoryInfo.New("output").EnumerateFiles("Cmf.Custom.Grafana.1.1.0.zip").ToList();
+            Assert.Single(assembledFiles);
+
+            using Stream zipToOpen = fileSystem.FileStream.New(assembledFiles.First().FullName, FileMode.Open);
+            using (ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read))
+            {
+                // these tuples allow us to rewrite entry paths
+                var entriesToExtract = new List<Tuple<ZipArchiveEntry, string>>();
+                entriesToExtract.AddRange(zip.Entries.Select(selector: entry => new Tuple<ZipArchiveEntry, string>(entry, entry.FullName)));
+
+                List<string> expectedFiles = new()
+                    {
+                        "manifest.xml",
+                        "datasources/datasources.yaml",
+                        "dashboards/dashboards.yaml"
+                    };
+                Assert.Equal(expectedFiles.Count, entriesToExtract.Count);
+                foreach (var expectedFile in expectedFiles)
+                {
+                    Assert.NotNull(entriesToExtract.FirstOrDefault(x => x.Item2.Equals(expectedFile)));
+                }
+
+                //Checks if README is not inside zip
+                Assert.True(entriesToExtract.FirstOrDefault(x => x.Item2.Equals("README.md")) == default);
+            }
         }
 
         [Fact]
@@ -314,6 +405,72 @@ namespace tests.Specs
             string configJsonContent = FileSystemUtilities.GetFileContentFromPackage($"{dir}/Package/Cmf.Custom.SecurityPortal.1.0.0.zip", "config.json");
 
             Assert.True(configJsonContent.Contains("$.tenants.config.tenant.strategies"), "Config file does not have correct tenant");
+        }
+
+        [Fact]
+        public void Pack_App()
+        {
+            var cur = Directory.GetCurrentDirectory();
+
+            try
+            {
+                string dir = $"{TestUtilities.GetTmpDirectory()}/app";
+                string packageName = "Cmf.Custom.Package.1.0.0.zip";
+                string appfilesName = "MockName@1.0.0.zip";
+                TestUtilities.CopyFixture("pack/app", new DirectoryInfo(dir));
+
+                var projCfg = Path.Join(dir, ".project-config.json");
+                if (File.Exists(projCfg))
+                {
+                    File.WriteAllText(projCfg, File.ReadAllText(projCfg)
+                        .Replace("install_path", MockUnixSupport.Path(@"x:\install_path").Replace(@"\", @"\\"))
+                        .Replace("backup_share", MockUnixSupport.Path(@"y:\backup_share").Replace(@"\", @"\\"))
+                        .Replace("temp_folder", MockUnixSupport.Path(@"z:\temp_folder").Replace(@"\", @"\\"))
+                    );
+                }
+                Directory.SetCurrentDirectory(dir);
+
+                string _workingDir = dir;
+
+                PackCommand packCommand = new();
+                Command cmd = new("pack");
+                packCommand.Configure(cmd);
+
+                TestConsole console = new();
+                cmd.Invoke(Array.Empty<string>(), console);
+
+                DirectoryInfo curDir = new(System.IO.Directory.GetCurrentDirectory());
+
+                Assert.True(Directory.Exists($"{dir}/Package"), "Package folder is missing");
+
+                Assert.True(File.Exists($"{dir}/Package/{packageName}"), "Zip package is missing");
+
+                List<string> entries = TestUtilities.GetFileEntriesFromZip($"{dir}/Package/{packageName}");
+                Assert.True(entries.HasAny(), "Zip package is empty");
+                Assert.True(entries.HasAny(entry => entry == "manifest.xml"), "Manifest file does not exist");
+
+                var packageZipPath = $"{dir}/Package/{appfilesName}";
+                var appManifest = "app_manifest.xml";
+                Assert.True(File.Exists(packageZipPath), "Zip app files is missing");
+
+                List<string> appEntries = TestUtilities.GetFileEntriesFromZip(packageZipPath);
+                Assert.True(appEntries.HasAny(entry => entry == appManifest), "App manifest file does not exist");
+                Assert.True(appEntries.HasAny(entry => entry == "app_icon.png"), "App Icon does not exist");
+                Assert.False(appEntries.HasAny(entry => entry == "app_deployment_manifest.xml"), "Deployment manifest shouldn't exist");
+               
+                using FileStream zipToOpen = new(packageZipPath, FileMode.Open);
+                using ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read);
+                using Stream appStream = zip.GetEntry(appManifest).Open();
+                using StreamReader appStreamReader = new(appStream, Encoding.UTF8);
+
+                XmlSerializer serializer = new(typeof(Cmf.CLI.Core.Objects.CmfApp.AppContainer));
+                Cmf.CLI.Core.Objects.CmfApp.AppContainer manifest = (Cmf.CLI.Core.Objects.CmfApp.AppContainer)serializer.Deserialize(appStreamReader);
+                Assert.True(manifest.App.Image.File == "app_icon.png");
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+            }
         }
 
         [Fact]

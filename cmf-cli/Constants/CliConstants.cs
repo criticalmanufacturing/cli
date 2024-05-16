@@ -34,9 +34,39 @@ namespace Cmf.CLI.Constants
         public const string DeploymentFrameworkManifestFileName = "manifest.xml";
 
         /// <summary>
+        /// The app manifest template
+        /// </summary>
+        public const string AppManifestFileName = "app_manifest.xml";
+
+        /// <summary>
+        /// The app deployment manifest template
+        /// </summary>
+        public const string AppDeploymentManifestFileName = "app_deployment_manifest.xml";
+
+        /// <summary>
         /// The CMF package file name
         /// </summary>
         public const string CmfPackageFileName = "cmfpackage.json";
+
+        /// <summary>
+        /// The CMF app file name
+        /// </summary>
+        public const string CmfAppFileName = "cmfapp.json";
+
+        /// <summary>
+        /// The assets folder
+        /// </summary>
+        public const string AssetsFolder = "assets";
+
+        /// <summary>
+        /// The default app icon file name
+        /// </summary>
+        public const string DefaultAppIcon = "default_app_icon.png";
+
+        /// <summary>
+        /// The final app icon file name
+        /// </summary>
+        public const string AppIcon = "app_icon.png";
 
         /// <summary>
         /// The CMF package default presentation configuration

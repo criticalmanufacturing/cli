@@ -48,30 +48,83 @@ namespace tests.Specs
         [Theory]
         [InlineData(BaseLayer.Core)]
         [InlineData(BaseLayer.MES)]
-        public void Business(BaseLayer layer)
+        [InlineData(BaseLayer.Core, RepositoryType.App)]
+        public void Business(BaseLayer layer, RepositoryType repositoryType = RepositoryType.Customization)
         {
-            RunNew(new BusinessCommand(), "Cmf.Custom.Business", mesVersion: "9.1.0", baseLayer: layer, extraAsserts: args =>
+            var appContext = repositoryType == RepositoryType.App;
+
+            RunNew(new BusinessCommand(), 
+                "Cmf.Custom.Business", 
+                repositoryType: repositoryType, 
+                mesVersion: "9.1.0", 
+                baseLayer: layer,  
+                extraArguments: appContext ? new[] { "--addApplicationVersionAssembly" } : null,
+                extraAsserts: args =>
+                {
+                    var (pkgVersion, dir) = args;
+                    Assert.True(File.Exists($"Cmf.Custom.Business/Cmf.Custom.Common/tenantConstants.cs"), "Constants file is missing or has wrong name");
+                    Assert.True(File.Exists($"Cmf.Custom.Business/Cmf.Custom.Common/Cmf.Custom.tenant.Common.csproj"), "Common project file is missing or has wrong name");
+                
+                    if (appContext)
+                    {
+                        Assert.True(File.Exists($"Cmf.Custom.Business/ApplicationVersion/Version.csproj"), "Version file is missing or has wrong name");
+                    }
+                    else
+                    {
+                        Assert.False(File.Exists($"Cmf.Custom.Business/ApplicationVersion/Version.csproj"), "Version file shouldn't exist");
+                    }
+               
+                    // namespace checks
+                    Assert.True(File.ReadAllText("Cmf.Custom.Business/Cmf.Custom.Common/tenantConstants.cs").Contains("namespace Cmf.Custom.tenant.Common"), "Constants namespace is wrong name");
+                    // assembly name checks
+                    var commonCsproj = File.ReadAllText("Cmf.Custom.Business/Cmf.Custom.Common/Cmf.Custom.tenant.Common.csproj");
+                    Assert.True(commonCsproj.Contains("<AssemblyName>Cmf.Custom.tenant.Common</AssemblyName>"), "Constants assembly name is wrong name");
+                    if (layer == BaseLayer.Core)
+                    {
+                        commonCsproj.Should().NotContain("Cmf.Navigo");
+                        commonCsproj.Should().NotContain("Pkgcmf_common_customactionutilities");
+                        commonCsproj.Should().NotContain("cmf.common.customactionutilities");
+                    }
+                    else
+                    {
+                        commonCsproj.Should().Contain("Cmf.Navigo");
+                        commonCsproj.Should().Contain("Pkgcmf_common_customactionutilities");
+                        commonCsproj.Should().Contain("cmf.common.customactionutilities");
+                    }
+                });
+        }
+
+        [Theory]
+        [InlineData(BaseLayer.Core, RepositoryType.App)]
+        [InlineData(BaseLayer.MES, RepositoryType.Customization)]
+        public void Grafana(BaseLayer baseLayer, RepositoryType repositoryType)
+        {
+            RunNew(
+                new GrafanaCommand(), 
+                "Cmf.Custom.Grafana",
+                mesVersion: "10.2.1", 
+                ngxSchematicsVersion: "1.3.3",
+                baseLayer: baseLayer, 
+                repositoryType: repositoryType, 
+                extraAsserts: args =>
             {
                 var (pkgVersion, dir) = args;
-                Assert.True(File.Exists($"Cmf.Custom.Business/Cmf.Custom.Common/tenantConstants.cs"), "Constants file is missing or has wrong name");
-                Assert.True(File.Exists($"Cmf.Custom.Business/Cmf.Custom.Common/Cmf.Custom.tenant.Common.csproj"), "Common project file is missing or has wrong name");
-                // namespace checks
-                Assert.True(File.ReadAllText("Cmf.Custom.Business/Cmf.Custom.Common/tenantConstants.cs").Contains("namespace Cmf.Custom.tenant.Common"), "Constants namespace is wrong name");
-                // assembly name checks
-                var commonCsproj = File.ReadAllText("Cmf.Custom.Business/Cmf.Custom.Common/Cmf.Custom.tenant.Common.csproj");
-                Assert.True(commonCsproj.Contains("<AssemblyName>Cmf.Custom.tenant.Common</AssemblyName>"), "Constants assembly name is wrong name");
-                if (layer == BaseLayer.Core)
-                {
-                    commonCsproj.Should().NotContain("Cmf.Navigo");
-                    commonCsproj.Should().NotContain("Pkgcmf_common_customactionutilities");
-                    commonCsproj.Should().NotContain("cmf.common.customactionutilities");
-                }
-                else
-                {
-                    commonCsproj.Should().Contain("Cmf.Navigo");
-                    commonCsproj.Should().Contain("Pkgcmf_common_customactionutilities");
-                    commonCsproj.Should().Contain("cmf.common.customactionutilities");
-                }
+
+                var tenant = ExecutionContext.Instance.ProjectConfig.Tenant;
+
+                Assert.True(Directory.Exists("Cmf.Custom.Grafana"), "Grafana package folder is missing");
+                Assert.True(File.Exists($"Cmf.Custom.Grafana/README.md"), "README file is missing or has wrong name");
+
+                Assert.True(Directory.Exists($"Cmf.Custom.Grafana/{pkgVersion}"), "Grafana Version folder is missing");
+                Assert.True(Directory.Exists($"Cmf.Custom.Grafana/{pkgVersion}/dashboards"), "Grafana dashboards folder is missing");
+                Assert.True(Directory.Exists($"Cmf.Custom.Grafana/{pkgVersion}/datasources"), "Grafana datasources folder is missing");
+
+                Assert.True(Directory.Exists($"Cmf.Custom.Grafana/{pkgVersion}/dashboards/{tenant}/"), $"{tenant} Dashboards folder is missing or has wrong name");
+                Assert.True(File.Exists($"Cmf.Custom.Grafana/{pkgVersion}/dashboards/dashboards.yaml"), "Dashboards configuration file is missing or has wrong name");
+
+                Assert.True(File.Exists(
+                    $"Cmf.Custom.Grafana/{pkgVersion}/datasources/datasources.yaml"), 
+                    "Datasources configuration file is missing or has wrong name");
             });
         }
 

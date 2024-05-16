@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<OutputType>Library</OutputType>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<Product><%= $CLI_PARAM_Tenant %></Product>
+		<AssemblyName>Cmf.<%= $CLI_PARAM_idSegment %>.ApplicationVersion</AssemblyName>
+		<RootNamespace>Cmf.Custom.<%= $CLI_PARAM_idSegment %>.ApplicationVersion</RootNamespace>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<AssemblyVersion><%= $CLI_PARAM_assemblyVersion %></AssemblyVersion>
+		<FileVersion><%= $CLI_PARAM_fileVersion %></FileVersion>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<OutputPath>..\..\LocalEnvironment\BusinessTier</OutputPath>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<OutputPath>..\Release</OutputPath>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Cmf.Foundation.ApplicationVersion" Version="<%= $CLI_PARAM_MESVersion %>" />
+		<PackageReference Include="System.ComponentModel.Composition" Version="6.0.0" />
+		<PackageReference Include="System.Composition.AttributedModel" Version="7.0.0" />
+	</ItemGroup>
+</Project>

@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.TemplateEngine.Abstractions;
 using Microsoft.TemplateEngine.Abstractions.TemplatePackage;
 using Microsoft.TemplateEngine.Edge;

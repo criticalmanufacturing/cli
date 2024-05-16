@@ -64,6 +64,41 @@
       "type": "parameter",
       "datatype": "bool",
       "defaultValue": true
+    },
+    "app": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "False",
+      "description": "Indicates that repository type is app if true"
+    },
+    "fileVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_fileVersion %>"
+    },
+    "assemblyVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_assemblyVersion %>"
+    },
+    "addApplicationVersionAssembly": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "False",
+      "description": "Indicates Application Version project should be added"
     }
-  }
+  },
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "condition": "!addApplicationVersionAssembly",
+          "exclude": [
+            "Business.Package/ApplicationVersion/**",
+            "Business.Package/ApplicationVersion/"
+          ]
+        }
+      ]
+    }
+  ]
 }
