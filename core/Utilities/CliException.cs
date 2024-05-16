@@ -29,6 +29,7 @@ namespace Cmf.CLI.Utilities
         /// Initializes a new instance of the <see cref="CliException"/> class.
         /// </summary>
         /// <param name="message">The message that describes the error.</param>
+        /// <param name="errorCode"></param>
         public CliException(string message, ErrorCode errorCode = ErrorCode.Default) : base(message)
         {
             ErrorCode = errorCode;
@@ -39,6 +40,7 @@ namespace Cmf.CLI.Utilities
         /// </summary>
         /// <param name="message">The error message that explains the reason for the exception.</param>
         /// <param name="innerException">The exception that is the cause of the current exception, or a null reference (<see langword="Nothing" /> in Visual Basic) if no inner exception is specified.</param>
+        /// <param name="errorCode"></param>
         public CliException(string message, Exception innerException, ErrorCode errorCode = ErrorCode.Default) : base(message, innerException)
         {
             ErrorCode = errorCode;
@@ -69,6 +71,7 @@ namespace Cmf.CLI.Utilities
         /// </summary>
         /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> that holds the serialized object data about the exception being thrown.</param>
         /// <param name="context">The <see cref="T:System.Runtime.Serialization.StreamingContext" /> that contains contextual information about the source or destination.</param>
+        [Obsolete("Please use the constructor with ErrorCode parameter instead.")]
         protected CliException(System.Runtime.Serialization.SerializationInfo info,
             System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
     }
