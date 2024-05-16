@@ -380,16 +380,33 @@ namespace tests.Specs
                 Assert.True(Directory.Exists("Cmf.Custom.Database"), "Package folder is missing");
                 Assert.True(File.Exists($"Cmf.Custom.Database/Pre/cmfpackage.json"), "Pre Package cmfpackage.json is missing");
                 Assert.True(File.Exists($"Cmf.Custom.Database/Post/cmfpackage.json"), "Post Package cmfpackage.json is missing");
-                Assert.True(File.Exists($"Cmf.Custom.Database/Reporting/cmfpackage.json"), "Reports Package cmfpackage.json is missing");
                 Assert.Equal("Cmf.Custom.Database.Pre", TestUtilities.GetPackageProperty("packageId", $"Cmf.Custom.Database/Pre/cmfpackage.json"), "Pre Package Id does not match expected");
                 Assert.Equal(packageVersion, TestUtilities.GetPackageProperty("version", $"Cmf.Custom.Database/Pre/cmfpackage.json"), "Pre Package version does not match expected");
                 Assert.Equal("Cmf.Custom.Database.Post", TestUtilities.GetPackageProperty("packageId", $"Cmf.Custom.Database/Post/cmfpackage.json"), "Post Package Id does not match expected");
                 Assert.Equal(packageVersion, TestUtilities.GetPackageProperty("version", $"Cmf.Custom.Database/Post/cmfpackage.json"), "Post Package version does not match expected");
-                Assert.Equal("Cmf.Custom.Reporting", TestUtilities.GetPackageProperty("packageId", $"Cmf.Custom.Database/Reporting/cmfpackage.json"), "Reporting Package Id does not match expected");
-                Assert.Equal(packageVersion, TestUtilities.GetPackageProperty("version", $"Cmf.Custom.Database/Reporting/cmfpackage.json"), "Reporting Package version does not match expected");
                 var pkg = TestUtilities.GetPackage("cmfpackage.json");
                 var search = pkg.GetProperty("dependencies").EnumerateArray().ToArray().FirstOrDefault(d => d.GetProperty("id").GetString() == "Cmf.Custom.Database");
                 Assert.Equal(JsonValueKind.Undefined, search.ValueKind, "Package was found in root package dependencies");
+            });
+        }
+
+        [Fact]
+        public void Reporting()
+        {
+            RunReporting(null);
+        }
+
+        private void RunReporting(string scaffoldingDir)
+        {
+            RunNew(new ReportingCommand(), "Cmf.Custom.Reporting", scaffoldingDir: scaffoldingDir, defaultAsserts: false, extraAsserts: args =>
+            {
+                var (packageVersion, _) = args;
+                File.Exists($"Cmf.Custom.Reporting/cmfpackage.json").Should().BeTrue("Reports Package cmfpackage.json is missing");
+                TestUtilities.GetPackageProperty("packageId", $"Cmf.Custom.Reporting/cmfpackage.json").Should().Be("Cmf.Custom.Reporting", "Reporting Package Id does not match expected");
+                TestUtilities.GetPackageProperty("version", $"Cmf.Custom.Reporting/cmfpackage.json").Should().Be(packageVersion, "Reporting Package version does not match expected");
+                var rootPackage = TestUtilities.GetPackage("cmfpackage.json");
+                var search = rootPackage.GetProperty("dependencies").EnumerateArray().ToArray().FirstOrDefault(d => d.GetProperty("id").GetString() == "Cmf.Custom.Reporting");
+                search.ValueKind.Should().NotBe(JsonValueKind.Undefined, "Package was not found in root package dependencies");
             });
         }
 
