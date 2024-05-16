@@ -15,7 +15,8 @@
     ,
     {
       "id": "CriticalManufacturing.DeploymentMetadata",
-      "version": "<%= $CLI_PARAM_MESVersion %>"
+      "version": "<%= $CLI_PARAM_MESVersion %>",
+      "mandatory": false
     }
 //#endif
   ]
