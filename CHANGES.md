@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.3.0](https://github.com/criticalmanufacturing/cli/compare/4.3.0-0...4.3.0) (2024-05-16)
+
+## [4.3.0-0](https://github.com/criticalmanufacturing/cli/compare/4.2.2...4.3.0-0) (2024-05-03)
+
+
+### Features
+
+* **init:** support cmfapp.json generation ([0a0d9ed](https://github.com/criticalmanufacturing/cli/commits/0a0d9ed8398aa5035ef703183ddf2f70a01b21b0))
+* **init:** support for app deployment manifest ([38dac8b](https://github.com/criticalmanufacturing/cli/commits/38dac8bb7e56e2d88d87048e84944a385e374302))
+* **new:** application version ([39c1bf2](https://github.com/criticalmanufacturing/cli/commits/39c1bf2a5fb096118862763cab04c6cd0d3d455a))
+* **new:** fix pack readme removal ([9ba6e68](https://github.com/criticalmanufacturing/cli/commits/9ba6e68a07057671a8c6f590b8adb51e83b300e9))
+* **new:** grafana custom package ([361f6dc](https://github.com/criticalmanufacturing/cli/commits/361f6dc688b80b2c7201e2b2da9787db8e654e4b))
+* **new:** readme update ([787a56b](https://github.com/criticalmanufacturing/cli/commits/787a56b2130179182120d13fc5e23532da282d72))
+* **new:** test ([1e03079](https://github.com/criticalmanufacturing/cli/commits/1e03079a8b6e8fc881bd8f3517825e6932f894bb))
+* **new:** yml update ([3d2186c](https://github.com/criticalmanufacturing/cli/commits/3d2186cabf3ee61d576c364ebb0447863e103bb4))
+* **pack:** support app packing ([c1d031c](https://github.com/criticalmanufacturing/cli/commits/c1d031c5e94f07085be03717c013b44bb6ddb6a1))
+
 ### [4.2.2](https://github.com/criticalmanufacturing/cli/compare/4.2.2-1...4.2.2) (2024-04-29)
 
 ### [4.2.2-1](https://github.com/criticalmanufacturing/cli/compare/4.2.2-0...4.2.2-1) (2024-04-22)
