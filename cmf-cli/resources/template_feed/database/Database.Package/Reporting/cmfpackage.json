@@ -7,12 +7,8 @@
   "isUniqueInstall": true,
   "contentToPack": [
     {
-      "source": "0.0.0/*",
+      "source": "$(version)/*",
       "target": ""
     }
-  ],
-  "xmlInjection": [
-    "ui.xml",
-    "variables.xml"
   ]
 }
