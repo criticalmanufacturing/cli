@@ -154,6 +154,12 @@ namespace Cmf.CLI.Core.Objects
         /// </summary>
         public string RelativePath { get; set; }
 
+        /// <summary>
+        /// Gets or sets the target platform for master data content.
+        /// Default value = self
+        /// </summary>
+        public MasterDataTargetPlatformType? TargetPlatform { get; set; }
+
         #endregion
 
         #region Constructors
