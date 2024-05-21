@@ -24,7 +24,6 @@ using Cmf.CLI.Factories;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System.Xml.Serialization;
-using NuGet.Packaging;
 using System.Text;
 
 namespace tests.Specs
@@ -822,7 +821,6 @@ namespace tests.Specs
             packCommand.Execute(fileSystem.DirectoryInfo.New("/repo/Cmf.Custom.Data"), outputFolder, false);
             IEnumerable<IFileInfo> packedFiles = outputFolder.EnumerateFiles().ToList();
 
-
             var depFile1 = packedFiles.FirstOrDefault(x => x.Name.Equals($"{packageDep1.Key}.{packageDep1.Value}.zip"));
             var depFile2 = packedFiles.FirstOrDefault(x => x.Name.Equals($"{packageDep2.Key}.{packageDep2.Value}.zip"));
 
@@ -832,7 +830,75 @@ namespace tests.Specs
             TestUtilities.ValidateZipContent(fileSystem, depFile1, new() { "Cmf.Foundation.Services.HostService.dll.config", "manifest.xml", "file1.txt" });
             TestUtilities.ValidateZipContent(fileSystem, depFile2, new() { "Cmf.Foundation.Services.HostService.dll.config", "manifest.xml", "file2.txt" });
         }
-        
+
+        [Fact]
+        public void Data_MasterData()
+        {
+            KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.1.0");
+            KeyValuePair<string, string> packageDep1 = new("Cmf.Custom.Data", "1.1.0");
+
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { "/repo/cmfpackage.json", new MockFileData(
+                @$"{{
+                  ""packageId"": ""{packageRoot.Key}"",
+                  ""version"": ""{packageRoot.Value}"",
+                  ""packageType"": ""Root"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": false,
+                  ""dependencies"": [
+                    {{
+                         ""id"": ""{packageDep1.Key}"",
+                        ""version"": ""{packageDep1.Value}""
+                    }}
+                  ]
+                }}")},
+                { "/repo/Cmf.Custom.Data/cmfpackage.json", new MockFileData(
+                @$"{{
+                  ""packageId"": ""{packageDep1.Key}"",
+                  ""version"": ""{packageDep1.Value}"",
+                  ""packageType"": ""Data"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": true,
+                  ""contentToPack"": [
+                    {{
+                        ""source"": ""{MockUnixSupport.Path("MasterData\\file1.txt").Replace("\\", "\\\\")}"",
+                        ""target"": """",
+                        ""targetPlatform"": ""Framework"",
+                        ""contentType"": ""MasterData""
+                    }}
+                  ]
+                }}")},
+                { "/repo/Cmf.Custom.Data/MasterData/file1.txt", new MockFileData("file1-content")},
+            });
+
+            var packCommand = new PackCommand(fileSystem);
+            var outputFolder = fileSystem.DirectoryInfo.New("output");
+            packCommand.Execute(fileSystem.DirectoryInfo.New("/repo/Cmf.Custom.Data"), outputFolder, false);
+            IEnumerable<IFileInfo> packedFiles = outputFolder.EnumerateFiles().ToList();
+
+            var depFile1 = packedFiles.FirstOrDefault(x => x.Name.Equals($"{packageDep1.Key}.{packageDep1.Value}.zip"));
+
+            depFile1.Should().NotBeNull();
+
+            TestUtilities.ValidateZipContent(fileSystem, depFile1, new() { "Cmf.Foundation.Services.HostService.dll.config", "manifest.xml", "file1.txt" });
+
+            using ZipArchive zip = new(depFile1.Open(FileMode.Open, FileAccess.Read, FileShare.Read), ZipArchiveMode.Read);
+            using Stream manifestStream = zip.GetEntry("manifest.xml").Open();
+            using StreamReader manifestStreamReader = new(manifestStream, Encoding.UTF8);
+
+            XDocument manifestDoc = XDocument.Load(manifestStreamReader);
+            var steps = manifestDoc.Descendants("steps")
+                        .Elements("step")
+                        .Select(s => new {
+                            ContentType = s.Attribute("type")?.Value,
+                            TargetPlatform = s.Attribute("targetPlatform")?.Value
+                        })
+                        .ToList();
+
+            Assert.Equal(steps.First(s => s.ContentType == ContentType.MasterData.ToString()).TargetPlatform, MasterDataTargetPlatformType.AppFramework.ToString());
+        }
+
         [Fact]
         public void HTML_ShouldPackWithDefaultValuesIfRelated()
         {
