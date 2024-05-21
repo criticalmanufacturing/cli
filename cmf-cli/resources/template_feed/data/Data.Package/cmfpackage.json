@@ -57,9 +57,16 @@
       "contentType": "ProcessRulesPre"
     },
     {
-      "source": "MasterData/$(version)/*",
+      "source": "MasterData/App/$(version)/*",
       "target": "MasterData/$(version)/",
-      "contentType": "MasterData"
+      "contentType": "MasterData",
+      "targetFramework": "AppFramework"
+    },
+    {
+      "source": "MasterData/Framework/$(version)/*",
+      "target": "MasterData/$(version)/",
+      "contentType": "MasterData",
+      "targetFramework": "Self"
     },
     {
       "source": "DEEs/ProcessRules/$(version)/After/*",
