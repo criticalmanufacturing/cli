@@ -115,7 +115,7 @@ namespace Cmf.CLI.Commands
             {
                 return newLineRegex.Replace(description, match =>
                 {
-                    return "<br/>" + Enumerable.Repeat("&nbsp;", match.Groups[2].Value.Length);
+                    return "<br/>" + string.Join("", Enumerable.Repeat("&nbsp;", match.Groups[2].Value.Length));
                 });
             }
 
