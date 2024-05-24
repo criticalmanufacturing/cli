@@ -108,6 +108,17 @@ namespace Cmf.CLI.Commands
                 return description;
             }
 
+            var newLineRegex = new Regex(@"(\r?\n)( *)");
+
+            // Replaces newlines "\r\n" and "\n" with <br/> and spaces " " with &nbsp;
+            string TransformNewLines(string description)
+            {
+                return newLineRegex.Replace(description, match =>
+                {
+                    return "<br/>" + Enumerable.Repeat("&nbsp;", match.Groups[2].Value.Length);
+                });
+            }
+
             var directory = this.fileSystem.DirectoryInfo.New(path);
             var templateFiles = directory.GetFiles($"*{templateSuffix}", SearchOption.AllDirectories);
             foreach (IFileInfo templateFile in templateFiles)
@@ -158,7 +169,7 @@ namespace Cmf.CLI.Commands
                         {
                             // Table Mode
                             string description = GetDescription(fileContent);
-                            output += $"| [{title}]({link}) | {description} |{Environment.NewLine}";
+                            output += $"| [{title}]({link}) | {TransformNewLines(description)} |{Environment.NewLine}";
                         }
                     }
                 }
