@@ -18,11 +18,11 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
-          node-version: 12
+          node-version: 20
           registry-url: https://registry.npmjs.org/
       - uses: actions/setup-dotnet@v1.7.2
         with:
-          dotnet-version: '6.0.x'
+          dotnet-version: '8.0.x'
       - name: install zip
         uses: montudor/action-zip@v0.1.0
       - run: npm install
