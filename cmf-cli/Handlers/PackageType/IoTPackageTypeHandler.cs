@@ -324,7 +324,7 @@ namespace Cmf.CLI.Handlers
                         {
                             DisplayName = "npx yo @criticalmanufacturing/iot:packagePacker",
                             Command = "npx",
-                            Args = new string[] { "yo @criticalmanufacturing/iot:packagePacker", $"-i \"{inputDirPath}\"", $"-o \"{outputDirPath}\"" },
+                            Args = new string[] { "yo@4.3.1 @criticalmanufacturing/iot:packagePacker", $"-i \"{inputDirPath}\"", $"-o \"{outputDirPath}\"" },
                             WorkingDirectory = packDirectory
                         };
 
