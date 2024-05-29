@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.4.0](https://github.com/criticalmanufacturing/cli/compare/4.4.0-0...4.4.0) (2024-05-29)
+
+## [4.4.0-0](https://github.com/criticalmanufacturing/cli/compare/4.3.0...4.4.0-0) (2024-05-21)
+
+
+### Features
+
+* **scaffolding:** move reporting package to root ([ac3c9f5](https://github.com/criticalmanufacturing/cli/commits/ac3c9f5be71d3737bfa08f00751e21f00f22d9e2))
+
+
+### Bug Fixes
+
+* pin yeoman version to 4.3.1 on pack ([fc90834](https://github.com/criticalmanufacturing/cli/commits/fc90834a9848556efc30244ec81de118f17ab7f9))
+* **scaffolding:** remove hardcoded 0.0.0 from reporting package ([7081eab](https://github.com/criticalmanufacturing/cli/commits/7081eab1b8ca891fbb016a4d1d2a3ad16d684dc1))
+* **scaffolding:** set CriticalManufacturing.DeploymentMetadata as not mandatory ([9c4a7b0](https://github.com/criticalmanufacturing/cli/commits/9c4a7b0f148f04b013861f73d9ba35b3a617731e))
+
 ## [4.3.0](https://github.com/criticalmanufacturing/cli/compare/4.3.0-0...4.3.0) (2024-05-16)
 
 ## [4.3.0-0](https://github.com/criticalmanufacturing/cli/compare/4.2.2...4.3.0-0) (2024-05-03)
