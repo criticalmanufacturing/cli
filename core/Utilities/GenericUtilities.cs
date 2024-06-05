@@ -178,7 +178,7 @@ namespace Cmf.CLI.Utilities
 
         public static Uri? JsonObjectToUri(dynamic value)
         {
-            return string.IsNullOrEmpty(value?.Value) ? null : new Uri(value?.Value);
+            return string.IsNullOrEmpty(value?.Value) ? null : new Uri(value!.Value);
         }
 
         /// <summary>
