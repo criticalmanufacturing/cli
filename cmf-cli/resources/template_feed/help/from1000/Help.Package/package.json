@@ -6,7 +6,7 @@
     "start": "ng serve",
     "build": "ng build",
     "build:libs": "ngx-tasks build && npm run build-db && npm run check-md-links",
-    "docs-shell": "node ./projects/cmf-docs-shell/scripts/index.js",
+    "docs-shell": "node ./node_modules/cmf-docs-shell/scripts/index.js",
     "build-db": "npm run docs-shell build-db",
     "check-md-links": "npm run docs-shell check-md-links",
     "watch": "ng build --watch --configuration development",
