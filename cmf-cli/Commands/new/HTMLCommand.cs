@@ -1,12 +1,3 @@
-using Cmf.CLI.Builders;
-using Cmf.CLI.Constants;
-using Cmf.CLI.Core;
-using Cmf.CLI.Core.Attributes;
-using Cmf.CLI.Core.Enums;
-using Cmf.CLI.Core.Objects;
-using Cmf.CLI.Utilities;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
@@ -14,6 +5,17 @@ using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Cmf.CLI.Builders;
+using Cmf.CLI.Constants;
+using Cmf.CLI.Core;
+using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Services;
+using Cmf.CLI.Utilities;
+using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Cmf.CLI.Commands.New
 {
@@ -329,7 +331,7 @@ $@"{{
             base.Execute(workingDir, version); // create package base - generate cmfpackage.json
 
             // this won't return null because it has to success on the base.Execute call
-            var ngCliVersion = "15"; // v15 for MES 10
+            var ngCliVersion = ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().AngularCLI(ExecutionContext.Instance.ProjectConfig.MESVersion);
             var packageName = base.GeneratePackageName(workingDir)!.Value.Item1;
             var packageDir = workingDir.GetDirectories(packageName).First();
             var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
