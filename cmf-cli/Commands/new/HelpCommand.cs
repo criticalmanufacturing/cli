@@ -1,12 +1,3 @@
-using Cmf.CLI.Builders;
-using Cmf.CLI.Constants;
-using Cmf.CLI.Core;
-using Cmf.CLI.Core.Attributes;
-using Cmf.CLI.Core.Enums;
-using Cmf.CLI.Core.Objects;
-using Cmf.CLI.Utilities;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
@@ -14,6 +5,17 @@ using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Cmf.CLI.Builders;
+using Cmf.CLI.Constants;
+using Cmf.CLI.Core;
+using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Services;
+using Cmf.CLI.Utilities;
+using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Cmf.CLI.Commands.New
 {
@@ -308,7 +310,7 @@ $@"{{
             this.CommandName = "help10";
             base.Execute(workingDir, version); // create package base and web application
             // this won't return null because it has to success on the base.Execute call
-            var ngCliVersion = "15"; // TODO: v15 for MES 10, but should be determined automatically
+            var ngCliVersion = ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().AngularCLI(ExecutionContext.Instance.ProjectConfig.MESVersion);
             var nameIdx = Array.FindIndex(base.executedArgs, item => string.Equals(item, "--name"));
             var packageName = base.executedArgs[nameIdx + 1];
 

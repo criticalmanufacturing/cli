@@ -11,6 +11,7 @@ using System.CommandLine.Parsing;
 using System.Linq;
 using System.Reflection;
 using Cmf.CLI.Constants;
+using Cmf.CLI.Services;
 
 namespace Cmf.CLI
 {
@@ -32,7 +33,9 @@ namespace Cmf.CLI
                     packageName: CliConstants.PackageName,
                     envVarPrefix: "cmf_cli",
                     description: "Critical Manufacturing CLI",
-                    args: args);
+                    args: args,
+                    registerExtraServices: collection => 
+                        collection.AddSingleton<IDependencyVersionService, DependencyVersionService>());
 
                 using var activity = ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!.StartActivity("Main");
 
