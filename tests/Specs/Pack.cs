@@ -472,6 +472,62 @@ namespace tests.Specs
                 Directory.SetCurrentDirectory(cur);
             }
         }
+        
+        [Fact]
+        public void Pack_AppFeature()
+        {
+            var cur = Directory.GetCurrentDirectory();
+
+            try
+            {
+                string dir = $"{TestUtilities.GetTmpDirectory()}/app";
+                string packageName = "TestFeature.1.0.0.zip";
+                TestUtilities.CopyFixture("pack/app", new DirectoryInfo(dir));
+                TestUtilities.CopyFixture("featureBase", new DirectoryInfo(dir));
+
+                var projCfg = Path.Join(dir, ".project-config.json");
+                if (File.Exists(projCfg))
+                {
+                    File.WriteAllText(projCfg, File.ReadAllText(projCfg)
+                        .Replace("install_path", MockUnixSupport.Path(@"x:\install_path").Replace(@"\", @"\\"))
+                        .Replace("backup_share", MockUnixSupport.Path(@"y:\backup_share").Replace(@"\", @"\\"))
+                        .Replace("temp_folder", MockUnixSupport.Path(@"z:\temp_folder").Replace(@"\", @"\\"))
+                    );
+                }
+                
+                string featureDir = Path.Join(dir, "Features", "TestFeature");
+                Directory.SetCurrentDirectory(featureDir);
+
+                string _workingDir = dir;
+
+                PackCommand packCommand = new();
+                Command cmd = new("pack");
+                packCommand.Configure(cmd);
+
+                TestConsole console = new();
+                cmd.Invoke(Array.Empty<string>(), console);
+
+                DirectoryInfo curDir = new(System.IO.Directory.GetCurrentDirectory());
+                
+                Assert.True(File.Exists($"{dir}/{CliConstants.CmfAppFileName}"), $"Root {CliConstants.CmfAppFileName} is missing");
+                
+                Assert.False(Directory.Exists($"{dir}/Package"), "Package folder exists");
+                
+                Assert.False(File.Exists($"{featureDir}/{CliConstants.CmfAppFileName}"), $"Feature {CliConstants.CmfAppFileName} exists");
+                
+                Assert.True(Directory.Exists($"{featureDir}/Package"), "Package folder is missing");
+
+                Assert.True(File.Exists($"{featureDir}/Package/{packageName}"), "Zip package is missing");
+
+                List<string> entries = TestUtilities.GetFileEntriesFromZip($"{featureDir}/Package/{packageName}");
+                Assert.True(entries.HasAny(), "Zip package is empty");
+                Assert.True(entries.HasAny(entry => entry == "manifest.xml"), "Manifest file does not exist");
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+            }
+        }
 
         [Fact]
         public void Pack_SecurityPortalV2()
