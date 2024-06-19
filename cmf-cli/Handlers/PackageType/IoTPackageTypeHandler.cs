@@ -160,14 +160,22 @@ namespace Cmf.CLI.Handlers
                        WorkingDirectory = cmfPackage.GetFileInfo().Directory
                     },
                    new ExecuteCommand<IoTLibCommand>()
-                    {
+                   {
                         Command = new IoTLibCommand(),
                         DisplayName = "cmf iot lib command",
+                        ConditionForExecute = () =>
+                        {
+                            if(cmfPackage.GetFileInfo().Directory.EnumerateDirectories().Any(dir => dir.Name == "dist"))
+                            {
+                                return true;
+                            }
+                            return false;
+                        },
                         Execute = command =>
                         {
                             command.Execute(cmfPackage.GetFileInfo().Directory);
                         }
-                    },
+                   }
                 };
             }
 
