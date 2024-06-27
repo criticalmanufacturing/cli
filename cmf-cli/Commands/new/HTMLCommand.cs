@@ -65,7 +65,8 @@ namespace Cmf.CLI.Commands.New
             {
                 "--rootRelativePath", relativePathToRoot,
                 "--baseWebPackage", this.baseWebPackage,
-                "--npmRegistry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.OriginalString
+                "--npmRegistry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.OriginalString,
+                "--nodeVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Node(ExecutionContext.Instance.ProjectConfig.MESVersion)
             });
 
             return args;

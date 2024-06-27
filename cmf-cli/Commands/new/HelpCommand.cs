@@ -65,7 +65,13 @@ namespace Cmf.CLI.Commands.New
                 "--rootRelativePath", relativePathToRoot,
                 "--ngxSchematicsVersion", this.schematicsVersion,
                 "--npmRegistry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.OriginalString,
-                "--MESVersion", ExecutionContext.Instance.ProjectConfig.MESVersion.ToString()
+                "--MESVersion", ExecutionContext.Instance.ProjectConfig.MESVersion.ToString(),
+                "--nodeVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Node(ExecutionContext.Instance.ProjectConfig.MESVersion),
+                "--ngVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(ExecutionContext.Instance.ProjectConfig.MESVersion).CLI,
+                "--zoneVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(ExecutionContext.Instance.ProjectConfig.MESVersion).Zone,
+                "--tsVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(ExecutionContext.Instance.ProjectConfig.MESVersion).Typescript,
+                "--esLintVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(ExecutionContext.Instance.ProjectConfig.MESVersion).ESLint,
+                "--tsesVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(ExecutionContext.Instance.ProjectConfig.MESVersion).TSESLint
             });
 
             return args;
