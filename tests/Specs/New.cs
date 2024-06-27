@@ -18,6 +18,7 @@ using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
 using System.Text.Json;
+using Cmf.CLI.Services;
 using Xunit;
 using Assert = tests.AssertWithMessage;
 
@@ -33,6 +34,7 @@ namespace tests.Specs
                 .AddSingleton<IProjectConfigService>(new ProjectConfigService())
                 .AddSingleton<IVersionService>(new VersionService(CliConstants.PackageName))
                 .AddSingleton<IProcessStartInfoCLI, ProcessStartInfoCLI>()
+                .AddSingleton<IDependencyVersionService, DependencyVersionService>()
                 .BuildServiceProvider();
 
             var newCommand = new NewCommand();
