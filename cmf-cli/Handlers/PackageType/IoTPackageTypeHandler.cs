@@ -175,11 +175,7 @@ namespace Cmf.CLI.Handlers
                         Execute = command =>
                         {
                             command.Execute(cmfPackage.GetFileInfo().Directory);
-                        },
-                       ConditionForExecute = () =>
-                       {
-                           return this.IsAngularProject();
-                       }
+                        }
                     },
                 };
             }
