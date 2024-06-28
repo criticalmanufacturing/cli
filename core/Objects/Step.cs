@@ -1,9 +1,9 @@
-﻿using System;
-using System.Xml.Serialization;
-using Cmf.CLI.Core.Enums;
+﻿using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using System;
+using System.Xml.Serialization;
 
 namespace Cmf.CLI.Core.Objects
 {
@@ -51,6 +51,15 @@ namespace Cmf.CLI.Core.Objects
         /// </value>
         [JsonProperty(Order = 5)]
         public string ContentPath { get; set; }
+
+        /// <summary>
+        /// Gets or sets the content.
+        /// </summary>
+        /// <value>
+        /// The content.
+        /// </value>
+        [JsonProperty(Order = 10)]
+        public string Content { get; set; }
 
         /// <summary>
         /// Gets or sets the file.

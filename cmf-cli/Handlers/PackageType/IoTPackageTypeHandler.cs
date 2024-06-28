@@ -6,6 +6,7 @@ using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
+using Microsoft.CodeAnalysis;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -30,13 +31,13 @@ namespace Cmf.CLI.Handlers
             var minimumVersion = new Version("8.3.5");
             var targetVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
             IBuildCommand[] buildCommands = Array.Empty<IBuildCommand>();
+            var defaultSteps = new List<Step>();
 
             if (targetVersion.CompareTo(minimumVersion) < 0)
             {
                 Log.Debug(
                     $"MES version lower than {minimumVersion}, skipping DeployRepositoryFiles and GenerateRepositoryIndex steps. Make sure you have alternative steps in your manifest.");
             }
-
             if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 10)
             {
                 buildCommands = new IBuildCommand[]
@@ -86,9 +87,20 @@ namespace Cmf.CLI.Handlers
             }
             else
             {
-                // TODO:
-                // Validate what happens if LINT IS NOT KNOWN
+                var packageLocation = "projects";
+                // Introduced in version 10.2.x
+                if ((targetVersion.Major > 10 || (targetVersion.Major == 10 &&
+                        targetVersion.Minor >= 2 &&
+                        targetVersion.Build >= 7)) && !this.IsAngularProject())
+                {
+                    packageLocation = "src";
+                    var packages = string.Join(",", this.BuildPackageNames(this.GetPackageJsons(cmfPackage, packageLocation)));
 
+                    defaultSteps.Add(new Step(StepType.IoTAutomationTaskLibrariesSync)
+                    {
+                        Content = packages
+                    });
+                }
 
                 buildCommands = new IBuildCommand[]
                 {
@@ -115,18 +127,7 @@ namespace Cmf.CLI.Handlers
                        WorkingDirectory = cmfPackage.GetFileInfo().Directory,
                        ConditionForExecute = () =>
                        {
-                           var directory = this.fileSystem.DirectoryInfo.New(this.fileSystem.Path.Join(cmfPackage.GetFileInfo().Directory.FullName,"projects"));
-                           var srcCodeDirs = directory.GetDirectories("",SearchOption.TopDirectoryOnly);
-
-                           var packageJsons = new List<IFileInfo>();
-                           foreach(var srcDir in srcCodeDirs)
-                           {
-                               var packageJson = srcDir.GetFiles($"package.json", SearchOption.TopDirectoryOnly)?.FirstOrDefault();
-                               if(packageJson != null)
-                               {
-                                   packageJsons.Add(packageJson);
-                               }
-                           }
+                           var packageJsons = this.GetPackageJsons(cmfPackage, packageLocation);
 
                            if(packageJsons == null && !packageJsons.Any())
                            {
@@ -175,9 +176,49 @@ namespace Cmf.CLI.Handlers
                         {
                             command.Execute(cmfPackage.GetFileInfo().Directory);
                         }
-                   }
+                    },
                 };
             }
+
+            // Add Steps
+            defaultSteps.AddRange(new List<Step>()
+            {
+                new Step(StepType.DeployFiles)
+                {
+                    ContentPath = "runtimePackages/**"
+                },
+                new Step(StepType.DeployFiles)
+                {
+                    ContentPath = "*.ps1"
+                },
+                new Step(StepType.DeployFiles)
+                {
+                    ContentPath = "*.bat"
+                },
+                new Step(StepType.Generic)
+                {
+                    OnExecute = $"$(Package[{cmfPackage.PackageId}].TargetDirectory)/runtimePackages/ValidateIoTInstall.ps1"
+                },
+                new Step(StepType.Generic)
+                {
+                    OnExecute = $"$(Package[{cmfPackage.PackageId}].TargetDirectory)/runtimePackages/PublishToRepository.ps1"
+                },
+                new Step(StepType.Generic)
+                {
+                    OnExecute = $"$(Package[{cmfPackage.PackageId}].TargetDirectory)/runtimePackages/PublishToDirectory.ps1"
+                },
+                new Step(StepType.DeployRepositoryFiles)
+                {
+                    ContentPath = "runtimePackages/**"
+                },
+                new Step(StepType.GenerateRepositoryIndex)
+            });
+
+            // Validate Steps
+            defaultSteps = defaultSteps.Where(step =>
+            // if MES version is inferior to 8.3.5, the DeployRepositoryFiles and GenerateRepositoryIndex steps are not supported
+            targetVersion.CompareTo(minimumVersion) >= 0 || step.Type != StepType.DeployRepositoryFiles && step.Type != StepType.GenerateRepositoryIndex
+            ).ToList();
 
             cmfPackage.SetDefaultValues
             (
@@ -185,44 +226,7 @@ namespace Cmf.CLI.Handlers
                     "UI/Html",
                 targetLayer:
                     "ui",
-                steps:
-                    new List<Step>()
-                    {
-                        new Step(StepType.DeployFiles)
-                        {
-                            ContentPath = "runtimePackages/**"
-                        },
-                        new Step(StepType.DeployFiles)
-                        {
-                            ContentPath = "*.ps1"
-                        },
-                        new Step(StepType.DeployFiles)
-                        {
-                            ContentPath = "*.bat"
-                        },
-                        new Step(StepType.Generic)
-                        {
-                            OnExecute = $"$(Package[{cmfPackage.PackageId}].TargetDirectory)/runtimePackages/ValidateIoTInstall.ps1"
-                        },
-                        new Step(StepType.Generic)
-                        {
-                            OnExecute = $"$(Package[{cmfPackage.PackageId}].TargetDirectory)/runtimePackages/PublishToRepository.ps1"
-                        },
-                        new Step(StepType.Generic)
-                        {
-                            OnExecute = $"$(Package[{cmfPackage.PackageId}].TargetDirectory)/runtimePackages/PublishToDirectory.ps1"
-                        },
-
-                        new Step(StepType.DeployRepositoryFiles)
-                        {
-                            ContentPath = "runtimePackages/**"
-                        },
-                        new Step(StepType.GenerateRepositoryIndex)
-                    }.Where(step =>
-                            // if MES version is inferior to 8.3.5, the DeployRepositoryFiles and GenerateRepositoryIndex steps are not supported
-                            targetVersion.CompareTo(minimumVersion) >= 0 || step.Type != StepType.DeployRepositoryFiles && step.Type != StepType.GenerateRepositoryIndex
-                        ).ToList()
-
+                steps: defaultSteps
             );
 
             DefaultContentToIgnore.AddRange(new List<string>()
@@ -364,6 +368,53 @@ namespace Cmf.CLI.Handlers
             }
 
             base.Pack(packageOutputDir, outputDir);
+        }
+
+        private List<string> BuildPackageNames(List<IFileInfo> packageJsons)
+        {
+            List<string> packagesWVersion = new List<string>();
+            foreach (var packageJson in packageJsons)
+            {
+                var json = fileSystem.File.ReadAllText(packageJson.FullName);
+                dynamic packageJsonContent = JsonConvert.DeserializeObject(json);
+
+                if (packageJsonContent?["name"] == null || packageJsonContent?["version"] == null)
+                {
+                    throw new CliException($"Invalid package '{packageJson.FullName}' has an invalid name or version");
+                }
+
+                string packageName = packageJsonContent["name"].ToString();
+
+                var package = $"{packageJsonContent["name"].ToString()}@{packageJsonContent["version"].ToString()}";
+                packagesWVersion.Add(package);
+            }
+
+            return packagesWVersion;
+        }
+
+        private List<IFileInfo> GetPackageJsons(CmfPackage cmfPackage, string projectDir = "projects")
+        {
+            var dirLoc = this.fileSystem.Path.Join(cmfPackage.GetFileInfo().Directory.FullName, projectDir);
+            dirLoc = this.fileSystem.Directory.Exists(dirLoc) ? dirLoc : this.fileSystem.Path.Join(cmfPackage.GetFileInfo().Directory.FullName, "src");
+            var directory = this.fileSystem.DirectoryInfo.New(dirLoc);
+            var srcCodeDirs = directory.GetDirectories("", SearchOption.TopDirectoryOnly);
+
+            var packageJsons = new List<IFileInfo>();
+            foreach (var srcDir in srcCodeDirs)
+            {
+                var packageJson = srcDir.GetFiles($"package.json", SearchOption.TopDirectoryOnly)?.FirstOrDefault();
+                if (packageJson != null)
+                {
+                    packageJsons.Add(packageJson);
+                }
+            }
+
+            return packageJsons;
+        }
+
+        private bool IsAngularProject()
+        {
+            return this.fileSystem.File.Exists("angular.json");
         }
     }
 }

@@ -8,7 +8,7 @@
   "name": "IoT Package (> MES 10)",
   "identity": "cmf-cli.new.iot10",
   "groupIdentity": "cmf-cli.new.iot",
-  "shortName": "iot-from1000",
+  "shortName": "iot-from1000-angular",
   // You can create the project using this short name instead of the one above.
   "tags": {
     "language": "Typescript",

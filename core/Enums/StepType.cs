@@ -64,14 +64,20 @@
         /// Update the ConnectIoT Repository Index
         /// </summary>
         GenerateRepositoryIndex = 11,
-        
+
         /// <summary>
         /// Generate Service History Id
         /// </summary>
         GenerateServiceHistoryId = 12,
+
         /// <summary>
         /// Tag a file. This is similar to DeployFiles with the tag option set
         /// </summary>
-        TaggedFile = 13
+        TaggedFile = 13,
+
+        /// <summary>
+        /// Sync Automation Task libraries
+        /// </summary>
+        IoTAutomationTaskLibrariesSync = 14
     }
 }

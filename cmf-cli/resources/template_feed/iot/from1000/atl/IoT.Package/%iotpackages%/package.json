@@ -1,0 +1,31 @@
+{
+  "name": "connect-iot-custom-root",
+  "private": true,
+  "packageId": "<%= $CLI_PARAM_CustomPackageName %>.Packages",
+  "version": "<%= $CLI_PARAM_CustomPackageVersion %>",
+  "scripts": {
+    "build": "npm run build -ws --if-present",
+    "build:test:cover": "npm run build:test:cover -ws --if-present",
+    "lint": "npm run lint -ws --if-present",
+    "lint:fix": "npm run lint:fix -ws --if-present",
+    "test": "npm run test -ws --if-present",
+    "test:cover": "npm run test:cover -ws --if-present",
+    "packagePacker": "npm run packagePacker -ws --if-present",
+    "watch": "npm run watch -ws --if-present",
+    "generateTaskLibrary": "cd src && yo @criticalmanufacturing/iot:tasksLibrary && cd .."
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.10.0",
+    "@typescript-eslint/parser": "^6.10.0",
+    "concurrently": "^7.6.0",
+    "eslint": "^8.53.0",
+    "eslint-plugin-mocha": "^10.2.0",
+    "run-sequence": "2.2.1",
+    "yargs": "17.6.2"
+  },
+  "workspaces": [
+    "src/*"
+  ]
+}

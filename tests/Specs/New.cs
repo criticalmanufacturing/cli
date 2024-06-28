@@ -309,8 +309,9 @@ namespace tests.Specs
         [Theory]
         [InlineData("9.0.0")]
         [InlineData("10.0.0"), Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Internal")]
-        [InlineData("10.0.0", true), Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Internal")]
-        public void IoT(string mesVersion, bool htmlPackageLocationFullPath = false)
+        [InlineData("10.0.0", true, true), Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Internal")]
+        [InlineData("10.2.0", false), Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Internal")]
+        public void IoT(string mesVersion, bool htmlPackageLocationFullPath = false, bool isAngularPackage = false)
         {
             string dir = TestUtilities.GetTmpDirectory();
             string packageId = "Cmf.Custom.IoT";
@@ -326,14 +327,18 @@ namespace tests.Specs
             {
                 RunNew(new IoTCommand(), packageId, scaffoldingDir: dir);
             }
-            else
+            else if (isAngularPackage)
             {
                 var htmlPackageName = "Cmf.Custom.Html";
                 var targetDir = new DirectoryInfo(dir);
 
                 TestUtilities.CopyFixturePackage(htmlPackageName, targetDir);
                 string htmlPackageLocation = htmlPackageLocationFullPath ? htmlPackageName : Path.Join(targetDir.FullName, htmlPackageName);
-                RunNew(new IoTCommand(), packageId, mesVersion: mesVersion, scaffoldingDir: dir, extraArguments: new string[] { "--htmlPackageLocation", htmlPackageLocation });
+                RunNew(new IoTCommand(), packageId, mesVersion: mesVersion, scaffoldingDir: dir, extraArguments: new string[] { "--htmlPackageLocation", htmlPackageLocation, "--isAngularPackage", "true" });
+            }
+            else
+            {
+                RunNew(new IoTCommand(), packageId, scaffoldingDir: dir);
             }
 
             File.ReadAllText(Path.Join(dir, packageId, "cmfpackage.json"))
@@ -357,7 +362,7 @@ namespace tests.Specs
                 File.Exists($"{packageId}/{packageFolderPackages}/.dev-tasks.json").Should().BeTrue();
                 Directory.Exists($"{packageId}/{packageFolderPackages}/src").Should().BeTrue();
             }
-            else
+            else if (isAngularPackage)
             {
                 var relatedPackages = TestUtilities.GetPackage($"{packageId}/{packageFolderPackages}/cmfpackage.json").GetProperty("relatedPackages")[0];
                 relatedPackages.GetProperty("path").GetString().Should().Be(MockUnixSupport.Path("..\\..\\Cmf.Custom.Html"));
@@ -365,6 +370,12 @@ namespace tests.Specs
                 relatedPackages.GetProperty("postBuild").GetBoolean().Should().BeTrue();
                 relatedPackages.GetProperty("prePack").GetBoolean().Should().BeFalse();
                 relatedPackages.GetProperty("postPack").GetBoolean().Should().BeTrue();
+            }
+            else
+            {
+                File.Exists($"{packageId}/{packageFolderPackages}/angular.json").Should().BeFalse();
+                File.Exists($"{packageId}/{packageFolderPackages}/.eslintrc.json").Should().BeTrue();
+                File.Exists($"{packageId}/{packageFolderPackages}/ui.xml").Should().BeTrue();
             }
         }
 
