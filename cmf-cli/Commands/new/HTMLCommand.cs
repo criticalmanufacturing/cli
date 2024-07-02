@@ -367,7 +367,7 @@ $@"{{
             {
                 throw new CliException("Could not load package.json");
             }
-            rootPkgJson.scripts["serve"] = "cross-env NODE_OPTIONS=--max-old-space-size=8192 npm run start -- --open --host 0.0.0.0 --port 7000";
+            rootPkgJson.scripts["serve"] = "cross-env NODE_OPTIONS=--max-old-space-size=8192 npm run start -- --host 0.0.0.0 --disable-host-check --port 7000";
             rootPkgJson.devDependencies["cross-env"] = "^7.0.3";
             json = JsonConvert.SerializeObject(rootPkgJson, Formatting.Indented);
             this.fileSystem.File.WriteAllText(rootPkgJsonPath, json);

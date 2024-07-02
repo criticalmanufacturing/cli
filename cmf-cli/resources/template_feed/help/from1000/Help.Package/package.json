@@ -14,7 +14,7 @@
     "lint": "ng lint",
     "link:libs": "ngx-tasks link",
     "extract-i18n": "ng extract-i18n --output-path ./src/assets/ --format json",
-    "serve": "cross-env NODE_OPTIONS=--max-old-space-size=8192 npm run start -- --open --host 0.0.0.0 --port 7001"
+    "serve": "cross-env NODE_OPTIONS=--max-old-space-size=8192 npm run start -- --host 0.0.0.0 --disable-host-check --port 7001"
   },
   "private": true,
   "dependencies": {
