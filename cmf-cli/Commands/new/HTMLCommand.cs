@@ -405,10 +405,11 @@ $@"{{
             {
                 throw new CliException("Could not load webapp config.json");
             }
-            var restPort = ExecutionContext.Instance.ProjectConfig.RESTPort;
+
             configJsonJson.host.rest.enableSsl = false;
             configJsonJson.host.rest.address = "localhost";
-            configJsonJson.host.rest.port = restPort;
+            // using port 80, because is our localenv default port and the api is served on that port
+            configJsonJson.host.rest.port = 80;
             configJsonJson.host.isLoadBalancerEnabled = false;
             configJsonJson.host.tenant.name = ExecutionContext.Instance.ProjectConfig.Tenant;
             configJsonJson.general.defaultDomain = ExecutionContext.Instance.ProjectConfig.DefaultDomain;
