@@ -75,15 +75,15 @@ namespace Cmf.CLI.Handlers
             
             Log.Debug("Generating App manifest");
 
-            CmfApp = CmfApp.Load(cmfAppFile, fileSystem);
+            CmfApp = CmfApp.Load(cmfAppFile, fileSystem, CmfPackage.Version);
 
-            if (string.IsNullOrWhiteSpace(CmfApp.Content.App.Image.File))
+            if (string.IsNullOrWhiteSpace(CmfApp.App.Image.File))
             {
                 string projectRootPath = FileSystemUtilities.GetProjectRoot(fileSystem, throwException: true).FullName;
                 string defaultIconPath = fileSystem.Path.Join(projectRootPath, CliConstants.AssetsFolder, CliConstants.DefaultAppIcon);
-                CmfApp.Content.App.Image.File = defaultIconPath;
+                CmfApp.App.Image.File = defaultIconPath;
             }
-            else if (!AppIconUtilities.IsIconValid(CmfApp.Content.App.Image.File))
+            else if (!AppIconUtilities.IsIconValid(CmfApp.App.Image.File))
             {
                 throw new CliException(string.Format(CoreMessages.InvalidValue, cmfAppFile.FullName));
             }
@@ -92,12 +92,12 @@ namespace Cmf.CLI.Handlers
 
             string iconPath = fileSystem.Path.Join(packageOutputDir.FullName, CliConstants.AppIcon);
             CmfApp.SaveIcon(iconPath);
-            CmfApp.Content.App.Image.File = CliConstants.AppIcon;
+            CmfApp.App.Image.File = CliConstants.AppIcon;
 
-            string manifestPath = fileSystem.Path.Join(packageOutputDir.FullName, CliConstants.AppManifestFileName);
+            string manifestPath = fileSystem.Path.Join(packageOutputDir.FullName, CliConstants.DeploymentFrameworkManifestFileName);
             CmfApp.Save(manifestPath);
 
-            string appPackage = $"{CmfApp.Content.App.Name}@{CmfPackage.Version}.zip";
+            string appPackage = $"{CmfApp.App.Id}@{CmfPackage.Version}.zip";
             
             string tempzipPath = fileSystem.Path.Join(packageOutputDir.FullName, appPackage);
             if (fileSystem.File.Exists(tempzipPath))

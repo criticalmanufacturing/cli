@@ -1,17 +1,12 @@
-﻿using Cmf.CLI.Constants;
-using Cmf.CLI.Core.Objects;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.IO.Abstractions.TestingHelpers;
 using System.IO.Abstractions;
-using Xunit;
+using System.IO.Abstractions.TestingHelpers;
+using Cmf.CLI.Constants;
+using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Core.Objects.CmfApp;
-using System.IO;
-using System.Diagnostics;
-using Cmf.CLI.Utilities;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp;
-using Cmf.Common.Cli.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
+using Xunit;
 
 namespace tests.Specs
 {
@@ -21,6 +16,7 @@ namespace tests.Specs
         public void CmfApp_Manifest()
         {
             var appId = "App Id";
+            var version = "App version";
             var appName = "App name";
             var author = "App author";
             var description = "App description";
@@ -30,16 +26,24 @@ namespace tests.Specs
             var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
             {
                 { "/repo/cmfapp.json", new MockFileData(
-                @$"{{
-                  ""id"": ""{appId}"",
-                  ""name"": ""{appName}"",
-                  ""author"": ""{author}"",
-                  ""description"": ""{description}"",
-                  ""targetFramework"": ""{targetFramework}"",
-                  ""licensedApplication"": ""{licensedApplication}"",
-                  ""icon"": """"
-                }}")}
+                    @$"{{
+                        ""id"": ""{appId}"",
+                        ""name"": ""{appName}"",
+                        ""author"": ""{author}"",
+                        ""description"": ""{description}"",
+                        ""licensedApplication"": ""{licensedApplication}"",
+                        ""icon"": """"
+                }}")},
+                { ".project-config.json", new MockFileData(
+                    @$"{{
+                        ""MESVersion"": ""{targetFramework}""
+                    }}")
+                },
             });
+
+            ExecutionContext.ServiceProvider = (new ServiceCollection())
+                .AddSingleton<IProjectConfigService>(new ProjectConfigService())
+                .BuildServiceProvider();
 
             ExecutionContext.Initialize(fileSystem);
             IFileInfo cmfappFile = fileSystem.FileInfo.New($"repo/{CliConstants.CmfAppFileName}");
@@ -49,7 +53,7 @@ namespace tests.Specs
             try
             {
                 // Reading cmfapp
-                cmfAppDataObject = Cmf.CLI.Core.Objects.CmfApp.CmfApp.Load(cmfappFile);
+                cmfAppDataObject = Cmf.CLI.Core.Objects.CmfApp.CmfApp.Load(cmfappFile, null, version);
             }
             catch (Exception ex)
             {
@@ -59,13 +63,14 @@ namespace tests.Specs
             Assert.Equal(string.Empty, message);
             Assert.NotNull(cmfAppDataObject);
 
-            CmfAppV1 app = cmfAppDataObject.Content.App;
+            CmfAppV1 app = cmfAppDataObject.App;
 
             Assert.Equal(app.Id, appId);
+            Assert.Equal(app.Version, version);
             Assert.Equal(app.Name, appName);
             Assert.Equal(app.Author, author);
             Assert.Equal(app.Description, description);
-            Assert.Equal(app.Framework.Version, targetFramework);
+            Assert.Equal(app.Framework.Version, $"^{targetFramework}");
             Assert.Equal(app.LicensedApplication.Name, licensedApplication);
         }
     }

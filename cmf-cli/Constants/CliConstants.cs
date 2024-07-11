@@ -34,11 +34,6 @@ namespace Cmf.CLI.Constants
         public const string DeploymentFrameworkManifestFileName = "manifest.xml";
 
         /// <summary>
-        /// The app manifest template
-        /// </summary>
-        public const string AppManifestFileName = "app_manifest.xml";
-
-        /// <summary>
         /// The app deployment manifest template
         /// </summary>
         public const string AppDeploymentManifestFileName = "app_deployment_manifest.xml";

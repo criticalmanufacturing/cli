@@ -1,11 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
-		<OutputType>Library</OutputType>
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<AssemblyTitle>ApplicationVersion</AssemblyTitle>
 		<Product><%= $CLI_PARAM_Tenant %></Product>
 		<AssemblyName>Cmf.<%= $CLI_PARAM_idSegment %>.ApplicationVersion</AssemblyName>
-		<RootNamespace>Cmf.Custom.<%= $CLI_PARAM_idSegment %>.ApplicationVersion</RootNamespace>
+		<RootNamespace>Cmf.<%= $CLI_PARAM_idSegment %>.ApplicationVersion</RootNamespace>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<AssemblyVersion><%= $CLI_PARAM_assemblyVersion %></AssemblyVersion>
 		<FileVersion><%= $CLI_PARAM_fileVersion %></FileVersion>
