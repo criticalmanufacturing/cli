@@ -476,12 +476,29 @@ namespace tests.Specs
                 using Stream appStream = zip.GetEntry(appManifest).Open();
                 using StreamReader appStreamReader = new(appStream, Encoding.UTF8);
 
-                // TODO: To solve later
-                // This code is commented because the deserialization fails
-                // The deserialization fails due to the nail made in "CmfApp.Save"
-                //XmlSerializer serializer = new(typeof(Cmf.CLI.Core.Objects.CmfApp.CmfAppV1));
-                //Cmf.CLI.Core.Objects.CmfApp.CmfAppV1 manifest = (Cmf.CLI.Core.Objects.CmfApp.CmfAppV1)serializer.Deserialize(appStreamReader);
-                //Assert.True(manifest.Image.File == "app_icon.png");
+                // Verify xml document
+                var doc = XDocument.Load(appStreamReader);
+
+                XElement rootNode = doc.Element("App", true);
+                Assert.False(rootNode == null);
+
+                if (rootNode == null)
+                    return;
+
+                var imageElement = rootNode.Element("Image", true);
+                Assert.False(imageElement == null);
+
+                if (imageElement == null)
+                    return;
+
+                var fileAttr = imageElement.Attribute("file");
+
+                Assert.False(fileAttr == null);
+
+                if (fileAttr == null)
+                    return;
+
+                Assert.True(fileAttr.Value == "app_icon.png");
             }
             finally
             {

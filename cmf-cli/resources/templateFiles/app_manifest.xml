@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<App id="$(id)"
+	 version="$(version)"
+	 author="$(author)"
+	 name="$(name)"
+	 description="$(description)"
+	 xmlns:metadata="urn:cmf:dp:xml:ns:app-metadata-v1">
+	<metadata:Framework version="$(frameworkVersion)"/>
+	<metadata:LicensedApplication name="$(licensedApplication)"/>
+	<metadata:Image file="app_icon.png"/>
+</App>
