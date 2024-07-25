@@ -3,7 +3,6 @@
   "name": "MockName",
   "author": "MockAuthor",
   "description": "MockDescription",
-  "targetFramework": "10.0.0",
-  "licensedApplication": "MockId",
+  "licensedApplication": "MockLicensedApplication",
   "icon": ""
 }

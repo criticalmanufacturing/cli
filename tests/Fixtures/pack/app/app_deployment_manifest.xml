@@ -292,7 +292,8 @@
 						internal="/var/lib/grafana/" />
 					<deployContainer:Volume size="10" name="installation_data"
 						label="Installation Data"
-						internal="/var/opt/envmanager/installation" />
+						internal="/var/opt/envmanager/installation"
+						usage="Reference" />
 				</deployContainer:Volumes>
 			</deploy:Step>
 		</install:Steps>

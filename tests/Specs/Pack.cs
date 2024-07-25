@@ -429,7 +429,7 @@ namespace tests.Specs
             {
                 string dir = $"{TestUtilities.GetTmpDirectory()}/app";
                 string packageName = "Cmf.Custom.Package.1.0.0.zip";
-                string appfilesName = "MockName@1.0.0.zip";
+                string appfilesName = "MockId@1.0.0.zip";
                 TestUtilities.CopyFixture("pack/app", new DirectoryInfo(dir));
 
                 var projCfg = Path.Join(dir, ".project-config.json");
@@ -463,7 +463,7 @@ namespace tests.Specs
                 Assert.True(entries.HasAny(entry => entry == "manifest.xml"), "Manifest file does not exist");
 
                 var packageZipPath = $"{dir}/Package/{appfilesName}";
-                var appManifest = "app_manifest.xml";
+                var appManifest = "manifest.xml";
                 Assert.True(File.Exists(packageZipPath), "Zip app files is missing");
 
                 List<string> appEntries = TestUtilities.GetFileEntriesFromZip(packageZipPath);
@@ -476,9 +476,29 @@ namespace tests.Specs
                 using Stream appStream = zip.GetEntry(appManifest).Open();
                 using StreamReader appStreamReader = new(appStream, Encoding.UTF8);
 
-                XmlSerializer serializer = new(typeof(Cmf.CLI.Core.Objects.CmfApp.AppContainer));
-                Cmf.CLI.Core.Objects.CmfApp.AppContainer manifest = (Cmf.CLI.Core.Objects.CmfApp.AppContainer)serializer.Deserialize(appStreamReader);
-                Assert.True(manifest.App.Image.File == "app_icon.png");
+                // Verify xml document
+                var doc = XDocument.Load(appStreamReader);
+
+                XElement rootNode = doc.Element("App", true);
+                Assert.False(rootNode == null);
+
+                if (rootNode == null)
+                    return;
+
+                var imageElement = rootNode.Element("Image", true);
+                Assert.False(imageElement == null);
+
+                if (imageElement == null)
+                    return;
+
+                var fileAttr = imageElement.Attribute("file");
+
+                Assert.False(fileAttr == null);
+
+                if (fileAttr == null)
+                    return;
+
+                Assert.True(fileAttr.Value == "app_icon.png");
             }
             finally
             {
