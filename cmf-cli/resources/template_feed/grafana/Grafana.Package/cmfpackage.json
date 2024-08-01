@@ -3,6 +3,7 @@
   "version": "<%= $CLI_PARAM_CustomPackageVersion %>",
   "description": "Cmf Custom <%= $CLI_PARAM_Tenant %> <%= $CLI_PARAM_CustomPackageName %> Package",
   "packageType": "Grafana",
+  "targetLayer": "grafana",
   "contentToPack": [
     {
       "source": "$(version)/*",
