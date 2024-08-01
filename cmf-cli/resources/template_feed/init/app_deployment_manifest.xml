@@ -162,24 +162,17 @@
 					<deployContainer:EnvironmentVariable name="GF_SECURITY_ALLOW_EMBEDDING"> true </deployContainer:EnvironmentVariable>
 					<deployContainer:EnvironmentVariable name="GF_AUTH_DISABLE_LOGIN_FORM"> true </deployContainer:EnvironmentVariable>
 					<deployContainer:EnvironmentVariable name="GF_AUTH_DISABLE_SIGNOUT_MENU"> true </deployContainer:EnvironmentVariable>
-					<deployContainer:EnvironmentVariable name="GF_USERS_AUTO_ASSIGN_ORG_ROLE">
-						Viewer </deployContainer:EnvironmentVariable>
+					<deployContainer:EnvironmentVariable name="GF_USERS_AUTO_ASSIGN_ORG_ROLE"> Viewer </deployContainer:EnvironmentVariable>
 					<deployContainer:EnvironmentVariable name="GF_USERS_EDITORS_CAN_ADMIN"> true </deployContainer:EnvironmentVariable>
 					<deployContainer:EnvironmentVariable name="GF_AUTH_PROXY_ENABLED"> true </deployContainer:EnvironmentVariable>
-					<deployContainer:EnvironmentVariable name="GF_AUTH_PROXY_HEADER_NAME">
-						X-FORWARDED-USER </deployContainer:EnvironmentVariable>
-					<deployContainer:EnvironmentVariable name="GF_AUTH_PROXY_HEADER_PROPERTY">
-						username </deployContainer:EnvironmentVariable>
+					<deployContainer:EnvironmentVariable name="GF_AUTH_PROXY_HEADER_NAME"> X-FORWARDED-USER </deployContainer:EnvironmentVariable>
+					<deployContainer:EnvironmentVariable name="GF_AUTH_PROXY_HEADER_PROPERTY"> username </deployContainer:EnvironmentVariable>
 					<deployContainer:EnvironmentVariable name="GF_AUTH_PROXY_AUTO_SIGN_UP"> true </deployContainer:EnvironmentVariable>
-					<deployContainer:EnvironmentVariable name="GF_AUTH_PROXY_HEADERS">
-						Role:X-Forwarded-Grafana-Role </deployContainer:EnvironmentVariable>
+					<deployContainer:EnvironmentVariable name="GF_AUTH_PROXY_HEADERS"> Role:X-Forwarded-Grafana-Role </deployContainer:EnvironmentVariable>
 					<deployContainer:EnvironmentVariable name="GF_AUTH_BASIC"> false </deployContainer:EnvironmentVariable>
-					<deployContainer:EnvironmentVariable name="INSTALLATION_ID">{{
-						Global.GetInstallationId() }}</deployContainer:EnvironmentVariable>
-					<deployContainer:EnvironmentVariable name="INSTALLATION_DATA_ROOT_PATH">
-						/var/opt/envmanager/installation/$(SYSTEM_NAME)</deployContainer:EnvironmentVariable>
-					<deployContainer:EnvironmentVariable name="DATABASE_APP_FRAMEWORK_CDM_NAME">{{
-						Global.Deployable.BaseSystemName }}CDM</deployContainer:EnvironmentVariable>
+					<deployContainer:EnvironmentVariable name="INSTALLATION_ID">{{ Global.GetInstallationId() }}</deployContainer:EnvironmentVariable>
+					<deployContainer:EnvironmentVariable name="INSTALLATION_DATA_ROOT_PATH"> /var/opt/envmanager/installation/$(SYSTEM_NAME)</deployContainer:EnvironmentVariable>
+					<deployContainer:EnvironmentVariable name="DATABASE_APP_FRAMEWORK_CDM_NAME">{{ Global.Deployable.BaseSystemName }}CDM</deployContainer:EnvironmentVariable>
 
 					<!-- Env Manager Boot Sync -->
 					<deployContainer:EnvironmentVariable name="ENV_MANAGER_BOOT_SYNC_ENABLED">true</deployContainer:EnvironmentVariable>
@@ -269,7 +262,7 @@
 						internal="/var/lib/grafana/" />
 					<deployContainer:Volume size="10" name="installation_data"
 						label="Installation Data"
-						internal="/var/opt/envmanager/installation" 
+						internal="/var/opt/envmanager/installation"
 						usage="Reference" />
 				</deployContainer:Volumes>
 			</deploy:Step>
