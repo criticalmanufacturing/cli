@@ -1,11 +1,11 @@
 ﻿using Cmf.CLI.Constants;
+using Cmf.CLI.Core;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
-using Cmf.CLI.Core;
 using Cmf.CLI.Utilities;
 using System.Collections.Generic;
-using System.IO.Abstractions;
 using System.IO;
+using System.IO.Abstractions;
 
 namespace Cmf.CLI.Handlers
 {
@@ -38,7 +38,6 @@ namespace Cmf.CLI.Handlers
             cmfPackage.DFPackageType = PackageType.Business;
         }
 
-
         /// <summary>
         /// Packs the specified package output dir.
         /// </summary>
@@ -46,39 +45,21 @@ namespace Cmf.CLI.Handlers
         /// <param name="outputDir">The output dir.</param>
         public override void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir)
         {
-            Log.Debug("Generating SecurityPortal config.json");
+            Log.Debug("Generating SecurityPortal package");
             string path = $"{packageOutputDir.FullName}{Path.DirectorySeparatorChar}{CliConstants.CmfPackageSecurityPortalConfig}";
 
             IDirectoryInfo cmfPackageDirectory = CmfPackage.GetFileInfo().Directory;
 
             dynamic configJson = cmfPackageDirectory.GetFile(CliConstants.CmfPackageSecurityPortalConfig);
+
             if (configJson != null)
             {
-                string packageName = configJson.id;
-                string type = configJson.type;
-                string metadataUrl = configJson.config.metadataUrl;
-                string redirectUrl = configJson.config.redirectUrl;
-                string clientId = configJson.config.clientId;
-
-                // Get Template
-                string fileContent = ResourceUtilities.GetEmbeddedResourceContent($"{CliConstants.FolderTemplates}/{CmfPackage.PackageType}/{CliConstants.CmfPackageSecurityPortalConfig}");
-
-                fileContent = fileContent.Replace(CliConstants.TokenPackageId, packageName);
-                fileContent = fileContent.Replace(CliConstants.StrategyPath, CliConstants.DefaultStrategyPath).Replace(CliConstants.Tenant, ExecutionContext.Instance.ProjectConfig.Tenant);
-                fileContent = fileContent.Replace(CliConstants.Strategy, type);
-                fileContent = fileContent.Replace(CliConstants.MetadataUrl, metadataUrl);
-                fileContent = fileContent.Replace(CliConstants.RedirectUrl, redirectUrl);
-                fileContent = fileContent.Replace(CliConstants.ClientId, clientId);
-
-                this.fileSystem.File.WriteAllText(path, fileContent);
-
                 GenerateDeploymentFrameworkManifest(packageOutputDir);
 
                 FinalArchive(packageOutputDir, outputDir);
 
                 Log.Debug($"{outputDir.FullName}{Path.DirectorySeparatorChar}{CmfPackage.ZipPackageName} created");
                 Log.Information($"{CmfPackage.PackageName} packed");
-
             }
             else
             {
