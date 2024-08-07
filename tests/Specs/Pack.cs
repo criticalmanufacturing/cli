@@ -210,10 +210,7 @@ namespace tests.Specs
                     ""packageId"": ""Cmf.Custom.Grafana"",
                     ""version"": ""{version}"",
                     ""description"": ""Cmf Custom Grafana Package"",
-                    ""packageType"": ""Generic"",
-                    ""targetLayer"": ""grafana"",
-                    ""isInstallable"": true,
-                    ""isUniqueInstall"": true,
+                    ""packageType"": ""Grafana"",
 	                ""steps"": [
 		                {{
 			                ""order"": ""1"",
