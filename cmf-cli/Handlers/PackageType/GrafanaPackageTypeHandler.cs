@@ -21,7 +21,7 @@ namespace Cmf.CLI.Handlers
         {
             cmfPackage.SetDefaultValues
             (
-                targetLayer: "Grafana",
+                targetLayer: "grafana",
                 isInstallable: true,
                 isUniqueInstall: true,
                 steps: new List<Step>()

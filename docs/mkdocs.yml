@@ -32,6 +32,8 @@ theme:
     - navigation.top
     - search.suggest
     - search.highlight
+    - content.code.select
+    - content.code.copy
 repo_url: https://github.com/criticalmanufacturing/cli
 repo_name: criticalmanufacturing/cli
 edit_uri: edit/documentation/src
@@ -55,4 +57,3 @@ markdown_extensions:
             format: !!python/name:mermaid2.fence_mermaid
   - pymdownx.tabbed:
       alternate_style: true
-

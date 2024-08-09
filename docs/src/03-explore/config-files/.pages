@@ -1,0 +1,4 @@
+nav:
+    - infrastructure.json
+    - repositories.json
+    - cmfpackage.json

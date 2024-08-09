@@ -1,20 +1,7 @@
 const spawn = require("child_process").spawnSync;
 const fs = require("fs");
 
-const commands = `cmf assemble
-cmf build
-cmf bump
-cmf init
-cmf ls
-cmf new
-cmf pack
-cmf restore
-cmf build help
-cmf build help generateBasedOnTemplates
-cmf build help generateMenuItems
-cmf bump iot
-cmf bump iot configuration
-cmf bump iot customization
+const commands = `cmf init
 cmf new
 cmf new business
 cmf new database
@@ -23,7 +10,19 @@ cmf new feature
 cmf new help
 cmf new html
 cmf new iot
-cmf new test`;
+cmf new test
+cmf restore
+cmf build
+cmf build help
+cmf build help generateBasedOnTemplates
+cmf build help generateMenuItems
+cmf pack
+cmf assemble
+cmf bump
+cmf bump iot
+cmf bump iot configuration
+cmf bump iot customization
+cmf ls`;
 
 const myArgs = process.argv.slice(2);
 if (myArgs.length < 1) {
@@ -33,7 +32,7 @@ if (myArgs.length < 1) {
 
 commands.split("\n").forEach(c => {
     c = c.split(" ").splice(1).join(" ").trimEnd(); // remove "cmf "
-    const outFile = `./src/reference/commands/${c.replace(/\s/g, "_")}.md`;
+    const outFile = `./src/03-explore/reference/commands/${c.replace(/\s/g, "_")}.md`;
     if (!fs.existsSync(outFile)) {
         fs.writeFileSync(outFile, 
             `# ${c}

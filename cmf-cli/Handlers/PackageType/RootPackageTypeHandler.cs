@@ -66,18 +66,21 @@ namespace Cmf.CLI.Handlers
         /// <exception cref="CliException"></exception>
         internal virtual void GenerateAppFiles(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir)
         {
-            Log.Debug("Generating App manifest");
-
             IFileInfo cmfAppFile = fileSystem.FileInfo.New(CliConstants.CmfAppFileName);
+            if (!cmfAppFile.Exists)
+            {
+                Log.Debug($"{CliConstants.CmfAppFileName} not found! No need to generate app manifest");
+                return;
+            }
+            
+            Log.Debug("Generating App manifest");
 
             CmfApp = CmfApp.Load(cmfAppFile, fileSystem);
 
             if (string.IsNullOrWhiteSpace(CmfApp.Content.App.Image.File))
             {
-                string defaultIconPath = fileSystem.Path.Join(FileSystemUtilities.GetProjectRoot(fileSystem, throwException: true).FullName,
-                    CliConstants.AssetsFolder,
-                    CliConstants.DefaultAppIcon);
-
+                string projectRootPath = FileSystemUtilities.GetProjectRoot(fileSystem, throwException: true).FullName;
+                string defaultIconPath = fileSystem.Path.Join(projectRootPath, CliConstants.AssetsFolder, CliConstants.DefaultAppIcon);
                 CmfApp.Content.App.Image.File = defaultIconPath;
             }
             else if (!AppIconUtilities.IsIconValid(CmfApp.Content.App.Image.File))

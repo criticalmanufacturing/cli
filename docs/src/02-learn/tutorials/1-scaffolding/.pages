@@ -1,0 +1,6 @@
+nav:
+    - index.md
+    - Project Init: 1-project-init
+    - Project Scaffold: 2-project-scaffold
+    - Post-Scaffolding Tasks: 3-post-scaffolding
+    - ...

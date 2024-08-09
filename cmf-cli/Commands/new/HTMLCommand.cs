@@ -1,12 +1,3 @@
-using Cmf.CLI.Builders;
-using Cmf.CLI.Constants;
-using Cmf.CLI.Core;
-using Cmf.CLI.Core.Attributes;
-using Cmf.CLI.Core.Enums;
-using Cmf.CLI.Core.Objects;
-using Cmf.CLI.Utilities;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
@@ -14,6 +5,17 @@ using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Cmf.CLI.Builders;
+using Cmf.CLI.Constants;
+using Cmf.CLI.Core;
+using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Services;
+using Cmf.CLI.Utilities;
+using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Cmf.CLI.Commands.New
 {
@@ -63,7 +65,8 @@ namespace Cmf.CLI.Commands.New
             {
                 "--rootRelativePath", relativePathToRoot,
                 "--baseWebPackage", this.baseWebPackage,
-                "--npmRegistry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.OriginalString
+                "--npmRegistry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.OriginalString,
+                "--nodeVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Node(ExecutionContext.Instance.ProjectConfig.MESVersion)
             });
 
             return args;
@@ -329,7 +332,7 @@ $@"{{
             base.Execute(workingDir, version); // create package base - generate cmfpackage.json
 
             // this won't return null because it has to success on the base.Execute call
-            var ngCliVersion = "15"; // v15 for MES 10
+            var ngCliVersion = ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().AngularCLI(ExecutionContext.Instance.ProjectConfig.MESVersion);
             var packageName = base.GeneratePackageName(workingDir)!.Value.Item1;
             var packageDir = workingDir.GetDirectories(packageName).First();
             var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
@@ -364,7 +367,7 @@ $@"{{
             {
                 throw new CliException("Could not load package.json");
             }
-            rootPkgJson.scripts["serve"] = "cross-env NODE_OPTIONS=--max-old-space-size=8192 npm run start -- --open --port 7000";
+            rootPkgJson.scripts["serve"] = "cross-env NODE_OPTIONS=--max-old-space-size=8192 npm run start -- --host 0.0.0.0 --disable-host-check --port 7000";
             rootPkgJson.devDependencies["cross-env"] = "^7.0.3";
             json = JsonConvert.SerializeObject(rootPkgJson, Formatting.Indented);
             this.fileSystem.File.WriteAllText(rootPkgJsonPath, json);
@@ -402,10 +405,11 @@ $@"{{
             {
                 throw new CliException("Could not load webapp config.json");
             }
-            var restPort = ExecutionContext.Instance.ProjectConfig.RESTPort;
+
             configJsonJson.host.rest.enableSsl = false;
             configJsonJson.host.rest.address = "localhost";
-            configJsonJson.host.rest.port = restPort;
+            // using port 80, because is our localenv default port and the api is served on that port
+            configJsonJson.host.rest.port = 80;
             configJsonJson.host.isLoadBalancerEnabled = false;
             configJsonJson.host.tenant.name = ExecutionContext.Instance.ProjectConfig.Tenant;
             configJsonJson.general.defaultDomain = ExecutionContext.Instance.ProjectConfig.DefaultDomain;

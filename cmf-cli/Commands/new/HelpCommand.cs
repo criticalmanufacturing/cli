@@ -1,12 +1,3 @@
-using Cmf.CLI.Builders;
-using Cmf.CLI.Constants;
-using Cmf.CLI.Core;
-using Cmf.CLI.Core.Attributes;
-using Cmf.CLI.Core.Enums;
-using Cmf.CLI.Core.Objects;
-using Cmf.CLI.Utilities;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
@@ -14,6 +5,17 @@ using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Cmf.CLI.Builders;
+using Cmf.CLI.Constants;
+using Cmf.CLI.Core;
+using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Services;
+using Cmf.CLI.Utilities;
+using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Cmf.CLI.Commands.New
 {
@@ -63,7 +65,13 @@ namespace Cmf.CLI.Commands.New
                 "--rootRelativePath", relativePathToRoot,
                 "--ngxSchematicsVersion", this.schematicsVersion,
                 "--npmRegistry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.OriginalString,
-                "--MESVersion", ExecutionContext.Instance.ProjectConfig.MESVersion.ToString()
+                "--MESVersion", ExecutionContext.Instance.ProjectConfig.MESVersion.ToString(),
+                "--nodeVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Node(ExecutionContext.Instance.ProjectConfig.MESVersion),
+                "--ngVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(ExecutionContext.Instance.ProjectConfig.MESVersion).CLI,
+                "--zoneVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(ExecutionContext.Instance.ProjectConfig.MESVersion).Zone,
+                "--tsVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(ExecutionContext.Instance.ProjectConfig.MESVersion).Typescript,
+                "--esLintVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(ExecutionContext.Instance.ProjectConfig.MESVersion).ESLint,
+                "--tsesVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(ExecutionContext.Instance.ProjectConfig.MESVersion).TSESLint
             });
 
             return args;
@@ -308,7 +316,7 @@ $@"{{
             this.CommandName = "help10";
             base.Execute(workingDir, version); // create package base and web application
             // this won't return null because it has to success on the base.Execute call
-            var ngCliVersion = "15"; // TODO: v15 for MES 10, but should be determined automatically
+            var ngCliVersion = ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().AngularCLI(ExecutionContext.Instance.ProjectConfig.MESVersion);
             var nameIdx = Array.FindIndex(base.executedArgs, item => string.Equals(item, "--name"));
             var packageName = base.executedArgs[nameIdx + 1];
 

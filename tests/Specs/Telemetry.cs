@@ -73,7 +73,7 @@ public class Telemetry
     public void NoExtendedActivitiesIfExtendedTelemetryIsOff()
     {
         Environment.SetEnvironmentVariable("cmf_cli_enable_telemetry", "1");
-        // not specifying the cmf_cli_enable_extended_telemetry env var defaults to off
+        Environment.SetEnvironmentVariable("cmf_cli_enable_extended_telemetry", "0");
         ExecutionContext.ServiceProvider = (new ServiceCollection())
             .AddSingleton<INPMClient, MockNPMClient>()
             .AddSingleton<IVersionService, MockVersionService>()
@@ -93,7 +93,7 @@ public class Telemetry
     {
         var allowedTags = new[] { "latestVersion", "isOutdated", "isDev", "version" };
         Environment.SetEnvironmentVariable("cmf_cli_enable_telemetry", "1");
-        // not specifying the cmf_cli_enable_extended_telemetry env var defaults to off
+        Environment.SetEnvironmentVariable("cmf_cli_enable_extended_telemetry", "0");
         ExecutionContext.ServiceProvider = (new ServiceCollection())
             .AddSingleton<INPMClient, MockNPMClient>()
             .AddSingleton<IVersionService, MockVersionService>()
@@ -119,7 +119,7 @@ public class Telemetry
     [InlineData(true, true, false, new [] { "version", "isDev", "ip", "hostname", "username", "cwd" })]
     [InlineData(true, false, true, new [] { "version", "isOutdated", "latestVersion", "ip", "hostname", "username", "cwd" })]
     [InlineData(true, true, true, new [] { "version", "isDev", "isOutdated", "latestVersion", "ip", "hostname", "username", "cwd" })]
-    public async void ValidateExpectedBareTags(bool includeExtendedTelemetry, bool isDevVersion, bool isOutdatedVersion, string[] expectedTags)
+    public async Task ValidateExpectedBareTags(bool includeExtendedTelemetry, bool isDevVersion, bool isOutdatedVersion, string[] expectedTags)
     {
         Environment.SetEnvironmentVariable("cmf_cli_enable_telemetry", "1");
         Environment.SetEnvironmentVariable("cmf_cli_enable_extended_telemetry", includeExtendedTelemetry ? "1" : null);

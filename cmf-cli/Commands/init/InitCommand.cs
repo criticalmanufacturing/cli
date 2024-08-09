@@ -12,6 +12,7 @@ using Cmf.CLI.Core.Commands;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Core.Utilities;
+using Cmf.CLI.Services;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -373,7 +374,7 @@ namespace Cmf.CLI.Commands
             #region version-specific bits
 
             var version = Version.Parse(x.BaseVersion);
-            args.AddRange(new []{ "--dotnetSDKVersion", version.Major > 8 ? "6.0.201" : "3.1.102" });
+            args.AddRange(new []{ "--dotnetSDKVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().DotNetSdk(version) });
             
             if (version.Major > 9)
             {

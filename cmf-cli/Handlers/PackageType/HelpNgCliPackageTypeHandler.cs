@@ -87,6 +87,22 @@ namespace Cmf.CLI.Handlers
                 {
                     DisplayName = "Generate menu items",
                     Command = new GenerateMenuItemsCommand()
+                },
+                // generate documents database
+                new NPMCommand()
+                {
+                    DisplayName = "Generate documents database",
+                    Command = "run",
+                    Args = new[] { "build-db" },
+                    WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                },
+                // generate markdown links
+                new NPMCommand()
+                {
+                    DisplayName = "Generate markdown links",
+                    Command = "run",
+                    Args = new[] { "check-md-links" },
+                    WorkingDirectory = cmfPackage.GetFileInfo().Directory
                 }
             };
 

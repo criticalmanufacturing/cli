@@ -1,0 +1,8 @@
+nav:
+  - index.md
+  - Tutorials: tutorials
+  - Concepts: concepts
+  - Help: help
+  - Migration: migration
+  - CM MES Development: https://developer.criticalmanufacturing.com
+  - ...

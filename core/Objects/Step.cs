@@ -1,9 +1,9 @@
-﻿using System;
-using System.Xml.Serialization;
-using Cmf.CLI.Core.Enums;
+﻿using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using System;
+using System.Xml.Serialization;
 
 namespace Cmf.CLI.Core.Objects
 {
@@ -51,6 +51,15 @@ namespace Cmf.CLI.Core.Objects
         /// </value>
         [JsonProperty(Order = 5)]
         public string ContentPath { get; set; }
+
+        /// <summary>
+        /// Gets or sets the content.
+        /// </summary>
+        /// <value>
+        /// The content.
+        /// </value>
+        [JsonProperty(Order = 10)]
+        public string Content { get; set; }
 
         /// <summary>
         /// Gets or sets the file.
@@ -152,7 +161,13 @@ namespace Cmf.CLI.Core.Objects
         /// Gets or Sets the relativePath.
         /// Useful for step handlers that allow specifying relative paths for the content.
         /// </summary>
-        public string? RelativePath { get; set; }
+        public string RelativePath { get; set; }
+
+        /// <summary>
+        /// Gets or sets the target platform for master data content.
+        /// Default value = self
+        /// </summary>
+        public MasterDataTargetPlatformType? TargetPlatform { get; set; }
 
         #endregion
 
@@ -169,8 +184,9 @@ namespace Cmf.CLI.Core.Objects
         /// <param name="tagFile">The tag file.</param>
         /// <param name="targetDatabase">The target database.</param>
         /// <param name="messageType">Type of the message.</param>
+        /// <param name="relativePath"></param>
         /// <exception cref="ArgumentNullException">type</exception>
-        public Step(StepType? type, string title, string onExecute, string contentPath, string file, bool? tagFile, string targetDatabase, MessageType? messageType, string? relativePath)
+        public Step(StepType? type, string title, string onExecute, string contentPath, string file, bool? tagFile, string targetDatabase, MessageType? messageType, string relativePath)
         {
             Type = type ?? throw new ArgumentNullException(nameof(type));
             Title = title;

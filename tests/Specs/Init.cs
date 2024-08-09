@@ -12,6 +12,7 @@ using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
+using Cmf.CLI.Services;
 using Xunit;
 using Assert = tests.AssertWithMessage;
 
@@ -23,11 +24,15 @@ namespace tests.Specs
         {
                 Cmf.CLI.Core.Objects.ExecutionContext.ServiceProvider = (new ServiceCollection())
                     .AddSingleton<IVersionService>(new VersionService(CliConstants.PackageName))
+                    .AddSingleton<IDependencyVersionService, DependencyVersionService>()
                     .BuildServiceProvider();
         }
 
-        [Fact]
-        public void Init_()
+        [Theory]
+        [InlineData("8.2.0", DependencyVersionService.NET3SDK)]
+        [InlineData("10.2.0", DependencyVersionService.NET6SDK)]
+        [InlineData("11.0.0", DependencyVersionService.NET8SDK)]
+        public void Init_(string baseVersion, string dotnetSDKVersion)
         {
             var rnd = new Random();
             var tmp = TestUtilities.GetTmpDirectory();
@@ -52,10 +57,11 @@ namespace tests.Specs
                     projectName,
                     "--infra", TestUtilities.GetFixturePath("init", "infrastructure.json"),
                     "-c", TestUtilities.GetFixturePath("init", "config.json"),
-                    "--MESVersion", "8.2.0",
+                    "--MESVersion", baseVersion,
                     "--DevTasksVersion", "8.1.0",
                     "--HTMLStarterVersion", "8.0.0",
                     "--yoGeneratorVersion", "8.1.0",
+                    "--ngxSchematicsVersion", "8.8.8",
                     "--nugetVersion", "8.2.0",
                     "--testScenariosNugetVersion", "8.2.0",
                     "--deploymentDir", deploymentDir,
@@ -89,6 +95,8 @@ namespace tests.Specs
                     .Should().Contain(@"CriticalManufacturing.DeploymentMetadata", "VM Dependency should be included in root package");
                 File.ReadAllText(Path.Join(tmp, "cmfpackage.json"))
                     .Should().Contain(@"Cmf.Environment", "Container Dependency should be included in root package");
+                File.ReadAllText(Path.Join(tmp, "global.json"))
+                    .Should().Contain(dotnetSDKVersion, "wrong .NET SDK version");
             }
             finally
             {
@@ -598,6 +606,8 @@ namespace tests.Specs
                 Directory.Delete(tmp, true);
             }
         }
+        
+        
         
     }
 }

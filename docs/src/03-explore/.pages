@@ -1,0 +1,7 @@
+nav:
+    - index.md
+    - CLI Commands: commands
+    - Configuration Files: config-files
+    - Guides: guides
+    - Plugins: plugins
+    - Telemetry: telemetry

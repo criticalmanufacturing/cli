@@ -55,6 +55,36 @@
       "datatype": "string",
       "replaces": "<%= $CLI_PARAM_MESVersion %>"
     },
+    "ngVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_ngVersion %>"
+    },
+    "zoneVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_zoneVersion %>"
+    },
+    "tsVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_tsVersion %>"
+    },
+    "esLintVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_esLintVersion %>"
+    },
+    "tsesVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_tsesVersion %>"
+    },
+    "nodeVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_nodeVersion %>"
+    },
     "MESVersion-ReleaseTag": {
       "type": "derived",
       "datatype": "string",

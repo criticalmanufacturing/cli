@@ -9,7 +9,7 @@ namespace tests.Mocks;
 
 public class MockProcessCommand : ProcessCommand
 {
-    public IDirectoryInfo WorkingDirectory { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+    public new IDirectoryInfo WorkingDirectory { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
     public Func<bool> ConditionForExecute = () => { return true; };
 
     public ProcessBuildStep[] Steps = Array.Empty<ProcessBuildStep>();

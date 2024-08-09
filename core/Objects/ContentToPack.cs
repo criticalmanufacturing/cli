@@ -56,6 +56,16 @@ namespace Cmf.CLI.Core.Objects
         [JsonConverter(typeof(StringEnumConverter))]
         public ContentType? ContentType { get; set; }
 
+        /// <summary>
+        /// Gets or sets the target platform for master data content.
+        /// Default value = self
+        /// </summary>
+        /// <value>
+        /// The target platform of the master data.
+        /// </value>
+        [JsonConverter(typeof(StringEnumConverter))]
+        public MasterDataTargetPlatformType? TargetPlatform { get; set; }
+
         #endregion
 
         #region Public Methods

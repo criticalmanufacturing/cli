@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using Cmf.CLI.Core.Objects;
-using Newtonsoft.Json;
+using Cmf.CLI.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Cmf.CLI.Builders;
 
@@ -20,7 +19,7 @@ public class NgCommand : ProcessCommand, IBuildCommand
     {
         var npx = new NPXCommand()
         {
-            Command = "@angular/cli@15", // TODO: for future MES versions, we should determine the ng version automatically
+            Command = $"@angular/cli@{ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().AngularCLI(ExecutionContext.Instance.ProjectConfig.MESVersion)}",
             Args = new List<string> { this.Command }.Concat(this.Args ?? Array.Empty<string>()).ToArray(),
             ForceColorOutput = false
         };
