@@ -1,0 +1,5 @@
+nav:
+  - About: index.md
+  - Install: 01-install
+  - Learn: 02-learn
+  - Explore: 03-explore
