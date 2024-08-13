@@ -45,15 +45,13 @@ namespace Cmf.CLI.Commands
             {
                 packagePath = this.fileSystem.Path.GetRelativePath(this.fileSystem.Directory.GetCurrentDirectory(), packageRoot.FullName);
             }
-            var arg = new Argument<IDirectoryInfo>(
+            cmd.AddArgument(new Argument<IDirectoryInfo>(
                 name: "packagePath",
                 parse: (argResult) => Parse<IDirectoryInfo>(argResult, packagePath),
                 isDefault: true)
             {
                 Description = "Package Path"
-            };
-
-            cmd.AddArgument(arg);
+            });
 
             cmd.AddOption(new Option<bool>(
                 aliases: new[] { "--test" },

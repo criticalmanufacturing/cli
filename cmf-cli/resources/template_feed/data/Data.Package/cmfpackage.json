@@ -56,11 +56,26 @@
       "target": "DeeRules/ProcessRules/$(version)/Before",
       "contentType": "ProcessRulesPre"
     },
+//#if (repositoryType == "Customization")
     {
       "source": "MasterData/$(version)/*",
       "target": "MasterData/$(version)/",
       "contentType": "MasterData"
     },
+//#else
+    {
+      "source": "MasterData/App/$(version)/*",
+      "target": "MasterData/$(version)/",
+      "contentType": "MasterData",
+      "targetFramework": "AppFramework"
+    },
+    {
+      "source": "MasterData/Framework/$(version)/*",
+      "target": "MasterData/$(version)/",
+      "contentType": "MasterData",
+      "targetFramework": "Self"
+    },
+//#endif
     {
       "source": "DEEs/ProcessRules/$(version)/After/*",
       "target": "DeeRules/ProcessRules/$(version)/After",

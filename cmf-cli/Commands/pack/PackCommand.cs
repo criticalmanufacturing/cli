@@ -41,9 +41,15 @@ namespace Cmf.CLI.Commands
         /// <param name="cmd"></param>
         public override void Configure(Command cmd)
         {
+            var packageRoot = FileSystemUtilities.GetPackageRoot(this.fileSystem);
+            var workingDir = ".";
+            if (packageRoot != null)
+            {
+                workingDir = this.fileSystem.Path.GetRelativePath(this.fileSystem.Directory.GetCurrentDirectory(), packageRoot.FullName);
+            }
             cmd.AddArgument(new Argument<IDirectoryInfo>(
                 name: "workingDir",
-                parse: (argResult) => Parse<IDirectoryInfo>(argResult, "."),
+                parse: (argResult) => Parse<IDirectoryInfo>(argResult, workingDir),
                 isDefault: true
             )
             {
@@ -52,7 +58,7 @@ namespace Cmf.CLI.Commands
 
             cmd.AddOption(new Option<IDirectoryInfo>(
                 aliases: new string[] { "-o", "--outputDir" },
-                parseArgument: argResult => Parse<IDirectoryInfo>(argResult, "Package"),
+                parseArgument: argResult => Parse<IDirectoryInfo>(argResult, $"{workingDir}/Package"),
                 isDefault: true,
                 description: "Output directory for created package"));
 

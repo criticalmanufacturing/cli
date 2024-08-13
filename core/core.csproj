@@ -1,10 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <PackageId>CriticalManufacturing.CLI.Core</PackageId>
         <RootNamespace>Cmf.CLI.Core</RootNamespace>
-        <Version>4.4.0</Version>
+        <Version>5.0.0</Version>
         <Authors>CriticalManufacturing</Authors>
         <Company>CriticalManufacturing</Company>
         <PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
@@ -14,23 +14,24 @@
         <PackageTags>Critical Manufacturing;Cmf;CM;CLI</PackageTags>
         <IsPackable>true</IsPackable>
         <PackageOutputPath>./nupkg</PackageOutputPath>
+        <LangVersion>default</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
-      <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
-      <PackageReference Include="NuGet.Versioning" Version="6.3.3" />
-      <PackageReference Include="OpenTelemetry" Version="1.4.0" />
-      <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.4.0" />
-      <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.4.0" />
-      <PackageReference Include="SixLabors.ImageSharp" Version="3.1.3" />
-      <PackageReference Include="Spectre.Console" Version="0.46.0" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+      <PackageReference Include="NuGet.Versioning" Version="6.9.1" />
+      <PackageReference Include="OpenTelemetry" Version="1.8.1" />
+      <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.8.1" />
+      <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.8.1" />
+      <PackageReference Include="SixLabors.ImageSharp" Version="3.1.4" />
+      <PackageReference Include="Spectre.Console" Version="0.49.1" />
       <PackageReference Include="System.CommandLine.NamingConventionBinder" Version="2.0.0-beta4.22272.1" />
-      <PackageReference Include="System.IO.Abstractions" Version="19.2.1" />
+      <PackageReference Include="System.IO.Abstractions" Version="21.0.2" />
       <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
-      <PackageReference Include="Microsoft.TemplateEngine.Edge" Version="6.0.406" />
-      <PackageReference Include="Microsoft.TemplateEngine.IDE" Version="6.0.406" />
-      <PackageReference Include="Microsoft.TemplateEngine.Orchestrator.RunnableProjects" Version="6.0.406" />
+      <PackageReference Include="Microsoft.TemplateEngine.Edge" Version="8.0.300" />
+      <PackageReference Include="Microsoft.TemplateEngine.IDE" Version="8.0.300" />
+      <PackageReference Include="Microsoft.TemplateEngine.Orchestrator.RunnableProjects" Version="8.0.300" />
     </ItemGroup>
 
     <ItemGroup>

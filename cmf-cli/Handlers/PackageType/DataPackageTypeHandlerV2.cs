@@ -118,7 +118,9 @@ namespace Cmf.CLI.Handlers
                             AutomationWorkflowFileBasePath = this.FilesToPack.Find(f => f.ContentToPack.ContentType == ContentType.AutomationWorkFlows)?.ContentToPack.Target,
                             MappingFileBasePath = this.FilesToPack.Find(f => f.ContentToPack.ContentType == ContentType.Maps)?.ContentToPack.Target,
                             ImportXMLObjectPath = this.FilesToPack.Find(f => f.ContentToPack.ContentType == ContentType.ExportedObjects)?.ContentToPack.Target,
-                            Title = "Master Data"
+                            TargetPlatform = this.FilesToPack.Find(f => f.ContentToPack.ContentType == ContentType.MasterData)?.ContentToPack.TargetPlatform 
+                                ?? MasterDataTargetPlatformType.Self,
+                            Title = "Master Data",
                         },
                         ContentType.EntityTypes => new Step(StepType.ProcessRules) { Order = 10, ContentPath = target, Title = "Process Rules - Entity Types" },
                         ContentType.ProcessRulesPre => new Step(StepType.ProcessRules) { Order = 20, ContentPath = target, Title = "Process Rules - Before" },

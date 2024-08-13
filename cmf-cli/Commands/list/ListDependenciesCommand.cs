@@ -2,12 +2,14 @@
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
+using System.Threading;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+using ExecutionContext = Cmf.CLI.Core.Objects.ExecutionContext;
 
 namespace Cmf.CLI.Commands
 {
@@ -76,6 +78,7 @@ namespace Cmf.CLI.Commands
             Log.Status("Starting ls...", ctx => {
                 cmfPackage.LoadDependencies(ExecutionContext.Instance.RepositoriesConfig.Repositories.ToArray(), ctx, true);
                 ctx.Status("Finished ls");
+                Thread.Sleep(100);
 
                 var tree = GenericUtilities.BuildTree(cmfPackage);
                 Log.Render(tree);
