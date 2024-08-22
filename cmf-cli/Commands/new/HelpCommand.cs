@@ -75,7 +75,7 @@ namespace Cmf.CLI.Commands.New
                 "--tsVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(ExecutionContext.Instance.ProjectConfig.MESVersion).Typescript,
                 "--esLintVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(ExecutionContext.Instance.ProjectConfig.MESVersion).ESLint,
                 "--tsesVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(ExecutionContext.Instance.ProjectConfig.MESVersion).TSESLint,
-                "--name", this.assetsPkgName,
+                "--assetsPkgName", this.assetsPkgName,
                 "--dfPackageNamePascalCase", this.dfPackageNamePascalCase
             });
 
@@ -330,8 +330,7 @@ $@"{{
             
 
             var ngCliVersion = ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().AngularCLI(ExecutionContext.Instance.ProjectConfig.MESVersion);
-            var nameIdx = Array.FindIndex(base.executedArgs, item => string.Equals(item, "--name"));
-            var packageName = base.executedArgs[nameIdx + 1];
+            var packageName = base.GeneratePackageName(workingDir)!.Value.Item1;
             var projectName = packageName.Replace(".", "-").ToLowerInvariant();
             this.assetsPkgName = $"cmf-docs-area-{projectName.ToLowerInvariant()}";
             this.dfPackageNamePascalCase = string.Join("", projectName.Split("-").Select(seg => Regex.Replace(seg, @"\b(\w)", m => m.Value.ToUpper())));

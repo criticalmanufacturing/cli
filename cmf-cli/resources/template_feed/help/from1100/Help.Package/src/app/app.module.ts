@@ -14,7 +14,7 @@ import { DocsShellMetadataModule } from 'cmf-docs-shell/metadata';
 import { DocsAreaDesignsystemMetadataModule } from 'cmf-docs-area-designsystem/metadata';
 
 // start: add your custom doc package imports here
-import { DocsArea<%= $CLI_PARAM_DFPackageNamePascalCase %>MetadataModule } from 'cmf-docs-area-<%= $CLI_PARAM_CustomPackageName %>/metadata';
+import { DocsArea<%= $CLI_PARAM_DFPackageNamePascalCase %>MetadataModule } from '<%= $CLI_PARAM_CustomAssetsPackageName %>/metadata';
 // end: add your custom doc package imports here
 
 @NgModule({

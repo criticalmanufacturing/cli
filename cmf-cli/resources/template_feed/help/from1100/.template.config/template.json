@@ -96,6 +96,13 @@
       "type": "parameter",
       "datatype": "string",
       "replaces": "<%= $CLI_PARAM_DFPackageNamePascalCase %>"
+    },
+    "assetsPkgName": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The custom assets package name",
+      "displayName": "Assets Package Name",
+      "replaces": "<%= $CLI_PARAM_CustomAssetsPackageName %>"
     }
   },
   "forms": {
