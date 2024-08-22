@@ -76,11 +76,14 @@ namespace Cmf.CLI.Commands.New
             if (mesVersion.Major > 8)
             {
                 this.CommandName = "business9";
+                
                 var baseLayer = ExecutionContext.Instance.ProjectConfig.BaseLayer ?? CliConstants.DefaultBaseLayer;
                 includeMESNugets = baseLayer == BaseLayer.MES;
                 Log.Debug($"Project is targeting base layer {baseLayer}, so scaffolding {(includeMESNugets ? "with" : "without")} MES nugets.");
 
                 bool isProjectApp = ExecutionContext.Instance.ProjectConfig.RepositoryType == RepositoryType.App;
+
+                args.AddRange(new []{ "--targetFramework",  mesVersion.Major >= 11 ? "net8.0" : "net6.0" });
 
                 if (isProjectApp)
                 {
