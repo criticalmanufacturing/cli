@@ -75,7 +75,13 @@ namespace Cmf.CLI.Commands.New
             
             if (mesVersion.Major > 8)
             {
-                this.CommandName = "business9";
+                if (mesVersion.Major >= 11)
+                {
+                    this.CommandName = "business11";
+                } else 
+                {
+                    this.CommandName = "business9";
+                }
                 
                 var baseLayer = ExecutionContext.Instance.ProjectConfig.BaseLayer ?? CliConstants.DefaultBaseLayer;
                 includeMESNugets = baseLayer == BaseLayer.MES;

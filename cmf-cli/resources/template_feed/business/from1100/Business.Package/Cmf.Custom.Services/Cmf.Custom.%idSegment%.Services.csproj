@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<OutputType>Library</OutputType>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<AssemblyName>Cmf.Custom.<%= $CLI_PARAM_idSegment %>.Services</AssemblyName>
+		<RootNamespace>Cmf.Custom.<%= $CLI_PARAM_idSegment %>.Services</RootNamespace>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<OutputPath><%= $CLI_PARAM_localEnvRelativePath %>\BusinessTier</OutputPath>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<OutputPath>..\Release</OutputPath>
+	</PropertyGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Cmf.Custom.Orchestration\Cmf.Custom.<%= $CLI_PARAM_idSegment %>.Orchestration.csproj" />
+	</ItemGroup>
+</Project>
