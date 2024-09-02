@@ -20,23 +20,8 @@ using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.IO.Compression;
 using System.Linq;
-using System.Xml.Linq;
-using Cmf.CLI.Core.Enums;
-using Cmf.CLI.Core.Objects;
-using Cmf.CLI.Handlers;
-using Cmf.CLI.Utilities;
-using Cmf.Common.Cli.TestUtilities;
-using FluentAssertions;
-using tests.Objects;
-using Cmf.CLI.Constants;
-using Cmf.CLI.Core;
-using Cmf.CLI.Factories;
-using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
-using System.Xml.Serialization;
 using System.Text;
 using System.Xml.Linq;
-using System.Xml.Serialization;
 using tests.Objects;
 using Xunit;
 
@@ -955,12 +940,19 @@ namespace tests.Specs
                     {{
                         ""source"": ""{MockUnixSupport.Path("MasterData\\file1.txt").Replace("\\", "\\\\")}"",
                         ""target"": """",
+                        ""targetPlatform"": ""Self"",
+                        ""contentType"": ""MasterData""
+                    }},
+                    {{
+                        ""source"": ""{MockUnixSupport.Path("MasterData\\file2.txt").Replace("\\", "\\\\")}"",
+                        ""target"": """",
                         ""targetPlatform"": ""Framework"",
                         ""contentType"": ""MasterData""
                     }}
                   ]
                 }}")},
                 { "/repo/Cmf.Custom.Data/MasterData/file1.txt", new MockFileData("file1-content")},
+                { "/repo/Cmf.Custom.Data/MasterData/file2.txt", new MockFileData("file2-content")},
             });
 
             var packCommand = new PackCommand(fileSystem);
@@ -972,7 +964,7 @@ namespace tests.Specs
 
             depFile1.Should().NotBeNull();
 
-            TestUtilities.ValidateZipContent(fileSystem, depFile1, new() { "Cmf.Foundation.Services.HostService.dll.config", "manifest.xml", "file1.txt" });
+            TestUtilities.ValidateZipContent(fileSystem, depFile1, new() { "Cmf.Foundation.Services.HostService.dll.config", "manifest.xml", "file1.txt", "file2.txt" });
 
             using ZipArchive zip = new(depFile1.Open(FileMode.Open, FileAccess.Read, FileShare.Read), ZipArchiveMode.Read);
             using Stream manifestStream = zip.GetEntry("manifest.xml").Open();
@@ -987,7 +979,9 @@ namespace tests.Specs
                         })
                         .ToList();
 
-            Assert.Equal(steps.First(s => s.ContentType == ContentType.MasterData.ToString()).TargetPlatform, MasterDataTargetPlatformType.AppFramework.ToString());
+            var masterDataSteps = steps.FindAll(s => s.ContentType == ContentType.MasterData.ToString());
+            Assert.Equal(masterDataSteps.ElementAt(0).TargetPlatform, MasterDataTargetPlatformType.Self.ToString());
+            Assert.Equal(masterDataSteps.ElementAt(1).TargetPlatform, MasterDataTargetPlatformType.AppFramework.ToString());
         }
 
         [Fact]
