@@ -369,6 +369,7 @@ $@"{{
             }
             rootPkgJson.scripts["serve"] = "cross-env NODE_OPTIONS=--max-old-space-size=8192 npm run start -- --host 0.0.0.0 --disable-host-check --port 7000";
             rootPkgJson.devDependencies["cross-env"] = "^7.0.3";
+            rootPkgJson.devDependencies["jquery-ui"] = "1.13.2";
             json = JsonConvert.SerializeObject(rootPkgJson, Formatting.Indented);
             this.fileSystem.File.WriteAllText(rootPkgJsonPath, json);
             Log.Verbose("Updated package.json");
