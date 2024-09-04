@@ -86,6 +86,11 @@
       "datatype": "bool",
       "defaultValue": "False",
       "description": "Indicates Application Version project should be added"
+    },
+    "targetFramework": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_TargetFramework %>"
     }
   },
   "sources": [
