@@ -338,13 +338,16 @@ $@"{{
             var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
 
             var schematicsVersion = ngxSchematicsVersion.ToString() ?? $"@release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}";
+            
+            //After v11 we use Angular default routing
+            var routing = mesVersion.Major >= 11 ? "true" : "false" ;
 
             Log.Debug($"Creating new web application {packageName}");
             // ng new <packageName> --routing false --style less
             new NPXCommand()
             {
                 Command = $"@angular/cli@{ngCliVersion}",
-                Args = new[] { "new", packageName, "--routing", "false", "--style", "less" },
+                Args = new[] { "new", packageName, "--routing", routing, "--style", "less" },
                 WorkingDirectory = workingDir,
                 ForceColorOutput = false
             }.Exec();
@@ -354,7 +357,10 @@ $@"{{
             new NPXCommand()
             {
                 Command = $"@angular/cli@{ngCliVersion}",
-                Args = new[] { "add", "--registry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.OriginalString, "--skip-confirmation", $"@criticalmanufacturing/ngx-schematics@{schematicsVersion}", "--lint", "--base-app", baseLayer.ToString(), "--version", $"release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}" },
+                Args = new[] { "add", "--registry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.OriginalString,
+                                      "--skip-confirmation", $"@criticalmanufacturing/ngx-schematics@{schematicsVersion}",
+                                      "--lint", "--base-app", baseLayer.ToString(), 
+                                      "--version", $"release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}" },
                 WorkingDirectory = packageDir,
                 ForceColorOutput = false
             }.Exec();
