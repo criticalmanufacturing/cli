@@ -156,13 +156,14 @@ cmf new reporting
 # (Follow similar structure for other features)
 ...
 
-# Configure Feature Dependencies in cmfpackage.json
+# Edit cmfpackage.json and add the package dependencies
 # for SiteA and SiteB feature packages
 code {{project_root_path}}/Features/Cmf.Custom.{{TENANT}}.SiteA/cmfpackage.json
 ...
 code {{project_root_path}}/Features/Cmf.Custom.{{TENANT}}.SiteB/cmfpackage.json
 ...
 
-# Adapt repositories.json to have FeatureY delivery folder
+# Edit repositories.json to include the path to the directory
+# with FeatureY release packages
 code {{project_root_path}}/repository.json
 ```

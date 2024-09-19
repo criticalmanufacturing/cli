@@ -49,6 +49,7 @@ Note that the GIF is quite large and can take a bit to load.
 **Ideal for:** Complex projects involving multiple teams, multiple sites, or shared features with site-specific variations.
 
 This structure organizes projects into feature-based packages, allowing for more flexibility and scalability. Two common arrangements are:
+
 * **Feature Packages:** Self-contained packages focusing on specific features.
 * **Layered Projects:** A hierarchical structure where site-specific packages depend on a *Core/Baseline* package.
 
@@ -108,8 +109,9 @@ cmf new business
 !!! important
 
     When creating a feature using `cmf new` you must provide the full unique name for the feature, as the CLI will not add any prefix or suffix.  
+
     The layer packages of each feature be prefixed with the feature name to
-    distinguish it from other packages of same type in the same repository.
+    distinguish it from other packages of the same type in the same repository.
 
 ## Choosing the Right Scaffold
 

@@ -10,8 +10,9 @@ Create a folder to store your new customization project files.
 
     On Windows, some applications and libraries do not support file paths longer than 256 characters. 
     CM MES customization projects have long file paths. To avoid problems on Windows OS, you should:
-        + Use short project file names;
-        + Initialize your projects on a folder as nearest as possible to the filesystem drive root.
+
+    * Use short project file names;
+    * Initialize your projects on a folder as nearest as possible to the filesystem drive root.
 
 ## 2. Open PowerShell command line
 
@@ -97,7 +98,7 @@ Execute the `cmf init` command with the desired project name and required argume
 
 The `cmf init` command should have terminated with success and created a basic project structure similar to:
 
-```
+``` log
 📦ExampleProject
  ┣ 📂.config               # Dotnet tools configuration
  ┃ ┗ 📜dotnet-tools.json
