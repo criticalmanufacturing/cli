@@ -14,7 +14,7 @@ be used throughout your layers packages for consistent identification.
 
 ## MES Customization
 
-Learn more about CM MES extensibility points in the Critical Manufacturing Developer Portal: https://developer.criticalmanufacturing.com
+Learn more about CM MES extensibility points in the Critical Manufacturing Developer Portal: [https://developer.criticalmanufacturing.com](https://developer.criticalmanufacturing.com).
 
 ## Layers Packages Explained
 
