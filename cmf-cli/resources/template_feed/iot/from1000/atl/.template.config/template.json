@@ -6,7 +6,7 @@
   ],
   "description": "Generate a new IoT package",
   "name": "IoT Package (>= MES 102)",
-  "identity": "cmf-cli.new.iot10",
+  "identity": "cmf-cli.new.iot102",
   "groupIdentity": "cmf-cli.new.iot",
   "shortName": "iot-from1000-atl",
   // You can create the project using this short name instead of the one above.
