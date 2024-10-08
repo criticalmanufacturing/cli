@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.0.1](https://github.com/criticalmanufacturing/cli/compare/5.0.1-1...5.0.1) (2024-10-08)
+
+
+### Bug Fixes
+
+* **iot:** change template identity ([b930919](https://github.com/criticalmanufacturing/cli/commits/b930919035011f8351ac657c5d96216b21244089))
+
+### [5.0.1-1](https://github.com/criticalmanufacturing/cli/compare/5.0.1-0...5.0.1-1) (2024-09-09)
+
+
+### Bug Fixes
+
+* **new html:** add default routing for v11 ([0feba77](https://github.com/criticalmanufacturing/cli/commits/0feba778c42b30ad57e3d96023a3f782bbd6b0ab))
+
+### [5.0.1-0](https://github.com/criticalmanufacturing/cli/compare/5.0.0...5.0.1-0) (2024-09-05)
+
+
+### Bug Fixes
+
+* App manifest issues ([#418](https://github.com/criticalmanufacturing/cli/issues/418)) ([2d8ec86](https://github.com/criticalmanufacturing/cli/commits/2d8ec86ffc134294c4c9dc30d863d8b305768bac))
+* **business:** add .net8 targetFramework for v11 ([9e298cc](https://github.com/criticalmanufacturing/cli/commits/9e298cce346d0094bbc9db50481ce975aad75af5))
+* fixed manifest generation for packages with master data for different target platforms ([c95311b](https://github.com/criticalmanufacturing/cli/commits/c95311b39641addcd963d31a09aa4f56bc3fa18c))
+* **html:** pin specific jquery-ui version ([759fb13](https://github.com/criticalmanufacturing/cli/commits/759fb135e79737abbb4b5d4ea46db18ba9bb6ce4))
+* **new help:** add v11 help template ([6c00977](https://github.com/criticalmanufacturing/cli/commits/6c009773e60650b69fc6d8976d23f5cfed66f1e5))
+* **test:** add .net8 targetFramework for v11 ([4fcf1af](https://github.com/criticalmanufacturing/cli/commits/4fcf1afa3efddd7c1d4c4724fe8172e2f20a4879))
+
 ## [5.0.0](https://github.com/criticalmanufacturing/cli/compare/5.0.0-2...5.0.0) (2024-08-12)
 
 ## [5.0.0-2](https://github.com/criticalmanufacturing/cli/compare/5.0.0-1...5.0.0-2) (2024-07-24)
