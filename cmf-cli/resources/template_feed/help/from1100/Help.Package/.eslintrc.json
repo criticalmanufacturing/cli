@@ -1,0 +1,131 @@
+{
+  "root": true,
+  "ignorePatterns": [
+    "projects/**/*",
+    "scripts/**/*.js"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "*.ts"
+      ],
+      "parserOptions": {
+        "project": [
+          "tsconfig.json"
+        ],
+        "createDefaultProgram": true
+      },
+      "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:@angular-eslint/recommended",
+        "plugin:@angular-eslint/recommended--extra",
+        "plugin:@angular-eslint/template/process-inline-templates"
+      ],
+      "rules": {
+        "@angular-eslint/no-conflicting-lifecycle": [
+          "off"
+        ],
+        "no-multi-spaces": "error",
+        "no-trailing-spaces": "error",
+        "max-len": [
+          "error",
+          {
+            "code": 160
+          }
+        ],
+        "no-console": [
+          "error",
+          {
+            "allow": [
+              "log",
+              "warn",
+              "error"
+            ]
+          }
+        ],
+        "eqeqeq": [
+          "error",
+          "always",
+          {
+            "null": "ignore"
+          }
+        ],
+        "no-var": "error",
+        "no-irregular-whitespace": "error",
+        "curly": "error",
+        "semi": "error",
+        "no-unused-expressions": "error",
+        "no-unused-vars": "off",
+        "no-undef": "off",
+        "no-prototype-builtins": "off",
+        "quotes": "off",
+        "no-case-declarations": "off",
+        "no-shadow": "off",
+        "no-empty": "off",
+        "@typescript-eslint/no-shadow": "error",
+        "@typescript-eslint/prefer-for-of": "error",
+        "@typescript-eslint/consistent-type-assertions": "error",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/member-ordering": "off",
+        "@typescript-eslint/no-unused-vars": "off",
+        "@typescript-eslint/no-this-alias": "off",
+        "@typescript-eslint/quotes": [
+          "error",
+          "single",
+          {
+            "avoidEscape": true,
+            "allowTemplateLiterals": true
+          }
+        ],
+        "@typescript-eslint/naming-convention": [
+          "error",
+          {
+            "selector": [
+              "class",
+              "interface"
+            ],
+            "types": [
+              "string"
+            ],
+            "format": [
+              "PascalCase"
+            ]
+          }
+        ],
+        "@angular-eslint/directive-selector": [
+          "error",
+          {
+            "type": "attribute",
+            "prefix": "cmfMesApp",
+            "style": "camelCase"
+          }
+        ],
+        "@angular-eslint/component-selector": [
+          "error",
+          {
+            "type": "element",
+            "prefix": "cmf-docs-app",
+            "style": "kebab-case"
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "*.html"
+      ],
+      "extends": [
+        "plugin:@angular-eslint/template/recommended"
+      ],
+      "rules": {
+        "@angular-eslint/template/eqeqeq": [
+          "error",
+          {
+            "allowNullOrUndefined": true
+          }
+        ]
+      }
+    }
+  ]
+}

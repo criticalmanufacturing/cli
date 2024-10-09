@@ -20,23 +20,8 @@ using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.IO.Compression;
 using System.Linq;
-using System.Xml.Linq;
-using Cmf.CLI.Core.Enums;
-using Cmf.CLI.Core.Objects;
-using Cmf.CLI.Handlers;
-using Cmf.CLI.Utilities;
-using Cmf.Common.Cli.TestUtilities;
-using FluentAssertions;
-using tests.Objects;
-using Cmf.CLI.Constants;
-using Cmf.CLI.Core;
-using Cmf.CLI.Factories;
-using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
-using System.Xml.Serialization;
 using System.Text;
 using System.Xml.Linq;
-using System.Xml.Serialization;
 using tests.Objects;
 using Xunit;
 
@@ -429,7 +414,7 @@ namespace tests.Specs
             {
                 string dir = $"{TestUtilities.GetTmpDirectory()}/app";
                 string packageName = "Cmf.Custom.Package.1.0.0.zip";
-                string appfilesName = "MockName@1.0.0.zip";
+                string appfilesName = "MockId@1.0.0.zip";
                 TestUtilities.CopyFixture("pack/app", new DirectoryInfo(dir));
 
                 var projCfg = Path.Join(dir, ".project-config.json");
@@ -463,7 +448,7 @@ namespace tests.Specs
                 Assert.True(entries.HasAny(entry => entry == "manifest.xml"), "Manifest file does not exist");
 
                 var packageZipPath = $"{dir}/Package/{appfilesName}";
-                var appManifest = "app_manifest.xml";
+                var appManifest = "manifest.xml";
                 Assert.True(File.Exists(packageZipPath), "Zip app files is missing");
 
                 List<string> appEntries = TestUtilities.GetFileEntriesFromZip(packageZipPath);
@@ -476,9 +461,29 @@ namespace tests.Specs
                 using Stream appStream = zip.GetEntry(appManifest).Open();
                 using StreamReader appStreamReader = new(appStream, Encoding.UTF8);
 
-                XmlSerializer serializer = new(typeof(Cmf.CLI.Core.Objects.CmfApp.AppContainer));
-                Cmf.CLI.Core.Objects.CmfApp.AppContainer manifest = (Cmf.CLI.Core.Objects.CmfApp.AppContainer)serializer.Deserialize(appStreamReader);
-                Assert.True(manifest.App.Image.File == "app_icon.png");
+                // Verify xml document
+                var doc = XDocument.Load(appStreamReader);
+
+                XElement rootNode = doc.Element("App", true);
+                Assert.False(rootNode == null);
+
+                if (rootNode == null)
+                    return;
+
+                var imageElement = rootNode.Element("Image", true);
+                Assert.False(imageElement == null);
+
+                if (imageElement == null)
+                    return;
+
+                var fileAttr = imageElement.Attribute("file");
+
+                Assert.False(fileAttr == null);
+
+                if (fileAttr == null)
+                    return;
+
+                Assert.True(fileAttr.Value == "app_icon.png");
             }
             finally
             {
@@ -935,12 +940,19 @@ namespace tests.Specs
                     {{
                         ""source"": ""{MockUnixSupport.Path("MasterData\\file1.txt").Replace("\\", "\\\\")}"",
                         ""target"": """",
+                        ""targetPlatform"": ""Self"",
+                        ""contentType"": ""MasterData""
+                    }},
+                    {{
+                        ""source"": ""{MockUnixSupport.Path("MasterData\\file2.txt").Replace("\\", "\\\\")}"",
+                        ""target"": """",
                         ""targetPlatform"": ""Framework"",
                         ""contentType"": ""MasterData""
                     }}
                   ]
                 }}")},
                 { "/repo/Cmf.Custom.Data/MasterData/file1.txt", new MockFileData("file1-content")},
+                { "/repo/Cmf.Custom.Data/MasterData/file2.txt", new MockFileData("file2-content")},
             });
 
             var packCommand = new PackCommand(fileSystem);
@@ -952,7 +964,7 @@ namespace tests.Specs
 
             depFile1.Should().NotBeNull();
 
-            TestUtilities.ValidateZipContent(fileSystem, depFile1, new() { "Cmf.Foundation.Services.HostService.dll.config", "manifest.xml", "file1.txt" });
+            TestUtilities.ValidateZipContent(fileSystem, depFile1, new() { "Cmf.Foundation.Services.HostService.dll.config", "manifest.xml", "file1.txt", "file2.txt" });
 
             using ZipArchive zip = new(depFile1.Open(FileMode.Open, FileAccess.Read, FileShare.Read), ZipArchiveMode.Read);
             using Stream manifestStream = zip.GetEntry("manifest.xml").Open();
@@ -967,7 +979,9 @@ namespace tests.Specs
                         })
                         .ToList();
 
-            Assert.Equal(steps.First(s => s.ContentType == ContentType.MasterData.ToString()).TargetPlatform, MasterDataTargetPlatformType.AppFramework.ToString());
+            var masterDataSteps = steps.FindAll(s => s.ContentType == ContentType.MasterData.ToString());
+            Assert.Equal(masterDataSteps.ElementAt(0).TargetPlatform, MasterDataTargetPlatformType.Self.ToString());
+            Assert.Equal(masterDataSteps.ElementAt(1).TargetPlatform, MasterDataTargetPlatformType.AppFramework.ToString());
         }
 
         [Fact]

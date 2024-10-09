@@ -118,7 +118,7 @@ namespace Cmf.CLI.Handlers
                             AutomationWorkflowFileBasePath = this.FilesToPack.Find(f => f.ContentToPack.ContentType == ContentType.AutomationWorkFlows)?.ContentToPack.Target,
                             MappingFileBasePath = this.FilesToPack.Find(f => f.ContentToPack.ContentType == ContentType.Maps)?.ContentToPack.Target,
                             ImportXMLObjectPath = this.FilesToPack.Find(f => f.ContentToPack.ContentType == ContentType.ExportedObjects)?.ContentToPack.Target,
-                            TargetPlatform = this.FilesToPack.Find(f => f.ContentToPack.ContentType == ContentType.MasterData)?.ContentToPack.TargetPlatform 
+                            TargetPlatform = this.FilesToPack.Find(f => f.ContentToPack.ContentType == ContentType.MasterData && f.ContentToPack.TargetPlatform != null && f.ContentToPack.TargetPlatform == ftp.ContentToPack.TargetPlatform)?.ContentToPack.TargetPlatform
                                 ?? MasterDataTargetPlatformType.Self,
                             Title = "Master Data",
                         },

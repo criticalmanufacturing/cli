@@ -26,6 +26,8 @@ namespace Cmf.CLI.Commands.New
     public class HelpCommand : UILayerTemplateCommand
     {
         private string schematicsVersion = "";
+        private string dfPackageNamePascalCase = "";
+        private string assetsPkgName = "";
 
         /// <inheritdoc />
         public HelpCommand() : base("help", PackageType.Help)
@@ -71,7 +73,9 @@ namespace Cmf.CLI.Commands.New
                 "--zoneVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(ExecutionContext.Instance.ProjectConfig.MESVersion).Zone,
                 "--tsVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(ExecutionContext.Instance.ProjectConfig.MESVersion).Typescript,
                 "--esLintVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(ExecutionContext.Instance.ProjectConfig.MESVersion).ESLint,
-                "--tsesVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(ExecutionContext.Instance.ProjectConfig.MESVersion).TSESLint
+                "--tsesVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(ExecutionContext.Instance.ProjectConfig.MESVersion).TSESLint,
+                "--assetsPkgName", this.assetsPkgName,
+                "--dfPackageNamePascalCase", this.dfPackageNamePascalCase
             });
 
             return args;
@@ -88,7 +92,7 @@ namespace Cmf.CLI.Commands.New
             if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major > 9)
             {
                 Log.Debug("Running v>=10 template");
-                this.ExecuteV10(workingDir, version);
+                this.ExecuteV10(workingDir, version, ExecutionContext.Instance.ProjectConfig.MESVersion.Major);
             }
             else
             {
@@ -301,7 +305,7 @@ $@"{{
             Log.Information("Help package generated");
         }
 
-        public void ExecuteV10(IDirectoryInfo workingDir, string version)
+        public void ExecuteV10(IDirectoryInfo workingDir, string version,int majorVersion)
         {
             var ngxSchematicsVersion = ExecutionContext.Instance.ProjectConfig.NGXSchematicsVersion;
             if (ngxSchematicsVersion == null)
@@ -313,13 +317,26 @@ $@"{{
 
             this.schematicsVersion = ngxSchematicsVersion.ToString() ?? $"@release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}";
 
-            this.CommandName = "help10";
+            //Switch between v10 and v11 template 
+            switch (majorVersion)
+            {
+                case 10: 
+                    this.CommandName = "help10";
+                    break;
+                case 11:
+                    this.CommandName = "help11";
+                    break;
+            }
+                        
+            var ngCliVersion = ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().AngularCLI(ExecutionContext.Instance.ProjectConfig.MESVersion);
+            var packageName = base.GeneratePackageName(workingDir)!.Value.Item1;
+            var projectName = packageName.Replace(".", "-").ToLowerInvariant();
+            this.assetsPkgName = $"cmf-docs-area-{projectName.ToLowerInvariant()}";
+            this.dfPackageNamePascalCase = string.Join("", projectName.Split("-").Select(seg => Regex.Replace(seg, @"\b(\w)", m => m.Value.ToUpper())));
+            
             base.Execute(workingDir, version); // create package base and web application
             // this won't return null because it has to success on the base.Execute call
-            var ngCliVersion = ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().AngularCLI(ExecutionContext.Instance.ProjectConfig.MESVersion);
-            var nameIdx = Array.FindIndex(base.executedArgs, item => string.Equals(item, "--name"));
-            var packageName = base.executedArgs[nameIdx + 1];
-
+            
             // ng generate library <docPackage>
             var pkgFolder = workingDir.GetDirectories(packageName).FirstOrDefault();
             if (!pkgFolder?.Exists ?? false)
@@ -329,9 +346,6 @@ $@"{{
 
             Log.Verbose("Executing npm install, this will take a while...");
             (new NPMCommand() { Command = "install", WorkingDirectory = pkgFolder }).Exec();
-
-            var projectName = packageName.Replace(".", "-").ToLowerInvariant();
-            var assetsPkgName = $"cmf-docs-area-{projectName.ToLowerInvariant()}";
 
             new NPXCommand()
             {
