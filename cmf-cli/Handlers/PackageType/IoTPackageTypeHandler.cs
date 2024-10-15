@@ -91,7 +91,7 @@ namespace Cmf.CLI.Handlers
                 // Introduced in version 10.2.x
                 if ((targetVersion.Major > 10 || (targetVersion.Major == 10 &&
                         targetVersion.Minor >= 2 &&
-                        targetVersion.Build >= 7)) && !this.IsAngularProject())
+                        targetVersion.Build >= 7)) && !this.IsAngularProject(cmfPackage.GetFileInfo().Directory.FullName))
                 {
                     packageLocation = "src";
                     var packages = string.Join(",", this.BuildPackageNames(this.GetPackageJsons(cmfPackage, packageLocation)));
@@ -412,9 +412,12 @@ namespace Cmf.CLI.Handlers
             return packageJsons;
         }
 
-        private bool IsAngularProject()
+        private bool IsAngularProject(string path)
         {
-            return this.fileSystem.File.Exists("angular.json");
+            return this.fileSystem.File.Exists(
+                this.fileSystem.Path.Join(
+                    path,
+                    "angular.json"));
         }
     }
 }
