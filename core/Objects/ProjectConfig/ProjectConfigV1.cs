@@ -56,6 +56,7 @@ public class ProjectConfigV1
     [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
     public int? GatewayPort { get; set; }
     public string ReleaseEnvironmentConfig { get; set; }
+    public string AppEnvironmentConfig { get; set; }
     public Uri ISOLocation { get; set; }
     [Newtonsoft.Json.JsonConverter(typeof(UriConverter))]
     public Uri DeploymentDir { get; set; }

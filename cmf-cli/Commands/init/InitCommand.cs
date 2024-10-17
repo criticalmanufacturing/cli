@@ -31,6 +31,7 @@ namespace Cmf.CLI.Commands
         public string rootPackageName { get; set; }
         public string version { get; set; }
         public IFileInfo config { get; set; }
+        public IFileInfo appConfig { get; set; }
         public IDirectoryInfo deploymentDir { get; set; }
         public string BaseVersion { get; set; }
         public string DevTasksVersion { get; set; }
@@ -51,7 +52,7 @@ namespace Cmf.CLI.Commands
         public string appDescription { get; set; }
         public string appAuthor { get; set; }
         public string appLicensedApplication { get; set; }
-        public string appIcon { get; set; }
+        public IFileInfo appIcon { get; set; }
 
         // ReSharper restore UnusedAutoPropertyAccessor.Global
         // ReSharper restore InconsistentNaming
@@ -112,6 +113,12 @@ namespace Cmf.CLI.Commands
                 isDefault: true,
                 description: "Configuration file exported from Setup")
                 { IsRequired = true });
+            cmd.AddOption(new Option<IFileInfo>(
+                    aliases: ["--appConfig"],
+                    parseArgument: argResult => Parse<IFileInfo>(argResult),
+                    isDefault: true,
+                    description: "App Configuration file")
+                { IsRequired = false });
             cmd.AddOption(new Option<RepositoryType>(
                     aliases: new[] { "-t", "--repositoryType" },
                     getDefaultValue: () => CliConstants.DefaultRepositoryType,
@@ -213,8 +220,9 @@ namespace Cmf.CLI.Commands
                 description: $"License for new application. {OnlyIfTypeAppWarning}"
             ) { IsRequired = false });
 
-            cmd.AddOption(new Option<string>(
+            cmd.AddOption(new Option<IFileInfo>(
                 aliases: new[] { "--appIcon" },
+                parseArgument: argResult => Parse<IFileInfo>(argResult),
                 description: $"Application icon. {OnlyIfTypeAppWarning}"
             ) { IsRequired = false });
 
@@ -271,21 +279,20 @@ namespace Cmf.CLI.Commands
                     throw new CliException(string.Join(Environment.NewLine, errors));
                 }
 
-                if (!string.IsNullOrEmpty(x.appIcon) && AppIconUtilities.IsIconValid(x.appIcon))
-                {
-                    Log.Debug("Given icon meets criteria.");
-                }
+                var appIconPath = x.appIcon != null && AppIconUtilities.IsIconValid(x.appIcon.FullName)
+                    ? $"assets/{x.appIcon.Name}"
+                    : $"assets/{CliConstants.DefaultAppIcon}";
 
                 args.AddRange(new[]
                 {
                     "--appName", x.appName,
                     "--appNameLowerNoSpaces", x.appName.ToLower().Replace(" ", ""),
                     "--appId", x.appId,
-                    "--appIcon", x.appIcon ?? string.Empty,
+                    "--appIcon", appIconPath,
                     "--appDescription", x.appDescription,
                     "--appTargetFramework", x.BaseVersion,
                     "--appAuthor", x.appAuthor,
-                    "--appLicensedApplication", x.appLicensedApplication,
+                    "--appLicensedApplication", x.appLicensedApplication
                 });
             }
 
@@ -410,19 +417,40 @@ namespace Cmf.CLI.Commands
             {
                 args.AddRange(ParseConfigFile(x.config));
             }
-
+            
+            if (x.appConfig != null)
+            {
+                args.AddRange(new string[] {"--AppEnvironmentConfig", x.appConfig.Name});
+            }
+            
             this.RunCommand(args);
-
+            
+            // Copy app icon to assets
+            if (x.appIcon != null)
+            {
+                var assetsPath = fileSystem.Path.Join(FileSystemUtilities.GetProjectRoot(fileSystem, throwException: true).FullName, "assets");
+                x.appIcon.CopyTo(fileSystem.Path.Join(assetsPath, x.appIcon.Name));
+            }
+            
+            // Copy MES config to Environment Configs
             if (x.config != null)
             {
                 var envConfigPath = this.fileSystem.Path.Join(FileSystemUtilities.GetProjectRoot(this.fileSystem, throwException: true).FullName, "EnvironmentConfigs");
                 x.config.CopyTo(this.fileSystem.Path.Join(envConfigPath, x.config.Name));
-                this.fileSystem.FileInfo.New(this.fileSystem.Path.Join(envConfigPath, ".gitkeep")).Delete();
+                fileSystem.FileInfo.New(this.fileSystem.Path.Join(envConfigPath, ".gitkeep")).Delete();
             }
-
+            
+            // Copy app config to Environment Configs
+            if (x.appConfig != null)
+            {
+                var envConfigPath = this.fileSystem.Path.Join(FileSystemUtilities.GetProjectRoot(this.fileSystem, throwException: true).FullName, "EnvironmentConfigs");
+                x.appConfig.CopyTo(this.fileSystem.Path.Join(envConfigPath, x.appConfig.Name));
+                fileSystem.FileInfo.New(this.fileSystem.Path.Join(envConfigPath, ".gitkeep")).Delete();
+            }
+            
             if (x.repositoryType == RepositoryType.App)
             {
-                Log.Information($"Apps need to have an ApplicationVersion package. Make sure you create at least one business package for your application using the addApplicationVersionAssembly flag");
+                Log.Information("Apps need to have an ApplicationVersion package. Make sure you create at least one business package for your application using the addApplicationVersionAssembly flag");
             }
         }
 
