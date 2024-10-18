@@ -64,7 +64,11 @@ namespace Cmf.CLI.Factories
                 PackageType.ExportedObjects => new ExportedObjectsPackageTypeHandler(cmfPackage),
                 PackageType.Database => new DatabasePackageTypeHandler(cmfPackage),
                 PackageType.Tests => new TestPackageTypeHandler(cmfPackage),
-                PackageType.SecurityPortal => new SecurityPortalPackageTypeHandlerV2(cmfPackage),
+                PackageType.SecurityPortal => cmfPackage.HandlerVersion switch
+                {
+                    2 => new SecurityPortalPackageTypeHandlerV2(cmfPackage),
+                    _ => new SecurityPortalPackageTypeHandlerV3(cmfPackage)
+                },
                 PackageType.Grafana => new GrafanaPackageTypeHandler(cmfPackage),
                 _ => throw new CliException(string.Format(CoreMessages.PackageTypeHandlerNotImplemented, cmfPackage.PackageType.ToString()))
             };
