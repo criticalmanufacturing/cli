@@ -509,6 +509,12 @@
       "datatype": "string",
       "defaultValue": "",
       "replaces": "<%= $CLI_PARAM_AppIcon %>"
+    },
+    "AppEnvironmentConfig": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "",
+      "replaces": "<%= $CLI_PARAM_AppEnvironmentConfig %>"
     }
   },
   "forms": {

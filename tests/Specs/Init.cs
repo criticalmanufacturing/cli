@@ -314,7 +314,7 @@ namespace tests.Specs
             var appDescription = "Some description";
             var targetFramework = "10.2.0";
             var licensedApplication = "Test app";
-            var icon = "";
+            var icon = $"assets/{CliConstants.DefaultAppIcon}";
 
             var cur = Directory.GetCurrentDirectory();
             try
