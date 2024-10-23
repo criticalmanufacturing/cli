@@ -76,7 +76,7 @@ The instructions are available in the [Project Init Tutorial](./1-project-init/i
 
 The next step is to select your project scaffold structure and create the customization packages for your project.
 
-The instructions are available in the [Project Scaffold Tutorial](./1-project-init/index.md).
+The instructions are available in the [Project Scaffold Tutorial](./2-project-scaffold/index.md).
 
 ### 3. Execute Post-Scaffold Operations
 
