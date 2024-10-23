@@ -1,0 +1,5 @@
+nav:
+    - index.md
+    - Scaffolding: 1-scaffolding
+    - Build and Release: 2-building-and-release
+    - ...

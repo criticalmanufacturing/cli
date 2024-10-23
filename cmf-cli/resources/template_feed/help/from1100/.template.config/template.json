@@ -1,0 +1,115 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Critical Manufacturing",
+  "classifications": [
+    "cli"
+  ],
+  "description": "Generate a new help/documentation package",
+  "name": "Help Package (> MES 11)",
+  "identity": "cmf-cli.new.help11",
+  "groupIdentity": "cmf-cli.new.help11",
+  "shortName": "help11",
+  // You can create the project using this short name instead of the one above.
+  "tags": {
+    "language": "C#",
+    // Specify that this template is in C#.
+    "type": "project"
+  },
+  "sourceName": "Help.Package",
+  // Will replace the string 'MyProject.StarterWeb' with the value provided via -n.
+  "preferNameDirectory": true,
+  "symbols": {
+    "name": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The custom package name",
+      "displayName": "Package Name",
+      "replaces": "<%= $CLI_PARAM_CustomPackageName %>"
+    },
+    "packageVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The custom package version",
+      "displayName": "Package Version",
+      "replaces": "<%= $CLI_PARAM_CustomPackageVersion %>",
+      "fileRename": "%version%"
+    },
+    "Tenant": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_Tenant %>",
+      "fileRename": "%Tenant%"
+    },
+    "npmRegistry": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_NPMRegistry %>"
+    },
+    "ngxSchematicsVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_NGXSchematicsVersion %>"
+    },
+    "MESVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_MESVersion %>"
+    },
+    "ngVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_ngVersion %>"
+    },
+    "zoneVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_zoneVersion %>"
+    },
+    "tsVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_tsVersion %>"
+    },
+    "esLintVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_esLintVersion %>"
+    },
+    "tsesVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_tsesVersion %>"
+    },
+    "nodeVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_nodeVersion %>"
+    },
+    "MESVersion-ReleaseTag": {
+      "type": "derived",
+      "datatype": "string",
+      "valueSource": "MESVersion",
+      "replaces": "<%= $CLI_PARAM_MESVersion-ReleaseTag %>",
+      "valueTransform": "versionToReleaseTag"
+    },
+    "dfPackageNamePascalCase": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_DFPackageNamePascalCase %>"
+    },
+    "assetsPkgName": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The custom assets package name",
+      "displayName": "Assets Package Name",
+      "replaces": "<%= $CLI_PARAM_CustomAssetsPackageName %>"
+    }
+  },
+  "forms": {
+    "versionToReleaseTag": {
+      "identifier": "replace",
+      "pattern": "(\\d+)\\.(\\d+)\\.(\\d+)",
+      "replacement": "release-$1$2$3"
+    }
+  }
+}

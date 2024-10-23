@@ -338,13 +338,16 @@ $@"{{
             var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
 
             var schematicsVersion = ngxSchematicsVersion.ToString() ?? $"@release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}";
+            
+            //After v11 we use Angular default routing
+            var routing = mesVersion.Major >= 11 ? "true" : "false" ;
 
             Log.Debug($"Creating new web application {packageName}");
             // ng new <packageName> --routing false --style less
             new NPXCommand()
             {
                 Command = $"@angular/cli@{ngCliVersion}",
-                Args = new[] { "new", packageName, "--routing", "false", "--style", "less" },
+                Args = new[] { "new", packageName, "--routing", routing, "--style", "less" },
                 WorkingDirectory = workingDir,
                 ForceColorOutput = false
             }.Exec();
@@ -354,7 +357,10 @@ $@"{{
             new NPXCommand()
             {
                 Command = $"@angular/cli@{ngCliVersion}",
-                Args = new[] { "add", "--registry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.OriginalString, "--skip-confirmation", $"@criticalmanufacturing/ngx-schematics@{schematicsVersion}", "--lint", "--base-app", baseLayer.ToString(), "--version", $"release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}" },
+                Args = new[] { "add", "--registry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.OriginalString,
+                                      "--skip-confirmation", $"@criticalmanufacturing/ngx-schematics@{schematicsVersion}",
+                                      "--lint", "--base-app", baseLayer.ToString(), 
+                                      "--version", $"release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}" },
                 WorkingDirectory = packageDir,
                 ForceColorOutput = false
             }.Exec();
@@ -369,6 +375,7 @@ $@"{{
             }
             rootPkgJson.scripts["serve"] = "cross-env NODE_OPTIONS=--max-old-space-size=8192 npm run start -- --host 0.0.0.0 --disable-host-check --port 7000";
             rootPkgJson.devDependencies["cross-env"] = "^7.0.3";
+            rootPkgJson.devDependencies["jquery-ui"] = "1.13.2";
             json = JsonConvert.SerializeObject(rootPkgJson, Formatting.Indented);
             this.fileSystem.File.WriteAllText(rootPkgJsonPath, json);
             Log.Verbose("Updated package.json");
@@ -405,10 +412,11 @@ $@"{{
             {
                 throw new CliException("Could not load webapp config.json");
             }
-            var restPort = ExecutionContext.Instance.ProjectConfig.RESTPort;
+
             configJsonJson.host.rest.enableSsl = false;
             configJsonJson.host.rest.address = "localhost";
-            configJsonJson.host.rest.port = restPort;
+            // using port 80, because is our localenv default port and the api is served on that port
+            configJsonJson.host.rest.port = 80;
             configJsonJson.host.isLoadBalancerEnabled = false;
             configJsonJson.host.tenant.name = ExecutionContext.Instance.ProjectConfig.Tenant;
             configJsonJson.general.defaultDomain = ExecutionContext.Instance.ProjectConfig.DefaultDomain;

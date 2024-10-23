@@ -2,6 +2,38 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.0.0](https://github.com/criticalmanufacturing/cli/compare/5.0.0-2...5.0.0) (2024-08-12)
+
+## [5.0.0-2](https://github.com/criticalmanufacturing/cli/compare/5.0.0-1...5.0.0-2) (2024-07-24)
+
+## [5.0.0-1](https://github.com/criticalmanufacturing/cli/compare/5.0.0-0...5.0.0-1) (2024-07-03)
+
+
+### Features
+
+* **iot:** implement support for ATLs ([f4e8835](https://github.com/criticalmanufacturing/cli/commits/f4e88354651d5e2eabbac39fdb2ee477450191d4))
+* **new:** fix masterdata context ([427043d](https://github.com/criticalmanufacturing/cli/commits/427043d4a8da7f8dd8339416d7134d7c0a32b410))
+* **new:** target platform property set on creation ([b12e8ec](https://github.com/criticalmanufacturing/cli/commits/b12e8ece1ab7bb293d9ec92cb06ededa2be070df))
+* **pack:** serialize target platform on master data package packing ([37466f4](https://github.com/criticalmanufacturing/cli/commits/37466f41590a010627bf1e2e2e36b6e1a0e65cdb))
+
+## [5.0.0-0](https://github.com/criticalmanufacturing/cli/compare/4.4.0...5.0.0-0) (2024-07-01)
+
+
+### Features
+
+* **help:** run generate of documents database and markdown links ([4b61851](https://github.com/criticalmanufacturing/cli/commits/4b61851680d013701038938d99455afda437a9df))
+* support dependency versions for MES v11 ([e7b95aa](https://github.com/criticalmanufacturing/cli/commits/e7b95aaadd06b98950f896899b293018cbe8142b))
+
+
+### Bug Fixes
+
+* **build grafana:** targetLayers should be lowercase ([098d4a2](https://github.com/criticalmanufacturing/cli/commits/098d4a26873368175931fcd3d5acaeb4109ed760))
+* **build:** remove mandatory iot lib command ([0494014](https://github.com/criticalmanufacturing/cli/commits/04940148606b090533fd8c0063d118a5a9298375))
+* **help:** join the `&nbsp;` string ([f2af424](https://github.com/criticalmanufacturing/cli/commits/f2af42440c9f050e360b85ce1bd76127e6be35b3))
+* **help:** replace new lines and spaces inside tables generated from templates ([e1a814a](https://github.com/criticalmanufacturing/cli/commits/e1a814aa62b0fa0933cb23dde061875dff80ed66))
+* **PackCommand:** use package root instead of '.' as default `workingDir` ([5d79576](https://github.com/criticalmanufacturing/cli/commits/5d795762a998915bcab259788c94020984d84294))
+* **Pack:** generate app manifest only if cmfapp.json exists ([b98138e](https://github.com/criticalmanufacturing/cli/commits/b98138e46e95266bbb3a9f17c58231184a614ea2))
+
 ## [4.4.0](https://github.com/criticalmanufacturing/cli/compare/4.4.0-0...4.4.0) (2024-05-29)
 
 ## [4.4.0-0](https://github.com/criticalmanufacturing/cli/compare/4.3.0...4.4.0-0) (2024-05-21)

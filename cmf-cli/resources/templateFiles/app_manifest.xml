@@ -4,8 +4,8 @@
 	 author="$(author)"
 	 name="$(name)"
 	 description="$(description)"
-	 xmlns:metadata="$(metadata)">
+	 xmlns:metadata="urn:cmf:dp:xml:ns:app-metadata-v1">
 	<metadata:Framework version="$(frameworkVersion)"/>
 	<metadata:LicensedApplication name="$(licensedApplication)"/>
-	<metadata:Image file="$(image)"/>
+	<metadata:Image file="app_icon.png"/>
 </App>

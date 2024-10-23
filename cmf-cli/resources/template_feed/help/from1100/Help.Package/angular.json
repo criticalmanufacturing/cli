@@ -1,0 +1,294 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "newProjectRoot": "projects",
+  "projects": {
+    "DocumentationPortal": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "less"
+        }
+      },
+      "root": "",
+      "sourceRoot": "src",
+      "prefix": "cmf-docs-app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:application",
+          "options": {
+            "outputPath": {
+              "base": "dist/documentation-portal",
+              "browser": ""
+            },
+            "index": "src/index.html",
+            "browser": "src/main.ts",
+            "polyfills": [
+              "@angular/localize/init",
+              "zone.js"
+            ],
+            "tsConfig": "tsconfig.app.json",
+            "preserveSymlinks": true,
+            "inlineStyleLanguage": "less",
+            "allowedCommonJsDependencies": [
+              "core-js",
+              "backbone",
+              "dompurify",
+              "he",
+              "html2canvas",
+              "jquery",
+              "jsonata",
+              "katex",
+              "less",
+              "lodash",
+              "marked-katex",
+              "moment",
+              "moment-duration-format",
+              "prismjs",
+              "raf",
+              "rgbcolor"
+            ],
+            "assets": [
+              "src/assets",
+              "src/manifest.webmanifest",
+              {
+                "glob": "favicon.ico",
+                "input": "node_modules/cmf-core/assets/img",
+                "output": ""
+              },
+              {
+                "glob": "**/icon-*.png",
+                "input": "node_modules/cmf-core/assets/img/icons",
+                "output": "assets/icons"
+              },
+              {
+                "glob": "**/*",
+                "input": "node_modules/cmf-core/assets/img/flags",
+                "output": "assets/flags"
+              },
+              {
+                "glob": "**/*",
+                "input": "node_modules/cmf-core/assets/img/themes",
+                "output": "assets/themes"
+              },
+              {
+                "glob": "**/*",
+                "input": "node_modules/monaco-editor/min/vs",
+                "output": "monaco-editor/vs"
+              },
+              {
+                "glob": "artoolkit_wasm.wasm",
+                "input": "node_modules/cmf-artoolkit",
+                "output": "cmf-artoolkit"
+              },
+              {
+                "glob": "camera_para.dat",
+                "input": "node_modules/cmf-artoolkit",
+                "output": "cmf-artoolkit"
+              },
+              {
+                "glob": "**/*",
+                "input": "node_modules/cmf-docs-shell/assets",
+                "output": "assets/cmf-docs-shell"
+              },
+              {
+                "glob": "**/*",
+                "input": "node_modules/cmf-docs-area-designsystem/assets",
+                "output": "assets/cmf-docs-area-designsystem"
+              },
+              {
+                "glob": "**/*",
+                "input": "node_modules/cmf-docs-area-designsystem/src/lib/components",
+                "output": "assets/cmf-docs-area-designsystem/components"
+              },
+              {
+                "glob": "**/*",
+                "input": "node_modules/cmf-docs-area-designsystem/src/lib/templates",
+                "output": "assets/cmf-docs-area-designsystem/templates"
+              },
+              {
+                "glob": "**/*",
+                "input": "node_modules/cmf-docs-area-designsystem/src/lib/pages",
+                "output": "assets/cmf-docs-area-designsystem/pages"
+              }
+            ],
+            "styles": [
+              "src/styles.less",
+              "node_modules/toastr/toastr.less",
+              "node_modules/bootstrap/dist/css/bootstrap.css",
+              "node_modules/cmf.kendoui/styles/kendo.common.min.css",
+              "node_modules/jquery-ui/themes/base/dialog.css",
+              "node_modules/jquery-ui/themes/base/core.css",
+              "node_modules/cmf-core/assets/style/styles.less",
+              "node_modules/katex/dist/katex.min.css",
+              "node_modules/prismjs/themes/prism.css",
+              "node_modules/cmf-docs-shell/assets/icons/icon-cp-icon-font.less",
+              "node_modules/cmf-docs-shell/assets/icons/icon-sr-font.less",
+              "node_modules/cmf-docs-shell/assets/icons/icon-tut-font.less",
+              "node_modules/cmf-docs-shell/assets/icons/icon-docs-icon-font.less",
+              "node_modules/cmf-docs-shell/assets/icons/entitytypes/icon-mes-et-font.less",
+              "node_modules/cmf-docs-shell/assets/icons/meskpi/icon-mes-kpi-font.less",
+              "node_modules/cmf-docs-shell/assets/icons/navigation/icon-mes-nav-font.less",
+              "node_modules/cmf-docs-shell/assets/icons/other/icon-other-font.less",
+              "node_modules/cmf-docs-shell/assets/icons/static/icon-mes-st-font.less",
+              "node_modules/cmf-core/assets/style/themes/cmf.style.blue/cmf.style.blue.less"
+            ],
+            "scripts": [
+              "node_modules/jquery/dist/jquery.min.js",
+              "node_modules/toastr/toastr.js",
+              "node_modules/jquery-ui/ui/version.js",
+              "node_modules/jquery-ui/ui/data.js",
+              "node_modules/jquery-ui/ui/safe-active-element.js",
+              "node_modules/jquery-ui/ui/unique-id.js",
+              "node_modules/jquery-ui/ui/focusable.js",
+              "node_modules/jquery-ui/ui/tabbable.js",
+              "node_modules/jquery-ui/ui/keycode.js",
+              "node_modules/jquery-ui/ui/safe-blur.js",
+              "node_modules/jquery-ui/ui/widget.js",
+              "node_modules/jquery-ui/ui/widgets/button.js",
+              "node_modules/jquery-ui/ui/widgets/dialog.js",
+              "node_modules/bootstrap/js/collapse.js",
+              "node_modules/bootstrap/js/transition.js",
+              "node_modules/bootstrap/js/dropdown.js",
+              "node_modules/cmf.kendoui/js/kendo.core.min.js",
+              "node_modules/cmf.kendoui/js/kendo.fx.min.js",
+              "node_modules/cmf.kendoui/js/kendo.ooxml.min.js",
+              "node_modules/cmf.kendoui/js/kendo.excel.min.js",
+              "node_modules/cmf.kendoui/js/kendo.data.odata.min.js",
+              "node_modules/cmf.kendoui/js/kendo.data.xml.min.js",
+              "node_modules/cmf.kendoui/js/kendo.data.min.js",
+              "node_modules/cmf.kendoui/js/kendo.popup.min.js",
+              "node_modules/cmf.kendoui/js/kendo.menu.min.js",
+              "node_modules/cmf.kendoui/js/kendo.userevents.min.js",
+              "node_modules/cmf.kendoui/js/kendo.draganddrop.min.js",
+              "node_modules/cmf.kendoui/js/kendo.floatinglabel.min.js",
+              "node_modules/cmf.kendoui/js/kendo.maskedtextbox.min.js",
+              "node_modules/cmf.kendoui/js/kendo.list.min.js",
+              "node_modules/cmf.kendoui/js/kendo.mobile.scroller.min.js",
+              "node_modules/cmf.kendoui/js/kendo.virtuallist.min.js",
+              "node_modules/cmf.kendoui/js/kendo.dropdownlist.min.js",
+              "node_modules/cmf.kendoui/js/kendo.combobox.min.js",
+              "node_modules/cmf.kendoui/js/kendo.autocomplete.min.js",
+              "node_modules/cmf.kendoui/js/kendo.window.min.js",
+              "node_modules/cmf.kendoui/js/kendo.color.min.js",
+              "node_modules/cmf.kendoui/js/kendo.slider.min.js",
+              "node_modules/cmf.kendoui/js/kendo.button.min.js",
+              "node_modules/cmf.kendoui/js/kendo.colorpicker.min.js",
+              "node_modules/cmf.kendoui/js/kendo.editor.min.js",
+              "node_modules/cmf.kendoui/js/kendo.columnsorter.min.js",
+              "node_modules/cmf.kendoui/js/kendo.resizable.min.js",
+              "node_modules/cmf.kendoui/js/kendo.selectable.min.js",
+              "node_modules/cmf.kendoui/js/kendo.pager.min.js",
+              "node_modules/cmf.kendoui/js/kendo.grid.min.js",
+              "node_modules/cmf.kendoui/js/kendo.splitter.min.js",
+              "node_modules/cmf.kendoui/js/kendo.tooltip.min.js",
+              "node_modules/cmf.kendoui/js/kendo.drawing.min.js",
+              "node_modules/cmf.kendoui/js/kendo.dataviz.core.min.js",
+              "node_modules/cmf.kendoui/js/kendo.dataviz.chart.min.js",
+              "node_modules/cmf.kendoui/js/kendo.calendar.min.js",
+              "node_modules/cmf.kendoui/js/kendo.multiviewcalendar.min.js",
+              {
+                "bundleName": "jszip",
+                "inject": false,
+                "input": "node_modules/cmf.kendoui/js/jszip.min.js"
+              }
+            ],
+            "serviceWorker": "ngsw-config.json"
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "12mb",
+                  "maximumError": "15.0mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": {
+                "scripts": true,
+                "styles": true,
+                "vendor": true,
+                "hidden": false
+              },
+              "namedChunks": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "DocumentationPortal:build:production"
+            },
+            "development": {
+              "buildTarget": "DocumentationPortal:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "buildTarget": "DocumentationPortal:build"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "src/test.ts",
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ],
+            "tsConfig": "tsconfig.spec.json",
+            "inlineStyleLanguage": "less",
+            "assets": [
+              "src/favicon.ico",
+              "src/assets",
+              "src/manifest.webmanifest"
+            ],
+            "styles": [
+              "src/styles.less"
+            ],
+            "scripts": []
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "src/**/*.ts",
+              "src/**/*.html"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "cli": {
+    "analytics": false,
+    "schematicCollections": [
+      "@criticalmanufacturing/ngx-schematics",
+      "@angular-eslint/schematics"
+    ]
+  },
+  "schematics": {
+    "@angular-eslint/schematics:application": {
+      "setParserOptionsProject": true
+    },
+    "@angular-eslint/schematics:library": {
+      "setParserOptionsProject": true
+    }
+  }
+}
