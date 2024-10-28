@@ -136,7 +136,7 @@ namespace tests.Specs
             RunNew(new DataCommand(), "Cmf.Custom.Data");
         }
 
-        [Fact]
+        [Fact, Trait("TestCategory", "LongRunning")]
         public void Data_WithBusiness()
         {
             var dir = TestUtilities.GetTmpDirectory();
