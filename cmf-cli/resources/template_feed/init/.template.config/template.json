@@ -513,8 +513,13 @@
     "AppEnvironmentConfig": {
       "type": "parameter",
       "datatype": "string",
-      "defaultValue": "",
-      "replaces": "<%= $CLI_PARAM_AppEnvironmentConfig %>"
+      "defaultValue": null
+    },
+    "AppEnvironmentConfig-JSON": {
+      "replaces": "\"<%= $CLI_PARAM_AppEnvironmentConfig %>\"",
+      "type": "derived",
+      "valueSource": "AppEnvironmentConfig",
+      "valueTransform": "jsonEncode"
     }
   },
   "forms": {

@@ -34,7 +34,9 @@
   "HTMLPort": "<%= $CLI_PARAM_HTMLPort %>",
   "GatewayPort": "<%= $CLI_PARAM_GatewayPort %>",
   "ReleaseEnvironmentConfig": "<%= $CLI_PARAM_ReleaseEnvironmentConfig %>",
+  //#if (AppEnvironmentConfig != null)
   "AppEnvironmentConfig": "<%= $CLI_PARAM_AppEnvironmentConfig %>",
+  //#endif
   "ISOLocation": "<%= $CLI_PARAM_ISOLocation_JSON %>",
   "DeploymentDir": "<%= $CLI_PARAM_DeploymentDir %>",
   "DeliveredRepo": "<%= $CLI_PARAM_DeliveredRepo %>",
