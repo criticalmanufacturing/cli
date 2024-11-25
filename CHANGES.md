@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.1.0](https://github.com/criticalmanufacturing/cli/compare/5.1.0-1...5.1.0) (2024-11-25)
+
+## [5.1.0-1](https://github.com/criticalmanufacturing/cli/compare/5.1.0-0...5.1.0-1) (2024-11-04)
+
+## [5.1.0-0](https://github.com/criticalmanufacturing/cli/compare/5.0.1...5.1.0-0) (2024-10-30)
+
+
+### Features
+
+* **init:** Add App environment configuration ([#425](https://github.com/criticalmanufacturing/cli/issues/425)) ([6204946](https://github.com/criticalmanufacturing/cli/commits/620494635d394a04c4842fd9ec3962874513fb13))
+
+
+### Bug Fixes
+
+* **build:** check angular.json using package folder ([3e4d783](https://github.com/criticalmanufacturing/cli/commits/3e4d783012cfe4912b5fce89a40b6aee66ec4ad3))
+* **bump:** prevent wrong assembly files to being changed when running bump from root ([bfcaf6a](https://github.com/criticalmanufacturing/cli/commits/bfcaf6ab61b8df9cf9fa62f47e3d0c191f43ba7b)), closes [#433](https://github.com/criticalmanufacturing/cli/issues/433)
+
 ### [5.0.1](https://github.com/criticalmanufacturing/cli/compare/5.0.1-1...5.0.1) (2024-10-08)
 
 

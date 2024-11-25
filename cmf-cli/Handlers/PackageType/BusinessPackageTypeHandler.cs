@@ -99,7 +99,7 @@ namespace Cmf.CLI.Handlers
             }
 
             // Assembly Info
-            string[] filesToUpdate = this.fileSystem.Directory.GetFiles(".", "AssemblyInfo.cs", SearchOption.AllDirectories);
+            string[] filesToUpdate = this.fileSystem.Directory.GetFiles(this.CmfPackage.GetFileInfo().DirectoryName, "AssemblyInfo.cs", SearchOption.AllDirectories);
             string pattern = @"Version\(\""[0-9.]*\""\)";
             foreach (var filePath in filesToUpdate)
             {

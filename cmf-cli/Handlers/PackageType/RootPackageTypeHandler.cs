@@ -6,6 +6,7 @@ using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Core.Objects.CmfApp;
 using Cmf.CLI.Core.Utilities;
 using Cmf.CLI.Utilities;
 using Newtonsoft.Json;
@@ -122,19 +123,6 @@ namespace Cmf.CLI.Handlers
             // clean up folder files
             fileSystem.File.Delete(iconPath);
             fileSystem.File.Delete(manifestPath);
-        }
-
-        /// <summary>
-        /// CMF App data
-        /// </summary>
-        private record AppData
-        {
-            public string id { get; set; }
-            public string name { get; set; }
-            public string author { get; set; }
-            public string description { get; set; }
-            public string licensedApplication { get; set; }
-            public string icon { get; set; }
         }
 
         /// <summary>

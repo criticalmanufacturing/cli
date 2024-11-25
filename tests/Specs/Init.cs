@@ -26,6 +26,15 @@ namespace tests.Specs
                     .AddSingleton<IVersionService>(new VersionService(CliConstants.PackageName))
                     .AddSingleton<IDependencyVersionService, DependencyVersionService>()
                     .BuildServiceProvider();
+                
+                var newCommand = new NewCommand();
+                var cmd = new Command("x");
+                newCommand.Configure(cmd);
+
+                var console = new TestConsole();
+                cmd.Invoke(new[] {
+                    "--reset"
+                }, console);
         }
 
         [Theory]
@@ -87,6 +96,8 @@ namespace tests.Specs
                 Assert.True(Directory.Exists(Path.Join(tmp, "Libs")), "Libs are missing");
                 File.ReadAllText(Path.Join(tmp, ".project-config.json"))
                     .Should().Contain(@"""RepositoryType"": ""Customization""", "Default repository type was not Customization");
+                File.ReadAllText(Path.Join(tmp, ".project-config.json"))
+                    .Should().NotContain(@"""AppEnvironmentConfig""", "Customization repo initialization should not produce app scaffolding keys in .project-config.json");
                 File.ReadAllText(Path.Join(tmp, ".project-config.json"))
                     .Should().Contain(@"""DefaultDomain"": ""DOMAIN""", "Default domain is not correct");
                 File.ReadAllText(Path.Join(tmp, ".project-config.json"))
@@ -314,7 +325,7 @@ namespace tests.Specs
             var appDescription = "Some description";
             var targetFramework = "10.2.0";
             var licensedApplication = "Test app";
-            var icon = "";
+            var icon = $"assets/{CliConstants.DefaultAppIcon}";
 
             var cur = Directory.GetCurrentDirectory();
             try
@@ -342,6 +353,7 @@ namespace tests.Specs
                     "--appAuthor", appAuthor,
                     "--appDescription", appDescription,
                     "--appLicensedApplication", licensedApplication,
+                    "--appConfig", TestUtilities.GetFixturePath("init", "app-config.json"),
                     tmp
                 }, console);
 
@@ -359,6 +371,8 @@ namespace tests.Specs
 
                 File.ReadAllText(Path.Join(tmp, ".project-config.json"))
                     .Should().Contain(@"""RepositoryType"": ""App""", "Applied repository type was not App");
+                File.ReadAllText(Path.Join(tmp, ".project-config.json"))
+                    .Should().Contain(@"""AppEnvironmentConfig"": ""app-config.json""", "Missing AppEnvironmentConfig key in .project-config.json");
                 File.ReadAllText(Path.Join(tmp, ".project-config.json"))
                     .Should().Contain(@"""BaseLayer"": ""Core""", "Base Layer should be Core");
                 File.ReadAllText(Path.Join(tmp, "cmfpackage.json"))

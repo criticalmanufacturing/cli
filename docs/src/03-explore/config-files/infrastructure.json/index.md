@@ -12,6 +12,7 @@ Currently, the infrastructure mandatory to do development of an MES Customizatio
 !!! note
 
     If you work at Critical Manufacturing, you may find our internal infrastructure configuration file on:
+    
     * Our `Projects` AzureDevops;
     * Under Project: **COMMON*
     * Inside GIT Repository: **Tools**
