@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.39">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.45">
     
     
       
@@ -26,7 +26,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.8c3ca2c6.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.0253249f.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
@@ -1838,6 +1838,16 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conventions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Conventions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#minor-versions-upgrade" class="md-nav__link">
     <span class="md-ellipsis">
       Minor versions upgrade
@@ -1845,8 +1855,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#major-versions-upgrade" class="md-nav__link">
     <span class="md-ellipsis">
       Major versions upgrade
@@ -1854,11 +1864,25 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#release-tags" class="md-nav__link">
     <span class="md-ellipsis">
       Release Tags
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#upgrade-step-by-step" class="md-nav__link">
+    <span class="md-ellipsis">
+      Upgrade Step-by-Step
     </span>
   </a>
   
@@ -1883,27 +1907,45 @@
 
 
 <h1 id="migration">Migration</h1>
-<p>A big effort is made to assure that a new CLI release does not break previous projects scaffolding and maintain compatibility with previous MES releases.</p>
-<p>Nevertheless, please consider the instructions in this guide when upgrading the CLI for your project.</p>
-<h2 id="minor-versions-upgrade">Minor versions upgrade</h2>
-<p>Minor versions upgrade should not affect your project, only provides enhancements or fixes that should be retro-compatible.</p>
-<p>If you found an issue, open a Support Request on CM Customer Portal or send us a pull request with a fix proposal.</p>
-<h2 id="major-versions-upgrade">Major versions upgrade</h2>
-<p>The CLI major version is incremented every time there are breaking changes on the CLI. On such case, if you decide to upgrade to a new release, please execute the following:</p>
+<p>A big effort is made to ensure that a new CLI release does not break previous projects' scaffolding and maintains compatibility with previous MES releases.</p>
+<p>Nevertheless, please consider the conventions and instructions in this guide when upgrading the CLI for your project.</p>
+<h2 id="conventions">Conventions</h2>
+<h3 id="minor-versions-upgrade">Minor versions upgrade</h3>
+<p>Minor CLI version upgrades should not affect your project, only provide enhancements or fixes that should be retro-compatible.</p>
+<p>If you found an issue, open a Support Request on the CM Customer Portal or send us a pull request with a fix proposal.</p>
+<h3 id="major-versions-upgrade">Major versions upgrade</h3>
+<p>The CLI major version is incremented every time there are breaking changes on the CLI. In such case, if you decide to upgrade to a new release, please execute the following:</p>
 <ul>
 <li>Review the release log to get hints on what was changed;</li>
+<li>Install the new CLI;</li>
 <li>Re-scaffold your project;</li>
 <li>Merge your customization changes into the new project structure.</li>
 </ul>
-<p>Please, review some version specific migration details:</p>
+<p>Please, review some version-specific migration details:</p>
 <ul>
 <li><a href="migration-v3/">Migration to V3 or above</a></li>
 </ul>
-<h2 id="release-tags">Release Tags</h2>
+<h3 id="release-tags">Release Tags</h3>
 <p>The @criticalmanufactuing/cli has release tags that you may use to dynamically retrieve the latest @releases:</p>
 <ul>
 <li><strong>latest</strong>: tag applied to the latest stable package that has been released;</li>
-<li><strong>vnext</strong>: tag applied to the latest release, usually used by the CLI early adopters to use and test the latest features/fixes.</li>
+<li><strong>next</strong>: tag applied to the latest release, usually used by the CLI early adopters to use and test the latest features/fixes.</li>
+</ul>
+<h2 id="upgrade-step-by-step">Upgrade Step-by-Step</h2>
+<p>To upgrade the @criticalmanufacturing/cli:</p>
+<ul>
+<li>Open a command line with administration privileges;</li>
+<li>Install any new <a href="../../01-install/">prerequisites software</a>, if needed;</li>
+<li>
+<p>Use the following command to upgrade to the latest stable version:</p>
+<div class="highlight"><pre><span></span><code><span class="n">npm</span> <span class="n">install</span> <span class="n">-g</span> <span class="p">-</span><span class="n">-force</span> <span class="nv">@criticalmanufacturing</span><span class="p">/</span><span class="n">cli</span><span class="nv">@latest</span>
+</code></pre></div>
+</li>
+<li>
+<p>Or use the following command to upgrade to the next release (for early adopters):</p>
+<div class="highlight"><pre><span></span><code><span class="n">npm</span> <span class="n">install</span> <span class="n">-g</span> <span class="p">-</span><span class="n">-force</span> <span class="nv">@criticalmanufacturing</span><span class="p">/</span><span class="n">cli</span><span class="nv">@next</span>
+</code></pre></div>
+</li>
 </ul>
 
 
@@ -1964,7 +2006,7 @@
     <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.top", "search.suggest", "search.highlight", "content.code.select", "content.code.copy"], "search": "../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.525ec568.min.js"></script>
+      <script src="../../assets/javascripts/bundle.83f73b43.min.js"></script>
       
     
   </body>
