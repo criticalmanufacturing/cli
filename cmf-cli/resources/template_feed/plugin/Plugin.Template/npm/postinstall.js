@@ -4,26 +4,22 @@
 
 const path = require('path'),
     mkdirp = require('mkdirp'),
-    envPaths = require('env-paths'),
     rimraf = require('rimraf'),
     fs = require('fs'),
     axios = require('axios'),
     AdmZip = require("adm-zip"),
     tmp = require('tmp'),
-    dbg= require('debug'),
+    dbg = require('debug'),
     node_modules = require('node_modules-path'),
     { parsePackageJson, PLATFORM_MAPPING, ARCH_MAPPING } = require('./utils');
-
 
 const debug = dbg("cmf:debug");
 const error = dbg("cmf:debug:error");
 
 async function getInstallationPath(opts) {
     debug("Getting installation path...");
-    debug(`So targeting node_modules/.bin/${opts.binBaseName}. Making sure path exists...`);
-    // install into node_modules/.bin/${opts.binBaseName}
-    const value = path.join(node_modules(), ".bin");
-    const dir = path.join(value, opts.binBaseName);
+    debug(`Targeting node_modules/.bin/${opts.binBaseName}. Making sure path exists...`);
+    const dir = path.join(node_modules(), ".bin", opts.binBaseName);
     await mkdirp(dir);
     debug(`Install path exists!`);
     return dir;
@@ -44,7 +40,6 @@ async function verifyAndPlaceBinary(binName, binPath, callback) {
  */
 var INVALID_INPUT = "Invalid inputs";
 async function install(callback) {
-
     var opts = parsePackageJson(".");
     if (!opts) return callback(INVALID_INPUT);
     console.info(`Copying the relevant binary for your platform ${process.platform}`);
@@ -104,6 +99,7 @@ var actions = {
     "install": install,
     "uninstall": uninstall
 };
+
 /**
  * Executes a shell command and return it as a Promise.
  * @param cmd {string}
