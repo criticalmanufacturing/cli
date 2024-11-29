@@ -209,20 +209,14 @@ namespace Cmf.CLI.Commands
                     // Load test package from repo if is not loaded yet
                     if (testPackage.CmfPackage == null || (testPackage.CmfPackage != null && testPackage.CmfPackage.Uri == null))
                     {
-                        string _dependencyFileName = $"{testPackage.Id}.{testPackage.Version}.zip";
-
-                        IFileInfo dependencyFile = repoDirectories?
-                                       .Select(r => r.GetFiles(_dependencyFileName).FirstOrDefault())
-                                       .Where(r => r != null)
-                                       .FirstOrDefault();
-
-                        if (dependencyFile != null)
+                        string packageName = $"{testPackage.Id}.{testPackage.Version}";
+                        testPackage.CmfPackage = ExecutionContext.Instance.RunningOnWindows
+                        ? CmfPackage.LoadFromRepo(repoDirectories, testPackage.Id, testPackage.Version, fromManifest: false)
+                        : CmfPackage.LoadFromCIFSShare(testPackage.Id, testPackage.Version, fromManifest: false);
+                        if(testPackage.CmfPackage == null)
                         {
-                            testPackage.CmfPackage = new(testPackage.Id, testPackage.Version, new(dependencyFile.FullName));
-                        }
-                        else
-                        {
-                            throw new CliException(string.Format(CliMessages.SomePackagesNotFound, _dependencyFileName));
+                            string errorMessage = string.Format(CoreMessages.NotFound, packageName);
+                            throw new CliException(errorMessage);
                         }
                     }
 
@@ -270,7 +264,7 @@ namespace Cmf.CLI.Commands
                         // Save all external dependencies and locations in a dictionary
                         else
                         {
-                            packagesLocation[$"{dependency.Id}@{dependency.Version}"] = dependency.CmfPackage.Uri.GetFileName();
+                            packagesLocation[$"{dependency.Id}@{dependency.Version}"] = ExecutionContext.Instance.RunningOnWindows ? dependency.CmfPackage.Uri.GetFileName() : dependency.CmfPackage.Uri.LocalPath;
                         }
 
                         AssembleDependencies(outputDir, ciRepo, repoDirectories, dependency.CmfPackage, assembledDependencies, includeTestPackages);
@@ -293,7 +287,9 @@ namespace Cmf.CLI.Commands
             if (cmfPackage == null || (cmfPackage != null && cmfPackage.Uri == null))
             {
                 string packageName = cmfPackage.PackageName;
-                cmfPackage = CmfPackage.LoadFromRepo(repoDirectories, cmfPackage.PackageId, cmfPackage.Version);
+                cmfPackage = ExecutionContext.Instance.RunningOnWindows
+                            ? CmfPackage.LoadFromRepo(repoDirectories, cmfPackage.PackageId, cmfPackage.Version)
+                            : CmfPackage.LoadFromCIFSShare(cmfPackage.PackageId, cmfPackage.Version);
                 if(cmfPackage == null)
                 {
                     string errorMessage = string.Format(CoreMessages.NotFound, packageName);
@@ -308,7 +304,18 @@ namespace Cmf.CLI.Commands
             }
 
             Log.Information(string.Format(CliMessages.GetPackage, cmfPackage.PackageId, cmfPackage.Version));
-            cmfPackage.Uri.GetFile().CopyTo(destinationFile);
+            if(ExecutionContext.Instance.RunningOnWindows)
+            {
+                cmfPackage.Uri.GetFile().CopyTo(destinationFile);
+            }
+            else if(cmfPackage.SharedFolder != null)
+            {
+                var file = cmfPackage.SharedFolder.GetFile(cmfPackage.ZipPackageName);
+                using var fileStream = file.Item2;
+                fileStream.Position = 0; // Reset stream position to the beginning
+                using var fileStreamOutput = fileSystem.File.Create(destinationFile);
+                fileStream.CopyTo(fileStreamOutput);
+            }
 
             // Assemble Tests
             if (includeTestPackages)
