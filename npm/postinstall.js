@@ -9,12 +9,21 @@ const path = require('path'),
     axios = require('axios'),
     AdmZip = require("adm-zip"),
     tmp = require('tmp'),
-    dbg= require('debug'),
+    dbg = require('debug'),
+    node_modules = require('node_modules-path'),
     { parsePackageJson, PLATFORM_MAPPING, ARCH_MAPPING } = require('./utils');
-
 
 const debug = dbg("cmf:debug");
 const error = dbg("cmf:debug:error");
+
+async function getInstallationPath() {
+    debug("Getting installation path...");
+    debug("Targeting node_modules/.bin/cmf-cli. Making sure path exists...");
+    const dir = path.join(node_modules(), ".bin", "cmf-cli");
+    await mkdirp(dir);
+    debug(`Install path exists!`);
+    return dir;
+}
 
 async function verifyAndPlaceBinary(binName, binPath, callback) {
     if (!fs.existsSync(path.join(binPath, binName))) return callback('Downloaded binary does not contain the binary specified in configuration - ' + binName);
@@ -31,7 +40,6 @@ async function verifyAndPlaceBinary(binName, binPath, callback) {
  */
 var INVALID_INPUT = "Invalid inputs";
 async function install(callback) {
-
     var opts = parsePackageJson(".");
     if (!opts) return callback(INVALID_INPUT);
     console.info(`Copying the relevant binary for your platform ${process.platform}`);
@@ -59,8 +67,7 @@ async function install(callback) {
         }
     }
 
-    const installPath = path.join(__dirname, "cmf-cli");
-    await mkdirp(installPath);
+    const installPath = await getInstallationPath();
     if (process.platform === "win32") {
         debug("Installing for windows");
         await execShellCommand(`robocopy ${src.replace(/\//g, "\\")} "${installPath}" /e /is /it`, [1]);
@@ -74,7 +81,7 @@ async function install(callback) {
 
 async function uninstall(callback) {
     try {
-        const installPath = path.join(__dirname, "cmf-cli");
+        const installPath = await getInstallationPath();
         debug("Deleting binaries from " + installPath);
         rimraf.sync(installPath);
     } catch (ex) {
@@ -91,6 +98,7 @@ var actions = {
     "install": install,
     "uninstall": uninstall
 };
+
 /**
  * Executes a shell command and return it as a Promise.
  * @param cmd {string}
