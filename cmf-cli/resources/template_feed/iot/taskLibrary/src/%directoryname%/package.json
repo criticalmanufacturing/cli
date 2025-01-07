@@ -1,0 +1,64 @@
+{
+  "name": "<%= $CLI_PARAM_PackageName %>",
+  "version": "<%= $CLI_PARAM_PackageVersion %>",
+  "description": "",
+  "main": "src/index.js",
+  "typings": "src/index",
+  "scripts": {
+    "build": "tsc && tsc -p test/unit/",
+    "build:test:cover": "npm run build && npm run test:cover",
+    "lint": "eslint ./**/*.ts",
+    "lint:fix": "eslint ./**/*.ts --fix",
+    "watchPackage": "tsc --preserveWatchOutput -w",
+    "watchTests": "tsc -p test/unit --preserveWatchOutput -w",
+    "test": "npx mocha test/**/*.test.js --timeout 5000 --exit",
+    "test:cover": "npx nyc -r cobertura -r lcov -r text-summary mocha test/*.test.js test/**/*.test.js -- --timeout 10000 --exit -R mocha-multi-reporters --reporter-options configFile=mocha-multi-reporters-config.json",
+    "pretest": "npm run build",
+    "watch": "npm run build -- -w | npx mocha --timeout 10000 --exit --reporter min -w test/*.test.js test/**/*.test.js",
+    "generateTask": "cmf new iot task",
+    "generateConverter": "cmf new iot converter",
+    "packagePacker": "yo @criticalmanufacturing/iot:packagePacker -o ."
+  },
+  "keywords": [
+    "CMF",
+    "IoT",
+    "Agent"
+  ],
+  "devDependencies": {
+    "@types/chai": "4.3.10",
+    "@types/chai-spies": "1.0.6",
+    "@types/mocha": "10.0.4",
+    "@types/node": "18.14.2",
+    "chai": "4.3.10",
+    "chai-spies": "1.1.0",
+    "nyc": "15.1.0",
+    "mocha": "10.2.0",
+    "mocha-junit-reporter": "2.2.1",
+    "mocha-lcov-reporter": "1.3.0",
+    "mocha-multi-reporters": "1.5.1",
+    "tslint": "6.1.3",
+    "typescript": "5.2.2"
+  },
+  "dependencies": {
+    "@criticalmanufacturing/connect-iot-controller-engine": "<%= $CLI_PARAM_TargetSystemVersionProcessed %>",
+    "reflect-metadata": "0.1.13",
+    "inversify": "6.0.1",
+    "moment": "2.29.4",
+    "cmf-lbos": "<%= $CLI_PARAM_TargetSystemVersionProcessed %>",
+    "zone.js": "0.14.7"
+  },
+  "author": "Critical Manufacturing",
+  "criticalManufacturing": {
+    "tasksLibrary": {
+      "displayName": "<%= $CLI_PARAM_Identifier %>",
+      "dependsOnScope": <%= $CLI_PARAM_DependsOnScope %>,
+      "mandatoryForScope": <%= $CLI_PARAM_MandatoryForScope %>,
+      "dependsOnProtocol": <%= $CLI_PARAM_DependsOnProtocol %>,
+      "mandatoryForProtocol": <%= $CLI_PARAM_MandatoryForProtocol %>,
+      "metadata": {
+        "converters": [],
+        "tasks": []
+      }
+    }
+  }
+}

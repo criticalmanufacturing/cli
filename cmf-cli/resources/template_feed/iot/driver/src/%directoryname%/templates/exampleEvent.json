@@ -1,0 +1,50 @@
+{
+    "property": [
+      {
+        "Name": "prop1",
+        "Description": "Property 1",
+        "DevicePropertyId": "prop1",
+        "DataType": "Integer",
+        "IsWritable": true,
+        "IsReadable": true,
+        "AutomationProtocolDataType": "Integer",
+        "ExtendedData": {
+        }
+      },
+      {
+        "Name": "prop2",
+        "Description": "Property 2",
+        "DevicePropertyId": "prop2",
+        "DataType": "Integer",
+        "IsWritable": true,
+        "IsReadable": true,
+        "AutomationProtocolDataType": "Integer",
+        "ExtendedData": {
+          "propertyType": "OldState",
+          "identifierType": "None"
+        }
+      }
+    ],
+    "event": [
+        {
+            "Name": "Event1",
+            "Description": "Event Description",
+            "DeviceEventId": "evt1",
+            "IsEnabled": true,
+            "ExtendedData": {
+            },
+            "EventProperties": [
+              {
+                "Property": "prop1",
+                "Order": 1,
+                "ExtendedData": {}
+              },
+              {
+                "Property": "prop2",
+                "Order": 2,
+                "ExtendedData": {}
+              }
+            ]
+        }
+    ]
+}

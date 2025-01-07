@@ -1,0 +1,26 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es6",
+        "skipLibCheck": true,
+        "types": [
+            "reflect-metadata", "node", "mocha"
+        ],
+        "sourceMap": true,
+        "forceConsistentCasingInFileNames": true,
+        "noImplicitReturns": true,
+        "declaration": true,
+        "pretty": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "moduleResolution": "node",
+        // strict rules:
+        "noImplicitAny": false,
+        "noImplicitThis": false,
+        "alwaysStrict": true,
+        "strictBindCallApply": false,
+        "strictNullChecks": false,
+        "strictFunctionTypes": false,
+        "strictPropertyInitialization": false    
+    }
+}
