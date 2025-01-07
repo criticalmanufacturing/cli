@@ -1,0 +1,7 @@
+{
+    "type": "TasksLibrary",
+    "templates": "${Source}/templates/",
+    "_UN_UNDERSCORE_NEXT_LINE_FOR_ENABLING_FONTS:": "",
+    "_font": "${Source}/font/config.json",
+    "postActions": []
+}

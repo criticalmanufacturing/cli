@@ -1,0 +1,69 @@
+// Place your settings in this file to overwrite default and user settings.
+{
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/.DS_Store": true,
+        "**/node_modules/": true,
+        "**/*.js": { "when": "$(basename).ts"},
+        "**/*.d.ts": { "when": "$(basename).ts"},
+        "**/*.css": { "when": "$(basename).less"},
+        "**/*.js.map": true,
+        "**/*.min.css": true
+    },
+    "editor.wordWrap": "on",
+    "typescript.tsdk": "./node_modules/typescript/lib",
+    
+    "cSpell.enabled": true,
+    "cSpell.enabledLanguageIds": [
+        "c",
+        "cpp",
+        "csharp",
+        "go",
+        "javascript",
+        "javascriptreact",
+        "json",
+        "latex",
+        "markdown",
+        "php",
+        "plaintext",
+        "python",
+        "text",
+        "typescript",
+        "typescriptreact",
+        "yml"
+    ],
+    "cSpell.ignorePaths": [
+        "**/node_modules/**",
+        "**/vscode-extension/**",
+        "**/.git/**",
+        ".vscode",
+        "*.xsc",
+        "typings",
+        "**/test/mocks/**"
+    ],
+    "tslint.exclude": [
+        "**/test/mocks/**"
+    ],
+    "cSpell.words": [
+        "aled",
+        "alid",
+        "c",
+        "ceid",
+        "commack",
+        "coreclr",
+        "crit",
+        "dataid",
+        "drack",
+        "edge",
+        "emerg",
+        "erack",
+        "hcack",
+        "hsms",
+        "lrack",
+        "onlack",
+        "rptid",
+        "use"
+    ]
+}

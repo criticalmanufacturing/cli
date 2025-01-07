@@ -1,4 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using Cmf.CLI.Core.Constants;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,9 +12,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Xml.Linq;
-using Cmf.CLI.Core.Constants;
-using Cmf.CLI.Core.Enums;
-using Cmf.CLI.Core.Objects;
 
 namespace Cmf.CLI.Utilities
 {
@@ -113,7 +113,7 @@ namespace Cmf.CLI.Utilities
                 var currentChar = str[i];
                 if (char.IsUpper(currentChar))
                 {
-                    if (i > 0 && !char.IsUpper(str[i - 1]) &&  ((str[i - 1]>='A' && str[i - 1]<='Z') || (str[i - 1]>='a' && str[i - 1]<='z')))
+                    if (i > 0 && !char.IsUpper(str[i - 1]) && ((str[i - 1] >= 'A' && str[i - 1] <= 'Z') || (str[i - 1] >= 'a' && str[i - 1] <= 'z')))
                     {
                         kebabCase.Append('-');
                     }
@@ -230,6 +230,16 @@ namespace Cmf.CLI.Utilities
             }
 
             return obj;
+        }
+
+        /// <summary>
+        /// Converts to pascal case.
+        /// </summary>
+        /// <param name="str">The string.</param>
+        /// <returns></returns>
+        public static string ToPascalCase(this string str)
+        {
+            return !string.IsNullOrEmpty(str) && str.Length > 1 ? char.ToUpperInvariant(str[0]) + str[1..] : str;
         }
 
         /// <summary>

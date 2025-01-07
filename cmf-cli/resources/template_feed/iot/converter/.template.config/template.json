@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Critical Manufacturing",
+  "classifications": [
+    "cli"
+  ],
+  "description": "Generate a new IoT Converter package",
+  "name": "IoT Converter",
+  "identity": "cmf-cli.new.iot.converter",
+  "groupIdentity": "cmf-cli.new.iot",
+  "shortName": "iot-converter",
+  // You can create the project using this short name instead of the one above.
+  "tags": {
+    "language": "Typescript",
+    "type": "project"
+  },
+  "sourceName": "IoT.Package",
+  "preferNameDirectory": true,
+  "symbols": {
+    "converterName": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The converter name",
+      "displayName": "Converter Name",
+      "fileRename": "%convertername%",
+      "replaces": "<%= $CLI_PARAM_ConverterName %>"
+    },
+    "className": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "Class Name",
+      "displayName": "Class Name",
+      "replaces": "<%= $CLI_PARAM_ClassName %>"
+    },
+    "title": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "Title",
+      "displayName": "Title",
+      "replaces": "<%= $CLI_PARAM_Title %>"
+    },
+    "inputAsJS": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "Input JS",
+      "displayName": "Input JS",
+      "replaces": "<%= $CLI_PARAM_InputAsJS %>"
+    },
+    "outputAsJS": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "Output JS",
+      "displayName": "Output JS",
+      "replaces": "<%= $CLI_PARAM_OutputAsJS %>"
+    }
+  }
+}

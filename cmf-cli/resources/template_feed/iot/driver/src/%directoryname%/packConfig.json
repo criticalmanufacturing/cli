@@ -1,0 +1,20 @@
+{
+    "type": "Component",
+
+    "templates": "${Source}/templates/",
+    
+    "postActions": [
+        { "type": "DeleteFile", "source": "${Temp}/completion.sh.hbs" },
+        { "type": "DeleteDirectory", "source": "${Temp}/src" },
+        { "type": "DeleteDirectory", "source": "${Temp}/build" },
+        { "type": "DeleteDirectory", "source": "${Temp}/locales" },
+        { "type": "DeleteDirectory", "source": "${Temp}/addonsHandler" }
+    ],
+
+    "information": [
+        "Add other instructions in the postActions section",
+        "according to the result of the pack process of your",
+        "driver. There is no 'right' recipe. It will always",
+        "depend on the modules you are using."
+    ]
+}

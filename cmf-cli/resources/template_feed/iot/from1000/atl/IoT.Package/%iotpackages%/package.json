@@ -12,7 +12,7 @@
     "test:cover": "npm run test:cover -ws --if-present",
     "packagePacker": "npm run packagePacker -ws --if-present",
     "watch": "npm run watch -ws --if-present",
-    "generateTaskLibrary": "cd src && yo @criticalmanufacturing/iot:tasksLibrary && cd .."
+    "generateTaskLibrary": "cd src && cmf new iot taskLibrary && cd .."
   },
   "dependencies": {
   },

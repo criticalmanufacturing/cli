@@ -1,0 +1,15 @@
+.vscode
+.vs
+*.ts
+!*.d.ts
+test/unit
+test/e2e/bin
+test/e2e/obj
+test/e2e/packages
+coverage
+tsconfig.json
+tslint.json
+.git*
+font/svg
+.connect_iot_package_done
+packConfig.json
