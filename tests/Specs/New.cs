@@ -329,7 +329,7 @@ namespace tests.Specs
             }
             else if (isAngularPackage)
             {
-                var htmlPackageName = "Cmf.Custom.Html";
+                var htmlPackageName = "Cmf.Custom.HTML";
                 var targetDir = new DirectoryInfo(dir);
 
                 TestUtilities.CopyFixturePackage(htmlPackageName, targetDir);
