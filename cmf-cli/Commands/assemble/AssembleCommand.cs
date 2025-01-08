@@ -210,12 +210,10 @@ namespace Cmf.CLI.Commands
                     if (testPackage.CmfPackage == null || (testPackage.CmfPackage != null && testPackage.CmfPackage.Uri == null))
                     {
                         string packageName = $"{testPackage.Id}.{testPackage.Version}";
-                        testPackage.CmfPackage = ExecutionContext.Instance.RunningOnWindows
-                        ? CmfPackage.LoadFromRepo(repoDirectories, testPackage.Id, testPackage.Version, fromManifest: false)
-                        : CmfPackage.LoadFromCIFSShare(testPackage.Id, testPackage.Version, fromManifest: false);
+                        testPackage.CmfPackage = CmfPackage.LoadFromRepo(repoDirectories, testPackage.Id, testPackage.Version, fromManifest: false);
                         if(testPackage.CmfPackage == null)
                         {
-                            string errorMessage = string.Format(CoreMessages.NotFound, packageName);
+                            string errorMessage = string.Format(CliMessages.SomePackagesNotFound, $"{packageName}.zip");
                             throw new CliException(errorMessage);
                         }
                     }
@@ -287,9 +285,7 @@ namespace Cmf.CLI.Commands
             if (cmfPackage == null || (cmfPackage != null && cmfPackage.Uri == null))
             {
                 string packageName = cmfPackage.PackageName;
-                cmfPackage = ExecutionContext.Instance.RunningOnWindows
-                            ? CmfPackage.LoadFromRepo(repoDirectories, cmfPackage.PackageId, cmfPackage.Version)
-                            : CmfPackage.LoadFromCIFSShare(cmfPackage.PackageId, cmfPackage.Version);
+                cmfPackage = CmfPackage.LoadFromRepo(repoDirectories, cmfPackage.PackageId, cmfPackage.Version);
                 if(cmfPackage == null)
                 {
                     string errorMessage = string.Format(CoreMessages.NotFound, packageName);
@@ -304,11 +300,11 @@ namespace Cmf.CLI.Commands
             }
 
             Log.Information(string.Format(CliMessages.GetPackage, cmfPackage.PackageId, cmfPackage.Version));
-            if(ExecutionContext.Instance.RunningOnWindows)
+            if(cmfPackage.SharedFolder == null)
             {
                 cmfPackage.Uri.GetFile().CopyTo(destinationFile);
             }
-            else if(cmfPackage.SharedFolder != null)
+            else
             {
                 var file = cmfPackage.SharedFolder.GetFile(cmfPackage.ZipPackageName);
                 using var fileStream = file.Item2;
