@@ -73,6 +73,8 @@ namespace Cmf.CLI.Builders
         {
             if (Condition())
             {
+                List<WorkflowsToValidate> workflowNamesAndPaths = [];
+                List<string> subWorkflowsToValidate = [];
                 foreach (var file in FilesToValidate.Where(file => file.Source.FullName.Contains(".json")))
                 {
                     //Open file for Read\Write
@@ -87,6 +89,11 @@ namespace Cmf.CLI.Builders
                     try
                     {
                         var json = JsonDocument.Parse(fileContent);
+
+                        #region Collect JSON SubWorkflows to Validate
+                        workflowNamesAndPaths.AddRange(ExtractWorkflowNames(json));
+                        subWorkflowsToValidate.AddRange(ExtractSubWorkflowNamesFromAutomationWorkflow(json));
+                        #endregion
                     }
                     catch (Exception)
                     {
@@ -104,12 +111,130 @@ namespace Cmf.CLI.Builders
 
                     #endregion
                 }
+
+                #region Validate all IoT JSON SubWorkflows exist
+                if (subWorkflowsToValidate.Count > 0)
+                {
+                    AllSubWorkflowsExist(subWorkflowsToValidate, workflowNamesAndPaths, FilesToValidate.Select(file => file.Source.FullName).ToList());
+                }
+                #endregion
             }
             else
             {
                 Log.Debug($"Command: {this.DisplayName} will not be executed as its condition was not met");
             }
             return null;
+        }
+
+        private static bool AllSubWorkflowsExist(List<string> isContainedList, List<WorkflowsToValidate> containsList, List<string> filesToValidate = null)
+        {
+            // Use a HashSet for fast lookups
+            var set = new HashSet<string>(containsList.Select(item => item.Name));
+
+            foreach (var item in isContainedList)
+            {
+                if (!set.Contains(item))
+                {
+                    throw new CliException($"The subworkflow {item} is mentioned but there is no workflow declared with that name.");
+                }
+
+                var workflowLocation = containsList.FirstOrDefault(clitem => clitem.Name == item);
+                if (!string.IsNullOrEmpty(workflowLocation.Path) && filesToValidate != null)
+                {
+                    IsPartialPathPresent(workflowLocation.Path, filesToValidate, true);
+                }
+            }
+
+            return true; // All items are present
+        }
+
+        private static bool IsPartialPathPresent(string partialPath, List<string> filePaths, bool throwOnFalse = true)
+        {
+            foreach (var fullPath in filePaths)
+            {
+                if (fullPath.Replace("\\", "/").Contains(partialPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true; // Return true as soon as a match is found
+                }
+            }
+
+            if (throwOnFalse)
+            {
+                throw new CliException($"Could not find the path {partialPath} for the Workflow");
+            }
+
+            return false; // No match found
+        }
+
+        private static List<WorkflowsToValidate> ExtractWorkflowNames(JsonDocument json)
+        {
+            var names = new List<WorkflowsToValidate>();
+            // Navigate to the "AutomationControllerWorkflow" object
+            if (json.RootElement.TryGetProperty("AutomationControllerWorkflow", out JsonElement workflows) &&
+                workflows.ValueKind == JsonValueKind.Object)
+            {
+                // Iterate through all properties in "AutomationControllerWorkflow"
+                foreach (var property in workflows.EnumerateObject())
+                {
+                    if (property.Value.ValueKind == JsonValueKind.Object &&
+                        property.Value.TryGetProperty("Name", out JsonElement name))
+                    {
+                        property.Value.TryGetProperty("IsFile", out JsonElement isFile);
+
+                        if (isFile.ToString().ToBool())
+                        {
+                            property.Value.TryGetProperty("Workflow", out JsonElement workflow);
+                            names.Add(new WorkflowsToValidate(name.GetString(), workflow.GetString()));
+                        }
+                        else
+                        {
+                            // In this case the workflow is already in the json file, so we don't need to keep the path
+                            names.Add(new WorkflowsToValidate(name.GetString()));
+                        }
+
+                    }
+                }
+            }
+            return names;
+        }
+
+        private static List<string> ExtractSubWorkflowNamesFromAutomationWorkflow(JsonDocument json)
+        {
+            var names = new List<string>();
+            // Navigate to the "tasks" array
+            if (json.RootElement.TryGetProperty("tasks", out JsonElement tasks) &&
+                tasks.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var task in tasks.EnumerateArray())
+                {
+                    // Check if the task contains "settings" and "automationWorkflow"
+                    if (task.TryGetProperty("settings", out JsonElement settings) &&
+                        settings.TryGetProperty("automationWorkflow", out JsonElement automationWorkflow) &&
+                        automationWorkflow.ValueKind == JsonValueKind.Object)
+                    {
+                        // Check if "IsShared" is false and retrieve "Name"
+                        if (automationWorkflow.TryGetProperty("IsShared", out JsonElement isShared) &&
+                            isShared.ValueKind == JsonValueKind.False &&
+                            automationWorkflow.TryGetProperty("Name", out JsonElement name))
+                        {
+                            names.Add(name.GetString());
+                        }
+                    }
+                }
+            }
+            return names;
+        }
+    }
+
+    public record WorkflowsToValidate
+    {
+        public string Path { get; set; }
+        public string Name { get; set; }
+
+        public WorkflowsToValidate(string name, string path = "")
+        {
+            this.Path = path;
+            this.Name = name;
         }
     }
 }
