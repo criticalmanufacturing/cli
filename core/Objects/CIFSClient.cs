@@ -21,10 +21,10 @@ namespace Core.Objects
         private string _username;
         private string _password;
 
-        public CIFSClient(string server, IEnumerable<Uri> uris)
+        public CIFSClient(string server, IEnumerable<Uri> uris, ISMBClient smbClient = null)
         {
             Server = server;
-            _smbClient = new SMB2Client();
+            _smbClient = smbClient ?? new SMB2Client();
             _domain = Environment.GetEnvironmentVariable("CIFS_DOMAIN");
             _username = Environment.GetEnvironmentVariable("CIFS_USERNAME");
             _password = Environment.GetEnvironmentVariable("CIFS_PASSWORD");
@@ -64,8 +64,7 @@ namespace Core.Objects
 
         public void Disconnect()
         {
-            // Implement disconnection logic here
-            Console.WriteLine("Disconnecting from SMB server");
+            _smbClient.Disconnect();
         }
     }
 
