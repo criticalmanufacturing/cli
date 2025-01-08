@@ -563,9 +563,7 @@ namespace Cmf.CLI.Core.Objects
                     // 2) check if package is in repository
                     if (dependencyPackage == null)
                     {
-                        dependencyPackage = ExecutionContext.Instance.RunningOnWindows
-                            ? LoadFromRepo(repoDirectories, dependency.Id, dependency.Version)
-                            : LoadFromCIFSShare(dependency.Id, dependency.Version);
+                        dependencyPackage = LoadFromRepo(repoDirectories, dependency.Id, dependency.Version);
                     }
 
                     // 3) search in the source code repository (only if this is a local package)
@@ -713,7 +711,7 @@ namespace Cmf.CLI.Core.Objects
         /// <returns></returns>
         public static CmfPackage LoadFromRepo(IDirectoryInfo[] repoDirectories, string packageId, string version, bool fromManifest = true)
         {
-            if(!ExecutionContext.Instance.RunningOnWindows)
+            if(!ExecutionContext.Instance.RunningOnWindows && ExecutionContext.Instance.CIFSClients.HasAny())
             {
                 return LoadFromCIFSShare(packageId, version);
             }
