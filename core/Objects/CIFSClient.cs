@@ -28,17 +28,19 @@ namespace Core.Objects
             _domain = Environment.GetEnvironmentVariable("CIFS_DOMAIN");
             _username = Environment.GetEnvironmentVariable("CIFS_USERNAME");
             _password = Environment.GetEnvironmentVariable("CIFS_PASSWORD");
-            if(string.IsNullOrEmpty(_domain) || string.IsNullOrEmpty(_username) || string.IsNullOrEmpty(_password))
+            if(string.IsNullOrEmpty(_domain) && string.IsNullOrEmpty(_username) && string.IsNullOrEmpty(_password))
             {
-                throw new CliException("CIFS credentials not found in environment variables");
+                Log.Warning("CIFS credentials not found. Please set CIFS_DOMAIN, CIFS_USERNAME and CIFS_PASSWORD environment variables");
             }
-
-            Connect();
-
-            if(IsConnected)
+            else
             {
-                SharedFolders = [];
-                uris.ForEach(uri => SharedFolders.Add(new SharedFolder(uri, _smbClient)));
+                Connect();
+
+                if(IsConnected)
+                {
+                    SharedFolders = [];
+                    uris.ForEach(uri => SharedFolders.Add(new SharedFolder(uri, _smbClient)));
+                }
             }
         }
 
