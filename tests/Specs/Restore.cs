@@ -1,7 +1,7 @@
 using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Factories;
-using Cmf.CLI.Utilities;
+using FluentAssertions;
 using System;
 using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;
@@ -182,7 +182,8 @@ namespace tests.Specs
 
             Assert.False(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\Dependencies")).Exists, "Dependencies folder already exists!");
 
-            Assert.Throws<CliException>(() => packageTypeHandler.RestoreDependencies(new[] { repo }));
+            var exception = Record.Exception(() => packageTypeHandler.RestoreDependencies(new[] { repo }));
+            exception.Should().BeNull();
         }
     }
 }
