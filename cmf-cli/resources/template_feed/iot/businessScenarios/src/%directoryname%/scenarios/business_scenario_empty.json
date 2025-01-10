@@ -1,0 +1,41 @@
+{
+  "name": "Example Scenario",
+  "description": "Example Scenario Description",
+  "scopes": "ExampleScope1, ExampleScope2",
+  "conditionType": "JSONata",
+  "condition": "",
+  "metadata": {
+    "start": "ExampleStartStep",
+    "resultType": "MasterData",
+    "finally": "ExampleFinallyStep",
+    "end": "ExampleEndStep",
+    "steps": [
+      {
+        "name": "ExampleStartStep",
+        "type": "Question",
+        "resultKey": "exampleVar",
+        "settings": {
+          "dataType": "String",
+          "message": "Example Question?"
+        },
+        "next": ""
+      },
+      {
+        "name": "ExampleFinallyStep",
+        "type": "Message",
+        "settings": {
+          "message": "Example Finally Question?"
+        },
+        "next": ""
+      },
+      {
+        "name": "ExampleEndStep",
+        "type": "Message",
+        "settings": {
+          "message": "ExampleEndQuestion?"
+        },
+        "next": ""
+      }
+    ]
+  }
+}
