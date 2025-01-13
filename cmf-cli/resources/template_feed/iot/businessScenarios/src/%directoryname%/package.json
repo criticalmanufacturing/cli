@@ -1,7 +1,7 @@
 {
   "name": "<%= $CLI_PARAM_PackageName %>",
   "version": "<%= $CLI_PARAM_PackageVersion %>",
-  "description": "Generated Task Library package",
+  "description": "Generated Business Scenarios package",
   "main": "src/index.js",
   "typings": "src/index",
   "scripts": {
@@ -15,8 +15,6 @@
     "test:cover": "npx nyc -r cobertura -r lcov -r text-summary mocha test/*.test.js test/**/*.test.js -- --timeout 10000 --exit -R mocha-multi-reporters --reporter-options configFile=mocha-multi-reporters-config.json",
     "pretest": "npm run build",
     "watch": "npm run build -- -w | npx mocha --timeout 10000 --exit --reporter min -w test/*.test.js test/**/*.test.js",
-    "generateTask": "cmf new iot task",
-    "generateConverter": "cmf new iot converter",
     "packagePacker": "yo @criticalmanufacturing/iot:packagePacker -o ."
   },
   "keywords": [
@@ -40,25 +38,10 @@
     "typescript": "5.2.2"
   },
   "dependencies": {
-    "@criticalmanufacturing/connect-iot-controller-engine": "<%= $CLI_PARAM_TargetSystemVersionProcessed %>",
-    "reflect-metadata": "0.1.13",
-    "inversify": "6.0.1",
-    "moment": "2.29.4",
-    "cmf-lbos": "<%= $CLI_PARAM_TargetSystemVersionProcessed %>",
-    "zone.js": "0.14.7"
+    "inversify": "6.0.2",
+    "reflect-metadata": "0.2.2",
+    "yargs": "17.7.2"
   },
   "author": "Critical Manufacturing",
-  "criticalManufacturing": {
-    "tasksLibrary": {
-      "displayName": "<%= $CLI_PARAM_Identifier %>",
-      "dependsOnScope": <%= $CLI_PARAM_DependsOnScope %>,
-      "mandatoryForScope": <%= $CLI_PARAM_MandatoryForScope %>,
-      "dependsOnProtocol": <%= $CLI_PARAM_DependsOnProtocol %>,
-      "mandatoryForProtocol": <%= $CLI_PARAM_MandatoryForProtocol %>,
-      "metadata": {
-        "converters": [],
-        "tasks": []
-      }
-    }
-  }
+  "criticalManufacturing": {}
 }

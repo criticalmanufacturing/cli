@@ -88,19 +88,9 @@ namespace Cmf.CLI.Handlers
             else
             {
                 var packageLocation = "projects";
-                // Introduced in version 10.2.x
-                if ((targetVersion.Major > 10 || (targetVersion.Major == 10 &&
-                        targetVersion.Minor >= 2 &&
-                        targetVersion.Build >= 7)) && !this.IsAngularProject(cmfPackage.GetFileInfo().Directory.FullName))
-                {
-                    packageLocation = "src";
-                    var packages = string.Join(",", this.BuildPackageNames(this.GetPackageJsons(cmfPackage, packageLocation)));
 
-                    defaultSteps.Add(new Step(StepType.IoTAutomationTaskLibrariesSync)
-                    {
-                        Content = packages
-                    });
-                }
+                defaultSteps = this.AddAutomationTaskLibrariesStep(targetVersion, CmfPackage, defaultSteps);
+                defaultSteps = this.AddAutomationBusinessScenarioStep(targetVersion, CmfPackage, defaultSteps);
 
                 buildCommands = new IBuildCommand[]
                 {
@@ -418,6 +408,38 @@ namespace Cmf.CLI.Handlers
                 this.fileSystem.Path.Join(
                     path,
                     "angular.json"));
+        }
+
+        private List<Step> AddAutomationTaskLibrariesStep(Version targetVersion, CmfPackage cmfPackage, List<Step> defaultSteps, string packageLocation = "src")
+        {
+            // Introduced in version 10.2.x
+            if ((targetVersion.Major > 10 || (targetVersion.Major == 10 &&
+                    targetVersion.Minor >= 2 &&
+                    targetVersion.Build >= 7)) && !this.IsAngularProject(cmfPackage.GetFileInfo().Directory.FullName))
+            {
+                var packages = string.Join(",", this.BuildPackageNames(this.GetPackageJsons(cmfPackage, packageLocation)));
+
+                defaultSteps.Add(new Step(StepType.IoTAutomationTaskLibrariesSync)
+                {
+                    Content = packages
+                });
+            }
+            return defaultSteps;
+        }
+
+        private List<Step> AddAutomationBusinessScenarioStep(Version targetVersion, CmfPackage cmfPackage, List<Step> defaultSteps, string packageLocation = "src")
+        {
+            // Introduced in version 11.1.x
+            if ((targetVersion.Major > 11 || (targetVersion.Major == 11 && targetVersion.Minor >= 1)))
+            {
+                var packages = string.Join(",", this.BuildPackageNames(this.GetPackageJsons(cmfPackage, packageLocation)));
+
+                defaultSteps.Add(new Step(StepType.AutomationBusinessScenariosSync)
+                {
+                    Content = packages
+                });
+            }
+            return defaultSteps;
         }
     }
 }

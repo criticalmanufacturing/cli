@@ -1,0 +1,4 @@
+{
+  "type": "BusinessScenario",
+  "businessScenarios": "${Source}/scenarios/"
+}
