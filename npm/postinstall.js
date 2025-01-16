@@ -7,6 +7,9 @@ const path = require('path'),
     rimraf = require('rimraf'),
     fs = require('fs'),
     axios = require('axios'),
+    httpsProxyAgent = require('https-proxy-agent'),
+    httpProxyAgent = require('http-proxy-agent'),
+    proxyFromEnv = require('proxy-from-env'),
     AdmZip = require("adm-zip"),
     tmp = require('tmp'),
     dbg = require('debug'),
@@ -50,9 +53,21 @@ async function install(callback) {
         const pkgUrl = opts.binUrl.replace("{{version}}", opts.version).replace("{{platform}}", PLATFORM_MAPPING[process.platform]).replace("{{arch}}", ARCH_MAPPING[process.arch]);
         console.info(`Getting release archive from ${pkgUrl} into ${path.resolve(src)}`);
         try {
+            // support for http/s proxies through env vars
+            const proxy = proxyFromEnv.getProxyForUrl(pkgUrl);
+            let httpAgent, httpsAgent;
+            if (proxy) {
+                httpAgent = new httpProxyAgent.HttpProxyAgent(proxy);
+                httpsAgent = new httpsProxyAgent.HttpsProxyAgent(proxy);
+            }
+
+            // make req (override axios automatic proxy since it is not working properly)
             const response = await axios({
                 url: pkgUrl,
                 method: 'GET',
+                proxy: false,
+                httpAgent: httpAgent,
+                httpsAgent: httpsAgent,
                 responseType: 'arraybuffer', // to do this with streaming we must deal with chunking
             });
             const zip = tmp.tmpNameSync();
