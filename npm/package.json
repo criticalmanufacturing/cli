@@ -29,7 +29,8 @@
   ],
   "dependencies": {
     "adm-zip": "^0.5.12",
-    "axios": "^1.6.8",
+    "axios": "^1.7.9",
+    "proxy-agent": "^6.5.0",
     "debug": "^4.3.4",
     "global-dirs": "3.0.0",
     "mkdirp": "^2.1.6",
