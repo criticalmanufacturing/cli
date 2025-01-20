@@ -1,8 +1,3 @@
- using System.Collections.Generic;
-using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
-using System.IO.Abstractions;
-using System.Linq;
 using Cmf.CLI.Builders;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
@@ -12,6 +7,11 @@ using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Services;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Generic;
+using System.CommandLine;
+using System.CommandLine.NamingConventionBinder;
+using System.IO.Abstractions;
+using System.Linq;
 
 namespace Cmf.CLI.Commands.New
 {
@@ -99,12 +99,23 @@ namespace Cmf.CLI.Commands.New
         {
             if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major > 9)
             {
-                // only introduced in 10.2.7
-                if (!isAngularPackage && ExecutionContext.Instance.ProjectConfig.MESVersion.Major > 10 || (ExecutionContext.Instance.ProjectConfig.MESVersion.Major == 10 && ExecutionContext.Instance.ProjectConfig.MESVersion.Minor >= 2 &&
-                        ExecutionContext.Instance.ProjectConfig.MESVersion.Build >= 7))
+                // (ATL) Automation Task Library Package
+                // only introduced in v10.2.7
+                var executeV10ATL = !isAngularPackage &&
+                                        (ExecutionContext.Instance.ProjectConfig.MESVersion.Major == 10 &&
+                                            ExecutionContext.Instance.ProjectConfig.MESVersion.Minor >= 2 &&
+                                            ExecutionContext.Instance.ProjectConfig.MESVersion.Build >= 7);
+
+                // only introduced in v11
+                var executeV11ATL = !isAngularPackage && ExecutionContext.Instance.ProjectConfig.MESVersion.Major == 11;
+
+                if (executeV10ATL)
                 {
-                    // Automation Task Library Package
                     this.ExecuteV10ATL(workingDir, version);
+                }
+                else if (executeV11ATL)
+                {
+                    this.ExecuteV11ATL(workingDir, version);
                 }
                 else
                 {
@@ -116,6 +127,14 @@ namespace Cmf.CLI.Commands.New
                 this.CommandName = "iot-upto9x";
                 base.Execute(workingDir, version);
             }
+        }
+
+        public void ExecuteV11ATL(IDirectoryInfo workingDir, string version)
+        {
+            this.CommandName = "iot-from1000-atl";
+            base.Execute(workingDir, version, ["--useNodePackageBundler", true.ToString()]);
+
+            Log.Information($"Feel free to create your task libraries by running cmf new TaskLibrary");
         }
 
         public void ExecuteV10ATL(IDirectoryInfo workingDir, string version)

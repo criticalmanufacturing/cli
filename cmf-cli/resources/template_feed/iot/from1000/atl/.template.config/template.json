@@ -80,6 +80,12 @@
       "datatype": "string",
       "description": "The type of repository this package will be included in",
       "displayName": "Repository Type"
+    },
+    "useNodePackageBundler": {
+      "type": "parameter",
+      "datatype": "bool",
+      "description": "The type of bundler to use",
+      "displayName": "Bundler Type"
     }
   }
 }

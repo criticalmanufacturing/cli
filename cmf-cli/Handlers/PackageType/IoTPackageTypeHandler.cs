@@ -299,10 +299,10 @@ namespace Cmf.CLI.Handlers
                     foreach (IDirectoryInfo packDirectory in packDirectories)
                     {
                         string inputDirPath = packDirectory.FullName;
-                        IFileInfo packConfig = this.fileSystem.FileInfo.New($"{inputDirPath}/packconfig.json");
+                        IFileInfo packConfig = this.fileSystem.FileInfo.New($"{inputDirPath}/packConfig.json");
                         if (!packConfig.Exists)
                         {
-                            Log.Warning("packconfig.json doesn't exist! packagePacker will not run.");
+                            Log.Warning("packConfig.json doesn't exist! packagePacker will not run.");
                             continue;
                         }
                         Log.Debug("Running Package Packer");
@@ -322,15 +322,30 @@ namespace Cmf.CLI.Handlers
                             npmCommand.Exec();
                         }
 
-                        CmdCommand cmdCommand = new CmdCommand()
+                        if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 11)
                         {
-                            DisplayName = "npx yo @criticalmanufacturing/iot:packagePacker",
-                            Command = "npx",
-                            Args = new string[] { "yo@4.3.1 @criticalmanufacturing/iot:packagePacker", $"-i \"{inputDirPath}\"", $"-o \"{outputDirPath}\"" },
-                            WorkingDirectory = packDirectory
-                        };
+                            CmdCommand cmdCommand = new CmdCommand()
+                            {
+                                DisplayName = "npx yo @criticalmanufacturing/iot:packagePacker",
+                                Command = "npx",
+                                Args = new string[] { "yo@4.3.1 @criticalmanufacturing/iot:packagePacker", $"-i \"{inputDirPath}\"", $"-o \"{outputDirPath}\"" },
+                                WorkingDirectory = packDirectory
+                            };
 
-                        cmdCommand.Exec();
+                            cmdCommand.Exec();
+                        }
+                        else
+                        {
+                            CmdCommand cmdCommand = new CmdCommand()
+                            {
+                                DisplayName = "npx packageBundler",
+                                Command = "npx",
+                                Args = new string[] { "packageBundler", $"-i \"{inputDirPath}\"", $"-o \"{outputDirPath}\"" },
+                                WorkingDirectory = packDirectory
+                            };
+
+                            cmdCommand.Exec();
+                        }
                     }
                 }
                 else if (contentToPack.Action == PackAction.Untar)
