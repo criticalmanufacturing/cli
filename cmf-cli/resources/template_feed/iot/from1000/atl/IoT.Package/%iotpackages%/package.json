@@ -17,6 +17,9 @@
   "dependencies": {
   },
   "devDependencies": {
+    //#if useNodePackageBundler
+    "@criticalmanufacturing/node-package-bundler": "latest",
+    //#endif
     "@typescript-eslint/eslint-plugin": "^6.10.0",
     "@typescript-eslint/parser": "^6.10.0",
     "concurrently": "^7.6.0",

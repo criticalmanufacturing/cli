@@ -1,14 +1,13 @@
-using System.Collections.Generic;
-using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
-using System.IO.Abstractions;
-using System.Text.Json;
-using System.Linq;
+using Cmf.CLI.Core.Commands;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-using Cmf.CLI.Core.Commands;
+using System.Collections.Generic;
+using System.CommandLine;
+using System.CommandLine.NamingConventionBinder;
+using System.IO.Abstractions;
+using System.Linq;
 
 namespace Cmf.CLI.Commands
 {
@@ -57,7 +56,7 @@ namespace Cmf.CLI.Commands
         public override void Configure(Command cmd)
         {
             GetBaseCommandConfig(cmd);
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, string>(Execute);
+            cmd.Handler = CommandHandler.Create<IDirectoryInfo, string, List<string>>(Execute);
         }
 
         /// <summary>
@@ -140,7 +139,7 @@ namespace Cmf.CLI.Commands
         /// </summary>
         /// <param name="workingDir">the nearest root package</param>
         /// <param name="version">the package version</param>
-        public void Execute(IDirectoryInfo workingDir, string version)
+        public void Execute(IDirectoryInfo workingDir, string version, List<string> args = null)
         {
             using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
             if (workingDir == null)
@@ -157,17 +156,22 @@ namespace Cmf.CLI.Commands
 
             //load .project-config
             var tenant = ExecutionContext.Instance.ProjectConfig.Tenant;
-            var args = new List<string>()
-            {
-                // engine options
-                "--output", workingDir.FullName,
+
+            args =
+            [
+                .. (new List<string>()
+                            {
+                                // engine options
+                                "--output", workingDir.FullName,
                 
-                // template symbols
-                "--name", packageName,
-                "--packageVersion", version,
-                "--idSegment", featureName != null ? $"{tenant}.{featureName}" : tenant,
-                "--Tenant", tenant
-            };
+                                // template symbols
+                                "--name", packageName,
+                                "--packageVersion", version,
+                                "--idSegment", featureName != null ? $"{tenant}.{featureName}" : tenant,
+                                "--Tenant", tenant
+                            }),
+                .. (args ?? []),
+            ];
 
             var projectRoot = FileSystemUtilities.GetProjectRoot(this.fileSystem);
             args = this.GenerateArgs(projectRoot, workingDir, args);
