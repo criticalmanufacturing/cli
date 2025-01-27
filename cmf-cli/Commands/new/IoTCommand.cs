@@ -145,11 +145,15 @@ namespace Cmf.CLI.Commands.New
 
             IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{workingDir}/{packageName}/{CliConstants.CmfPackageFileName}");
             var cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true, this.fileSystem);
-            cmfPackage.LoadDependencies(null, null, true);
-
-            var iotCustomPackage = cmfPackage.Dependencies.FirstOrDefault(package => package.CmfPackage?.PackageType == PackageType.IoT).CmfPackage;
-
+            
             var iotRoot = cmfPackage.GetFileInfo().Directory;
+            var iotCustomPackage = iotRoot.LoadCmfPackagesFromSubDirectories(packageType: PackageType.IoT).FirstOrDefault();
+
+            if (iotCustomPackage == null)
+            {
+                throw new CliException($"Failed to find a CMF Package with type '${PackageType.IoT}' inside folder '{iotRoot.FullName}'");
+            }
+
             var iotCustomPackageWorkDir = iotCustomPackage.GetFileInfo().Directory;
             var iotCustomPackageName = base.GeneratePackageName(iotCustomPackageWorkDir)!.Value.Item1;
 
@@ -211,11 +215,15 @@ namespace Cmf.CLI.Commands.New
 
             IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{workingDir}/{packageName}/{CliConstants.CmfPackageFileName}");
             var cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true, this.fileSystem);
-            cmfPackage.LoadDependencies(null, null, true);
-
-            var iotCustomPackage = cmfPackage.Dependencies.FirstOrDefault(package => package.CmfPackage?.PackageType == PackageType.IoT).CmfPackage;
 
             var iotRoot = cmfPackage.GetFileInfo().Directory;
+            var iotCustomPackage = iotRoot.LoadCmfPackagesFromSubDirectories(packageType: PackageType.IoT).FirstOrDefault();
+
+            if (iotCustomPackage == null)
+            {
+                throw new CliException($"Failed to find a CMF Package with type '${PackageType.IoT}' inside folder '{iotRoot.FullName}'");
+            }
+            
             var iotCustomPackageWorkDir = iotCustomPackage.GetFileInfo().Directory;
             var iotCustomPackageName = base.GeneratePackageName(iotCustomPackageWorkDir)!.Value.Item1;
 

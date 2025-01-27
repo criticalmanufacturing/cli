@@ -376,7 +376,7 @@ namespace tests.Specs
             else if (isAngularPackage)
             {
                 var relatedPackages = TestUtilities.GetPackage($"{packageId}/{packageFolderPackages}/cmfpackage.json").GetProperty("relatedPackages")[0];
-                relatedPackages.GetProperty("path").GetString().Should().Be(MockUnixSupport.Path("..\\..\\Cmf.Custom.Html"));
+                relatedPackages.GetProperty("path").GetString().Should().Be(MockUnixSupport.Path("..\\..\\Cmf.Custom.HTML"));
                 relatedPackages.GetProperty("preBuild").GetBoolean().Should().BeFalse();
                 relatedPackages.GetProperty("postBuild").GetBoolean().Should().BeTrue();
                 relatedPackages.GetProperty("prePack").GetBoolean().Should().BeFalse();
