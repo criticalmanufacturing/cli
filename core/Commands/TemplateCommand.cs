@@ -49,7 +49,7 @@ namespace Cmf.CLI.Core.Commands
         /// <param name="args">the template engine arguments</param>
         public virtual void RunCommand(IReadOnlyCollection<string> args)
         {
-            this.ExecuteTemplate(this.CommandName, args);
+            this.ExecuteTemplate(this.CommandName, args).Wait();
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace Cmf.CLI.Core.Commands
         /// </summary>
         /// <param name="templateName">the name of the template</param>
         /// <param name="args">the template engine arguments</param>
-        protected async void ExecuteTemplate(string templateName, IReadOnlyCollection<string> args)
+        protected async Task ExecuteTemplate(string templateName, IReadOnlyCollection<string> args)
         {
             Log.Debug($"Going to generate template {templateName}");
             // TODO: args needs to become a dictionary
