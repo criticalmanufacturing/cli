@@ -7,15 +7,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Core.Templating;
 using Cmf.CLI.Utilities;
 using Microsoft.TemplateEngine.Abstractions;
+using Microsoft.TemplateEngine.Abstractions.PhysicalFileSystem;
 using Microsoft.TemplateEngine.Abstractions.TemplatePackage;
 using Microsoft.TemplateEngine.Edge;
 using Microsoft.TemplateEngine.Edge.Template;
 using Microsoft.TemplateEngine.IDE;
 using Microsoft.TemplateEngine.Utils;
 using Newtonsoft.Json;
-using DefaultTemplateEngineHost = Microsoft.TemplateEngine.Edge.DefaultTemplateEngineHost;
 using ExecutionContext = Cmf.CLI.Core.Objects.ExecutionContext;
 
 namespace Cmf.CLI.Core.Commands
@@ -108,7 +109,7 @@ namespace Cmf.CLI.Core.Commands
             var version = (Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly())
                 .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
                 ?.InformationalVersion;
-            var templateEngineHost = CreateHost(version);
+            var templateEngineHost = CreateHost(version, fileSystem);
             using var bootstrapper = new Bootstrapper(templateEngineHost, false);
 
             // this needs a refactor, right now we're minimizing the impact on the implemented commands
@@ -200,7 +201,7 @@ namespace Cmf.CLI.Core.Commands
             public string DisplayName => "CMF CLI templates";
         }
 
-        private static ITemplateEngineHost CreateHost(string version)
+        private static ITemplateEngineHost CreateHost(string version, IFileSystem fileSystem)
         {
             var builtIns = new List<(Type InterfaceType, IIdentifiedComponent Instance)>();
             builtIns.AddRange(Microsoft.TemplateEngine.Orchestrator.RunnableProjects.Components.AllComponents);
@@ -210,7 +211,16 @@ namespace Cmf.CLI.Core.Commands
             {
             };
 
-            return new DefaultTemplateEngineHost(hostIdentifier: ExecutionContext.PackageId,
+            IPhysicalFileSystem templatingFileSystem = fileSystem switch 
+            {
+                // trick to avoid the overhead of using the adapter when we are using the host file system anyway
+                // Should work the same as if we had passed it through the adapter, just with less overhead
+                FileSystem => new PhysicalFileSystem(),
+                _ => new IOAbstractionsFileSystem(fileSystem)
+            };
+            
+            return new CmfCliTemplateEngineHost(templatingFileSystem, 
+                hostIdentifier: ExecutionContext.PackageId,
                 version: version,
                 defaults: preferences,
                 builtIns: builtIns,
