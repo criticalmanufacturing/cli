@@ -547,9 +547,9 @@ namespace Cmf.CLI.Core.Objects
                 }
 
                 IDirectoryInfo[] repoDirectories = repoUris?.Select(r => r.GetDirectory()).Where(d=> d.Exists==true).ToArray();
-                if (ExecutionContext.Instance.RunningOnWindows && repoDirectories.Length == 0)
+                if (ExecutionContext.Instance.RunningOnWindows && repoDirectories != null && repoDirectories.Length == 0)
                 {
-                    throw new CliException($"None of the provided repositories exist: {string.Join(", ", repoUris.Select(d => d.OriginalString))}");
+                    Log.Warning($"None of the provided repositories exist: {string.Join(", ", repoUris.Select(d => d.OriginalString))}");
                 }
                 foreach (var dependency in this.Dependencies)
                 {
