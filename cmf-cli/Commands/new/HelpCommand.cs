@@ -62,6 +62,10 @@ namespace Cmf.CLI.Commands.New
                         projectRoot.FullName)
                 ).Replace("\\", "/");
 
+            var requireModuleSES =
+                ExecutionContext.Instance.ProjectConfig.MESVersion >= new Version(11, 0, 0) &&
+                ExecutionContext.Instance.ProjectConfig.MESVersion < new Version(11, 2, 0);
+
             args.AddRange(new[]
             {
                 "--rootRelativePath", relativePathToRoot,
@@ -75,6 +79,7 @@ namespace Cmf.CLI.Commands.New
                 "--esLintVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(ExecutionContext.Instance.ProjectConfig.MESVersion).ESLint,
                 "--tsesVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(ExecutionContext.Instance.ProjectConfig.MESVersion).TSESLint,
                 "--assetsPkgName", this.assetsPkgName,
+                "--requireModuleSES", requireModuleSES.ToString(),
                 "--dfPackageNamePascalCase", this.dfPackageNamePascalCase
             });
 
