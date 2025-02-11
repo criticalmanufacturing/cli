@@ -183,7 +183,15 @@ namespace tests.Specs
             Assert.False(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\Dependencies")).Exists, "Dependencies folder already exists!");
 
             var exception = Record.Exception(() => packageTypeHandler.RestoreDependencies(new[] { repo }));
-            exception.Should().BeNull();
+
+            if (OperatingSystem.IsWindows())
+            {
+                exception.Should().NotBeNull();
+            }
+            else
+            {
+                exception.Should().BeNull();
+            }
         }
     }
 }
