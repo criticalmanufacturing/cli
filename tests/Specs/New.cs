@@ -308,10 +308,11 @@ namespace tests.Specs
 
         [Theory]
         [InlineData("9.0.0")]
-        [InlineData("10.0.0"), Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Internal")]
-        [InlineData("10.0.0", true, true), Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Internal")]
-        [InlineData("10.2.0", false), Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Internal")]
-        public void IoT(string mesVersion, bool htmlPackageLocationFullPath = false, bool isAngularPackage = false)
+        [InlineData("10.2.5", true), Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Internal")]
+        [InlineData("10.2.5", true, true), Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Internal")]
+        [InlineData("10.2.7", true, true), Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Internal")]
+        [InlineData("10.2.7"), Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Internal")]
+        public void IoT(string mesVersion, bool htmlPackageLocationFullPath = false, bool isAngularPackageFlag = false)
         {
             string dir = TestUtilities.GetTmpDirectory();
             string packageId = "Cmf.Custom.IoT";
@@ -322,6 +323,9 @@ namespace tests.Specs
             string packageIdData = "Cmf.Custom.IoT.Data";
             string packageFolderData = mesVersion == "9.0.0" ? "IoTData" : packageIdData;
 
+            // Before v10.2.7, all packages were Angular packages, even if the flag was not passed explicitly
+            bool isAngularPackage = isAngularPackageFlag || Version.Parse(mesVersion) < new Version(10, 2, 7);
+
             CopyNewFixture(dir, mesVersion: mesVersion);
             if (mesVersion == "9.0.0")
             {
@@ -331,10 +335,17 @@ namespace tests.Specs
             {
                 var htmlPackageName = "Cmf.Custom.HTML";
                 var targetDir = new DirectoryInfo(dir);
-
+                
                 TestUtilities.CopyFixturePackage(htmlPackageName, targetDir);
                 string htmlPackageLocation = htmlPackageLocationFullPath ? htmlPackageName : Path.Join(targetDir.FullName, htmlPackageName);
-                RunNew(new IoTCommand(), packageId, mesVersion: mesVersion, scaffoldingDir: dir, extraArguments: new string[] { "--htmlPackageLocation", htmlPackageLocation, "--isAngularPackage", "true" });
+
+                var extraArguments = new List<string> { "--htmlPackageLocation", htmlPackageLocation };
+                if (isAngularPackageFlag)
+                {
+                    extraArguments.Add("--isAngularPackage");
+                }
+
+                RunNew(new IoTCommand(), packageId, mesVersion: mesVersion, scaffoldingDir: dir, extraArguments: extraArguments.ToArray());
             }
             else
             {
@@ -365,11 +376,13 @@ namespace tests.Specs
             else if (isAngularPackage)
             {
                 var relatedPackages = TestUtilities.GetPackage($"{packageId}/{packageFolderPackages}/cmfpackage.json").GetProperty("relatedPackages")[0];
-                relatedPackages.GetProperty("path").GetString().Should().Be(MockUnixSupport.Path("..\\..\\Cmf.Custom.Html"));
+                relatedPackages.GetProperty("path").GetString().Should().Be(MockUnixSupport.Path("..\\..\\Cmf.Custom.HTML"));
                 relatedPackages.GetProperty("preBuild").GetBoolean().Should().BeFalse();
                 relatedPackages.GetProperty("postBuild").GetBoolean().Should().BeTrue();
                 relatedPackages.GetProperty("prePack").GetBoolean().Should().BeFalse();
                 relatedPackages.GetProperty("postPack").GetBoolean().Should().BeTrue();
+
+                File.Exists($"{packageId}/{packageFolderPackages}/angular.json").Should().BeTrue();
             }
             else
             {

@@ -7,6 +7,7 @@ using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Services;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
@@ -47,7 +48,7 @@ namespace Cmf.CLI.Commands.New
                 description: "Location of the HTML Package"
             ));
 
-            cmd.AddOption(new Option<string>(
+            cmd.AddOption(new Option<bool>(
                 aliases: new[] { "--isAngularPackage" },
                 description: "Customization package with angular"
             ));
@@ -97,17 +98,15 @@ namespace Cmf.CLI.Commands.New
         /// <param name="htmlPackageLocation">location of html package</param>
         public void Execute(IDirectoryInfo workingDir, string version, string htmlPackageLocation, bool isAngularPackage)
         {
-            if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major > 9)
+            var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            if (mesVersion.Major > 9)
             {
                 // (ATL) Automation Task Library Package
                 // only introduced in v10.2.7
-                var executeV10ATL = !isAngularPackage &&
-                                        (ExecutionContext.Instance.ProjectConfig.MESVersion.Major == 10 &&
-                                            ExecutionContext.Instance.ProjectConfig.MESVersion.Minor >= 2 &&
-                                            ExecutionContext.Instance.ProjectConfig.MESVersion.Build >= 7);
+                var executeV10ATL = !isAngularPackage && mesVersion >= new Version(10, 2, 7) && mesVersion < new Version(11, 0, 0);
 
                 // only introduced in v11
-                var executeV11ATL = !isAngularPackage && ExecutionContext.Instance.ProjectConfig.MESVersion.Major == 11;
+                var executeV11ATL = !isAngularPackage && mesVersion >= new Version(11, 0, 0);
 
                 if (executeV10ATL)
                 {
@@ -146,11 +145,15 @@ namespace Cmf.CLI.Commands.New
 
             IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{workingDir}/{packageName}/{CliConstants.CmfPackageFileName}");
             var cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true, this.fileSystem);
-            cmfPackage.LoadDependencies(null, null, true);
-
-            var iotCustomPackage = cmfPackage.Dependencies.FirstOrDefault(package => package.CmfPackage?.PackageType == PackageType.IoT).CmfPackage;
-
+            
             var iotRoot = cmfPackage.GetFileInfo().Directory;
+            var iotCustomPackage = iotRoot.LoadCmfPackagesFromSubDirectories(packageType: PackageType.IoT).FirstOrDefault();
+
+            if (iotCustomPackage == null)
+            {
+                throw new CliException($"Failed to find a CMF Package with type '${PackageType.IoT}' inside folder '{iotRoot.FullName}'");
+            }
+
             var iotCustomPackageWorkDir = iotCustomPackage.GetFileInfo().Directory;
             var iotCustomPackageName = base.GeneratePackageName(iotCustomPackageWorkDir)!.Value.Item1;
 
@@ -212,11 +215,15 @@ namespace Cmf.CLI.Commands.New
 
             IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{workingDir}/{packageName}/{CliConstants.CmfPackageFileName}");
             var cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true, this.fileSystem);
-            cmfPackage.LoadDependencies(null, null, true);
-
-            var iotCustomPackage = cmfPackage.Dependencies.FirstOrDefault(package => package.CmfPackage?.PackageType == PackageType.IoT).CmfPackage;
 
             var iotRoot = cmfPackage.GetFileInfo().Directory;
+            var iotCustomPackage = iotRoot.LoadCmfPackagesFromSubDirectories(packageType: PackageType.IoT).FirstOrDefault();
+
+            if (iotCustomPackage == null)
+            {
+                throw new CliException($"Failed to find a CMF Package with type '${PackageType.IoT}' inside folder '{iotRoot.FullName}'");
+            }
+            
             var iotCustomPackageWorkDir = iotCustomPackage.GetFileInfo().Directory;
             var iotCustomPackageName = base.GeneratePackageName(iotCustomPackageWorkDir)!.Value.Item1;
 
