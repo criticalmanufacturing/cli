@@ -1,8 +1,10 @@
-# Guide: IoT on MES v10
+# Guide: IoT on MES v11
 
-The MES Version v10 simplifies customization by introducing Automation Task Libraries. These libraries allow frontend elements of tasks and converters to be defined using JSON templates, eliminating the need for Angular and frontend customization.
+The MES Version v11 simplifies customization by merging all the generators under the CLI. 
 
-As so, from now on, when generating the Connect IoT customization `cmf new iot` it will generate three packages:
+## Structure 
+
+When generating the Connect IoT customization `cmf new iot` it will generate three packages:
 
 * `IoT` - The IoT root package;
 * `IoT.Data` - To store master data for IoT-related MES entities (e.g. controllers, workflows, drivers, etc);
@@ -59,6 +61,8 @@ The `IoT.Packages` should be used as the workspace to create new TasksLibraries 
 
     If you don't require the IoT package or any of its sub-packages, simply delete it and remove its references from the root cmfpackage.json file.
 
+## Generating IoT Components
+
 In a clean run where the goal would be to create a new custom task, we would do the following steps:
 
 ```bash
@@ -69,19 +73,51 @@ cmf new iot
 
 To generate a TaskLibrary package with a task, we would execute the following steps:
 
-```bash
-npm run generateTaskLibrary
-```
+### Task Library
+
+Generating a new task library (connect iot package):
 
 ```bash
-npm run generateTask
+cmf new iot taskLibrary
 ```
+
+![New IoT Scaffolding Demo Task Library](cmf_new_iot_taskLibrary.gif "Task Library")
+
+Generating a new task:
 
 ```bash
-npm run generateConverter
+cmf new iot task
 ```
 
-![Generate Task Library Package Demo](generate_tasklibrary.gif "Generate Task Library Package")
+![New IoT Scaffolding Demo Task](cmf_new_iot_task.gif "Task")
+
+Generating a new converter:
+
+```bash
+cmf new iot converter
+```
+
+![New IoT Scaffolding Demo Converter](cmf_new_iot_converter.gif "Converter")
+
+### Driver
+
+Generating a new Driver:
+
+```bash
+cmf new iot driver
+```
+
+![New IoT Scaffolding Demo Driver](cmf_new_iot_driver.gif "Driver")
+
+### Business Scenario
+
+Generating a Business Scenario:
+
+```bash
+cmf new iot businessScenario
+```
+
+![New IoT Scaffolding Demo BusinessScenario](cmf_new_iot_businessScenario.gif "BusinessScenario")
 
 ## For Angular
 
