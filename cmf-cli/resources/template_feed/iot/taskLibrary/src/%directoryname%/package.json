@@ -17,7 +17,7 @@
     "watch": "npm run build -- -w | npx mocha --timeout 10000 --exit --reporter min -w test/*.test.js test/**/*.test.js",
     "generateTask": "cmf new iot task",
     "generateConverter": "cmf new iot converter",
-    "packagePacker": "yo @criticalmanufacturing/iot:packagePacker -o ."
+    "packagePacker": "packageBundler -d -o=."
   },
   "keywords": [
     "CMF",

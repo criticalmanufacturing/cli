@@ -14,7 +14,7 @@
     "test:cover": "npx nyc -r cobertura -r lcov -r text-summary mocha test/*.test.js test/**/*.test.js -- --timeout 10000 --exit -R mocha-multi-reporters --reporter-options configFile=mocha-multi-reporters-config.json",
     "pretest": "npm run build",
     "watch": "npm run build -- -w | npx mocha --timeout 10000 --exit --reporter min -w test/*.test.js test/**/*.test.js",
-    "packagePacker": "yo @criticalmanufacturing/iot:packagePacker -o ."
+    "packagePacker": "packageBundler -d -o=."
   },
   "keywords": [
     "CMF",
