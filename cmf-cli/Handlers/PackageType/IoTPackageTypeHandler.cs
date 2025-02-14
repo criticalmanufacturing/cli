@@ -89,8 +89,10 @@ namespace Cmf.CLI.Handlers
             {
                 var packageLocation = "projects";
 
-                defaultSteps = this.AddAutomationTaskLibrariesStep(targetVersion, CmfPackage, defaultSteps);
-                defaultSteps = this.AddAutomationBusinessScenarioStep(targetVersion, CmfPackage, defaultSteps);
+                if (!this.IsAngularProject(cmfPackage.GetFileInfo().Directory.FullName)) {
+                    defaultSteps = this.AddAutomationTaskLibrariesStep(targetVersion, CmfPackage, defaultSteps);
+                    defaultSteps = this.AddAutomationBusinessScenarioStep(targetVersion, CmfPackage, defaultSteps);
+                }
 
                 buildCommands = new IBuildCommand[]
                 {
