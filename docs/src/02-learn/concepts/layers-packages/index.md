@@ -28,13 +28,15 @@ for backend development, including:
 * Exposing new REST API services;
 * Extending orchestration and business logic used by API services or DEE actions;
 
-**Creating a Business Package:**
+#### Scaffolding
+
+To generate a Business package use the command:
 
 ``` powershell
 cmf new business --version 1.0.0
 ```
 
-**Package Structure:**
+#### Package Structure
 
 The created package is composed of three .NET projects:
 
@@ -75,20 +77,18 @@ This package allows you to load or update:
 * Process Rules (DEE actions executed during package installation);
 * Master Data (system and/or business entity data).
 
-**Creating a Master Data Package:**
+#### Scaffolding
+
+To generate the Master Data package use the command:
 
 ``` powershell
 cmf new data --version 1.0.0 --businessPackage .\Cmf.Custom.Business\
 ```
 
 !!! note
+    The association of "Data" package with "Business" package, results in a change in the "Business" .NET solution file, to include the "Actions" .NET project. This improves the developer's experience, as he will be able to edit all .NET code in the same integrated environment.
 
-    The association of "Data" package with "Business" package, results in a
-    change in the "Business" .NET solution file, to include the "Actions"
-    .NET project. This improves the developer's experience, as he will be
-    able to edit all .NET code in the same integrated environment.
-
-**Package Structure:**
+#### Package Structure
 
 The Master Data package structure includes folders for:
 
@@ -96,7 +96,7 @@ The Master Data package structure includes folders for:
 * __ExportedObjects__: Contains objects (e.g., UI pages, queries) to be created or updated.
 * __MasterData__: Holds system and/or business entity data for updates.
 
-``` log 
+```log
 📦Project
  ┣ ...
  ┣ 📂Cmf.Custom.Data
@@ -140,7 +140,7 @@ This layer consists of two sub-packages for extending the MES UI:
 * __Help__ - Enables adding documentation entries to the MES Help system to
   explain your customizations.
 
-**Generating UI Packages:**
+#### Scaffolding
 
 The commands for generating UI packages depends on your MES version:
 
@@ -166,37 +166,44 @@ The commands for generating UI packages depends on your MES version:
     cmf new help --version 1.0.0 --documentationPackage H:\packages\Cmf.Documentation.9.1.8.zip
     ```
 
-**Package Structure:**
+#### Package Structure
 
 The resulting file structure depends on the MES version. For details on its usage check CM Training Presentation Training Courses or the Developer Portal.
 
-!!! hint
-
-    If you require NPM registry authentication, the current procedure is to 
-    include the auth information in the apps\customization.web\.npmrc file 
-    as is standard.
+!!! hint "NPM Authentication"
+    To authenticate with the NPM registry, you'll need to add your authentication information to your `.npmrc` file. This file is located at `%USERPROFILE%/.npmrc` on Windows and `~/.npmrc` on Linux.  The [Critical Manufacturing Developer Portal](https://developer.criticalmanufacturing.com/) provides instructions on how to configure and use our public NuGet, NPM, and Docker repositories.
 
 ### 4. IoT
 
 This package facilitates developing custom IoT tasks and converters. It also includes a structure for managing IoT Workflows and MasterData under source control.
 
-**Generating an IoT Package:**
+#### Scaffolding
 
-The command for generating IoT packages depends on your MES version:
+The command for generating IoT packages depends on your MES version. For full details on how to generate an IoT package library check the [IoT Scaffolding Guide](../../../03-explore/guides/iot-scaffolding.md).
+
+=== "MES v11 onwards"
+
+    To generate IoT package with support for Automation Task Library (ATL), use:
+
+    ```powershell
+    cmf new iot --version 1.0.0
+    ```
+
+    In alternative, although deprecated, you can sill generate a Tasks Package Library, using the "MES v10" command.
 
 === "MES v10"
 
-    ``` powershell
-    cmf new iot --version 1.0.0 --htmlPackageLocation Cmf.Custom.Baseline.HTML
+    ```powershell
+    cmf new iot --version 1.0.0 --htmlPackageLocation Cmf.Custom.Baseline.HTML --isAngularPackage
     ```
 
-    Make sure to follow all the steps [here](angular-15-iot-packages.md). Otherwise, you can have unexpected errors in the package.
 === "up to MES v9"
+
     ``` powershell
     cmf new iot --version 1.0.0
     ```
 
-**Package Structure:**
+#### Package Structure
 
 The generated package includes sub-packages for:
 
@@ -226,13 +233,15 @@ The generated package includes sub-packages for:
 
 This package allows creating scripts for execution on MES databases during installation.
 
-**Generating a Database Package:**
+#### Scaffolding
+
+To create a Database package use the command:
 
 ``` powershell
 cmf new database --version 1.0.0
 ```
 
-**Package Structure:**
+#### Package Structure
 
 The created package includes sub-packages for scripts to be executed:
 
@@ -267,13 +276,15 @@ While the Tests package follows the same structure and creation process as other
 
 The package includes dedicated folders for different test types (e.g., Biz, GUI, IoT) and provides necessary configuration files for test execution.
 
-**Generating a Test Package:**
+#### Scaffolding
+
+To create a Tests package use the command:
 
 ``` powershell
 cmf new test --version 1.0.0
 ```
 
-**Package Structure:**
+#### Package Structure
 
 The created package structure incorporates folders for various test categories:
 
@@ -315,13 +326,15 @@ The created package structure incorporates folders for various test categories:
 
 This package layer allows the installation of additional [SQL ServerReporting Services (SSRS)](https://learn.microsoft.com/en-us/sql/reporting-services) reports to the MES.
 
-**Generating a Test Package:**
+#### Scaffolding
+
+To create a Reporting package use the command:
 
 ``` powershell
 cmf new reporting --version 1.0.0
 ```
 
-**Package Structure:**
+#### Package Structure
 
 The created package structure incorporates folders to store RDL files that will be installed on the MES SSRS folder.
 
@@ -339,13 +352,15 @@ The created package structure incorporates folders to store RDL files that will 
 
 This package layer allows you to create/update [`grafana`](https://grafana.com/) dashboards in the MES infrastructure (only applicable to environments running in containers with MES v10 or above).
 
-**Generating a Grafana Package:**
+#### Scaffolding
+
+To create a Grafana package use the command:
 
 ``` powershell
 cmf new grafana --version 1.0.0
 ```
 
-**Package Structure:**
+#### Package Structure
 
 The created package structure incorporates folders to store _grafana_ dashboards and data sources.
 
@@ -368,17 +383,18 @@ The created package structure incorporates folders to store _grafana_ dashboards
 
 This package layer allows the configuration of authentication strategies on the MES Security Portal component.
 
-!!! warning
-
+!!! warning "Prefer Usage of DevOps Center"
     Whenever possible security strategies should be defined through CM DevOps Center. Use this package, only if, your strategy cannot be defined there or the target environment is not running on containers.
 
-**Generating a SecurityPortal Package:**
+#### Scaffolding
+
+To create a SecurityPortal package use the command:
 
 ``` powershell
 cmf new securityportal --version 1.0.0
 ```
 
-**Package Structure:**
+#### Package Structure
 
 This is a simple package. Use the `config.json` file to define the additional security settings/strategies for the CM MES Security Portal component.
 
@@ -390,8 +406,6 @@ This is a simple package. Use the `config.json` file to define the additional se
  ┃ ┗ 📜config.json
  ┣ ...
 ```
-
-
 
 ## Deprecated layer packages
 

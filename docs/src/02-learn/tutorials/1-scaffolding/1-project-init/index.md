@@ -22,69 +22,68 @@ Open a PowerShell terminal and navigate to your new project folder.
 
 Run the following commands to check your current versions:
 
-``` powershell
-# Check Node.js version
-node -v
+    ```powershell
+    # Check Node.js version
+    node -v
 
-#Check NPM version
-npm -v
-```
+    #Check NPM version
+    npm -v
+    ```
 
 Validate that their versions match the compatibility list stated in the [installation guide](../../../../01-install/index.md).
 If needed, use `nvm` command to fix it.
 
 ## 4. Initialize Project
 
-Execute the `cmf init` command with the desired project name and required arguments.
+You can initialize a MES Customization or App project workspace using the `cmf init` command.  The [Project Types Concept](../../../concepts/project-types/index.md) page provides details on this command dependency versions. The following example demonstrates its usage.
 
-!!! note
-
-    All the dependencies versions and command arguments are detailed on the [Project Types Concept](../../../concepts/project-types/index.md) page.
+!!! note "MES ISO location usage"
+    You only need to provide a MES ISO location if you are running your MES on Windows or one of its optional components (more details on [MES System Architecture][help-MES-architecture] page).
 
 === "MES v10 or above"
 
-    ``` powershell
+    ```powershell
     cmf init ExampleProject `
         --version 1.0.0 `
         --infra ..\config\infra.json `
         --config ..\config\env.json `
         --MESVersion 11.0.0 `
-        --ngxSchematicsVersion 11.0.0 `
         --nugetVersion 11.0.0 `
         --testScenariosNugetVersion 11.0.0 `
         --deploymentDir \\directory\Deployments `
-        --ISOLocation \\directory\CriticalManufacturing.iso
+        --ISOLocation \\directory\CriticalManufacturing.iso # Optional (for containers)
+        --ngxSchematicsVersion 11.0.0 `
     ```
 
 === "MES v9 or below"
 
-    ``` powershell
+    ```powershell
     cmf init ExampleProject `
         --version 1.0.0 `
         --infra ..\config\infra.json `
         --config ..\config\ExampleEnvironment.json `
         --MESVersion 9.0.11 `
-        --DevTasksVersion 9.0.4 `
-        --HTMLStarterVersion 8.0.0 `
-        --yoGeneratorVersion 8.1.1 `
         --nugetVersion 9.0.11 `
         --testScenariosNugetVersion 9.0.11 `
         --deploymentDir \\vm-project\Deployments `
-        --ISOLocation \\setups\CriticalManufacturing.iso
+        --ISOLocation \\setups\CriticalManufacturing.iso `
+        --DevTasksVersion 8.1.3 `
+        --HTMLStarterVersion 8.1.1 `
+        --yoGeneratorVersion 3.1.0 `
     ```
 
 === "MES App"
 
-    ``` powershell
+    ```powershell
     cmf init ExampleProject `
         --version 1.0.0 `
         --infra ..\config\infra.json `
         --config ..\config\ExampleEnvironment.json `
         --MESVersion 11.0.0 `
-        --ngxSchematicsVersion 11.0.0 `
         --nugetVersion 11.0.0 `
         --testScenariosNugetVersion 11.0.0 `
         --deploymentDir \\directory\Deployments `
+        --ngxSchematicsVersion 11.0.0 `
         --appName "My App" `
         --appId "MyApp" `
         --appAuthor "Critical Manufacturing" `
@@ -100,19 +99,19 @@ The `cmf init` command should have terminated with success and created a basic p
 
 ``` log
 📦ExampleProject
- ┣ 📂.config               # Dotnet tools configuration
- ┃ ┗ 📜dotnet-tools.json
- ┣ 📂EnvironmentConfigs    # Environments configuration repository
- ┃ ┗ 📜ExampleEnvironment.json
- ┣ 📂Libs                  # External libs dependencies (binaries)
- ┃ ┗ 📂...
- ┣ 📜.gitignore            # Spec files to ignore
- ┣ 📜.project-config.json  # Project configuration used during scaffolding
- ┣ 📜cmfpackage.json       # Project root package
- ┣ 📜global.json           # Dotnet global.json
- ┣ 📜NuGet.Config          # NuGet repository configuration
- ┗ 📜repositories.json     # The build/release repositories configuration
- ```
+┣ 📂.config               # Dotnet tools configuration
+┃ ┗ 📜dotnet-tools.json
+┣ 📂EnvironmentConfigs    # Environments configuration repository
+┃ ┗ 📜ExampleEnvironment.json
+┣ 📂Libs                  # External libs dependencies (binaries)
+┃ ┗ 📂...
+┣ 📜.gitignore            # Spec files to ignore
+┣ 📜.project-config.json  # Project configuration used during scaffolding
+┣ 📜cmfpackage.json       # Project root package
+┣ 📜global.json           # Dotnet global.json
+┣ 📜NuGet.Config          # NuGet repository configuration
+┗ 📜repositories.json     # The build/release repositories configuration
+```
 
 !!! note
 
@@ -137,3 +136,5 @@ Store the result of `cmf init` in the source control.
 
     The CM CLI assumes that you are using `git`. If that is not
     the case, adapt `.gitignore` files to your source control system.
+
+[help-MES-architecture]: https://help.criticalmanufacturing.com/installationguide/systemarchitecture/

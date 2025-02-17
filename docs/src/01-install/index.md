@@ -28,7 +28,7 @@ Before you begin, ensure you have the following software installed:
 
 #### Installing Node.js and NPM
 
-!!! tip
+!!! tip "Use NVM"
 
     **Use a Node version manager like [nvm](https://github.com/nvm-sh/nvm) to install Node.js and NPM.**
 
@@ -41,100 +41,118 @@ To perform the checks or install Node.js and NPM dependencies:
 1. Adapt the following PowerShell script;
 2. Run it on a command line with administration privileges.
 
-``` powershell
-#SET TARGET MES MAJOR VERSION (8, 9, 10 or 11)
-$mesMajorVersion = 11
+    ```PowerShell
+    #SET TARGET MES MAJOR VERSION (8, 9, 10 or 11)
+    $mesMajorVersion = 11
 
-#Map MES to node version
-$nodeMajorVerion = switch ($mesMajorVersion)
-{
-    8  { "12" }
-    9  { "12" }
-    10 { "18" }
-    11 { "20" }
-}
+    #Map MES to node version
+    $nodeMajorVerion = switch ($mesMajorVersion)
+    {
+        8  { "12" }
+        9  { "12" }
+        10 { "18" }
+        11 { "20" }
+    }
 
-# To check installed versions of Node.js and NPM use:
-nvm list
+    # To check installed versions of Node.js and NPM use:
+    nvm list
 
-# If not found, install them
-nvm install $nodeMajorVerion 
+    # If not found, install them
+    nvm install $nodeMajorVerion 
 
-#Determine the installed version
-$newNodeVersion = nvm list 
-$newNodeVersion = $newNodeVersion | where-object { $_ -Match "\s$nodeMajorVersion\." } | Select-Object -First 1
-$newNodeVersion = ($newNodeVersion | Select-String -Pattern "\d+\.\d+\.\d+").Matches.Value
+    #Determine the installed version
+    $newNodeVersion = nvm list 
+    $newNodeVersion = $newNodeVersion | where-object { $_ -Match "\s$nodeMajorVersion\." } | Select-Object -First 1
+    $newNodeVersion = ($newNodeVersion | Select-String -Pattern "\d+\.\d+\.\d+").Matches.Value
 
-# Set appropriate node version as active
-nvm use $newNodeVersion
+    # Set appropriate node version as active
+    nvm use $newNodeVersion
 
-# Check the active node.js version
-node -v
+    # Check the active node.js version
+    node -v
 
-# Check the active NPM version
-npm -v
-```
+    # Check the active NPM version
+    npm -v
+    ```
 
 ### NPM packages
 
- `@criticalmanufacturing/cli` requires the following NPM packages to be installed globally:
+ `@criticalmanufacturing/cli` may require the following NPM packages to be installed globally, to scaffold some of its custom components (HTML and IoT):
 
 | Package Name        | Version | Details                                       |
 |:--------------------|:--------|:----------------------------------------------|
-| windows-build-tools | latest  | Windows Build Tools (Windows OS only).        |
 | gulp                | 3.9.1   | Automation tool used on Node code automation. |
 | yo                  | 4.x     | CLI tool for running Yeoman generators.       |
-| @angular/cli        | lastest | Angular CLI required by CM MES v10 or above.  |
 
-To perform the checks or install the missing `@criticalmanufacturing/cli` dependencies:
+To perform the checks and install the missing `@criticalmanufacturing/cli` dependencies:
 
 1. Adapt the following PowerShell script;
 2. Run it on a command line with administration privileges.
 
-``` powershell
-#SET TARGET MES MAJOR VERSION (8, 9, 10 or 11)
-$mesMajorVersion = 10
+    ```PowerShell
+    #SET TARGET MES MAJOR VERSION (8, 9, 10 or 11)
+    $mesMajorVersion = 10
 
-#Check the current OS
-$IsWindows = $IsWindows -Or [System.Environment]::OSVersion.Platform -eq "Win32NT"
+    # Check global installed npm packages using:
+    npm ls -g --depth=0
 
-# Check global installed npm packages using:
-npm ls -g --depth=0
+    # To install missing global npm packages use
 
-# To install missing global npm packages use
-npm install -g yo@4.x
+    if ($mesMajorVersion -le 9)
+    {
+        npm install -g gulp@3.9.1
+    }
 
-if ($IsWindows) 
-{
-    npm install -g windows-build-tools
-}
+    npm install -g yo@4.x
+    ```
 
-if ($mesMajorVersion -le 9)
-{
-    npm install -g gulp@3.9.1
-}
-else
-{
-    npm install -g @angular/cli
-}
-```
+### IoT Driver Dependencies
+
+Additional dependencies are required to be installed, if you intend to develop or scaffold an IoT custom driver for Windows. On this scenario, `@criticalmanufacturing/cli` will use the [node-gyp](https://github.com/nodejs/node-gyp) package, which require the following software to be installed:
+
+| Dependency          | Version | Details                                       |
+|:--------------------|:--------|:----------------------------------------------|
+| VC++ Build Tools    | 2022    | Microsoft Visual C++ Build Tools.             |
+| Python              | 3.10.x  | Interpreter for Python Language.              |
+| windows-build-tools | latest  | Windows Build Tools (Windows OS only).        |
+
+To perform the checks or install these dependencies:
+
+1. Adapt the following PowerShell script.
+
+2. Run it on a command line with administration privileges.
+
+    ```PowerShell
+    #SET TARGET MES MAJOR VERSION (8, 9, 10 or 11)
+    $mesMajorVersion = 10
+
+    #Check the current OS
+    $IsWindows = $IsWindows -Or [System.Environment]::OSVersion.Platform -eq "Win32NT"
+
+    if ($IsWindows) 
+    {
+        # Install node-gyp dependencies on windows
+        & winget install -e --id=Python.Python.3.10
+        & winget install -e --id=Microsoft.VisualStudio.2022.BuildTools
+    }
+    ```
 
 ## 2. Install CLI
 
- 1. Open a command line with administration privileges;
+ 1. Open a command line with administration privileges.
  2. Execute the command:
 
-``` powershell
-npm install -g @criticalmanufacturing/cli
-```
+    ```PowerShell
+    npm install -g @criticalmanufacturing/cli
+    ```
 
 ## 3. Validate
 
 1. Open a command prompt.
 2. Run the following command to verify the installation:
 
-``` powershell
-cmf -v
-```
+    ```PowerShell
+    cmf -v
+    ```
 
 This command should output the installed version of `@criticalmanufacturing/cli` if successful.

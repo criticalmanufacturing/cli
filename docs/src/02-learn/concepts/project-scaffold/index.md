@@ -1,96 +1,100 @@
-# Project Scaffold
+# Project Scaffolding
 
-The CM CLI offers two primary structures for customizing your project: 
+The CM CLI offers two primary structures for customizing your project: Traditional and Feature-Driven. Choosing the right approach depends on your project's complexity and organizational structure.
 
-* Traditional Scaffold;
-* Feature-Driven scaffold.
+## Strategy 1: Traditional Scaffold
 
-Each approach handles different project complexities and organizational setups.
+**Best for:** Simple projects with a single team targeting one or more sites with *identical* customizations.
 
-## Traditional Scaffold
+This structure organizes your project into distinct layer packages:
 
-**Ideal for:** Single teams targeting a single MES site or a group of sites with identical customizations.
+* **Business:** Backend business logic.
+* **Database:** Database schema and scripts.
+* **Data:** Master data, DEEs and other exported objects.
+* **Grafana (containers only):** Dashboards and monitoring configurations.
+* **UI (HTML and Help):** User interface and documentation.
+* **IoT:** Integrations with Internet of Things devices.
+* **Reporting (for SQL Server Reporting Services):** Reporting components.
+* **Tests:** Unit and integration tests.
 
-These projects are usually composed of the following package layers:
+Each layer is deployed as a separate package, allowing for granular deployments and minimizing disruption to unchanged components. This is particularly useful for agile development, where only modified layers are deployed during each sprint.
 
-* Business;
-* Database;
-* Data;
-* Grafana (containers only);
-* UI (Html and Help);
-* IoT;
-* Reporting (for SQL Server Reporting Services);
-* IoT;
-* Tests.
+For more details on each package layer, see the [Layer Packages Concept](../layers-packages/index.md) page.
 
-Each application layer is deployed in a different package. This allows the team to deliver only what was actively modified during a sprint, and keep the previous versions of the unchanged layers in an installed system.
+!!! note "Key Packages"
+    The **Business**, **UI (HTML)**, **Help**, and **Data (Master Data)** packages are commonly used in customization projects.
 
-Check the [Layers Packages Concept](../layers-packages/index.md) page to see the details for each package.
+### Demo: Traditional Scaffolding
 
-!!! note
+This demo showcases the initial setup for a typical traditional project. Early sprints often focus on data modeling, making the **Data** package crucial. A **Test** package is also essential from the start. The **Business** package might be initialized early to enable compilation and validation of Process Rules within the **Data** package.
 
-    **Key Packages:** Business, UI (HTML), Help, and Data (Master Data) are commonly used in customization projects.
+![Traditional Scaffolding Demo](./traditional.gif "Traditional Scaffolding Demo")
 
-### Demo
+## Strategy 2: Feature-Driven Scaffold
 
-This demo shows the usual initial setup for a new traditional project.
-For the first sprints, which focus heavily on modelling, the Data
-package is of the most importance. Obviously, a Test package is also
-needed. As an extra, the Business package is also initialized. This
-allows the Process Rules in the Data package to have a .NET solution
-where they can be compiled for checking.
+**Best for:** Complex projects with multiple teams, multiple sites, or shared features with site-specific variations.
 
-Note that the GIF is quite large and can take a bit to load.
+This approach organizes projects around *features*, promoting modularity, flexibility, and scalability. Two common arrangements are:
 
-![Traditional Scaffolding Demo](./traditional.gif "Traditional Scaffolding")
-
-## Feature-Driven Scaffold
-
-**Ideal for:** Complex projects involving multiple teams, multiple sites, or shared features with site-specific variations.
-
-This structure organizes projects into feature-based packages, allowing for more flexibility and scalability. Two common arrangements are:
-
-* **Feature Packages:** Self-contained packages focusing on specific features.
+* **Feature Packages:** Self-contained packages focused on specific features.
 * **Layered Projects:** A hierarchical structure where site-specific packages depend on a *Core/Baseline* package.
 
-!!! warning
+!!! warning "Limitations"
 
+    * Test solutions reside at the repository root (no feature-level testing).
+    * Traditional and feature-driven packages cannot be mixed within the same repository.
+    * Feature packages must reside within a repository project folder.
+
+The `cmf new` command facilitates the creation of these packages, but with some constraints:
+
+* The test solution remains at the repository root; feature-level testing is not supported.
+* Traditional packages (at the repository root) cannot coexist with feature-driven packages.
+* Feature packages must be placed within a designated project folder within the repository.
+
+!!! note "Automatic Dependency Registration"
     The `cmf new` command automatically registers package dependencies based on the folder structure.
 
-**Limitation:**
+### Repository Organization for Feature-Driven Projects
 
-* Test solutions reside at the repository root (there is not feature level testing).
-* Traditional and feature-driven packages cannot be mixed in the same repository.
-* Feature packages must be within a repository project folder.
+Feature-driven projects often benefit from a multi-repository structure, e.g.:
 
-The `cmf new` command allows creation of these packages in whatever structure is necessary, with a few limitations:
+* **`Repo_Common`:** Enterprise-wide MES features (industry-agnostic).
+* **`Repo_Medical_Equipment_01`:** Features specific to medical equipment sites, potentially reusing features from `Repo_Common`.
+* **`Repo_Medical_Drugs_01`:** Features specific to medical drug sites, potentially reusing features from `Repo_Common`.
+* **`Repo_SemiConductors_01`:** Features specific to semiconductor sites, potentially reusing features from `Repo_Common`.
+* **`Repo_Site_Medical_01`:** Medical site-specific customizations, combining features from relevant repositories.
+* **`Repo_Site_Medical_02`:** Another medical site-specific repository.
+* **`Repo_Site_Semi_01`:** A site-specific repository for semiconductors.
 
-* The test solution is always at the root repository level, i.e. we do not have feature-level test packages;
-* You cannot mix traditional packages, which exist in the repository root, with these packages;
-* A feature package can only exist inside a global project folder.
+This structure allows for clear separation of concerns and independent management of features. If a feature requires complete isolation (including its tests), consider moving it to a separate repository and refactoring existing repositories as needed.
 
-!!! note
+### Demo: Feature-Driven Scaffolding
 
-    The `cmf new` command will automatically register each package as a dependency of its parent (as per the folder structure).
+A **Feature Package** is a "meta-package" containing one or more layer packages (e.g., a Feature package might contain only a Business package). Ideally, a Feature package includes all necessary layer packages (Business, UI, Help, etc.) for the feature to function.
 
-### Demo
+**Creating a Feature Package:**
 
-A **Feature Package** is a *meta package* that can include one or more layer packages, e.g. we can have a Feature package that includes only a Business package.
+Use the `cmf new feature` command at the repository root:
 
-A Feature package should include all necessary layer packages (business, UI, Help) needed for the Feature to work.
-
-To create a new Feature Package, run the `new feature` command at your repository root, specifying the new package name: e.g. to create the Baseline package for your project, run:
-
-``` powershell
-cmf new feature Cmf.Custom.Baseline 
+```powershell
+cmf new feature Cmf.Custom.Baseline
 ```
 
-The new feature package will be available in your repository at `Features\Cmf.Custom.Baseline`.
+This creates the `Cmf.Custom.Baseline` feature package in the `Features\Cmf.Custom.Baseline` directory.
 
-After creating a Feature package, it is no longer possible to create new layer packages
-in the repository root. Any `new` command for a layer package will fail:
+**Creating Layer Packages within a Feature:**
 
-```PowerShell
+After creating a feature, you cannot create layer packages directly in the repository root. You must navigate to the feature's directory:
+
+```powershell
+cd Features/Cmf.Custom.Baseline
+cmf new business  # Creates the Business package for the Baseline feature
+cmf new html      # Creates the HTML package for the Baseline Feature
+```
+
+Attempting to create a root-level layer package after creating features will result in an error:
+
+```powershell
 cmf new html
 ```
 
@@ -98,49 +102,25 @@ cmf new html
 Cannot create a root-level layer package when features already exist.
 ```
 
-Creating layer packages works exactly in the same way as for a [traditional project](#traditional-scaffold), but the `cmf new` command should run from inside the feature package directory:
+!!! important "Feature Naming and Layer Package Prefixing"
+    Use the full, unique name for the feature when using `cmf new feature` command. The CLI does not add prefixes or suffixes. Layer packages within a feature should be prefixed with the feature name (e.g., `Cmf.Custom.Baseline.Business`, `Cmf.Custom.Baseline.UI`) to avoid naming conflicts.
 
-``` powershell
-# e.g. to create "business" package for Cmf.Custom.Baseline feature
-cd Features/Cmf.Custom.Baseline
-cmf new business
-```
+## Choosing Scaffold Strategy
 
-!!! important
-
-    When creating a feature using `cmf new` you must provide the full unique name for the feature, as the CLI will not add any prefix or suffix.  
-
-    The layer packages of each feature be prefixed with the feature name to
-    distinguish it from other packages of the same type in the same repository.
-
-## Choosing the Right Scaffold
-
-* **Traditional Scaffold:** Suitable for simpler projects with a single focus.
-* **Feature-Driven Scaffold:** Ideal for complex projects with multiple teams, sites, or shared features.
+* **Traditional:** Simpler projects, single team, identical site customizations.
+* **Feature-Driven:** Complex projects, multiple teams/sites, shared features with variations.
 
 ## Additional Considerations
 
 ### Package Dependencies
 
-Package dependencies within a project are specified in the `cmfpackage.json` file.
-The CM CLI utilizes these definitions along with repository locations outlined in
-the `repositories.json` file (found at the project's root) to resolve dependencies.
+Each package layer dependencies are defined in `cmfpackage.json`. The CM CLI uses these definitions and the `repositories.json` file (at the project root) to resolve dependencies and their location.
 
 ### Git Repository Management
 
-Given that tests are scoped to the entire scaffold, they are primarily suitable for
-scenarios where all features share a common initial state. However, Feature-Driven
-projects often necessitate isolated testing environments for different feature
-combinations or site-specific requirements. To address this, consider the following
-Git repository strategies:
+Tests are scoped to the entire repository. For Feature-Driven projects, consider these Git strategies:
 
-* **Single Git Repository:** Houses all common features, enabling efficient building
-  and testing without isolation. This approach is beneficial for ensuring compatibility
-  among features.
-* **Multiple Git Repositories:** Each repository encapsulates a specific site or
-  combination of features, allowing for tailored testing and dependency management
-  for distinct production use cases.
+* **Single Repository:** All common features in one repository. Good for compatibility testing but lacks isolation.
+* **Multiple Repositories:** Each repository for a site or feature combination. Enables tailored testing and dependency management.
 
-For each Git repository, define its scope, establish the appropriate scaffold structure,
-and meticulously review the `cmfpackage.json` and `repositories.json` files to
-accurately reflect dependencies.
+For each repository, define its scope, choose the appropriate scaffold, and ensure `cmfpackage.json` and `repositories.json` accurately reflect dependencies.

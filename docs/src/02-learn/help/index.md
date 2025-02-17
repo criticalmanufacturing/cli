@@ -1,5 +1,7 @@
 # Help
 
+## Contextual Help
+
 The @criticalmanufacturing/cli provides help in the context of each command. To access it, use the `-h` or `--help` switch.
 
 Follows a set of examples, to understand its usage:
@@ -28,3 +30,13 @@ Follows a set of examples, to understand its usage:
     # e.g. to get the details for "new business" command use:
     cmf new business --help
     ```
+
+## Debug-Level Messages
+
+To enable debug-level logs on the console when running `cmf` commands, use the  `-l Debug` option before any other  parameters.
+
+Per example, to active debug messages for the `cmf build` command, use:
+
+```powershell
+cmf -l Debug build
+```
