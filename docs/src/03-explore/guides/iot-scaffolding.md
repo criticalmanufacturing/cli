@@ -96,7 +96,7 @@ The scaffolding process differs depending on the IoT library type (ATL or Tasks 
 
 #### Tools
 
-`@criticalmanufacturing/cli`, `Yeoman`
+`@criticalmanufacturing/cli`
 
 #### Steps
 
