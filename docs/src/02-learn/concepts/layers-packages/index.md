@@ -33,7 +33,7 @@ for backend development, including:
 To generate a Business package use the command:
 
 ``` powershell
-cmf new business --version 1.0.0
+cmf new business
 ```
 
 #### Package Structure
@@ -82,7 +82,7 @@ This package allows you to load or update:
 To generate the Master Data package use the command:
 
 ``` powershell
-cmf new data --version 1.0.0 --businessPackage .\Cmf.Custom.Business\
+cmf new data --businessPackage .\Cmf.Custom.Business\
 ```
 
 !!! note
@@ -148,10 +148,10 @@ The commands for generating UI packages depends on your MES version:
 
     ``` powershell    
     # HTML
-    cmf new html --version 1.0.0
+    cmf new html
 
     # HELP
-    cmf new help --version 1.0.0
+    cmf new help
     ```
 
 === "MES v9 or below"
@@ -160,10 +160,10 @@ The commands for generating UI packages depends on your MES version:
 
     ``` powershell
     #HTML
-    cmf new html --version 1.0.0 --htmlPackage H:\packages\Cmf.Presentation.HTML.9.1.8.zip
+    cmf new html --htmlPackage H:\packages\Cmf.Presentation.HTML.9.1.8.zip
 
     #HELP
-    cmf new help --version 1.0.0 --documentationPackage H:\packages\Cmf.Documentation.9.1.8.zip
+    cmf new help --documentationPackage H:\packages\Cmf.Documentation.9.1.8.zip
     ```
 
 #### Package Structure
@@ -186,7 +186,7 @@ The command for generating IoT packages depends on your MES version. For full de
     To generate IoT package with support for Automation Task Library (ATL), use:
 
     ```powershell
-    cmf new iot --version 1.0.0
+    cmf new iot
     ```
 
     In alternative, although deprecated, you can sill generate a Tasks Package Library, using the "MES v10" command.
@@ -194,13 +194,13 @@ The command for generating IoT packages depends on your MES version. For full de
 === "MES v10"
 
     ```powershell
-    cmf new iot --version 1.0.0 --htmlPackageLocation Cmf.Custom.Baseline.HTML --isAngularPackage
+    cmf new iot --htmlPackageLocation Cmf.Custom.Baseline.HTML --isAngularPackage
     ```
 
 === "up to MES v9"
 
     ``` powershell
-    cmf new iot --version 1.0.0
+    cmf new iot
     ```
 
 #### Package Structure
@@ -238,7 +238,7 @@ This package allows creating scripts for execution on MES databases during insta
 To create a Database package use the command:
 
 ``` powershell
-cmf new database --version 1.0.0
+cmf new database
 ```
 
 #### Package Structure
@@ -281,7 +281,7 @@ The package includes dedicated folders for different test types (e.g., Biz, GUI,
 To create a Tests package use the command:
 
 ``` powershell
-cmf new test --version 1.0.0
+cmf new test
 ```
 
 #### Package Structure
@@ -331,7 +331,7 @@ This package layer allows the installation of additional [SQL ServerReporting Se
 To create a Reporting package use the command:
 
 ``` powershell
-cmf new reporting --version 1.0.0
+cmf new reporting
 ```
 
 #### Package Structure
@@ -357,7 +357,7 @@ This package layer allows you to create/update [`grafana`](https://grafana.com/)
 To create a Grafana package use the command:
 
 ``` powershell
-cmf new grafana --version 1.0.0
+cmf new grafana
 ```
 
 #### Package Structure
@@ -391,7 +391,7 @@ This package layer allows the configuration of authentication strategies on the 
 To create a SecurityPortal package use the command:
 
 ``` powershell
-cmf new securityportal --version 1.0.0
+cmf new securityportal
 ```
 
 #### Package Structure

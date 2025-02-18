@@ -6,12 +6,12 @@ This guide explains how to scaffold your IoT customization project for Critical 
 
 Before diving into the scaffolding procedures, let's define some key concepts:
 
-* **Library:** In this context, a library is a container for related drivers, tasks, and converters. It serves as a logical grouping of functionality.
+* **Library:** In this context, a library is the customization IoT package that user sees on the MES UI, containing a set of drivers, tasks, and converters.
 * **Driver:** A driver implements the communication protocol required to interact with a specific IoT device or external system. It handles the low-level details of sending and receiving data.
 * **Custom Task:** A custom task is a function or method that performs a specific action within the MES workflow. It has defined inputs and outputs and can be triggered by events or other tasks.
 * **Custom Converter:** A custom converter transforms the output of a task into a different format or data type. This is often necessary to ensure compatibility with other systems or tasks.
-* **Automation Task Library (ATL):** The recommended approach for MES v11 and later. ATLs separate UI metadata from the Node.js package, storing it in a MES entity called `AutomationTaskLibrary`. This improves the Workflow Designer experience and reduces dependencies.
-* **Tasks Package Library (Deprecated):** An older method for creating custom IoT logic, used in MES v7 through v10.  It tightly couples the UI and the custom code, making it less flexible than ATLs.
+* **Automation Task Library (ATL):** The recommended approach for MES v11 and later to create an IoT Task Library. ATLs separate UI metadata from the Node.js package. This metadata required to render tasks and converts on the MES UI, is now stored as a `json` file in the MES entity called `AutomationTaskLibrary`. This change has improved Workflow Designer experience and removed UI and IoT components inter-dependencies.
+* **Tasks Package Library (Deprecated):** An older method for creating custom IoT logic, used in MES v7 through v10. It tightly couples the UI and the custom code, making it less flexible than ATLs.
 
 ## Supported IoT Code Extensions
 
@@ -177,7 +177,7 @@ The following images demo the scaffolding procedures for IoT ATL custom library 
 
 #### Tools
 
-`@criticalmanufacturing/cli`, `@angular/cli`
+`@criticalmanufacturing/cli`, `@angular/cli`, `Yeoman`
 
 #### Steps
 
@@ -188,7 +188,7 @@ The following images demo the scaffolding procedures for IoT ATL custom library 
     ```powershell
     #Generate base structure
     cd {{project_or_feature_root_dir}}
-    cmf new iot --isAngularPackage ./Cmf.Custom.HTML 
+    cmf new iot --isAngularPackage --htmlPackageLocation ./Cmf.Custom.HTML 
     
     #Install library dependencies
     cd {{project_or_feature_root_dir}}/Cmf.Custom.IoT/Cmf.Custom.IoT.Packages
@@ -199,28 +199,28 @@ The following images demo the scaffolding procedures for IoT ATL custom library 
 
     ```powershell
     cd {{project_or_feature_root_dir}}/Cmf.Custom.IoT/Cmf.Custom.IoT.Packages
-    yo @criticalmanufacturing/iot:driver
+    npx yo @criticalmanufacturing/iot:driver
     ```
 
 4. Generate a custom Tasks Package Library (if needed):
 
     ```powershell
     cd {{project_or_feature_root_dir}}/Cmf.Custom.IoT/Cmf.Custom.IoT.Packages/projects
-    ng generate {{library_name}}
+    npx @angular/cli generate {{library_name}}
     ```
 
 5. Generate a custom Task (if needed):
 
     ```powershell
     cd {{project_or_feature_root_dir}}/Cmf.Custom.IoT/Cmf.Custom.IoT.Packages/projects/{{library_name}}
-    ng generate task {{task_name}}
+    npx @angular/cli generate task {{task_name}}
     ```
 
 6. Generate a custom Converter (if needed):
 
     ```powershell
     cd {{project_or_feature_root_dir}}/Cmf.Custom.IoT/Cmf.Custom.IoT.Packages/projects/{{library_name}}
-    ng generate converter {{converter_name}}
+    npx @angular/cli generate converter {{converter_name}}
     ```
 
 #### Post-Scaffolding
@@ -333,26 +333,26 @@ The following images demo the scaffolding procedures for IoT custom Task Package
 
     ```powershell
     cd {{project_or_feature_root_dir}}/Cmf.Custom.IoT/IoTPackages/src
-    yo @criticalmanufacturing/iot:driver
+    npx yo @criticalmanufacturing/iot:driver
     ```
 
 4. Generate a custom Tasks Package Library (if needed):
 
     ```powershell
     cd {{project_or_feature_root_dir}}/Cmf.Custom.IoT/IoTPackages/src
-    yo @criticalmanufacturing/iot:tasksPackage
+    npx yo @criticalmanufacturing/iot:tasksPackage
     ```
 
 5. Generate a custom Task (if needed):
 
     ```powershell
     cd {{project_or_feature_root_dir}}/Cmf.Custom.IoT/IoTPackages/src/{{tasks_package_name}}
-    yo @criticalmanufacturing/iot:task
+    npx yo @criticalmanufacturing/iot:task
     ```
 
 6. Generate a custom Converter (if needed):
 
     ```powershell
     cd {{project_or_feature_root_dir}}/Cmf.Custom.IoT/IoTPackages/src/{{tasks_package_name}}
-    yo @criticalmanufacturing/iot:converter
+    npx yo @criticalmanufacturing/iot:converter
     ```
