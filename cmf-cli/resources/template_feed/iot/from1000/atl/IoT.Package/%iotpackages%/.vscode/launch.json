@@ -1,0 +1,27 @@
+﻿{
+  "version": "0.2.0",
+  "inputs": [
+    {
+      "id": "managerLocation",
+      "type": "promptString",
+      "description": "Enter the location of the Automation Manager Downloaded"
+    }
+  ],
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Start Manager",
+      "program": "${input:managerLocation}/src/index.js",
+      "args": [
+        "--dev",
+        "--config=${input:managerLocation}/config.json",
+        "--monitorApplication=${input:managerLocation}/src/monitor.js"
+      ],
+      "cwd": "${workspaceRoot}",
+      "outFiles": [],
+      "outputCapture": "std",
+      "autoAttachChildProcesses": true
+    }
+  ]
+}
