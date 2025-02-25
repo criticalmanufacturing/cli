@@ -3,6 +3,7 @@ using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Commands;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Services;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -126,6 +127,7 @@ namespace Cmf.CLI.Commands.New.IoT
             {
                 "--directoryName", dirName,
                 "--npmRegistry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.ToString(),
+                "--nodeVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Node(ExecutionContext.Instance.ProjectConfig.MESVersion),
                 "--identifier", identifier,
                 "--identifierLower", identifier.Replace(" ", "").ToLower().Trim(),
                 "--packageName", fullPackageName,

@@ -1,3 +1,9 @@
+using System;
+using System.Collections.Generic;
+using System.CommandLine;
+using System.CommandLine.NamingConventionBinder;
+using System.IO.Abstractions;
+using System.Linq;
 using Cmf.CLI.Builders;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
@@ -7,12 +13,6 @@ using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Services;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
-using System.IO.Abstractions;
-using System.Linq;
 
 namespace Cmf.CLI.Commands.New
 {
@@ -84,6 +84,7 @@ namespace Cmf.CLI.Commands.New
                 "--iotpackages", $"{packageName}.Packages",
                 "--rootInnerRelativePath", relativePathToRoot,
                 "--npmRegistry", npmRegistry.OriginalString,
+                "--nodeVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Node(ExecutionContext.Instance.ProjectConfig.MESVersion),
                 "--repositoryType", repoType.ToString()
             });
 
@@ -145,7 +146,7 @@ namespace Cmf.CLI.Commands.New
 
             IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{workingDir}/{packageName}/{CliConstants.CmfPackageFileName}");
             var cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true, this.fileSystem);
-            
+
             var iotRoot = cmfPackage.GetFileInfo().Directory;
             var iotCustomPackage = iotRoot.LoadCmfPackagesFromSubDirectories(packageType: PackageType.IoT).FirstOrDefault();
 
@@ -223,7 +224,7 @@ namespace Cmf.CLI.Commands.New
             {
                 throw new CliException($"Failed to find a CMF Package with type '${PackageType.IoT}' inside folder '{iotRoot.FullName}'");
             }
-            
+
             var iotCustomPackageWorkDir = iotCustomPackage.GetFileInfo().Directory;
             var iotCustomPackageName = base.GeneratePackageName(iotCustomPackageWorkDir)!.Value.Item1;
 

@@ -31,6 +31,11 @@
       "displayName": "NPM Registry",
       "replaces": "<%= $CLI_PARAM_NPMRegistry %>"
     },
+    "nodeVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_nodeVersion %>"
+    },
     "identifier": {
       "type": "parameter",
       "datatype": "string",

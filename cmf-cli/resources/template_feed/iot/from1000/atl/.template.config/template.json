@@ -75,6 +75,11 @@
       "datatype": "string",
       "replaces": "<%= $CLI_PARAM_NPMRegistry %>"
     },
+    "nodeVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_nodeVersion %>"
+    },
     "repositoryType": {
       "type": "parameter",
       "datatype": "string",
