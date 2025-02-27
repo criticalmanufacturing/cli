@@ -32,46 +32,9 @@ A full description of each package is available at [Layers Packages Concept](../
 
 This section guides you through creating a traditional project scaffold. Adapt the commands based on your specific project requirements and adaptions documented on the [Layers Packages Concept](../../../concepts/layers-packages/index.md) page:
 
-=== "MES v11 or above"
-
-    ``` powershell
-    #Go to your project root
-    cd {{project_root_path}}
-    
-    #Create Business Package Layer
-    cmf new business
-    
-    # Create Data Package Layer
-    cmf new data --businessPackage .\Cmf.Custom.Business\
-    
-    # Create HTML Package Layer
-    cmf new html
-    
-    # Create Help Package Layer
-    cmf new help
-    
-    # Create  Test Package Layer
-    cmf new test
-    
-    # Create Database Package Layer (Optional)
-    cmf new database
-    
-    # Create Microsoft Reporting Services Package (Optional)
-    cmf new reporting 
-    
-    # Create a grafana Package Layer (optional)
-    cmf new grafana
-    
-    # Create IoT Package Layer (Optional)
-    cmf new iot
-    
-    # Create IoT Package Layer for Angular (Optional)
-    cmf new iot --isAngular true --htmlPackageLocation .\Cmf.Custom.Html
-    ```
-    Make sure to follow all the steps [here](../../../concepts/layers-packages/angular-17-iot-packages.md). Otherwise, you can have unexpected errors in the package. For IoT feel free to check [here](../../../../03-explore/guides/IoT-on-MES-v11/index.md).
-
 === "MES v10 or above"
 
+
     ``` powershell
     #Go to your project root
     cd {{project_root_path}}
@@ -99,11 +62,15 @@ This section guides you through creating a traditional project scaffold. Adapt t
     
     # Create a grafana Package Layer (optional)
     cmf new grafana
+
+    # ATTENTION: To create IoT Package Layer supporting Task Libraries uncomment the command below (for MES v10.27 or above):
     
-    # Create IoT Package Layer (Optional)
-    cmf new iot --htmlPackageLocation .\Cmf.Custom.Html 
+    # cmf new iot
+
+    # ATTENTION: To create Iot Package Layer supporting Tasks Package Library uncomment the command below:
+    
+    # cmf new iot --isAngularPackage --htmlPackageLocation .\Cmf.Custom.Html
     ```
-    Make sure to follow all the steps [here](../../../concepts/layers-packages/angular-15-iot-packages.md). Otherwise, you can have unexpected errors in the package. For IoT feel free to check [here](../../../../03-explore/guides/IoT-on-MES-v10/index.md)
 
 === "MES v9 or below"
 

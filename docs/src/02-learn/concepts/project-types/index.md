@@ -20,8 +20,7 @@ The examples below assume you're using an infrastructure settings file to store 
 
 ## MES v10 onwards
 
-For CM MES v10 and onwards customization projects, the
-initialization command has the following required parameters:
+For CM MES v10 and onwards customization projects, the initialization command has the following required parameters:
 
 * Customization Project Name;
 * Customization Project Version;
@@ -29,10 +28,10 @@ initialization command has the following required parameters:
 * DEV Environment Settings;
 * CM MES, NuGets, test libraries version (usually the same version);
 * CM MES ISO location;
-* [CM Angular schematics](https://github.com/criticalmanufacturing/ngx-schematics) libraries version;
+* [CM ngx-schematics](https://github.com/criticalmanufacturing/ngx-schematics) library version;
 * Deployment Directory (the base folder for storing project installation packages).
 
-``` powershell
+```PowerShell
 cmf init {{project_name}} 
     --version {{my_project_version}} 
     --infra   {{dev_infra_file_path}} `
@@ -47,7 +46,7 @@ cmf init {{project_name}}
 
 e.g.:
 
-``` powerShell
+```PowerShell
 cmf init ExampleProject `
     --version 1.0.0 `
     --infra ..\config\infra.json `
@@ -60,34 +59,38 @@ cmf init ExampleProject `
     --deploymentDir \\files\Deployments
 ```
 
-### Compatibility Matrix
+### Determining `ngx-schematics` Version
 
-| MES version | ngx-schematics version |
-|:------------|:-----------------------|
-| 10.1.0      | 1.1.2                  |
-| 10.1.1      | 1.1.4                  |
-| 10.1.2      | 1.1.5                  |
-| 10.1.3      | 1.2.1                  |
-| 10.1.4      | 1.3.3                  |
-| 10.2.0      | 1.3.2                  |
-| 10.2.1      | 1.3.3                  |
-| 10.2.2      | 1.3.3                  |
-| 10.2.3      | 1.3.4                  |
-| 10.2.4      | 1.3.4                  |
-| 10.2.5      | 1.3.6                  |
-| 10.2.6      | 1.3.6                  |
-| 11.0.0      | 11.0.0                 |
-| 11.0.1      | 11.0.1                 |
+To determine the correct `ngx-schematics` version for your CM MES release:
 
-!!! note
+1. Construct the MES `dist-tag`:
 
-    Use the `npm info` command to determine the recommended
-    `ngx-schematics` version for your project target MES version.
+    * ***Format:*** `release-{{MES_VERSION}}` 
+    * ***`{{MES_VERSION}}`:*** Concatenation of MES major, minor, and patch versions without separators.
 
-    ``` powershell
-    # Check for MES release tags (`release-{{MES_VERSION}}`)
-    npm info @criticalmanufacturing/ngx-schematics
+2. Use the `npm view` command (Replace `${dist_tag}` by the proper value):
+
+    ```bash
+    npm view @criticalmanufacturing/ngx-schematics@${dist_tag} version
     ```
+
+    Replace `${dist_tag}` .
+
+Per example, for MES version `10.2.5`:
+
+* Use the MES dist-tag: `release-1025`
+* And the command:
+
+   ```bash
+   npm view @criticalmanufacturing/ngx-schematics@release-1025 version 
+   ```
+
+!!!note "Examples of Compatibility Matrix"
+
+    | MES version | MES dist-tag  | CM ngx-schematics version |
+    |:------------|:--------------|:--------------------------|
+    | 10.2.5      | release-1025  | 1.3.6                     |
+    | 11.0.1      | release-1101  | 11.0.1                    |
 
 ## MES v9 or below
 
@@ -133,7 +136,7 @@ cmf init ExampleProject `
     --ISOLocation \\setups\CriticalManufacturing.iso `
     --HTMLStarterVersion 8.0.0 `
     --DevTasksVersion 9.0.4 `
-    --yoGeneratorVersion 8.1.1 `
+    --yoGeneratorVersion 3.1.0 `
     --deploymentDir \\files\Deployments
 ```
 

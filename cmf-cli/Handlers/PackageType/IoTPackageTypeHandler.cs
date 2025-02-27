@@ -326,10 +326,9 @@ namespace Cmf.CLI.Handlers
 
                         if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 11)
                         {
-                            CmdCommand cmdCommand = new CmdCommand()
+                            NPXCommand cmdCommand = new NPXCommand()
                             {
                                 DisplayName = "npx yo @criticalmanufacturing/iot:packagePacker",
-                                Command = "npx",
                                 Args = new string[] { "yo@4.3.1 @criticalmanufacturing/iot:packagePacker", $"-i \"{inputDirPath}\"", $"-o \"{outputDirPath}\"" },
                                 WorkingDirectory = packDirectory
                             };
@@ -338,11 +337,10 @@ namespace Cmf.CLI.Handlers
                         }
                         else
                         {
-                            CmdCommand cmdCommand = new CmdCommand()
+                            NPXCommand cmdCommand = new NPXCommand()
                             {
-                                DisplayName = "npx packageBundler",
-                                Command = "npx",
-                                Args = new string[] { "packageBundler", $"-i \"{inputDirPath}\"", $"-o \"{outputDirPath}\"" },
+                                DisplayName = "npx @criticalmanufacturing/node-package-bundler",
+                                Args = new string[] { "@criticalmanufacturing/node-package-bundler", $"-i \"{inputDirPath}\"", $"-o \"{outputDirPath}\"" },
                                 WorkingDirectory = packDirectory
                             };
 

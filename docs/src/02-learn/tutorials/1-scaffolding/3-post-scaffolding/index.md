@@ -112,7 +112,7 @@ On the _Root_ and _IoT Root Package_ **add** "CriticalManufacturing.DeploymentMe
 }]
 ```
 
-On the _Business Package_ **add the following steps to :
+On the _Business Package_ **add** the following steps to:
 
 ```json
 "steps": [
