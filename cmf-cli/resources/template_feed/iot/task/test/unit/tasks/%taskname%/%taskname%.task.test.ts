@@ -1,10 +1,10 @@
 import "reflect-metadata";
 import { Task } from "@criticalmanufacturing/connect-iot-controller-engine";
-import EngineTestSuite from "@criticalmanufacturing/connect-iot-controller-engine/test";
+import EngineTestSuite from "@criticalmanufacturing/connect-iot-controller-engine/dist/test";
 //#if isProtocol
-import { DriverProxyMock } from "@criticalmanufacturing/connect-iot-controller-engine/test/mocks/driver-proxy.mock";
+import { DriverProxyMock } from "@criticalmanufacturing/connect-iot-controller-engine/dist/test/mocks/driver-proxy.mock";
 //#endif
-// import { DataStoreMock } from "@criticalmanufacturing/connect-iot-controller-engine/test/mocks/dataStore.mock";
+// import { DataStoreMock } from "@criticalmanufacturing/connect-iot-controller-engine/dist/test/mocks/data-store.mock";
 import * as chai from "chai";
 
 import {
