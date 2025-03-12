@@ -1,0 +1,2538 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+        <meta name="author" content="Critical Manufacturing SA">
+      
+      
+      
+        <link rel="prev" href="../../config-files/cmfpackage.json/packagetype/">
+      
+      
+        <link rel="next" href="../../plugins/">
+      
+      
+      <link rel="icon" href="../../../assets/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.7">
+    
+    
+      
+        <title>IoT Scaffolding - @criticalmanufacturing/cli Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.8608ea7d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,700,700i%7CSource+Code+Pro:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Open Sans";--md-code-font:"Source Code Pro"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#guide-iot-scaffolding" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="@criticalmanufacturing/cli Documentation" class="md-header__button md-logo" aria-label="@criticalmanufacturing/cli Documentation" data-md-component="logo">
+      
+  <img src="../../../assets/cmf-logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            @criticalmanufacturing/cli Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              IoT Scaffolding
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="blue"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="grey" data-md-color-accent="blue"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/criticalmanufacturing/cli" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    criticalmanufacturing/cli
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+    
+  
+  About
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../01-install/" class="md-tabs__link">
+        
+  
+    
+  
+  Install
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../02-learn/" class="md-tabs__link">
+        
+  
+    
+  
+  Learn
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="../../" class="md-tabs__link">
+        
+  
+    
+  
+  Explore
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="@criticalmanufacturing/cli Documentation" class="md-nav__button md-logo" aria-label="@criticalmanufacturing/cli Documentation" data-md-component="logo">
+      
+  <img src="../../../assets/cmf-logo.png" alt="logo">
+
+    </a>
+    @criticalmanufacturing/cli Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/criticalmanufacturing/cli" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    criticalmanufacturing/cli
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    About
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../01-install/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Install
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../02-learn/" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    Learn
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Learn
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../02-learn/tutorials/" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    Tutorials
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_1" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../02-learn/tutorials/1-scaffolding/" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    Scaffolding
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_1_1" id="__nav_3_1_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1_1">
+            <span class="md-nav__icon md-icon"></span>
+            Scaffolding
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../02-learn/tutorials/1-scaffolding/1-project-init/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Project Init
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../02-learn/tutorials/1-scaffolding/2-project-scaffold/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Project Scaffold
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../02-learn/tutorials/1-scaffolding/3-post-scaffolding/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Post-Scaffolding Tasks
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../02-learn/tutorials/2-building-and-release/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Build and Release
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../02-learn/concepts/" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    Concepts
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            Concepts
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../02-learn/concepts/project-types/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Project Types
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../02-learn/concepts/project-scaffold/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Project Scaffold
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../02-learn/concepts/layers-packages/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Layers Packages
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../02-learn/concepts/release-process/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Release Process
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../02-learn/help/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Help
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../02-learn/migration/" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    Migration
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            Migration
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../02-learn/migration/migration-v3/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Migration To v3x
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://developer.criticalmanufacturing.com" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CM MES Development
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    Explore
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Explore
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../commands/init/" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    CLI Commands
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_1" id="__nav_4_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1">
+            <span class="md-nav__icon md-icon"></span>
+            CLI Commands
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/new/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    new
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/new_business/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    new business
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/new_data/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    new data
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/new_database/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    new database
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/new_feature/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    new feature
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/new_help/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    new help
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/new_html/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    new html
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/new_iot/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    new iot
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/new_iot_businessScenario/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    new iot businessScenario
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/new_iot_converter/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    new iot converter
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/new_iot_driver/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    new iot driver
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/new_iot_task/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    new iot task
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/new_iot_taskLibrary/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    new iot taskLibrary
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/new_test/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    new test
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/build/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    build
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/build_help/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    build help
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/build_help_generateBasedOnTemplates/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    build help generateBasedOnTemplates
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/build_help_generateMenuItems/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    build help generateMenuItems
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/pack/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    pack
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/assemble/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    assemble
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/bump/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    bump
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/bump_iot/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    bump iot
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/bump_iot_configuration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    bump iot configuration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/bump_iot_customization/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    bump iot customization
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/ls/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ls
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../commands/restore/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    restore
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Configuration Files
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            Configuration Files
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../config-files/infrastructure.json/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Infrastructure.json
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../config-files/repositories.json/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Repositories.json
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_3" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../config-files/cmfpackage.json/" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    Cmfpackage.json
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2_3" id="__nav_4_2_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            Cmfpackage.json
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../config-files/cmfpackage.json/contenttype/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ContentType
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../config-files/cmfpackage.json/defaultcontenttoignore/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DefaultContentToIgnore
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../config-files/cmfpackage.json/packaction/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    PackAction
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../config-files/cmfpackage.json/packagetype/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    PackageType
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Guides
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            Guides
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    IoT Scaffolding
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    IoT Scaffolding
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#key-concepts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Concepts
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#supported-iot-code-extensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Supported IoT Code Extensions
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#project-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      Project Structure
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scaffolding-procedures" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scaffolding Procedures
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Scaffolding Procedures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#automation-task-library-atl-scaffolding" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automation Task Library (ATL) Scaffolding
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tasks-package-scaffolding-mes-v10-or-above" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tasks Package Scaffolding - MES v10 or above
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tasks-package-scaffolding-mes-v9-or-below" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tasks Package Scaffolding - MES v9 or below
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../plugins/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Plugins
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../telemetry/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Telemetry
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#key-concepts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Concepts
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#supported-iot-code-extensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Supported IoT Code Extensions
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#project-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      Project Structure
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scaffolding-procedures" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scaffolding Procedures
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Scaffolding Procedures">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#automation-task-library-atl-scaffolding" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automation Task Library (ATL) Scaffolding
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tasks-package-scaffolding-mes-v10-or-above" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tasks Package Scaffolding - MES v10 or above
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tasks-package-scaffolding-mes-v9-or-below" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tasks Package Scaffolding - MES v9 or below
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="guide-iot-scaffolding">Guide: IoT Scaffolding</h1>
+<p>This guide explains how to scaffold your IoT customization project for Critical Manufacturing MES. It covers both the modern <strong>Automation Task Libraries (ATLs)</strong> and the deprecated <strong>Tasks Packages Libraries</strong>.</p>
+<h2 id="key-concepts">Key Concepts</h2>
+<p>Before diving into the scaffolding procedures, let's define some key concepts:</p>
+<ul>
+<li><strong>Library:</strong> In this context, a library is the customization IoT package that user sees on the MES UI, containing a set of drivers, tasks, and converters.</li>
+<li><strong>Driver:</strong> A driver implements the communication protocol required to interact with a specific IoT device or external system. It handles the low-level details of sending and receiving data.</li>
+<li><strong>Custom Task:</strong> A custom task is a function or method that performs a specific action within the MES workflow. It has defined inputs and outputs and can be triggered by events or other tasks.</li>
+<li><strong>Custom Converter:</strong> A custom converter transforms the output of a task into a different format or data type. This is often necessary to ensure compatibility with other systems or tasks.</li>
+<li><strong>Automation Task Library (ATL):</strong> The recommended approach for MES v11 and later to create an IoT Task Library. ATLs separate UI metadata from the Node.js package. This metadata required to render tasks and converts on the MES UI, is now stored as a <code>json</code> file in the MES entity called <code>AutomationTaskLibrary</code>. This change has improved Workflow Designer experience and removed UI and IoT components inter-dependencies.</li>
+<li><strong>Tasks Package Library (Deprecated):</strong> An older method for creating custom IoT logic, used in MES v7 through v10. It tightly couples the UI and the custom code, making it less flexible than ATLs.</li>
+</ul>
+<h2 id="supported-iot-code-extensions">Supported IoT Code Extensions</h2>
+<p>Critical Manufacturing IoT supports code extensions through the following:</p>
+<ul>
+<li><strong>Libraries:</strong> Creating libraries containing objects subject to IoT extensions.</li>
+<li><strong>Drivers:</strong> Implementing protocols to interact with IoT devices or unsupported external systems.</li>
+<li><strong>Custom Tasks:</strong> Developing functions or methods with a name, inputs, outputs, and an action.</li>
+<li><strong>Custom Converters:</strong> Developing converters to transform task outputs into different formats or types.</li>
+</ul>
+<h2 id="project-structure">Project Structure</h2>
+<p>When generating the Connect IoT customization with the <code>cmf new iot</code> command, it will generate three packages:</p>
+<ul>
+<li><code>IoT</code> - The IoT root package;</li>
+<li><code>IoT.Data</code> - To store master data for IoT-related MES entities (e.g. controllers, workflows, drivers, etc);</li>
+<li><code>IoT.Package</code> - To hold all the custom IoT components, like Tasks, Converters and Drivers.</li>
+</ul>
+<div class="highlight"><pre><span></span><code>...
+📦Cmf.Custom.IoT
+┣ 📂Cmf.Custom.IoT.Data             # Location IoT Master Data Files
+┃ ┣ 📂AutomationWorkFlows
+┃ ┃ ┣ 📂FileHandler
+┃ ┃ ┃ ┗ 📜Setup.json
+┃ ┣ 📂MasterData
+┃ ┃ ┗ 📂1.0.0
+┃ ┃ ┃ ┗ 📜FileHandlerMasterData.json
+┣ 📂Cmf.Custom.IoT.Packages        # Location IoT &quot;Tasks Package&quot; or ATL
+┃ ┣ 📂projects                             # Angular components (Tasks Packages, MES v10+)
+┃ ┣ 📂src                                  # Non-Angular components (ATLs, or Tasks Packages without Angular)
+┃ ┣ 📜.npmrc
+┃ ┣ 📜cmfpackage.json
+┃ ┣ 📜package.json
+┗ 📜cmfpackage.json
+...
+</code></pre></div>
+<p>The <code>IoT.Data</code> package is composed of two folders:</p>
+<ul>
+<li>AutomationWorkFlows - To hold the exported JSON files that constitute the IoT automation workflows to be used in the MES.</li>
+<li>
+<p>MasterData - To hold the actual master data files with IoT entities.</p>
+<div class="admonition warning">
+<p class="admonition-title">IoT Workflow Paths</p>
+<p>When referring to IoT Workflows on the IoT master data files, their path should be relative to the AutomationWorkFlows folder.</p>
+<p><strong>e.g.</strong>: Compare the below master data paths with the previous IoT file structure example.</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;AutomationControllerWorkflow&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;1&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;AutomationController&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;InterfaceController&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;Name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Setup&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;DisplayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Setup&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;IsFile&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Yes&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;Workflow&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;FileHandler/Setup.json&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;Order&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+</div>
+</li>
+</ul>
+<p>The <code>IoT.Packages</code> should be used as the workspace to create new TasksLibraries (packages that hold Connect ioT runtime components). Inside the TaskLibrary create new tasks, converters or drivers.</p>
+<div class="admonition hint">
+<p class="admonition-title">Hint</p>
+<p>If you don't require the IoT package or any of its sub-packages, simply delete it and remove its references from the root <code>cmfpackage.json</code> file.</p>
+</div>
+<p>Bare in mind, the following project structure variations may occur:</p>
+<ul>
+<li>The <code>Cmf.Custom.IoT.Data</code> folder might be named <code>IoTData</code>. This folder contains configuration and master data related to your IoT solution.</li>
+<li>The <code>Cmf.Custom.IoT.Packages</code> folder might be named <code>IoTPackages</code>. This folder contains the actual code for your custom IoT logic (drivers, tasks, converters).</li>
+<li>The <code>projects</code> folder is created <em>only</em> when generating a <em>Tasks Package</em> library <em>with Angular support</em> (MES v10 onwards). This folder contains the Angular components that provide the user interface for your custom tasks.</li>
+<li>The <code>src</code> folder is present when you are developing an <em>ATL</em>, or when you are using <em>Tasks Packages</em> but <em>without</em> Angular components. It contains the core logic of your drivers, tasks, and converters.</li>
+</ul>
+<h2 id="scaffolding-procedures">Scaffolding Procedures</h2>
+<p>The scaffolding process differs depending on the IoT library type (ATL or Tasks Package) and the MES version.</p>
+<h3 id="automation-task-library-atl-scaffolding">Automation Task Library (ATL) Scaffolding</h3>
+<h4 id="tools">Tools</h4>
+<p><code>@criticalmanufacturing/cli</code></p>
+<h4 id="steps">Steps</h4>
+<ol>
+<li>
+<p>Generate the base structure:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd </span><span class="p">{{</span><span class="n">project_or_feature_root_dir</span><span class="p">}}</span>
+<span class="n">cmf</span> <span class="n">new</span> <span class="n">iot</span>
+</code></pre></div>
+</li>
+<li>
+<p>Generate a custom driver (if needed):</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd </span><span class="p">{{</span><span class="n">project_or_feature_root_dir</span><span class="p">}}/</span><span class="n">Cmf</span><span class="p">.</span><span class="n">Custom</span><span class="p">.</span><span class="n">IoT</span><span class="p">/</span><span class="n">Cmf</span><span class="p">.</span><span class="n">Custom</span><span class="p">.</span><span class="n">IoT</span><span class="p">.</span><span class="n">Packages</span><span class="p">/</span><span class="n">src</span>
+<span class="n">cmf</span> <span class="n">new</span> <span class="n">iot</span> <span class="n">driver</span>
+</code></pre></div>
+</li>
+<li>
+<p>Generate a custom Task Library (if needed):</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd </span><span class="p">{{</span><span class="n">project_or_feature_root_dir</span><span class="p">}}/</span><span class="n">Cmf</span><span class="p">.</span><span class="n">Custom</span><span class="p">.</span><span class="n">IoT</span><span class="p">/</span><span class="n">Cmf</span><span class="p">.</span><span class="n">Custom</span><span class="p">.</span><span class="n">IoT</span><span class="p">.</span><span class="n">Packages</span><span class="p">/</span><span class="n">src</span>
+<span class="n">cmf</span> <span class="n">new</span> <span class="n">iot</span> <span class="n">taskLibrary</span>
+</code></pre></div>
+</li>
+<li>
+<p>Generate a custom Task (if needed):</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd </span><span class="p">{{</span><span class="n">project_or_feature_root_dir</span><span class="p">}}/</span><span class="n">Cmf</span><span class="p">.</span><span class="n">Custom</span><span class="p">.</span><span class="n">IoT</span><span class="p">/</span><span class="n">Cmf</span><span class="p">.</span><span class="n">Custom</span><span class="p">.</span><span class="n">IoT</span><span class="p">.</span><span class="n">Packages</span><span class="p">/</span><span class="n">src</span><span class="p">/{{</span><span class="n">library_name</span><span class="p">}}</span>
+<span class="n">cmf</span> <span class="n">new</span> <span class="n">iot</span> <span class="n">task</span>
+</code></pre></div>
+</li>
+<li>
+<p>Generate a custom Converter (if needed):</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd </span><span class="p">{{</span><span class="n">project_or_feature_root_dir</span><span class="p">}}/</span><span class="n">Cmf</span><span class="p">.</span><span class="n">Custom</span><span class="p">.</span><span class="n">IoT</span><span class="p">/</span><span class="n">Cmf</span><span class="p">.</span><span class="n">Custom</span><span class="p">.</span><span class="n">IoT</span><span class="p">.</span><span class="n">Packages</span><span class="p">/</span><span class="n">src</span><span class="p">/{{</span><span class="n">library_name</span><span class="p">}}</span>
+<span class="n">cmf</span> <span class="n">new</span> <span class="n">iot</span> <span class="n">converter</span>
+</code></pre></div>
+</li>
+<li>
+<p>Generating a Business Scenario (if needed):</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd </span><span class="p">{{</span><span class="n">project_or_feature_root_dir</span><span class="p">}}/</span><span class="n">Cmf</span><span class="p">.</span><span class="n">Custom</span><span class="p">.</span><span class="n">IoT</span><span class="p">/</span><span class="n">Cmf</span><span class="p">.</span><span class="n">Custom</span><span class="p">.</span><span class="n">IoT</span><span class="p">.</span><span class="n">Packages</span>
+<span class="n">cmf</span> <span class="n">new</span> <span class="n">iot</span> <span class="n">businessScenario</span>
+</code></pre></div>
+</li>
+</ol>
+<h4 id="demo">Demo</h4>
+<p>The following images demo the scaffolding procedures for IoT ATL custom library and its components:</p>
+<ul>
+<li>
+<p><code>cmf new iot</code></p>
+<p><img alt="cmf new iot for ATL" src="../IoT-on-MES-v11/cmf_new_iot.gif" /></p>
+</li>
+<li>
+<p>Generating ATL Task Library</p>
+<p><img alt="Generating ATL Task Library" src="../IoT-on-MES-v11/cmf_new_iot_taskLibrary.gif" /></p>
+</li>
+<li>
+<p>Generating a Driver</p>
+<p><img alt="Generating a Driver" src="../IoT-on-MES-v11/cmf_new_iot_driver.gif" /></p>
+</li>
+<li>
+<p>Generating a Task</p>
+<p><img alt="Generating a Task" src="../IoT-on-MES-v11/cmf_new_iot_task.gif" /></p>
+</li>
+<li>
+<p>Generating a Converter</p>
+<p><img alt="Generating a Task" src="../IoT-on-MES-v11/cmf_new_iot_task.gif" /></p>
+</li>
+<li>
+<p>Generating a Business Scenario</p>
+<p><img alt="Generating a Business Scenario" src="../IoT-on-MES-v11/cmf_new_iot_businessScenario.gif" /></p>
+</li>
+</ul>
+<h3 id="tasks-package-scaffolding-mes-v10-or-above">Tasks Package Scaffolding - MES v10 or above</h3>
+<div class="admonition important">
+<p class="admonition-title">IoT Tasks Package depends on UI</p>
+<p>Version v10 introduces a dependency between Connect IoT customization and the GUI when using Task Packages. The GUI requires compile-time access to the Connect IoT customization. Therefore, you must have an HTML package.</p>
+</div>
+<h4 id="tools_1">Tools</h4>
+<p><code>@criticalmanufacturing/cli</code>, <code>@angular/cli</code>, <code>Yeoman</code></p>
+<h4 id="steps_1">Steps</h4>
+<ol>
+<li>
+<p>Ensure you have an existing UI/HTML package layer (below we assume it exists at <code>./Cmf.Custom.HTML</code> directory).</p>
+</li>
+<li>
+<p>Generate the base structure:</p>
+<div class="highlight"><pre><span></span><code><span class="c">#Generate base structure</span>
+<span class="nb">cd </span><span class="p">{{</span><span class="n">project_or_feature_root_dir</span><span class="p">}}</span>
+<span class="n">cmf</span> <span class="n">new</span> <span class="n">iot</span> <span class="p">-</span><span class="n">-isAngularPackage</span> <span class="p">-</span><span class="n">-htmlPackageLocation</span> <span class="p">./</span><span class="n">Cmf</span><span class="p">.</span><span class="n">Custom</span><span class="p">.</span><span class="n">HTML</span> 
+
+<span class="c">#Install library dependencies</span>
+<span class="nb">cd </span><span class="p">{{</span><span class="n">project_or_feature_root_dir</span><span class="p">}}/</span><span class="n">Cmf</span><span class="p">.</span><span class="n">Custom</span><span class="p">.</span><span class="n">IoT</span><span class="p">/</span><span class="n">Cmf</span><span class="p">.</span><span class="n">Custom</span><span class="p">.</span><span class="n">IoT</span><span class="p">.</span><span class="n">Packages</span>
+<span class="n">npm</span> <span class="n">install</span>
+</code></pre></div>
+</li>
+<li>
+<p>Generate a custom driver (if needed):</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd </span><span class="p">{{</span><span class="n">project_or_feature_root_dir</span><span class="p">}}/</span><span class="n">Cmf</span><span class="p">.</span><span class="n">Custom</span><span class="p">.</span><span class="n">IoT</span><span class="p">/</span><span class="n">Cmf</span><span class="p">.</span><span class="n">Custom</span><span class="p">.</span><span class="n">IoT</span><span class="p">.</span><span class="n">Packages</span>
+<span class="n">npx</span> <span class="n">yo</span> <span class="nv">@criticalmanufacturing</span><span class="p">/</span><span class="n">iot</span><span class="p">:</span><span class="n">driver</span>
+</code></pre></div>
+</li>
+<li>
+<p>Generate a custom Tasks Package Library (if needed):</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd </span><span class="p">{{</span><span class="n">project_or_feature_root_dir</span><span class="p">}}/</span><span class="n">Cmf</span><span class="p">.</span><span class="n">Custom</span><span class="p">.</span><span class="n">IoT</span><span class="p">/</span><span class="n">Cmf</span><span class="p">.</span><span class="n">Custom</span><span class="p">.</span><span class="n">IoT</span><span class="p">.</span><span class="n">Packages</span><span class="p">/</span><span class="n">projects</span>
+<span class="n">npx</span> <span class="nv">@angular</span><span class="p">/</span><span class="nb">cli </span><span class="n">generate</span> <span class="p">{{</span><span class="n">library_name</span><span class="p">}}</span>
+</code></pre></div>
+</li>
+<li>
+<p>Generate a custom Task (if needed):</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd </span><span class="p">{{</span><span class="n">project_or_feature_root_dir</span><span class="p">}}/</span><span class="n">Cmf</span><span class="p">.</span><span class="n">Custom</span><span class="p">.</span><span class="n">IoT</span><span class="p">/</span><span class="n">Cmf</span><span class="p">.</span><span class="n">Custom</span><span class="p">.</span><span class="n">IoT</span><span class="p">.</span><span class="n">Packages</span><span class="p">/</span><span class="n">projects</span><span class="p">/{{</span><span class="n">library_name</span><span class="p">}}</span>
+<span class="n">npx</span> <span class="nv">@angular</span><span class="p">/</span><span class="nb">cli </span><span class="n">generate</span> <span class="n">task</span> <span class="p">{{</span><span class="n">task_name</span><span class="p">}}</span>
+</code></pre></div>
+</li>
+<li>
+<p>Generate a custom Converter (if needed):</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd </span><span class="p">{{</span><span class="n">project_or_feature_root_dir</span><span class="p">}}/</span><span class="n">Cmf</span><span class="p">.</span><span class="n">Custom</span><span class="p">.</span><span class="n">IoT</span><span class="p">/</span><span class="n">Cmf</span><span class="p">.</span><span class="n">Custom</span><span class="p">.</span><span class="n">IoT</span><span class="p">.</span><span class="n">Packages</span><span class="p">/</span><span class="n">projects</span><span class="p">/{{</span><span class="n">library_name</span><span class="p">}}</span>
+<span class="n">npx</span> <span class="nv">@angular</span><span class="p">/</span><span class="nb">cli </span><span class="n">generate</span> <span class="n">converter</span> <span class="p">{{</span><span class="n">converter_name</span><span class="p">}}</span>
+</code></pre></div>
+</li>
+</ol>
+<h4 id="post-scaffolding">Post-Scaffolding</h4>
+<p>The @criticalmanufacturing/cli will automatically add an entry to the <code>cmfpackage.json</code> of the IoT package. But the reverse relation from the HTML package layer to IoT must be set manually created:</p>
+<ol>
+<li>
+<p>Edit the <strong>HTML</strong> <code>cmfpackage.json</code> file and add a <code>relatedPackages</code> entry, e.g.:</p>
+<div class="highlight"><pre><span></span><code><span class="w">    </span><span class="nt">&quot;relatedPackages&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;../Cmf.Custom.Baseline.IoT/Cmf.Custom.Baseline.IoT.Packages&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;preBuild&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;postBuild&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;prePack&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;postPack&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">]</span>
+</code></pre></div>
+</li>
+<li>
+<p>Add a dependency in the HTML package's <code>package.json</code> file, using the command:</p>
+<div class="highlight"><pre><span></span><code><span class="n">npm</span> <span class="n">install</span> <span class="p">../</span><span class="n">Cmf</span><span class="p">.</span><span class="n">Custom</span><span class="p">.</span><span class="n">IoT</span><span class="p">/</span><span class="n">Cmf</span><span class="p">.</span><span class="n">Custom</span><span class="p">.</span><span class="n">IoT</span><span class="p">.</span><span class="n">Packages</span>
+</code></pre></div>
+<ul>
+<li>
+<p>This command will add an entry like:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">&quot;@criticalmanufacturing/connect-iot-controller-engine-custom-tasks&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;file:../Cmf.Custom.Baseline.IoT/Cmf.Custom.Baseline.IoT&quot;</span>
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Finally, add code to import IoT customizations to the UI by:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">MES v11 onwards</label><label for="__tabbed_1_2">MES v10</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Editing the <code>app.config.ts</code> file and add reference to the customization components, as presented on snippet below:</p>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Metadata</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">CustomTasks</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@criticalmanufacturing/connect-iot-controller-engine-custom-tasks/metadata&#39;</span><span class="p">;</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">appConfig</span><span class="o">:</span><span class="w"> </span><span class="kt">ApplicationConfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">providers</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="nx">provideRouter</span><span class="p">(</span><span class="nx">routes</span><span class="p">),</span>
+<span class="w">        </span><span class="nx">provideServiceWorker</span><span class="p">(</span><span class="s1">&#39;ngsw-loader-worker.js&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">enabled</span><span class="o">:</span><span class="w"> </span><span class="o">!</span><span class="nx">isDevMode</span><span class="p">(),</span>
+<span class="w">            </span><span class="nx">registrationStrategy</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;registerWhenStable:30000&#39;</span>
+<span class="w">        </span><span class="p">}),</span>
+<span class="w">        </span><span class="nx">provideMesUI</span><span class="p">(</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="nx">tasks</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                    </span><span class="nx">CustomTasks</span>
+<span class="w">                </span><span class="p">]</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">),</span>
+<span class="w">        </span><span class="nx">provideMetadataRouter</span><span class="p">()</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="p">};</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<p>Editing the <code>app.module.ts</code> file and add reference to the customization mode, as presented on snippet below:</p>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Metadata</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">CustomTasks</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@criticalmanufacturing/connect-iot-controller-engine-custom-tasks/metadata&#39;</span><span class="p">;</span>
+<span class="nx">MesUIModule</span><span class="p">.</span><span class="nx">forRoot</span><span class="p">({</span>
+<span class="w">    </span><span class="nx">tasks</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="nx">CustomTasks</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="p">}),</span>
+<span class="p">...</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+</li>
+</ol>
+<h4 id="demo_1">Demo</h4>
+<p>The following images demo the scaffolding procedures for IoT custom Task Package library using <code>@criticalmanufacturing/cli</code> and <code>@angular/cli</code>:</p>
+<ul>
+<li>
+<p><code>@criticalmanufacturing/cli</code> commands</p>
+<p><img alt="cmf new iot" src="../IoT-on-MES-v10/cmf_new_iot.gif" /></p>
+</li>
+<li>
+<p><code>@angular/cli</code> commands</p>
+<p><img alt="ng commands" src="../IoT-on-MES-v10/generate_tasklibrary.gif" /></p>
+</li>
+</ul>
+<h3 id="tasks-package-scaffolding-mes-v9-or-below">Tasks Package Scaffolding - MES v9 or below</h3>
+<h4 id="tools_2">Tools</h4>
+<p><code>@criticalmanufacturing/cli</code>, <code>Yeoman</code></p>
+<h4 id="steps_2">Steps</h4>
+<ol>
+<li>
+<p>Ensure you have an existing UI/HTML package layer (below we assume it exists at <code>./Cmf.Custom.HTML</code> directory).</p>
+</li>
+<li>
+<p>Generate the base structure:</p>
+<div class="highlight"><pre><span></span><code><span class="c">#Generate base structure</span>
+<span class="nb">cd </span><span class="p">{{</span><span class="n">project_or_feature_root_dir</span><span class="p">}}</span>
+<span class="n">cmf</span> <span class="n">new</span> <span class="n">iot</span> <span class="p">-</span><span class="n">-htmlPackageLocation</span> <span class="p">./</span><span class="n">Cmf</span><span class="p">.</span><span class="n">Custom</span><span class="p">.</span><span class="n">HTML</span>
+
+<span class="c">#Install library dependencies</span>
+<span class="nb">cd </span><span class="p">{{</span><span class="n">project_or_feature_root_dir</span><span class="p">}}/</span><span class="n">Cmf</span><span class="p">.</span><span class="n">Custom</span><span class="p">.</span><span class="n">IoT</span><span class="p">/</span><span class="n">IoTPackages</span>
+<span class="n">npm</span> <span class="n">install</span>
+</code></pre></div>
+</li>
+<li>
+<p>Generate a custom driver (if needed):</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd </span><span class="p">{{</span><span class="n">project_or_feature_root_dir</span><span class="p">}}/</span><span class="n">Cmf</span><span class="p">.</span><span class="n">Custom</span><span class="p">.</span><span class="n">IoT</span><span class="p">/</span><span class="n">IoTPackages</span><span class="p">/</span><span class="n">src</span>
+<span class="n">npx</span> <span class="n">yo</span> <span class="nv">@criticalmanufacturing</span><span class="p">/</span><span class="n">iot</span><span class="p">:</span><span class="n">driver</span>
+</code></pre></div>
+</li>
+<li>
+<p>Generate a custom Tasks Package Library (if needed):</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd </span><span class="p">{{</span><span class="n">project_or_feature_root_dir</span><span class="p">}}/</span><span class="n">Cmf</span><span class="p">.</span><span class="n">Custom</span><span class="p">.</span><span class="n">IoT</span><span class="p">/</span><span class="n">IoTPackages</span><span class="p">/</span><span class="n">src</span>
+<span class="n">npx</span> <span class="n">yo</span> <span class="nv">@criticalmanufacturing</span><span class="p">/</span><span class="n">iot</span><span class="p">:</span><span class="n">tasksPackage</span>
+</code></pre></div>
+</li>
+<li>
+<p>Generate a custom Task (if needed):</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd </span><span class="p">{{</span><span class="n">project_or_feature_root_dir</span><span class="p">}}/</span><span class="n">Cmf</span><span class="p">.</span><span class="n">Custom</span><span class="p">.</span><span class="n">IoT</span><span class="p">/</span><span class="n">IoTPackages</span><span class="p">/</span><span class="n">src</span><span class="p">/{{</span><span class="n">tasks_package_name</span><span class="p">}}</span>
+<span class="n">npx</span> <span class="n">yo</span> <span class="nv">@criticalmanufacturing</span><span class="p">/</span><span class="n">iot</span><span class="p">:</span><span class="n">task</span>
+</code></pre></div>
+</li>
+<li>
+<p>Generate a custom Converter (if needed):</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd </span><span class="p">{{</span><span class="n">project_or_feature_root_dir</span><span class="p">}}/</span><span class="n">Cmf</span><span class="p">.</span><span class="n">Custom</span><span class="p">.</span><span class="n">IoT</span><span class="p">/</span><span class="n">IoTPackages</span><span class="p">/</span><span class="n">src</span><span class="p">/{{</span><span class="n">tasks_package_name</span><span class="p">}}</span>
+<span class="n">npx</span> <span class="n">yo</span> <span class="nv">@criticalmanufacturing</span><span class="p">/</span><span class="n">iot</span><span class="p">:</span><span class="n">converter</span>
+</code></pre></div>
+</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      2009-present Critical Manufacturing SA
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.top", "search.suggest", "search.highlight", "content.code.select", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+    
+  </body>
+</html>
