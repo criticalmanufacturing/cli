@@ -118,7 +118,7 @@ namespace Cmf.CLI.Core.Objects
             
         }
 
-        
+
         /// <summary>
         /// gets the latest version of the CLI from the NPM registry
         /// </summary>
@@ -152,26 +152,26 @@ namespace Cmf.CLI.Core.Objects
                 {
                     var queryUri = $"{registry.AbsoluteUri.TrimEnd('/')}/-/v1/search?text=+keywords:cmf-cli-plugin";
                     Log.Debug($"Querying {queryUri} for packages with keyword 'cmf-cli-plugin'...");
-                    
-                        var res = await client.GetAsync(
-                            queryUri);
-                        Log.Debug($"Got response HTTP code {res.StatusCode}");
-                        if (res.StatusCode != HttpStatusCode.OK)
-                        {
-                            Log.Error($"Search request to {registry.AbsoluteUri} failed: {res.StatusCode}");
-                            return Array.Empty<IPackage>();
-                        }
-                        var body = await res.Content.ReadFromJsonAsync<SearchResults>();
-                        return body.Objects.Select(obj => new Package()
-                        {
-                            Name = obj.Package.Name,
-                            IsOfficial = string.Equals(obj.Package.Scope, "criticalmanufacturing"),
-                            Registry = registry.AbsoluteUri,
-                            Link = new Uri(obj.Package.Links.Npm)
-                        } as IPackage);
+
+                    var res = await client.GetAsync(
+                        queryUri);
+                    Log.Debug($"Got response HTTP code {res.StatusCode}");
+                    if (res.StatusCode != HttpStatusCode.OK)
+                    {
+                        Log.Error($"Search request to {registry.AbsoluteUri} failed: {res.StatusCode}");
+                        return Array.Empty<IPackage>();
+                    }
+                    var body = await res.Content.ReadFromJsonAsync<SearchResults>();
+                    return body.Objects.Select(obj => new Package()
+                    {
+                        Name = obj.Package.Name,
+                        IsOfficial = string.Equals(obj.Package.Scope, "criticalmanufacturing"),
+                        Registry = registry.AbsoluteUri,
+                        Link = new Uri(obj.Package.Links.Npm)
+                    } as IPackage);
 
                 }).Select(t => t.Result).ToArray();
-                
+
                 return results.SelectMany(res => res).ToArray();
             }
             catch (Exception e)
@@ -398,6 +398,9 @@ namespace Cmf.CLI.Core.Objects
                 client.DefaultRequestHeaders.Add("User-Agent",
                     $"{ExecutionContext.PackageId.Replace("@", "")} v{ExecutionContext.CurrentVersion}");
             }
+
+            client.Timeout = TimeSpan.FromSeconds(5);
+
             return client;
         }
     }
