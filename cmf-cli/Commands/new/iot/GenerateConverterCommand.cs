@@ -121,8 +121,8 @@ namespace Cmf.CLI.Commands.New.IoT
                 converter = this.HandleParameters(converter);
             }
 
-            converter.InputAsJS = IoTStructures.ConvertIoTTypesToJSTypes(converter.Input);
-            converter.OutputAsJS = IoTStructures.ConvertIoTTypesToJSTypes(converter.Output);
+            converter.InputAsJS = IoTStructures.ConvertIoTTypesToJSTypes<DataTypeInputOutput>(converter.Input);
+            converter.OutputAsJS = IoTStructures.ConvertIoTTypesToJSTypes<DataTypeInputOutput>(converter.Output);
 
             return converter;
         }
