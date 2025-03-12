@@ -11,9 +11,10 @@ using System.IO;
 using System.IO.Abstractions;
 using System.IO.Compression;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using Core.Objects;
+using Cmf.CLI.Core.Interfaces;
 
 namespace Cmf.CLI.Core.Objects
 {
@@ -278,6 +279,12 @@ namespace Cmf.CLI.Core.Objects
         [JsonProperty(Order = 23)]
         public string DependenciesDirectory { get; set; }
 
+        /// <summary>
+        /// Loaded SharedFolder when loading from cifs
+        /// </summary>
+        [JsonIgnore]
+        public ISharedFolder SharedFolder { get; private set; }
+
         #endregion Public Properties
 
         #region Constructors
@@ -539,11 +546,10 @@ namespace Cmf.CLI.Core.Objects
                     throw new CliException(CoreMessages.UrlsNotSupported);
                 }
 
-                IDirectoryInfo[] repoDirectories = repoUris?.Select(r => r.GetDirectory()).ToArray();
-                var missingRepoDirectories = repoDirectories?.Where(r => r.Exists == false).ToArray();
-                if (missingRepoDirectories.HasAny())
+                IDirectoryInfo[] repoDirectories = repoUris?.Select(r => r.GetDirectory()).Where(d=> d.Exists==true).ToArray();
+                if (ExecutionContext.Instance.RunningOnWindows && repoDirectories != null && repoDirectories.Length == 0)
                 {
-                    throw new CliException($"Some of the provided repositories do not exist: {string.Join(", ", missingRepoDirectories.Select(d => d.FullName))}");
+                    Log.Warning($"None of the provided repositories exist: {string.Join(", ", repoUris.Select(d => d.OriginalString))}");
                 }
                 foreach (var dependency in this.Dependencies)
                 {
@@ -703,8 +709,13 @@ namespace Cmf.CLI.Core.Objects
         /// <param name="packageId"></param>
         /// <param name="version"></param>
         /// <returns></returns>
-        public static CmfPackage LoadFromRepo(IDirectoryInfo[] repoDirectories, string packageId, string version)
+        public static CmfPackage LoadFromRepo(IDirectoryInfo[] repoDirectories, string packageId, string version, bool fromManifest = true)
         {
+            if(!ExecutionContext.Instance.RunningOnWindows && ExecutionContext.Instance.CIFSClients.HasAny())
+            {
+                return LoadFromCIFSShare(packageId, version);
+            }
+
             if (version is null)
             {
                 throw new ArgumentNullException(nameof(version));
@@ -721,26 +732,83 @@ namespace Cmf.CLI.Core.Objects
 
             if (dependencyFile != null)
             {
-                using (Stream zipToOpen = dependencyFile.OpenRead())
+                if(fromManifest)
                 {
-                    using (ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read))
+                    using (Stream zipToOpen = dependencyFile.OpenRead())
                     {
-                        var manifest = zip.GetEntry(CoreConstants.DeploymentFrameworkManifestFileName);
-                        if (manifest != null)
+                        using (ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read))
                         {
-                            using var stream = manifest.Open();
-                            using var reader = new StreamReader(stream);
-                            cmfPackage = FromManifest(reader.ReadToEnd(), setDefaultValues: true);
-                            if (cmfPackage != null)
+                                var manifest = zip.GetEntry(CoreConstants.DeploymentFrameworkManifestFileName);
+                                if (manifest != null)
+                                {
+                                    using var stream = manifest.Open();
+                                    using var reader = new StreamReader(stream);
+                                    cmfPackage = FromManifest(reader.ReadToEnd(), setDefaultValues: true);
+                                    if (cmfPackage != null)
+                                    {
+                                        cmfPackage.Uri = new(dependencyFile.FullName);
+                                    }
+                                }
+                        }
+                    }
+                }
+                else
+                {
+                    cmfPackage = new CmfPackage(packageId, version, new Uri(dependencyFile.FullName));
+                }
+            }
+            return cmfPackage;
+        }
+
+        /// <summary>
+        /// Load CmfPackage from a CIFS Share
+        /// </summary>
+        /// <param name="packageId"></param>
+        /// <param name="version"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static CmfPackage LoadFromCIFSShare(string packageId, string version, bool fromManifest = true)
+        {
+            CmfPackage cmfPackage = null;
+            string _dependencyFileName = $"{packageId}.{version}.zip";
+
+            foreach(CIFSClient client in ExecutionContext.Instance.CIFSClients.Where(c=> c.IsConnected))
+            {
+                foreach (var share in client.SharedFolders.Where(sf => sf.Exists))
+                {
+                    var file = share.GetFile(_dependencyFileName);
+                    if(file != null)
+                    {                   
+                        if(fromManifest)
+                        {
+                            using (ZipArchive zip = new(file.Item2, ZipArchiveMode.Read))
                             {
-                                cmfPackage.Uri = new(dependencyFile.FullName);
+                                var manifest = zip.GetEntry(CoreConstants.DeploymentFrameworkManifestFileName);
+                                if (manifest != null)
+                                {
+                                    using var stream = manifest.Open();
+                                    using var reader = new StreamReader(stream);
+                                    cmfPackage = FromManifest(reader.ReadToEnd(), setDefaultValues: true);
+                                    if (cmfPackage != null)
+                                    {   
+                                        cmfPackage.Uri = file.Item1;
+                                        cmfPackage.SharedFolder = share;
+                                        break;
+                                    }
+                                }
                             }
+                        }
+                        else
+                        {
+                            cmfPackage = new CmfPackage(packageId, version, file.Item1);
+                            cmfPackage.SharedFolder = share;
+                            break;
                         }
                     }
                 }
             }
 
-            return cmfPackage;
+            return cmfPackage;          
         }
 
         /// <summary>

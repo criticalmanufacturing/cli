@@ -84,7 +84,7 @@ namespace tests.Specs
   ]
 }") }
             });
-
+            ExecutionContext.Initialize(fileSystem);
 
             //var ls = new ListDependenciesCommand(fileSystem);
             //ls.Execute(fileSystem.DirectoryInfo.New(@"c:\test"), null);

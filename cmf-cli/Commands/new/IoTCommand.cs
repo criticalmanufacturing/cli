@@ -1,4 +1,5 @@
- using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
@@ -47,7 +48,7 @@ namespace Cmf.CLI.Commands.New
                 description: "Location of the HTML Package"
             ));
 
-            cmd.AddOption(new Option<string>(
+            cmd.AddOption(new Option<bool>(
                 aliases: new[] { "--isAngularPackage" },
                 description: "Customization package with angular"
             ));
@@ -83,6 +84,7 @@ namespace Cmf.CLI.Commands.New
                 "--iotpackages", $"{packageName}.Packages",
                 "--rootInnerRelativePath", relativePathToRoot,
                 "--npmRegistry", npmRegistry.OriginalString,
+                "--nodeVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Node(ExecutionContext.Instance.ProjectConfig.MESVersion),
                 "--repositoryType", repoType.ToString()
             });
 
@@ -97,14 +99,23 @@ namespace Cmf.CLI.Commands.New
         /// <param name="htmlPackageLocation">location of html package</param>
         public void Execute(IDirectoryInfo workingDir, string version, string htmlPackageLocation, bool isAngularPackage)
         {
-            if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major > 9)
+            var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            if (mesVersion.Major > 9)
             {
-                // only introduced in 10.2.7
-                if (!isAngularPackage && ExecutionContext.Instance.ProjectConfig.MESVersion.Major > 10 || (ExecutionContext.Instance.ProjectConfig.MESVersion.Major == 10 && ExecutionContext.Instance.ProjectConfig.MESVersion.Minor >= 2 &&
-                        ExecutionContext.Instance.ProjectConfig.MESVersion.Build >= 7))
+                // (ATL) Automation Task Library Package
+                // only introduced in v10.2.7
+                var executeV10ATL = !isAngularPackage && mesVersion >= new Version(10, 2, 7) && mesVersion < new Version(11, 0, 0);
+
+                // only introduced in v11
+                var executeV11ATL = !isAngularPackage && mesVersion >= new Version(11, 0, 0);
+
+                if (executeV10ATL)
                 {
-                    // Automation Task Library Package
                     this.ExecuteV10ATL(workingDir, version);
+                }
+                else if (executeV11ATL)
+                {
+                    this.ExecuteV11ATL(workingDir, version);
                 }
                 else
                 {
@@ -118,6 +129,14 @@ namespace Cmf.CLI.Commands.New
             }
         }
 
+        public void ExecuteV11ATL(IDirectoryInfo workingDir, string version)
+        {
+            this.CommandName = "iot-from1000-atl";
+            base.Execute(workingDir, version, ["--useNodePackageBundler", true.ToString()]);
+
+            Log.Information($"Feel free to create your task libraries by running cmf new TaskLibrary");
+        }
+
         public void ExecuteV10ATL(IDirectoryInfo workingDir, string version)
         {
             this.CommandName = "iot-from1000-atl";
@@ -127,11 +146,15 @@ namespace Cmf.CLI.Commands.New
 
             IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{workingDir}/{packageName}/{CliConstants.CmfPackageFileName}");
             var cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true, this.fileSystem);
-            cmfPackage.LoadDependencies(null, null, true);
-
-            var iotCustomPackage = cmfPackage.Dependencies.FirstOrDefault(package => package.CmfPackage?.PackageType == PackageType.IoT).CmfPackage;
 
             var iotRoot = cmfPackage.GetFileInfo().Directory;
+            var iotCustomPackage = iotRoot.LoadCmfPackagesFromSubDirectories(packageType: PackageType.IoT).FirstOrDefault();
+
+            if (iotCustomPackage == null)
+            {
+                throw new CliException($"Failed to find a CMF Package with type '${PackageType.IoT}' inside folder '{iotRoot.FullName}'");
+            }
+
             var iotCustomPackageWorkDir = iotCustomPackage.GetFileInfo().Directory;
             var iotCustomPackageName = base.GeneratePackageName(iotCustomPackageWorkDir)!.Value.Item1;
 
@@ -193,11 +216,15 @@ namespace Cmf.CLI.Commands.New
 
             IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{workingDir}/{packageName}/{CliConstants.CmfPackageFileName}");
             var cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true, this.fileSystem);
-            cmfPackage.LoadDependencies(null, null, true);
-
-            var iotCustomPackage = cmfPackage.Dependencies.FirstOrDefault(package => package.CmfPackage?.PackageType == PackageType.IoT).CmfPackage;
 
             var iotRoot = cmfPackage.GetFileInfo().Directory;
+            var iotCustomPackage = iotRoot.LoadCmfPackagesFromSubDirectories(packageType: PackageType.IoT).FirstOrDefault();
+
+            if (iotCustomPackage == null)
+            {
+                throw new CliException($"Failed to find a CMF Package with type '${PackageType.IoT}' inside folder '{iotRoot.FullName}'");
+            }
+
             var iotCustomPackageWorkDir = iotCustomPackage.GetFileInfo().Directory;
             var iotCustomPackageName = base.GeneratePackageName(iotCustomPackageWorkDir)!.Value.Item1;
 

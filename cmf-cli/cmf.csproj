@@ -15,7 +15,7 @@
         <DefaultDocumentationFileNameMode>Name</DefaultDocumentationFileNameMode>
         <DefaultDocumentationNestedTypeVisibility>Namespace</DefaultDocumentationNestedTypeVisibility>
         <DefaultDocumentationGeneratedPages>Namespaces</DefaultDocumentationGeneratedPages>
-        <Version>5.1.0</Version>
+        <Version>5.2.0</Version>
     </PropertyGroup>
 
     <ItemGroup>
@@ -78,7 +78,6 @@
 
     <ItemGroup>
         <Folder Include="Properties\" />
-        <Folder Include="resources\template_feed\iot\from1000\atl\IoT.Package\%25iotpackages%25\vscode\" />
     </ItemGroup>
 
     <ItemGroup>

@@ -34,6 +34,7 @@ This section guides you through creating a traditional project scaffold. Adapt t
 
 === "MES v10 or above"
 
+
     ``` powershell
     #Go to your project root
     cd {{project_root_path}}
@@ -61,12 +62,15 @@ This section guides you through creating a traditional project scaffold. Adapt t
     
     # Create a grafana Package Layer (optional)
     cmf new grafana
-    
-    # Create IoT Package Layer (Optional)
-    cmf new iot --htmlPackageLocation .\Cmf.Custom.Html
-    ```
 
-    Make sure to follow all the steps [here](../../../concepts/layers-packages/angular-15-iot-packages.md). Otherwise, you can have unexpected errors in the package.
+    # ATTENTION: To create IoT Package Layer supporting Task Libraries uncomment the command below (for MES v10.27 or above):
+    
+    # cmf new iot
+
+    # ATTENTION: To create Iot Package Layer supporting Tasks Package Library uncomment the command below:
+    
+    # cmf new iot --isAngularPackage --htmlPackageLocation .\Cmf.Custom.Html
+    ```
 
 === "MES v9 or below"
 

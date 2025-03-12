@@ -88,18 +88,10 @@ namespace Cmf.CLI.Handlers
             else
             {
                 var packageLocation = "projects";
-                // Introduced in version 10.2.x
-                if ((targetVersion.Major > 10 || (targetVersion.Major == 10 &&
-                        targetVersion.Minor >= 2 &&
-                        targetVersion.Build >= 7)) && !this.IsAngularProject(cmfPackage.GetFileInfo().Directory.FullName))
-                {
-                    packageLocation = "src";
-                    var packages = string.Join(",", this.BuildPackageNames(this.GetPackageJsons(cmfPackage, packageLocation)));
 
-                    defaultSteps.Add(new Step(StepType.IoTAutomationTaskLibrariesSync)
-                    {
-                        Content = packages
-                    });
+                if (!this.IsAngularProject(cmfPackage.GetFileInfo().Directory.FullName)) {
+                    defaultSteps = this.AddAutomationTaskLibrariesStep(targetVersion, CmfPackage, defaultSteps);
+                    defaultSteps = this.AddAutomationBusinessScenarioStep(targetVersion, CmfPackage, defaultSteps);
                 }
 
                 buildCommands = new IBuildCommand[]
@@ -309,10 +301,10 @@ namespace Cmf.CLI.Handlers
                     foreach (IDirectoryInfo packDirectory in packDirectories)
                     {
                         string inputDirPath = packDirectory.FullName;
-                        IFileInfo packConfig = this.fileSystem.FileInfo.New($"{inputDirPath}/packconfig.json");
+                        IFileInfo packConfig = this.fileSystem.FileInfo.New($"{inputDirPath}/packConfig.json");
                         if (!packConfig.Exists)
                         {
-                            Log.Warning("packconfig.json doesn't exist! packagePacker will not run.");
+                            Log.Warning("packConfig.json doesn't exist! packagePacker will not run.");
                             continue;
                         }
                         Log.Debug("Running Package Packer");
@@ -332,15 +324,28 @@ namespace Cmf.CLI.Handlers
                             npmCommand.Exec();
                         }
 
-                        CmdCommand cmdCommand = new CmdCommand()
+                        if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 11)
                         {
-                            DisplayName = "npx yo @criticalmanufacturing/iot:packagePacker",
-                            Command = "npx",
-                            Args = new string[] { "yo@4.3.1 @criticalmanufacturing/iot:packagePacker", $"-i \"{inputDirPath}\"", $"-o \"{outputDirPath}\"" },
-                            WorkingDirectory = packDirectory
-                        };
+                            NPXCommand cmdCommand = new NPXCommand()
+                            {
+                                DisplayName = "npx yo @criticalmanufacturing/iot:packagePacker",
+                                Args = new string[] { "yo@4.3.1 @criticalmanufacturing/iot:packagePacker", $"-i \"{inputDirPath}\"", $"-o \"{outputDirPath}\"" },
+                                WorkingDirectory = packDirectory
+                            };
 
-                        cmdCommand.Exec();
+                            cmdCommand.Exec();
+                        }
+                        else
+                        {
+                            NPXCommand cmdCommand = new NPXCommand()
+                            {
+                                DisplayName = "npx @criticalmanufacturing/node-package-bundler",
+                                Args = new string[] { "@criticalmanufacturing/node-package-bundler", $"-i \"{inputDirPath}\"", $"-o \"{outputDirPath}\"" },
+                                WorkingDirectory = packDirectory
+                            };
+
+                            cmdCommand.Exec();
+                        }
                     }
                 }
                 else if (contentToPack.Action == PackAction.Untar)
@@ -418,6 +423,38 @@ namespace Cmf.CLI.Handlers
                 this.fileSystem.Path.Join(
                     path,
                     "angular.json"));
+        }
+
+        private List<Step> AddAutomationTaskLibrariesStep(Version targetVersion, CmfPackage cmfPackage, List<Step> defaultSteps, string packageLocation = "src")
+        {
+            // Introduced in version 10.2.x
+            if ((targetVersion.Major > 10 || (targetVersion.Major == 10 &&
+                    targetVersion.Minor >= 2 &&
+                    targetVersion.Build >= 7)) && !this.IsAngularProject(cmfPackage.GetFileInfo().Directory.FullName))
+            {
+                var packages = string.Join(",", this.BuildPackageNames(this.GetPackageJsons(cmfPackage, packageLocation)));
+
+                defaultSteps.Add(new Step(StepType.IoTAutomationTaskLibrariesSync)
+                {
+                    Content = packages
+                });
+            }
+            return defaultSteps;
+        }
+
+        private List<Step> AddAutomationBusinessScenarioStep(Version targetVersion, CmfPackage cmfPackage, List<Step> defaultSteps, string packageLocation = "src")
+        {
+            // Introduced in version 11.1.x
+            if ((targetVersion.Major > 11 || (targetVersion.Major == 11 && targetVersion.Minor >= 1)))
+            {
+                var packages = string.Join(",", this.BuildPackageNames(this.GetPackageJsons(cmfPackage, packageLocation)));
+
+                defaultSteps.Add(new Step(StepType.AutomationBusinessScenariosSync)
+                {
+                    Content = packages
+                });
+            }
+            return defaultSteps;
         }
     }
 }

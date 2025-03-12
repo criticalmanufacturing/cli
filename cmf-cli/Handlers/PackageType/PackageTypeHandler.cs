@@ -662,48 +662,58 @@ namespace Cmf.CLI.Handlers
                     var identifier = $"{dependency.Id}@{dependency.Version}";
                     Log.Debug($"Processing dependency {identifier}...");
                     Log.Debug($"Found package {identifier} at {dependency.CmfPackage.Uri.AbsoluteUri}");
-                    if (dependency.CmfPackage.Uri.IsDirectory())
+                    if(dependency.CmfPackage.SharedFolder != null)
+                    {
+                        var file = dependency.CmfPackage.SharedFolder.GetFile(dependency.CmfPackage.ZipPackageName);
+                        ExtractZip(file.Item2, identifier);
+                    }
+                    else if (dependency.CmfPackage.Uri.IsDirectory())
                     {
                         using (Stream zipToOpen = this.fileSystem.FileInfo.New(dependency.CmfPackage.Uri.LocalPath).OpenRead())
                         {
-                            using (ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read))
-                            {
-                                // these tuples allow us to rewrite entry paths
-                                var entriesToExtract = new List<Tuple<ZipArchiveEntry, string>>();
-                                entriesToExtract.AddRange(zip.Entries.Select(entry => new Tuple<ZipArchiveEntry, string>(entry, entry.FullName)));
-
-                                foreach (var entry in entriesToExtract)
-                                {
-                                    var target = this.fileSystem.Path.Join(this.DependenciesFolder.FullName, omitIdentifier ? null : identifier, entry.Item2);
-                                    var targetDir = this.fileSystem.Path.GetDirectoryName(target);
-                                    if (target.EndsWith("/"))
-                                    {
-                                        // this a dotnet bug: if a folder contains a ., the library assumes it's a file and adds it as an entry
-                                        // however, afterwards all folder contents are separate entries, so we can just skip these
-                                        continue;
-                                    }
-
-                                    if (!fileSystem.File.Exists(target)) // TODO: support overwriting if requested
-                                    {
-                                        var overwrite = false;
-                                        Log.Debug($"Extracting {entry.Item1.FullName} to {target}");
-                                        if (!string.IsNullOrEmpty(targetDir))
-                                        {
-                                            fileSystem.Directory.CreateDirectory(targetDir);
-                                        }
-
-                                        entry.Item1.ExtractToFile(target, overwrite, fileSystem);
-                                    }
-                                    else
-                                    {
-                                        Log.Debug($"Skipping {target}, file exists");
-                                    }
-                                }
-                            }
+                            ExtractZip(zipToOpen, identifier);
                         }
                     }
                 }
             });
+        }
+
+        private void ExtractZip(Stream zipToOpen, string identifier)
+        {
+            using (ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read))
+            {
+                // these tuples allow us to rewrite entry paths
+                var entriesToExtract = new List<Tuple<ZipArchiveEntry, string>>();
+                entriesToExtract.AddRange(zip.Entries.Select(entry => new Tuple<ZipArchiveEntry, string>(entry, entry.FullName)));
+
+                foreach (var entry in entriesToExtract)
+                {
+                    var target = this.fileSystem.Path.Join(this.DependenciesFolder.FullName, omitIdentifier ? null : identifier, entry.Item2);
+                    var targetDir = this.fileSystem.Path.GetDirectoryName(target);
+                    if (target.EndsWith("/"))
+                    {
+                        // this a dotnet bug: if a folder contains a ., the library assumes it's a file and adds it as an entry
+                        // however, afterwards all folder contents are separate entries, so we can just skip these
+                        continue;
+                    }
+
+                    if (!fileSystem.File.Exists(target)) // TODO: support overwriting if requested
+                    {
+                        var overwrite = false;
+                        Log.Debug($"Extracting {entry.Item1.FullName} to {target}");
+                        if (!string.IsNullOrEmpty(targetDir))
+                        {
+                            fileSystem.Directory.CreateDirectory(targetDir);
+                        }
+
+                        entry.Item1.ExtractToFile(target, overwrite, fileSystem);
+                    }
+                    else
+                    {
+                        Log.Debug($"Skipping {target}, file exists");
+                    }
+                }
+            }
         }
 
         #endregion Public Methods

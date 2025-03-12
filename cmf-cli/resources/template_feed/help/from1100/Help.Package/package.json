@@ -44,6 +44,9 @@
     "mermaid": "^9.1.3",
     "prismjs": "1.29.0",
     "rxjs": "~7.8.0",
+    //#if (requireModuleSES)
+    "ses": "^1.4.1",
+    //#endif
     "tslib": "^2.4.0",
     "zone.js": "^<%= $CLI_PARAM_zoneVersion %>"
   },

@@ -103,6 +103,12 @@
       "description": "The custom assets package name",
       "displayName": "Assets Package Name",
       "replaces": "<%= $CLI_PARAM_CustomAssetsPackageName %>"
+    },
+    "requireModuleSES": {
+      "type": "parameter",
+      "datatype": "bool",
+      "description": "Some versions of MES require a specific dependency to be present on the package.json file",
+      "displayName": "Require Module SES"
     }
   },
   "forms": {

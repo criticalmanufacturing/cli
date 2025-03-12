@@ -75,11 +75,22 @@
       "datatype": "string",
       "replaces": "<%= $CLI_PARAM_NPMRegistry %>"
     },
+    "nodeVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_nodeVersion %>"
+    },
     "repositoryType": {
       "type": "parameter",
       "datatype": "string",
       "description": "The type of repository this package will be included in",
       "displayName": "Repository Type"
+    },
+    "useNodePackageBundler": {
+      "type": "parameter",
+      "datatype": "bool",
+      "description": "The type of bundler to use",
+      "displayName": "Bundler Type"
     }
   }
 }

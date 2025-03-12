@@ -4,42 +4,28 @@
 
 const path = require('path'),
     mkdirp = require('mkdirp'),
-    envPaths = require('env-paths'),
     rimraf = require('rimraf'),
     fs = require('fs'),
     axios = require('axios'),
+    httpsProxyAgent = require('https-proxy-agent'),
+    httpProxyAgent = require('http-proxy-agent'),
+    proxyFromEnv = require('proxy-from-env'),
     AdmZip = require("adm-zip"),
     tmp = require('tmp'),
-    dbg= require('debug'),
+    dbg = require('debug'),
     node_modules = require('node_modules-path'),
     { parsePackageJson, PLATFORM_MAPPING, ARCH_MAPPING } = require('./utils');
-
 
 const debug = dbg("cmf:debug");
 const error = dbg("cmf:debug:error");
 
 async function getInstallationPath() {
     debug("Getting installation path...");
-    if (!!process.env.npm_config_global) {
-        debug("Install is global, so targeting home directory for binaries");
-        // install into home:
-        // win: /AppData/Local/CMF/cmf-cli
-        // linux: ~/.local/share/cmf-cli
-        // osx: ~/Library/Application Support/cmf-cli
-        const paths = envPaths("cmf-cli", {suffix: ""});
-        debug(`Install at ${paths.data}. Making sure path exists...`);
-        await mkdirp(paths.data);
-        debug(`Install path exists!`);
-        return paths.data;
-    } else {
-        debug("Install is local, so targeting node_modules/.bin/cmf-cli. Making sure path exists...");
-        // install into node_modules/.bin/cmf-cli
-        const value = path.join(node_modules(), ".bin");
-        const dir = path.join(value, "cmf-cli");
-        await mkdirp(dir);
-        debug(`Install path exists!`);
-        return dir;
-    }
+    debug("Targeting node_modules/.bin/cmf-cli. Making sure path exists...");
+    const dir = path.join(node_modules(), ".bin", "cmf-cli");
+    await mkdirp(dir);
+    debug(`Install path exists!`);
+    return dir;
 }
 
 async function verifyAndPlaceBinary(binName, binPath, callback) {
@@ -57,7 +43,6 @@ async function verifyAndPlaceBinary(binName, binPath, callback) {
  */
 var INVALID_INPUT = "Invalid inputs";
 async function install(callback) {
-
     var opts = parsePackageJson(".");
     if (!opts) return callback(INVALID_INPUT);
     console.info(`Copying the relevant binary for your platform ${process.platform}`);
@@ -68,9 +53,21 @@ async function install(callback) {
         const pkgUrl = opts.binUrl.replace("{{version}}", opts.version).replace("{{platform}}", PLATFORM_MAPPING[process.platform]).replace("{{arch}}", ARCH_MAPPING[process.arch]);
         console.info(`Getting release archive from ${pkgUrl} into ${path.resolve(src)}`);
         try {
+            // support for http/s proxies through env vars
+            const proxy = proxyFromEnv.getProxyForUrl(pkgUrl);
+            let httpAgent, httpsAgent;
+            if (proxy) {
+                httpAgent = new httpProxyAgent.HttpProxyAgent(proxy);
+                httpsAgent = new httpsProxyAgent.HttpsProxyAgent(proxy);
+            }
+
+            // make req (override axios automatic proxy since it is not working properly)
             const response = await axios({
                 url: pkgUrl,
                 method: 'GET',
+                proxy: false,
+                httpAgent: httpAgent,
+                httpsAgent: httpsAgent,
                 responseType: 'arraybuffer', // to do this with streaming we must deal with chunking
             });
             const zip = tmp.tmpNameSync();
@@ -94,16 +91,14 @@ async function install(callback) {
         await execShellCommand(`cp -r ${src}/** "${installPath}"`);
         await execShellCommand(`chmod +x "${installPath}/cmf"`);
     }
-    
     await verifyAndPlaceBinary(opts.binName, installPath, callback);
 }
 
 async function uninstall(callback) {
-    var opts = parsePackageJson(".");
     try {
-        const installationPath = await getInstallationPath();
-        debug("Deleting binaries from " + installationPath);
-        rimraf.sync(installationPath);
+        const installPath = await getInstallationPath();
+        debug("Deleting binaries from " + installPath);
+        rimraf.sync(installPath);
     } catch (ex) {
         console.log(ex);
         callback(ex);
@@ -118,6 +113,7 @@ var actions = {
     "install": install,
     "uninstall": uninstall
 };
+
 /**
  * Executes a shell command and return it as a Promise.
  * @param cmd {string}

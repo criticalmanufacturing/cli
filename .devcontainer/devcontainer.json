@@ -1,0 +1,28 @@
+{
+    "name": "CLI devcontainer",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": "."
+    },    
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "formulahendry.docker-explorer",
+                "ms-azuretools.vscode-docker",
+                "ms-dotnettools.csdevkit",
+                "ms-dotnettools.csharp",
+                "ms-dotnettools.vscode-dotnet-runtime",
+                "ms-dotnettools.vscodeintellicode-csharp",
+                "mhutchie.git-graph",
+                "actboy168.tasks",
+                "Angular.ng-template",
+                "dbaeumer.vscode-eslint",
+                "esbenp.prettier-vscode",
+                "eamodio.gitlens"
+            ]
+        }
+    },
+    "workspaceMount": "source=${localWorkspaceFolder},target=/src,type=bind",
+    "workspaceFolder": "/src",
+    "postCreateCommand": "npm ci"
+}

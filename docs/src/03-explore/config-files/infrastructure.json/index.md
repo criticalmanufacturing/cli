@@ -22,22 +22,22 @@ Currently, the infrastructure mandatory to do development of an MES Customizatio
 
 ## Example
 
-    ```json
-    {
-        "NPMRegistry": "http://host.example/repository/npm",
-        "NuGetRegistry": "https://host.example/repository/nuget-hosted",
-        "NuGetRegistryUsername": "user",
-        "NuGetRegistryPassword": "password"
-    }
-    ```
+```json
+{
+    "NPMRegistry": "http://host.example/repository/npm",
+    "NuGetRegistry": "https://host.example/repository/nuget-hosted",
+    "NuGetRegistryUsername": "user",
+    "NuGetRegistryPassword": "password"
+}
+```
 
 ## Usage
 
 The infrastructure file must be passed to the @criticalmanufacturing/cli `init` command as an argument. e.g.:
 
-    ```PowerShell
-    cmf init "MyProject" --infra "my_infrastructure.json" --config "my_envirionment_environment.json"
-    ```
+```PowerShell
+cmf init "MyProject" --infra "my_infrastructure.json" --config "my_envirionment_environment.json"
+```
 
 !!! warning
 

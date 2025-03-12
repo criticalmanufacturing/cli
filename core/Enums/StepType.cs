@@ -78,6 +78,11 @@
         /// <summary>
         /// Sync Automation Task libraries
         /// </summary>
-        IoTAutomationTaskLibrariesSync = 14
+        IoTAutomationTaskLibrariesSync = 14,
+
+        /// <summary>
+        /// Sync Automation Business Scenarios libraries
+        /// </summary>
+        AutomationBusinessScenariosSync = 15
     }
 }

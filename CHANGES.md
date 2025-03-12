@@ -2,6 +2,82 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.2.0](https://github.com/criticalmanufacturing/cli/compare/5.2.0-4...5.2.0) (2025-03-12)
+
+## [5.2.0-4](https://github.com/criticalmanufacturing/cli/compare/5.2.0-3...5.2.0-4) (2025-02-27)
+
+
+### Bug Fixes
+
+* **iot:** add tsconfig.json ([6d8cec2](https://github.com/criticalmanufacturing/cli/commits/6d8cec2438f00f7f5e6c228a2778492886a201c5))
+
+## [5.2.0-3](https://github.com/criticalmanufacturing/cli/compare/5.2.0-2...5.2.0-3) (2025-02-27)
+
+
+### Features
+
+* **iot:** add launch.json ([2328c4d](https://github.com/criticalmanufacturing/cli/commits/2328c4dc01703549fba20a7ad51c0ce344442173))
+* **iot:** support for nvmrc ([86b5042](https://github.com/criticalmanufacturing/cli/commits/86b504232e1e42935058b76309aab82db449e06b))
+
+
+### Bug Fixes
+
+* **pack:** iot pack on older scaffoldings ([deed148](https://github.com/criticalmanufacturing/cli/commits/deed14874881ba7a31dfaeb7aef0f73af4c047e6))
+
+## [5.2.0-2](https://github.com/criticalmanufacturing/cli/compare/5.2.0-1...5.2.0-2) (2025-02-24)
+
+
+### Features
+
+* add devcontainer ([ef9acd3](https://github.com/criticalmanufacturing/cli/commits/ef9acd37a049231441c23b5c7e93ed812ac3151e))
+* **core:** make template command's filesystem mockable ([fe54792](https://github.com/criticalmanufacturing/cli/commits/fe54792fea840a1c88c9757e95da3bd4e62653de))
+
+
+### Bug Fixes
+
+* **new help:** scaffolding help package for v11.1 ([c5b6ccf](https://github.com/criticalmanufacturing/cli/commits/c5b6ccff32a1786b0c889b794c1e988f69a2b4c9))
+* show warn instead of exception when no repositories are passed ([902528b](https://github.com/criticalmanufacturing/cli/commits/902528bbf076f9676a2e67fc0bdb00b8ed540b18))
+* wait for async method to propagate exceptions ([82f0819](https://github.com/criticalmanufacturing/cli/commits/82f0819f85e5d87cdb3c1a37acc240730200d5db))
+
+## [5.2.0-1](https://github.com/criticalmanufacturing/cli/compare/5.2.0-0...5.2.0-1) (2025-02-17)
+
+
+### Bug Fixes
+
+* **IoT:** only add automation business scenarios and task libraries steps if the IoT package is ATL ([69ea175](https://github.com/criticalmanufacturing/cli/commits/69ea1750e3aedef0397cbc0a364b52ad2294a5c5))
+* **new iot:** angular package generation flag for MES >= 10.2.7 ([#467](https://github.com/criticalmanufacturing/cli/issues/467)) ([bc058e6](https://github.com/criticalmanufacturing/cli/commits/bc058e609b23b81067983e2f00dc8bd99e404696))
+* update package.json to use latest bundler ([d11713c](https://github.com/criticalmanufacturing/cli/commits/d11713c4cfb75e9a201250ecd2139a46f2ea978b))
+
+## [5.2.0-0](https://github.com/criticalmanufacturing/cli/compare/5.1.0...5.2.0-0) (2025-01-22)
+
+
+### Features
+
+* **json validator:** validate subworkflows closes [#452](https://github.com/criticalmanufacturing/cli/issues/452) ([61b96c5](https://github.com/criticalmanufacturing/cli/commits/61b96c577ecdf3e92331efef6944da1672bc466b))
+* **new iot:** merge generator-iot closes [#450](https://github.com/criticalmanufacturing/cli/issues/450) ([54f1399](https://github.com/criticalmanufacturing/cli/commits/54f1399b35f4a01eaa97733bebebf8ebe32a927c))
+* **nodePackageBundler:** iot package ([4d8fcf8](https://github.com/criticalmanufacturing/cli/commits/4d8fcf89d08b407a168664c3a38613250f899a01))
+* **restore:** add cifs client to unc paths usage to work on any OS ([e883568](https://github.com/criticalmanufacturing/cli/commits/e883568085ffaabbb2c05567f466f4e966b09064))
+
+
+### Under the hood
+
+* **installation:** update postinstall to always copy `cmf-cli` to currentdir and prioritize a local `cmf` bin file ([5efe946](https://github.com/criticalmanufacturing/cli/commits/5efe94675ceb86811185441abbdec9226b574449))
+
+## [5.2.0-0](https://github.com/criticalmanufacturing/cli/compare/5.1.0...5.2.0-0) (2025-01-22)
+
+
+### Features
+
+* **json validator:** validate subworkflows closes [#452](https://github.com/criticalmanufacturing/cli/issues/452) ([61b96c5](https://github.com/criticalmanufacturing/cli/commits/61b96c577ecdf3e92331efef6944da1672bc466b))
+* **new iot:** merge generator-iot closes [#450](https://github.com/criticalmanufacturing/cli/issues/450) ([54f1399](https://github.com/criticalmanufacturing/cli/commits/54f1399b35f4a01eaa97733bebebf8ebe32a927c))
+* **nodePackageBundler:** iot package ([4d8fcf8](https://github.com/criticalmanufacturing/cli/commits/4d8fcf89d08b407a168664c3a38613250f899a01))
+* **restore:** add cifs client to unc paths usage to work on any OS ([e883568](https://github.com/criticalmanufacturing/cli/commits/e883568085ffaabbb2c05567f466f4e966b09064))
+
+
+### Under the hood
+
+* **installation:** update postinstall to always copy `cmf-cli` to currentdir and prioritize a local `cmf` bin file ([5efe946](https://github.com/criticalmanufacturing/cli/commits/5efe94675ceb86811185441abbdec9226b574449))
+
 ## [5.1.0](https://github.com/criticalmanufacturing/cli/compare/5.1.0-1...5.1.0) (2024-11-25)
 
 ## [5.1.0-1](https://github.com/criticalmanufacturing/cli/compare/5.1.0-0...5.1.0-1) (2024-11-04)
