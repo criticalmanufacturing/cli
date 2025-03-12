@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { Converter } from "@criticalmanufacturing/connect-iot-controller-engine";
-import EngineTestSuite from "@criticalmanufacturing/connect-iot-controller-engine/test";
+import EngineTestSuite from "@criticalmanufacturing/connect-iot-controller-engine/dist/test";
 // import * as chai from "chai";
 import { <%= $CLI_PARAM_ClassName %>Converter } from "../../../../src/converters/<%= $CLI_PARAM_ConverterName %>/<%= $CLI_PARAM_ConverterName %>.converter";
 

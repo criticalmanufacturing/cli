@@ -42,7 +42,7 @@
   "dependencies": {
     "@criticalmanufacturing/connect-iot-controller-engine": "<%= $CLI_PARAM_TargetSystemVersionProcessed %>",
     "reflect-metadata": "0.1.13",
-    "inversify": "6.0.1",
+    "inversify": "6.0.2",
     "moment": "2.29.4",
     "cmf-lbos": "<%= $CLI_PARAM_TargetSystemVersionProcessed %>",
     "zone.js": "0.14.7"
