@@ -517,7 +517,7 @@ namespace Cmf.CLI.Handlers
 
             foreach(var relatedPackageHandler in RelatedPackagesHandlers.Where(rp => !rp.Key.IsSet && rp.Key.PreBuild))
             {
-                relatedPackageHandler.Value.Build();
+                relatedPackageHandler.Value.Build(true);
                 relatedPackageHandler.Key.IsSet = true;
             }
 
@@ -536,7 +536,7 @@ namespace Cmf.CLI.Handlers
 
             foreach (var relatedPackageHandler in RelatedPackagesHandlers.Where(rp => !rp.Key.IsSet && rp.Key.PostBuild))
             {
-                relatedPackageHandler.Value.Build();
+                relatedPackageHandler.Value.Build(true);
                 relatedPackageHandler.Key.IsSet = true;
             }
 
