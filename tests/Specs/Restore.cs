@@ -5,6 +5,8 @@ using FluentAssertions;
 using System;
 using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;
+using Cmf.CLI.Core.Services;
+using Microsoft.Extensions.DependencyInjection;
 using tests.Objects;
 using Xunit;
 using Assert = tests.AssertWithMessage;
@@ -111,6 +113,11 @@ namespace tests.Specs
             var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
             {
                 {
+                    $"{gitRepo}/.project-config.json", new MockFileData(
+                        @"{
+                    }")
+                },
+                {
                     $"{gitRepo}/cmfpackage.json", new MockFileData(
                         @"{
                   ""packageId"": ""Cmf.Custom.Package"",
@@ -172,6 +179,9 @@ namespace tests.Specs
                 }
             });
 
+            ExecutionContext.ServiceProvider = (new ServiceCollection())
+                .AddSingleton<IRepositoryLocator, RepositoryLocator>()
+                .BuildServiceProvider();
             ExecutionContext.Initialize(fileSystem);
             fileSystem.Directory.SetCurrentDirectory(MockUnixSupport.Path(@"c:\test"));
 
@@ -182,8 +192,12 @@ namespace tests.Specs
 
             Assert.False(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\Dependencies")).Exists, "Dependencies folder already exists!");
 
+            var logWriter = (new Logging()).GetLogStringWriter();
+            
             var exception = Record.Exception(() => packageTypeHandler.RestoreDependencies(new[] { repo }));
             exception.Should().BeNull();
+            
+            logWriter.ToString().Should().Contain("No present remote dependencies to restore. Exiting...");
         }
     }
 }
