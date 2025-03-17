@@ -8,9 +8,12 @@ using Cmf.CLI.Core.Objects;
 using Microsoft.Extensions.DependencyInjection;
 using Cmf.CLI.Core.Enums;
 using System.CommandLine.Parsing;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Reflection;
 using Cmf.CLI.Constants;
+using Cmf.CLI.Core.Interfaces;
+using Cmf.CLI.Core.Services;
 using Cmf.CLI.Services;
 
 namespace Cmf.CLI
@@ -34,8 +37,12 @@ namespace Cmf.CLI
                     envVarPrefix: "cmf_cli",
                     description: "Critical Manufacturing CLI",
                     args: args,
-                    registerExtraServices: collection => 
-                        collection.AddSingleton<IDependencyVersionService, DependencyVersionService>());
+                    registerExtraServices: collection =>
+                    {
+                        collection.AddSingleton<IDependencyVersionService, DependencyVersionService>();
+                        collection.AddSingleton<IRepositoryLocator, RepositoryLocator>();
+                        collection.AddSingleton<IFeaturesService>(new FeaturesService("cmf_cli"));
+                    });
 
                 using var activity = ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!.StartActivity("Main");
 
@@ -63,6 +70,9 @@ namespace Cmf.CLI
                     }
                     else
                     {
+                        ExecutionContext.Initialize(new FileSystem());
+                        ExecutionContext.ServiceProvider.GetService<IRepositoryLocator>()!
+                            .InitializeClientsForRepositories(ExecutionContext.Instance.FileSystem);
                         result = await parser.InvokeAsync(args);
                     }
                 }
