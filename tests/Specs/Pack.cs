@@ -487,7 +487,7 @@ namespace tests.Specs
                 Directory.SetCurrentDirectory(cur);
             }
         }
-        
+
         [Fact]
         public void Pack_AppFeature()
         {
@@ -509,7 +509,7 @@ namespace tests.Specs
                         .Replace("temp_folder", MockUnixSupport.Path(@"z:\temp_folder").Replace(@"\", @"\\"))
                     );
                 }
-                
+
                 string featureDir = Path.Join(dir, "Features", "TestFeature");
                 Directory.SetCurrentDirectory(featureDir);
 
@@ -523,13 +523,13 @@ namespace tests.Specs
                 cmd.Invoke(Array.Empty<string>(), console);
 
                 DirectoryInfo curDir = new(System.IO.Directory.GetCurrentDirectory());
-                
+
                 Assert.True(File.Exists($"{dir}/{CliConstants.CmfAppFileName}"), $"Root {CliConstants.CmfAppFileName} is missing");
-                
+
                 Assert.False(Directory.Exists($"{dir}/Package"), "Package folder exists");
-                
+
                 Assert.False(File.Exists($"{featureDir}/{CliConstants.CmfAppFileName}"), $"Feature {CliConstants.CmfAppFileName} exists");
-                
+
                 Assert.True(Directory.Exists($"{featureDir}/Package"), "Package folder is missing");
 
                 Assert.True(File.Exists($"{featureDir}/Package/{packageName}"), "Zip package is missing");
@@ -622,6 +622,57 @@ namespace tests.Specs
 
         [Theory]
         [InlineData("10.2.7", StepType.IoTAutomationTaskLibrariesSync)]
+        public void IoTATLDFNoStepsForVersion(string version, StepType mustNotHave)
+        {
+            var mockFS = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { MockUnixSupport.Path(@"c:\.project-config.json"), new MockFileData(
+    $@"{{
+                ""MESVersion"": ""{version}""
+                }}")
+                },
+                {
+                    MockUnixSupport.Path("c:/cmfpackage.json"), new MockFileData(
+                $@"{{
+                      ""packageId"": ""Cmf.Custom.IoT.Packages"",
+                      ""version"": ""1.0.0"",
+                      ""description"": ""Cmf Custom IoT Package"",
+                      ""packageType"": ""IoT"",
+                      ""isInstallable"": true,
+                      ""isUniqueInstall"": false,
+                      ""contentToPack"": [
+                        {{
+                          ""source"": ""src/*"",
+                          ""target"": ""node_modules"",
+                          ""ignoreFiles"": [
+                            "".npmignore""
+                          ]
+                        }}
+                      ]
+                    }}")}, {
+                    MockUnixSupport.Path(@"c:\.pkg.json"), new MockFileData(
+                     $@"{{
+                        ""type"": ""IoT"",
+                        ""packageId"": ""xxxxx"",
+                        ""version"": ""1.0.0"",
+                        ""contentToPack"": [{{}}]
+                     }}")
+                },
+                { MockUnixSupport.Path("c:/src/awesome/package.json"), new MockFileData(@"{""name"": ""@awesome/package"",""version"": ""1.0.0""}")},
+                { MockUnixSupport.Path("c:/src/lessawesome/package.json"), new MockFileData(@"{""name"": ""lessawesome"",""version"": ""2.0.0""}")},
+            });
+
+            // cmfpackage file
+            ExecutionContext.Initialize(mockFS);
+            var pkg = CmfPackage.Load(mockFS.FileSystem.FileInfo.New(MockUnixSupport.Path(@"c:\.pkg.json")), true,
+                mockFS);
+            var _ = new IoTPackageTypeHandler(pkg);
+
+            pkg.Steps.Any(step => step.Type == mustNotHave).Should().BeFalse();
+        }
+
+        [Theory]
+        [InlineData("10.2.7", StepType.IoTAutomationTaskLibrariesSync)]
         public void IoTATLDFStepsForVersion(string version, StepType mustHave)
         {
             var mockFS = new MockFileSystem(new Dictionary<string, MockFileData>
@@ -651,20 +702,18 @@ namespace tests.Specs
                       ]
                     }}")}, {
                     MockUnixSupport.Path(@"c:\.pkg.json"), new MockFileData(
-                        $@"{{
-                    ""type"": ""IoT"",
-                    ""packageId"": ""xxxxx"",
-                    ""version"": ""1.0.0"",
-                    ""contentToPack"": [{{}}]
-                    }}")
+                     $@"{{
+                        ""type"": ""IoT"",
+                        ""packageId"": ""xxxxx"",
+                        ""version"": ""1.0.0"",
+                        ""contentToPack"": [{{}}]
+                     }}")
                 },
-                { MockUnixSupport.Path("c:/src/awesome/package.json"), new MockFileData(@"{""name"": ""@awesome/package"",""version"": ""1.0.0""}")},
-                { MockUnixSupport.Path("c:/src/lessawesome/package.json"), new MockFileData(@"{""name"": ""lessawesome"",""version"": ""2.0.0""}")},
+                { MockUnixSupport.Path("c:/src/awesome/package.json"), new MockFileData(@"{""name"": ""@awesome/package"",""version"": ""1.0.0"",""criticalManufacturing"": { ""tasksLibrary"": {} } }")},
+                { MockUnixSupport.Path("c:/src/lessawesome/package.json"), new MockFileData(@"{""name"": ""lessawesome"",""version"": ""2.0.0"", ""criticalManufacturing"": { ""tasksLibrary"": {} } }")},
             });
 
             // cmfpackage file
-
-
             ExecutionContext.Initialize(mockFS);
             var pkg = CmfPackage.Load(mockFS.FileSystem.FileInfo.New(MockUnixSupport.Path(@"c:\.pkg.json")), true,
                 mockFS);
@@ -675,6 +724,122 @@ namespace tests.Specs
             var packageStep = pkg.Steps.FirstOrDefault(step => step.Type == mustHave);
             packageStep.Content.Should().NotBeNull();
             packageStep.Content.Equals("@awesome/package@1.0.0,lessawesome@2.0.0");
+        }
+
+        [Theory]
+        [InlineData("11.1.0", StepType.AutomationBusinessScenariosSync)]
+        public void IoTBizScenariosDFStepsForVersion(string version, StepType mustHave)
+        {
+            var mockFS = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { MockUnixSupport.Path(@"c:\.project-config.json"), new MockFileData(
+    $@"{{
+                ""MESVersion"": ""{version}""
+                }}")
+                },
+                {
+                    MockUnixSupport.Path("c:/cmfpackage.json"), new MockFileData(
+                $@"{{
+                      ""packageId"": ""Cmf.Custom.IoT.Packages"",
+                      ""version"": ""1.0.0"",
+                      ""description"": ""Cmf Custom IoT Package"",
+                      ""packageType"": ""IoT"",
+                      ""isInstallable"": true,
+                      ""isUniqueInstall"": false,
+                      ""contentToPack"": [
+                        {{
+                          ""source"": ""src/*"",
+                          ""target"": ""node_modules"",
+                          ""ignoreFiles"": [
+                            "".npmignore""
+                          ]
+                        }}
+                      ]
+                    }}")}, {
+                    MockUnixSupport.Path(@"c:\.pkg.json"), new MockFileData(
+                     $@"{{
+                        ""type"": ""IoT"",
+                        ""packageId"": ""xxxxx"",
+                        ""version"": ""1.0.0"",
+                        ""contentToPack"": [{{}}]
+                     }}")
+                },
+                { MockUnixSupport.Path("c:/src/awesome/package.json"), new MockFileData(@"{""name"": ""@awesome/package"",""version"": ""1.0.0"",""criticalManufacturing"": { ""businessScenarios"": [] } }")},
+                { MockUnixSupport.Path("c:/src/lessawesome/package.json"), new MockFileData(@"{""name"": ""lessawesome"",""version"": ""2.0.0"", ""criticalManufacturing"": { ""businessScenarios"": [] } }")},
+            });
+
+            // cmfpackage file
+            ExecutionContext.Initialize(mockFS);
+            var pkg = CmfPackage.Load(mockFS.FileSystem.FileInfo.New(MockUnixSupport.Path(@"c:\.pkg.json")), true,
+                mockFS);
+            var _ = new IoTPackageTypeHandler(pkg);
+
+            pkg.Steps.Any(step => step.Type == mustHave).Should()
+                .BeTrue();
+            var packageStep = pkg.Steps.FirstOrDefault(step => step.Type == mustHave);
+            packageStep.Content.Should().NotBeNull();
+            packageStep.Content.Equals("@awesome/package@1.0.0,lessawesome@2.0.0");
+        }
+
+        [Theory]
+        [InlineData("11.1.0")]
+        public void IoTATLAndBizScenariosDFStepsForVersion(string version)
+        {
+            var mockFS = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { MockUnixSupport.Path(@"c:\.project-config.json"), new MockFileData(
+    $@"{{
+                ""MESVersion"": ""{version}""
+                }}")
+                },
+                {
+                    MockUnixSupport.Path("c:/cmfpackage.json"), new MockFileData(
+                $@"{{
+                      ""packageId"": ""Cmf.Custom.IoT.Packages"",
+                      ""version"": ""1.0.0"",
+                      ""description"": ""Cmf Custom IoT Package"",
+                      ""packageType"": ""IoT"",
+                      ""isInstallable"": true,
+                      ""isUniqueInstall"": false,
+                      ""contentToPack"": [
+                        {{
+                          ""source"": ""src/*"",
+                          ""target"": ""node_modules"",
+                          ""ignoreFiles"": [
+                            "".npmignore""
+                          ]
+                        }}
+                      ]
+                    }}")}, {
+                    MockUnixSupport.Path(@"c:\.pkg.json"), new MockFileData(
+                     $@"{{
+                        ""type"": ""IoT"",
+                        ""packageId"": ""xxxxx"",
+                        ""version"": ""1.0.0"",
+                        ""contentToPack"": [{{}}]
+                     }}")
+                },
+                { MockUnixSupport.Path("c:/src/awesome/package.json"), new MockFileData(@"{""name"": ""@awesome/package"",""version"": ""1.0.0"",""criticalManufacturing"": { ""tasksLibrary"": {} } }")},
+                { MockUnixSupport.Path("c:/src/lessawesome/package.json"), new MockFileData(@"{""name"": ""lessawesome"",""version"": ""2.0.0"", ""criticalManufacturing"": { ""businessScenarios"": [] } }")},
+            });
+
+            // cmfpackage file
+            ExecutionContext.Initialize(mockFS);
+            var pkg = CmfPackage.Load(mockFS.FileSystem.FileInfo.New(MockUnixSupport.Path(@"c:\.pkg.json")), true,
+                mockFS);
+            var _ = new IoTPackageTypeHandler(pkg);
+
+            pkg.Steps.Any(step => step.Type == StepType.IoTAutomationTaskLibrariesSync).Should()
+                .BeTrue();
+            var packageStep = pkg.Steps.FirstOrDefault(step => step.Type == StepType.IoTAutomationTaskLibrariesSync);
+            packageStep.Content.Should().NotBeNull();
+            packageStep.Content.Equals("@awesome/package@1.0.0");
+
+            pkg.Steps.Any(step => step.Type == StepType.AutomationBusinessScenariosSync).Should()
+                .BeTrue();
+            packageStep = pkg.Steps.FirstOrDefault(step => step.Type == StepType.AutomationBusinessScenariosSync);
+            packageStep.Content.Should().NotBeNull();
+            packageStep.Content.Equals("lessawesome@2.0.0");
         }
 
         [Theory]
@@ -970,7 +1135,8 @@ namespace tests.Specs
             XDocument manifestDoc = XDocument.Load(manifestStreamReader);
             var steps = manifestDoc.Descendants("steps")
                         .Elements("step")
-                        .Select(s => new {
+                        .Select(s => new
+                        {
                             ContentType = s.Attribute("type")?.Value,
                             TargetPlatform = s.Attribute("targetPlatform")?.Value
                         })
