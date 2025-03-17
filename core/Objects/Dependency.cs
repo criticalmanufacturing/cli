@@ -47,6 +47,14 @@ namespace Cmf.CLI.Core.Objects
         [JsonProperty(Order = 3)]
         [JsonIgnore]
         public CmfPackage CmfPackage { get; set; }
+        
+        
+        /// <summary>
+        /// The CmfPackage that satisfies this dependency
+        /// </summary>
+        [JsonProperty(Order = 3)]
+        [JsonIgnore]
+        public CmfPackageV1 CmfPackageV1 { get; set; }
 
         /// <summary>
         /// Is this package missing, i.e. we could not find it anywhere to satisfy this dependency
@@ -54,7 +62,7 @@ namespace Cmf.CLI.Core.Objects
         [JsonProperty(Order = 4)]
         [JsonIgnore]
         [XmlIgnore]
-        public bool IsMissing => this.CmfPackage == null;
+        public bool IsMissing => this.CmfPackage == null && this.CmfPackageV1 == null;
 
         #endregion Public Properties
 
