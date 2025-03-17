@@ -9,7 +9,7 @@ namespace Cmf.CLI.Core.Objects
     /// <summary>
     /// Represents the content to be packed into a DF Package
     /// </summary>
-    /// <seealso cref="System.IEquatable{Cmf.CLI.Core.Objects.RelatedPackage}" />
+    /// <seealso cref="RelatedPackage" />
     public class RelatedPackage : IEquatable<RelatedPackage>
     {
         #region Public Properties

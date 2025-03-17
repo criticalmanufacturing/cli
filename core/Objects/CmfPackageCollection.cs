@@ -7,7 +7,7 @@ namespace Cmf.CLI.Core.Objects
     /// <summary>
     ///
     /// </summary>
-    /// <seealso cref="System.Collections.Generic.List{Objects.CmfPackage}" />
+    /// <seealso cref="CmfPackage" />
     public class CmfPackageCollection : List<CmfPackage>
     {
         /// <summary>
