@@ -83,6 +83,8 @@
         /// <summary>
         /// Sync Automation Business Scenarios libraries
         /// </summary>
-        AutomationBusinessScenariosSync = 15
+        AutomationBusinessScenariosSync = 15,
+        
+        RestoreDatabaseFromBackup = 16
     }
 }
