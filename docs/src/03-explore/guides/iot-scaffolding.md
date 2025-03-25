@@ -205,22 +205,22 @@ The following images demo the scaffolding procedures for IoT ATL custom library 
 4. Generate a custom Tasks Package Library (if needed):
 
     ```powershell
-    cd {{project_or_feature_root_dir}}/Cmf.Custom.IoT/Cmf.Custom.IoT.Packages/projects
-    npx @angular/cli generate {{library_name}}
+    cd {{project_or_feature_root_dir}}/Cmf.Custom.IoT/Cmf.Custom.IoT.Packages/ 
+    npx @angular/cli generate library {{library_name}}
     ```
 
 5. Generate a custom Task (if needed):
 
     ```powershell
     cd {{project_or_feature_root_dir}}/Cmf.Custom.IoT/Cmf.Custom.IoT.Packages/projects/{{library_name}}
-    npx @angular/cli generate task {{task_name}}
+    npx @angular/cli generate @criticalmanufacturing/ngx-iot-schematics:task {{task_name}}
     ```
 
 6. Generate a custom Converter (if needed):
 
     ```powershell
     cd {{project_or_feature_root_dir}}/Cmf.Custom.IoT/Cmf.Custom.IoT.Packages/projects/{{library_name}}
-    npx @angular/cli generate converter {{converter_name}}
+    npx @angular/cli generate @criticalmanufacturing/ngx-iot-schematics:converter {{converter_name}}
     ```
 
 #### Post-Scaffolding
@@ -294,18 +294,6 @@ The @criticalmanufacturing/cli will automatically add an entry to the `cmfpackag
         }),
         ...
         ```
-
-#### Demo
-
-The following images demo the scaffolding procedures for IoT custom Task Package library using `@criticalmanufacturing/cli` and `@angular/cli`:
-
-* `@criticalmanufacturing/cli` commands
-
-    ![cmf new iot](IoT-on-MES-v10/cmf_new_iot.gif)
-
-* `@angular/cli` commands
-
-    ![ng commands](IoT-on-MES-v10/generate_tasklibrary.gif)
 
 ### Tasks Package Scaffolding - MES v9 or below
 
