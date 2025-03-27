@@ -164,7 +164,7 @@ The following images demo the scaffolding procedures for IoT ATL custom library 
 
 * Generating a Converter
 
-    ![Generating a Task](IoT-on-MES-v11/cmf_new_iot_task.gif)
+    ![Generating a Task](IoT-on-MES-v11/cmf_new_iot_converter.gif)
 
 * Generating a Business Scenario
 
