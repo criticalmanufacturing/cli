@@ -37,10 +37,10 @@ If needed, use `nvm` command to fix it.
 
 You can initialize a MES Customization or App project workspace using the `cmf init` command. The following examples illustrate its usage.
 
-!!! Note "Software and MES ISO Dependencies"
+!!! note "Software and MES ISO Dependencies"
 
-    * To determine the dependencies required for your MES version, follow the instructions on the [Project Types Concept](../../../concepts/project-types/index.md) page.
-    * Remember that you only need to provide a MES ISO location if your MES or its optional components run on a Windows environment. More details on MES components are available on the [MES System Architecture][help-MES-architecture] page.
+    * **Dependencies Version**: To determine the software dependencies version to use on the `init` command, check the instructions on the [Project Types Concept](../../../concepts/project-types/index.md) page.
+    * **MES ISO location is optional**: You only need to provide this parameter if your MES or one of its optional components **runs** on a Windows environment. More details on MES components are available on the [MES System Architecture][help-MES-architecture] page.
 
 === "MES v10 or above"
 
@@ -53,8 +53,8 @@ You can initialize a MES Customization or App project workspace using the `cmf i
         --nugetVersion 11.0.0 `
         --testScenariosNugetVersion 11.0.0 `
         --deploymentDir \\directory\Deployments `
-        --ISOLocation \\directory\CriticalManufacturing.iso # Optional (for containers)
-        --ngxSchematicsVersion 11.0.0 `
+        --ISOLocation \\directory\CriticalManufacturing.iso `
+        --ngxSchematicsVersion 11.0.0
     ```
 
 === "MES v9 or below"
@@ -71,7 +71,7 @@ You can initialize a MES Customization or App project workspace using the `cmf i
         --ISOLocation \\setups\CriticalManufacturing.iso `
         --DevTasksVersion 8.1.3 `
         --HTMLStarterVersion 8.1.1 `
-        --yoGeneratorVersion 3.1.0 `
+        --yoGeneratorVersion 3.1.0
     ```
 
 === "MES App"
