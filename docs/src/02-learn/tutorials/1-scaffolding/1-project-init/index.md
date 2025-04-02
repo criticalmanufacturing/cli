@@ -22,23 +22,25 @@ Open a PowerShell terminal and navigate to your new project folder.
 
 Run the following commands to check your current versions:
 
-    ```powershell
-    # Check Node.js version
-    node -v
+```pwsh
+# Check Node.js version
+node -v
 
-    #Check NPM version
-    npm -v
-    ```
+#Check NPM version
+npm -v
+```
 
 Validate that their versions match the compatibility list stated in the [installation guide](../../../../01-install/index.md).
 If needed, use `nvm` command to fix it.
 
 ## 4. Initialize Project
 
-You can initialize a MES Customization or App project workspace using the `cmf init` command.  The [Project Types Concept](../../../concepts/project-types/index.md) page provides details on this command dependency versions. The following example demonstrates its usage.
+You can initialize a MES Customization or App project workspace using the `cmf init` command. The following examples illustrate its usage.
 
-!!! note "MES ISO location usage"
-    You only need to provide a MES ISO location if you are running your MES on Windows or one of its optional components (more details on [MES System Architecture][help-MES-architecture] page).
+!!! Note "Software and MES ISO Dependencies"
+
+    * To determine the dependencies required for your MES version, follow the instructions on the [Project Types Concept](../../../concepts/project-types/index.md) page.
+    * Remember that you only need to provide a MES ISO location if your MES or its optional components run on a Windows environment. More details on MES components are available on the [MES System Architecture][help-MES-architecture] page.
 
 === "MES v10 or above"
 
@@ -97,7 +99,7 @@ You can initialize a MES Customization or App project workspace using the `cmf i
 
 The `cmf init` command should have terminated with success and created a basic project structure similar to:
 
-``` log
+```log
 📦ExampleProject
 ┣ 📂.config               # Dotnet tools configuration
 ┃ ┗ 📜dotnet-tools.json
