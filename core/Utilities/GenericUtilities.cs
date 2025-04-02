@@ -214,6 +214,40 @@ namespace Cmf.CLI.Utilities
             }
             return tree;
         }
+        
+        /// <summary>
+        /// Builds a tree representation of a CmfPackage dependency tree
+        /// </summary>
+        /// <param name="pkg">the root package</param>
+        public static Tree BuildTree(CmfPackageV1 pkg)
+        {
+            var tree = new Tree($"{pkg.PackageId}@{pkg.Version} [[{pkg.Client.RepositoryRoot}]]");
+            if (pkg.Dependencies.HasAny())
+            {
+                for (int i = 0; i < pkg.Dependencies.Count; i++)
+                {
+                    Dependency dep = pkg.Dependencies[i];
+
+                    if (!dep.IsMissing)
+                    {
+                        var curNode = tree.AddNode($"{dep.CmfPackageV1.PackageId}@{dep.CmfPackageV1.Version} [[{dep.CmfPackageV1.Client.RepositoryRoot}]]");
+                        BuildTreeNodes(dep.CmfPackageV1, curNode);
+                    }
+                    else if (dep.IsMissing)
+                    {
+                        if (dep.Mandatory)
+                        {
+                            tree.AddNode($"[red]MISSING {dep.Id}@{dep.Version}[/]");
+                        }
+                        else
+                        {
+                            tree.AddNode($"[yellow]MISSING {dep.Id}@{dep.Version}[/]");
+                        }
+                    }
+                }
+            }
+            return tree;
+        }
 
         /// <summary>
         ///
@@ -242,6 +276,34 @@ namespace Cmf.CLI.Utilities
                     {
                         var curNode = node.AddNode($"{dep.CmfPackage.PackageId}@{dep.CmfPackage.Version} [[{dep.CmfPackage.Location.ToString()}]]");
                         BuildTreeNodes(dep.CmfPackage, curNode);
+                    }
+                    else if (dep.IsMissing)
+                    {
+                        if (dep.Mandatory)
+                        {
+                            node.AddNode($"[red]MISSING {dep.Id}@{dep.Version}[/]");
+                        }
+                        else
+                        {
+                            node.AddNode($"[yellow]MISSING {dep.Id}@{dep.Version}[/]");
+                        }
+                    }
+                }
+            }
+        }
+        
+        private static void BuildTreeNodes(CmfPackageV1 pkg, TreeNode node)
+        {
+            if (pkg.Dependencies.HasAny())
+            {
+                for (int i = 0; i < pkg.Dependencies.Count; i++)
+                {
+                    Dependency dep = pkg.Dependencies[i];
+
+                    if (!dep.IsMissing)
+                    {
+                        var curNode = node.AddNode($"{dep.CmfPackageV1.PackageId}@{dep.CmfPackageV1.Version} [[{dep.CmfPackageV1.Client.RepositoryRoot}]]");
+                        BuildTreeNodes(dep.CmfPackageV1, curNode);
                     }
                     else if (dep.IsMissing)
                     {

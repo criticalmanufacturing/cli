@@ -44,16 +44,17 @@ namespace Cmf.CLI.Commands.restore
                 description: "Repositories where dependencies are located (folder)"));
 
             var packageRoot = FileSystemUtilities.GetPackageRoot(this.fileSystem);
-            var arg = new Argument<IDirectoryInfo>(
-                name: "packagePath",
-                description: "Package path");
-            cmd.AddArgument(arg);
-
+            var packagePath = ".";
             if (packageRoot != null)
             {
-                var packagePath = this.fileSystem.Path.GetRelativePath(this.fileSystem.Directory.GetCurrentDirectory(), packageRoot.FullName);
-                arg.SetDefaultValue(this.fileSystem.DirectoryInfo.New(packagePath));
+                packagePath = this.fileSystem.Path.GetRelativePath(this.fileSystem.Directory.GetCurrentDirectory(), packageRoot.FullName);
             }
+            var arg = new Argument<IDirectoryInfo>(
+                name: "packagePath",
+                parse: (argResult) => Parse<IDirectoryInfo>(argResult, packagePath),
+                isDefault: true,
+                description: "Package path");
+            cmd.AddArgument(arg);
             cmd.Handler = CommandHandler.Create<IDirectoryInfo, Uri[]>(Execute);
         }
 
@@ -71,6 +72,7 @@ namespace Cmf.CLI.Commands.restore
             {
                 ExecutionContext.Instance.RepositoriesConfig.Repositories.InsertRange(0, repos);
             }
+           
             packageTypeHandler.RestoreDependencies(ExecutionContext.Instance.RepositoriesConfig.Repositories.ToArray());
         }
     }

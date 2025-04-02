@@ -478,9 +478,10 @@ namespace Cmf.CLI.Utilities
         /// <param name="packageFile"></param>
         /// <param name="filename"></param>
         /// <returns></returns>
-        public static string GetFileContentFromPackage(string packageFile, string filename)
+        public static string GetFileContentFromPackage(string packageFile, string filename, IFileSystem fileSystem = null)
         {
-            using (FileStream zipToOpen = new FileInfo(packageFile).OpenRead())
+            fileSystem ??= new FileSystem();
+            using (var zipToOpen = fileSystem.FileInfo.New(packageFile).OpenRead())
             {
                 using (ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read))
                 {

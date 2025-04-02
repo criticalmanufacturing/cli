@@ -7,7 +7,7 @@ namespace Cmf.CLI.Core.Objects
     /// <summary>
     ///
     /// </summary>
-    /// <seealso cref="System.Collections.Generic.List{Cmf.CLI.Core.Objects.Dependency}" />
+    /// <seealso cref="Dependency" />
     public class DependencyCollection : List<Dependency>
     {
         /// <summary>

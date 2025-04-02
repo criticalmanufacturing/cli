@@ -10,7 +10,7 @@ namespace Cmf.CLI.Core.Objects
     /// <summary>
     /// Represents the content to be packed into a DF Package
     /// </summary>
-    /// <seealso cref="System.IEquatable{Cmf.CLI.Core.Objects.ContentToPack}" />
+    /// <seealso cref="ContentToPack" />
     public class ContentToPack : IEquatable<ContentToPack>
     {
         #region Public Properties

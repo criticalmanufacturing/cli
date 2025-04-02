@@ -211,6 +211,24 @@ namespace Cmf.CLI.Utilities
             var elements = element.Elements().Where(e => e.Name.LocalName.ToString().ToLowerInvariant() == name.ToString().ToLowerInvariant());
             return !elements.Any() ? null : elements.First();
         }
+        
+        /// <summary>
+        /// Gets the children elements with the specified <see cref="XName" />.
+        /// </summary>
+        /// <param name="element">The element.</param>
+        /// <param name="name">The <see cref="XName" /> to match.</param>
+        /// <param name="ignoreCase">If set to <c>true</c> case will be ignored whilst searching for the <see cref="XElement" />.</param>
+        /// <returns>
+        /// A collection of <see cref="XElement" /> that matches the specified <see cref="XName" />, or null.
+        /// </returns>
+        public static IEnumerable<XElement> Elements(this XContainer element, XName name, bool ignoreCase)
+        {
+            if (!ignoreCase)
+                return null;
+
+            var elements = element.Elements().Where(e => e.Name.LocalName.ToString().ToLowerInvariant() == name.ToString().ToLowerInvariant());
+            return !elements.Any() ? null : elements.ToList();
+        }
 
         /// <summary>
         /// Gets the package json file.
