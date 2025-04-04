@@ -1,0 +1,106 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Critical Manufacturing",
+  "classifications": [
+    "cli"
+  ],
+  "description": "Generate a new IoT Driver Dotnet package",
+  "name": "IoT Driver Dotnet",
+  "identity": "cmf-cli.new.iot.driver-dotnet",
+  "groupIdentity": "cmf-cli.new.iot",
+  "shortName": "iot-driver-dotnet",
+  // You can create the project using this short name instead of the one above.
+  "tags": {
+    "language": "Typescript",
+    "type": "project"
+  },
+  "sourceName": "IoT.Package",
+  "preferNameDirectory": true,
+  "symbols": {
+    "directoryName": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The driver name",
+      "displayName": "Driver Name",
+      "fileRename": "%directoryname%",
+      "replaces": "<%= $CLI_PARAM_DirectoryName %>"
+    },
+    "targetSystemVersionProcessed": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The Target Version",
+      "displayName": "Target Version",
+      "replaces": "<%= $CLI_PARAM_TargetSystemVersionProcessed %>"
+    },
+    "packageName": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The package name",
+      "displayName": "Package Name",
+      "replaces": "<%= $CLI_PARAM_PackageName %>"
+    },
+    "packageVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The package version",
+      "displayName": "Package Version",
+      "replaces": "<%= $CLI_PARAM_PackageVersion %>"
+    },
+    "identifier": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "Driver Identifier",
+      "displayName": "Driver Identifier",
+      "fileRename": "%driveridentifier%",
+      "replaces": "<%= $CLI_PARAM_Identifier %>"
+    },
+    "identifierCamel": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "Driver Identifier CamelCase",
+      "displayName": "Driver Identifier CamelCase",
+      "fileRename": "%drivername%",
+      "replaces": "<%= $CLI_PARAM_IdentifierCamel %>"
+    },
+    "npmRegistry": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "NPM Registry",
+      "displayName": "NPM Registry",
+      "replaces": "<%= $CLI_PARAM_NPMRegistry %>"
+    },
+    "hasCommands": {
+      "type": "parameter",
+      "datatype": "bool",
+      "description": "Driver Has Commands",
+      "displayName": "Driver Has Commands"
+    },
+    "inputsInterface": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "Inputs Interface",
+      "displayName": "Inputs Interface",
+      "replaces": "<%= $CLI_PARAM_InputsInterface %>"
+    },
+    "outputsInterface": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "Outputs Interface",
+      "displayName": "Outputs Interface",
+      "replaces": "<%= $CLI_PARAM_OutputsInterface %>"
+    },
+    "settingsInterface": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "Settings Interface",
+      "displayName": "Settings Interface",
+      "replaces": "<%= $CLI_PARAM_SettingsInterface %>"
+    },
+    "isProtocol": {
+      "type": "parameter",
+      "datatype": "bool",
+      "description": "Is Protocol Setting",
+      "displayName": "Is Protocol Setting"
+    }
+  }
+}
