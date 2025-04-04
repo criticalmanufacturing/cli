@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.2.1](https://github.com/criticalmanufacturing/cli/compare/5.2.0...5.2.1) (2025-04-04)
+
+
+### Bug Fixes
+
+* **iot:** business Scenarios ([36a20b9](https://github.com/criticalmanufacturing/cli/commits/36a20b924e7d8731f7e96f82afd6b605d0300132))
+
 ## [5.2.0](https://github.com/criticalmanufacturing/cli/compare/5.2.0-4...5.2.0) (2025-03-12)
 
 ## [5.2.0-4](https://github.com/criticalmanufacturing/cli/compare/5.2.0-3...5.2.0-4) (2025-02-27)
