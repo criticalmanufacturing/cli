@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.10">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.11">
     
     
       
@@ -147,11 +147,13 @@
     
     
     
-      <label class="md-header__button md-icon" for="__search">
-        
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
-      </label>
-      <div class="md-search" data-md-component="search" role="dialog">
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
   <label class="md-search__overlay" for="__search"></label>
   <div class="md-search__inner" role="search">
     <form class="md-search__form" name="search">
@@ -185,6 +187,7 @@
     </div>
   </div>
 </div>
+      
     
     
       <div class="md-header__source">
@@ -2182,21 +2185,22 @@ CM MES customization projects have long file paths. To avoid problems on Windows
 <p>Open a PowerShell terminal and navigate to your new project folder.</p>
 <h2 id="3-check-nodejs-and-npm-version">3. Check Node.js and NPM Version</h2>
 <p>Run the following commands to check your current versions:</p>
-<pre><code>```powershell
-# Check Node.js version
-node -v
+<div class="highlight"><pre><span></span><code><span class="c"># Check Node.js version</span>
+<span class="n">node</span> <span class="n">-v</span>
 
-#Check NPM version
-npm -v
-```
-</code></pre>
+<span class="c">#Check NPM version</span>
+<span class="n">npm</span> <span class="n">-v</span>
+</code></pre></div>
 <p>Validate that their versions match the compatibility list stated in the <a href="../../../../01-install/">installation guide</a>.
 If needed, use <code>nvm</code> command to fix it.</p>
 <h2 id="4-initialize-project">4. Initialize Project</h2>
-<p>You can initialize a MES Customization or App project workspace using the <code>cmf init</code> command.  The <a href="../../../concepts/project-types/">Project Types Concept</a> page provides details on this command dependency versions. The following example demonstrates its usage.</p>
+<p>You can initialize a MES Customization or App project workspace using the <code>cmf init</code> command. The following examples illustrate its usage.</p>
 <div class="admonition note">
-<p class="admonition-title">MES ISO location usage</p>
-<p>You only need to provide a MES ISO location if you are running your MES on Windows or one of its optional components (more details on <a href="https://help.criticalmanufacturing.com/installationguide/systemarchitecture/">MES System Architecture</a> page).</p>
+<p class="admonition-title">Software and MES ISO Dependencies</p>
+<ul>
+<li><strong>Dependencies Version</strong>: To determine the software dependencies version to use on the <code>init</code> command, check the instructions on the <a href="../../../concepts/project-types/">Project Types Concept</a> page.</li>
+<li><strong>MES ISO location is optional</strong>: You only need to provide this parameter if your MES or one of its optional components <strong>runs</strong> on a Windows environment. More details on MES components are available on the <a href="https://help.criticalmanufacturing.com/installationguide/systemarchitecture/">MES System Architecture</a> page.</li>
+</ul>
 </div>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">MES v10 or above</label><label for="__tabbed_1_2">MES v9 or below</label><label for="__tabbed_1_3">MES App</label></div>
 <div class="tabbed-content">
@@ -2209,8 +2213,8 @@ If needed, use <code>nvm</code> command to fix it.</p>
     <span class="p">-</span><span class="n">-nugetVersion</span> <span class="n">11</span><span class="p">.</span><span class="n">0</span><span class="p">.</span><span class="n">0</span> <span class="p">`</span>
     <span class="p">-</span><span class="n">-testScenariosNugetVersion</span> <span class="n">11</span><span class="p">.</span><span class="n">0</span><span class="p">.</span><span class="n">0</span> <span class="p">`</span>
     <span class="p">-</span><span class="n">-deploymentDir</span> <span class="p">\\</span><span class="n">directory</span><span class="p">\</span><span class="n">Deployments</span> <span class="p">`</span>
-    <span class="p">-</span><span class="n">-ISOLocation</span> <span class="p">\\</span><span class="n">directory</span><span class="p">\</span><span class="n">CriticalManufacturing</span><span class="p">.</span><span class="n">iso</span> <span class="c"># Optional (for containers)</span>
-    <span class="p">-</span><span class="n">-ngxSchematicsVersion</span> <span class="n">11</span><span class="p">.</span><span class="n">0</span><span class="p">.</span><span class="n">0</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-ISOLocation</span> <span class="p">\\</span><span class="n">directory</span><span class="p">\</span><span class="n">CriticalManufacturing</span><span class="p">.</span><span class="n">iso</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-ngxSchematicsVersion</span> <span class="n">11</span><span class="p">.</span><span class="n">0</span><span class="p">.</span><span class="n">0</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
@@ -2225,7 +2229,7 @@ If needed, use <code>nvm</code> command to fix it.</p>
     <span class="p">-</span><span class="n">-ISOLocation</span> <span class="p">\\</span><span class="n">setups</span><span class="p">\</span><span class="n">CriticalManufacturing</span><span class="p">.</span><span class="n">iso</span> <span class="p">`</span>
     <span class="p">-</span><span class="n">-DevTasksVersion</span> <span class="n">8</span><span class="p">.</span><span class="n">1</span><span class="p">.</span><span class="n">3</span> <span class="p">`</span>
     <span class="p">-</span><span class="n">-HTMLStarterVersion</span> <span class="n">8</span><span class="p">.</span><span class="n">1</span><span class="p">.</span><span class="n">1</span> <span class="p">`</span>
-    <span class="p">-</span><span class="n">-yoGeneratorVersion</span> <span class="n">3</span><span class="p">.</span><span class="n">1</span><span class="p">.</span><span class="n">0</span> <span class="p">`</span>
+    <span class="p">-</span><span class="n">-yoGeneratorVersion</span> <span class="n">3</span><span class="p">.</span><span class="n">1</span><span class="p">.</span><span class="n">0</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
