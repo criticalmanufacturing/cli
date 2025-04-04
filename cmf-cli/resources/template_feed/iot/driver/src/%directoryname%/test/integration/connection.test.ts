@@ -5,9 +5,9 @@ import * as chaiSpies from "chai-spies";
 import { container as MainContainer } from "../../src/inversify.config";
 
 import { DeviceDriver, CommunicationState, TYPES as COMMUNICATION_TYPES, PropertyValuePair } from "@criticalmanufacturing/connect-iot-driver";
-import { TestUtilities } from "@criticalmanufacturing/connect-iot-driver/test";
+import { TestUtilities } from "@criticalmanufacturing/connect-iot-driver/dist/test";
 import { TYPES as COMMON_TYPES, Logger } from "@criticalmanufacturing/connect-iot-common";
-import { LoggerMock } from "@criticalmanufacturing/connect-iot-common/test";
+import { LoggerMock } from "@criticalmanufacturing/connect-iot-common/dist/test";
 
 chai.use(chaiSpies);
 
