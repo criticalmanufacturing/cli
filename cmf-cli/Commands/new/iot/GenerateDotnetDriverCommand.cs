@@ -16,13 +16,13 @@ namespace Cmf.CLI.Commands.New.IoT
     /// <summary>
     /// Generates IoT Dotnet Driver structure
     /// </summary>
-    [CmfCommand("driver-dotnet", ParentId = "new_iot", Id = "iot_dotnet_driver")]
+    [CmfCommand("driver-dotnet", ParentId = "new_iot", Id = "iot_dotnet-driver")]
     public class GenerateDotnetDriverCommand : TemplateCommand
     {
         /// <summary>
         /// constructor
         /// </summary>
-        public GenerateDotnetDriverCommand() : base("driver-dotnet")
+        public GenerateDotnetDriverCommand() : base("iot-driver-dotnet")
         {
         }
 
@@ -30,7 +30,7 @@ namespace Cmf.CLI.Commands.New.IoT
         /// constructor
         /// </summary>
         /// <param name="fileSystem">the filesystem implementation</param>
-        public GenerateDotnetDriverCommand(IFileSystem fileSystem) : base("driver-dotnet", fileSystem)
+        public GenerateDotnetDriverCommand(IFileSystem fileSystem) : base("iot-driver-dotnet", fileSystem)
         {
         }
 
@@ -77,7 +77,6 @@ namespace Cmf.CLI.Commands.New.IoT
             var driver = HandleDriver(new DriverValues());
 
             var args = this.GenerateArgs(workingDir, this.fileSystem.Directory.GetCurrentDirectory(), driver.Directory, driver.Identifier, driver.IdentifierCamel, driver.PackageFullName, driver.PackageVersion, driver.HasCommands);
-            this.CommandName = "iot-driver-dotnet";
             base.RunCommand(args);
         }
 
