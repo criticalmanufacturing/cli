@@ -89,7 +89,8 @@ namespace Cmf.CLI.Handlers
             {
                 var packageLocation = "projects";
 
-                if (!this.IsAngularProject(cmfPackage.GetFileInfo().Directory.FullName)) {
+                if (!this.IsAngularProject(cmfPackage.GetFileInfo().Directory.FullName))
+                {
                     defaultSteps = this.AddAutomationTaskLibrariesStep(targetVersion, CmfPackage, defaultSteps);
                     defaultSteps = this.AddAutomationBusinessScenarioStep(targetVersion, CmfPackage, defaultSteps);
                 }
@@ -375,6 +376,64 @@ namespace Cmf.CLI.Handlers
             base.Pack(packageOutputDir, outputDir);
         }
 
+        private List<string> GetPackagesWithBusinessScenarios(List<IFileInfo> packageJsons)
+        {
+            List<string> packagesWVersion = new List<string>();
+            foreach (var packageJson in packageJsons)
+            {
+                var json = fileSystem.File.ReadAllText(packageJson.FullName);
+                dynamic packageJsonContent = JsonConvert.DeserializeObject(json);
+
+                if (packageJsonContent?["criticalManufacturing"] == null || packageJsonContent?["criticalManufacturing"]?["businessScenarios"] == null)
+                {
+                    Log.Debug($"Package has no business scenario '{packageJson.FullName}' as no businessScenarios array was not found in the pre cmf pack package.json");
+                }
+                else
+                {
+                    if (packageJsonContent?["name"] == null || packageJsonContent?["version"] == null)
+                    {
+                        throw new CliException($"Invalid package '{packageJson.FullName}' has an invalid name or version");
+                    }
+
+                    string packageName = packageJsonContent["name"].ToString();
+
+                    var package = $"{packageJsonContent["name"].ToString()}@{packageJsonContent["version"].ToString()}";
+                    packagesWVersion.Add(package);
+                }
+            }
+
+            return packagesWVersion;
+        }
+
+        private List<string> GetPackagesWithTaskLibraries(List<IFileInfo> packageJsons)
+        {
+            List<string> packagesWVersion = new List<string>();
+            foreach (var packageJson in packageJsons)
+            {
+                var json = fileSystem.File.ReadAllText(packageJson.FullName);
+                dynamic packageJsonContent = JsonConvert.DeserializeObject(json);
+
+                if (packageJsonContent?["criticalManufacturing"] == null || packageJsonContent?["criticalManufacturing"]?["tasksLibrary"] == null)
+                {
+                    Log.Debug($"Package has no task library '{packageJson.FullName}' as no taskLibrary object was not found in the pre cmf pack package.json");
+                }
+                else
+                {
+                    if (packageJsonContent?["name"] == null || packageJsonContent?["version"] == null)
+                    {
+                        throw new CliException($"Invalid package '{packageJson.FullName}' has an invalid name or version");
+                    }
+
+                    string packageName = packageJsonContent["name"].ToString();
+
+                    var package = $"{packageJsonContent["name"].ToString()}@{packageJsonContent["version"].ToString()}";
+                    packagesWVersion.Add(package);
+                }
+            }
+
+            return packagesWVersion;
+        }
+
         private List<string> BuildPackageNames(List<IFileInfo> packageJsons)
         {
             List<string> packagesWVersion = new List<string>();
@@ -432,12 +491,15 @@ namespace Cmf.CLI.Handlers
                     targetVersion.Minor >= 2 &&
                     targetVersion.Build >= 7)) && !this.IsAngularProject(cmfPackage.GetFileInfo().Directory.FullName))
             {
-                var packages = string.Join(",", this.BuildPackageNames(this.GetPackageJsons(cmfPackage, packageLocation)));
+                var packages = string.Join(",", this.GetPackagesWithTaskLibraries(this.GetPackageJsons(cmfPackage, packageLocation)));
 
-                defaultSteps.Add(new Step(StepType.IoTAutomationTaskLibrariesSync)
+                if (!string.IsNullOrEmpty(packages))
                 {
-                    Content = packages
-                });
+                    defaultSteps.Add(new Step(StepType.IoTAutomationTaskLibrariesSync)
+                    {
+                        Content = packages
+                    });
+                }
             }
             return defaultSteps;
         }
@@ -447,12 +509,15 @@ namespace Cmf.CLI.Handlers
             // Introduced in version 11.1.x
             if ((targetVersion.Major > 11 || (targetVersion.Major == 11 && targetVersion.Minor >= 1)))
             {
-                var packages = string.Join(",", this.BuildPackageNames(this.GetPackageJsons(cmfPackage, packageLocation)));
+                var packages = string.Join(",", this.GetPackagesWithBusinessScenarios(this.GetPackageJsons(cmfPackage, packageLocation)));
 
-                defaultSteps.Add(new Step(StepType.AutomationBusinessScenariosSync)
+                if (!string.IsNullOrEmpty(packages))
                 {
-                    Content = packages
-                });
+                    defaultSteps.Add(new Step(StepType.AutomationBusinessScenariosSync)
+                    {
+                        Content = packages
+                    });
+                }
             }
             return defaultSteps;
         }
