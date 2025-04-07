@@ -60,7 +60,7 @@ namespace Cmf.CLI.Utilities
             }
             else
             {
-                throw exception;
+                throw new Exception("Unhandled exception", exception);
             }
         }
 
