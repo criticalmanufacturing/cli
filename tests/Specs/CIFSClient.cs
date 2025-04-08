@@ -7,6 +7,7 @@ using Moq;
 using SMBLibrary;
 using SMBLibrary.Client;
 using Xunit;
+using Cmf.CLI.Core.Repository.Credentials;
 
 namespace tests.Specs
 {
