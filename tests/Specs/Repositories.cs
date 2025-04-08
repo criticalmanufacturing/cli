@@ -8,9 +8,11 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Core.Repository;
+using Cmf.CLI.Core.Repository.Credentials;
 using Cmf.CLI.Core.Services;
 using Cmf.CLI.Utilities;
 using FluentAssertions;
@@ -35,8 +37,12 @@ public class Repositories
     [InlineData("https://feed.example", typeof(NPMRepositoryClient))]
     public void GetRepositoryClients(string path, Type client)
     {
+        var repositoryAuthStoreMock = new Mock<IRepositoryAuthStore>();
+        repositoryAuthStoreMock.Setup(x => x.Load()).Returns(Task.FromResult(new CmfAuthFile()));
+
         ExecutionContext.ServiceProvider = (new ServiceCollection())
             .AddSingleton<IVersionService, MockVersionService>()
+            .AddSingleton(repositoryAuthStoreMock.Object)
             .BuildServiceProvider();
         IRepositoryLocator loc = new RepositoryLocator();
         var uri = new Uri(MockUnixSupport.Path(path), UriKind.Absolute);
@@ -58,6 +64,7 @@ public class Repositories
             }
         }
     }
+
     [Fact]
     public void SingletonClientForUri()
     {
@@ -66,7 +73,7 @@ public class Repositories
         var uri = new Uri(MockUnixSupport.Path($"c:\\repo"), UriKind.Absolute);
         var x = loc.GetRepositoryClient(uri, fs);
         var y = loc.GetRepositoryClient(uri, fs);
-        
+
         x.Should().NotBeNull("Repository client should be created");
         x.Should().BeSameAs(y, "because the repository client should return the same instance for several requests for the same URI");
     }
@@ -138,17 +145,17 @@ public class Repositories
         var client = new LocalRepositoryClient(MockUnixSupport.Path("c:/test"), fileSystem);
         var cmfPackage = await client.Find("Cmf.Custom.Package", "1.1.0");
         cmfPackage.PackageId.Should().Be("Cmf.Custom.Package");
-        
+
         var busPackage = await client.Find("Cmf.Custom.Business", "1.1.0");
         busPackage.Should().NotBeNull();
         busPackage.PackageId.Should().Be("Cmf.Custom.Business");
-        
+
         var htmlPackage = await client.Find("Cmf.Custom.HTML", "1.1.0");
         htmlPackage.Should().NotBeNull();
         htmlPackage.PackageId.Should().Be("Cmf.Custom.HTML");
     }
-    
-        [Fact]
+
+    [Fact]
     public async Task LocalRepositoryClient_List()
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
@@ -219,7 +226,7 @@ public class Repositories
         cmfPackages.Should().ContainSingle(package => package.PackageId == "Cmf.Custom.Package");
         cmfPackages.Should().ContainSingle(package => package.PackageId == "Cmf.Custom.HTML");
     }
-    
+
     [Fact]
     public async Task WindowsShareRepositoryClient_Get()
     {
@@ -247,7 +254,7 @@ public class Repositories
         pkg.Version.Should().Be(version);
         pkg.PackageId.Should().Be(packageId);
     }
-    
+
     [Fact]
     public async Task WindowsShareRepositoryClient_List()
     {
@@ -317,7 +324,7 @@ public class Repositories
                         "Cmf.Database": "[11.1.0, 11.1.0]"
                      }
                  }
-                 """).CreateEntry("manifest.xml", 
+                 """).CreateEntry("manifest.xml",
                 $"""
                  <?xml version="1.0" encoding="utf-8"?>
                                      <deploymentPackage>
@@ -369,7 +376,7 @@ public class Repositories
         var feed = "https://example.repo/";
         // Mock HttpMessageHandler to intercept the HttpClient request
         var mockHandler = new Mock<HttpMessageHandler>(MockBehavior.Strict);
-        
+
         // Setup the protected method SendAsync
         mockHandler.Protected()
             .Setup<Task<HttpResponseMessage>>(
@@ -391,7 +398,7 @@ public class Repositories
         var client = new NPMRepositoryClient(feed, fileSystem, npmClient);
         await client.Put(ctlr.CmfPackage);
     }
-    
+
     [Fact]
     public async Task NPMRepositoryClient_Get()
     {
@@ -400,11 +407,11 @@ public class Repositories
             .BuildServiceProvider();
         var packageId = "Cmf.Custom.Data";
         var version = "1.0.0";
-        
+
         var feed = "https://example.repo/";
         // Mock HttpMessageHandler to intercept the HttpClient request
         var mockHandler = new Mock<HttpMessageHandler>(MockBehavior.Strict);
-        
+
         // Setup the protected method SendAsync
         mockHandler.Protected()
             .Setup<Task<HttpResponseMessage>>(
@@ -478,14 +485,14 @@ public class Repositories
             BaseAddress = new Uri(feed.TrimEnd('/'))
         };
         var npmClient = new NPMClient(baseUrl: feed, client: httpClient);
-       
+
         var client = new NPMRepositoryClient(feed, new MockFileSystem(), npmClient);
         var pkg = await client.Find(packageId, version);
         pkg.Should().NotBeNull();
         pkg.Version.Should().Be(version);
         pkg.PackageId.Should().Be(packageId.ToLowerInvariant()); // NPM package names are always lowercase
     }
-    
+
     [Fact]
     public async Task NPMRepositoryClient_List()
     {
@@ -495,7 +502,7 @@ public class Repositories
         var feed = "https://example.repo/";
         // Mock HttpMessageHandler to intercept the HttpClient request
         var mockHandler = new Mock<HttpMessageHandler>(MockBehavior.Strict);
-        
+
         // Setup the protected method SendAsync
         mockHandler.Protected()
             .Setup<Task<HttpResponseMessage>>(
@@ -557,7 +564,7 @@ public class Repositories
             BaseAddress = new Uri(feed.TrimEnd('/'))
         };
         var npmClient = new NPMClient(baseUrl: feed, client: httpClient);
-       
+
         var client = new NPMRepositoryClient(feed, new MockFileSystem(), npmClient);
         var pkgs = await client.List();
         pkgs.Count.Should().Be(0);
@@ -573,7 +580,7 @@ public class Repositories
     //     var tarGzFile = zipFile.FileSystem.FileInfo.New(zipFile.FullName.Replace(".zip", ".tgz"));
     //     CmfPackageController.ConvertZipToTarGz(zipFile, tarGzFile, true);
     // }
-    
+
     // [Fact]
     // public void ConvertTGz()
     // {
@@ -583,7 +590,7 @@ public class Repositories
     //     var zipFile = tarGzFile.FileSystem.FileInfo.New(tarGzFile.FullName.Replace(".tgz", ".zip"));
     //     CmfPackageController.ConvertTarGzToZip(tarGzFile, zipFile);
     // }
-    
+
     [Fact]
     public void Idempotent_Manifest_Conversion()
     {
