@@ -280,6 +280,12 @@ namespace Cmf.CLI.Core.Objects
         public string DependenciesDirectory { get; set; }
 
         /// <summary>
+        /// A list of folders containing .xlf files that include messages used by this project.
+        /// </summary>
+        [JsonProperty(Order = 24)]
+        public List<string> BaseLocalizationFiles { get; private set; }
+
+        /// <summary>
         /// Loaded SharedFolder when loading from cifs
         /// </summary>
         [JsonIgnore]
@@ -313,7 +319,7 @@ namespace Cmf.CLI.Core.Objects
         public CmfPackage(string name, string packageId, string version, string description, PackageType packageType,
                           string targetDirectory, string targetLayer, bool? isInstallable, bool? isUniqueInstall, string keywords,
                           bool? isToSetDefaultSteps, DependencyCollection dependencies, List<Step> steps,
-                          List<ContentToPack> contentToPack, List<string> xmlInjection, bool? waitForIntegrationEntries, DependencyCollection testPackages = null) : this()
+                          List<ContentToPack> contentToPack, List<string> xmlInjection, bool? waitForIntegrationEntries, List<string> baseLocalizationFiles, DependencyCollection testPackages = null) : this()
         {
             Name = name;
             PackageId = packageId ?? throw new ArgumentNullException(nameof(packageId));
@@ -332,6 +338,7 @@ namespace Cmf.CLI.Core.Objects
             XmlInjection = xmlInjection;
             WaitForIntegrationEntries = waitForIntegrationEntries;
             TestPackages = testPackages;
+            BaseLocalizationFiles = baseLocalizationFiles;
         }
 
         /// <summary>
@@ -429,6 +436,7 @@ namespace Cmf.CLI.Core.Objects
                    EqualityComparer<DependencyCollection>.Default.Equals(Dependencies, other.Dependencies) &&
                    EqualityComparer<List<Step>>.Default.Equals(Steps, other.Steps) &&
                    EqualityComparer<List<ContentToPack>>.Default.Equals(ContentToPack, other.ContentToPack) &&
+                   BaseLocalizationFiles.Equals(other.BaseLocalizationFiles) &&
                    EqualityComparer<IFileInfo>.Default.Equals(GetFileInfo(), other.GetFileInfo());
         }
 
@@ -778,7 +786,7 @@ namespace Cmf.CLI.Core.Objects
                 {
                     var file = share.GetFile(_dependencyFileName);
                     if(file != null)
-                    {                   
+                    {
                         if(fromManifest)
                         {
                             using (ZipArchive zip = new(file.Item2, ZipArchiveMode.Read))
@@ -790,7 +798,7 @@ namespace Cmf.CLI.Core.Objects
                                     using var reader = new StreamReader(stream);
                                     cmfPackage = FromManifest(reader.ReadToEnd(), setDefaultValues: true);
                                     if (cmfPackage != null)
-                                    {   
+                                    {
                                         cmfPackage.Uri = file.Item1;
                                         cmfPackage.SharedFolder = share;
                                         break;
@@ -808,7 +816,7 @@ namespace Cmf.CLI.Core.Objects
                 }
             }
 
-            return cmfPackage;          
+            return cmfPackage;
         }
 
         /// <summary>
@@ -881,6 +889,7 @@ namespace Cmf.CLI.Core.Objects
                 null,
                 null,
                 waitForIntegrationEntries: false,
+                null,
                 testPackages
                 );
 
