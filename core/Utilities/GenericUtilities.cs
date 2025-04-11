@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
+using System.Linq;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
@@ -271,6 +272,13 @@ namespace Cmf.CLI.Utilities
             {
                 throw new Exception($"Missing mandatory {fieldName}.");
             }
+        }
+
+        public static string BuildEnvVarPrefix(string repositoryType, string baseUri)
+        {
+            char[] strip = ['/', '.', '-'];
+            var uri = new Uri(baseUri, UriKind.Absolute);
+            return repositoryType + "_" + new string(baseUri.Select(ch => strip.Contains(ch) ? '_' : ch).ToArray());
         }
 
         #endregion Public Methods

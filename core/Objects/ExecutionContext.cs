@@ -1,4 +1,5 @@
 using Cmf.CLI.Core.Interfaces;
+using Cmf.CLI.Core.Repository.Credentials;
 using Cmf.CLI.Utilities;
 using Core.Objects;
 using Microsoft.Extensions.DependencyInjection;
@@ -102,10 +103,22 @@ namespace Cmf.CLI.Core.Objects
             }
 
             // connect and load shares for all UNC repositories
-            if(!RunningOnWindows && RepositoriesConfig.Repositories.HasAny())
+            if (!RunningOnWindows && RepositoriesConfig.Repositories.HasAny())
             {
-                CIFSClients = [];
-                RepositoriesConfig?.Repositories?.Where(r=> r.IsUnc).GroupBy(r => r.Host).ForEach(r=> CIFSClients.Add(new CIFSClient(r.Key, r)));
+                var authStore = ExecutionContext.ServiceProvider.GetService<IRepositoryAuthStore>();
+
+                // NOTE Once this is refactored and out of the constructor, we can initialize call this async function properly
+                var authFile = authStore.Load().GetAwaiter().GetResult();
+
+                CIFSClients = RepositoriesConfig?.Repositories
+                    .Where(uri => uri.IsUnc)
+                    // We can only have on Host per CIFS client, so we group our shares by host...
+                    .GroupBy(uri => uri.Host)
+                    // But even shares with the same host might have different credentials, in which case we must also,
+                    // inside the URIs with the same host, group by their credentials
+                    .SelectMany(hostUris => hostUris.GroupBy(uri => authStore.GetCredentialsFor<CIFSRepositoryCredentials>(authFile, uri.AbsoluteUri)))
+                    .Select(repo => new CIFSClient(repo.Key, repo.First().Host, repo) as ICIFSClient)
+                    .ToList() ?? [];
             }
 
             RelatedPackagesCache = new();

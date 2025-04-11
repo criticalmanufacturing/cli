@@ -1,5 +1,6 @@
 using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Utilities;
 using PeanutButter.INI;
 using System;
 using System.Collections.Generic;
@@ -91,6 +92,12 @@ namespace Cmf.CLI.Core.Repository.Credentials
             {
                 throw new Exception($"Failed to sync credentials into NPM config file: {npmrcFile?.FullName}", ex);
             }
+        }
+
+        public string GetEnvironmentVariablePrefix(string repository)
+        {
+            var uri = new Uri(repository);
+            return GenericUtilities.BuildEnvVarPrefix(RepositoryType, $"{uri.Host}{uri.PathAndQuery.TrimEnd('/')}");
         }
 
         #region Protected Methods

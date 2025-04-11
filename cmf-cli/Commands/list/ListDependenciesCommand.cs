@@ -71,8 +71,10 @@ namespace Cmf.CLI.Commands
             if (ExecutionContext.ServiceProvider?.GetService<IFeaturesService>()?.UseRepositoryClients ?? false)
             {
                 // var ctrlr = new CmfPackageController(cmfpackageFile, this.fileSystem, setDefaultValues: true);
+                var authFile = ExecutionContext.ServiceProvider?.GetService<IRepositoryAuthStore>().Load().GetAwaiter().GetResult();
+
                 var client = ExecutionContext.ServiceProvider?.GetService<IRepositoryLocator>()
-                    .GetRepositoryClient(new Uri(workingDir.FullName), workingDir.FileSystem);
+                    .GetRepositoryClient(new Uri(workingDir.FullName), workingDir.FileSystem, authFile);
                 var cmfPackage = client.Find(null, null).GetAwaiter().GetResult();
                 var ctrlr = new CmfPackageController(cmfPackage, this.fileSystem);
                 Log.Status("Starting ls...", ctx =>

@@ -28,5 +28,20 @@ namespace Cmf.CLI.Core.Repository.Credentials
         {
             return Task.CompletedTask;
         }
+
+        public string GetEnvironmentVariablePrefix(string repository)
+        {
+            var uri = new Uri(repository);
+            var share = uri.AbsolutePath.TrimStart('/').Split('/').FirstOrDefault();
+
+            if (string.IsNullOrEmpty(share))
+            {
+                return GenericUtilities.BuildEnvVarPrefix(RepositoryType, $"{uri.Host}");
+            }
+            else
+            {
+                return GenericUtilities.BuildEnvVarPrefix(RepositoryType, $"{uri.Host}/{share}");
+            }
+        }
     }
 }

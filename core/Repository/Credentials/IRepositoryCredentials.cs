@@ -30,5 +30,12 @@ namespace Cmf.CLI.Core.Repository.Credentials
         /// <param name="credentials"></param>
         /// <returns></returns>
         Task SyncCredentials(IList<ICredential> credentials);
+
+        /// <summary>
+        /// Returns for a given Repository URL, what the env var prefix should be to override the credentials used for that repository
+        /// </summary>
+        /// <param name="repository">The Repository URL which will be used as the basis to load the credentials from the env vars.</param>
+        /// <returns></returns>
+        string GetEnvironmentVariablePrefix(string repository);
     }
 }
