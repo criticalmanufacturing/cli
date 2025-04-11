@@ -2,13 +2,19 @@
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Builder;
+using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Compression;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
+using System.Threading.Tasks;
+using Cmf.CLI.Commands;
+using Cmf.CLI.Core.Attributes;
 using FluentAssertions;
 using Xunit;
 
@@ -155,6 +161,79 @@ namespace Cmf.Common.Cli.TestUtilities
                 .UseExceptionHandler()
                 .CancelOnProcessTermination()
                 .Build();
+        }
+
+        /// <summary>
+        /// Create a minimal parser to invoke commands with
+        /// The default parser brings a lot of extras that we don't require in the tests
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <returns></returns>
+        public static void TestInvoke<T>(T cmd, string[] args)
+            where T : BaseCommand
+        {
+            var console = new TestConsole();
+
+            var root = new Command("cmf");
+            cmd.Configure(root);
+
+            var result = GetParser(root).Invoke(args, console);
+
+            if (result != 0)
+            {
+                throw new Exception(console.Error.ToString());
+            }
+        }
+
+        /// <summary>
+        /// Create a minimal parser to invoke commands with
+        /// The default parser brings a lot of extras that we don't require in the tests
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <returns></returns>
+        public static async Task TestInvokeAsync<T>(T cmd, string[] args, bool setupParents = false)
+            where T : BaseCommand
+        {
+            var console = new TestConsole();
+
+            var attr = cmd.GetType().GetCustomAttributes<CmfCommandAttribute>(false).First();
+            var root= new Command(attr.Name) { IsHidden = attr.IsHidden, Description = attr.Description };
+            cmd.Configure(root);
+
+            if (setupParents)
+            {
+                // Get all types that are marked with CmfCommand attribute
+                var commandTypes = typeof(T).Assembly.GetTypes()
+                    .Select(type => (type: type, attribute: type.GetCustomAttributes<CmfCommandAttribute>(false).FirstOrDefault()))
+                    .Where(cmd => cmd.attribute != null && cmd.attribute.Id != null)
+                    .ToDictionary(cmd => cmd.attribute.Id);
+
+                // Commands that depend on root (have no defined parent)
+                var currentCmd = commandTypes[attr.Id];
+                while (!string.IsNullOrWhiteSpace(currentCmd.attribute.Parent) ||
+                       !string.IsNullOrWhiteSpace(currentCmd.attribute.ParentId))
+                {
+                    var parentCmd = commandTypes[currentCmd.attribute.ParentId];
+                    currentCmd = parentCmd;
+
+                    // Create command
+                    var cmdInstance = new Command(parentCmd.attribute.Name) { IsHidden = parentCmd.attribute.IsHidden, Description = parentCmd.attribute.Description };
+                    cmdInstance.AddCommand(root);
+                    root = cmdInstance;
+
+                    // Call "Configure" method
+                    BaseCommand cmdHandler = Activator.CreateInstance(parentCmd.type) as BaseCommand;
+                    cmdHandler.Configure(cmdInstance);
+                    currentCmd = parentCmd;
+                }
+            }
+
+            var result = await GetParser(root).InvokeAsync(args, console);
+
+            if (result != 0)
+            {
+                throw new Exception(console.Error.ToString());
+            }
         }
 
         /// <summary>
