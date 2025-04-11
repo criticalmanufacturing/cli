@@ -5,11 +5,15 @@ using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
+using System.Threading.Tasks;
 using Cmf.CLI.Commands;
 using Cmf.CLI.Constants;
+using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
+using Moq;
 using tests.Objects;
 using Xunit;
 
@@ -765,7 +769,14 @@ namespace tests.Specs
 
         [Fact]
         public void Assemble_ConfigureCommand()
-            {
+        {
+            var repositoryAuthStoreMock = new Mock<IRepositoryAuthStore>();
+            repositoryAuthStoreMock.Setup(x => x.Load()).Returns(Task.FromResult(new CmfAuthFile()));
+
+            ExecutionContext.ServiceProvider = (new ServiceCollection())
+                .AddSingleton(repositoryAuthStoreMock.Object)
+                .BuildServiceProvider();
+
             Command cmd = new Command("assemble", "Assemble a package");
             new AssembleCommand().Configure(cmd);
             var parseResult = cmd.Parse("dir --outputDir output");
@@ -848,6 +859,14 @@ namespace tests.Specs
             });
 
             fileSystem.Directory.SetCurrentDirectory(root);
+            
+            var repositoryAuthStoreMock = new Mock<IRepositoryAuthStore>();
+            repositoryAuthStoreMock.Setup(x => x.Load()).Returns(Task.FromResult(new CmfAuthFile()));
+                
+            ExecutionContext.ServiceProvider = (new ServiceCollection())
+                .AddSingleton<IProjectConfigService>(new ProjectConfigService())
+                .AddSingleton(repositoryAuthStoreMock.Object)
+                .BuildServiceProvider();
             ExecutionContext.Initialize(fileSystem);
             
             var assembleCommand = new AssembleCommand(fileSystem);

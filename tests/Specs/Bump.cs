@@ -5,10 +5,12 @@ using Cmf.CLI.Factories;
 using Cmf.CLI.Handlers;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace tests.Specs;
@@ -86,8 +88,12 @@ public class Bump
             }
         });
 
+        var repositoryAuthStoreMock = new Mock<IRepositoryAuthStore>();
+        repositoryAuthStoreMock.Setup(x => x.Load()).Returns(Task.FromResult(new CmfAuthFile()));
+        
         ExecutionContext.ServiceProvider = (new ServiceCollection())
             .AddSingleton<IProjectConfigService>(new ProjectConfigService())
+            .AddSingleton(repositoryAuthStoreMock.Object)
             .BuildServiceProvider();
         ExecutionContext.Initialize(fileSystem);
 
@@ -570,9 +576,12 @@ public class Bump
                          [assembly: AssemblyVersion(""1.0.0.0"")]
                          [assembly: AssemblyFileVersion(""1.0.0.0"")]"));
 
-        
+        var repositoryAuthStoreMock = new Mock<IRepositoryAuthStore>();
+        repositoryAuthStoreMock.Setup(x => x.Load()).Returns(Task.FromResult(new CmfAuthFile()));
+
         ExecutionContext.ServiceProvider = (new ServiceCollection())
             .AddSingleton<IProjectConfigService>(new ProjectConfigService())
+            .AddSingleton(repositoryAuthStoreMock.Object)
             .BuildServiceProvider();
 
         ExecutionContext.Initialize(fileSystem);
