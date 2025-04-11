@@ -248,6 +248,51 @@ public class RepositoryCredentials
         contents.SelectToken("$.repositories.npm.0.repository")?.Value<string>().Should().Be("https://criticalmanufacturing.io/repository/npm/");
     }
 
+    [Theory]
+    [InlineData(CmfAuthConstants.CIFSRepositoryType, @"\\serverA\folder1", 0)]
+    [InlineData(CmfAuthConstants.CIFSRepositoryType, @"\\serverB\folder2\sub\folder", 1)]
+    [InlineData(CmfAuthConstants.NPMRepositoryType, "https://feed.example", 2)]
+    [InlineData(CmfAuthConstants.NPMRepositoryType, "https://env.feed.example/npm/", 3)]
+    public void RepositoryAuthStore_GetCredentials(string repositoryType, string path, int expectedCredIndex)
+    {
+        // Arrange
+        var credentialsList = new List<ICredential>
+        {
+            new BasicCredential { RepositoryType = CmfAuthConstants.CIFSRepositoryType, Repository = @"\\serverA\folder1" },
+            new BasicCredential { RepositoryType = CmfAuthConstants.CIFSRepositoryType, Repository = @"\\serverB\folder2" },
+            new BasicCredential { RepositoryType = CmfAuthConstants.NPMRepositoryType, Repository = "https://feed.example" },
+            new BasicCredential { RepositoryType = CmfAuthConstants.NPMRepositoryType, Repository = "https://env.feed.example/npm/" },
+        };
+
+        var authFile = new CmfAuthFile
+        {
+            Repositories = credentialsList.GroupBy(cred => cred.RepositoryType).ToDictionary(group => group.Key, group => new CmfAuthFileRepositoryType { Credentials = group.ToList() })
+        };
+
+        MockFileSystem fileSystem = new MockFileSystem();
+
+        ExecutionContext.ServiceProvider = ServiceCollection.BuildServiceProvider();
+
+        var authStore = RepositoryAuthStore.FromEnvironmentConfig(fileSystem);
+
+        // Act
+        var credential = authStore.GetCredentialsFor(repositoryType, authFile, path, ignoreEnvVars: true);
+
+        // Assert
+        if (expectedCredIndex < 0)
+        {
+            // Scenarios where no credential was expected to be found
+            credential.Should().BeNull();
+        }
+        else
+        {
+            // Validate we returned the expected credential
+            credential.Should().NotBeNull();
+            credentialsList.IndexOf(credential).Should().Be(expectedCredIndex);
+        }
+    }
+
+
     [Fact]
     public void PortalRepositoryCredentials_GetDerivedCredentials()
     {

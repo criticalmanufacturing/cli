@@ -50,7 +50,7 @@ public class Repositories
         {
             { MockUnixSupport.Path("c:\\parent\\folder\\file.zip"), string.Empty },
             { MockUnixSupport.Path("c:\\parent\\folder\\file.tgz"), string.Empty }
-        }));
+        }), authFile: null);
         x.Should().BeAssignableTo(client);
         if (client == typeof(ICIFSRepositoryClient))
         {
@@ -71,8 +71,8 @@ public class Repositories
         var fs = new MockFileSystem();
         IRepositoryLocator loc = new RepositoryLocator();
         var uri = new Uri(MockUnixSupport.Path($"c:\\repo"), UriKind.Absolute);
-        var x = loc.GetRepositoryClient(uri, fs);
-        var y = loc.GetRepositoryClient(uri, fs);
+        var x = loc.GetRepositoryClient(uri, fs, authFile: null);
+        var y = loc.GetRepositoryClient(uri, fs, authFile: null);
 
         x.Should().NotBeNull("Repository client should be created");
         x.Should().BeSameAs(y, "because the repository client should return the same instance for several requests for the same URI");
