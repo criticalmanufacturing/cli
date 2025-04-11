@@ -7,15 +7,20 @@ using System.Threading.Tasks;
 using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Core.Repository;
+using Cmf.CLI.Core.Repository.Credentials;
 using Cmf.CLI.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Cmf.CLI.Core.Services;
 
 public class RepositoryLocator : IRepositoryLocator
 {
     private Dictionary<string, IRepositoryClient> clients = new();
-    public IRepositoryClient GetRepositoryClient(Uri uri, IFileSystem fileSystem)
+
+    public IRepositoryClient GetRepositoryClient(Uri uri, IFileSystem fileSystem, CmfAuthFile authFile)
     {
+        var authStore = ExecutionContext.ServiceProvider.GetService<IRepositoryAuthStore>();
+
         IRepositoryClient client = null;
         if (clients.TryGetValue(uri.AbsoluteUri, out var repositoryClient))
         {
@@ -27,7 +32,11 @@ public class RepositoryLocator : IRepositoryLocator
             {
                 case "http":
                 case "https":
-                    client = new NPMRepositoryClient(uri.AbsoluteUri, fileSystem);
+                    var npmCred = authStore.GetCredentialsFor<NPMRepositoryCredentials>(authFile, uri.AbsoluteUri);
+
+                    var httpClient = NPMClient.CreateHttpClient(uri.AbsoluteUri, npmCred);
+
+                    client = new NPMRepositoryClient(uri.AbsoluteUri, fileSystem, new NPMClient(uri.AbsoluteUri, httpClient));
                     break;
                 case "file":
                     if (uri.Host == "")
@@ -50,7 +59,9 @@ public class RepositoryLocator : IRepositoryLocator
                         }
                         else
                         {
-                            client = new CIFSRepositoryClient(uri.AbsoluteUri, fileSystem);
+                            var cifsCred = authStore.GetCredentialsFor<NPMRepositoryCredentials>(authFile, uri.AbsoluteUri);
+
+                            client = new CIFSRepositoryClient(uri.AbsoluteUri, fileSystem, cifsCred);
                         }
                     }
                     break;
@@ -63,10 +74,11 @@ public class RepositoryLocator : IRepositoryLocator
     public IRepositoryClient GetSourceClient(IFileSystem fileSystem)
     {
         var root = FileSystemUtilities.GetProjectRoot(fileSystem);
-        return this.GetRepositoryClient(new Uri(root.FullName), fileSystem);
+        // Auth File here can be null because local repositories never need credentials
+        return this.GetRepositoryClient(new Uri(root.FullName), fileSystem, authFile: null);
     }
 
-    public void InitializeClientsForRepositories(IFileSystem fileSystem, IEnumerable<Uri> repoUris)
+    public void InitializeClientsForRepositories(IFileSystem fileSystem, IEnumerable<Uri> repoUris, CmfAuthFile authFile)
     {
         if (repoUris == null)
         {
@@ -74,16 +86,16 @@ public class RepositoryLocator : IRepositoryLocator
             var repositories = FileSystemUtilities.ReadRepositoriesConfig(fileSystem);
             repoUris = repositories.Repositories;
         }
-        var clients = repoUris.Select(r => this.GetRepositoryClient(r,fileSystem)).Where(client => client != null);
+        var clients = repoUris.Select(r => this.GetRepositoryClient(r,fileSystem, authFile)).Where(client => client != null);
         if (clients.Count() != repoUris.Count())
         {
             Log.Debug("Could not obtain clients for all repositories!");
         }
     }
 
-    public void InitializeClientsForRepositories(IFileSystem fileSystem)
+    public void InitializeClientsForRepositories(IFileSystem fileSystem, CmfAuthFile authFile)
     {
-        this.InitializeClientsForRepositories(fileSystem, null);
+        this.InitializeClientsForRepositories(fileSystem, null, authFile);
     }
 
     public async Task<CmfPackageV1> FindPackage(string packageId, string packageVersion)

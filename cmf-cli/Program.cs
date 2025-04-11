@@ -15,6 +15,7 @@ using Cmf.CLI.Constants;
 using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Core.Services;
 using Cmf.CLI.Services;
+using Cmf.CLI.Core.Repository.Credentials;
 
 namespace Cmf.CLI
 {
@@ -32,6 +33,8 @@ namespace Cmf.CLI
         {
             try
             {
+                var fileSystem = new FileSystem();
+
                 var (rootCommand, parser) = await StartupModule.Configure(
                     packageName: CliConstants.PackageName,
                     envVarPrefix: "cmf_cli",
@@ -42,6 +45,12 @@ namespace Cmf.CLI
                         collection.AddSingleton<IDependencyVersionService, DependencyVersionService>();
                         collection.AddSingleton<IRepositoryLocator, RepositoryLocator>();
                         collection.AddSingleton<IFeaturesService>(new FeaturesService("cmf_cli"));
+                        collection.AddSingleton<IRepositoryCredentials>(new PortalRepositoryCredentials(fileSystem));
+                        collection.AddSingleton<IRepositoryCredentials>(new NPMRepositoryCredentials(fileSystem));
+                        collection.AddSingleton<IRepositoryCredentials>(new NuGetRepositoryCredentials(fileSystem));
+                        collection.AddSingleton<IRepositoryCredentials>(new DockerRepositoryCredentials());
+                        collection.AddSingleton<IRepositoryCredentials>(new CIFSRepositoryCredentials());
+                        collection.AddSingleton<IRepositoryAuthStore>(RepositoryAuthStore.FromEnvironmentConfig(fileSystem));
                     });
 
                 using var activity = ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!.StartActivity("Main");
@@ -70,9 +79,12 @@ namespace Cmf.CLI
                     }
                     else
                     {
-                        ExecutionContext.Initialize(new FileSystem());
+                        ExecutionContext.Initialize(fileSystem);
+
+                        var authFile = ExecutionContext.ServiceProvider?.GetService<IRepositoryAuthStore>().Load().GetAwaiter().GetResult();
+
                         ExecutionContext.ServiceProvider.GetService<IRepositoryLocator>()!
-                            .InitializeClientsForRepositories(ExecutionContext.Instance.FileSystem);
+                            .InitializeClientsForRepositories(ExecutionContext.Instance.FileSystem, authFile);
                         result = await parser.InvokeAsync(args);
                     }
                 }

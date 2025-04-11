@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
+using System.Linq;
 using Cmf.CLI.Core;
+using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Spectre.Console;
 
@@ -258,6 +260,25 @@ namespace Cmf.CLI.Utilities
         {
             var enableConsoleExporter = System.Environment.GetEnvironmentVariable(envVarName);
             return enableConsoleExporter is "1" or "true" or "TRUE" or "True";
+        }
+
+        public static void ValidatePropertyRequirement(string fieldName, string value, PropertyRequirement requirement)
+        {
+            if (requirement == PropertyRequirement.Ignored && !string.IsNullOrEmpty(value))
+            {
+                Log.Warning($"${fieldName} has been defined, but will be ignored because it is not needed.");
+            }
+            else if (requirement == PropertyRequirement.Mandatory && string.IsNullOrEmpty(value))
+            {
+                throw new Exception($"Missing mandatory {fieldName}.");
+            }
+        }
+
+        public static string BuildEnvVarPrefix(string repositoryType, string baseUri)
+        {
+            char[] strip = ['/', '.', '-'];
+            var uri = new Uri(baseUri, UriKind.Absolute);
+            return repositoryType + "_" + new string(baseUri.Select(ch => strip.Contains(ch) ? '_' : ch).ToArray());
         }
 
         #endregion Public Methods

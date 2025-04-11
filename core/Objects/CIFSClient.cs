@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Interfaces;
-using Cmf.CLI.Utilities;
+using Cmf.CLI.Core.Repository.Credentials;
 using Microsoft.TemplateEngine.Utils;
 using SMBLibrary;
 using SMBLibrary.Client;
@@ -17,20 +17,17 @@ namespace Core.Objects
         public bool IsConnected { get; private set; }
 
         private ISMBClient _smbClient;
-        private string _domain;
-        private string _username;
-        private string _password;
+        private ICredential _credentials;
 
-        public CIFSClient(string server, IEnumerable<Uri> uris, ISMBClient smbClient = null)
+        public CIFSClient(ICredential credentials, string server, IEnumerable<Uri> uris, ISMBClient smbClient = null)
         {
             Server = server;
             _smbClient = smbClient ?? new SMB2Client();
-            _domain = Environment.GetEnvironmentVariable("CIFS_DOMAIN");
-            _username = Environment.GetEnvironmentVariable("CIFS_USERNAME");
-            _password = Environment.GetEnvironmentVariable("CIFS_PASSWORD");
-            if(string.IsNullOrEmpty(_domain) && string.IsNullOrEmpty(_username) && string.IsNullOrEmpty(_password))
+            _credentials = credentials;
+            
+            if (_credentials == null)
             {
-                Log.Warning("CIFS credentials not found. Please set CIFS_DOMAIN, CIFS_USERNAME and CIFS_PASSWORD environment variables");
+                Log.Warning($"CIFS credentials not found for shares: {string.Join(", ", uris)}.");
             }
             else
             {
@@ -46,7 +43,12 @@ namespace Core.Objects
 
         public void Connect()
         {
-            Log.Debug($"Connecting to SMB server {Server} with username {_username}");
+            if (_credentials is not BasicCredential basicCredential)
+            {
+                throw new InvalidAuthTypeException(_credentials);
+            }
+
+            Log.Debug($"Connecting to SMB server {Server} with username {basicCredential.Username}");
             IsConnected = _smbClient.Connect(Server, SMBTransportType.DirectTCPTransport);
             if (!IsConnected)
             {
@@ -54,11 +56,11 @@ namespace Core.Objects
                 Log.Warning($"Failed to connect to {Server}");
             }
 
-            var status = _smbClient.Login(_domain, _username, _password);
+            var status = _smbClient.Login(basicCredential.Domain, basicCredential.Username, basicCredential.Password);
             if (status != NTStatus.STATUS_SUCCESS)
             {
                 Log.Debug($"Fail status {status}");
-                Log.Warning($"Failed to login to {Server} with username {_username}");
+                Log.Warning($"Failed to login to {Server} with username {basicCredential.Username}");
             }
         }
 
