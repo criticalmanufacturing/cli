@@ -81,8 +81,11 @@ namespace Cmf.CLI
                     else
                     {
                         ExecutionContext.Initialize(fileSystem);
+
+                        var authFile = ExecutionContext.ServiceProvider?.GetService<IRepositoryAuthStore>().Load().GetAwaiter().GetResult();
+
                         ExecutionContext.ServiceProvider.GetService<IRepositoryLocator>()!
-                            .InitializeClientsForRepositories(ExecutionContext.Instance.FileSystem);
+                            .InitializeClientsForRepositories(ExecutionContext.Instance.FileSystem, authFile);
                         result = await parser.InvokeAsync(args);
                     }
                 }

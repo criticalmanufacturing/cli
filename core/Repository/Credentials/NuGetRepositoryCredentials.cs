@@ -1,5 +1,6 @@
 using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
@@ -171,6 +172,12 @@ namespace Cmf.CLI.Core.Repository.Credentials
             {
                 throw new Exception($"Failed to sync credentials into NuGet config file: {nugetConfigFile?.FullName}", ex);
             }
+        }
+
+        public string GetEnvironmentVariablePrefix(string repository)
+        {
+            var uri = new Uri(repository);
+            return GenericUtilities.BuildEnvVarPrefix(RepositoryType, $"{uri.Host}{uri.PathAndQuery.TrimEnd('/')}");
         }
 
         #region Protected Methods

@@ -53,19 +53,21 @@ public class PublishCommand : BaseCommand
                 $"The package needs to be in a zip or gzipped tar file (with .tgz extension). Use the `pack` command to get a valid file to publish.");
         }
 
+        var authFile = ExecutionContext.ServiceProvider?.GetService<IRepositoryAuthStore>().Load().GetAwaiter().GetResult();
+
         // request a client for the specific file, not its directory. This way the List call below always returns a single file.
         // NOTE: this is only guaranteed in the Local and Archive repo clients!
         //  It is possible to invoke this command from Linux with a share path which would return a CIFSRepositoryClient,
         //  which does not support file as root but also does not support List
         var client = ExecutionContext.ServiceProvider?.GetService<IRepositoryLocator>()
-            .GetRepositoryClient(new Uri(file.FullName), file.FileSystem);
+            .GetRepositoryClient(new Uri(file.FullName), file.FileSystem, authFile);
         if (client == null)
         {
             throw new CliException($"Could not determine repository type for {file.FullName}!");
         }
         Log.Debug($"Got client {client.GetType().Name} for package file {file.FullName}");
         var repoClient = ExecutionContext.ServiceProvider?.GetService<IRepositoryLocator>()
-            .GetRepositoryClient(repository, file.FileSystem);
+            .GetRepositoryClient(repository, file.FileSystem, authFile);
         if (repoClient == null)
         {
             throw new CliException($"Could not determine repository type for {repository.AbsoluteUri}!");
