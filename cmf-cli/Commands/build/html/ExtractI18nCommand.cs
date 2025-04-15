@@ -17,7 +17,7 @@ namespace Cmf.CLI.Commands.html;
 /// <summary>
 /// Extract HTML i18n messages
 /// </summary>
-[CmfCommand("extract-i18n", Id = "build_html_extract_i18n", ParentId = "build_html")]
+[CmfCommand("extract-i18n", Id = "build_html_extract-i18n", ParentId = "build_html")]
 public class ExtractI18nCommand : BaseCommand
 {
     public override void Configure(Command cmd)
