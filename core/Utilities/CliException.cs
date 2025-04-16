@@ -2,6 +2,7 @@
 using System.Reflection;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Utilities;
 
 namespace Cmf.CLI.Utilities
 {
@@ -58,9 +59,13 @@ namespace Cmf.CLI.Utilities
             {
                 throw exception.InnerException;
             }
-            else
+            else if (exception is CliException)
             {
                 throw exception;
+            }
+            else
+            {
+                throw WrappedException.Wrap(exception);
             }
         }
 
