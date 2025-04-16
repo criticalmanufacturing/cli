@@ -62,7 +62,7 @@ public class CmfPackageController
             // source package
             var cmfPackage = CmfPackageController.FromSourceManifest(file);
             cmfPackage.Client = ExecutionContext.ServiceProvider.GetService<IRepositoryLocator>()
-                .GetRepositoryClient(new Uri(file.FullName), file.FileSystem); // this is a hack to avoid awaiting for the LocalRepositoryClient as it is async
+                .GetRepositoryClient(new Uri(file.FullName), file.FileSystem, authFile: null); // this is a hack to avoid awaiting for the LocalRepositoryClient as it is async
             // string fileContent = file.ReadToString();
             // CmfPackage cmfPackage = JsonConvert.DeserializeObject<CmfPackage>(fileContent);
             cmfPackage.IsToSetDefaultValues = setDefaultValues;

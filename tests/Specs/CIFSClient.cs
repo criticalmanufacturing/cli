@@ -7,18 +7,21 @@ using Moq;
 using SMBLibrary;
 using SMBLibrary.Client;
 using Xunit;
+using Cmf.CLI.Core.Repository.Credentials;
 
 namespace tests.Specs
 {
     public class CIFSClientTest
     {
         private readonly Mock<ISMBClient> _mockSmbClient;
+        private readonly ICredential _credentials;
         private readonly CIFSClient _cifsClient;
 
         public CIFSClientTest()
         {
             _mockSmbClient = new Mock<ISMBClient>();
-            _cifsClient = new CIFSClient("testServer", new List<Uri> { new Uri(@"\\testServer\testShare") }, _mockSmbClient.Object);
+            _credentials = new BasicCredential();
+            _cifsClient = new CIFSClient(_credentials, "testServer", new List<Uri> { new Uri(@"\\testServer\testShare") }, _mockSmbClient.Object);
         }
 
         [Fact]

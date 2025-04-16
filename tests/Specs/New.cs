@@ -21,6 +21,9 @@ using System.Text.Json;
 using Cmf.CLI.Services;
 using Xunit;
 using Assert = tests.AssertWithMessage;
+using Moq;
+using Cmf.CLI.Core.Interfaces;
+using System.Threading.Tasks;
 
 namespace tests.Specs
 {
@@ -30,11 +33,15 @@ namespace tests.Specs
         {
             System.Environment.SetEnvironmentVariable("cmf_cli_internal_disable_projectconfig_cache", "1");
 
+            var repositoryAuthStoreMock = new Mock<IRepositoryAuthStore>();
+            repositoryAuthStoreMock.Setup(x => x.Load()).Returns(Task.FromResult(new CmfAuthFile()));
+            
             ExecutionContext.ServiceProvider = (new ServiceCollection())
                 .AddSingleton<IProjectConfigService>(new ProjectConfigService())
                 .AddSingleton<IVersionService>(new VersionService(CliConstants.PackageName))
                 .AddSingleton<IProcessStartInfoCLI, ProcessStartInfoCLI>()
                 .AddSingleton<IDependencyVersionService, DependencyVersionService>()
+                .AddSingleton(repositoryAuthStoreMock.Object)
                 .BuildServiceProvider();
 
             var newCommand = new NewCommand();

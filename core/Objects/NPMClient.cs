@@ -13,6 +13,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Cmf.CLI.Core.Constants;
+using Cmf.CLI.Core.Repository.Credentials;
 using Cmf.CLI.Core.Services;
 using Cmf.CLI.Utilities;
 using Newtonsoft.Json;
@@ -100,7 +101,7 @@ namespace Cmf.CLI.Core.Objects
         public NPMClient(string baseUrl = CoreConstants.NpmJsUrl, HttpClient client = null)
         {
             this.baseUrl = baseUrl.TrimEnd('/');
-            this.client = client ?? this.GetClient();
+            this.client = client ?? CreateHttpClient(this.baseUrl);
         }
 
         public NPMClient(object client) : this(client: client as HttpClient)
@@ -116,7 +117,7 @@ namespace Cmf.CLI.Core.Objects
         /// <returns>a version identifier</returns>
         public async Task<string> GetLatestVersion(bool preRelease = false)
         {
-            var client = this.GetClient();
+            var client = this.client;
             client.Timeout = TimeSpan.FromSeconds(10);
             try
             {
@@ -135,7 +136,7 @@ namespace Cmf.CLI.Core.Objects
 
         public IPackage[] FindPlugins(Uri[] registries)
         {
-            var client = this.GetClient();
+            var client = this.client;
             try
             {
                 IEnumerable<IPackage>[] results = (registries ?? new[] { new Uri(this.baseUrl) }).Select(async registry =>
@@ -174,7 +175,7 @@ namespace Cmf.CLI.Core.Objects
         
         public async Task<List<string>> SearchPackages(string query)
         {
-            var client = this.GetClient();
+            var client = this.client;
             var url = $"{this.baseUrl}/-/v1/search?text={query}";
             var res = await client.GetAsync(url);
             Log.Debug($"Got response HTTP code {res.StatusCode}");
@@ -190,7 +191,7 @@ namespace Cmf.CLI.Core.Objects
         
         public async Task<NpmPackageVersion> FetchPackageInfo(string packageName, string version)
         {
-            var client = this.GetClient();
+            var client = this.client;
             var url = $"{this.baseUrl}/{packageName}";
             var res = await client.GetAsync(url);
             Log.Debug($"Got response HTTP code {res.StatusCode}");
@@ -208,7 +209,7 @@ namespace Cmf.CLI.Core.Objects
         
         public async Task<CmfPackageV1> FetchPackageVersion(string packageName, string version)
         {
-            var client = this.GetClient();
+            var client = this.client;
             var url = $"{this.baseUrl}/{packageName}";
             var res = await client.GetAsync(url);
             Log.Debug($"Got response HTTP code {res.StatusCode}");
@@ -240,7 +241,7 @@ namespace Cmf.CLI.Core.Objects
 
         public async Task<IFileInfo> DownloadPackage(string packageName, string version, IFileInfo output)
         {
-            var client = this.GetClient();
+            var client = this.client;
             
             var pkg = await this.FetchPackageInfo(packageName, version);
             if (pkg == null)
@@ -350,7 +351,7 @@ namespace Cmf.CLI.Core.Objects
             Log.Debug($"PUTing package to {this.baseUrl}...");
             try
             {
-                var httpClient = this.GetClient();
+                var httpClient = this.client;
                 httpClient.Timeout = TimeSpan.FromMinutes(5);
                 var response = await httpClient.PutAsync($"{this.baseUrl}/{name}", content);
                 if (!response.IsSuccessStatusCode)
@@ -370,33 +371,21 @@ namespace Cmf.CLI.Core.Objects
             
         }
 
-        private HttpClient GetClient()
+        public static HttpClient CreateHttpClient(string baseUrl, ICredential credentials = null)
         {
-            if (this.client != null)
-            {
-                return this.client;
-            }
             var client = new HttpClient();
 
             // handle authentication
-            char[] strip = ['/', '.', '-'];
-            var uri = new Uri(this.baseUrl, UriKind.Absolute);
-            var envvarPrefix = new string($"{uri.Host}{uri.PathAndQuery.TrimEnd('/')}".Select(ch => strip.Contains(ch) ? '_' : ch).ToArray());
-            var type = Environment.GetEnvironmentVariable($"{envvarPrefix}__AUTH_TYPE");
-            var username = Environment.GetEnvironmentVariable($"{envvarPrefix}__USERNAME");
-            var token = Environment.GetEnvironmentVariable($"{envvarPrefix}__TOKEN");
-            switch (type?.ToLowerInvariant())
+            client.DefaultRequestHeaders.Authorization = credentials switch
             {
-                case "bearer":
-                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                    break;
-                case "basic":
-                    var authValue = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{username}:{token}"));
-                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", authValue);
-                    break;
-            }
+                BearerCredential bearer => 
+                    new AuthenticationHeaderValue("Bearer", bearer.Token),
+                BasicCredential basic => 
+                    new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes($"{basic.Username}:{basic.Password}"))),
+                _ => null,
+            };
             
-            if (this.baseUrl != CoreConstants.NpmJsUrl)
+            if (baseUrl != CoreConstants.NpmJsUrl)
             {
                 // remove the scope @ as it's not a valid user agent character
                 client.DefaultRequestHeaders.Add("User-Agent",

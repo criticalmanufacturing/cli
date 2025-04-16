@@ -629,8 +629,10 @@ namespace Cmf.CLI.Handlers
             var rootIdentifier = $"{this.CmfPackage.PackageId}@{this.CmfPackage.Version}";
             Log.Status($"Loading {rootIdentifier} dependency tree...", ctx =>
             {
+                var authFile = ExecutionContext.ServiceProvider?.GetService<IRepositoryAuthStore>().Load().GetAwaiter().GetResult();
+
                 var client = ExecutionContext.ServiceProvider?.GetService<IRepositoryLocator>()
-                    .GetRepositoryClient(new Uri(this.CmfPackage.GetFileInfo().FullName), this.fileSystem);
+                    .GetRepositoryClient(new Uri(this.CmfPackage.GetFileInfo().FullName), this.fileSystem, authFile);
                 var cmfPackage = client.Find(null, null).GetAwaiter().GetResult();
                 var ctrlr = new CmfPackageController(cmfPackage, this.fileSystem);
                 ctrlr.LoadDependencies(repoUris, ctx, true).GetAwaiter().GetResult();
