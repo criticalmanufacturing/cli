@@ -8,6 +8,7 @@ using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 using System.Linq;
+using System;
 
 namespace Cmf.CLI.Commands.html;
 
@@ -17,6 +18,11 @@ namespace Cmf.CLI.Commands.html;
 [CmfCommand("localize", Id = "build_html_localize", ParentId = "build_html")]
 public class LocalizeCommand : BaseCommand
 {
+    /// <summary>
+    /// The minimum MES Version that supports this command
+    /// </summary>
+    private readonly Version MIN_MES_VERSION = new Version(11, 2, 0);
+
     public override void Configure(Command cmd)
     {
         var packageRoot = FileSystemUtilities.GetPackageRoot(this.fileSystem);
@@ -42,6 +48,11 @@ public class LocalizeCommand : BaseCommand
     /// </summary>
     public void Execute(IDirectoryInfo packagePath)
     {
+        if (ExecutionContext.Instance.ProjectConfig.MESVersion < MIN_MES_VERSION)
+        {
+            throw new CliException(string.Format(CliMessages.InvalidVersionForCommand, MIN_MES_VERSION.ToString()));
+        }
+
         var cmfPackageFile = this.fileSystem.FileInfo.New(this.fileSystem.Path.Join(packagePath.FullName, CliConstants.CmfPackageFileName));
         if (!cmfPackageFile.Exists)
         {

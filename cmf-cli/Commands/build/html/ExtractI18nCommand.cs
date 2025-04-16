@@ -11,6 +11,7 @@ using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 using System.Xml.Linq;
 using System.Linq;
+using System;
 
 namespace Cmf.CLI.Commands.html;
 
@@ -20,6 +21,11 @@ namespace Cmf.CLI.Commands.html;
 [CmfCommand("extract-i18n", Id = "build_html_extract-i18n", ParentId = "build_html")]
 public class ExtractI18nCommand : BaseCommand
 {
+    /// <summary>
+    /// The minimum MES Version that supports this command
+    /// </summary>
+    private readonly Version MIN_MES_VERSION = new Version(11, 2, 0);
+
     public override void Configure(Command cmd)
     {
         var packageRoot = FileSystemUtilities.GetPackageRoot(this.fileSystem);
@@ -45,6 +51,11 @@ public class ExtractI18nCommand : BaseCommand
     /// </summary>
     public void Execute(IDirectoryInfo packagePath)
     {
+        if (ExecutionContext.Instance.ProjectConfig.MESVersion < MIN_MES_VERSION)
+        {
+            throw new CliException(string.Format(CliMessages.InvalidVersionForCommand, MIN_MES_VERSION.ToString()));
+        }
+
         var cmfPackageFile = this.fileSystem.FileInfo.New(this.fileSystem.Path.Join(packagePath.FullName, CliConstants.CmfPackageFileName));
         if (!cmfPackageFile.Exists)
         {
