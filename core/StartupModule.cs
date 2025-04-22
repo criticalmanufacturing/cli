@@ -41,7 +41,7 @@ namespace Cmf.CLI.Core
             ExecutionContext.EnvVarPrefix = envVarPrefix;
 
             var serviceCollection = new ServiceCollection()
-                .AddSingleton(npmClient ?? new NPMClient())
+                .AddSingleton(_ => npmClient ?? new NPMClient())
                 .AddSingleton<IVersionService>(new VersionService(packageName))
                 .AddSingleton<ITelemetryService>(new TelemetryService(packageName))
                 .AddSingleton<IProcessStartInfoCLI>(new ProcessStartInfoCLI())

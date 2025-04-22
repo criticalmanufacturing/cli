@@ -1,4 +1,5 @@
 using Cmf.CLI.Core.Interfaces;
+using Cmf.CLI.Core.Repository.Credentials;
 using Cmf.CLI.Utilities;
 using Core.Objects;
 using Microsoft.Extensions.DependencyInjection;
@@ -102,10 +103,12 @@ namespace Cmf.CLI.Core.Objects
             }
 
             // connect and load shares for all UNC repositories
-            if(!RunningOnWindows && RepositoriesConfig.Repositories.HasAny())
+            if (!RunningOnWindows && RepositoriesConfig.Repositories.HasAny())
             {
-                CIFSClients = [];
-                RepositoriesConfig?.Repositories?.Where(r=> r.IsUnc).GroupBy(r => r.Host).ForEach(r=> CIFSClients.Add(new CIFSClient(r.Key, r)));
+                CIFSClients = RepositoriesConfig?.Repositories
+                    .Where(uri => uri.IsUnc)
+                    .Select(uri => new CIFSClient(uri) as ICIFSClient)
+                    .ToList() ?? [];
             }
 
             RelatedPackagesCache = new();

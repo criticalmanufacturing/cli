@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Interfaces;
-using Cmf.CLI.Utilities;
+using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Core.Repository.Credentials;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.TemplateEngine.Utils;
 using SMBLibrary;
 using SMBLibrary.Client;
@@ -17,36 +20,44 @@ namespace Core.Objects
         public bool IsConnected { get; private set; }
 
         private ISMBClient _smbClient;
-        private string _domain;
-        private string _username;
-        private string _password;
+        private ICredential _credentials;
 
-        public CIFSClient(string server, IEnumerable<Uri> uris, ISMBClient smbClient = null)
+        [Obsolete("Only one share per CIFSClient is supported now. Remove this and refactor the rest of the code.")]
+        public CIFSClient(string server, IEnumerable<Uri> uris, ISMBClient smbClient = null) : this(uris.Single())
+        { }
+
+        public CIFSClient(Uri uri, ISMBClient smbClient = null)
         {
-            Server = server;
+            var authStore = ExecutionContext.ServiceProvider.GetService<IRepositoryAuthStore>();
+
+            Server = uri.Host;
             _smbClient = smbClient ?? new SMB2Client();
-            _domain = Environment.GetEnvironmentVariable("CIFS_DOMAIN");
-            _username = Environment.GetEnvironmentVariable("CIFS_USERNAME");
-            _password = Environment.GetEnvironmentVariable("CIFS_PASSWORD");
-            if(string.IsNullOrEmpty(_domain) && string.IsNullOrEmpty(_username) && string.IsNullOrEmpty(_password))
+            _credentials = authStore.GetCredentialsFor<CIFSRepositoryCredentials>(authStore.GetOrLoad().GetAwaiter().GetResult(), uri.AbsoluteUri);
+
+            if (_credentials == null)
             {
-                Log.Warning("CIFS credentials not found. Please set CIFS_DOMAIN, CIFS_USERNAME and CIFS_PASSWORD environment variables");
+                Log.Warning($"CIFS credentials not found for shares: {uri}.");
             }
             else
             {
                 Connect();
 
-                if(IsConnected)
+                if (IsConnected)
                 {
                     SharedFolders = [];
-                    uris.ForEach(uri => SharedFolders.Add(new SharedFolder(uri, _smbClient)));
+                    SharedFolders.Add(new SharedFolder(uri, _smbClient));
                 }
             }
         }
 
         public void Connect()
         {
-            Log.Debug($"Connecting to SMB server {Server} with username {_username}");
+            if (_credentials is not BasicCredential basicCredential)
+            {
+                throw new InvalidAuthTypeException(_credentials);
+            }
+
+            Log.Debug($"Connecting to SMB server {Server} with username {basicCredential.Username}");
             IsConnected = _smbClient.Connect(Server, SMBTransportType.DirectTCPTransport);
             if (!IsConnected)
             {
@@ -54,11 +65,11 @@ namespace Core.Objects
                 Log.Warning($"Failed to connect to {Server}");
             }
 
-            var status = _smbClient.Login(_domain, _username, _password);
+            var status = _smbClient.Login(basicCredential.Domain, basicCredential.Username, basicCredential.Password);
             if (status != NTStatus.STATUS_SUCCESS)
             {
                 Log.Debug($"Fail status {status}");
-                Log.Warning($"Failed to login to {Server} with username {_username}");
+                Log.Warning($"Failed to login to {Server} with username {basicCredential.Username}");
             }
         }
 
@@ -127,11 +138,23 @@ namespace Core.Objects
                     bytesRead += data.Length;
                     stream.Write(data, 0, data.Length);
                 }
-                var uri = new Uri(_uri, filepath);
+                var uri = JoinUris(_uri, fileName);
                 fileStream = new Tuple<Uri, Stream>(uri, stream);
             }
 
             return fileStream;
+        }
+
+        protected Uri JoinUris(Uri baseUri, string pathUri)
+        {
+            if (!baseUri.AbsolutePath.EndsWith('/'))
+            {
+                var builder = new UriBuilder(baseUri);
+                builder.Path += '/';
+                baseUri = builder.Uri;
+            }
+
+            return new Uri(baseUri, pathUri.TrimStart('/'));
         }
     }
 }
