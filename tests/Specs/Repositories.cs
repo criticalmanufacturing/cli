@@ -350,8 +350,12 @@ public class Repositories
     [Fact]
     public async Task NPMRepositoryClient_Publish()
     {
+        var repositoryAuthStoreMock = new Mock<IRepositoryAuthStore>();
+        repositoryAuthStoreMock.Setup(x => x.GetOrLoad()).Returns(Task.FromResult(new CmfAuthFile()));
+
         ExecutionContext.ServiceProvider = (new ServiceCollection())
             .AddSingleton<IVersionService, MockVersionService>()
+            .AddSingleton(repositoryAuthStoreMock.Object)
             .BuildServiceProvider();
 
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
@@ -402,8 +406,12 @@ public class Repositories
     [Fact]
     public async Task NPMRepositoryClient_Get()
     {
+        var repositoryAuthStoreMock = new Mock<IRepositoryAuthStore>();
+        repositoryAuthStoreMock.Setup(x => x.GetOrLoad()).Returns(Task.FromResult(new CmfAuthFile()));
+
         ExecutionContext.ServiceProvider = (new ServiceCollection())
             .AddSingleton<IVersionService, MockVersionService>()
+            .AddSingleton(repositoryAuthStoreMock.Object)
             .BuildServiceProvider();
         var packageId = "Cmf.Custom.Data";
         var version = "1.0.0";
@@ -496,8 +504,12 @@ public class Repositories
     [Fact]
     public async Task NPMRepositoryClient_List()
     {
+        var repositoryAuthStoreMock = new Mock<IRepositoryAuthStore>();
+        repositoryAuthStoreMock.Setup(x => x.GetOrLoad()).Returns(Task.FromResult(new CmfAuthFile()));
+
         ExecutionContext.ServiceProvider = (new ServiceCollection())
             .AddSingleton<IVersionService, MockVersionService>()
+            .AddSingleton(repositoryAuthStoreMock.Object)
             .BuildServiceProvider();
         var feed = "https://example.repo/";
         // Mock HttpMessageHandler to intercept the HttpClient request

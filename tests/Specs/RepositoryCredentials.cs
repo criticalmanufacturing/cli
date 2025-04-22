@@ -1,4 +1,5 @@
 using Cmf.CLI.Core.Constants;
+using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Core.Repository;
@@ -67,10 +68,15 @@ public class RepositoryCredentials
     public RepositoryCredentials()
     {
         PortalRepositoryMock.Setup(x => x.RepositoryType).Returns(RepositoryCredentialsType.Portal);
+        PortalRepositoryMock.Setup(x => x.SupportedAuthTypes).Returns([AuthType.Bearer]);
         NPMRepositoryMock.Setup(x => x.RepositoryType).Returns(RepositoryCredentialsType.NPM);
+        NPMRepositoryMock.Setup(x => x.SupportedAuthTypes).Returns([AuthType.Basic, AuthType.Bearer]);
         NugetRepositoryMock.Setup(x => x.RepositoryType).Returns(RepositoryCredentialsType.NuGet);
+        NugetRepositoryMock.Setup(x => x.SupportedAuthTypes).Returns([AuthType.Basic]);
         DockerRepositoryMock.Setup(x => x.RepositoryType).Returns(RepositoryCredentialsType.Docker);
+        DockerRepositoryMock.Setup(x => x.SupportedAuthTypes).Returns([AuthType.Basic]);
         CIFSRepositoryMock.Setup(x => x.RepositoryType).Returns(RepositoryCredentialsType.CIFS);
+        CIFSRepositoryMock.Setup(x => x.SupportedAuthTypes).Returns([AuthType.Basic]);
 
         ServiceCollection
             .AddSingleton(PortalRepositoryMock.Object)
@@ -248,6 +254,160 @@ public class RepositoryCredentials
         contents.SelectToken("$.repositories.npm.0.repository")?.Value<string>().Should().Be("https://criticalmanufacturing.io/repository/npm/");
     }
 
+    [Theory]
+    [InlineData(RepositoryCredentialsType.CIFS, @"\\serverA\folder1", 0)]
+    [InlineData(RepositoryCredentialsType.CIFS, @"\\serverB\folder2\sub\folder", 1)]
+    [InlineData(RepositoryCredentialsType.NPM, "https://feed.example", 2)]
+    [InlineData(RepositoryCredentialsType.NPM, "https://env.feed.example/npm/", 3)]
+    public void RepositoryAuthStore_GetCredentials(RepositoryCredentialsType repositoryType, string path, int expectedCredIndex)
+    {
+        // Arrange
+        var credentialsList = new List<ICredential>
+        {
+            new BasicCredential { RepositoryType = RepositoryCredentialsType.CIFS, Repository = @"\\serverA\folder1" },
+            new BasicCredential { RepositoryType = RepositoryCredentialsType.CIFS, Repository = @"\\serverB\folder2" },
+            new BasicCredential { RepositoryType = RepositoryCredentialsType.NPM, Repository = "https://feed.example" },
+            new BasicCredential { RepositoryType = RepositoryCredentialsType.NPM, Repository = "https://env.feed.example/npm/" },
+        };
+
+        var authFile = new CmfAuthFile
+        {
+            Repositories = credentialsList.GroupBy(cred => cred.RepositoryType).ToDictionary(group => group.Key, group => new CmfAuthFileRepositoryType { Credentials = group.ToList() })
+        };
+
+        MockFileSystem fileSystem = new MockFileSystem();
+
+        ExecutionContext.ServiceProvider = ServiceCollection.BuildServiceProvider();
+
+        var authStore = RepositoryAuthStore.FromEnvironmentConfig(fileSystem);
+
+        // Act
+        var credential = authStore.GetCredentialsFor(repositoryType, authFile, path, ignoreEnvVars: true);
+
+        // Assert
+        if (expectedCredIndex < 0)
+        {
+            // Scenarios where no credential was expected to be found
+            credential.Should().BeNull();
+        }
+        else
+        {
+            // Validate we returned the expected credential
+            credential.Should().NotBeNull();
+            credentialsList.IndexOf(credential).Should().Be(expectedCredIndex);
+        }
+    }
+
+    [Fact]
+    public void RepositoryAuthStore_GetBearerEnvVarCredentials()
+    {
+        MockEnvironment environment = null;
+
+        try
+        {
+            // Arrange
+            environment = new MockEnvironment(new Dictionary<string, string>()
+            {
+                { "NPM__REPOURL__AUTH_TYPE", "bearer" },
+                { "NPM__REPOURL__TOKEN", "a.b.c" },
+            });
+
+            NPMRepositoryMock.Setup(x => x.GetEnvironmentVariablePrefix(It.IsAny<string>())).Returns("NPM__REPOURL");
+
+            ExecutionContext.ServiceProvider = ServiceCollection.BuildServiceProvider();
+
+            var authStore = RepositoryAuthStore.FromEnvironmentConfig(new MockFileSystem());
+
+            // Act
+            var credential = authStore.GetCredentialsFor(RepositoryCredentialsType.NPM, new CmfAuthFile(), CmfAuthConstants.NPMRepository);
+
+            // Assert
+            credential.Should().BeEquivalentTo(new BearerCredential
+            {
+                RepositoryType = RepositoryCredentialsType.NPM,
+                Repository = CmfAuthConstants.NPMRepository,
+                Token = "a.b.c"
+            });
+        }
+        finally
+        {
+            environment.Restore();
+        }
+    }
+
+    [Fact]
+    public void RepositoryAuthStore_GetBasicEnvVarCredentials()
+    {
+        MockEnvironment environment = null;
+
+        try
+        {
+            // Arrange
+            environment = new MockEnvironment(new Dictionary<string, string>()
+            {
+                { "CIFS__REPOURL__AUTH_TYPE", "BASIC" },
+                { "CIFS__REPOURL__DOMAIN", "CMF" },
+                { "CIFS__REPOURL__USERNAME", "user" },
+                { "CIFS__REPOURL__PASSWORD", "querty" },
+            });
+
+            CIFSRepositoryMock.Setup(x => x.GetEnvironmentVariablePrefix(It.IsAny<string>())).Returns("CIFS__REPOURL");
+
+            ExecutionContext.ServiceProvider = ServiceCollection.BuildServiceProvider();
+
+            var authStore = RepositoryAuthStore.FromEnvironmentConfig(new MockFileSystem());
+
+            // Act
+            var credential = authStore.GetCredentialsFor(RepositoryCredentialsType.CIFS, new CmfAuthFile(), @"\\share.com\packages\CI\");
+
+            // Assert
+            credential.Should().BeEquivalentTo(new BasicCredential
+            {
+                RepositoryType = RepositoryCredentialsType.CIFS,
+                Repository = @"\\share.com\packages\CI\",
+                Domain = "CMF",
+                Username = "user",
+                Password = "querty"
+            });
+        }
+        finally
+        {
+            environment.Restore();
+        }
+    }
+
+    [Fact]
+    public void RepositoryAuthStore_GetEnvVarCredentials_WrongAuthType()
+    {
+        MockEnvironment environment = null;
+
+        try
+        {
+            // Arrange
+            environment = new MockEnvironment(new Dictionary<string, string>()
+            {
+                { "DOCKER__REPOURL__AUTH_TYPE", "bearer" },
+                { "DOCKER__REPOURL__TOKEN", "a.b.c" },
+            });
+
+            DockerRepositoryMock.Setup(x => x.GetEnvironmentVariablePrefix(It.IsAny<string>())).Returns("DOCKER__REPOURL");
+
+            ExecutionContext.ServiceProvider = ServiceCollection.BuildServiceProvider();
+
+            var authStore = RepositoryAuthStore.FromEnvironmentConfig(new MockFileSystem());
+
+            // Act
+            var exception = authStore.Invoking(x => x.GetCredentialsFor(RepositoryCredentialsType.Docker, new CmfAuthFile(), "registry.docker.io"));
+
+            // Assert
+            exception.Should().Throw<Exception>().WithMessage("Invalid auth type*");
+        }
+        finally
+        {
+            environment.Restore();
+        }
+    }
+
     [Fact]
     public void PortalRepositoryCredentials_GetDerivedCredentials()
     {
@@ -398,6 +558,23 @@ public class RepositoryCredentials
         );
     }
 
+    [Theory]
+    [InlineData("http://registry.npmjs.org/", "npm__registry_npmjs_org")]
+    [InlineData("http://custom.registry.com/npm-group/", "npm__custom_registry_com_npm_group")]
+    public void NPMRepositoryCredentials_GetEnvironmentVariablePrefix(string repository, string envVarPrefix)
+    {
+        // Arrange
+        var fileSystem = new MockFileSystem();
+
+        var npm = new NPMRepositoryCredentials(fileSystem);
+
+        // Act
+        var prefix = npm.GetEnvironmentVariablePrefix(repository);
+
+        // Assert
+        prefix.Should().Be(envVarPrefix);
+    }
+
     [Fact]
     public async Task NuGetRepositoryCredentials_SyncCredentials_NoFileExists()
     {
@@ -504,4 +681,38 @@ public class RepositoryCredentials
             """
         );
     }
+
+    [Theory]
+    [InlineData("https://api.nuget.org/v3/index.json", "nuget__api_nuget_org_v3_index_json")]
+    [InlineData("https://custom.io/repository/nuget/index.json", "nuget__custom_io_repository_nuget_index_json")]
+    public void NuGetRepositoryCredentials_GetEnvironmentVariablePrefix(string repository, string envVarPrefix)
+    {
+        // Arrange
+        var fileSystem = new MockFileSystem();
+
+        var nuget = new NuGetRepositoryCredentials(fileSystem);
+
+        // Act
+        var prefix = nuget.GetEnvironmentVariablePrefix(repository);
+
+        // Assert
+        prefix.Should().Be(envVarPrefix);
+    }
+
+    [Theory]
+    [InlineData(@"\\server.com", "cifs__server_com")]
+    [InlineData(@"\\server.com\share", "cifs__server_com_share")]
+    [InlineData(@"\\server.com\share\sub\folder\path", "cifs__server_com_share")]
+    public void CIFSRepositoryCredentials_GetEnvironmentVariablePrefix(string repository, string envVarPrefix)
+    {
+        // Arrange
+        var cifs = new CIFSRepositoryCredentials();
+
+        // Act
+        var prefix = cifs.GetEnvironmentVariablePrefix(repository);
+
+        // Assert
+        prefix.Should().Be(envVarPrefix);
+    }
+
 }
