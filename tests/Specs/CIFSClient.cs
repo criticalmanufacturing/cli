@@ -8,18 +8,31 @@ using SMBLibrary;
 using SMBLibrary.Client;
 using Xunit;
 using Cmf.CLI.Core.Repository.Credentials;
+using Cmf.CLI.Core.Objects;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace tests.Specs
 {
     public class CIFSClientTest
     {
+        private readonly Mock<IRepositoryAuthStore> _repositoryAuthStoreMock;
         private readonly Mock<ISMBClient> _mockSmbClient;
         private readonly CIFSClient _cifsClient;
 
         public CIFSClientTest()
         {
+            _repositoryAuthStoreMock = new Mock<IRepositoryAuthStore>();
+            _repositoryAuthStoreMock.Setup(x => x.GetOrLoad()).ReturnsAsync(new CmfAuthFile());
+            _repositoryAuthStoreMock.Setup(x => x.GetCredentialsFor<CIFSRepositoryCredentials>(It.IsAny<CmfAuthFile>(), It.IsAny<string>(), It.IsAny<bool>()))
+                .Returns(new BasicCredential { Domain = "CORP", Username = "root", Password = "qwerty" });
+
+            ExecutionContext.ServiceProvider = (new ServiceCollection())
+                .AddSingleton(_repositoryAuthStoreMock.Object)
+                .BuildServiceProvider();
+
             _mockSmbClient = new Mock<ISMBClient>();
-            _cifsClient = new CIFSClient("testServer", new List<Uri> { new Uri(@"\\testServer\testShare") }, _mockSmbClient.Object);
+            _cifsClient = new CIFSClient(new Uri(@"\\testServer\testShare"), _mockSmbClient.Object);
+
         }
 
         [Fact]
@@ -34,6 +47,11 @@ namespace tests.Specs
 
             // Assert
             Assert.True(_cifsClient.IsConnected);
+            _mockSmbClient.Verify(client => client.Login(
+                It.Is("CORP", StringComparer.CurrentCulture),
+                It.Is("root", StringComparer.CurrentCulture),
+                It.Is("qwerty", StringComparer.CurrentCulture)
+            ), Times.AtLeastOnce());
         }
 
         [Fact]
