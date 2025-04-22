@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
+using System.Linq;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Core.Repository.Credentials;
 using Spectre.Console;
 
 namespace Cmf.CLI.Utilities
@@ -271,6 +273,12 @@ namespace Cmf.CLI.Utilities
             {
                 throw new Exception($"Missing mandatory {fieldName}.");
             }
+        }
+
+        public static string BuildEnvVarPrefix(RepositoryCredentialsType repositoryType, string baseUri)
+        {
+            char[] strip = ['/', '.', '-'];
+            return repositoryType.ToString().ToLower() + "__" + new string(baseUri.Select(ch => strip.Contains(ch) ? '_' : ch).ToArray());
         }
 
         #endregion Public Methods
