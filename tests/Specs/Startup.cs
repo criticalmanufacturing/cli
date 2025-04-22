@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Cmf.CLI.Core;
+using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Core.Objects;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -121,8 +122,12 @@ namespace tests.Specs
         [Fact]
         public async Task VersionCheckFailed()
         {
+            var repositoryAuthStoreMock = new Mock<IRepositoryAuthStore>();
+            repositoryAuthStoreMock.Setup(x => x.GetOrLoad()).ReturnsAsync(new CmfAuthFile());
+
             ExecutionContext.ServiceProvider = (new ServiceCollection())
                 .AddSingleton<IVersionService, MockVersionService>()
+                .AddSingleton(repositoryAuthStoreMock.Object)
                 .BuildServiceProvider();
             
             var logWriter = (new Logging()).GetLogStringWriter();
@@ -157,8 +162,12 @@ namespace tests.Specs
         [InlineData(false, "3.1.3")]
         public async Task CheckVersionJSONParse(bool prerelease, string expectedVersion)
         {
+            var repositoryAuthStoreMock = new Mock<IRepositoryAuthStore>();
+            repositoryAuthStoreMock.Setup(x => x.GetOrLoad()).ReturnsAsync(new CmfAuthFile());
+
             ExecutionContext.ServiceProvider = (new ServiceCollection())
                 .AddSingleton<IVersionService, MockVersionServiceDev>()
+                .AddSingleton(repositoryAuthStoreMock.Object)
                 .BuildServiceProvider();
             
             var content = @"{""name"": ""@criticalmanufacturing/cli"",""dist-tags"": {""latest"": ""3.1.3"",""next"": ""3.1.3-1""}}";

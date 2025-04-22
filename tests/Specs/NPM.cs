@@ -6,7 +6,9 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Core.Repository.Credentials;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
@@ -20,9 +22,22 @@ namespace tests.Specs;
 
 public class NPM
 {
+    protected void Setup()
+    {
+        var repositoryAuthStoreMock = new Mock<IRepositoryAuthStore>();
+        repositoryAuthStoreMock.Setup(x => x.GetOrLoad()).Returns(Task.FromResult(new CmfAuthFile()));
+
+        ExecutionContext.ServiceProvider = (new ServiceCollection())
+            .AddSingleton<IVersionService, MockVersionService>()
+            .AddSingleton(repositoryAuthStoreMock.Object)
+            .BuildServiceProvider();
+    }
+
     [Fact]
     public async Task FindPackage()
     {
+        Setup();
+
         var httpClient = new HttpClient();
 
         var npmClient = new NPMClient(client: httpClient);
@@ -35,6 +50,8 @@ public class NPM
     [Fact]
     public async Task GetPackageVersion()
     {
+        Setup();
+
         var httpClient = new HttpClient();
 
         var npmClient = new NPMClient(client: httpClient);
@@ -49,6 +66,8 @@ public class NPM
     [Fact]
     public async Task DownloadPackage()
     {
+        Setup();
+
         var httpClient = new HttpClient();
         var npmClient = new NPMClient(client: httpClient);
         var fs = new MockFileSystem(new Dictionary<string, MockFileData>()
@@ -67,8 +86,12 @@ public class NPM
     [Fact]
     public async Task PublishPackage()
     {
+        var repositoryAuthStoreMock = new Mock<IRepositoryAuthStore>();
+        repositoryAuthStoreMock.Setup(x => x.GetOrLoad()).Returns(Task.FromResult(new CmfAuthFile()));
+
         ExecutionContext.ServiceProvider = (new ServiceCollection())
             .AddSingleton<IVersionService, MockVersionService>()
+            .AddSingleton(repositoryAuthStoreMock.Object)
             .BuildServiceProvider();
 
         var feed = "https://example.repo/";
@@ -130,5 +153,103 @@ public class NPM
             ItExpr.Is<HttpRequestMessage>(req => req.RequestUri.ToString() == $"{feed}{packageId}".ToLowerInvariant()),
             ItExpr.IsAny<CancellationToken>()
         );
-    } 
+    }
+
+    protected void SetupCredentials(ICredential credentials, out NPMClient npmClient, out Mock<HttpMessageHandler> mockHandler)
+    {
+        string baseUrl = "https://example.repo/";
+
+        var repositoryAuthStoreMock = new Mock<IRepositoryAuthStore>();
+        repositoryAuthStoreMock.Setup(x => x.GetOrLoad()).Returns(Task.FromResult(new CmfAuthFile()));
+        repositoryAuthStoreMock.Setup(x => x.GetCredentialsFor<NPMRepositoryCredentials>(It.IsAny<CmfAuthFile>(), It.IsAny<string>(), It.IsAny<bool>()))
+            .Returns(credentials);
+
+        ExecutionContext.ServiceProvider = (new ServiceCollection())
+            .AddSingleton<IVersionService, MockVersionService>()
+            .AddSingleton(repositoryAuthStoreMock.Object)
+            .BuildServiceProvider();
+
+        mockHandler = new Mock<HttpMessageHandler>();
+        mockHandler.Protected()
+            .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage(System.Net.HttpStatusCode.OK)
+            {
+                Content = new StringContent("""
+                 {
+                     "dist-tags": {
+                        "latest": "0.0.1"
+                     }
+                 }
+                 """, Encoding.UTF8, "application/json")
+            });
+
+        npmClient = new NPMClient(baseUrl, new HttpClient(mockHandler.Object));
+    }
+
+    [Fact]
+    public async Task Authentication_BasicCredentials()
+    {
+        // Arrange
+        SetupCredentials(new BasicCredential { Username = "user", Password = "password" },
+            out var npmClient,
+            out var mockHandler);
+
+        // Act
+        var pkg = await npmClient.GetLatestVersion();
+
+        // Assert
+        mockHandler.Protected().Verify(
+            "SendAsync",
+            Times.Once(),
+            ItExpr.Is<HttpRequestMessage>(req => req.Headers != null &&
+                                                 req.Headers.Authorization != null &&
+                                                 req.Headers.Authorization.Scheme == "Basic" &&
+                                                 req.Headers.Authorization.Parameter == Convert.ToBase64String(Encoding.UTF8.GetBytes("user:password"))),
+            ItExpr.IsAny<CancellationToken>()
+        );
+    }
+
+    [Fact]
+    public async Task Authentication_BearerCredentials()
+    {
+        // Arrange
+        SetupCredentials(new BearerCredential { Token = "A.B.C" },
+            out var npmClient,
+            out var mockHandler);
+
+        // Act
+        var pkg = await npmClient.GetLatestVersion();
+
+        // Assert
+        mockHandler.Protected().Verify(
+            "SendAsync",
+            Times.Once(),
+            ItExpr.Is<HttpRequestMessage>(req => req.Headers != null &&
+                                                 req.Headers.Authorization != null &&
+                                                 req.Headers.Authorization.Scheme == "Bearer" &&
+                                                 req.Headers.Authorization.Parameter == "A.B.C"),
+            ItExpr.IsAny<CancellationToken>()
+        );
+    }
+
+    [Fact]
+    public async Task Authentication_NoCredentials()
+    {
+        // Arrange
+        SetupCredentials(credentials: null,
+            out var npmClient,
+            out var mockHandler);
+
+        // Act
+        var pkg = await npmClient.GetLatestVersion();
+
+        // Assert
+        mockHandler.Protected().Verify(
+            "SendAsync",
+            Times.Once(),
+            ItExpr.Is<HttpRequestMessage>(req => req.Headers != null &&
+                                                 req.Headers.Authorization == null),
+            ItExpr.IsAny<CancellationToken>()
+        );
+    }
 }

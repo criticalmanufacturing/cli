@@ -2,6 +2,7 @@ using Cmf.CLI.Commands;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Factories;
 using Cmf.CLI.Handlers;
@@ -9,6 +10,7 @@ using Cmf.CLI.Utilities;
 using Cmf.Common.Cli.TestUtilities;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -31,8 +33,12 @@ namespace tests.Specs
     {
         public Pack()
         {
+            var repositoryAuthStoreMock = new Mock<IRepositoryAuthStore>();
+            repositoryAuthStoreMock.Setup(x => x.Load()).ReturnsAsync(new CmfAuthFile());
+
             ExecutionContext.ServiceProvider = (new ServiceCollection())
                 .AddSingleton<IProjectConfigService>(new ProjectConfigService())
+                .AddSingleton(repositoryAuthStoreMock.Object)
                 .BuildServiceProvider();
         }
 
