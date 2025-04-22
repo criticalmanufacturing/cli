@@ -1,5 +1,6 @@
 ﻿using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;
@@ -111,6 +112,12 @@ namespace Cmf.CLI.Core.Repository.Credentials
                     };
                 }
             }
+        }
+
+        public string GetEnvironmentVariablePrefix(string repository)
+        {
+            var uri = new Uri(repository);
+            return GenericUtilities.BuildEnvVarPrefix(RepositoryType, $"{uri.Host}{uri.PathAndQuery.TrimEnd('/')}");
         }
 
         protected JWTPayload ParseJwt(string token)

@@ -23,6 +23,7 @@ public class NPMRepositoryClient : IRepositoryClient
         this.client = client ?? new NPMClient(registryUrl);
         this.fileSystem = fileSystem ?? new FileSystem();
     }
+
     public async Task<CmfPackageV1> Find(string packageId, string version)
     {
         try

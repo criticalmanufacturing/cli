@@ -1,5 +1,7 @@
 using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -47,6 +49,12 @@ namespace Cmf.CLI.Core.Repository.Credentials
             }
 
             return Task.CompletedTask;
+        }
+
+        public string GetEnvironmentVariablePrefix(string repository)
+        {
+            var uri = new Uri(repository);
+            return GenericUtilities.BuildEnvVarPrefix(RepositoryType, $"{uri.Host}");
         }
     }
 }

@@ -10,6 +10,7 @@ using System.Xml.Linq;
 using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Core.Repository.Credentials;
 using Cmf.CLI.Core.Services;
 using Cmf.CLI.Utilities;
 using Core.Objects;
@@ -24,8 +25,7 @@ public class CIFSRepositoryClient : ICIFSRepositoryClient
     public CIFSRepositoryClient(string rootPath, IFileSystem fileSystem)
     {
         this.root = new Uri(rootPath, UriKind.Absolute);
-        var host = this.root.Host;
-        this.client = new CIFSClient(host, [this.root]);
+        this.client = new CIFSClient(this.root);
     }
     
     public Task<CmfPackageV1> Find(string packageId, string version)
