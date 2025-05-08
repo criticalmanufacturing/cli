@@ -37,15 +37,31 @@ namespace Cmf.CLI.Commands
         /// <param name="cmd"></param>
         public override void Configure(Command cmd)
         {
+            var packageRoot = FileSystemUtilities.GetPackageRoot(this.fileSystem);
+            var packagePath = ".";
+            if (packageRoot != null)
+            {
+                packagePath = this.fileSystem.Path.GetRelativePath(this.fileSystem.Directory.GetCurrentDirectory(), packageRoot.FullName);
+            }
+            var arg = new Argument<IDirectoryInfo>(
+                name: "packagePath",
+                parse: (argResult) => Parse<IDirectoryInfo>(argResult, packagePath),
+                isDefault: true)
+            {
+                Description = "Package Path"
+            };
+
+            cmd.AddArgument(arg);
             cmd.Handler = CommandHandler.Create(this.Execute);
         }
 
         /// <summary>
         /// Executes this instance.
         /// </summary>
-        public void Execute()
+        /// <param name="packagePath">The path of the current package folder</param>
+        public void Execute(IDirectoryInfo packagePath)
         {
-            var helpRoot = FileSystemUtilities.GetPackageRootByType(Environment.CurrentDirectory, PackageType.Help, this.fileSystem).FullName;
+            var helpRoot = FileSystemUtilities.GetPackageRootByType(packagePath.FullName, PackageType.Help, this.fileSystem).FullName;
             var project = ExecutionContext.Instance.ProjectConfig.Tenant;
             
             var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;

@@ -58,13 +58,21 @@ namespace Cmf.CLI.Handlers
                 new ExecuteCommand<GenerateBasedOnTemplatesCommand>()
                 {
                     DisplayName = "Generate help pages based on templates",
-                    Command = new GenerateBasedOnTemplatesCommand()
+                    Command = new GenerateBasedOnTemplatesCommand(),
+                    Execute = command =>
+                    {
+                        command.Execute(cmfPackage.GetFileInfo().Directory);
+                    }
                 },
                 // generate menu items
                 new ExecuteCommand<GenerateMenuItemsCommand>()
                 {
                     DisplayName = "Generate menu items",
-                    Command = new GenerateMenuItemsCommand()
+                    Command = new GenerateMenuItemsCommand(),
+                    Execute = command =>
+                    {
+                        command.Execute(cmfPackage.GetFileInfo().Directory);
+                    }
                 },
                 new GulpCommand()
                 {
