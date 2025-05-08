@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.IO.Abstractions;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Core.Objects;
@@ -88,14 +89,21 @@ namespace Core.Objects
         private string _share { get; set; }
         private string _path { get; set; }
         private Uri _uri { get; set; }
+        private IFileSystem _fileSystem;
 
-        public SharedFolder(Uri uri, ISMBClient client)
+        public SharedFolder(Uri uri, ISMBClient client, IFileSystem fileSystem = null)
         {
             _client = client;
             _server = uri.Host;
             _share = uri.PathAndQuery.Split("/")[1];
-            _path = uri.PathAndQuery.Replace($"/{_share}", "").Substring(1);
+            _path = uri.PathAndQuery.Replace($"/{_share}", "");
+            // Share may not specific a path
+            if (_path.StartsWith("/"))
+            {
+                _path = _path.Substring(1);
+            }
             _uri = uri;
+            _fileSystem = fileSystem ?? new FileSystem();
             Load();
         }
 
@@ -117,7 +125,7 @@ namespace Core.Objects
         public Tuple<Uri, Stream> GetFile(string fileName)
         {
             Tuple<Uri, Stream> fileStream = null;
-            var filepath = $"{_path}/{fileName}";
+            var filepath = String.IsNullOrEmpty(_path) ? fileName : $"{_path}/{fileName}";
             var status = _smbFileStore.CreateFile(out object fileHandle, out FileStatus fileStatus, filepath, AccessMask.GENERIC_READ, SMBLibrary.FileAttributes.Normal, ShareAccess.Read | ShareAccess.Write, CreateDisposition.FILE_OPEN, CreateOptions.FILE_NON_DIRECTORY_FILE, null);
             if (status == NTStatus.STATUS_SUCCESS)
             {
@@ -155,6 +163,57 @@ namespace Core.Objects
             }
 
             return new Uri(baseUri, pathUri.TrimStart('/'));
+        }
+
+        public void PutFile(string localFilePath, string remoteFilePath)
+        {
+            if (!_fileSystem.File.Exists(localFilePath))
+            {
+                throw new FileNotFoundException($"The file {localFilePath} does not exist.");
+            }
+
+            var remoteShareFilePath = String.IsNullOrEmpty(_path) ? remoteFilePath : $"{_path}/{remoteFilePath}";
+
+            var status = _smbFileStore.CreateFile(
+                out object fileHandle,
+                out FileStatus fileStatus,
+                remoteShareFilePath,
+                AccessMask.GENERIC_WRITE,
+                SMBLibrary.FileAttributes.Normal,
+                ShareAccess.Read | ShareAccess.Write,
+                CreateDisposition.FILE_OVERWRITE_IF,
+                CreateOptions.FILE_NON_DIRECTORY_FILE,
+                null
+            );
+
+            if (status != NTStatus.STATUS_SUCCESS)
+            {
+                throw new Exception($"Failed to create or open file {remoteShareFilePath} on the shared folder. Error: {status}.");
+            }
+
+            try
+            {
+                using (var localFileStream = _fileSystem.File.OpenRead(localFilePath))
+                {
+                    var buffer = new byte[_client.MaxWriteSize];
+                    long offset = 0;
+                    int bytesRead;
+
+                    while ((bytesRead = localFileStream.Read(buffer, 0, buffer.Length)) > 0)
+                    {
+                        status = _smbFileStore.WriteFile(out int numberOfBytesWritten, fileHandle, offset, buffer.AsSpan(0, bytesRead).ToArray());
+                        if (status != NTStatus.STATUS_SUCCESS)
+                        {
+                            throw new Exception($"Failed to write to file {remoteShareFilePath} on the shared folder. Error: {status}.");
+                        }
+                        offset += numberOfBytesWritten;
+                    }
+                }
+            }
+            finally
+            {
+                _smbFileStore.CloseFile(fileHandle);
+            }
         }
     }
 }

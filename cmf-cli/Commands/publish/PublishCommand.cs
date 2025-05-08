@@ -28,7 +28,18 @@ public class PublishCommand : BaseCommand
         
         cmd.AddOption(new Option<Uri>(
             aliases: new string[] { "--repository" },
-            description: "Repository the package should be published to"));
+            description: "Repository the package should be published to",
+            parseArgument: result =>
+            {
+                var value = result.Tokens[0].Value;
+                if (!Uri.TryCreate(value, UriKind.Absolute, out var uri))
+                {
+                    result.ErrorMessage = "The repository must be a valid absolute URI.";
+                    return null;
+                }
+                return uri;
+            }
+        ));
 
         cmd.IsHidden =
             !(ExecutionContext.ServiceProvider?.GetService<IFeaturesService>()?.UseRepositoryClients ?? false);
