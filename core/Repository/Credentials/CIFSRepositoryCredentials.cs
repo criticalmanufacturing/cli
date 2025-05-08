@@ -19,7 +19,7 @@ namespace Cmf.CLI.Core.Repository.Credentials
 
         public PropertyRequirement KeyPropertyRequirement => PropertyRequirement.Ignored;
 
-        public PropertyRequirement DomainPropertyRequirement => PropertyRequirement.Mandatory;
+        public PropertyRequirement DomainPropertyRequirement => PropertyRequirement.Optional;
 
         public void ValidateCredentials(IList<ICredential> credentials)
         { }

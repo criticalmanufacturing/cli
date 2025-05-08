@@ -1,14 +1,15 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions.TestingHelpers;
+using System.Text;
 using Core.Objects;
-using Cmf.CLI.Core.Interfaces;
 using Moq;
 using SMBLibrary;
 using SMBLibrary.Client;
 using Xunit;
-using Cmf.CLI.Core.Repository.Credentials;
 using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Core.Interfaces;
+using Cmf.CLI.Core.Repository.Credentials;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace tests.Specs
@@ -99,6 +100,81 @@ namespace tests.Specs
             // Assert
             Assert.NotNull(result);
             Assert.Equal(new Uri(@"\\testServer\testShare\Folder\testFile.txt"), result.Item1);
+        }
+
+        // TODO Add test method for UNhappy path of PutFile
+
+        [Fact]
+        public void SharedFolder_PutFile_ShouldWriteFileToSharedFolder()
+        {
+            // Arrange
+            var localFilePath = "localTestFile.txt";
+            var localFileData = "Test data";    
+            var remoteFilePath = "remoteTestFile.txt";
+            var remoteShareFilePath = @$"Folder/{remoteFilePath}";
+            var mockFileData = new MockFileData(localFileData);
+            var mockFileSystem = new MockFileSystem();
+            var mockFileStore = new Mock<ISMBFileStore>();
+            
+            var writtenData = new MemoryStream();
+
+            mockFileSystem.AddFile(localFilePath, mockFileData);
+            mockFileStore.Setup(store => store.CreateFile(
+                out It.Ref<object>.IsAny,
+                out It.Ref<FileStatus>.IsAny,
+                remoteFilePath,
+                It.IsAny<AccessMask>(),
+                It.IsAny<SMBLibrary.FileAttributes>(),
+                It.IsAny<ShareAccess>(),
+                It.IsAny<CreateDisposition>(),
+                It.IsAny<CreateOptions>(),
+                null
+            )).Returns(NTStatus.STATUS_SUCCESS);
+
+            mockFileStore.Setup(store => store.WriteFile(
+                out It.Ref<int>.IsAny,
+                It.IsAny<object>(),
+                It.IsAny<long>(),
+                It.IsAny<byte[]>()
+            )).Callback((out int numberOfBytesWritten, object handle, long offset, byte[] buffer) =>
+            {
+                writtenData.Write(buffer, 0, buffer.Length);
+                numberOfBytesWritten = buffer.Length;
+            }).Returns(NTStatus.STATUS_SUCCESS);
+
+            _mockSmbClient.Setup(client => client.TreeConnect(It.IsAny<string>(), out It.Ref<NTStatus>.IsAny)).Returns(mockFileStore.Object);
+            _mockSmbClient.Setup(client => client.MaxWriteSize).Returns(4096);
+
+            var sharedFolder = new SharedFolder(new Uri(@"\\testServer\testShare\Folder"), _mockSmbClient.Object, mockFileSystem.FileSystem);
+
+            // Act
+            sharedFolder.PutFile(localFilePath, remoteFilePath);
+
+            // Assert
+            mockFileStore.Verify(store => store.CreateFile(
+                out It.Ref<object>.IsAny,
+                out It.Ref<FileStatus>.IsAny,
+                remoteShareFilePath,
+                It.IsAny<AccessMask>(),
+                It.IsAny<SMBLibrary.FileAttributes>(),
+                It.IsAny<ShareAccess>(),
+                It.IsAny<CreateDisposition>(),
+                It.IsAny<CreateOptions>(),
+                null
+            ), Times.Once);
+
+            mockFileStore.Verify(store => store.WriteFile(
+                out It.Ref<int>.IsAny,
+                It.IsAny<object>(),
+                It.IsAny<long>(),
+                It.IsAny<byte[]>()
+            ), Times.AtLeastOnce);
+
+            writtenData.Seek(0, SeekOrigin.Begin);
+            var resultingData = writtenData.ToArray();
+            var originalData = Encoding.ASCII.GetBytes(localFileData);
+
+            Assert.Equal(originalData, resultingData);
         }
     }
 }

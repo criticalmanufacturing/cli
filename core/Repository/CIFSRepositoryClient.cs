@@ -10,7 +10,6 @@ using System.Xml.Linq;
 using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Core.Objects;
-using Cmf.CLI.Core.Repository.Credentials;
 using Cmf.CLI.Core.Services;
 using Cmf.CLI.Utilities;
 using Core.Objects;
@@ -21,11 +20,13 @@ public class CIFSRepositoryClient : ICIFSRepositoryClient
 {
     private ICIFSClient client = null;
     private Uri root = null;
+    private IFileSystem fileSystem;
 
     public CIFSRepositoryClient(string rootPath, IFileSystem fileSystem)
     {
         this.root = new Uri(rootPath, UriKind.Absolute);
         this.client = new CIFSClient(this.root);
+        this.fileSystem = fileSystem ?? new FileSystem();
     }
     
     public Task<CmfPackageV1> Find(string packageId, string version)
@@ -39,9 +40,15 @@ public class CIFSRepositoryClient : ICIFSRepositoryClient
         throw new NotSupportedException("Cannot list packages from CIFS share!");
     }
 
-    public Task Put(CmfPackageV1 package)
-    {
-        throw new NotSupportedException("Cannot publish packages to CIFS share!");
+    public async Task Put(CmfPackageV1 package)
+    {        
+        var tmp = this.fileSystem.DirectoryInfo.New(this.fileSystem.Path.GetTempPath());
+        Log.Debug($"Retrieving Package {package.PackageDotRef} to temp directory {tmp.FullName}");
+        var file = await package.Client.Get(package, tmp);
+
+        Log.Debug($"Saving to file {this.root}...");
+        this.client.SharedFolders.Single(sf => sf.Exists)?.PutFile(file.FullName, $"{package.PackageDotRef}.zip");
+        Log.Debug($"File saved successfully");
     }
 
     public Task<IFileInfo> Get(CmfPackageV1 package, IDirectoryInfo targetDirectory)
