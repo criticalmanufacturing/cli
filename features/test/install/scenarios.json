@@ -1,0 +1,16 @@
+{
+    "install-latest": {
+        "image": "node",
+        "features": {
+            "install": {}
+        }
+    },
+    "install-specific-version": {
+        "image": "node",
+        "features": {
+            "install": {
+                "version": "5.2.0"
+            }
+        }
+    }
+}
