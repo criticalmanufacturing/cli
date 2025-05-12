@@ -170,7 +170,7 @@ namespace Cmf.CLI.Commands
 
                     if (password == null)
                     {
-                        password = Prompt("Username", noPrompt);
+                        password = Prompt("Password", noPrompt);
                     }
 
                     GenericUtilities.ValidatePropertyRequirement($"Option \"domain\"", domain, repositoryCredentials.DomainPropertyRequirement);
