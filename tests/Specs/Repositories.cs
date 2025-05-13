@@ -1,24 +1,26 @@
 using System;
 using System.Collections.Generic;
+using System.Formats.Tar;
+using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
+using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Core.Repository;
-using Cmf.CLI.Core.Repository.Credentials;
 using Cmf.CLI.Core.Services;
 using Cmf.CLI.Utilities;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Moq.Protected;
+using Newtonsoft.Json;
 using tests.Mocks;
 using tests.Objects;
 using Xunit;
@@ -629,5 +631,65 @@ public class Repositories
         // var ctrlr = new CmfPackageController(fileSystem.FileInfo.New($"{repo}/{packageId}.{version}.zip"));
         string newManifestContent = FileSystemUtilities.GetFileContentFromPackage($"{repo}/{packageId}.{version}.zip", "manifest.xml", fileSystem);
         newManifestContent.Should().Be(manifestContent);
+    }
+
+    [Fact]
+    public void ConvertZipToTgz_HappyPath()
+    {
+      KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.0.0");
+      const string cliPackageType = "Root";
+
+      string manifestContent =
+        @$"<deploymentPackage>
+            <packageId>{packageRoot.Key}</packageId>
+            <name>Critical Manufacturing Customization</name>
+            <packageType>Generic</packageType>
+            <cliPackageType>{cliPackageType}</cliPackageType>
+            <description>This package deploys Critical Manufacturing Customization</description>
+            <version>{packageRoot.Value}</version>
+            <isInstallable>True</isInstallable>
+            <isUniqueInstall>False</isUniqueInstall>
+            <keywords>cmf-root-package</keywords>
+            <dependencies>
+              <dependency id=""Cmf.Environment"" version=""11.0.0"" mandatory=""false"" isIgnorable=""true"" />
+            </dependencies>
+            <steps>
+              <step type=""MasterData"" title=""Master Data"" filePath=""MasterData/001-MD01.json"" createInCollection=""false"" importXMLObjectPath=""ExportedObjects"" targetPlatform=""Self"" />
+              <step type=""MasterData"" title=""Master Data"" filePath=""MasterData/002-MD02.json"" createInCollection=""false"" importXMLObjectPath=""ExportedObjects"" targetPlatform=""Self"" />
+            </steps>
+        </deploymentPackage>";
+
+      var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+      {
+          { $"repo/{packageRoot.Key}.{packageRoot.Value}.zip", new MockFileData(new DFPackageBuilder().CreateEntry("manifest.xml", manifestContent).ToByteArray()) }
+      });
+      ExecutionContext.Initialize(fileSystem);
+
+      IFileInfo tgzPackageFile = fileSystem.FileInfo.New($"repo/{packageRoot.Key}.{packageRoot.Value}.tgz");
+
+      // test conversion zip->tgz
+      CmfPackageController.ConvertZipToTarGz(fileSystem.FileInfo.New($"repo/{packageRoot.Key}.{packageRoot.Value}.zip"), tgzPackageFile);
+      
+      // get tgz info for assertion
+      using GZipStream gzipStream = new GZipStream(tgzPackageFile.OpenRead(), CompressionMode.Decompress);
+      using TarReader tarReader = new(gzipStream);
+      dynamic packageJson = null;
+      int tgzEntriesTotal = 0;
+      while (tarReader.GetNextEntry() is { } entry)
+      {
+        if (entry.Name == "package/package.json")
+        {
+          using MemoryStream ms = new();
+          entry.DataStream.CopyTo(ms);
+          packageJson = JsonConvert.DeserializeObject(Encoding.UTF8.GetString(ms.ToArray()));
+        }
+        tgzEntriesTotal++;
+      }
+
+      tgzEntriesTotal.Should().Be(2, "The tgz should contain only 2 entries, the package.json and the manifest.xml.");
+      Assert.NotNull(packageJson);
+      Assert.NotNull(packageJson.deployment);
+      Assert.NotNull(packageJson.deployment.steps);
+      Assert.Equal(2, (int)packageJson.deployment.steps.Count);
     }
 }
