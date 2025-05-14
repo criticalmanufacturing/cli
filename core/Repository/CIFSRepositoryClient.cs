@@ -35,11 +35,6 @@ public class CIFSRepositoryClient : ICIFSRepositoryClient
         return GetFromRepository(dependencyFileName, true);
     }
 
-    public Task<CmfPackageV1Collection> List()
-    {
-        throw new NotSupportedException("Cannot list packages from CIFS share!");
-    }
-
     public async Task Put(CmfPackageV1 package)
     {        
         var tmp = this.fileSystem.DirectoryInfo.New(this.fileSystem.Path.GetTempPath());
