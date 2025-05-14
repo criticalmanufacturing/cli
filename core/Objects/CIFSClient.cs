@@ -124,6 +124,11 @@ namespace Core.Objects
 
         public Tuple<Uri, Stream> GetFile(string fileName)
         {
+            if (!Exists)
+            {
+                throw new InvalidOperationException("Cannot perform actions in a non-existent shared folder.");
+            }
+
             Tuple<Uri, Stream> fileStream = null;
             var filepath = String.IsNullOrEmpty(_path) ? fileName : $"{_path}/{fileName}";
             var status = _smbFileStore.CreateFile(out object fileHandle, out FileStatus fileStatus, filepath, AccessMask.GENERIC_READ, SMBLibrary.FileAttributes.Normal, ShareAccess.Read | ShareAccess.Write, CreateDisposition.FILE_OPEN, CreateOptions.FILE_NON_DIRECTORY_FILE, null);
@@ -167,6 +172,11 @@ namespace Core.Objects
 
         public void PutFile(string localFilePath, string remoteFilePath)
         {
+            if (!Exists)
+            {
+                throw new InvalidOperationException("Cannot perform actions in a non-existent shared folder.");
+            }
+
             if (!_fileSystem.File.Exists(localFilePath))
             {
                 throw new FileNotFoundException($"The file {localFilePath} does not exist.");
