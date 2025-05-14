@@ -7,6 +7,7 @@ using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Core.Repository;
 using Cmf.CLI.Core.Services;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -64,12 +65,10 @@ public class PublishCommand : BaseCommand
                 $"The package needs to be in a zip or gzipped tar file (with .tgz extension). Use the `pack` command to get a valid file to publish.");
         }
 
-        // request a client for the specific file, not its directory. This way the List call below always returns a single file.
-        // NOTE: this is only guaranteed in the Local and Archive repo clients!
-        //  It is possible to invoke this command from Linux with a share path which would return a CIFSRepositoryClient,
-        //  which does not support file as root but also does not support List
+        // If it passes the above checks the only possible client for the requested file 
+        // is a ArchiveRepositoryClient with only a single Package
         var client = ExecutionContext.ServiceProvider?.GetService<IRepositoryLocator>()
-            .GetRepositoryClient(new Uri(file.FullName), file.FileSystem);
+            .GetRepositoryClient(new Uri(file.FullName), file.FileSystem) as ArchiveRepositoryClient;
         if (client == null)
         {
             throw new CliException($"Could not determine repository type for {file.FullName}!");
@@ -82,11 +81,8 @@ public class PublishCommand : BaseCommand
             throw new CliException($"Could not determine repository type for {repository.AbsoluteUri}!");
         }
         Log.Debug($"Got client {repoClient.GetType().Name} for repository URL {repository.AbsoluteUri}");
-        var pkg = client.List().GetAwaiter().GetResult().FirstOrDefault();
-        Log.Debug($"Got package {pkg!.PackageAtRef} from origin repository");
-        var ctlr = new CmfPackageController(pkg, fileSystem);
         Log.Debug($"Publishing package with target repository client...");
-        repoClient.Put(ctlr.CmfPackage).GetAwaiter().GetResult();
+        repoClient.Put(client.List().Result.Single()).GetAwaiter().GetResult();
         Log.Debug("Publish completed!");
     }
 }
