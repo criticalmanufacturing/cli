@@ -266,6 +266,7 @@ Business/packages/
 Tests/packages/
 
 /Libs/HTML5/*
+/Libs/LBOs/**/*.tgz
 
 Package/
 Dependencies/
