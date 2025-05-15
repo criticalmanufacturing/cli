@@ -72,7 +72,10 @@ public class LinkLBOsCommand : BaseCommand
                 Args = new[] { "build" },
                 WorkingDirectory = tsLBOsDir
             }.Exec()?.Wait();
-            
+
+            var lbosNodeModules = this.fileSystem.Path.Join(tsLBOsDir.FullName, "node_modules");
+            this.fileSystem.Directory.Delete(lbosNodeModules, true);
+
             var packageRoot = cmfPackage.GetFileInfo().DirectoryName;
             var linkTargetPath = this.fileSystem.Path.Join(packageRoot, "node_modules", "cmf-lbos");
             var linkTarget = this.fileSystem.DirectoryInfo.New(linkTargetPath);
