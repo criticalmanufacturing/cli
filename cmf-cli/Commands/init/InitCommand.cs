@@ -249,7 +249,8 @@ namespace Cmf.CLI.Commands
                 "--customPackageName", x.rootPackageName,
                 "--projectName", x.projectName,
                 "--repositoryType", x.repositoryType.ToString(),
-                "--baseLayer", x.repositoryType == RepositoryType.App ? BaseLayer.Core.ToString() : BaseLayer.MES.ToString()
+                "--baseLayer", x.repositoryType == RepositoryType.App ? BaseLayer.Core.ToString() : BaseLayer.MES.ToString(),
+                "--CLIVersion", ExecutionContext.CurrentVersion
             };
 
             if (x.repositoryType == RepositoryType.App)
