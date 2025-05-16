@@ -51,6 +51,12 @@
       "datatype": "string",
       "replaces": "<%= $CLI_PARAM_rootRelativePath %>"
     },
+    "repositoryType": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The type of repository this package will be included in",
+      "displayName": "Repository Type"
+    },
     // versioned bits
     "targetFramework": {
       "type": "parameter",

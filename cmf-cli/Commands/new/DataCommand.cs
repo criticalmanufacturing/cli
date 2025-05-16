@@ -47,6 +47,8 @@ namespace Cmf.CLI.Commands.New
         /// <inheritdoc />
         protected override List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args)
         {
+            var repoType = ExecutionContext.Instance.ProjectConfig.RepositoryType ?? CliConstants.DefaultRepositoryType;
+
             var relativePathToRoot =
                 this.fileSystem.Path.Join("..", //always one level deeper
                     this.fileSystem.Path.GetRelativePath(
@@ -56,7 +58,8 @@ namespace Cmf.CLI.Commands.New
             
             args.AddRange(new []
             {
-                "--rootRelativePath", relativePathToRoot 
+                "--rootRelativePath", relativePathToRoot,
+                "--repositoryType", repoType.ToString()
             });
             
             #region version-specific bits
