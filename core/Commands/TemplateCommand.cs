@@ -112,21 +112,20 @@ namespace Cmf.CLI.Core.Commands
             var templateEngineHost = CreateHost(version, fileSystem);
             using var bootstrapper = new Bootstrapper(templateEngineHost, false);
 
+            #if DEBUG
+            Log.Debug($"Clearing template cache file...");
+            DeleteTemplateCacheFile(templateEngineHost);
+            #endif
+
             // this needs a refactor, right now we're minimizing the impact on the implemented commands
-            if (templateName == "new" && parameters.ContainsKey("debug:reinit")) 
+            if (templateName == "new" && parameters.ContainsKey("debug:reinit"))
             {
-                Log.Debug("Cleaning up the template engine store");
-                // we have to re-instantiate the engine environment settings as they are private in the bootstrapper, but are exactly the same
-                var engineEnvironmentSettings = new EngineEnvironmentSettings(templateEngineHost, virtualizeSettings: false);
-                Log.Debug($"Cleaning up {engineEnvironmentSettings.Paths.HostVersionSettingsDir}");
-                templateEngineHost.FileSystem.DirectoryDelete(engineEnvironmentSettings.Paths.HostVersionSettingsDir, true);
-                templateEngineHost.FileSystem.CreateDirectory(engineEnvironmentSettings.Paths.HostVersionSettingsDir);
-                Log.Debug("Done");
+                DeleteTemplateCacheFile(templateEngineHost);
                 return;
             }
 
             Log.Debug("Getting templates");
-            // we want to use: var templates = await bootstrapper.GetTemplatesAsync(); 
+            // we want to use: var templates = await bootstrapper.GetTemplatesAsync();
             var t = bootstrapper.GetTemplatesAsync(default);
             t.Wait();
             var templates = t.Result;
@@ -152,7 +151,7 @@ namespace Cmf.CLI.Core.Commands
                 Log.Exception(e);
             }
         }
-        
+
         internal class CmfCliPackageProviderFactory : ITemplatePackageProviderFactory
         {
             public Guid Id => new Guid("bacf2f68-3346-4097-a472-e093a2f2843a");
@@ -235,6 +234,17 @@ namespace Cmf.CLI.Core.Commands
                 //         }))
                 loggerFactory: null
             );
+        }
+
+        private static void DeleteTemplateCacheFile(ITemplateEngineHost templateEngineHost)
+        {
+            Log.Debug("Cleaning up the template engine store");
+            // we have to re-instantiate the engine environment settings as they are private in the bootstrapper, but are exactly the same
+            var engineEnvironmentSettings = new EngineEnvironmentSettings(templateEngineHost, virtualizeSettings: false);
+            Log.Debug($"Cleaning up {engineEnvironmentSettings.Paths.HostVersionSettingsDir}");
+            templateEngineHost.FileSystem.DirectoryDelete(engineEnvironmentSettings.Paths.HostVersionSettingsDir, true);
+            templateEngineHost.FileSystem.CreateDirectory(engineEnvironmentSettings.Paths.HostVersionSettingsDir);
+            Log.Debug("Done");
         }
 
          /// <summary>
