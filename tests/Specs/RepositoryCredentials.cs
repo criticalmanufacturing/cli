@@ -32,6 +32,7 @@ public class RepositoryCredentials
     public static string MockCmfAuthFilePath = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".cmf-auth.json");
     public static string MockNPMConfigFilePath = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".npmrc");
     public static string MockNuGetConfigFilePath = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "NuGet", "NuGet.Config");
+    public static string MockPortalTokenFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create), "cmfportal", "cmfportaltoken");
 
     public const string mockCmfAuthJson =
         """
@@ -715,4 +716,62 @@ public class RepositoryCredentials
         prefix.Should().Be(envVarPrefix);
     }
 
+    [Fact]
+    public async Task PortalRepositoryCredentials_SyncCredentials_NoFileExists()
+    {
+        // Arrange
+        var fileSystem = new MockFileSystem();
+
+        var portal = new PortalRepositoryCredentials(fileSystem);
+
+        // Act
+        await portal.SyncCredentials([
+           new BearerCredential
+           {
+                RepositoryType = RepositoryCredentialsType.Portal,
+                Repository = CmfAuthConstants.PortalRepository,
+                Token = "a.b.c"
+           }
+        ]);
+
+        // Assert
+        fileSystem.FileExists(MockPortalTokenFilePath).Should().BeTrue();
+
+        var token = fileSystem.File.ReadAllText(MockPortalTokenFilePath);
+
+        token.Trim().Should().Be("a.b.c");
+    }
+
+    [Fact]
+    public async Task PortalRepositoryCredentials_SyncCredentials_ExistingFile()
+    {
+        // Arrange
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { MockUnixSupport.Path(MockPortalTokenFilePath), new MockFileData(
+                """
+                d.e.f
+                """
+            ) }
+        });
+
+        var portal = new PortalRepositoryCredentials(fileSystem);
+
+        // Act
+        await portal.SyncCredentials([
+            new BearerCredential
+            {
+                RepositoryType = RepositoryCredentialsType.Portal,
+                Repository = CmfAuthConstants.PortalRepository,
+                Token = "a.b.c"
+            }
+        ]);
+
+        // Assert
+        fileSystem.FileExists(MockPortalTokenFilePath).Should().BeTrue();
+
+        var token = fileSystem.File.ReadAllText(MockPortalTokenFilePath);
+
+        token.Trim().Should().Be("a.b.c");
+    }
 }
