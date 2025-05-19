@@ -65,6 +65,7 @@ public class RepositoryCredentials
     public Mock<IRepositoryCredentials> NugetRepositoryMock = new();
     public Mock<IRepositoryCredentials> DockerRepositoryMock = new();
     public Mock<IRepositoryCredentials> CIFSRepositoryMock = new();
+    public Mock<IRepositoryCredentialsSingleSignOn> PortalSSORepositoryMock;
     public ServiceCollection ServiceCollection = new();
     public RepositoryCredentials()
     {
@@ -78,6 +79,8 @@ public class RepositoryCredentials
         DockerRepositoryMock.Setup(x => x.SupportedAuthTypes).Returns([AuthType.Basic]);
         CIFSRepositoryMock.Setup(x => x.RepositoryType).Returns(RepositoryCredentialsType.CIFS);
         CIFSRepositoryMock.Setup(x => x.SupportedAuthTypes).Returns([AuthType.Basic]);
+
+        PortalSSORepositoryMock = PortalRepositoryMock.As<IRepositoryCredentialsSingleSignOn>();
 
         ServiceCollection
             .AddSingleton(PortalRepositoryMock.Object)
@@ -255,6 +258,40 @@ public class RepositoryCredentials
         contents.SelectToken("$.repositories.npm.0.repository")?.Value<string>().Should().Be("https://criticalmanufacturing.io/repository/npm/");
     }
 
+    [Fact]
+    public async Task RepositoryAuthStore_Store_SyncDerivedCredentials()
+    {
+        // Arrange
+        MockFileSystem fileSystem = new MockFileSystem();
+
+        ExecutionContext.ServiceProvider = ServiceCollection.BuildServiceProvider();
+
+        var npmCred = new BasicCredential { RepositoryType = RepositoryCredentialsType.NPM };
+        var nugetCred = new BasicCredential { RepositoryType = RepositoryCredentialsType.NuGet };
+        var dockerCred = new BasicCredential { RepositoryType = RepositoryCredentialsType.Docker };
+        PortalSSORepositoryMock.Setup(x => x.GetDerivedCredentials(It.IsAny<IList<ICredential>>())).Returns([npmCred, nugetCred, dockerCred]);
+
+        var authStore = RepositoryAuthStore.FromEnvironmentConfig(fileSystem);
+
+        // Act
+        await authStore.Save([
+            new BearerCredential
+            {
+                RepositoryType = RepositoryCredentialsType.Portal,
+                Repository = CmfAuthConstants.PortalRepository,
+                Token = "header.payload.signature",
+            },
+        ]);
+
+        // Assert
+        PortalRepositoryMock.Verify(x => x.SyncCredentials(It.IsAny<IList<ICredential>>()), Times.Once);
+        NugetRepositoryMock.Verify(x => x.SyncCredentials(It.IsAny<IList<ICredential>>()), Times.Once);
+        NPMRepositoryMock.Verify(x => x.SyncCredentials(It.IsAny<IList<ICredential>>()), Times.Once);
+        DockerRepositoryMock.Verify(x => x.SyncCredentials(It.IsAny<IList<ICredential>>()), Times.Once);
+
+        CIFSRepositoryMock.Verify(x => x.SyncCredentials(It.IsAny<IList<ICredential>>()), Times.Never);
+    }
+
     [Theory]
     [InlineData(RepositoryCredentialsType.CIFS, @"\\serverA\folder1", 0)]
     [InlineData(RepositoryCredentialsType.CIFS, @"\\serverB\folder2\sub\folder", 1)]
@@ -407,6 +444,50 @@ public class RepositoryCredentials
         {
             environment.Restore();
         }
+    }
+
+    [Fact]
+    public void RepositoryAuthStore_AddDerivedCredentials()
+    {
+        // Arrange            
+        // - The manual Single Sign-On Credential
+        var portalCred = new BearerCredential(RepositoryCredentialsType.Portal, CmfAuthConstants.PortalRepository, key: null, token: "a.b.c");
+        // - The 2 derived Credentials
+        var npmCred = new BasicCredential(RepositoryCredentialsType.NPM, CmfAuthConstants.NPMRepository, key: null, domain: null, username: "npm-user", password: "qwerty");
+        var nugetCred = new BasicCredential(RepositoryCredentialsType.NuGet, CmfAuthConstants.NuGetRepository, key: CmfAuthConstants.NuGetKey, domain: null, username: "nuget-user", password: "qwerty");
+        // - A third party manual credential
+        var npmThirdPartyCred = new BasicCredential(RepositoryCredentialsType.NPM, "https://registry.npmjs.org/", key: null, domain: null, username: "npm-external-user", password: "qwerty");
+
+        PortalSSORepositoryMock.Setup(x => x.GetDerivedCredentials(It.IsAny<IList<ICredential>>())).Returns([npmCred, nugetCred]);
+
+        ExecutionContext.ServiceProvider = ServiceCollection.BuildServiceProvider();
+
+        var authStore = RepositoryAuthStore.FromEnvironmentConfig(new MockFileSystem());
+
+        var authFile = new CmfAuthFile
+        {
+            Repositories = new Dictionary<RepositoryCredentialsType, CmfAuthFileRepositoryType>()
+            {
+                { RepositoryCredentialsType.Portal, new CmfAuthFileRepositoryType { Credentials = [portalCred] } },
+                { RepositoryCredentialsType.NPM, new CmfAuthFileRepositoryType { Credentials = [npmThirdPartyCred] } }
+            }
+        };
+
+        // Act
+        authStore.AddDerivedCredentials(authFile);
+
+        // Assert
+        authFile.Repositories.ContainsKey(RepositoryCredentialsType.Portal).Should().BeTrue();
+        authFile.Repositories.ContainsKey(RepositoryCredentialsType.NPM).Should().BeTrue();
+        authFile.Repositories.ContainsKey(RepositoryCredentialsType.NuGet).Should().BeTrue();
+
+        // The NPM third party credential should be there, as well as the derived cred
+        authFile.Repositories[RepositoryCredentialsType.NPM].Credentials.Count.Should().Be(2);
+        authFile.Repositories[RepositoryCredentialsType.NuGet].Credentials.Count.Should().Be(1);
+        
+        authFile.Repositories[RepositoryCredentialsType.NPM].Credentials.Contains(npmCred).Should().BeTrue();
+        authFile.Repositories[RepositoryCredentialsType.NPM].Credentials.Contains(npmThirdPartyCred).Should().BeTrue();
+        authFile.Repositories[RepositoryCredentialsType.NuGet].Credentials.Contains(nugetCred).Should().BeTrue();
     }
 
     [Fact]

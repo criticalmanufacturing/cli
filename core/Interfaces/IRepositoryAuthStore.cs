@@ -19,6 +19,12 @@ namespace Cmf.CLI.Core.Interfaces
 
         ICredential GetCredentialsFor<T>(CmfAuthFile authFile, string absoluteUri, bool ignoreEnvVars = false) where T : IRepositoryCredentials;
 
+        /// <summary>
+        /// Adds the derived credentials to the CmfAuthFile object
+        /// </summary>
+        /// <param name="authFile"></param>
+        void AddDerivedCredentials(CmfAuthFile authFile);
+
         Task<CmfAuthFile> Load();
 
         /// <summary>

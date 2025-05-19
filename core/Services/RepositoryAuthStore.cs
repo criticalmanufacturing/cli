@@ -50,7 +50,10 @@ namespace Cmf.CLI.Core.Services
                 NullValueHandling = NullValueHandling.Ignore,
                 ContractResolver = new DefaultContractResolver
                 {
-                    NamingStrategy = new CamelCaseNamingStrategy(),
+                    NamingStrategy = new CamelCaseNamingStrategy()
+                    {
+                        ProcessDictionaryKeys = true,
+                    }
                 }
             };
         }
@@ -142,7 +145,7 @@ namespace Cmf.CLI.Core.Services
         protected ICredential GetCredentialsFor(IRepositoryCredentials repositoryType, CmfAuthFile authFile, string repository, bool ignoreEnvVars = false)
         {
             Log.Debug($"Get credentials for \"{repositoryType?.RepositoryType}\" \"{repository}\"...");
-            
+
             ICredential credentials;
 
             if (!ignoreEnvVars)
@@ -243,6 +246,36 @@ namespace Cmf.CLI.Core.Services
             return GetCredentialsFor(GetRepositoryType<T>(), authFile, repository, ignoreEnvVars);
         }
 
+        public void AddDerivedCredentials(CmfAuthFile authFile)
+        {
+            var derivedCredentials = new List<ICredential>();
+            foreach (var kv in authFile.Repositories)
+            {
+                var repoType = GetRepositoryType(kv.Key);
+                var repoCredentials = kv.Value.Credentials;
+
+                if (repoType is IRepositoryCredentialsSingleSignOn singleSignOnRepository)
+                {
+                    derivedCredentials.AddRange(singleSignOnRepository.GetDerivedCredentials(repoCredentials));
+
+                    Log.Debug($"Found {derivedCredentials.Count} derived credentials for {repoType}.");
+                }
+            }
+
+            foreach (var derivedCred in derivedCredentials)
+            {
+                // Make sure the source is correctly set
+                derivedCred.Source = CredentialSource.Derived;
+
+                if (!authFile.Repositories.TryGetValue(derivedCred.RepositoryType, out var repoTypeCredentials))
+                {
+                    authFile.Repositories[derivedCred.RepositoryType] = repoTypeCredentials = new CmfAuthFileRepositoryType();
+                }
+
+                repoTypeCredentials.Credentials.Add(derivedCred);
+            }
+        }
+
         public async Task<CmfAuthFile> Load()
         {
             try
@@ -314,7 +347,7 @@ namespace Cmf.CLI.Core.Services
 
             var credentialsByRepo = GroupWithRepository(credentials);
 
-            // Before anythin is saved, make sure all credentials are valid
+            // Before anything is saved, make sure all credentials are valid
             foreach (var (repoType, repoCredentials) in credentialsByRepo)
             {
                 repoType.ValidateCredentials(repoCredentials);
@@ -326,28 +359,17 @@ namespace Cmf.CLI.Core.Services
             // Sync the credentials with their respective tools (NPM, Docker, Nuget, etc...)
             if (sync)
             {
-                foreach (var (repoType, repoCredentials) in credentialsByRepo)
+                // Create a "virtual" auth file with only the credentials to sync
+                // (including derived credentials)
+                var authFile = new CmfAuthFile();
+                authFile.Repositories = credentialsByRepo
+                    .ToDictionary(group => group.Key.RepositoryType, group => new CmfAuthFileRepositoryType { Credentials = group.Value });
+                AddDerivedCredentials(authFile);
+                
+                foreach (var (repoType, repoCredentials) in authFile.Repositories)
                 {
-                    await repoType.SyncCredentials(repoCredentials);
+                    await GetRepositoryType(repoType).SyncCredentials(repoCredentials.Credentials);
                 }
-            }
-
-            var derivedCredentials = new List<ICredential>();
-
-            foreach (var (repoType, repoCredentials) in credentialsByRepo)
-            {
-                if (repoType is IRepositoryCredentialsSingleSignOn singleSignOnRepository)
-                {
-                    derivedCredentials.AddRange(singleSignOnRepository.GetDerivedCredentials(repoCredentials));
-                }
-            }
-
-            Log.Debug($"Found {derivedCredentials.Count} derived credentials.");
-
-            // Call this function recursively to save any derived credentials we gound
-            if (derivedCredentials.Any())
-            {
-                await Save(derivedCredentials, sync: sync);
             }
         }
 
@@ -369,6 +391,12 @@ namespace Cmf.CLI.Core.Services
                     //   - this method does not handle removing credential data, that is handled by a different method for that explicit purpose
                     foreach (var cred in credentials)
                     {
+                        if (cred.Source != CredentialSource.Manual)
+                        {
+                            Log.Debug($"Credential {cred.RepositoryType} {cred.Repository} will not be saved because its source is {cred.Source} and not {CredentialSource.Manual}");
+                            continue;
+                        }
+
                         if (authFile.Repositories.TryGetValue(cred.RepositoryType, out var repoData))
                         {
                             var repoCreds = repoData.Credentials;
