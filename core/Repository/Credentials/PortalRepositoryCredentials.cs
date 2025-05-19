@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -41,9 +42,29 @@ namespace Cmf.CLI.Core.Repository.Credentials
         public void ValidateCredentials(IList<ICredential> credentials)
         { }
 
-        public Task SyncCredentials(IList<ICredential> credentials)
+        public async Task SyncCredentials(IList<ICredential> credentials)
         {
-            return Task.CompletedTask;
+            if (credentials.Count > 1)
+            {
+                Log.Warning("Syncing multiple CM Portal credentials is not currently supported. Falling back and syncing only the first credential.");
+            }
+
+            var credential = credentials.FirstOrDefault();
+
+            if (credential == null)
+            {
+                Log.Debug("No CM Portal credentials found to sync.");
+                return;
+            }
+
+            if (!(credential is BearerCredential bearerCredential))
+            {
+                Log.Warning($"CM Portal credential type is {credential.AuthType}, only {AuthType.Bearer} credentials supported.");
+                return;
+            }
+
+            _fileSystem.Directory.CreateDirectory(TokenDir);
+            await _fileSystem.File.WriteAllTextAsync(TokenFilePath, bearerCredential.Token);
         }
 
         public async Task<ICredential> AutomaticLogin()
