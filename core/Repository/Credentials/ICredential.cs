@@ -22,5 +22,8 @@ namespace Cmf.CLI.Core.Repository.Credentials
         public string Repository { get; set; }
 
         public string Key { get; set; }
+
+        [JsonIgnore]
+        public CredentialSource Source { get; set; }
     }
 }

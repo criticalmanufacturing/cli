@@ -5,6 +5,9 @@ namespace Cmf.CLI.Core.Repository.Credentials
 {
     public record class BearerCredential : ICredential
     {
+        [JsonIgnore]
+        public CredentialSource Source { get; set; } = CredentialSource.Manual;
+
         [JsonConverter(typeof(StringEnumConverter))]
         public AuthType AuthType => AuthType.Bearer;
 

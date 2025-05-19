@@ -68,12 +68,13 @@ namespace Cmf.CLI.Commands
             var authStore = ExecutionContext.ServiceProvider.GetService<IRepositoryAuthStore>();
 
             var authFile = await authStore.Load();
+            authStore.AddDerivedCredentials(authFile);
 
             RepositoryCredentialsType[] resolvedRepositoryTypes;
 
             if (repositoryType == null)
             {
-                Log.Debug($"No repository type provided, will use all repositories defined in our .cmf-auth.json file");
+                Log.Debug($"No repository type provided, will use all repositories defined in our .cmf-auth.json file (and derived credentials)");
                 resolvedRepositoryTypes = authFile.Repositories.Keys.ToArray();
             }
             else
