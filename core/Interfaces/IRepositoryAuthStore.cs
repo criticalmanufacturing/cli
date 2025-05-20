@@ -9,7 +9,7 @@ namespace Cmf.CLI.Core.Interfaces
     {
         IRepositoryCredentials GetRepositoryType(RepositoryCredentialsType repositoryType);
 
-        IRepositoryCredentials GetRepositoryType<T>() where T : IRepositoryCredentials;
+        T GetRepositoryType<T>() where T : IRepositoryCredentials;
 
         ICredential GetEnvironmentCredentialsFor(RepositoryCredentialsType repositoryType, string repository);
 
@@ -34,6 +34,6 @@ namespace Cmf.CLI.Core.Interfaces
         /// <returns></returns>
         Task<CmfAuthFile> GetOrLoad();
 
-        Task Save(IList<ICredential> credentials, bool sync = true);
+        Task<CmfAuthFile> Save(IList<ICredential> credentials, bool sync = true);
     }
 }
