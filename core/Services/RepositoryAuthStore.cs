@@ -205,7 +205,7 @@ namespace Cmf.CLI.Core.Services
             return repositoryCredentials;
         }
 
-        public IRepositoryCredentials GetRepositoryType<T>()
+        public T GetRepositoryType<T>()
             where T : IRepositoryCredentials
         {
             var allRepositoryCredentials = ExecutionContext.ServiceProvider.GetServices<IRepositoryCredentials>();
@@ -338,11 +338,11 @@ namespace Cmf.CLI.Core.Services
             return _cachedAuthFile;
         }
 
-        public async Task Save(IList<ICredential> credentials, bool sync = true)
+        public async Task<CmfAuthFile> Save(IList<ICredential> credentials, bool sync = true)
         {
             if (!credentials.Any())
             {
-                return;
+                return await Load();
             }
 
             var credentialsByRepo = GroupWithRepository(credentials);
@@ -354,7 +354,7 @@ namespace Cmf.CLI.Core.Services
             }
 
             // Save them in the .cmf-auth.json file
-            await SaveInternal(credentials);
+            var savedAuthFile = await SaveInternal(credentials);
 
             // Sync the credentials with their respective tools (NPM, Docker, Nuget, etc...)
             if (sync)
@@ -371,15 +371,17 @@ namespace Cmf.CLI.Core.Services
                     await GetRepositoryType(repoType).SyncCredentials(repoCredentials.Credentials);
                 }
             }
+
+            return savedAuthFile;
         }
 
-        protected async Task SaveInternal(IList<ICredential> credentials, bool sync = true)
+        protected async Task<CmfAuthFile> SaveInternal(IList<ICredential> credentials, bool sync = true)
         {
+            CmfAuthFile authFile;
+
             try
             {
                 EnsureFolderExists();
-
-                CmfAuthFile authFile;
 
                 // If the auth file already exists, merge the credentials, otherwise, create a file just with these
                 if (_authFile.Exists)
@@ -440,6 +442,8 @@ namespace Cmf.CLI.Core.Services
             {
                 throw new Exception($"Failed to store credentials into CMF Auth File {_authFile.FullName}", ex);
             }
+
+            return authFile;
         }
 
         #endregion Public Methods

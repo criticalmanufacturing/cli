@@ -151,6 +151,10 @@ namespace tests.Specs
                 }
             };
 
+            var portalRepositoryMock = new Mock<IPortalRepositoryCredentials>();
+            portalRepositoryMock.Setup(x => x.RepositoryType).Returns(RepositoryCredentialsType.Portal);
+            portalRepositoryMock.Setup(x => x.TryRenewToken(It.IsAny<CmfAuthFile>())).ReturnsAsync((ICredential)null);
+
             var nugetRepositoryMock = new Mock<IRepositoryCredentials>();
             nugetRepositoryMock.Setup(x => x.RepositoryType).Returns(RepositoryCredentialsType.NuGet);
 
@@ -159,6 +163,8 @@ namespace tests.Specs
 
             var authStoreMock = new Mock<IRepositoryAuthStore>();
             authStoreMock.Setup(x => x.Load()).Returns(Task.FromResult(authFile));
+            authStoreMock.SetupSequence(x => x.GetRepositoryType<IPortalRepositoryCredentials>())
+                .Returns(portalRepositoryMock.Object);
             authStoreMock.SetupSequence(x => x.GetRepositoryType(It.IsAny<RepositoryCredentialsType>()))
                 .Returns(npmRepositoryMock.Object)
                 .Returns(nugetRepositoryMock.Object);
@@ -197,6 +203,10 @@ namespace tests.Specs
                 }
             };
 
+            var portalRepositoryMock = new Mock<IPortalRepositoryCredentials>();
+            portalRepositoryMock.Setup(x => x.RepositoryType).Returns(RepositoryCredentialsType.Portal);
+            portalRepositoryMock.Setup(x => x.TryRenewToken(It.IsAny<CmfAuthFile>())).ReturnsAsync((ICredential)null);
+
             var nugetRepositoryMock = new Mock<IRepositoryCredentials>();
             nugetRepositoryMock.Setup(x => x.RepositoryType).Returns(RepositoryCredentialsType.NuGet);
 
@@ -205,6 +215,8 @@ namespace tests.Specs
 
             var authStoreMock = new Mock<IRepositoryAuthStore>();
             authStoreMock.Setup(x => x.Load()).Returns(Task.FromResult(authFile));
+            authStoreMock.SetupSequence(x => x.GetRepositoryType<IPortalRepositoryCredentials>())
+                .Returns(portalRepositoryMock.Object);
             authStoreMock.SetupSequence(x => x.GetRepositoryType(It.IsAny<RepositoryCredentialsType>()))
                 .Returns(nugetRepositoryMock.Object)
                 .Returns(nugetRepositoryMock.Object);
@@ -239,6 +251,10 @@ namespace tests.Specs
                 }
             };
 
+            var portalRepositoryMock = new Mock<IPortalRepositoryCredentials>();
+            portalRepositoryMock.Setup(x => x.RepositoryType).Returns(RepositoryCredentialsType.Portal);
+            portalRepositoryMock.Setup(x => x.TryRenewToken(It.IsAny<CmfAuthFile>())).ReturnsAsync((ICredential)null);
+
             var nugetRepositoryMock = new Mock<IRepositoryCredentials>();
             nugetRepositoryMock.Setup(x => x.RepositoryType).Returns(RepositoryCredentialsType.NuGet);
 
@@ -246,6 +262,8 @@ namespace tests.Specs
             npmRepositoryMock.Setup(x => x.RepositoryType).Returns(RepositoryCredentialsType.NPM);
 
             var authStoreMock = new Mock<IRepositoryAuthStore>();
+            authStoreMock.SetupSequence(x => x.GetRepositoryType<IPortalRepositoryCredentials>())
+                .Returns(portalRepositoryMock.Object);
             authStoreMock.Setup(x => x.Load()).Returns(Task.FromResult(authFile));
             authStoreMock.SetupSequence(x => x.GetRepositoryType(It.IsAny<RepositoryCredentialsType>()))
                 .Returns(npmRepositoryMock.Object)
@@ -262,6 +280,32 @@ namespace tests.Specs
                 It.Is<IList<ICredential>>(cred => cred.Count == 1 && cred[0] == (ICredential)npmCred2)
             ), Times.Once);
             nugetRepositoryMock.Verify(x => x.SyncCredentials(It.IsAny<IList<ICredential>>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task Login_Sync_RenewToken()
+        {
+            // Arrange
+            var authFile = new CmfAuthFile();
+
+            var portalRepositoryMock = new Mock<IPortalRepositoryCredentials>();
+            portalRepositoryMock.Setup(x => x.RepositoryType).Returns(RepositoryCredentialsType.Portal);
+            portalRepositoryMock.Setup(x => x.TryRenewToken(It.IsAny<CmfAuthFile>())).ReturnsAsync(new BearerCredential());
+
+            var authStoreMock = new Mock<IRepositoryAuthStore>();
+            authStoreMock.SetupSequence(x => x.GetRepositoryType<IPortalRepositoryCredentials>())
+                .Returns(portalRepositoryMock.Object);
+            authStoreMock.Setup(x => x.Load()).Returns(Task.FromResult(authFile));
+            authStoreMock.Setup(x => x.Save(It.IsAny<IList<ICredential>>(), It.IsAny<bool>())).ReturnsAsync(authFile);
+
+            ExecutionContext.ServiceProvider = new ServiceCollection().AddSingleton(authStoreMock.Object).BuildServiceProvider();
+
+            // Act
+            await TestUtilities.TestInvokeAsync(new SyncCommand(), ["sync"], setupParents: true);
+
+            // Assert
+            portalRepositoryMock.Verify(x => x.TryRenewToken(authFile), Times.Once);
+            authStoreMock.Verify(x => x.Save(It.IsAny<IList<ICredential>>(), false), Times.Once);
         }
     }
 }

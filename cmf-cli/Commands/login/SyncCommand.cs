@@ -68,6 +68,25 @@ namespace Cmf.CLI.Commands
             var authStore = ExecutionContext.ServiceProvider.GetService<IRepositoryAuthStore>();
 
             var authFile = await authStore.Load();
+
+            #region Auto-login in CM Portal if token is missing or is expired
+
+            string disablePortalTokenRenew = Environment.GetEnvironmentVariable("cmf_cli_disable_portal_token_renew");
+
+            if (string.IsNullOrEmpty(disablePortalTokenRenew) || disablePortalTokenRenew == "0")
+            {
+                var portal = authStore.GetRepositoryType<IPortalRepositoryCredentials>();
+
+                var renewedCredential = await portal.TryRenewToken(authFile);
+
+                if (renewedCredential != null)
+                {
+                    authFile = await authStore.Save([renewedCredential], sync: false);
+                }
+            }
+
+            #endregion Auto-login in CM Portal if token is missing or is expired
+
             authStore.AddDerivedCredentials(authFile);
 
             RepositoryCredentialsType[] resolvedRepositoryTypes;
