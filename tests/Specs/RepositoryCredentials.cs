@@ -484,7 +484,7 @@ public class RepositoryCredentials
         // The NPM third party credential should be there, as well as the derived cred
         authFile.Repositories[RepositoryCredentialsType.NPM].Credentials.Count.Should().Be(2);
         authFile.Repositories[RepositoryCredentialsType.NuGet].Credentials.Count.Should().Be(1);
-        
+
         authFile.Repositories[RepositoryCredentialsType.NPM].Credentials.Contains(npmCred).Should().BeTrue();
         authFile.Repositories[RepositoryCredentialsType.NPM].Credentials.Contains(npmThirdPartyCred).Should().BeTrue();
         authFile.Repositories[RepositoryCredentialsType.NuGet].Credentials.Contains(nugetCred).Should().BeTrue();
@@ -855,4 +855,143 @@ public class RepositoryCredentials
 
         token.Trim().Should().Be("a.b.c");
     }
+
+    [Theory]
+    [InlineData(true, -10, 0, false, false)]
+    [InlineData(true, 3, 0, true, false)]
+    [InlineData(true, 4.9, 0, false, true)]
+    [InlineData(false, 5, 1, true, true)]
+    [InlineData(false, 5, 1, false, true)]
+    [InlineData(false, 30, 0, true, false)]
+    public async Task PortalRepositoryCredentials_TryRenewToken(bool expired, int days, int hours, bool inCmfAuth, bool inPortalSdk)
+    {
+        // Arrange
+        var token = CreateJwtToken(expiresIn: TimeSpan.FromDays(days) + TimeSpan.FromHours(hours));
+
+        var (fileSystem, authFile) = SetupPortalTokens(token, inCmfAuth, inPortalSdk);
+
+        var newToken = CreateJwtToken();
+
+        var portalLoginCommand = new Mock<IPortalLoginCommand>();
+        portalLoginCommand.Setup(x => x.Execute()).Callback(() =>
+        {
+            fileSystem.Directory.CreateDirectory(fileSystem.Path.GetDirectoryName(MockPortalTokenFilePath));
+            fileSystem.File.WriteAllText(MockPortalTokenFilePath, newToken);
+        });
+
+        var portal = new PortalRepositoryCredentials(fileSystem, portalLoginCommand.Object);
+
+        // Act
+        var credential = await portal.TryRenewToken(authFile);
+
+        // Assert
+        portalLoginCommand.Verify(x => x.Execute(), expired ? Times.Once : Times.Never);
+
+        if (expired || !inCmfAuth)
+        {
+            credential.Should().NotBeNull();
+            credential.Should().BeOfType<BearerCredential>();
+
+            var bearerCredential = (BearerCredential)credential;
+            bearerCredential.Token.Should().Be(expired ? newToken : token);
+        }
+        else
+        {
+            portalLoginCommand.Verify(x => x.Execute(), Times.Never);
+            credential.Should().BeNull();
+        }
+    }
+
+    [Fact]
+    public async Task PortalRepositoryCredentials_TryRenewToken_InvalidJwtToken()
+    {
+        // Arrange
+        var token = "clearly_not_va_valid_jwt";
+
+        var (fileSystem, authFile) = SetupPortalTokens(token, inCmfAuth: true, inPortalSdk: false);
+
+        var portalLoginCommand = new Mock<IPortalLoginCommand>();
+        portalLoginCommand.Setup(x => x.Execute()).Callback(() =>
+        {
+            fileSystem.Directory.CreateDirectory(fileSystem.Path.GetDirectoryName(MockPortalTokenFilePath));
+            fileSystem.File.WriteAllText(MockPortalTokenFilePath, CreateJwtToken());
+        });
+
+        var portal = new PortalRepositoryCredentials(fileSystem, portalLoginCommand.Object);
+
+        // Act
+        var credential = await portal.TryRenewToken(authFile);
+
+        // Assert
+        portalLoginCommand.Verify(x => x.Execute(), Times.Once);
+    }
+
+    #region Utility Methods
+
+    private (MockFileSystem, CmfAuthFile) SetupPortalTokens(string token, bool inCmfAuth, bool inPortalSdk)
+    {
+
+        var fileSystemFiles = new Dictionary<string, MockFileData>();
+
+        if (inPortalSdk)
+        {
+            fileSystemFiles[MockUnixSupport.Path(MockPortalTokenFilePath)] = new MockFileData(token);
+        }
+
+        var fileSystem = new MockFileSystem(fileSystemFiles);
+
+        var authFile = new CmfAuthFile();
+
+        if (inCmfAuth)
+        {
+            authFile.Repositories[RepositoryCredentialsType.Portal] = new CmfAuthFileRepositoryType
+            {
+                Credentials = [
+                    new BearerCredential
+                    {
+                        RepositoryType = RepositoryCredentialsType.Portal,
+                        Repository = CmfAuthConstants.PortalRepository,
+                        Token = token,
+                    }
+                ]
+            };
+        }
+
+        return (fileSystem, authFile);
+    }
+
+    private string CreateJwtToken()
+    {
+        return CreateJwtToken(TimeSpan.FromDays(30));
+    }
+
+    private string CreateJwtToken(TimeSpan expiresIn)
+    {
+        var exp = DateTimeOffset.Now.Add(expiresIn).ToUnixTimeSeconds();
+
+        var header = ToBase64("""{"alg":"RS256","typ":"JWT"}""");
+        var payload = ToBase64($$"""
+            {
+                "clientId": "Applications",
+                "tenantName": "CustomerPortal",
+                "strategyId": "AzureActiveDirectory",
+                "sub": "CMF\\UNAME",
+                "scope": "Applications",
+                "iat": 1747736776,
+                "exp": {{exp}},
+                "aud": "AuthPortal",
+                "iss": "AuthPortal"
+            }
+            """);
+        var signature = "MockTokenSignature";
+
+        return $"{header}.{payload}.{signature}";
+    }
+
+    private string ToBase64(string str)
+    {
+        return System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(str));
+    }
+
+    #endregion Utility Methods
 }

@@ -1,5 +1,6 @@
 ﻿using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -14,22 +15,30 @@ using System.Threading.Tasks;
 
 namespace Cmf.CLI.Core.Repository.Credentials
 {
-    public class PortalRepositoryCredentials : IRepositoryCredentials, IRepositoryAutomaticLogin, IRepositoryCredentialsSingleSignOn
+    public class PortalRepositoryCredentials : IPortalRepositoryCredentials, IRepositoryAutomaticLogin, IRepositoryCredentialsSingleSignOn
     {
         #region Constants
 
         public const string TokenEnvVar = "CM_PORTAL_TOKEN";
         public static readonly string TokenDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create), "cmfportal");
         public static readonly string TokenFilePath = Path.Combine(TokenDir, "cmfportaltoken");
+        // How much time to consider, before the token actually expires, that we should already try to renovate it nonetheless
+        public static readonly TimeSpan TokenValidityThreshold = TimeSpan.FromDays(5);
 
         #endregion Constants
 
         protected IFileSystem _fileSystem;
+        protected IPortalLoginCommand _loginCommand;
 
-        public PortalRepositoryCredentials(IFileSystem fileSystem)
+        public PortalRepositoryCredentials(IFileSystem fileSystem, IPortalLoginCommand loginCommand)
         {
             _fileSystem = fileSystem;
+            _loginCommand = loginCommand ?? new PortalLoginCommand();
         }
+
+        public PortalRepositoryCredentials(IFileSystem fileSystem)
+            : this(fileSystem, new PortalLoginCommand())
+        { }
 
         public AuthType[] SupportedAuthTypes => [AuthType.Bearer];
 
@@ -69,12 +78,7 @@ namespace Cmf.CLI.Core.Repository.Credentials
 
         public async Task<ICredential> AutomaticLogin()
         {
-            var process = Process.Start("cmf", ["portal", "login"]);
-
-            if (process != null)
-            {
-                process.WaitForExit();
-            }
+            _loginCommand.Execute();
 
             // The command "cmf portal login" saves the token in this file
             var tokenFile = _fileSystem.FileInfo.New(TokenFilePath);
@@ -141,6 +145,74 @@ namespace Cmf.CLI.Core.Repository.Credentials
             return GenericUtilities.BuildEnvVarPrefix(RepositoryType, $"{uri.Host}{uri.PathAndQuery.TrimEnd('/')}");
         }
 
+        public async Task<ICredential> TryRenewToken(CmfAuthFile authFile)
+        {
+            ICredential renewedCredential = null;
+
+            // The token (might come from .cmf-auth.json or from cmfportaltoken files)
+            string token = null;
+
+            if (authFile.Repositories.TryGetValue(RepositoryType, out var portalCreds))
+            {
+                var credential = portalCreds.Credentials.FirstOrDefault();
+
+                if (credential is BearerCredential bearerCredential)
+                {
+                    Log.Debug("Found a CM Portal token in the CM auth file");
+
+                    token = bearerCredential.Token;
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                if (_fileSystem.File.Exists(TokenFilePath))
+                {
+                    Log.Debug("Found a CM Portal token in the cmfportaltoken");
+
+                    token = await _fileSystem.File.ReadAllTextAsync(TokenFilePath);
+
+                    renewedCredential = new BearerCredential
+                    {
+                        RepositoryType = RepositoryType,
+                        Repository = CmfAuthConstants.PortalRepository,
+                        Token = token,
+                    };
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(token) || !IsTokenValid(token))
+            {
+                Log.Debug("Attempting to renew CM Portal token...");
+                renewedCredential = await AutomaticLogin();
+            }
+
+            return renewedCredential;
+        }
+
+        protected bool IsTokenValid(string token)
+        {
+            bool isTokenValid = false;
+
+            try
+            {
+                var payload = ParseJwt(token);
+
+                Log.Debug($"Testing token for subject {payload.Subject} with expiration date {payload.ExpirationTime}");
+
+                // If the token expiration date (minus the threshold) is still in the future
+                isTokenValid = (payload.ExpirationTime - TokenValidityThreshold) > DateTime.Now;
+
+                Log.Debug($" > Token is {(isTokenValid ? "valid" : "expired")}");
+            }
+            catch (Exception ex)
+            {
+                Log.Debug($"Parsing of payload failed with error: \"{ex.Message}\". Assuming token is invalid.");
+            }
+
+            return isTokenValid;
+        }
+
         protected JWTPayload ParseJwt(string token)
         {
             if (token == null)
@@ -180,17 +252,35 @@ namespace Cmf.CLI.Core.Repository.Credentials
 
             [JsonProperty(PropertyName = "iat")]
             [JsonConverter(typeof(UnixDateTimeConverter))]
-            public DateTime IssuedAtTime { get; set; }
+            public DateTimeOffset IssuedAtTime { get; set; }
 
             [JsonProperty(PropertyName = "exp")]
             [JsonConverter(typeof(UnixDateTimeConverter))]
-            public DateTime ExpirationTime { get; set; }
+            public DateTimeOffset ExpirationTime { get; set; }
 
             [JsonProperty(PropertyName = "aud")]
             public string Audience { get; set; }
 
             [JsonProperty(PropertyName = "iss")]
             public string Issuer { get; set; }
+        }
+    }
+
+    public interface IPortalLoginCommand
+    {
+        void Execute();
+    }
+
+    public class PortalLoginCommand : IPortalLoginCommand
+    {
+        public void Execute()
+        {
+            var process = Process.Start("cmf", ["portal", "login"]);
+
+            if (process != null)
+            {
+                process.WaitForExit();
+            }
         }
     }
 }
