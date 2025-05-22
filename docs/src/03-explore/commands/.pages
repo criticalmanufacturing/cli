@@ -1,5 +1,7 @@
 nav:
     - init.md
+    - login.md
+    - ... | login*.md
     - new.md
     - ... | new*.md
     - build.md
