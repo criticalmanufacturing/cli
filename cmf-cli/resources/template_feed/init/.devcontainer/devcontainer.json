@@ -29,7 +29,12 @@
                 "ms-dotnettools.vscodeintellicode-csharp",
                 "FullStackSpider.visual-nuget",
                 "actboy168.tasks"
-            ]
+            ],
+            "settings": {
+                // Store credentials inside the devcontainer itself,
+                // To avoid relying on the user having a functioning local docker installation
+                "dev.containers.dockerCredentialHelper": false
+            }
         }
     },
     "forwardPorts": [
