@@ -44,6 +44,6 @@ Repository Type | Method      | Details
 --------------- | ----------- | --------
 **Portal**      | File        | `{ApplicationData}/cmfportal/cmfportaltoken`
 **NPM**         | File        | `{Home}/.npmrc`
-**NuGet**       | File        | `{ApplicationData}/NuGet/NuGet.config`
+**NuGet**       | File        | **Windows** `{ApplicationData}/NuGet/NuGet.config`<br />**Linux** `{HOME}/.nuget/NuGet/NuGet.config`
 **Docker**      | Command     | `docker login <repoUrl> -u <username> -p <password>`
 **CIFS**        | N/A         | _CIFS authentication is only used internally by the cmf cli itself and thus needs no synchronization_
