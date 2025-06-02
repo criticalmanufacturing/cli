@@ -46,7 +46,7 @@ namespace Cmf.CLI.Commands
         public override void Configure(Command cmd)
         {
             cmd.AddArgument(new Argument<RepositoryCredentialsType?>(
-                name: "repositoryType", description: "Type of repository for login (values: portal, docker, npm, nuget, cifs)"
+                name: "repositoryType", description: "Type of repository for login"
             ) { Arity = ArgumentArity.ZeroOrOne });
             cmd.AddArgument(new Argument<string>(
                 name: "repository", description: "URL of repository for login"
