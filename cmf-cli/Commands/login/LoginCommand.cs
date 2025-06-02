@@ -118,6 +118,10 @@ namespace Cmf.CLI.Commands
             {
                 repository = CmfAuthConstants.PortalRepository;
             }
+            else if (string.IsNullOrEmpty(repository))
+            {
+                throw new CliException($"Missing mandatory {repositoryType} repository URL.");
+            }
 
             // We find the repository type implementation for the repo type
             var repositoryCredentials = authStore.GetRepositoryType(repositoryType.Value);
