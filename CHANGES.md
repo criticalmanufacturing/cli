@@ -2,6 +2,96 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.3.0](https://github.com/criticalmanufacturing/cli/compare/5.3.0-5...5.3.0) (2025-06-06)
+
+## [5.3.0-5](https://github.com/criticalmanufacturing/cli/compare/5.3.0-4...5.3.0-5) (2025-06-03)
+
+
+### Bug Fixes
+
+* devcontainer able to run cmf login sync at launch ([8d96d00](https://github.com/criticalmanufacturing/cli/commits/8d96d00f28ebabfbdc6da9b29c704a5b2bfe35de))
+* docs command generation correct path ([c2b6f3d](https://github.com/criticalmanufacturing/cli/commits/c2b6f3d90faef2dc0c8ed5db0d7536c3d339e113))
+* **login:** fix password label prompt ([606195c](https://github.com/criticalmanufacturing/cli/commits/606195c7ce0ce7417928e7db92e49b371e69eb3f))
+* nuget config credentials path on linux ([af43e0b](https://github.com/criticalmanufacturing/cli/commits/af43e0bd31cf44fda3b2382ce1f79bf6a0add495))
+* replace docker socket mount with devcontainer feature ([d9a9e9a](https://github.com/criticalmanufacturing/cli/commits/d9a9e9a60b3871267035994f4ff6cc890a786c7f))
+* show error message when no repository URL is provided ([7bf6aec](https://github.com/criticalmanufacturing/cli/commits/7bf6aec0d796bd40f7353e13dc976bd0289a8cb9))
+
+## [5.3.0-4](https://github.com/criticalmanufacturing/cli/compare/5.3.0-3...5.3.0-4) (2025-05-27)
+
+
+### Features
+
+* automatically renew portal token when running `cmf login sync` ([802cb6d](https://github.com/criticalmanufacturing/cli/commits/802cb6dbbcdc0470c7008f4ffd3febb5b1e39b88))
+* handle derived credentials at runtime only ([65888f2](https://github.com/criticalmanufacturing/cli/commits/65888f22383b4e014c387e57daef62b8adc93024))
+
+
+### Bug Fixes
+
+* disable devcontainers docker credential helper ([caa2ef1](https://github.com/criticalmanufacturing/cli/commits/caa2ef1ada58c88f96caeaaef2f7cffec105ecd4))
+* write portal token to cmfportaltoken file when syncing ([5f40b08](https://github.com/criticalmanufacturing/cli/commits/5f40b089d467d99b687fde550dafa767bb7fff88))
+
+## [5.3.0-3](https://github.com/criticalmanufacturing/cli/compare/5.3.0-2...5.3.0-3) (2025-05-16)
+
+
+### Features
+
+* add devcontainer definition to init template ([3a6a373](https://github.com/criticalmanufacturing/cli/commits/3a6a373aa54ac024456138cdb372a02adf49c4bb))
+* add devcontainer workflows ([bf77952](https://github.com/criticalmanufacturing/cli/commits/bf77952524efe3e08294cf8456ee6f6d4c390b97))
+* create devcontainer feature ([2ab242f](https://github.com/criticalmanufacturing/cli/commits/2ab242fea6347b46b6807636e2f3a384a0c438c6))
+* implement put method on CIFSRepositoryClient ([6fb68bd](https://github.com/criticalmanufacturing/cli/commits/6fb68bdad77648972e6441bb6694ed7b1639dbcb))
+
+
+### Bug Fixes
+
+* repositoryType missing from cmf new data command ([ca776ce](https://github.com/criticalmanufacturing/cli/commits/ca776ce0aa14448cc2bb93338cd15d10d5e2ac65))
+* support relative paths when calling help package's build commands ([c69e4d4](https://github.com/criticalmanufacturing/cli/commits/c69e4d449d50344d4f2c81b3069744d2cc47c52a))
+
+
+### Under the hood
+
+* segregate deleting the template engine cache file for easy reuse, namely when running in a debug ([9d0f7ea](https://github.com/criticalmanufacturing/cli/commits/9d0f7ea9352eec1619a177cfad40813e2abce357))
+
+## [5.3.0-2](https://github.com/criticalmanufacturing/cli/compare/5.3.0-1...5.3.0-2) (2025-05-12)
+
+
+### Features
+
+* use cmf auth file for npm and cifs repository clients ([2672c71](https://github.com/criticalmanufacturing/cli/commits/2672c7159b2b0137f5a0d600162fbb3ed95aa8a2))
+
+
+### Bug Fixes
+
+* avoid npx interactive confirmation prompt when installing packages ([9212869](https://github.com/criticalmanufacturing/cli/commits/92128696679ab94e0097c633a507b0567b4d0462))
+
+## [5.3.0-1](https://github.com/criticalmanufacturing/cli/compare/5.3.0-0...5.3.0-1) (2025-04-21)
+
+
+### Features
+
+* add extract-i18n command ([c75379f](https://github.com/criticalmanufacturing/cli/commits/c75379fb690cb33319788504a16fc1734f030c87))
+* add html localize command ([d22f248](https://github.com/criticalmanufacturing/cli/commits/d22f248b999b965595dc31f36db8ea68659b7e78))
+* cmf login and cmf sync commands ([c2cbc73](https://github.com/criticalmanufacturing/cli/commits/c2cbc7348073ffb67967b03a7e05b2af738eeb8c))
+
+## [5.3.0-0](https://github.com/criticalmanufacturing/cli/compare/5.2.1...5.3.0-0) (2025-04-07)
+
+
+### Features
+
+* add feature flag service ([a23d8ad](https://github.com/criticalmanufacturing/cli/commits/a23d8ad53f14365ea1b1af8a336c0ebf11b36a39))
+* add package publish command ([5d12c21](https://github.com/criticalmanufacturing/cli/commits/5d12c2156c5e72008e449ad03b3fa65020c4e9cd))
+* **repositories:** add archive repository ([ce1e162](https://github.com/criticalmanufacturing/cli/commits/ce1e1627b724572f7dc572352eb200cfeb5aee5d))
+* **repositories:** add CIFS repository client ([5de7125](https://github.com/criticalmanufacturing/cli/commits/5de7125a8b29c8cba6f55eda556cc9ec6a622f04))
+* **repositories:** add local source client ([47210a3](https://github.com/criticalmanufacturing/cli/commits/47210a3173143e848cc2e68c508aee88b8104aef))
+* **repositories:** add NPM repository client ([d66eebc](https://github.com/criticalmanufacturing/cli/commits/d66eebc9d216d5ee27b715fc649f743277499673))
+
+
+### Under the hood
+
+* add repository locator service ([ff3a4d6](https://github.com/criticalmanufacturing/cli/commits/ff3a4d6f38bab24be8a69e3b695e7ba2b7ec0896))
+* separate CmfPackage data object from its methods ([8901819](https://github.com/criticalmanufacturing/cli/commits/890181909f8ccc6309cd7dbe92803ce822c01acb))
+* support repo clients in ls command ([f684a05](https://github.com/criticalmanufacturing/cli/commits/f684a05371ffa6ebc9431bfde5cf89a7cff85177))
+* support repo clients in restore command ([732428c](https://github.com/criticalmanufacturing/cli/commits/732428ca011af684df700b70d4227441296609cc))
+
 ### [5.2.1](https://github.com/criticalmanufacturing/cli/compare/5.2.0...5.2.1) (2025-04-04)
 
 
