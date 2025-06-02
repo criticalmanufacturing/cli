@@ -139,7 +139,7 @@ The credentials are stored on the auth file, with the following structure:
 }
 ```
 
-By default, the `.cmf-auth.json` is located inside the `$HOME` folder of the user running the command. It is however, possible to change the location used the the `cmf` tool by setting an environment variable:
+By default, the `.cmf-auth.json` is located inside the `$HOME` folder of the user running the command. It is however, possible to change the location used the `cmf` tool by setting an environment variable:
 ```env
 cmf_cli_authfile=/custom/path/to/.cmf-auth.json
 ```
