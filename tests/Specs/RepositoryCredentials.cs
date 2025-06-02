@@ -29,9 +29,14 @@ namespace tests.Specs;
 
 public class RepositoryCredentials
 {
+    // Sadly, the path depends on the Operating System, so depending on where we are running the tests, we should expect the file on different places
+    private static string NuGetParentFolder = OperatingSystem.IsWindows()
+        ? Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)
+        : Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".nuget");
+
     public static string MockCmfAuthFilePath = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".cmf-auth.json");
     public static string MockNPMConfigFilePath = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".npmrc");
-    public static string MockNuGetConfigFilePath = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "NuGet", "NuGet.Config");
+    public static string MockNuGetConfigFilePath = Path.Join(NuGetParentFolder, "NuGet", "NuGet.Config");
     public static string MockPortalTokenFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create), "cmfportal", "cmfportaltoken");
 
     public const string mockCmfAuthJson =

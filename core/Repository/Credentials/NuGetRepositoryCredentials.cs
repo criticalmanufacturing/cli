@@ -185,10 +185,12 @@ namespace Cmf.CLI.Core.Repository.Credentials
         protected IFileInfo GetConfigFile()
         {
             // NuGet stores the per-user NuGet.config file on the AppData directory
-            //      in Linux, it is stored in "~/.config", which is the path returned for ApplicationData in Linux too. Consistency, yay
-            var home = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            //      in Linux, it is stored in "~/.nuget" instead, Consistency? Nay :(
+            var home = OperatingSystem.IsWindows()
+                ? Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)
+                : _fileSystem.Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".nuget");
 
-            // The official Microsoft documentation has references to both `NuGet.config` and `nuget.config` explicitly in some parts of their documentation.
+            // The official Microsoft documentation has references to both `NuGet.Config` and `nuget.config` explicitly in some parts of their documentation.
             // Because of that, and since Linux is case sensitive, we do our best effort to support both. In case none exists on the filesystem yet, the last one
             // we looked for (in this case, NuGet.config) will be used
             var nugetConfig = _fileSystem.FileInfo.New(_fileSystem.Path.Join(home, "NuGet", "nuget.config"));
