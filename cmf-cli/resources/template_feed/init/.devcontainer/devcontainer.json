@@ -8,10 +8,10 @@
         "ghcr.io/criticalmanufacturing/cli/install:1": {
             "version": "<%= $CLI_PARAM_CLIVersion-MajorRange %>"
         },
-        "ghcr.io/criticalmanufacturing/portal-sdk/install:1": {}
+        "ghcr.io/criticalmanufacturing/portal-sdk/install:1": {},
+        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
     },
     "mounts": [
-        "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind,consistency=cached",
         "source=${localEnv:HOME}${localEnv:USERPROFILE}/.cmf-auth.json,target=/home/vscode/.cmf-auth.json,type=bind,consistency=cached"
     ],
     "containerEnv": {
