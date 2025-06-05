@@ -1,6 +1,9 @@
 {
+//#if (deploymentDir != null && deploymentDir != "")
     "CIRepository": "<%= $CLI_PARAM_CIRepo_MainBranch %>",
-    "Repositories": [
-        "<%= $CLI_PARAM_DeliveredRepo %>"
-    ]
+    "Repositories": "<%= $CLI_PARAM_DeliveredRepo_JSON %>"
+//#else
+    "CIRepository": "<%= $CLI_PARAM_CIRepo %>",
+    "Repositories": "<%= $CLI_PARAM_ReleaseRepos_JSON %>"
+//#endif
 }
