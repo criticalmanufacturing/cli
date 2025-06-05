@@ -5,11 +5,11 @@
   "NPMRegistry": "<%= $CLI_PARAM_NPMRegistry %>",
   "NuGetRegistry": "<%= $CLI_PARAM_NuGetRegistry %>",
   "EnvironmentName": "<%= $CLI_PARAM_EnvironmentName %>",
-  //#if (DefaultDomain != null)
+//#if (DefaultDomain != null)
   "DefaultDomain": "<%= $CLI_PARAM_DefaultDomain %>",
-  //#else
+//#else
   "DefaultDomain": null,
-  //#endif
+//#endif
   "RESTPort": "<%= $CLI_PARAM_RESTPort %>",
   "Tenant": "<%= $CLI_PARAM_Tenant %>",
   "MESVersion": "<%= $CLI_PARAM_MESVersion %>",
@@ -34,11 +34,13 @@
   "HTMLPort": "<%= $CLI_PARAM_HTMLPort %>",
   "GatewayPort": "<%= $CLI_PARAM_GatewayPort %>",
   "ReleaseEnvironmentConfig": "<%= $CLI_PARAM_ReleaseEnvironmentConfig %>",
-  //#if (AppEnvironmentConfig != null)
+//#if (AppEnvironmentConfig != null)
   "AppEnvironmentConfig": "<%= $CLI_PARAM_AppEnvironmentConfig %>",
-  //#endif
+//#endif
   "ISOLocation": "<%= $CLI_PARAM_ISOLocation_JSON %>",
+//#if (deploymentDir != null && deploymentDir != "")
   "DeploymentDir": "<%= $CLI_PARAM_DeploymentDir %>",
   "DeliveredRepo": "<%= $CLI_PARAM_DeliveredRepo %>",
-  "CIrepo": "<%= $CLI_PARAM_CIRepo %>"
+//#endif
+  "CIRepo": "<%= $CLI_PARAM_CIRepo %>"
 }
