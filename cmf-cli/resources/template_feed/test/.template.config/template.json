@@ -26,12 +26,27 @@
       "displayName": "Package Name",
       "replaces": "<%= $CLI_PARAM_CustomPackageName %>"
     },
+    "projectName": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The name of our project",
+      "displayName": "Project Name",
+      "replaces": "<%= $CLI_PARAM_ProjectName %>"
+    },
     "packageVersion": {
       "type": "parameter",
       "datatype": "string",
       "description": "The custom package version",
       "displayName": "Package Version",
       "replaces": "<%= $CLI_PARAM_CustomPackageVersion %>"
+    },
+    "repositoryType": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The type of repository to scaffold",
+      "displayName": "Repository Type",
+      "replaces": "<%= $CLI_PARAM_RepositoryType %>",
+      "fileRename": "%repositoryType%"
     },
     "Tenant": {
       "type": "parameter",
