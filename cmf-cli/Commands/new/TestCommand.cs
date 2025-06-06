@@ -4,6 +4,7 @@ using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
 using System.Text.Json;
+using Cmf.CLI.Constants;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
@@ -52,6 +53,7 @@ namespace Cmf.CLI.Commands.New
         {
             var packageName = "Cmf.Custom.Tests";
             var projectRoot = FileSystemUtilities.GetProjectRoot(this.fileSystem);
+            var repoType = ExecutionContext.Instance.ProjectConfig.RepositoryType ?? CliConstants.DefaultRepositoryType;
             var projectConfig = ExecutionContext.Instance.ProjectConfig;
             var tenant = projectConfig.Tenant;
             var args = new List<string>()
@@ -66,6 +68,7 @@ namespace Cmf.CLI.Commands.New
                 "--Tenant", tenant
             };
 
+            var projectName = projectConfig.ProjectName;
             var restPort = projectConfig.RESTPort;
             var mesVersion = projectConfig.MESVersion;
             var htmlPort = projectConfig.HTMLPort;
@@ -74,6 +77,8 @@ namespace Cmf.CLI.Commands.New
             var isSslEnabled = projectConfig.IsSslEnabled;
             args.AddRange(new[]
             {
+                "--projectName", projectName,
+                "--repositoryType", repoType.ToString(),
                 "--vmHostname", vmHostname,
                 "--RESTPort", restPort.ToString(),
                 "--testScenariosNugetVersion", testScenariosNugetVersion.ToString(),
