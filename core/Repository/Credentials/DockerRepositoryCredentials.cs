@@ -3,6 +3,7 @@ using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Utilities;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
@@ -30,16 +31,35 @@ namespace Cmf.CLI.Core.Repository.Credentials
             {
                 if (cred is BasicCredential basicCred)
                 {
-                    var process = Process.Start(new ProcessStartInfo("docker", ["login", basicCred.Repository, "-u", basicCred.Username, "--password-stdin"])
-                    {
-                        RedirectStandardInput = true,
-                    });
-                    process.StandardInput.WriteLine(basicCred.Password);
-                    process.StandardInput.Close();
+                    bool dockerWasFound = false;
 
-                    if (process != null)
+                    try
                     {
-                        process.WaitForExit();
+                        var process = Process.Start(new ProcessStartInfo("docker", ["login", basicCred.Repository, "-u", basicCred.Username, "--password-stdin"])
+                        {
+                            RedirectStandardInput = true,
+                        });
+
+                        if (process != null)
+                        {
+                            dockerWasFound = true;
+
+                            process.StandardInput.WriteLine(basicCred.Password);
+                            process.StandardInput.Close();
+                            process.WaitForExit();
+                        }
+                    }
+                    catch (Win32Exception ex)
+                    {
+                        if (ex.NativeErrorCode != 2 /* ERROR_FILE_NOT_FOUND */)
+                        {
+                            throw;
+                        }
+                    }
+
+                    if (!dockerWasFound)
+                    {
+                        Log.Warning("Docker was not found installed on the system, so login credentials synchronization with docker was skipped.");
                     }
                 }
                 else
