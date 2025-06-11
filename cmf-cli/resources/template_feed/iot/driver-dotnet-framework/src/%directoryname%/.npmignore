@@ -1,0 +1,9 @@
+.vscode
+*.ts
+!*.d.ts
+test
+coverage
+tsconfig.json
+tslint.json
+.git*
+.connect_iot_package_done
