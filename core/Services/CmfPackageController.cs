@@ -522,23 +522,58 @@ public class CmfPackageController
     public static CmfPackageV1 FromJson(JObject json)
     {
         // Confirm if it is a standard deployment package
-        bool isDeploymentPackage = false;
+        var keywords = new List<string>();
+        
         if (json.Property("keywords")?.Value != null && json.Property("keywords")?.Value.Type == JTokenType.Array)
         {
-            var keywordsArray = (JArray)json.Property("keywords").Value;
-            if (keywordsArray != null)
-            {
-                isDeploymentPackage = keywordsArray.Any(k => ((JToken)k).ToString() == JSONPackageKeyword);
-            }
+            keywords = JsonConvert.DeserializeObject<List<string>>(json.Property("keywords")!.Value.ToString());
         }
+        
+        bool isDeploymentPackage = keywords.Any(k => ((JToken)k).ToString() == JSONPackageKeyword);
+        bool isTestPackage = keywords.Any(k => ((JToken)k).ToString() == JSONTestsPackageKeyword);
 
         var rootNode = json.Property("deployment");
 
-        if (!isDeploymentPackage || rootNode == null)
+        // If none of the keywords are found, this package is not valid and cannot be accepted by cmf cli 
+        if (!isTestPackage && !isDeploymentPackage)
         {
-            throw new CliException("Invalid manifest file");
+            throw new CliException($"Invalid manifest file: one of the following keywords must be present: {JSONPackageKeyword} or {JSONTestsPackageKeyword}.");
+        }
+        else if (isTestPackage && isDeploymentPackage)
+        {
+            throw new CliException($"Invalid manifest file: only one of the following keywords can be present at the same time: {JSONPackageKeyword} and {JSONTestsPackageKeyword}.");
+        }
+        else if (isDeploymentPackage && rootNode == null)
+        {
+            throw new CliException("Invalid manifest file: missing \"deployment\" property.");
         }
 
+        // Some packages (only the Test ones right now) do not have a manifest.xml, because they are not
+        // Deployment Framework packages. Nonetheless, we want the CLI to be able to, amongst other things,
+        // publish those packages to the repositories alongside the other ones. So, for those packages only, we 
+        // allow not having a "deployment" property.
+        if (isTestPackage)
+        {
+            return new CmfPackageV1(
+                json.Property("name")?.Value.ToString(),
+                json.Property("name")?.Value.ToString(),
+                json.Property("version")?.Value.ToString(),
+                json.Property("description")?.Value?.ToString(),
+                PackageType.Tests,
+                null,
+                null,
+                false,
+                false,
+                keywords: string.Join(", ", keywords),
+                true,
+                [],
+                [],
+                null,
+                null,
+                waitForIntegrationEntries: false,
+                []
+            );
+        }
         // if (!string.IsNullOrEmpty(json.Property("systemName")?.Value.ToString()))
         // {
         //     package.AddMetadata(PackageManifestReader.MetadataKey.ApplicationName, json.Property("systemName").Value.ToString());
@@ -552,8 +587,6 @@ public class CmfPackageController
 
         var deploymentVariables = rootNode.Children<JObject>();
         string packageType = null;
-        IEnumerable<string> keywords = new List<string>();
-        keywords = JsonConvert.DeserializeObject<List<string>>(json.Property("keywords")?.Value.ToString());
 
         foreach (var entry in deploymentVariables)
         {
@@ -778,6 +811,8 @@ public class CmfPackageController
     public static string JSONPackageKeyword = "cmf-deployment-package";
     public static string JSONPackageKeywordIsInstallable = "cmf-deployment-installable";
     public static string JSONPackageKeywordIsRootPackage = "cmf-deployment-rootPackage";
+    
+    public static string JSONTestsPackageKeyword = "cmf-tests-package";
     
     public string ToJson(bool lowercase = false)
     {

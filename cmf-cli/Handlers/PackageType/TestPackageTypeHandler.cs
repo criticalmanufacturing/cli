@@ -5,8 +5,13 @@ using System.IO.Abstractions;
 using System.Text.RegularExpressions;
 using Cmf.CLI.Builders;
 using Cmf.CLI.Commands.restore;
+using Cmf.CLI.Constants;
+using Cmf.CLI.Core;
+using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Cmf.CLI.Handlers
 {
@@ -17,7 +22,7 @@ namespace Cmf.CLI.Handlers
     public class TestPackageTypeHandler : PackageTypeHandler
     {
         #region Private Methods
-  
+
         /// <summary>
         /// Generates the deployment framework manifest.
         /// </summary>
@@ -26,6 +31,28 @@ namespace Cmf.CLI.Handlers
         internal override void GenerateDeploymentFrameworkManifest(IDirectoryInfo packageOutputDir)
         {
             // This package cannot create the DF Manifest
+            // However, the DF Manifest file usually created by this method is then used
+            // to generate the package.json file needed to be able to publish these
+            // packages into NPM feeds, for example
+            // As such, for Test packages, we simply create the package.json directly
+            Log.Debug("Generating tests package.json");
+            string path = this.fileSystem.Path.Combine(packageOutputDir.FullName, CoreConstants.PackageJson);
+
+            // Get Template
+            string fileContent = ResourceUtilities.GetEmbeddedResourceContent($"{CliConstants.FolderTemplates}/{CmfPackage.PackageType}/{CoreConstants.PackageJson}");
+
+            JObject json = JsonConvert.DeserializeObject<JObject>(fileContent);
+
+            // Replace the placeholder values from the template
+            json["name"] = CmfPackage.PackageId;
+            json["packageName"] = CmfPackage.Name;
+            json["version"] = CmfPackage.Version.ToString();
+            json["description"] = CmfPackage.Description;
+
+            // Write back the file to disk
+            fileContent = JsonConvert.SerializeObject(json, Formatting.Indented);
+
+            this.fileSystem.File.WriteAllText(path, fileContent);
         }
 
         #endregion

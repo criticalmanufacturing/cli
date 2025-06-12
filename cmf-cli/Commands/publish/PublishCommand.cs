@@ -17,6 +17,21 @@ namespace Cmf.CLI.Commands;
 [CmfCommand("publish", Id = "publish", Description = "Publishes a local package to the specified repository")]
 public class PublishCommand : BaseCommand
 {
+    #region Constructors
+
+    /// <summary>
+    /// Publish Command
+    /// </summary>
+    public PublishCommand() : base() { }
+
+    /// <summary>
+    /// Publish Command
+    /// </summary>
+    /// <param name="fileSystem"></param>
+    public PublishCommand(IFileSystem fileSystem) : base(fileSystem) { }
+
+    #endregion
+
     public override void Configure(Command cmd)
     {
         cmd.AddArgument(new Argument<IFileInfo>(
@@ -26,7 +41,7 @@ public class PublishCommand : BaseCommand
         {
             Description = "Package file"
         });
-        
+
         cmd.AddOption(new Option<Uri>(
             aliases: new string[] { "--repository" },
             description: "Repository the package should be published to",
@@ -44,7 +59,7 @@ public class PublishCommand : BaseCommand
 
         cmd.IsHidden =
             !(ExecutionContext.ServiceProvider?.GetService<IFeaturesService>()?.UseRepositoryClients ?? false);
-        
+
         // Add the handler
         cmd.Handler = CommandHandler.Create<IFileInfo, Uri>(Execute);
     }

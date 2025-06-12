@@ -12,6 +12,7 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
@@ -1252,5 +1253,79 @@ namespace tests.Specs
             steps.Elements().Count().Should().Be(4, "HTML package should have 4 installation steps");
         }
 
+
+        [Fact]
+        public void Pack_TestPackage()
+        {
+            // Arrange
+            KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Tests", "1.1.0");
+
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { MockUnixSupport.Path(@"C:\repo\.project-config.json"), new MockFileData("{}") },
+                { MockUnixSupport.Path(@"C:\repo\repo\cmfpackage.json"), new MockFileData(
+                $$"""
+                {
+                  "packageId": "Cmf.Custom.Package",
+                  "version": "1.1.0",
+                  "description": "This package deploys Critical Manufacturing Customization",
+                  "packageType": "Root",
+                  "isInstallable": false,
+                  "isUniqueInstall": false,
+                  "dependencies": [
+                    {
+                      "id": "Cmf.Environment",
+                      "version": "11.1.0",
+                      "mandatory": false
+                    }
+                  ]
+                }
+                """)},
+                { MockUnixSupport.Path(@"C:\repo\Cmf.Custom.Test\cmfpackage.json"), new MockFileData(
+                $$"""
+                {
+                  "packageId": "{{packageRoot.Key}}",
+                  "version": "{{packageRoot.Value}}",
+                  "description": "This package deploys Critical Manufacturing Customization",
+                  "packageType": "Tests",
+                  "isInstallable": false,
+                  "isUniqueInstall": false,
+                  "contentToPack": []
+                }
+                """)},
+                { MockUnixSupport.Path(@"C:\repo\Cmf.Custom.Test\Release\Cmf.Custom.Tests.dll"), new MockFileData("")}
+            }, MockUnixSupport.Path(@"C:\repo\Cmf.Custom.Test"));
+            ExecutionContext.Initialize(fileSystem);
+
+            IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"./{CliConstants.CmfPackageFileName}");
+
+            // Act
+            var packCommand = new PackCommand(fileSystem);
+            packCommand.Execute(cmfpackageFile.Directory, fileSystem.DirectoryInfo.New("./output"), false);
+
+            // Assert
+            var archive = fileSystem.FileInfo.New($"./output/{packageRoot.Key}.{packageRoot.Value}.zip");
+            Assert.True(archive.Exists);
+
+            using Stream zipToOpen = archive.OpenRead();
+            using ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read);
+            var manifest = zip.GetEntry("package.json");
+            Assert.NotNull(manifest);
+
+            using var stream = manifest.Open();
+            using var reader = new StreamReader(stream);
+            var contents = reader.ReadToEnd();
+            var json = JsonConvert.DeserializeObject<JObject>(contents);
+
+            Assert.True(json.ContainsKey("name"));
+            Assert.Equal("Cmf.Custom.Tests", json["name"].Value<string>());
+
+            Assert.True(json.ContainsKey("version"));
+            Assert.Equal("1.1.0", json["version"].Value<string>());
+
+            Assert.True(json.ContainsKey("keywords"));    
+            Assert.Equal(JTokenType.Array, json.Property("keywords").Value.Type);
+            Assert.Equal("cmf-tests-package", json.Property("keywords").Value.Values<string>().First());
+        }
     }
 }
