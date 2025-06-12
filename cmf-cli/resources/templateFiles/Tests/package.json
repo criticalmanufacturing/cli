@@ -1,0 +1,13 @@
+{
+  "name": "",
+  "version": "",
+  "description": "",
+  "author": "Critical Manufacturing",
+  "keywords": [
+    "cmf-deployment-package"
+  ],
+  "isUniqueInstall": false,
+  "deployment": {
+    "steps": []
+  }
+}
