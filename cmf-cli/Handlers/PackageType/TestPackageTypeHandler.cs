@@ -54,7 +54,6 @@ namespace Cmf.CLI.Handlers
                     Command = "restore",
                     DisplayName = "NuGet restore",
                     Solution = this.fileSystem.FileInfo.New(this.fileSystem.Path.Join(cmfPackage.GetFileInfo().Directory.FullName, "Tests.sln")),
-                    NuGetConfig = this.fileSystem.FileInfo.New(this.fileSystem.Path.Join(FileSystemUtilities.GetProjectRoot(this.fileSystem, throwException: true).FullName, "NuGet.Config")),
                     WorkingDirectory = cmfPackage.GetFileInfo().Directory
                 },
                 new DotnetCommand()
