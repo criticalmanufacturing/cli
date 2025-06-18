@@ -32,7 +32,7 @@ namespace Cmf.CLI.Commands
         public string version { get; set; }
         public IFileInfo config { get; set; }
         public IFileInfo appConfig { get; set; }
-        public IDirectoryInfo deploymentDir { get; set; }
+        public Uri deploymentDir { get; set; }
         public Uri ciRepo { get; set; }
         public List<Uri> releaseRepos { get; set; }
         public string BaseVersion { get; set; }
@@ -159,9 +159,8 @@ namespace Cmf.CLI.Commands
             ) { IsRequired = true });
 
             // repositories
-            cmd.AddOption(new Option<IDirectoryInfo>(
+            cmd.AddOption(new Option<Uri>(
                 aliases: new[] { "--deploymentDir" },
-                parseArgument: argResult => Parse<IDirectoryInfo>(argResult),
                 description: "Deployments directory. Deprecated, supports only file paths/network shares. When using NPM feeds, use --ciRepo and --releaseRepos instead."
             ) { IsRequired = false });
             cmd.AddOption(new Option<Uri>(
@@ -326,9 +325,26 @@ namespace Cmf.CLI.Commands
                     throw new CliException("Invalid option `--releaseRepos` when also using `--deploymentDir`. Use one or the other, but not both.");
                 }
 
-                args.AddRange(new[] { "--deploymentDir", x.deploymentDir.FullName });
-                args.AddRange(new[] { "--DeliveredRepo", $"{x.deploymentDir.FullName}\\Delivered" });
-                args.AddRange(new[] { "--CIRepo", $"{x.deploymentDir.FullName}\\CIPackages" });
+                string deploymentDirPath = null;
+                try
+                {
+                    if (x.deploymentDir.IsUnc)
+                    {
+                        deploymentDirPath = x.deploymentDir.OriginalString;
+                    }
+                    else
+                    {
+                        deploymentDirPath = this.fileSystem.DirectoryInfo.New(x.deploymentDir.LocalPath).FullName;
+                    }
+                }
+                catch
+                {
+                    deploymentDirPath = x.deploymentDir.OriginalString;
+                }
+
+                args.AddRange(new[] { "--deploymentDir", deploymentDirPath });
+                args.AddRange(new[] { "--DeliveredRepo", $"{deploymentDirPath}\\Delivered" });
+                args.AddRange(new[] { "--CIRepo", $"{deploymentDirPath}\\CIPackages" });
             }
             else
             {
