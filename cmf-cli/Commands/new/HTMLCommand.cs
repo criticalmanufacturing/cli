@@ -340,7 +340,7 @@ $@"{{
             var schematicsVersion = ngxSchematicsVersion.ToString() ?? $"@release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}";
             
             //After v11 we use Angular default routing
-            var routing = mesVersion.Major >= 11 ? "true" : "false" ;
+            var routing = mesVersion.Major >= 11 ? "true" : "false";
 
             Log.Debug($"Creating new web application {packageName}");
             // ng new <packageName> --routing false --style less
@@ -353,13 +353,13 @@ $@"{{
             }.Exec();
             Log.Debug($"Adding @criticalmanufacturing/ngx-schematics@{schematicsVersion} to the package, which can be used to scaffold new components and libraries");
             // cd <packageName>
-            // ng add --skip-confirmation @criticalmanufacturing/ngx-schematics [--npmRegistry http://npm.example/] --lint --base-app <Core|MES>
+            // ng add --skip-confirmation @criticalmanufacturing/ngx-schematics [--npmRegistry http://npm.example/] --eslint --application <Core|MES>
             new NPXCommand()
             {
                 Command = $"@angular/cli@{ngCliVersion}",
                 Args = new[] { "add", "--registry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.OriginalString,
                                       "--skip-confirmation", $"@criticalmanufacturing/ngx-schematics@{schematicsVersion}",
-                                      "--lint", "--base-app", baseLayer.ToString(), 
+                                      "--eslint", "--application", baseLayer.ToString(),
                                       "--version", $"release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}" },
                 WorkingDirectory = packageDir,
                 ForceColorOutput = false
