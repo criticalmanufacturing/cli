@@ -1,4 +1,11 @@
-
+using Cmf.CLI.Constants;
+using Cmf.CLI.Core;
+using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Core.Objects.CmfApp;
+using Cmf.CLI.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -6,13 +13,6 @@ using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
 using System.Linq;
-using Cmf.CLI.Constants;
-using Cmf.CLI.Core;
-using Cmf.CLI.Core.Attributes;
-using Cmf.CLI.Core.Enums;
-using Cmf.CLI.Core.Objects;
-using Cmf.CLI.Utilities;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Cmf.CLI.Commands
 {
@@ -211,7 +211,7 @@ namespace Cmf.CLI.Commands
                     {
                         string packageName = $"{testPackage.Id}.{testPackage.Version}";
                         testPackage.CmfPackage = CmfPackage.LoadFromRepo(repoDirectories, testPackage.Id, testPackage.Version, fromManifest: false);
-                        if(testPackage.CmfPackage == null)
+                        if (testPackage.CmfPackage == null)
                         {
                             string errorMessage = string.Format(CliMessages.SomePackagesNotFound, $"{packageName}.zip");
                             throw new CliException(errorMessage);
@@ -286,7 +286,7 @@ namespace Cmf.CLI.Commands
             {
                 string packageName = cmfPackage.PackageName;
                 cmfPackage = CmfPackage.LoadFromRepo(repoDirectories, cmfPackage.PackageId, cmfPackage.Version);
-                if(cmfPackage == null)
+                if (cmfPackage == null)
                 {
                     string errorMessage = string.Format(CoreMessages.NotFound, packageName);
                     throw new CliException(errorMessage);
@@ -300,7 +300,7 @@ namespace Cmf.CLI.Commands
             }
 
             Log.Information(string.Format(CliMessages.GetPackage, cmfPackage.PackageId, cmfPackage.Version));
-            if(cmfPackage.SharedFolder == null)
+            if (cmfPackage.SharedFolder == null)
             {
                 cmfPackage.Uri.GetFile().CopyTo(destinationFile);
             }
@@ -313,10 +313,56 @@ namespace Cmf.CLI.Commands
                 fileStream.CopyTo(fileStreamOutput);
             }
 
+            if (cmfPackage.PackageType == PackageType.Root && ExecutionContext.Instance.ProjectConfig?.RepositoryType == RepositoryType.App)
+            {
+                HandleAppPkg(outputDir, cmfPackage);
+            }
+
             // Assemble Tests
             if (includeTestPackages)
             {
                 AssembleTestPackages(outputDir, repoDirectories, cmfPackage);
+            }
+        }
+
+        /// <summary>
+        /// Handle the creation of the App Package that contains the app icon
+        /// </summary>
+        /// <param name="outputDir">The package output directory.</param>
+        /// <param name="cmfPackage">The current cmf package.</param>
+        private void HandleAppPkg(IDirectoryInfo outputDir, CmfPackage cmfPackage)
+        {
+            IFileInfo cmfAppFile = fileSystem.FileInfo.New(CliConstants.CmfAppFileName);
+            var appData = JsonConvert.DeserializeObject<AppData>(cmfAppFile.ReadToString());
+
+            string appPackageName = $"{appData.id}@{cmfPackage.Version}";
+            string appPackageFullName = $"{appPackageName}.zip";
+            string appPkgDestinationFile = $"{outputDir.FullName}/{appPackageFullName}";
+
+            if (fileSystem.File.Exists(appPkgDestinationFile))
+            {
+                fileSystem.File.Delete(appPkgDestinationFile);
+            }
+
+            Log.Information(string.Format(CliMessages.GetPackage, appPackageName, ""));
+            if (cmfPackage.SharedFolder == null)
+            {
+                string[] splittedOriginalUriString = cmfPackage.Uri.OriginalString.Split("\\");
+                splittedOriginalUriString[splittedOriginalUriString.Length - 1] = appPackageFullName;
+
+                string newUriString = string.Join("\\", splittedOriginalUriString);
+
+                ExecutionContext.Instance.FileSystem.FileInfo.New(newUriString).CopyTo(appPkgDestinationFile);
+            }
+            else
+            {
+                var appPkg = cmfPackage.SharedFolder.GetFile(appPackageName);
+
+                using var appPkgFileStream = appPkg.Item2;
+                appPkgFileStream.Position = 0; // Reset stream position to the beginning
+
+                using var appPkgFileStreamOutput = fileSystem.File.Create(appPkgDestinationFile);
+                appPkgFileStream.CopyTo(appPkgFileStreamOutput);
             }
         }
 
