@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.3.1](https://github.com/criticalmanufacturing/cli/compare/5.3.1-0...5.3.1) (2025-06-27)
+
+### [5.3.1-0](https://github.com/criticalmanufacturing/cli/compare/5.3.0...5.3.1-0) (2025-06-11)
+
+
+### Bug Fixes
+
+* **build:** run tests on relatedPackages ([717f141](https://github.com/criticalmanufacturing/cli/commits/717f141349d617bf45cce157aba310932db7a2c1))
+* fixed cmf new test local runsettings scaffold for apps ([d1c5c97](https://github.com/criticalmanufacturing/cli/commits/d1c5c97920619b865e6b5a2241b5ec65476bbf46))
+* **iot:** enum handling ([bcfdca2](https://github.com/criticalmanufacturing/cli/commits/bcfdca2bf6716aa734812fb3153c76abf99b6088))
+* **iot:** test package reference ([4fa40f5](https://github.com/criticalmanufacturing/cli/commits/4fa40f5b1b4d138f916a04855db1bce8332d5c80))
+* login sync cmd succeed even if docker is not installed ([5a91c29](https://github.com/criticalmanufacturing/cli/commits/5a91c2935bc31a2e4bc4ca0cc81274d6dcef61e4))
+* updated base context to support security portal authentication ([ca9e9fe](https://github.com/criticalmanufacturing/cli/commits/ca9e9fef4bef45bd6cd86b43fc4a5b8b782b879b))
+
 ## [5.3.0](https://github.com/criticalmanufacturing/cli/compare/5.3.0-5...5.3.0) (2025-06-06)
 
 ## [5.3.0-5](https://github.com/criticalmanufacturing/cli/compare/5.3.0-4...5.3.0-5) (2025-06-03)
