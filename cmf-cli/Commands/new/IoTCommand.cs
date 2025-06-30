@@ -277,7 +277,7 @@ namespace Cmf.CLI.Commands.New
             // After building the IoT Package we must ensure to also build the HTML Package
             iotCustomPackage.RelatedPackages = new()
             {
-                new RelatedPackage() { Path = fileSystem.Path.GetRelativePath(iotCustomPackageWorkDir.FullName, htmlPackageDir.FullName), PostBuild = true, PostPack = true }
+                new RelatedPackage() { Path = fileSystem.Path.GetRelativePath(iotCustomPackageWorkDir.FullName, htmlPackageDir.FullName).Replace("\\", "/"), PostBuild = true, PostPack = true }
             };
 
             iotCustomPackage.SaveCmfPackage();
