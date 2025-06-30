@@ -185,7 +185,7 @@ namespace Cmf.CLI.Commands
 
         #endregion
 
-        #region Private Methods
+        #region Private Methods & Internal Methods
 
         /// <summary>
         /// Assemble Packages of Type Test
@@ -330,7 +330,7 @@ namespace Cmf.CLI.Commands
         /// </summary>
         /// <param name="outputDir">The package output directory.</param>
         /// <param name="cmfPackage">The current cmf package.</param>
-        private void HandleAppPkg(IDirectoryInfo outputDir, CmfPackage cmfPackage)
+        internal void HandleAppPkg(IDirectoryInfo outputDir, CmfPackage cmfPackage)
         {
             IFileInfo cmfAppFile = fileSystem.FileInfo.New(CliConstants.CmfAppFileName);
             var appData = JsonConvert.DeserializeObject<AppData>(cmfAppFile.ReadToString());
