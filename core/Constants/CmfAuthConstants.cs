@@ -24,11 +24,21 @@ namespace Cmf.CLI.Core.Constants
         /// Repository URL for Critical Manufacturing's public NPM registry
         /// </summary>
         public const string NPMRepository = "https://criticalmanufacturing.io/repository/npm/";
-
+    
         /// <summary>
         /// Repository URL for Critical Manufacturing's public Docker registry
         /// </summary>
         public const string DockerRepository = "criticalmanufacturing.io";
+
+        /// <summary>
+        /// Repository URL for Critical Manufacturing's Collaboration Hub registry
+        /// </summary>
+        public const string CollaborationHubRepository = "criticalmanufacturing-collaborationhub.io";
+
+        /// <summary>
+        /// Repository URL for Critical Manufacturing's MES registry
+        /// </summary>
+        public const string MESRepository = "criticalmanufacturing-mes.io";
 
         /// <summary>
         /// Standard name for the NuGet Source for Critical Manufacturing's packages

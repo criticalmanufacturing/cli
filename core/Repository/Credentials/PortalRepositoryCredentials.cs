@@ -20,6 +20,14 @@ namespace Cmf.CLI.Core.Repository.Credentials
         #region Constants
 
         public const string TokenEnvVar = "CM_PORTAL_TOKEN";
+
+        public static readonly List<string> CmfDomainList = new List<string>
+        {
+            CmfAuthConstants.DockerRepository,
+            CmfAuthConstants.CollaborationHubRepository,
+            CmfAuthConstants.MESRepository
+        };
+
         public static readonly string TokenDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create), "cmfportal");
         public static readonly string TokenFilePath = Path.Combine(TokenDir, "cmfportaltoken");
         // How much time to consider, before the token actually expires, that we should already try to renovate it nonetheless
@@ -100,12 +108,16 @@ namespace Cmf.CLI.Core.Repository.Credentials
 
         public IEnumerable<ICredential> GetDerivedCredentials(IList<ICredential> originalCredentials)
         {
-            var derived = new List<ICredential>();
-
             foreach (var cred in originalCredentials)
             {
                 if (cred.Repository == CmfAuthConstants.PortalRepository)
                 {
+                    string[] cmfDomainListWithExtras = [..CmfDomainList, ..Environment.GetEnvironmentVariable("cmf_cli_derived_credentials_domain_list")?.Split(',') ?? []];
+                    Uri[] repositoriesToCheck = [ExecutionContext.Instance?.RepositoriesConfig?.CIRepository, ..ExecutionContext.Instance?.RepositoriesConfig?.Repositories];
+                    var derivedUrls = repositoriesToCheck.ToList().Where(url =>
+                        cmfDomainListWithExtras.Contains(url?.Host)
+                    );
+                    
                     var token = ((BearerCredential)cred).Token;
 
                     var username = ParseJwt(token).Subject;
@@ -135,6 +147,20 @@ namespace Cmf.CLI.Core.Repository.Credentials
                         Username = username,
                         Password = token,
                     };
+
+                    foreach (var url in derivedUrls)
+                    {
+                        yield return new BasicCredential
+                        {
+                            // Assume its an NPM repository
+                            RepositoryType = RepositoryCredentialsType.NPM,
+                            Repository = url.OriginalString,
+                            Username = username,
+                            Password = token,
+                        };
+                    }
+
+                    break;
                 }
             }
         }
