@@ -11,6 +11,7 @@ using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Core.Objects.CmfApp;
 using Cmf.CLI.Services;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -376,6 +377,39 @@ $@"{{
             rootPkgJson.scripts["serve"] = "cross-env NODE_OPTIONS=--max-old-space-size=8192 npm run start -- --host 0.0.0.0 --disable-host-check --port 7000";
             rootPkgJson.devDependencies["cross-env"] = "^7.0.3";
             rootPkgJson.devDependencies["jquery-ui"] = "1.13.2";
+
+            if (ExecutionContext.Instance.ProjectConfig.RepositoryType == RepositoryType.App)
+            {
+
+                IDirectoryInfo projectRoot = FileSystemUtilities.GetProjectRoot(fileSystem);
+
+                IFileInfo cmfAppFile = fileSystem.FileInfo.New(fileSystem.Path.Join(projectRoot.FullName, CliConstants.CmfAppFileName));
+                if (!cmfAppFile.Exists)
+                {
+                    throw new Exception($"{CliConstants.CmfAppFileName} not found!");
+                }
+
+                var appFileContent = cmfAppFile.ReadToString();
+                var appData = JsonConvert.DeserializeObject<AppData>(appFileContent);
+                var appName = appData.id;
+
+                var servePathArgument = $" --allowed-hosts host.docker.internal --serve-path /apps/{appName}/";
+                rootPkgJson.scripts["serve"] += servePathArgument;
+
+                var indexHtmlPath = this.fileSystem.Path.Join(packageDir.FullName, "src", "index.html");
+                var indexHtmlStr = fileSystem.File.ReadAllText(indexHtmlPath);
+
+                // Replaces the title which by default is 'MES'
+                indexHtmlStr = Regex.Replace(indexHtmlStr, "<title>(.*?)</title>", $"<title>{appName}</title>");
+
+                // Replaces the base href to support running the app in a sub path
+                indexHtmlStr = Regex.Replace(indexHtmlStr, "<base\\s+href=\"([^\"]*)\">", $"<base href=\"/apps/{appName}/\">");
+
+                this.fileSystem.File.WriteAllText(indexHtmlPath, indexHtmlStr);
+
+                Log.Verbose("Updated index.html");
+            }
+            
             json = JsonConvert.SerializeObject(rootPkgJson, Formatting.Indented);
             this.fileSystem.File.WriteAllText(rootPkgJsonPath, json);
             Log.Verbose("Updated package.json");
