@@ -520,6 +520,8 @@ public class RepositoryCredentials
         // and the value of the middle segment (payload). The values of the header and signature are ignored
         // so they can be whatever in the tests
         var token = $"header.{payload}.signature";
+        
+        ExecutionContext.Initialize(new MockFileSystem());
 
         // Act
         var credentials = portal.GetDerivedCredentials([
@@ -553,6 +555,106 @@ public class RepositoryCredentials
             {
                 RepositoryType = RepositoryCredentialsType.Docker,
                 Repository = CmfAuthConstants.DockerRepository,
+                Username = "CMF\\UNAME",
+                Password = token,
+            }
+        ]);
+    }
+
+    [Fact]
+    public void PortalRepositoryCredentials_GetDerivedCredentialsConsideringRepositoryJson()
+    {
+        // Arrange
+        var mockFileSystem = new MockFileSystem();
+        var portal = new PortalRepositoryCredentials(mockFileSystem);
+
+        var payload = Convert.ToBase64String(Encoding.UTF8.GetBytes(
+            """
+            {
+                "clientId": "Applications",
+                "tenantName": "CustomerPortal",
+                "strategyId": "AzureActiveDirectory",
+                "sub": "CMF\\UNAME",
+                "scope": "",
+                "iat": 1744019654,
+                "exp": 1746438854,
+                "aud": "AuthPortal",
+                "iss": "AuthPortal"
+            }
+            """));
+
+        // For this function, we only care about the structure of the token (having 2 dots, 3 parts)
+        // and the value of the middle segment (payload). The values of the header and signature are ignored
+        // so they can be whatever in the tests
+        var token = $"header.{payload}.signature";
+
+        // Setup RepositoriesConfig with CmfDomainList hosts
+        var testRepo1 = new Uri($"https://{CmfAuthConstants.DockerRepository}/test/url");
+        var testRepo2 = new Uri($"https://{CmfAuthConstants.CollaborationHubRepository}/test/second/url");
+        var testRepo3 = new Uri($"https://{CmfAuthConstants.CollaborationHubRepository}/test/third/url");
+        var repositoriesConfig = new RepositoriesConfig
+        {
+            CIRepository = testRepo3,
+            Repositories = new List<Uri> { testRepo1, testRepo2 }
+        };
+        
+        ExecutionContext.ServiceProvider = ServiceCollection.BuildServiceProvider();
+        ExecutionContext.Initialize(mockFileSystem);
+        ExecutionContext.Instance.RepositoriesConfig = repositoriesConfig;
+
+        // Act
+        var credentials = portal.GetDerivedCredentials([
+            new BearerCredential
+            {
+                Token = token,
+                RepositoryType = RepositoryCredentialsType.Portal,
+                Repository = CmfAuthConstants.PortalRepository,
+            }
+        ]).ToList();
+
+        // Assert
+        credentials.Should().NotBeNull();
+        credentials.Should().BeEquivalentTo<ICredential>([
+            new BasicCredential
+            {
+                RepositoryType = RepositoryCredentialsType.NuGet,
+                Repository = CmfAuthConstants.NuGetRepository,
+                Key = CmfAuthConstants.NuGetKey,
+                Username = "CMF\\UNAME",
+                Password = token,
+            },
+            new BasicCredential
+            {
+                RepositoryType = RepositoryCredentialsType.NPM,
+                Repository = CmfAuthConstants.NPMRepository,
+                Username = "CMF\\UNAME",
+                Password = token,
+            },
+            new BasicCredential
+            {
+                RepositoryType = RepositoryCredentialsType.Docker,
+                Repository = CmfAuthConstants.DockerRepository,
+                Username = "CMF\\UNAME",
+                Password = token,
+            },
+            new BasicCredential
+            {
+                RepositoryType = RepositoryCredentialsType.NPM,
+                Repository = testRepo1.OriginalString,
+                Username = "CMF\\UNAME",
+                Password = token,
+            },
+            new BasicCredential
+            {
+                RepositoryType = RepositoryCredentialsType.NPM,
+                Repository = testRepo2.OriginalString,
+                Username = "CMF\\UNAME",
+                Password = token,
+            },
+            new BasicCredential
+            {
+                RepositoryType = RepositoryCredentialsType.NPM,
+                Repository = testRepo3.OriginalString,
                 Username = "CMF\\UNAME",
                 Password = token,
             }
