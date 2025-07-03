@@ -62,5 +62,6 @@
     },
     "forwardPorts": [
         80
-    ]
+    ],
+    "initializeCommand": "docker pull criticalmanufacturing.io/criticalmanufacturing/devcontainer:<%= $CLI_PARAM_MESVersion-Major %>"
 }
