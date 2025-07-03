@@ -117,7 +117,7 @@ public class Publish
 
         // Act
         var publishCommand = new PublishCommand(fileSystem);
-        publishCommand.Execute(fileSystem.FileInfo.New(archivePath), repositoryUrl);
+        publishCommand.Execute(fileSystem.FileInfo.New(archivePath), repositoryUrl, false, false);
 
         // Assert
         npmClient.Verify(x => x.PublishPackage(It.IsAny<IFileInfo>()), Times.Once);
@@ -158,6 +158,68 @@ public class Publish
         Assert.False(json.ContainsKey("deployment"));
     }
     
+    [Fact]
+    public void PublishToContinuousIntegrationRepo()
+    {
+        // Arrange
+        using var zipStream = new MemoryStream();
+        using (var zipArchive = new ZipArchive(zipStream, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            using (var entryStream = zipArchive.CreateEntry("package.json").Open())
+            {
+                entryStream.Write(Encoding.UTF8.GetBytes("""
+                {
+                    "name": "Cmf.Custom.Tests",
+                    "version": "1.1.0",
+                    "description": "Custom Tests Package",
+                    "author": "Critical Manufacturing",
+                    "keywords": ["cmf-tests-package"]
+                }
+                """));
+            }
+        }
+        zipStream.Position = 0;
+
+        var archivePath = MockUnixSupport.Path(@"C:\repo\Cmf.Custom.Test\Package\Cmf.Custom.Test.1.0.0.zip");
+        var archiveData = zipStream.ToArray();
+        
+        var repositoryUrl = new Uri("https://fake.criticalmanufacturing.io");
+
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { archivePath, new MockFileData(archiveData) },
+            { MockUnixSupport.Path(@"C:\repo\repositories.json"), new MockFileData($$"""
+            {
+                "CIRepository": "https://fake.criticalmanufacturing.io",
+                "Repositories": [
+                    "https://fake-release.criticalmanufacturing.io"
+                ]
+            }
+            """) },
+        }, MockUnixSupport.Path(@"C:\repo\Cmf.Custom.Test"));
+
+        var remoteClientMock = new Mock<IRepositoryClient>();
+        remoteClientMock.Setup(x => x.Put(It.IsAny<CmfPackageV1>()));
+        
+        var repositoryLocator = new Mock<IRepositoryLocator>();
+        repositoryLocator
+            .SetupSequence(m => m.GetRepositoryClient(It.IsAny<Uri>(), It.IsAny<IFileSystem>()))
+            .Returns(new ArchiveRepositoryClient(archivePath, fileSystem))
+            .Returns(remoteClientMock.Object);
+        
+        ExecutionContext.ServiceProvider = (new ServiceCollection())
+            .AddSingleton<IFileSystem>(fileSystem)
+            .AddSingleton(repositoryLocator.Object)
+            .BuildServiceProvider();
+        ExecutionContext.Initialize(fileSystem);
+
+        // Act
+        var publishCommand = new PublishCommand(fileSystem);
+        publishCommand.Execute(fileSystem.FileInfo.New(archivePath), repository: null, ci: true, release: false);
+
+        // Assert
+        repositoryLocator.Verify(x => x.GetRepositoryClient(repositoryUrl, It.IsAny<IFileSystem>()), Times.Once);
+    }
     
     [Fact]
     public void NonDeploymentFrameworkPackage_MissingKeyword()
@@ -215,7 +277,7 @@ public class Publish
 
         // Act
         var publishCommand = new PublishCommand(fileSystem);
-        var exception = publishCommand.Invoking(x => x.Execute(fileSystem.FileInfo.New(archivePath), repositoryUrl));
+        var exception = publishCommand.Invoking(x => x.Execute(fileSystem.FileInfo.New(archivePath), repositoryUrl, false, false));
 
         // Assert
         exception.Should().Throw<Exception>().WithMessage("*Invalid manifest file: one of the following keywords must be present*");
