@@ -1015,7 +1015,7 @@ public class CmfPackageController
                                 new JProperty("isUniqueInstall", package.IsUniqueInstall),
                                 // new JProperty("forceRerunAfterDatabaseRestore", package.ForceRerunAfterDatabaseRestore),
                                 new JProperty("deployment", new JObject(
-                                                                // new JProperty("manifestVersion", package.ManifestVersion),
+                                                                new JProperty("manifestVersion", package.ManifestVersion),
                                                                 new JProperty("isInstallable", package.IsInstallable),
                                                                 new JProperty("packageType", package.PackageType),
                                                                 new JProperty("targetDirectory", !String.IsNullOrEmpty(package.TargetDirectory) ? package.TargetDirectory : ""),
