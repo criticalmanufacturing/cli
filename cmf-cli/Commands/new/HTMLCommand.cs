@@ -386,7 +386,7 @@ $@"{{
                 IFileInfo cmfAppFile = fileSystem.FileInfo.New(fileSystem.Path.Join(projectRoot.FullName, CliConstants.CmfAppFileName));
                 if (!cmfAppFile.Exists)
                 {
-                    throw new Exception($"{CliConstants.CmfAppFileName} not found!");
+                    throw new CliException($"{CliConstants.CmfAppFileName} not found!");
                 }
 
                 var appFileContent = cmfAppFile.ReadToString();
