@@ -332,7 +332,8 @@ namespace Cmf.CLI.Commands
         /// <param name="cmfPackage">The current cmf package.</param>
         internal void HandleAppPkg(IDirectoryInfo outputDir, CmfPackage cmfPackage)
         {
-            IFileInfo cmfAppFile = fileSystem.FileInfo.New(CliConstants.CmfAppFileName);
+            IDirectoryInfo projectRoot = FileSystemUtilities.GetProjectRoot(fileSystem);
+            IFileInfo cmfAppFile = fileSystem.FileInfo.New(fileSystem.Path.Join(projectRoot.FullName, CliConstants.CmfAppFileName));
             var appData = JsonConvert.DeserializeObject<AppData>(cmfAppFile.ReadToString());
 
             string appPackageName = $"{appData.id}@{cmfPackage.Version}";
