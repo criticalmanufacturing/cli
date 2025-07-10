@@ -69,13 +69,15 @@ namespace tests.Specs
                 extraArguments: appContext ? new[] { "--addApplicationVersionAssembly" } : null,
                 extraAsserts: args =>
                 {
-                    var (pkgVersion, dir) = args;
                     Assert.True(File.Exists($"Cmf.Custom.Business/Cmf.Custom.Common/tenantConstants.cs"), "Constants file is missing or has wrong name");
                     Assert.True(File.Exists($"Cmf.Custom.Business/Cmf.Custom.Common/Cmf.Custom.tenant.Common.csproj"), "Common project file is missing or has wrong name");
                 
                     if (appContext)
                     {
-                        Assert.True(File.Exists($"Cmf.Custom.Business/ApplicationVersion/Version.csproj"), "Version file is missing or has wrong name");
+                        Assert.True(File.Exists("Cmf.Custom.Business/ApplicationVersion/Version.csproj"), "Version file is missing or has wrong name");
+                        
+                        var versionCsproj = File.ReadAllText("Cmf.Custom.Business/ApplicationVersion/Version.csproj");
+                        versionCsproj.Should().Contain("<Product>LICENSED_APP_NAME</Product>");
                     }
                     else
                     {
@@ -931,6 +933,11 @@ namespace tests.Specs
                     .Replace("backup_share", MockUnixSupport.Path(@"y:\backup_share").Replace(@"\", @"\\"))
                     .Replace("temp_folder", MockUnixSupport.Path(@"z:\temp_folder").Replace(@"\", @"\\"))
                 );
+            }
+
+            if (repositoryType == RepositoryType.App)
+            {
+                TestUtilities.CopyFixture("app", new DirectoryInfo(dir));
             }
         }
     }
