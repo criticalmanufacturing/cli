@@ -4,12 +4,12 @@ using System.Linq;
 using System.Xml.Linq;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
+using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Core.Objects.CmfApp;
 using Cmf.CLI.Core.Utilities;
 using Cmf.CLI.Utilities;
-using Newtonsoft.Json;
 
 
 namespace Cmf.CLI.Handlers
@@ -59,17 +59,8 @@ namespace Cmf.CLI.Handlers
         /// <exception cref="CliException"></exception>
         internal virtual void GenerateAppFiles(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir)
         {
-            IFileInfo cmfAppFile = fileSystem.FileInfo.New(CliConstants.CmfAppFileName);
-            if (!cmfAppFile.Exists)
-            {
-                Log.Debug($"{CliConstants.CmfAppFileName} not found! No need to generate app manifest");
-                return;
-            }
-
-            string appFileContent = cmfAppFile.ReadToString();
-
-            var appData = JsonConvert.DeserializeObject<AppData>(appFileContent);
-
+            var appData = ExecutionContext.Instance.AppData ??
+                throw new CliException("Could not retrieve repository AppData.");
             Log.Debug("Generating App manifest");
 
             // Get Template
@@ -181,7 +172,7 @@ namespace Cmf.CLI.Handlers
             }
             else if (!AppIconUtilities.IsIconValid(appData.icon))
             {
-                throw new CliException(string.Format(CoreMessages.InvalidValue, CliConstants.CmfAppFileName));
+                throw new CliException(string.Format(CoreMessages.InvalidValue, CoreConstants.CmfAppFileName));
             }
 
             string iconSource = appData.icon;

@@ -25,6 +25,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
+using Cmf.CLI.Core.Constants;
 using tests.Objects;
 using Xunit;
 
@@ -531,11 +532,11 @@ namespace tests.Specs
 
                 DirectoryInfo curDir = new(System.IO.Directory.GetCurrentDirectory());
 
-                Assert.True(File.Exists($"{dir}/{CliConstants.CmfAppFileName}"), $"Root {CliConstants.CmfAppFileName} is missing");
+                Assert.True(File.Exists($"{dir}/{CoreConstants.CmfAppFileName}"), $"Root {CoreConstants.CmfAppFileName} is missing");
 
                 Assert.False(Directory.Exists($"{dir}/Package"), "Package folder exists");
 
-                Assert.False(File.Exists($"{featureDir}/{CliConstants.CmfAppFileName}"), $"Feature {CliConstants.CmfAppFileName} exists");
+                Assert.False(File.Exists($"{featureDir}/{CoreConstants.CmfAppFileName}"), $"Feature {CoreConstants.CmfAppFileName} exists");
 
                 Assert.True(Directory.Exists($"{featureDir}/Package"), "Package folder is missing");
 

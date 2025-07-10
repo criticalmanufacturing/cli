@@ -80,15 +80,16 @@ namespace Cmf.CLI.Commands.New
                 includeMESNugets = baseLayer == BaseLayer.MES;
                 Log.Debug($"Project is targeting base layer {baseLayer}, so scaffolding {(includeMESNugets ? "with" : "without")} MES nugets.");
 
-                bool isProjectApp = ExecutionContext.Instance.ProjectConfig.RepositoryType == RepositoryType.App;
-                
                 args.AddRange(new []{ "--targetFramework",  mesVersion.Major >= 11 ? "net8.0" : "net6.0" });
 
-                if (isProjectApp)
+                if (ExecutionContext.Instance.ProjectConfig.RepositoryType == RepositoryType.App)
                 {
+                    var appData = ExecutionContext.Instance.AppData ??
+                        throw new CliException("Could not retrieve repository AppData.");
                     args.AddRange(new[]
                     {
-                        "--app", isProjectApp.ToString(),
+                        "--app", "true",
+                        "--licensedAppName", appData.licensedApplication,
                         "--fileVersion", $"{mesVersion}.0",
                         "--assemblyVersion", $"{mesVersion.Major}.{mesVersion.Minor}.0.0",
                         "--addApplicationVersionAssembly", AddApplicationVersionAssembly.ToString()

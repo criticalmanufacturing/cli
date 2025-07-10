@@ -49,11 +49,6 @@ namespace Cmf.CLI.Constants
         public const string CmfPackageFileName = "cmfpackage.json";
 
         /// <summary>
-        /// The CMF app file name
-        /// </summary>
-        public const string CmfAppFileName = "cmfapp.json";
-
-        /// <summary>
         /// The assets folder
         /// </summary>
         public const string AssetsFolder = "assets";

@@ -12,6 +12,7 @@ using Cmf.CLI.Core;
 using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Core.Objects.CmfApp;
 
 namespace Cmf.CLI.Utilities
 {
@@ -357,6 +358,36 @@ namespace Cmf.CLI.Utilities
             }
 
             return repoConfig;
+        }
+
+        /// <summary>
+        /// Reads the AppData from the repository. 
+        /// </summary>
+        /// <param name="fileSystem"></param>
+        /// <returns></returns>
+        public static AppData ReadAppData(IFileSystem fileSystem)
+        {
+            IDirectoryInfo projectRoot = GetProjectRoot(fileSystem);
+
+            if (projectRoot == null)
+            {
+                Log.Debug("Running outside a repository.");
+                return null;
+            }
+            
+            IFileInfo cmfAppFile = fileSystem.FileInfo.New(
+                fileSystem.Path.Join(projectRoot.FullName, CoreConstants.CmfAppFileName));
+
+            if (!cmfAppFile.Exists)
+            {
+                Log.Debug($"{CoreConstants.CmfAppFileName} not found.");
+                return null;
+            }
+            
+            var appFileContent = cmfAppFile.ReadToString();
+            var appData = JsonConvert.DeserializeObject<AppData>(appFileContent);
+
+            return appData;
         }
 
         /// <summary>

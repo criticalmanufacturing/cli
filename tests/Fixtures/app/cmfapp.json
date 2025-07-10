@@ -1,0 +1,8 @@
+{
+  "id": "APP_ID",
+  "name": "APP_NAME",
+  "author": "APP_AUTHOR",
+  "description": "APP_DESCRIPTION",
+  "licensedApplication": "LICENSED_APP_NAME",
+  "icon": "assets/icon.png"
+}
