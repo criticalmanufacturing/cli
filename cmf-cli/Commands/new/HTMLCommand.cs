@@ -11,7 +11,6 @@ using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
-using Cmf.CLI.Core.Objects.CmfApp;
 using Cmf.CLI.Services;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -380,17 +379,8 @@ $@"{{
 
             if (ExecutionContext.Instance.ProjectConfig.RepositoryType == RepositoryType.App)
             {
-
-                IDirectoryInfo projectRoot = FileSystemUtilities.GetProjectRoot(fileSystem);
-
-                IFileInfo cmfAppFile = fileSystem.FileInfo.New(fileSystem.Path.Join(projectRoot.FullName, CliConstants.CmfAppFileName));
-                if (!cmfAppFile.Exists)
-                {
-                    throw new CliException($"{CliConstants.CmfAppFileName} not found!");
-                }
-
-                var appFileContent = cmfAppFile.ReadToString();
-                var appData = JsonConvert.DeserializeObject<AppData>(appFileContent);
+                var appData = ExecutionContext.Instance.AppData ??
+                    throw new CliException("Could not retrieve repository AppData.");
                 var appName = appData.id;
 
                 var servePathArgument = $" --allowed-hosts host.docker.internal --serve-path /apps/{appName}/";

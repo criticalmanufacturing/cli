@@ -2,7 +2,7 @@
 	<PropertyGroup>
 		<TargetFramework><%= $CLI_PARAM_TargetFramework %></TargetFramework>
 		<AssemblyTitle>ApplicationVersion</AssemblyTitle>
-		<Product><%= $CLI_PARAM_Tenant %></Product>
+		<Product><%= $CLI_PARAM_LicensedAppName %></Product>
 		<AssemblyName>Cmf.<%= $CLI_PARAM_idSegment %>.ApplicationVersion</AssemblyName>
 		<RootNamespace>Cmf.<%= $CLI_PARAM_idSegment %>.ApplicationVersion</RootNamespace>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
@@ -17,7 +17,5 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Cmf.Foundation.ApplicationVersion" Version="<%= $CLI_PARAM_MESVersion %>" />
-		<PackageReference Include="System.ComponentModel.Composition" Version="6.0.0" />
-		<PackageReference Include="System.Composition.AttributedModel" Version="7.0.0" />
 	</ItemGroup>
 </Project>

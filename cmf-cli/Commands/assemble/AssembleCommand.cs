@@ -3,7 +3,6 @@ using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
-using Cmf.CLI.Core.Objects.CmfApp;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -332,10 +331,8 @@ namespace Cmf.CLI.Commands
         /// <param name="cmfPackage">The current cmf package.</param>
         internal void HandleAppPkg(IDirectoryInfo outputDir, CmfPackage cmfPackage)
         {
-            IDirectoryInfo projectRoot = FileSystemUtilities.GetProjectRoot(fileSystem);
-            IFileInfo cmfAppFile = fileSystem.FileInfo.New(fileSystem.Path.Join(projectRoot.FullName, CliConstants.CmfAppFileName));
-            var appData = JsonConvert.DeserializeObject<AppData>(cmfAppFile.ReadToString());
-
+            var appData = ExecutionContext.Instance.AppData ??
+                 throw new CliException("Could not retrieve repository AppData.");
             string appPackageName = $"{appData.id}@{cmfPackage.Version}";
             string appPackageFullName = $"{appPackageName}.zip";
             string appPkgDestinationFile = $"{outputDir.FullName}/{appPackageFullName}";
