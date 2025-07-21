@@ -831,7 +831,7 @@ public class CmfPackageController
     
     public static string JSONTestsPackageKeyword = "cmf-tests-package";
 
-    public string ToJson(bool lowercase = false)
+    public string ToJson(bool lowercase = false, bool addManifestVersion = false)
     {
         #region assemble steps
         JArray stepsArray = new JArray();
@@ -1127,6 +1127,11 @@ public class CmfPackageController
                                 new JProperty("dependencies", dependecies),
                                 new JProperty("mandatoryDependencies", mandatoryDependecies),
                                 new JProperty("conditionalDependencies", conditionalDependencies));
+
+        if (addManifestVersion)
+        {
+            jsonObject.SelectToken("deployment")?.Value<JObject>()?.AddFirst(new JProperty("manifestVersion", 1));
+        }
 
         // if (package.MinSqlCompatibility > 0)
         // {
@@ -1483,7 +1488,7 @@ public class CmfPackageController
         }
     }
 
-    public static void ConvertZipToTarGz(IFileInfo zipFile, IFileInfo tarGzFile, bool lowercase = false)
+    public static void ConvertZipToTarGz(IFileInfo zipFile, IFileInfo tarGzFile, bool lowercase = false, bool addManifestVersion = false)
     {
         // Open the Zip file
         using var zipStream = zipFile.OpenRead();
@@ -1517,7 +1522,7 @@ public class CmfPackageController
                                 var manifest = reader.ReadToEnd();
                                 var pkg = FromXml(XDocument.Parse(manifest));
                                 var ctrlr = new CmfPackageController(pkg, zipFile.FileSystem);
-                                var jsonManifest = ctrlr.ToJson(lowercase);
+                                var jsonManifest = ctrlr.ToJson(lowercase, addManifestVersion);
                                 using (MemoryStream tarEntryStream = new MemoryStream())
                                 {
                                     using var streamWriter = new StreamWriter(tarEntryStream);
