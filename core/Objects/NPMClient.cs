@@ -286,10 +286,11 @@ namespace Cmf.CLI.Core.Objects
         public async Task PublishPackage(IFileInfo package)
         {
             var toLowerCase = true; // TODO: complete implementation
+            var addManifestVersion = true; // TODO: complete implementation
            
             var ctrlr = new CmfPackageController(package, package.FileSystem);
             
-            var manifest = ctrlr.ToJson(toLowerCase);
+            var manifest = ctrlr.ToJson(toLowerCase, addManifestVersion);
 
             var name = toLowerCase ? ctrlr.CmfPackage.PackageId.ToLowerInvariant() : ctrlr.CmfPackage.PackageId;
             var tgz = $"{name}-{ctrlr.CmfPackage.Version}.tgz";
