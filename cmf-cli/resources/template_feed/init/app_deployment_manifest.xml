@@ -8,7 +8,7 @@
 	xmlns:deploySteps="urn:cmf:dp:xml:ns:deploy-steps-v1"
 	xmlns:deployContainer="urn:cmf:dp:xml:ns:deploy-containers-v1"
 	xmlns:ui="urn:cmf:dp:xml:ns:ui-v1"
-	id="<%= $CLI_PARAM_AppId %>"
+	id="<%= $CLI_PARAM_AppNameLowerNoSpaces %>"
 	label="<%= $CLI_PARAM_AppName %>"
 	manifestVersion="1.0"
 	version="#{AppVersion}#"
@@ -28,8 +28,7 @@
 		<install:Dependency id="@criticalmanufacturing\analytics" type="Optional" version="#{TargetVersion}#"/>
 		<install:Dependency id="@criticalmanufacturing\ui" version="#{TargetVersion}#" />
 		<install:Dependency id="@criticalmanufacturing\help" version="#{TargetVersion}#" />
-		<install:Dependency id="@criticalmanufacturing\traefik-forwardauth"
-			version="#{TargetVersion}#" />
+		<install:Dependency id="@criticalmanufacturing\traefik-forwardauth" version="#{TargetVersion}#" />
 		<install:Dependency id="@criticalmanufacturing\host" version="#{TargetVersion}#" />
 	</install:Dependencies>
 
@@ -62,7 +61,7 @@
 						<ui:Variables>
 							<ui:Variable id="ENV_MANAGER_BOOT_PACKAGE" label="Package to Install"
 								valueType="String" order="100" overridable="true"
-								valueDefault="<%= $CLI_PARAM_AppName %>@1.0.0"
+								valueDefault="<%= $CLI_PARAM_CustomPackageName %>@#{AppVersion}#"
 								placeholder="Name and version of the package, e.g., PackageName@SemVer"
 								configurationLevel="Intermediate" />
 						</ui:Variables>
@@ -96,7 +95,8 @@
 		<install:Steps>
 			<!-- host -->
 			<deploy:Step xsi:type="deployContainer:containerService" name="host" label="Host"
-				image="#{ImageRegistry}#/criticalmanufacturing/core-host:#{ImageTag}#">
+				image="#{ImageRegistry}#/criticalmanufacturing/core-host:#{TargetVersion}#"
+				operatingSystem="Linux" requiresLogin="true">
 				<deployContainer:Volumes>
 					<deployContainer:Volume name="<%= $CLI_PARAM_AppNameLowerNoSpaces %>_host_documents"
 						label="Documents Folder" internal="/opt/document" />
@@ -108,7 +108,7 @@
 			<!-- env manager -->
 			<deploy:Step xsi:type="deployContainer:containerService" name="envmanager" user="1001"
 				label="Environment Manager"
-				image="#{ImageRegistry}#/criticalmanufacturing/envmanager:#{ImageTag}#"
+				image="#{ImageRegistry}#/criticalmanufacturing/envmanager:#{TargetVersion}#"
 				operatingSystem="Linux" requiresLogin="true">
 				<deployContainer:EnvironmentVariables>
 					<deployContainer:EnvironmentVariable name="DATABASE_APP_FRAMEWORK_MSSQL_NAME">{{
@@ -130,7 +130,8 @@
 
 			<!-- help -->
 			<deploy:Step xsi:type="deployContainer:containerService" name="help" label="Help"
-				image="#{ImageRegistry}#/criticalmanufacturing/help:#{ImageTag}#">
+				image="#{ImageRegistry}#/criticalmanufacturing/help:#{TargetVersion}#"
+				operatingSystem="Linux" requiresLogin="true">
 				<deployContainer:Volumes>
 					<deployContainer:Volume name="<%= $CLI_PARAM_AppNameLowerNoSpaces %>_logs_share"
 						optional="true"
@@ -140,7 +141,8 @@
 
 			<!-- ui -->
 			<deploy:Step xsi:type="deployContainer:containerService" name="ui" label="UI"
-				image="#{ImageRegistry}#/criticalmanufacturing/ui:#{ImageTag}#">
+				image="#{ImageRegistry}#/criticalmanufacturing/core-ui:#{TargetVersion}#"
+				operatingSystem="Linux" requiresLogin="true">
 				<deployContainer:Volumes>
 					<deployContainer:Volume name="<%= $CLI_PARAM_AppNameLowerNoSpaces %>_logs_share"
 						optional="true" label="Logs Folder" internal="/var/log/cmf/" />
@@ -150,14 +152,14 @@
 			<!-- grafana -->
 			<deploy:Step xsi:type="deployContainer:containerService" name="grafana" user="1001"
 				label="Grafana"
-				image="#{ImageRegistry}#/criticalmanufacturing/cmf-apps-grafana:1.0.1"
+				image="#{ImageRegistry}#/criticalmanufacturing/grafana:#{TargetVersion}#"
 				operatingSystem="Linux" requiresLogin="true">
 				<deployContainer:EnvironmentVariables>
 					<!-- Grafana Settings -->
 					<deployContainer:EnvironmentVariable name="GF_SERVER_ROOT_URL"> {{
 						"$(APPLICATION_PUBLIC_HTTP_TLS_ENABLED)" == "true" ? "https" : "http"
 						}}://$(APPLICATION_PUBLIC_HTTP_ADDRESS):$(APPLICATION_PUBLIC_HTTP_PORT)$(APPLICATION_BASE_HREF)grafana </deployContainer:EnvironmentVariable>
-					<deployContainer:EnvironmentVariable name="GF_SERVER_SERVE_FROM_SUB_PATH"> true </deployContainer:EnvironmentVariable>
+					<deployContainer:EnvironmentVariable name="GF_SERVER_SERVE_FROM_SUB_PATH"> false </deployContainer:EnvironmentVariable>
 					<deployContainer:EnvironmentVariable name="GF_SECURITY_COOKIE_SAMESITE"> none </deployContainer:EnvironmentVariable>
 					<deployContainer:EnvironmentVariable name="GF_SECURITY_ALLOW_EMBEDDING"> true </deployContainer:EnvironmentVariable>
 					<deployContainer:EnvironmentVariable name="GF_AUTH_DISABLE_LOGIN_FORM"> true </deployContainer:EnvironmentVariable>
