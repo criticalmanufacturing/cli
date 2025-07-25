@@ -84,7 +84,15 @@
         /// Sync Automation Business Scenarios libraries
         /// </summary>
         AutomationBusinessScenariosSync = 15,
+
+        RestoreDatabaseFromBackup = 16,
+
+        UploadToS3 = 17,
+
+        RunClickhouseSql = 18,
+
+        ReconstructClickhouseKafkaTables = 19,
         
-        RestoreDatabaseFromBackup = 16
+        CleanupS3InstallationFolder = 20,
     }
 }
