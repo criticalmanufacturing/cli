@@ -114,17 +114,67 @@ public class CmfPackageController
             Log.Debug("File is a DF package in TAR.GZ format");
             using Stream zipToOpen = file.OpenRead();
             using GZipStream gzipStream = new GZipStream(zipToOpen, CompressionMode.Decompress);
-            using TarReader tarReader = new(gzipStream);
             var foundManifest = false;
-            while (tarReader.GetNextEntry() is { } entry)
+
+            #region .NET TarReader
+
+            // Disabled because, on .NET 8, when opening ClickHouse backup archives, this code would throw a 
+            // System.IO.InvalidDataException: Unable to parse number
+            // From a cursory look, seems to be related to https://github.com/dotnet/runtime/pull/101172
+
+            // using TarReader tarReader = new(gzipStream);
+            // while (tarReader.GetNextEntry() is { } entry)
+            // {
+            //     // Check if this is the file you're looking for
+            //     if ((entry.Name == CoreConstants.DeploymentFrameworkManifestFileName || entry.Name == $"package/{CoreConstants.DeploymentFrameworkManifestFileName}") && entry.EntryType == TarEntryType.V7RegularFile)
+            //     {
+            //         foundManifest = true;
+            //         // Read the content of the file inside the TAR
+            //         using var reader = new StreamReader(entry.DataStream);
+
+            //         // TODO: make sure this is ok
+            //         // this.package = CmfPackageController.FromXmlManifest(reader.ReadToEnd(), setDefaultValues: true);
+            //         this.package = CmfPackageController.FromXml(XDocument.Parse(reader.ReadToEnd()));
+            //         break;
+            //     }
+            // }
+
+            // if (!foundManifest)
+            // {
+            //     using Stream zipToOpen2 = file.OpenRead();
+            //     using GZipStream gzipStream2 = new GZipStream(zipToOpen2, CompressionMode.Decompress);
+            //     using TarReader tarReader2 = new(gzipStream2);
+            //     while (tarReader2.GetNextEntry() is { } entry)
+            //     {
+            //         // Check if this is the file you're looking for
+            //         if ((entry.Name == "package.json" || entry.Name == $"package/package.json" )&& entry.EntryType == TarEntryType.V7RegularFile)
+            //         {
+            //             foundManifest = true;
+            //             // Read the content of the file inside the TAR
+            //             using var reader = new StreamReader(entry.DataStream);
+
+            //             // TODO: make sure this is ok
+            //             // this.package = CmfPackageController.FromXmlManifest(reader.ReadToEnd(), setDefaultValues: true);
+            //             this.package = CmfPackageController.FromJson(reader.ReadToEnd());
+            //             break;
+            //         }
+            //     }
+            // }
+
+            #endregion .NET TarReader
+
+            using var tarReader = SharpCompress.Readers.Tar.TarReader.Open(gzipStream, new SharpCompress.Readers.ReaderOptions { });
+            while (tarReader.MoveToNextEntry())
             {
+                var entry = tarReader.Entry;
+
                 // Check if this is the file you're looking for
-                if ((entry.Name == CoreConstants.DeploymentFrameworkManifestFileName || entry.Name == $"package/{CoreConstants.DeploymentFrameworkManifestFileName}" )&& entry.EntryType == TarEntryType.V7RegularFile)
+                if ((entry.Key == CoreConstants.DeploymentFrameworkManifestFileName || entry.Key == $"package/{CoreConstants.DeploymentFrameworkManifestFileName}") && !entry.IsDirectory)
                 {
                     foundManifest = true;
                     // Read the content of the file inside the TAR
-                    using var reader = new StreamReader(entry.DataStream);
-                   
+                    using var reader = new StreamReader(tarReader.OpenEntryStream());
+
                     // TODO: make sure this is ok
                     // this.package = CmfPackageController.FromXmlManifest(reader.ReadToEnd(), setDefaultValues: true);
                     this.package = CmfPackageController.FromXml(XDocument.Parse(reader.ReadToEnd()));
@@ -136,15 +186,18 @@ public class CmfPackageController
             {
                 using Stream zipToOpen2 = file.OpenRead();
                 using GZipStream gzipStream2 = new GZipStream(zipToOpen2, CompressionMode.Decompress);
-                using TarReader tarReader2 = new(gzipStream2);
-                while (tarReader2.GetNextEntry() is { } entry)
+                using var tarReader2 = SharpCompress.Readers.Tar.TarReader.Open(gzipStream2, new SharpCompress.Readers.ReaderOptions { });
+
+                while (tarReader2.MoveToNextEntry())
                 {
+                    var entry = tarReader2.Entry;
+
                     // Check if this is the file you're looking for
-                    if ((entry.Name == "package.json" || entry.Name == $"package/package.json" )&& entry.EntryType == TarEntryType.V7RegularFile)
+                    if ((entry.Key == "package.json" || entry.Key == $"package/package.json" ) && !entry.IsDirectory)
                     {
                         foundManifest = true;
                         // Read the content of the file inside the TAR
-                        using var reader = new StreamReader(entry.DataStream);
+                        using var reader = new StreamReader(tarReader2.OpenEntryStream());
                    
                         // TODO: make sure this is ok
                         // this.package = CmfPackageController.FromXmlManifest(reader.ReadToEnd(), setDefaultValues: true);
