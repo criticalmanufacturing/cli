@@ -237,6 +237,8 @@ namespace Cmf.CLI.Core.Objects
 
             if (!versions.ContainsKey(version))
             {
+                Log.Debug($"Could not get package {packageName}@{version} from {this.baseUrl}: no matching version found.");
+
                 return null;
             }
             

@@ -29,11 +29,20 @@ public class NPMRepositoryClient : IRepositoryClient
         try
         {
             var pkg = await client.FetchPackageVersion(packageId.ToLowerInvariant(), version);
-            pkg.Client = this;
+
+            if (pkg != null)
+            {
+                pkg.Client = this;
+            }
+
             return pkg;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            // TODO Should we remove this catch? The handling for "not finding" a package seems to
+            //      be done by returning null. Handling any other failures (network, etc...)
+            //      should be done higher in the code, not hidden from the user, maybe?
+            Log.Debug($"Error finding package {packageId}@{version}: {ex.Message}");
             return null;
         }
     }
