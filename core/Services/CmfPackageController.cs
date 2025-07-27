@@ -1575,7 +1575,6 @@ public class CmfPackageController
                 //         jsonManifestStream.Seek(0, SeekOrigin.Begin);
                 //     }
                 // }
-                continue;
             }
             
             
