@@ -355,7 +355,8 @@ public class CmfPackageController
                         tagFile: element.Attribute("tagFile")?.Value != null ? bool.Parse(element.Attribute("tagFile")?.Value) : null,
                         targetDatabase: element.Attribute("targetDatabase")?.Value,
                         messageType: MessageType.ImportObject, // TODO: get value
-                        relativePath: null
+                        relativePath: null,
+                        filePath: element.Attribute("filePath")?.Value
                     );
                     
                     // // Create an XmlSerializer for the Person type
@@ -667,7 +668,8 @@ public class CmfPackageController
                             tagFile: elem.Property("tagFile")?.Value.ToString() != null ? bool.Parse(elem.Property("tagFile")?.Value.ToString()) : null,
                             targetDatabase: elem.Property("targetDatabase")?.Value.ToString(),
                             messageType: MessageType.ImportObject, // TODO: get value
-                            relativePath: null
+                            relativePath: null,
+                            filePath: elem.Property("filePath")?.Value.ToString()
                         );
                         steps.Add(step);
                     }
