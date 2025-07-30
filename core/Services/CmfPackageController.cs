@@ -24,6 +24,9 @@ namespace Cmf.CLI.Core.Services;
 
 public class CmfPackageController
 {
+    
+    private const string NPMAliasPrefix = "npm:"; 
+        
     private static List<CmfPackageV1> loadedPackages = new();
     private CmfPackageV1 package;
     private IFileSystem fileSystem;
@@ -727,6 +730,12 @@ public class CmfPackageController
                 var version = dependency.Value.ToString();
                 var id = dependency.Name;
                 
+                if (version.StartsWith(NPMAliasPrefix))
+                {
+                    var parts = version.Substring(NPMAliasPrefix.Length).Split("@");
+                    id = parts[0];
+                    version = parts[1];
+                }
 
                 bool isDependencyMandatory = mandatoryDependencies.Any(item => item.Id.Equals(id) && item.Version.Equals(version));
                 bool isDependencyConditional = conditionalDependencies.Any(item => item.Id.Equals(id) && item.Version.Equals(version));
@@ -819,7 +828,7 @@ public class CmfPackageController
     public static string JSONPackageKeywordIsRootPackage = "cmf-deployment-rootPackage";
     
     public static string JSONTestsPackageKeyword = "cmf-tests-package";
-    
+
     public string ToJson(bool lowercase = false)
     {
         #region assemble steps
@@ -932,9 +941,57 @@ public class CmfPackageController
         var mandatoryDependecies = new JObject();
         var conditionalDependencies = new JObject();
 
+        // List of dependencies following the format "<Id>@<Version>" that have already been added to the dependency list.
+        // Used to detect duplicates (Id and Version are the same) and show an error message in such scenarios
+        var duplicateDependencies = package.Dependencies
+            .GroupBy(dep => $"{dep.Id}@{dep.Version}")
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key)
+            .ToList();
+
+        if (duplicateDependencies.Count > 0)
+        {
+            throw new Exception($"Invalid Package {package.PackageAtRef}: the following dependencies are declared more than once - {string.Join(", ", duplicateDependencies)}");
+        }
+
+        // Collection of PackageIds that appear more than once in this list of dependencies (with different versions)
+        // These packages will need to use the npm alias functionality
+        var duplicateDependencyIds = package.Dependencies
+            .GroupBy(dep => dep.Id)
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key)
+            .ToList();
+
+        var dependencyAliases = new Dictionary<string, int>();
+
+        string getUniquePackageAlias(string packageName)
+        {
+            if (!dependencyAliases.TryGetValue(packageName, out int counter))
+            {
+                counter = 0;
+            }
+
+            string aliasName;
+            do
+            {
+                counter++;
+
+                aliasName = $"{packageName}__{counter}";
+            } while (package.Dependencies.Any(dep => dep.Id.IgnoreCaseEquals(aliasName)));
+
+            dependencyAliases[packageName] = counter;
+
+            return aliasName;
+        }
+
         foreach (var dependency in package.Dependencies)
         {
-            var property = new JProperty(dependency.Id, dependency.Version);
+            // If this dependency is declared more than once on this package (usually for different versions)
+            // We need to register as an alias with a different JS key
+            var property = duplicateDependencyIds.Contains(dependency.Id)
+                ? new JProperty(getUniquePackageAlias(dependency.Id), $"{NPMAliasPrefix}{dependency.Id}@{dependency.Version}")
+                : new JProperty(dependency.Id, dependency.Version);
+
             dependecies.Add(property);
 
             if (dependency.Mandatory)
@@ -1355,6 +1412,14 @@ public class CmfPackageController
                 {
                     var packageAux = item.Value.ToString();
                     var id = item.Name;
+                    
+                    if (packageAux.StartsWith(NPMAliasPrefix))
+                    {
+                        var parts = packageAux.Substring(NPMAliasPrefix.Length).Split("@");
+                        id = parts[0];
+                        packageAux = parts[1];
+                    }
+
                     string range;
                     if (packageAux.Contains("~") || packageAux.Contains("^") || packageAux.Contains("*"))
                     {
