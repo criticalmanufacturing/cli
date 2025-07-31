@@ -1,0 +1,23 @@
+{
+    "command": [
+      {
+        "Name": "Example Command",
+        "Description": "Example Command",
+        "DeviceCommandId": "CMD",
+        "ExtendedData": {
+        },
+        "CommandParameters": [
+          {
+            "Name": "param1",
+            "DataType": "String",
+            "AutomationProtocolDataType": "String"
+          },
+          {
+            "Name": "param2",
+            "DataType": "Object",
+            "AutomationProtocolDataType": "Object"
+          }
+        ]
+      }
+    ]
+}
