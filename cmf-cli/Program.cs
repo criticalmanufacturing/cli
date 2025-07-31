@@ -8,10 +8,15 @@ using Cmf.CLI.Core.Objects;
 using Microsoft.Extensions.DependencyInjection;
 using Cmf.CLI.Core.Enums;
 using System.CommandLine.Parsing;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Reflection;
 using Cmf.CLI.Constants;
+using Cmf.CLI.Core.Interfaces;
+using Cmf.CLI.Core.Services;
 using Cmf.CLI.Services;
+using Cmf.CLI.Core.Repository.Credentials;
+using Cmf.CLI.Core.Utilities;
 
 namespace Cmf.CLI
 {
@@ -29,13 +34,25 @@ namespace Cmf.CLI
         {
             try
             {
+                var fileSystem = new FileSystem();
+
                 var (rootCommand, parser) = await StartupModule.Configure(
                     packageName: CliConstants.PackageName,
                     envVarPrefix: "cmf_cli",
                     description: "Critical Manufacturing CLI",
                     args: args,
-                    registerExtraServices: collection => 
-                        collection.AddSingleton<IDependencyVersionService, DependencyVersionService>());
+                    registerExtraServices: collection =>
+                    {
+                        collection.AddSingleton<IDependencyVersionService, DependencyVersionService>();
+                        collection.AddSingleton<IRepositoryLocator, RepositoryLocator>();
+                        collection.AddSingleton<IFeaturesService>(new FeaturesService("cmf_cli"));
+                        collection.AddSingleton<IRepositoryCredentials>(new PortalRepositoryCredentials(fileSystem));
+                        collection.AddSingleton<IRepositoryCredentials>(new NPMRepositoryCredentials(fileSystem));
+                        collection.AddSingleton<IRepositoryCredentials>(new NuGetRepositoryCredentials(fileSystem));
+                        collection.AddSingleton<IRepositoryCredentials>(new DockerRepositoryCredentials());
+                        collection.AddSingleton<IRepositoryCredentials>(new CIFSRepositoryCredentials());
+                        collection.AddSingleton<IRepositoryAuthStore>(RepositoryAuthStore.FromEnvironmentConfig(fileSystem));
+                    });
 
                 using var activity = ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!.StartActivity("Main");
 
@@ -63,6 +80,9 @@ namespace Cmf.CLI
                     }
                     else
                     {
+                        ExecutionContext.Initialize(fileSystem);
+                        ExecutionContext.ServiceProvider.GetService<IRepositoryLocator>()!
+                            .InitializeClientsForRepositories(ExecutionContext.Instance.FileSystem);
                         result = await parser.InvokeAsync(args);
                     }
                 }
@@ -79,7 +99,7 @@ namespace Cmf.CLI
             catch (Exception e)
             {
                 Log.Debug("Caught exception at program.");
-                Log.Exception(e);
+                Log.Exception(WrappedException.Unwrap(e));
                 ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!.LogException(e);
                 return (int)ErrorCode.Default;
             }

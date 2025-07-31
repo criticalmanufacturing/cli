@@ -16,7 +16,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cmf.Custom.<%= $CLI_PARAM_i
 	EndProjectSection
 EndProject
 #if (app)
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Version", "ApplicationVersion\Version.csproj", "{2F05799E-8030-4B25-98B7-2BACF606E7B1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Version", "ApplicationVersion\Version.csproj", "{7A42A73B-81C3-442C-880B-090B85FC8635}"
 EndProject
 #endif
 Global
@@ -37,6 +37,12 @@ Global
 		{4F4342A5-3D64-4D54-B83B-368F768E2A95}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4F4342A5-3D64-4D54-B83B-368F768E2A95}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4F4342A5-3D64-4D54-B83B-368F768E2A95}.Release|Any CPU.Build.0 = Release|Any CPU
+		#if (app)
+		{7A42A73B-81C3-442C-880B-090B85FC8635}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A42A73B-81C3-442C-880B-090B85FC8635}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A42A73B-81C3-442C-880B-090B85FC8635}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A42A73B-81C3-442C-880B-090B85FC8635}.Release|Any CPU.Build.0 = Release|Any CPU
+		#endif
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

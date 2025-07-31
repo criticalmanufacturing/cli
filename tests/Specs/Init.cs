@@ -23,7 +23,7 @@ namespace tests.Specs
         public Init()
         {
                 Cmf.CLI.Core.Objects.ExecutionContext.ServiceProvider = (new ServiceCollection())
-                    .AddSingleton<IVersionService>(new VersionService(CliConstants.PackageName))
+                    .AddSingleton<IVersionService>(new VersionService(CliConstants.PackageName, "5.3.0"))
                     .AddSingleton<IDependencyVersionService, DependencyVersionService>()
                     .BuildServiceProvider();
                 
@@ -41,7 +41,7 @@ namespace tests.Specs
         [InlineData("8.2.0", DependencyVersionService.NET3SDK)]
         [InlineData("10.2.0", DependencyVersionService.NET6SDK)]
         [InlineData("11.0.0", DependencyVersionService.NET8SDK)]
-        public void Init_(string baseVersion, string dotnetSDKVersion)
+        public void Init_(string baseVersionStr, string dotnetSDKVersion)
         {
             var rnd = new Random();
             var tmp = TestUtilities.GetTmpDirectory();
@@ -66,7 +66,7 @@ namespace tests.Specs
                     projectName,
                     "--infra", TestUtilities.GetFixturePath("init", "infrastructure.json"),
                     "-c", TestUtilities.GetFixturePath("init", "config.json"),
-                    "--MESVersion", baseVersion,
+                    "--MESVersion", baseVersionStr,
                     "--DevTasksVersion", "8.1.0",
                     "--HTMLStarterVersion", "8.0.0",
                     "--yoGeneratorVersion", "8.1.0",
@@ -81,6 +81,24 @@ namespace tests.Specs
                 }, console);
 
                 var extractFileName = new Func<string, string>(s => s.Split(Path.DirectorySeparatorChar).LastOrDefault());
+
+                // For v10 and above, the devcontainer should be created
+                var baseVersion = new Version(baseVersionStr);
+
+                if (baseVersion >= new Version(10, 0)) 
+                {
+                    var devContainerFile = File.ReadAllText(Path.Join(tmp, ".devcontainer/devcontainer.json"));
+
+                    Assert.True(File.Exists(".devcontainer/devcontainer.json"), "devcontainer is missing");
+                    devContainerFile
+                        .Should().Contain(@$"""image"": ""criticalmanufacturing.io/criticalmanufacturing/devcontainer:{baseVersion.Major}""", "Devcontainer image is not correct");
+                    devContainerFile
+                        .Should().Contain(@$"""version"": ""5.x.x""", "Devcontainer image is not correct");
+                }
+                else 
+                {
+                    Assert.False(Directory.Exists(".devcontainer"), "devcontainer should not have been created");
+                }
 
                 Assert.True(File.Exists(".project-config.json"), "project config is missing");
                 Assert.True(File.Exists("cmfpackage.json"), "root cmfpackage is missing");

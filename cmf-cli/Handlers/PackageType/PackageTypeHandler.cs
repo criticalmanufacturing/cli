@@ -18,6 +18,8 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Xml.Linq;
 using System.Xml.Serialization;
+using Cmf.CLI.Core.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 [assembly: InternalsVisibleTo("tests")]
 
@@ -517,7 +519,7 @@ namespace Cmf.CLI.Handlers
 
             foreach(var relatedPackageHandler in RelatedPackagesHandlers.Where(rp => !rp.Key.IsSet && rp.Key.PreBuild))
             {
-                relatedPackageHandler.Value.Build();
+                relatedPackageHandler.Value.Build(test);
                 relatedPackageHandler.Key.IsSet = true;
             }
 
@@ -536,7 +538,7 @@ namespace Cmf.CLI.Handlers
 
             foreach (var relatedPackageHandler in RelatedPackagesHandlers.Where(rp => !rp.Key.IsSet && rp.Key.PostBuild))
             {
-                relatedPackageHandler.Value.Build();
+                relatedPackageHandler.Value.Build(test);
                 relatedPackageHandler.Key.IsSet = true;
             }
 
@@ -611,6 +613,81 @@ namespace Cmf.CLI.Handlers
         /// <exception cref="CliException">thrown when a repo uri is not available or in an incorrect format</exception>
         public virtual void RestoreDependencies(Uri[] repoUris)
         {
+            if (ExecutionContext.ServiceProvider?.GetService<IFeaturesService>()?.UseRepositoryClients ?? false)
+            {
+                RestoreDependenciesUsingRepoClients(repoUris);
+            }
+            else
+            {
+                RestoreDependenciesLegacy(repoUris);
+            }
+        }
+        private void RestoreDependenciesUsingRepoClients(Uri[] repoUris)
+        {
+            Log.Debug($"Using repos at {string.Join(", ", repoUris.Select(r => r.OriginalString))}");
+            Log.Debug($"Targeting dependencies folder at {this.DependenciesFolder.FullName}");
+            var rootIdentifier = $"{this.CmfPackage.PackageId}@{this.CmfPackage.Version}";
+            Log.Status($"Loading {rootIdentifier} dependency tree...", ctx =>
+            {
+                var client = ExecutionContext.ServiceProvider?.GetService<IRepositoryLocator>()
+                    .GetRepositoryClient(new Uri(this.CmfPackage.GetFileInfo().FullName), this.fileSystem);
+                var cmfPackage = client.Find(null, null).GetAwaiter().GetResult();
+                var ctrlr = new CmfPackageController(cmfPackage, this.fileSystem);
+                ctrlr.LoadDependencies(repoUris, ctx, true).GetAwaiter().GetResult();
+                ctx.Status($"Restoring {rootIdentifier} dependency tree...");
+                if (ctrlr.CmfPackage.Dependencies == null)
+                {
+                    Log.Information($"No dependencies declared for package {rootIdentifier}");
+                    return;
+                }
+
+                // flatten dependency tree. We need to obtain all dependencies
+                var allDependencies = ctrlr.CmfPackage.Dependencies.Flatten(
+                    dependency => dependency.IsMissing || dependency.IsIgnorable ?
+                        new DependencyCollection() :
+                        dependency.CmfPackageV1.Dependencies).ToArray();
+
+                var missingDependencies = allDependencies.Where(d => d.IsMissing).ToArray();
+                if (missingDependencies.Any())
+                {
+                    Log.Warning($"Dependencies missing:{Environment.NewLine}{string.Join(Environment.NewLine, missingDependencies.Select(d => $"{d.Id}@{d.Version}"))}");
+                }
+
+                var foundDependencies = allDependencies.Where(d => !d.IsMissing && d.CmfPackageV1.SourceManifestFile == null).ToArray();
+                if (!foundDependencies.Any())
+                {
+                    Log.Information("No present remote dependencies to restore. Exiting...");
+                    return;
+                }
+                else
+                {
+                    Log.Verbose($"Found {foundDependencies.Length} actionable dependencies in the {rootIdentifier} dependency tree. Restoring...");
+                }
+
+                if (this.DependenciesFolder.Exists)
+                {
+                    Log.Debug($"Deleting directory {this.DependenciesFolder.FullName} and all its contents");
+                    this.DependenciesFolder.Delete(true);
+                }
+                if (!this.DependenciesFolder.Exists)
+                {
+                    this.DependenciesFolder.Create();
+                    Log.Debug($"Created Dependencies directory at {this.DependenciesFolder.FullName}");
+                }
+                foreach (var dependency in foundDependencies)
+                {
+                    var identifier = $"{dependency.Id}@{dependency.Version}";
+                    Log.Debug($"Processing dependency {identifier}...");
+                    Log.Debug($"Found package {identifier} at {dependency.CmfPackageV1.Client.RepositoryRoot}");
+                    var scopedDepDir = this.fileSystem.Path.Join(this.DependenciesFolder.FullName,
+                        omitIdentifier ? null : identifier);
+                    var depPkgDir = dependency.CmfPackageV1.Client.Extract(dependency.CmfPackageV1, this.fileSystem.DirectoryInfo.New(scopedDepDir)).GetAwaiter().GetResult();
+                    Log.Debug($"Extracted {identifier} to {depPkgDir.FullName}");
+                }
+            });
+        }
+        private void RestoreDependenciesLegacy(Uri[] repoUris)
+        {
             Log.Debug($"Using repos at {string.Join(", ", repoUris.Select(r => r.OriginalString))}");
             Log.Debug($"Targeting dependencies folder at {this.DependenciesFolder.FullName}");
             var rootIdentifier = $"{this.CmfPackage.PackageId}@{this.CmfPackage.Version}";
@@ -677,7 +754,6 @@ namespace Cmf.CLI.Handlers
                 }
             });
         }
-
         private void ExtractZip(Stream zipToOpen, string identifier)
         {
             using (ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read))

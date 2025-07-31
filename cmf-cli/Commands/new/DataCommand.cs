@@ -47,6 +47,8 @@ namespace Cmf.CLI.Commands.New
         /// <inheritdoc />
         protected override List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args)
         {
+            var repoType = ExecutionContext.Instance.ProjectConfig.RepositoryType ?? CliConstants.DefaultRepositoryType;
+
             var relativePathToRoot =
                 this.fileSystem.Path.Join("..", //always one level deeper
                     this.fileSystem.Path.GetRelativePath(
@@ -56,7 +58,8 @@ namespace Cmf.CLI.Commands.New
             
             args.AddRange(new []
             {
-                "--rootRelativePath", relativePathToRoot 
+                "--rootRelativePath", relativePathToRoot,
+                "--repositoryType", repoType.ToString()
             });
             
             #region version-specific bits
@@ -127,7 +130,7 @@ namespace Cmf.CLI.Commands.New
 
                     dataPackage.RelatedPackages = new()
                     {
-                        new RelatedPackage() { Path = fileSystem.Path.GetRelativePath(dataPackage.GetFileInfo().Directory.FullName, businessPackage.FullName), PreBuild = true, PrePack = false }
+                        new RelatedPackage() { Path = fileSystem.Path.GetRelativePath(dataPackage.GetFileInfo().Directory.FullName, businessPackage.FullName).Replace("\\", "/"), PreBuild = true, PrePack = false }
                     };
 
                     dataPackage.SaveCmfPackage();

@@ -1,0 +1,67 @@
+{
+    "image": "criticalmanufacturing.io/criticalmanufacturing/devcontainer:<%= $CLI_PARAM_MESVersion-Major %>",
+    "runArgs": [
+        "--network",
+        "host"
+    ],
+    "features": {
+        "ghcr.io/criticalmanufacturing/cli/install:1": {
+            "version": "<%= $CLI_PARAM_CLIVersion-MajorRange %>"
+        },
+        "ghcr.io/criticalmanufacturing/portal-sdk/install:1": {},
+        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+    },
+    "mounts": [
+        "source=${localEnv:HOME}${localEnv:USERPROFILE}/.cmf-auth.json,target=/home/vscode/.cmf-auth.json,type=bind,consistency=cached"
+    ],
+    "containerEnv": {
+        "DOCKER_REGISTRY": "docker.io",
+        "CM_DOCKER_REGISTRY": "criticalmanufacturing.io"
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "formulahendry.docker-explorer",
+                "ms-azuretools.vscode-docker",
+                "ms-dotnettools.csdevkit@1.9.55",
+                "ms-dotnettools.csharp@2.39.29",
+                "ms-dotnettools.vscode-dotnet-runtime",
+                "ms-dotnettools.vscodeintellicode-csharp",
+                "FullStackSpider.visual-nuget",
+                "actboy168.tasks"
+            ],
+            "settings": {
+                // Store credentials inside the devcontainer itself,
+                // To avoid relying on the user having a functioning local docker installation
+                "dev.containers.dockerCredentialHelper": false,
+                // The command "cmf login sync" needs to run when the devcontainer starts,
+                // but since it relies on xdg-open working a URL on the host, it cannot be
+                // defined in postStartCommand or anything similar
+                // See https://github.com/microsoft/vscode-remote-release/issues/9935
+                "tasks": {
+                    "version": "2.0.0",
+                    "tasks": [
+                        {
+                            "label": "cmf login",
+                            "type": "shell",
+                            "hide": false,
+                            "command": "cmf login sync",
+                            "runOptions": {
+                                "runOn": "folderOpen"
+                            },
+                            "options": {
+                                "statusbar": {
+                                    "label": "$(key) cmf login"
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    },
+    "forwardPorts": [
+        80
+    ],
+    "initializeCommand": "docker pull criticalmanufacturing.io/criticalmanufacturing/devcontainer:<%= $CLI_PARAM_MESVersion-Major %>"
+}

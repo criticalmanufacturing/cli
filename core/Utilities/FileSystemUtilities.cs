@@ -12,6 +12,7 @@ using Cmf.CLI.Core;
 using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Core.Objects.CmfApp;
 
 namespace Cmf.CLI.Utilities
 {
@@ -360,6 +361,36 @@ namespace Cmf.CLI.Utilities
         }
 
         /// <summary>
+        /// Reads the AppData from the repository. 
+        /// </summary>
+        /// <param name="fileSystem"></param>
+        /// <returns></returns>
+        public static AppData ReadAppData(IFileSystem fileSystem)
+        {
+            IDirectoryInfo projectRoot = GetProjectRoot(fileSystem);
+
+            if (projectRoot == null)
+            {
+                Log.Debug("Running outside a repository.");
+                return null;
+            }
+            
+            IFileInfo cmfAppFile = fileSystem.FileInfo.New(
+                fileSystem.Path.Join(projectRoot.FullName, CoreConstants.CmfAppFileName));
+
+            if (!cmfAppFile.Exists)
+            {
+                Log.Debug($"{CoreConstants.CmfAppFileName} not found.");
+                return null;
+            }
+            
+            var appFileContent = cmfAppFile.ReadToString();
+            var appData = JsonConvert.DeserializeObject<AppData>(appFileContent);
+
+            return appData;
+        }
+
+        /// <summary>
         /// Copies the contents of input to output. Doesn't close either stream.
         /// </summary>
         /// <param name="input">The input.</param>
@@ -478,9 +509,10 @@ namespace Cmf.CLI.Utilities
         /// <param name="packageFile"></param>
         /// <param name="filename"></param>
         /// <returns></returns>
-        public static string GetFileContentFromPackage(string packageFile, string filename)
+        public static string GetFileContentFromPackage(string packageFile, string filename, IFileSystem fileSystem = null)
         {
-            using (FileStream zipToOpen = new FileInfo(packageFile).OpenRead())
+            fileSystem ??= new FileSystem();
+            using (var zipToOpen = fileSystem.FileInfo.New(packageFile).OpenRead())
             {
                 using (ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read))
                 {

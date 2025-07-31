@@ -162,6 +162,25 @@
       "replaces": "<%= $CLI_PARAM_MESVersion-Feature %>",
       "valueTransform": "versionToFeature"
     },
+    "MESVersion-Major": {
+      "type": "derived",
+      "datatype": "string",
+      "valueSource": "MESVersion",
+      "replaces": "<%= $CLI_PARAM_MESVersion-Major %>",
+      "valueTransform": "versionToMajor"
+    },
+    "CLIVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_CLIVersion %>"
+    },
+    "CLIVersion-MajorRange": {
+      "type": "derived",
+      "datatype": "string",
+      "valueSource": "CLIVersion",
+      "replaces": "<%= $CLI_PARAM_CLIVersion-MajorRange %>",
+      "valueTransform": "versionToMajorRange"
+    },
     "DevTasksVersion": {
       "type": "parameter",
       "datatype": "string",
@@ -523,6 +542,16 @@
     }
   },
   "forms": {
+    "versionToMajor": {
+      "identifier": "replace",
+      "pattern": "(\\d+)\\.(\\d+)\\.(\\d+)",
+      "replacement": "$1"
+    },
+    "versionToMajorRange": {
+      "identifier": "replace",
+      "pattern": "(\\d+)\\.(\\d+)\\.(\\d+).*",
+      "replacement": "$1.x.x"
+    },
     "versionToFeature": {
       "identifier": "replace",
       "pattern": "(\\d+)\\.(\\d+)\\.(\\d+)",
@@ -544,6 +573,12 @@
             "app_deployment_manifest.xml",
             "assets/**",
             "assets/"
+          ]
+        },
+        {
+          "condition": "MESVersion-Major < 10",
+          "exclude": [
+            ".devcontainer/*"
           ]
         }
       ]

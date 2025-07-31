@@ -2,12 +2,11 @@ using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Utilities;
 using Core.Objects;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.TemplateEngine.Utils;
-using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Cmf.CLI.Core.Objects.CmfApp;
 
 namespace Cmf.CLI.Core.Objects
 {
@@ -38,6 +37,11 @@ namespace Cmf.CLI.Core.Objects
         /// the current repository's project config
         /// </summary>
         public ProjectConfig ProjectConfig { get; private set; }
+        
+        /// <summary>
+        /// The current repository app data (only applicable for repositories of type App)
+        /// </summary>
+        public AppData AppData { get; } 
 
         /// <summary>
         /// Get the current (executing) version of the CLI
@@ -45,7 +49,7 @@ namespace Cmf.CLI.Core.Objects
         public static string CurrentVersion => (ServiceProvider.GetService<IVersionService>()!.CurrentVersion) ?? "dev";
 
         /// <summary>
-        /// Get or set the latest vetsion of the CLI. Use this if the CLI checks for new versions
+        /// Get or set the latest version of the CLI. Use this if the CLI checks for new versions
         /// </summary>
         public static string LatestVersion { get; set; }
 
@@ -92,6 +96,7 @@ namespace Cmf.CLI.Core.Objects
             // private constructor, can only obtain instance via the Instance property
             this.fileSystem = fileSystem;
             this.RepositoriesConfig = FileSystemUtilities.ReadRepositoriesConfig(fileSystem);
+            this.AppData = FileSystemUtilities.ReadAppData(fileSystem);
             if (ServiceProvider != null)
             {
                 IProjectConfigService pcs = ServiceProvider.GetService<IProjectConfigService>();
@@ -102,10 +107,12 @@ namespace Cmf.CLI.Core.Objects
             }
 
             // connect and load shares for all UNC repositories
-            if(!RunningOnWindows && RepositoriesConfig.Repositories.HasAny())
+            if (!RunningOnWindows && RepositoriesConfig.Repositories.HasAny())
             {
-                CIFSClients = [];
-                RepositoriesConfig?.Repositories?.Where(r=> r.IsUnc).GroupBy(r => r.Host).ForEach(r=> CIFSClients.Add(new CIFSClient(r.Key, r)));
+                CIFSClients = RepositoriesConfig?.Repositories
+                    .Where(uri => uri.IsUnc)
+                    .Select(uri => new CIFSClient(uri) as ICIFSClient)
+                    .ToList() ?? [];
             }
 
             RelatedPackagesCache = new();

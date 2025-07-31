@@ -18,26 +18,33 @@ namespace Cmf.CLI.Utilities
             return (Choices)Enum.Parse(typeof(Choices), choice, true);
         }
 
-        public static object AskDynamicType(string type, string identifier, object defaultValue)
+        public static object AskDynamicType<T>(string type, string identifier, object defaultValue)
         {
-            var typeEnum = (DataTypeInputOutput)Enum.Parse(typeof(DataTypeInputOutput), type, true);
+            var typeEnum = (T)Enum.Parse(typeof(T), type, true);
             switch (typeEnum)
             {
                 case DataTypeInputOutput.DateTime:
                 case DataTypeInputOutput.String:
+                case DataTypeSetting.String:
+                case DataTypeSetting.Enum:
                     return AnsiConsole.Ask($"{identifier} Default Value:", defaultValue?.ToString() ?? "");
                 case DataTypeInputOutput.Integer:
                 case DataTypeInputOutput.Long:
+                case DataTypeSetting.Integer:
+                case DataTypeSetting.Long:
                     return AnsiConsole.Ask($"{identifier} Default Value:",
                             defaultValue?.ToString() != null ? int.Parse(defaultValue?.ToString()) : 0);
                 case DataTypeInputOutput.Decimal:
+                case DataTypeSetting.Decimal:
                     return AnsiConsole.Ask($"{identifier} Default Value:",
                         defaultValue?.ToString() != null ? decimal.Parse(defaultValue?.ToString()) : 0);
                 case DataTypeInputOutput.Boolean:
+                case DataTypeSetting.Boolean:
                     return AnsiConsole.Ask($"{identifier} Default Value:",
                         defaultValue?.ToString() != null ? bool.Parse(defaultValue.ToString()) : false);
                 case DataTypeInputOutput.Any:
                 case DataTypeInputOutput.Object:
+                case DataTypeSetting.Object:
                     return AnsiConsole.Ask($"{identifier} Default Value:", defaultValue);
                 case DataTypeInputOutput.Buffer:
                     return AnsiConsole.Ask($"{identifier} Default Value:", defaultValue?.ToString() ?? "");
@@ -46,33 +53,43 @@ namespace Cmf.CLI.Utilities
             }
         }
 
-        public static string ConvertIoTTypesToJSTypes(DataTypeInputOutput type)
+        public static string ConvertIoTTypesToJSTypes<T>(T type)
         {
             switch (type)
             {
                 case DataTypeInputOutput.Any:
                     return "any";
+                case DataTypeInputOutput.DateTime:
+                    return "Date";
                 case DataTypeInputOutput.String:
+                case DataTypeSetting.String:
                     return "string";
+                case DataTypeSetting.Enum:
+                    return "<Declare your enum>";
                 case DataTypeInputOutput.Decimal:
                 case DataTypeInputOutput.Long:
                 case DataTypeInputOutput.Integer:
+                case DataTypeSetting.Decimal:
+                case DataTypeSetting.Long:
+                case DataTypeSetting.Integer:
                     return "number";
                 case DataTypeInputOutput.Object:
+                case DataTypeSetting.Object:
                     return "object";
                 case DataTypeInputOutput.Buffer:
                     return "Buffer";
                 case DataTypeInputOutput.Boolean:
+                case DataTypeSetting.Boolean:
                     return "boolean";
                 default:
                     throw new Exception("Invalid JS Type conversion");
             }
         }
 
-        public static string ConvertIoTTypesToJSTypes(string type)
+        public static string ConvertIoTTypesToJSTypes<T>(string type)
         {
-            var typeEnum = (DataTypeInputOutput)Enum.Parse(typeof(DataTypeInputOutput), type, true);
-            return ConvertIoTTypesToJSTypes(typeEnum);
+            var typeEnum = (T)Enum.Parse(typeof(T), type, true);
+            return ConvertIoTTypesToJSTypes<T>(typeEnum);
         }
 
         public static string ConvertIoTValueTypeToTaskValueType(DataTypeInputOutput type)
@@ -371,6 +388,7 @@ namespace Cmf.CLI.Utilities
         String,
         Integer,
         Long,
+        Decimal,
         Boolean,
         Object,
         Enum

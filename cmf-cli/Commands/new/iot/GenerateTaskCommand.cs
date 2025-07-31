@@ -169,7 +169,7 @@ namespace Cmf.CLI.Commands.New.IoT
                 var defaultValue = inputValue.DefaultValue is string ? "\"\"" : JsonConvert.SerializeObject(inputValue.DefaultValue);
 
                 inputsInterface += $"\t/** {inputValue.DisplayName} */\r\n";
-                inputsInterface += $"\tpublic {input.Key}: {IoTStructures.ConvertIoTTypesToJSTypes(input.Value.DataType)} = {defaultValue};\r\n";
+                inputsInterface += $"\tpublic {input.Key}: {IoTStructures.ConvertIoTTypesToJSTypes<DataTypeInputOutput>(input.Value.DataType)} = {defaultValue};\r\n";
             }
             return inputsInterface.TrimEnd();
         }
@@ -182,7 +182,7 @@ namespace Cmf.CLI.Commands.New.IoT
                 var outputValue = output.Value;
 
                 outputsInterface += $"\t/** {outputValue.DisplayName} */\r\n";
-                outputsInterface += $"\tpublic {output.Key}: Task.Output<{IoTStructures.ConvertIoTTypesToJSTypes(outputValue.DataType)}> = new Task.Output<{IoTStructures.ConvertIoTTypesToJSTypes(outputValue.DataType)}>();\r\n";
+                outputsInterface += $"\tpublic {output.Key}: Task.Output<{IoTStructures.ConvertIoTTypesToJSTypes<DataTypeInputOutput>(outputValue.DataType)}> = new Task.Output<{IoTStructures.ConvertIoTTypesToJSTypes(outputValue.DataType)}>();\r\n";
             }
             return outputsInterface.TrimEnd();
         }
@@ -202,7 +202,7 @@ namespace Cmf.CLI.Commands.New.IoT
                         string comment = string.IsNullOrEmpty(setting.InfoMessage) ? string.IsNullOrEmpty(setting.DisplayName) ? string.IsNullOrEmpty(setting.Name) ? "" : setting.Name : setting.DisplayName : setting.InfoMessage;
 
                         settingsInterface += $"\t/** {comment} */\r\n";
-                        settingsInterface += $"\t{setting.SettingKey}: {IoTStructures.ConvertIoTTypesToJSTypes(setting.DataType)};\r\n";
+                        settingsInterface += $"\t{setting.SettingKey}: {IoTStructures.ConvertIoTTypesToJSTypes<DataTypeSetting>(setting.DataType)};\r\n";
 
                         settingsDefaults += $"\t{setting.SettingKey}: {JsonConvert.SerializeObject(setting.DefaultValue)},\r\n";
                         testSettingsDefaults += $"\t\t\t\t{setting.SettingKey}: {JsonConvert.SerializeObject(setting.DefaultValue)},\r\n";
@@ -388,7 +388,7 @@ namespace Cmf.CLI.Commands.New.IoT
                 {
                     defaultInput.DefaultValue = null;
                 }
-                defaultInput.DefaultValue = IoTStructures.AskDynamicType(defaultInput.DataType, "Input", defaultInput.DefaultValue);
+                defaultInput.DefaultValue = IoTStructures.AskDynamicType<DataTypeInputOutput>(defaultInput.DataType, "Input", defaultInput.DefaultValue);
             }
 
             if (inputs.ContainsKey(inputName))
@@ -447,11 +447,11 @@ namespace Cmf.CLI.Commands.New.IoT
             }
             if (defaultSetting.DataType == DataTypeSetting.Enum.ToString())
             {
-                var enumValues = AnsiConsole.Ask("Setting Enum Values (use ',' as separator): ", string.Join(",", defaultSetting.EnumValues));
+                var enumValues = AnsiConsole.Ask("Setting Enum Values (use ',' as separator): ", string.Join(",", defaultSetting?.EnumValues ?? new()));
                 defaultSetting.EnumValues = [.. enumValues.Split(",")];
             }
 
-            defaultSetting.DefaultValue = IoTStructures.AskDynamicType(defaultSetting.DataType, "Setting", defaultSetting.DefaultValue);
+            defaultSetting.DefaultValue = IoTStructures.AskDynamicType<DataTypeSetting>(defaultSetting.DataType, "Setting", defaultSetting.DefaultValue);
             defaultSetting.InfoMessage = AnsiConsole.Ask("Setting Information Message (tooltip):", defaultSetting.InfoMessage ?? "");
 
             if (settings.ContainsKey(tab) && settings[tab].ContainsKey(section))

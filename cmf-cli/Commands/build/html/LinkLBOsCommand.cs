@@ -49,7 +49,7 @@ public class LinkLBOsCommand : BaseCommand
         }
 
         var cmfPackage = CmfPackage.Load(cmfPackageFile, true, this.fileSystem);
-        
+
         var projectRoot = FileSystemUtilities.GetProjectRoot(this.fileSystem);
         Debug.Assert(projectRoot != null, "Invalid repository! Run this command inside a project repository.");
 
@@ -72,7 +72,10 @@ public class LinkLBOsCommand : BaseCommand
                 Args = new[] { "build" },
                 WorkingDirectory = tsLBOsDir
             }.Exec()?.Wait();
-            
+
+            var lbosNodeModules = this.fileSystem.Path.Join(tsLBOsDir.FullName, "node_modules");
+            this.fileSystem.Directory.Delete(lbosNodeModules, true);
+
             var packageRoot = cmfPackage.GetFileInfo().DirectoryName;
             var linkTargetPath = this.fileSystem.Path.Join(packageRoot, "node_modules", "cmf-lbos");
             var linkTarget = this.fileSystem.DirectoryInfo.New(linkTargetPath);
@@ -80,7 +83,7 @@ public class LinkLBOsCommand : BaseCommand
             {
                 Log.Debug($"Deleting directory {linkTarget.FullName}");
                 linkTarget.Delete(true);
-                        
+
                 Log.Debug($"Creating link from {tsLBOsPath} to {linkTarget.FullName}");
                 this.fileSystem.Directory.CreateSymbolicLink(linkTarget.FullName, tsLBOsPath);
             }

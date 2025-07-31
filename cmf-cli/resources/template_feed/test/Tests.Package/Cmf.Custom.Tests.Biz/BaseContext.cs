@@ -9,14 +9,10 @@
 
 #region Using Directives
 
-using Cmf.Foundation.BusinessOrchestration.SecurityManagement.InputObjects;
-using Cmf.Foundation.Security;
 using Cmf.LightBusinessObjects.Infrastructure;
-using Cmf.TestScenarios.EmployeeHelper;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Globalization;
-using System.Linq;
 using System.Threading;
 
 #endregion Using Directives
@@ -114,10 +110,21 @@ namespace Settings
                         ApplicationName = GetString(context, "applicationName"),
                         IsUsingLoadBalancer = context.Properties.Contains("useLoadBalancer") ? bool.Parse(GetString(context, "useLoadBalancer")) : false,
                         ThingsToDoAfterInitialize = null,
-                        UserName = GetString(context, "userName"),
-                        Password = GetString(context, "password"),
                         RequestTimeout = GetString(context, "requestTimeout")
                     };
+
+                    bool authenticateViaSecurityPortalToken = bool.TryParse(context.Properties["authenticateViaSecurityPortalToken"]?.ToString(), out bool authSecPortal) && authSecPortal;
+                    if (authenticateViaSecurityPortalToken)
+                    {
+                        config.ClientId = context.Properties["securityPortalClientId"]?.ToString() ?? string.Empty;
+                        config.SecurityPortalBaseAddress = new Uri(context.Properties["securityPortalBaseAddress"].ToString());
+                        config.SecurityAccessToken = context.Properties["securityPortalAccessToken"]?.ToString() ?? string.Empty;
+                    }
+                    else
+                    {
+                        config.UserName = UserName;
+                        config.Password = Password;
+                    }
                 }
                 return config;
             };

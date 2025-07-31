@@ -79,14 +79,22 @@ namespace Cmf.CLI.Handlers
                 // generate based on templates
                 new ExecuteCommand<GenerateBasedOnTemplatesCommand>()
                 {
-                DisplayName = "Generate help pages based on templates",
-                Command = new GenerateBasedOnTemplatesCommand()
+                    DisplayName = "Generate help pages based on templates",
+                    Command = new GenerateBasedOnTemplatesCommand(),
+                    Execute = command =>
+                    {
+                        command.Execute(cmfPackage.GetFileInfo().Directory);
+                    }
                 },
                 // generate menu items
                 new ExecuteCommand<GenerateMenuItemsCommand>()
                 {
                     DisplayName = "Generate menu items",
-                    Command = new GenerateMenuItemsCommand()
+                    Command = new GenerateMenuItemsCommand(),
+                    Execute = command =>
+                    {
+                        command.Execute(cmfPackage.GetFileInfo().Directory);
+                    }
                 },
                 // generate documents database
                 new NPMCommand()

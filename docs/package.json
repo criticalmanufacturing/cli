@@ -5,7 +5,9 @@
   "scripts": {
     "clean:mkdocs": "rm -fr dist && docker stop cli_docs && docker rm cli_docs && docker rmi cli/docs",
     "build:mkdocs": "docker build --rm -t cli/docs -f mkdocs/Dockerfile .",
-    "serve:mkdocs": "docker run -d --name cli_docs -p 8081:80 cli/docs",
+    "run:mkdocs": "docker run -d --name cli_docs -p 8081:80 cli/docs",
+    "build:mkdocs:base": "docker build --rm -t cli/docs-base -f mkdocs/Dockerfile --target mkdocs .",
+    "serve:mkdocs": "docker run --rm --name cli_docs -p 8081:8081 -v .:/app cli/docs-base mkdocs serve -a 0.0.0.0:8081",
     "dist:mkdocs": "docker cp cli_docs:/usr/share/nginx/html/ dist",
 
     "help:init": "git clone https://github.com/valeriangalliat/help2md.git",
