@@ -46,6 +46,11 @@
         /// </summary>
         public const string RepositoriesConfigFileName = "repositories.json";
 
+        /// <summary>
+        /// The package json default manifest Version
+        /// </summary>
+        public const int ManifestVersion = 1;
+
         #endregion
 
         #region Generic

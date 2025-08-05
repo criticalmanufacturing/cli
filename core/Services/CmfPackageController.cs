@@ -99,7 +99,7 @@ public class CmfPackageController
             }
             else
             {
-                var jsonManifest = zip.GetEntry("package.json");
+                var jsonManifest = zip.GetEntry(CoreConstants.PackageJson);
                 if (jsonManifest == null)
                 {
                     throw new CliException($"Zip file {file.FullName} does not contain a valid manifest!");
@@ -149,7 +149,7 @@ public class CmfPackageController
                     var entry = tarReader2.Entry;
 
                     // Check if this is the file you're looking for
-                    if ((entry.Key == "package.json" || entry.Key == $"package/package.json" ) && !entry.IsDirectory)
+                    if ((entry.Key == CoreConstants.PackageJson || entry.Key == $"package/{CoreConstants.PackageJson}" ) && !entry.IsDirectory)
                     {
                         foundManifest = true;
                         // Read the content of the file inside the TAR
@@ -829,7 +829,7 @@ public class CmfPackageController
     
     public static string JSONTestsPackageKeyword = "cmf-tests-package";
 
-    public string ToJson(bool lowercase = false)
+    public string ToJson(bool lowercase = false, bool addManifestVersion = false)
     {
         #region assemble steps
         JArray stepsArray = new JArray();
@@ -1125,6 +1125,11 @@ public class CmfPackageController
                                 new JProperty("dependencies", dependecies),
                                 new JProperty("mandatoryDependencies", mandatoryDependecies),
                                 new JProperty("conditionalDependencies", conditionalDependencies));
+
+        if (addManifestVersion)
+        {
+            jsonObject.SelectToken("deployment")?.Value<JObject>()?.AddFirst(new JProperty("manifestVersion", CoreConstants.ManifestVersion));
+        }
 
         // if (package.MinSqlCompatibility > 0)
         // {
@@ -1481,7 +1486,7 @@ public class CmfPackageController
         }
     }
 
-    public static void ConvertZipToTarGz(IFileInfo zipFile, IFileInfo tarGzFile, bool lowercase = false)
+    public static void ConvertZipToTarGz(IFileInfo zipFile, IFileInfo tarGzFile, bool lowercase = false, bool addManifestVersion = false)
     {
         // Open the Zip file
         using var zipStream = zipFile.OpenRead();
@@ -1499,21 +1504,21 @@ public class CmfPackageController
                     using (Stream zipEntryStream = zipEntry.Open())
                     {
                         // if we found the XML manifest and do not have a JSON manifest, convert it now
-                        if (entryName == "manifest.xml" && !zipArchive.Entries.Any(ze => ze.FullName == "package.json"))
+                        if (entryName == CoreConstants.DeploymentFrameworkManifestFileName && !zipArchive.Entries.Any(ze => ze.FullName == CoreConstants.PackageJson))
                         {
                             using (StreamReader reader = new StreamReader(zipEntryStream, Encoding.UTF8))
                             {
                                 var manifest = reader.ReadToEnd();
                                 var pkg = FromXml(XDocument.Parse(manifest));
                                 var ctrlr = new CmfPackageController(pkg, zipFile.FileSystem);
-                                var jsonManifest = ctrlr.ToJson(lowercase);
+                                var jsonManifest = ctrlr.ToJson(lowercase, addManifestVersion);
                                 using (MemoryStream tarEntryStream = new MemoryStream())
                                 {
                                     using var streamWriter = new StreamWriter(tarEntryStream);
                                     streamWriter.Write(jsonManifest);
                                     streamWriter.Flush();
                                     tarEntryStream.Seek(0, SeekOrigin.Begin);
-                                    tarWriter.Write("package/" + "package.json", tarEntryStream, DateTime.Now);
+                                    tarWriter.Write($"package/{CoreConstants.PackageJson}", tarEntryStream, DateTime.Now);
                                 }
                                 using (MemoryStream tarEntryStream = new MemoryStream())
                                 {
@@ -1521,7 +1526,7 @@ public class CmfPackageController
                                     streamWriter.Write(manifest);
                                     streamWriter.Flush();
                                     tarEntryStream.Seek(0, SeekOrigin.Begin);
-                                    tarWriter.Write("package/" + "manifest.xml", tarEntryStream, zipEntry.LastWriteTime.DateTime);
+                                    tarWriter.Write($"package/{CoreConstants.DeploymentFrameworkManifestFileName}", tarEntryStream, zipEntry.LastWriteTime.DateTime);
                                 }
                             }
                         }
@@ -1564,13 +1569,13 @@ public class CmfPackageController
             var entryName = entry.Name.StartsWith(packageFolderName) ? entry.Name.Substring(packageFolderName.Length) : entry.Name;
             
             // NOTE: we're believing the archive always contains a manifest.xml here, so we are not doing any conversion. 
-            if (entryName == "package.json" && entry.EntryType == TarEntryType.V7RegularFile)
+            if (entryName == CoreConstants.PackageJson && entry.EntryType == TarEntryType.V7RegularFile)
             {
                 // // Read the content of the file inside the TAR
                 // using var reader = new StreamReader(entry.DataStream,leaveOpen: true);
                 // var jsonManifest = JsonConvert.DeserializeObject<JObject>(reader.ReadToEnd());
                 // var manifest = FromJson(jsonManifest);
-                // var xmlManifestEntry = zipArchive.CreateEntry("manifest.xml");
+                // var xmlManifestEntry = zipArchive.CreateEntry(CoreConstants.DeploymentFrameworkManifestFileName);
                 // using (var xmlManifestStream = xmlManifestEntry.Open())
                 // {
                 //     using var streamWriter = new StreamWriter(xmlManifestStream);
@@ -1582,7 +1587,7 @@ public class CmfPackageController
                 //     }
                 // }
                 //
-                // var jsonManifestEntry = zipArchive.CreateEntry("package.json");
+                // var jsonManifestEntry = zipArchive.CreateEntry(CoreConstants.PackageJson);
                 // using (var jsonManifestStream = jsonManifestEntry.Open())
                 // {
                 //     using var jsonStreamWriter = new StreamWriter(jsonManifestStream);
