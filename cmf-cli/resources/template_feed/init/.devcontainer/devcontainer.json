@@ -9,7 +9,11 @@
             "version": "<%= $CLI_PARAM_CLIVersion-MajorRange %>"
         },
         "ghcr.io/criticalmanufacturing/portal-sdk/install:1": {},
-        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+            // Bug in buildx originally tracked here: https://github.com/docker/buildx/issues/3328
+            // Until the devcontainer feature is updated to include the fix for this issue, we need to pin to an earlier version
+            "mobyBuildxVersion": "0.25.0"
+        }
     },
     "mounts": [
         "source=${localEnv:HOME}${localEnv:USERPROFILE}/.cmf-auth.json,target=/home/vscode/.cmf-auth.json,type=bind,consistency=cached"
