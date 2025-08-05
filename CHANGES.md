@@ -2,6 +2,57 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.4.0](https://github.com/criticalmanufacturing/cli/compare/5.4.0-2...5.4.0) (2025-08-05)
+
+## [5.4.0-2](https://github.com/criticalmanufacturing/cli/compare/5.4.0-1...5.4.0-2) (2025-07-31)
+
+
+### Bug Fixes
+
+* add missing clickhouse-related step types ([1591c33](https://github.com/criticalmanufacturing/cli/commits/1591c33d160c8b031a0adfa22cdb421ada5239f6))
+* **business:** fix application version csproj template to include licensed app name ([4074801](https://github.com/criticalmanufacturing/cli/commits/4074801a2d3408c83b1792a86a2748e350fe1574))
+* **init:** update app deployment manifest ([5ef9f39](https://github.com/criticalmanufacturing/cli/commits/5ef9f39a84207619dfb8fb676ff86b6f8dd0a437))
+* keep package.json when downloading SQL backups from NPM ([9cd5081](https://github.com/criticalmanufacturing/cli/commits/9cd50816460224ec7485277117d7e23b69b1b695))
+* publishing clickhouse backup packages ([a759a7a](https://github.com/criticalmanufacturing/cli/commits/a759a7aad87ea19d55db0cc8d69c91b63be95d0a))
+* support publish to NPM with duplicated dependency packages ([ed76712](https://github.com/criticalmanufacturing/cli/commits/ed76712d1fcf373b66eae0d938b0cc9fe914b6f2))
+
+
+### Under the hood
+
+* improve debugging when NPM package is not found ([3150f26](https://github.com/criticalmanufacturing/cli/commits/3150f2613601e34167d7c618dd591a5d1ab8ac8a))
+* remove unused dotnet TarReader code ([2205434](https://github.com/criticalmanufacturing/cli/commits/220543450d3d77bf0a98ad5f1081e0fa22c16db9))
+
+## [5.4.0-1](https://github.com/criticalmanufacturing/cli/compare/5.4.0-0...5.4.0-1) (2025-07-09)
+
+
+### Features
+
+* add shortcut flags to publish to the CI and Release repositories ([cc65a35](https://github.com/criticalmanufacturing/cli/commits/cc65a350844bac2a260a6f6cce8414007ecef0cf))
+* authenticate cmf feeds from repository.json with CustomerPortal PAT on cmf login ([b6d72a0](https://github.com/criticalmanufacturing/cli/commits/b6d72a05fb2b12d29c1fc79a034862b2d0fb2ba5))
+* **html:** modify index.html and ng serve arguments for apps ([dccb80f](https://github.com/criticalmanufacturing/cli/commits/dccb80ffe139ef6074144e85054118c4538604ea))
+* use lbos *.tgz when linking lbos ([36e999e](https://github.com/criticalmanufacturing/cli/commits/36e999eea455f07b34e73e1569d58d2e529769db))
+
+
+### Bug Fixes
+
+* commited file system suggestion ([1c668ea](https://github.com/criticalmanufacturing/cli/commits/1c668eaff10a6475d594e52a49609689136430b2))
+* make scaffolded related packages property cross-platform ([2c72be4](https://github.com/criticalmanufacturing/cli/commits/2c72be4bc922fe403903ca57d3f800d2790c1f13))
+* modified HandlePkg function to be internal ([c35006e](https://github.com/criticalmanufacturing/cli/commits/c35006e80686071614bbf2e1a7eb5faee083c9f2))
+* moved app package logic to new function ([6f274aa](https://github.com/criticalmanufacturing/cli/commits/6f274aa472206499fcd5ab40cc479e60313a2ee8))
+
+## [5.4.0-0](https://github.com/criticalmanufacturing/cli/compare/5.3.1...5.4.0-0) (2025-06-30)
+
+
+### Features
+
+* pack tests generates a package.json to allow publishing to NPM ([1a097cd](https://github.com/criticalmanufacturing/cli/commits/1a097cd7108b0f5a254718ea91af83b901ac573b))
+
+
+### Bug Fixes
+
+* cmf build of test pkgs ignoring user-level nuget configs ([e457d39](https://github.com/criticalmanufacturing/cli/commits/e457d39bb66277af533aaefeb4fb9e00eb5cbe95))
+* **html:** fix ng add arguments ([af5f2af](https://github.com/criticalmanufacturing/cli/commits/af5f2af1259fc3222baef4a26fc1f194ff9ea4c5))
+
 ### [5.3.1](https://github.com/criticalmanufacturing/cli/compare/5.3.1-0...5.3.1) (2025-06-27)
 
 ### [5.3.1-0](https://github.com/criticalmanufacturing/cli/compare/5.3.0...5.3.1-0) (2025-06-11)
