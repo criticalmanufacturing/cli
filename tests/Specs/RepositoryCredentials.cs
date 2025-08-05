@@ -496,6 +496,51 @@ public class RepositoryCredentials
     }
 
     [Fact]
+    public async Task RepositoryAuthStore_GetOrLoad()
+    {
+        // Arrange            
+        // - The 2 derived Credentials
+        var npmCred = new BasicCredential(RepositoryCredentialsType.NPM, CmfAuthConstants.NPMRepository, key: null, domain: null, username: "npm-user", password: "qwerty");
+        var nugetCred = new BasicCredential(RepositoryCredentialsType.NuGet, CmfAuthConstants.NuGetRepository, key: CmfAuthConstants.NuGetKey, domain: null, username: "nuget-user", password: "qwerty");
+
+        PortalSSORepositoryMock.Setup(x => x.GetDerivedCredentials(It.IsAny<IList<ICredential>>())).Returns([npmCred, nugetCred]);
+
+        ExecutionContext.ServiceProvider = ServiceCollection.BuildServiceProvider();
+
+        var authStore = RepositoryAuthStore.FromEnvironmentConfig(new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { MockUnixSupport.Path(MockCmfAuthFilePath), new MockFileData("""
+            {
+                "repositories": {
+                    "portal": {
+                        "credentials": [{
+                            "authType": "Bearer",
+                            "repository": "https://portal.criticalmanufacturing.com",
+                            "token": "a.b.c",
+                        }]
+                    }
+                }
+            }
+            """) }
+        }));
+
+        // Act
+        var authFile = await authStore.GetOrLoad();
+
+        // Assert
+        authFile.Repositories.ContainsKey(RepositoryCredentialsType.Portal).Should().BeTrue();
+        authFile.Repositories.ContainsKey(RepositoryCredentialsType.NPM).Should().BeTrue();
+        authFile.Repositories.ContainsKey(RepositoryCredentialsType.NuGet).Should().BeTrue();
+
+        // The NPM third party credential should be there, as well as the derived cred
+        authFile.Repositories[RepositoryCredentialsType.NPM].Credentials.Count.Should().Be(1);
+        authFile.Repositories[RepositoryCredentialsType.NuGet].Credentials.Count.Should().Be(1);
+
+        authFile.Repositories[RepositoryCredentialsType.NPM].Credentials.Contains(npmCred).Should().BeTrue();
+        authFile.Repositories[RepositoryCredentialsType.NuGet].Credentials.Contains(nugetCred).Should().BeTrue();
+    }
+
+    [Fact]
     public void PortalRepositoryCredentials_GetDerivedCredentials()
     {
         // Arrange
