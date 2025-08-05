@@ -340,7 +340,7 @@ $@"{{
             var schematicsVersion = ngxSchematicsVersion.ToString() ?? $"@release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}";
             
             //After v11 we use Angular default routing
-            var routing = mesVersion.Major >= 11 ? "true" : "false" ;
+            var routing = mesVersion.Major >= 11 ? "true" : "false";
 
             Log.Debug($"Creating new web application {packageName}");
             // ng new <packageName> --routing false --style less
@@ -353,13 +353,13 @@ $@"{{
             }.Exec();
             Log.Debug($"Adding @criticalmanufacturing/ngx-schematics@{schematicsVersion} to the package, which can be used to scaffold new components and libraries");
             // cd <packageName>
-            // ng add --skip-confirmation @criticalmanufacturing/ngx-schematics [--npmRegistry http://npm.example/] --lint --base-app <Core|MES>
+            // ng add --skip-confirmation @criticalmanufacturing/ngx-schematics [--npmRegistry http://npm.example/] --eslint --application <Core|MES>
             new NPXCommand()
             {
                 Command = $"@angular/cli@{ngCliVersion}",
                 Args = new[] { "add", "--registry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.OriginalString,
                                       "--skip-confirmation", $"@criticalmanufacturing/ngx-schematics@{schematicsVersion}",
-                                      "--lint", "--base-app", baseLayer.ToString(), 
+                                      "--eslint", "--application", baseLayer.ToString(),
                                       "--version", $"release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}" },
                 WorkingDirectory = packageDir,
                 ForceColorOutput = false
@@ -376,6 +376,30 @@ $@"{{
             rootPkgJson.scripts["serve"] = "cross-env NODE_OPTIONS=--max-old-space-size=8192 npm run start -- --host 0.0.0.0 --disable-host-check --port 7000";
             rootPkgJson.devDependencies["cross-env"] = "^7.0.3";
             rootPkgJson.devDependencies["jquery-ui"] = "1.13.2";
+
+            if (ExecutionContext.Instance.ProjectConfig.RepositoryType == RepositoryType.App)
+            {
+                var appData = ExecutionContext.Instance.AppData ??
+                    throw new CliException("Could not retrieve repository AppData.");
+                var appName = appData.id;
+
+                var servePathArgument = $" --allowed-hosts host.docker.internal --serve-path /apps/{appName}/";
+                rootPkgJson.scripts["serve"] += servePathArgument;
+
+                var indexHtmlPath = this.fileSystem.Path.Join(packageDir.FullName, "src", "index.html");
+                var indexHtmlStr = fileSystem.File.ReadAllText(indexHtmlPath);
+
+                // Replaces the title which by default is 'MES'
+                indexHtmlStr = Regex.Replace(indexHtmlStr, "<title>(.*?)</title>", $"<title>{appName}</title>");
+
+                // Replaces the base href to support running the app in a sub path
+                indexHtmlStr = Regex.Replace(indexHtmlStr, "<base\\s+href=\"([^\"]*)\">", $"<base href=\"/apps/{appName}/\">");
+
+                this.fileSystem.File.WriteAllText(indexHtmlPath, indexHtmlStr);
+
+                Log.Verbose("Updated index.html");
+            }
+            
             json = JsonConvert.SerializeObject(rootPkgJson, Formatting.Indented);
             this.fileSystem.File.WriteAllText(rootPkgJsonPath, json);
             Log.Verbose("Updated package.json");

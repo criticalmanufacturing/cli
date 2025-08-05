@@ -24,6 +24,9 @@ namespace Cmf.CLI.Core.Services;
 
 public class CmfPackageController
 {
+    
+    private const string NPMAliasPrefix = "npm:"; 
+        
     private static List<CmfPackageV1> loadedPackages = new();
     private CmfPackageV1 package;
     private IFileSystem fileSystem;
@@ -114,17 +117,20 @@ public class CmfPackageController
             Log.Debug("File is a DF package in TAR.GZ format");
             using Stream zipToOpen = file.OpenRead();
             using GZipStream gzipStream = new GZipStream(zipToOpen, CompressionMode.Decompress);
-            using TarReader tarReader = new(gzipStream);
             var foundManifest = false;
-            while (tarReader.GetNextEntry() is { } entry)
+
+            using var tarReader = SharpCompress.Readers.Tar.TarReader.Open(gzipStream, new SharpCompress.Readers.ReaderOptions { });
+            while (tarReader.MoveToNextEntry())
             {
+                var entry = tarReader.Entry;
+
                 // Check if this is the file you're looking for
-                if ((entry.Name == CoreConstants.DeploymentFrameworkManifestFileName || entry.Name == $"package/{CoreConstants.DeploymentFrameworkManifestFileName}" )&& entry.EntryType == TarEntryType.V7RegularFile)
+                if ((entry.Key == CoreConstants.DeploymentFrameworkManifestFileName || entry.Key == $"package/{CoreConstants.DeploymentFrameworkManifestFileName}") && !entry.IsDirectory)
                 {
                     foundManifest = true;
                     // Read the content of the file inside the TAR
-                    using var reader = new StreamReader(entry.DataStream);
-                   
+                    using var reader = new StreamReader(tarReader.OpenEntryStream());
+
                     // TODO: make sure this is ok
                     // this.package = CmfPackageController.FromXmlManifest(reader.ReadToEnd(), setDefaultValues: true);
                     this.package = CmfPackageController.FromXml(XDocument.Parse(reader.ReadToEnd()));
@@ -136,15 +142,18 @@ public class CmfPackageController
             {
                 using Stream zipToOpen2 = file.OpenRead();
                 using GZipStream gzipStream2 = new GZipStream(zipToOpen2, CompressionMode.Decompress);
-                using TarReader tarReader2 = new(gzipStream2);
-                while (tarReader2.GetNextEntry() is { } entry)
+                using var tarReader2 = SharpCompress.Readers.Tar.TarReader.Open(gzipStream2, new SharpCompress.Readers.ReaderOptions { });
+
+                while (tarReader2.MoveToNextEntry())
                 {
+                    var entry = tarReader2.Entry;
+
                     // Check if this is the file you're looking for
-                    if ((entry.Name == "package.json" || entry.Name == $"package/package.json" )&& entry.EntryType == TarEntryType.V7RegularFile)
+                    if ((entry.Key == "package.json" || entry.Key == $"package/package.json" ) && !entry.IsDirectory)
                     {
                         foundManifest = true;
                         // Read the content of the file inside the TAR
-                        using var reader = new StreamReader(entry.DataStream);
+                        using var reader = new StreamReader(tarReader2.OpenEntryStream());
                    
                         // TODO: make sure this is ok
                         // this.package = CmfPackageController.FromXmlManifest(reader.ReadToEnd(), setDefaultValues: true);
@@ -522,23 +531,58 @@ public class CmfPackageController
     public static CmfPackageV1 FromJson(JObject json)
     {
         // Confirm if it is a standard deployment package
-        bool isDeploymentPackage = false;
+        var keywords = new List<string>();
+        
         if (json.Property("keywords")?.Value != null && json.Property("keywords")?.Value.Type == JTokenType.Array)
         {
-            var keywordsArray = (JArray)json.Property("keywords").Value;
-            if (keywordsArray != null)
-            {
-                isDeploymentPackage = keywordsArray.Any(k => ((JToken)k).ToString() == JSONPackageKeyword);
-            }
+            keywords = JsonConvert.DeserializeObject<List<string>>(json.Property("keywords")!.Value.ToString());
         }
+        
+        bool isDeploymentPackage = keywords.Any(k => ((JToken)k).ToString() == JSONPackageKeyword);
+        bool isTestPackage = keywords.Any(k => ((JToken)k).ToString() == JSONTestsPackageKeyword);
 
         var rootNode = json.Property("deployment");
 
-        if (!isDeploymentPackage || rootNode == null)
+        // If none of the keywords are found, this package is not valid and cannot be accepted by cmf cli 
+        if (!isTestPackage && !isDeploymentPackage)
         {
-            throw new CliException("Invalid manifest file");
+            throw new CliException($"Invalid manifest file: one of the following keywords must be present: {JSONPackageKeyword} or {JSONTestsPackageKeyword}.");
+        }
+        else if (isTestPackage && isDeploymentPackage)
+        {
+            throw new CliException($"Invalid manifest file: only one of the following keywords can be present at the same time: {JSONPackageKeyword} and {JSONTestsPackageKeyword}.");
+        }
+        else if (isDeploymentPackage && rootNode == null)
+        {
+            throw new CliException("Invalid manifest file: missing \"deployment\" property.");
         }
 
+        // Some packages (only the Test ones right now) do not have a manifest.xml, because they are not
+        // Deployment Framework packages. Nonetheless, we want the CLI to be able to, amongst other things,
+        // publish those packages to the repositories alongside the other ones. So, for those packages only, we 
+        // allow not having a "deployment" property.
+        if (isTestPackage)
+        {
+            return new CmfPackageV1(
+                json.Property("name")?.Value.ToString(),
+                json.Property("name")?.Value.ToString(),
+                json.Property("version")?.Value.ToString(),
+                json.Property("description")?.Value?.ToString(),
+                PackageType.Tests,
+                null,
+                null,
+                false,
+                false,
+                keywords: string.Join(", ", keywords),
+                true,
+                [],
+                [],
+                null,
+                null,
+                waitForIntegrationEntries: false,
+                []
+            );
+        }
         // if (!string.IsNullOrEmpty(json.Property("systemName")?.Value.ToString()))
         // {
         //     package.AddMetadata(PackageManifestReader.MetadataKey.ApplicationName, json.Property("systemName").Value.ToString());
@@ -552,8 +596,6 @@ public class CmfPackageController
 
         var deploymentVariables = rootNode.Children<JObject>();
         string packageType = null;
-        IEnumerable<string> keywords = new List<string>();
-        keywords = JsonConvert.DeserializeObject<List<string>>(json.Property("keywords")?.Value.ToString());
 
         foreach (var entry in deploymentVariables)
         {
@@ -688,6 +730,12 @@ public class CmfPackageController
                 var version = dependency.Value.ToString();
                 var id = dependency.Name;
                 
+                if (version.StartsWith(NPMAliasPrefix))
+                {
+                    var parts = version.Substring(NPMAliasPrefix.Length).Split("@");
+                    id = parts[0];
+                    version = parts[1];
+                }
 
                 bool isDependencyMandatory = mandatoryDependencies.Any(item => item.Id.Equals(id) && item.Version.Equals(version));
                 bool isDependencyConditional = conditionalDependencies.Any(item => item.Id.Equals(id) && item.Version.Equals(version));
@@ -779,6 +827,8 @@ public class CmfPackageController
     public static string JSONPackageKeywordIsInstallable = "cmf-deployment-installable";
     public static string JSONPackageKeywordIsRootPackage = "cmf-deployment-rootPackage";
     
+    public static string JSONTestsPackageKeyword = "cmf-tests-package";
+
     public string ToJson(bool lowercase = false)
     {
         #region assemble steps
@@ -891,9 +941,57 @@ public class CmfPackageController
         var mandatoryDependecies = new JObject();
         var conditionalDependencies = new JObject();
 
+        // List of dependencies following the format "<Id>@<Version>" that have already been added to the dependency list.
+        // Used to detect duplicates (Id and Version are the same) and show an error message in such scenarios
+        var duplicateDependencies = package.Dependencies
+            .GroupBy(dep => $"{dep.Id}@{dep.Version}")
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key)
+            .ToList();
+
+        if (duplicateDependencies.Count > 0)
+        {
+            throw new Exception($"Invalid Package {package.PackageAtRef}: the following dependencies are declared more than once - {string.Join(", ", duplicateDependencies)}");
+        }
+
+        // Collection of PackageIds that appear more than once in this list of dependencies (with different versions)
+        // These packages will need to use the npm alias functionality
+        var duplicateDependencyIds = package.Dependencies
+            .GroupBy(dep => dep.Id)
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key)
+            .ToList();
+
+        var dependencyAliases = new Dictionary<string, int>();
+
+        string getUniquePackageAlias(string packageName)
+        {
+            if (!dependencyAliases.TryGetValue(packageName, out int counter))
+            {
+                counter = 0;
+            }
+
+            string aliasName;
+            do
+            {
+                counter++;
+
+                aliasName = $"{packageName}__{counter}";
+            } while (package.Dependencies.Any(dep => dep.Id.IgnoreCaseEquals(aliasName)));
+
+            dependencyAliases[packageName] = counter;
+
+            return aliasName;
+        }
+
         foreach (var dependency in package.Dependencies)
         {
-            var property = new JProperty(dependency.Id, dependency.Version);
+            // If this dependency is declared more than once on this package (usually for different versions)
+            // We need to register as an alias with a different JS key
+            var property = duplicateDependencyIds.Contains(dependency.Id)
+                ? new JProperty(getUniquePackageAlias(dependency.Id), $"{NPMAliasPrefix}{dependency.Id}@{dependency.Version}")
+                : new JProperty(dependency.Id, dependency.Version);
+
             dependecies.Add(property);
 
             if (dependency.Mandatory)
@@ -1314,6 +1412,14 @@ public class CmfPackageController
                 {
                     var packageAux = item.Value.ToString();
                     var id = item.Name;
+                    
+                    if (packageAux.StartsWith(NPMAliasPrefix))
+                    {
+                        var parts = packageAux.Substring(NPMAliasPrefix.Length).Split("@");
+                        id = parts[0];
+                        packageAux = parts[1];
+                    }
+
                     string range;
                     if (packageAux.Contains("~") || packageAux.Contains("^") || packageAux.Contains("*"))
                     {
@@ -1487,7 +1593,6 @@ public class CmfPackageController
                 //         jsonManifestStream.Seek(0, SeekOrigin.Begin);
                 //     }
                 // }
-                continue;
             }
             
             

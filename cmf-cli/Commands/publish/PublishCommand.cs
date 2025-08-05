@@ -17,6 +17,21 @@ namespace Cmf.CLI.Commands;
 [CmfCommand("publish", Id = "publish", Description = "Publishes a local package to the specified repository")]
 public class PublishCommand : BaseCommand
 {
+    #region Constructors
+
+    /// <summary>
+    /// Publish Command
+    /// </summary>
+    public PublishCommand() : base() { }
+
+    /// <summary>
+    /// Publish Command
+    /// </summary>
+    /// <param name="fileSystem"></param>
+    public PublishCommand(IFileSystem fileSystem) : base(fileSystem) { }
+
+    #endregion
+
     public override void Configure(Command cmd)
     {
         cmd.AddArgument(new Argument<IFileInfo>(
@@ -26,7 +41,17 @@ public class PublishCommand : BaseCommand
         {
             Description = "Package file"
         });
-        
+
+        cmd.AddOption(new Option<bool>(
+            aliases: new string[] { "--ci" },
+            description: "Use the Continuous Integration repository URL from the repositories file"
+        ));
+
+        cmd.AddOption(new Option<bool>(
+            aliases: new string[] { "--release" },
+            description: "Use the first non-CI repository URL from the repositories file"
+        ));
+
         cmd.AddOption(new Option<Uri>(
             aliases: new string[] { "--repository" },
             description: "Repository the package should be published to",
@@ -44,12 +69,12 @@ public class PublishCommand : BaseCommand
 
         cmd.IsHidden =
             !(ExecutionContext.ServiceProvider?.GetService<IFeaturesService>()?.UseRepositoryClients ?? false);
-        
+
         // Add the handler
-        cmd.Handler = CommandHandler.Create<IFileInfo, Uri>(Execute);
+        cmd.Handler = CommandHandler.Create<IFileInfo, Uri, bool, bool>(Execute);
     }
 
-    public void Execute(IFileInfo file, Uri repository)
+    public void Execute(IFileInfo file, Uri repository, bool ci, bool release)
     {
         using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
 
@@ -63,6 +88,47 @@ public class PublishCommand : BaseCommand
         {
             throw new CliException(
                 $"The package needs to be in a zip or gzipped tar file (with .tgz extension). Use the `pack` command to get a valid file to publish.");
+        }
+
+        if (ci && release)
+        {
+            throw new CliException(
+                $"Cannot use both flags `--ci` and `--release` at the same time.");
+        }
+
+        if ((ci || release) && repository != null)
+        {
+            throw new CliException(
+                $"The `--{(ci ? "ci" : "release")}` flag can only be used when no explicit `--repository is passed`.");
+        }
+
+        var repositoryLocator = ExecutionContext.ServiceProvider?.GetService<IRepositoryLocator>();
+
+        if (ci)
+        {
+            repository = ExecutionContext.Instance.RepositoriesConfig?.CIRepository;
+
+            if (repository == null)
+            {
+                throw new CliException(
+                    $"No CIRepository was defined on the repositories configuration file, cannot use the `--ci` flag.");
+            }
+        }
+        else if (release)
+        {
+            repository = ExecutionContext.Instance.RepositoriesConfig?.Repositories?.FirstOrDefault();
+
+            if (repository == null)
+            {
+                throw new CliException(
+                    $"No Repositories were defined on the repositories configuration file, cannot use the `--release` flag.");
+            }
+        }
+
+        if (repository == null)
+        {
+            throw new CliException(
+                $"No repository URL to publish to was passed. Try using one of the following options: `--ci`, `--release` or `--repository`.");
         }
 
         // If it passes the above checks the only possible client for the requested file 

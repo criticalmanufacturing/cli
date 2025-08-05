@@ -130,7 +130,7 @@ namespace Cmf.CLI.Commands.New
 
                     dataPackage.RelatedPackages = new()
                     {
-                        new RelatedPackage() { Path = fileSystem.Path.GetRelativePath(dataPackage.GetFileInfo().Directory.FullName, businessPackage.FullName), PreBuild = true, PrePack = false }
+                        new RelatedPackage() { Path = fileSystem.Path.GetRelativePath(dataPackage.GetFileInfo().Directory.FullName, businessPackage.FullName).Replace("\\", "/"), PreBuild = true, PrePack = false }
                     };
 
                     dataPackage.SaveCmfPackage();

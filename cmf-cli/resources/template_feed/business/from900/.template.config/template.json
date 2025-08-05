@@ -71,6 +71,12 @@
       "defaultValue": "False",
       "description": "Indicates that repository type is app if true"
     },
+    "licensedAppName": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_LicensedAppName %>",
+      "fileRename": "%LicensedAppName%"
+    },
     "fileVersion": {
       "type": "parameter",
       "datatype": "string",
