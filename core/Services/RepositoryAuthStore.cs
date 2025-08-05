@@ -333,6 +333,7 @@ namespace Cmf.CLI.Core.Services
             if (_cachedAuthFile == null)
             {
                 _cachedAuthFile = await Load();
+                AddDerivedCredentials(_cachedAuthFile);
             }
 
             return _cachedAuthFile;
