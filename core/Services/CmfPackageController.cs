@@ -1495,6 +1495,15 @@ public class CmfPackageController
                 foreach (ZipArchiveEntry zipEntry in zipArchive.Entries)
                 {
                     var entryName = zipEntry.FullName;
+
+                    // The ZIP spec does not have a specific flag for determining if an entry is a file or folder
+                    // Taking as an example the SharpZipLib, the way they validate that is by checking he last character
+                    // of the full name, and validating if it is a path separator
+                    if (entryName.EndsWith("\\") || entryName.EndsWith("/"))
+                    {
+                        continue;
+                    }
+
                     // Open the entry stream from the Zip archive
                     using (Stream zipEntryStream = zipEntry.Open())
                     {
