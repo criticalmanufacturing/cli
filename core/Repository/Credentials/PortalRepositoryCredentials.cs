@@ -113,7 +113,7 @@ namespace Cmf.CLI.Core.Repository.Credentials
                 if (cred.Repository == CmfAuthConstants.PortalRepository)
                 {
                     string[] cmfDomainListWithExtras = [..CmfDomainList, ..Environment.GetEnvironmentVariable("cmf_cli_derived_credentials_domain_list")?.Split(',') ?? []];
-                    Uri[] repositoriesToCheck = [ExecutionContext.Instance?.RepositoriesConfig?.CIRepository, ..ExecutionContext.Instance?.RepositoriesConfig?.Repositories];
+                    Uri[] repositoriesToCheck = [ExecutionContext.Instance?.RepositoriesConfig?.CIRepository, ..ExecutionContext.Instance?.RepositoriesConfig?.Repositories ?? []];
                     var derivedUrls = repositoriesToCheck.ToList().Where(url =>
                         cmfDomainListWithExtras.Contains(url?.Host)
                     );
