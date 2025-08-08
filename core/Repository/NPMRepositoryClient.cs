@@ -85,7 +85,7 @@ public class NPMRepositoryClient : IRepositoryClient
         var targetFile =
             targetDirectory.FileSystem.FileInfo.New(
                 targetDirectory.FileSystem.Path.Join(targetDirectory.FullName,
-                $"{package.PackageId}.{package.Version}.tgz"));
+                $"{package.PackageId}.{package.Version}.zip"));
         var tgzPkg = await client.DownloadPackage(package.PackageId.ToLowerInvariant(), package.Version, targetDirectory.FileSystem.FileInfo.New(tmp));
         if (tgzPkg == null)
         {
