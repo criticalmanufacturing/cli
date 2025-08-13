@@ -15,9 +15,6 @@ export interface <%= $CLI_PARAM_Identifier %>CommunicationSettings {
 
 /** Default Communication Settings */
 export const <%= $CLI_PARAM_IdentifierCamel %>DefaultCommunicationSettings: <%= $CLI_PARAM_Identifier %>CommunicationSettings = {
-    // Add driver specific default settings here
-    /** Set the .net core SDK version to use, when multiple are installed in the system where the driver is running. Leave empty to ignore this setting. */
-    netCoreSdkVersion: "",
 
     // Common/driver WS settings
     heartbeatInterval: 30000,
