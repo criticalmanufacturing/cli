@@ -43,3 +43,4 @@ jspm_packages
 test-results.xml
 coverage/
 !gulpfile.js
+__TEMP__

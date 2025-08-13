@@ -1,7 +1,7 @@
 import * as yargs from "yargs";
 import * as path from "path";
 import { container } from "./inversify.config";
-import { handleCompiledAddons, ConfigurationSectionDriver } from "@criticalmanufacturing/connect-iot-driver";
+import { ConfigurationSectionDriver } from "@criticalmanufacturing/connect-iot-driver";
 import { Runner } from "@criticalmanufacturing/connect-iot-driver";
 import { TYPES as COMMON_TYPES, Logger, Utils, Configuration } from "@criticalmanufacturing/connect-iot-common";
 

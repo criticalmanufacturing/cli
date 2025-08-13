@@ -6,6 +6,9 @@ import { validateProperties, validateEvents, validateEventProperties, validateCo
 import { Utils } from "@criticalmanufacturing/connect-iot-common";
 import { TYPES } from "./types";
 import { <%= $CLI_PARAM_Identifier %>Handler } from "./<%= $CLI_PARAM_IdentifierCamel %>/<%= $CLI_PARAM_IdentifierCamel %>Handler";
+//#if hasTemplates
+import { ExtensionHandler } from "./extensions";
+//#endif
 
 @injectable()
 export class <%= $CLI_PARAM_Identifier %>DeviceDriver extends DeviceDriverBase {
@@ -15,6 +18,11 @@ export class <%= $CLI_PARAM_Identifier %>DeviceDriver extends DeviceDriverBase {
     @inject(TYPES.Injector)
     private _parentContainer: Container;
 
+    //#if hasTemplates
+    private _extensionHandler: ExtensionHandler;
+    // List of custom events registered
+    private _customEvents: Map<string, EquipmentEvent> = new Map<string, EquipmentEvent>();
+    //#endif
     private _<%= $CLI_PARAM_IdentifierCamel %>Handler: <%= $CLI_PARAM_Identifier %>Handler;
 
     public constructor() {
@@ -40,6 +48,9 @@ export class <%= $CLI_PARAM_Identifier %>DeviceDriver extends DeviceDriverBase {
             this._<%= $CLI_PARAM_IdentifierCamel %>Handler = this._container.get <<%= $CLI_PARAM_Identifier %>Handler > (TYPES.<%= $CLI_PARAM_Identifier %>Handler);
         }
 
+        //#if hasTemplates
+        await this._extensionHandler.initialize(this._container);
+        //#endif
         // Initialize the specific driver
         // ...
         await this._<%= $CLI_PARAM_IdentifierCamel %>Handler.initialize(this._container);
@@ -48,8 +59,8 @@ export class <%= $CLI_PARAM_Identifier %>DeviceDriver extends DeviceDriverBase {
     }
 
     /**
-     * Sync lifecycle with Handler Hooks
-     */
+    * Sync lifecycle with Handler Hooks
+    */
     private subscribeEvents(): void {
         this._<%= $CLI_PARAM_IdentifierCamel %>Handler.removeAllListeners();
         this._<%= $CLI_PARAM_IdentifierCamel %>Handler.on("connected", async () => {
@@ -61,12 +72,13 @@ export class <%= $CLI_PARAM_Identifier %>DeviceDriver extends DeviceDriverBase {
             this.setCommunicationState(CommunicationState.Disconnected);
         });
     }
+
     /**
-     * Notification regarding the communication parameters being available.
-	 * Validate the integrity of the values
-     * Note: Called by the driverBase
-     * @param communication Communication settings object
-     */
+    * Notification regarding the communication parameters being available.
+	* Validate the integrity of the values
+    * Note: Called by the driverBase
+    * @param communication Communication settings object
+    */
     public async setCommunicationConfiguration(communication: any): Promise<void> {
         this._communicationSettings = Object.assign({}, <%= $CLI_PARAM_IdentifierCamel %>DefaultCommunicationSettings, communication);
 
@@ -87,9 +99,9 @@ export class <%= $CLI_PARAM_Identifier %>DeviceDriver extends DeviceDriverBase {
     }
 
     /**
-     * Connect to the equipment.
-     * Note: Called by the driverBase
-     */
+    * Connect to the equipment.
+    * Note: Called by the driverBase
+    */
     public async connectToDevice(): Promise<void> {
         this.setCommunicationState(CommunicationState.Connecting);
 
@@ -114,9 +126,9 @@ export class <%= $CLI_PARAM_Identifier %>DeviceDriver extends DeviceDriverBase {
     }
 
     /**
-     * Disconnect the communication with the equipment
-     * Note: Called by the driverBase
-     */
+    * Disconnect the communication with the equipment
+    * Note: Called by the driverBase
+    */
     public async disconnectFromDevice(): Promise<void> {
         this.setCommunicationState(CommunicationState.Disconnecting);
 
@@ -131,9 +143,9 @@ export class <%= $CLI_PARAM_Identifier %>DeviceDriver extends DeviceDriverBase {
     }
 
     /**
-     * Notification that the setup process was a success
-     * Note: Called by the driverBase
-     */
+    * Notification that the setup process was a success
+    * Note: Called by the driverBase
+    */
     public async setupCompleted(): Promise<void> {
         // Since the setup was a success, set the state to Communicating
         await this.setCommunicationState(CommunicationState.Communicating);
@@ -146,10 +158,10 @@ export class <%= $CLI_PARAM_Identifier %>DeviceDriver extends DeviceDriverBase {
     }
 
     /**
-     * Request the equipment for values of the properties
-     * Note: Called by the driverBase
-     * @param properties List of properties to get values
-     */
+    * Request the equipment for values of the properties
+    * Note: Called by the driverBase
+    * @param properties List of properties to get values
+    */
     public async getValues(properties: Property[]): Promise<PropertyValue[]> {
         const results: PropertyValue[] = [];
 
@@ -169,10 +181,10 @@ export class <%= $CLI_PARAM_Identifier %>DeviceDriver extends DeviceDriverBase {
     }
 
     /**
-     * Set the value of properties in the equipment.
-     * Note: Called by the driverBase
-     * @param propertiesAndValues List of properties and new values
-     */
+    * Set the value of properties in the equipment.
+    * Note: Called by the driverBase
+    * @param propertiesAndValues List of properties and new values
+    */
     public async setValues(propertiesAndValues: PropertyValuePair[]): Promise<boolean> {
         // Request the equipment to define new values
         // ...
@@ -181,11 +193,11 @@ export class <%= $CLI_PARAM_Identifier %>DeviceDriver extends DeviceDriverBase {
     }
 
     /**
-     * Send a command to the equipment. Depending on some settings, different messages can be sent.
-     * Note: Called by the driverBase
-     * @param command Command to send
-     * @param parameters List of parameters to use
-     */
+    * Send a command to the equipment. Depending on some settings, different messages can be sent.
+    * Note: Called by the driverBase
+    * @param command Command to send
+    * @param parameters List of parameters to use
+    */
     public async execute(command: Command, parameters: Map<CommandParameter, any>): Promise < any > {
     //#if hasCommands
         // Execute the command in the equipment
@@ -203,21 +215,68 @@ export class <%= $CLI_PARAM_Identifier %>DeviceDriver extends DeviceDriverBase {
     }
 
     /**
-     * Handle the communication state changes
-     * Note: Called by the driverBase
-     * @param previousState Previous state
-     * @param newState New state
-     */
+    * Handle the communication state changes
+    * Note: Called by the driverBase
+    * @param previousState Previous state
+    * @param newState New state
+    */
     public async notifyCommunicationStateChanged(previousState: CommunicationState, newState: CommunicationState): Promise<void> {
         // Add any specific handling here
     }
+    //#if hasTemplates
+    /**
+    * Register a custom/Extension Event to listen to
+    * Usually these events are registered from custom events coming from controller custom tasks
+    * @param event Event data to register
+    */
+    public registerCustomEvent(event: EquipmentEvent): void {
+
+    if(this._customEvents.has(event.name)) {
+        this.logger.warning(`Custom event '${event.name}' was already registered. Ignoring this registration.`);
+    } else {
+            this.logger.info(`Registering custom event '${event.name}', for topic '${event.deviceId}', associated with '${event.properties.length}' properties`);
+            this._customEvents.set(event.name, event);
+
+            const count = Array.from(this._customEvents.values()).filter((v: EquipmentEvent) => v.deviceId === event.deviceId).length;
+
+            // Only register the first event by type (deviceId)
+            if (count === 1) {
+                this._<%= $CLI_PARAM_IdentifierCamel %>Handler.registerEvent(event.deviceId);
+            } else {
+                this.logger.debug(`Event Topic '${event.deviceId}' already have '${count - 1}' other custom events registered. Not subscribing in broker`);
+            }
+        }
+    }
 
     /**
-     * Handle the driver event notification. Trigger it to the controller if the trigger property was changed
-	 * Note: This is just as an example... This code is not being called anywhere
-     * @param eventId Id of the event (systemId)
-     * @param values List of values of the event registered
-     */
+    * Unregister a custom event previously registered
+    * @param event Name of the event to unregister
+    */
+    public unregisterCustomEvent(eventName: string): void {
+        const eventData = this._customEvents.get(eventName);
+        if(eventData != null) {
+            this.logger.info(`UnRegistering custom event '${eventName}' with topic '${eventData.deviceId}'`);
+
+            this._customEvents.delete(eventName);
+            const count = Array.from(this._customEvents.values()).filter((v: EquipmentEvent) => v.deviceId === eventData.deviceId).length;
+
+            // Only unregister when there are no more events of that type (deviceId)
+            if (count === 0) {
+                this._<%= $CLI_PARAM_IdentifierCamel %>Handler.unregisterEvent(eventData.deviceId);
+            } else {
+                this.logger.debug(`Event Topic '${eventData.deviceId}' still has '${count}' other custom events registered`);
+            }
+        } else {
+            this.logger.warning(`Custom Event '${eventName}' was not previously registered. Ignoring this call.`);
+        }
+    }
+    //#endif
+    /**
+    * Handle the driver event notification. Trigger it to the controller if the trigger property was changed
+	* Note: This is just as an example... This code is not being called anywhere
+    * @param eventId Id of the event (systemId)
+    * @param values List of values of the event registered
+    */
     private async onEventOccurrence(eventId: string, values: Map<string, any>): Promise<void> {
         const event = this.configuration.events.find(e => e.systemId === eventId);
         if (event && event.isEnabled) {

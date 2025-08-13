@@ -1,8 +1,18 @@
 {
-    "type": "Component",
-
-    "templates": "${Source}/templates/",
-
+  "type": "Component",
+  "addons": [
+    {
+      "name": "EdgeJs",
+      "version": "22.1.2",
+      "fileMask": "*"
+    },
+    {
+      "name": "EdgeJsBootstrap",
+      "version": "22.1.2",
+      "fileMask": "*"
+    }
+  ],
+  "templates": "${Source}/templates/",
   "postActions": [
     {
       "type": "DeleteFile",
@@ -60,11 +70,10 @@
       "replace": "\"/../lib/Cmf.Connect.IoT.Driver.<%= $CLI_PARAM_Identifier %>.dll"
     }
   ],
-
-    "information": [
-        "Add other instructions in the postActions section",
-        "according to the result of the pack process of your",
-        "driver. There is no 'right' recipe. It will always",
-        "depend on the modules you are using."
-    ]
+  "information": [
+    "Add other instructions in the postActions section",
+    "according to the result of the pack process of your",
+    "driver. There is no 'right' recipe. It will always",
+    "depend on the modules you are using."
+  ]
 }
