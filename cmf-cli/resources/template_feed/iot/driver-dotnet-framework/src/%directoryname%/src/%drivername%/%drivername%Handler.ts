@@ -216,38 +216,6 @@ export class <%= $CLI_PARAM_Identifier %>Handler extends EventEmitter {
         //#endif
     }
 
-    /**
-     * Function that validates the existence of the global.json and manages its value according to the netcore SDK
-     */
-    private manageFileDotNetVersion(netCoreSdkVersion?: string): void {
-
-        const root: string = findPackageRootDirectory(__dirname);
-        const fileName: string = path.join(root, "global.json");
-
-        if (netCoreSdkVersion != null && netCoreSdkVersion !== "") {
-            // Use version 0.0.0 which is invalid as a token to identify test run
-            // this is necessary to make sure the file present in the source code tree
-            // is not delered after the test run. This file is necessary to be able to succcessfuly compile
-            // the edge binaries (incompatible with .net core >= 7)
-            if (netCoreSdkVersion !== "0.0.0") {
-                this._logger.debug(`Creating/editing global.json to use netcore SDK version ${netCoreSdkVersion}`);
-                fs.writeJSONSync(fileName, {
-                    "sdk": {
-                        "version": netCoreSdkVersion,
-                    }
-                }, {
-                    spaces: 2,
-                    mode: 0o777,
-                });
-            }
-        } else {
-            if (fs.existsSync(fileName)) {
-                this._logger.debug(`netcore SDK version not set. Removing global.json`);
-                fs.removeSync(fileName);
-            }
-        }
-    }
-
     protected get driverInstanceId() {
         return this._driverId.replace("/", "_");
     }
@@ -300,7 +268,6 @@ export class <%= $CLI_PARAM_Identifier %>Handler extends EventEmitter {
     public async setConfiguration(configuration: Configuration, communication: <%= $CLI_PARAM_Identifier %>CommunicationSettings): Promise<void> {
         this._configuration = configuration;
         this._communicationSettings = communication;
-        this.manageFileDotNetVersion(communication.netCoreSdkVersion);
     }
 
     /**
