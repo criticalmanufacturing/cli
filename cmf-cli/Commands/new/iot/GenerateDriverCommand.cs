@@ -76,7 +76,16 @@ namespace Cmf.CLI.Commands.New.IoT
 
             var driver = HandleDriver(new DriverValues());
 
-            var args = this.GenerateArgs(workingDir, this.fileSystem.Directory.GetCurrentDirectory(), driver.Directory, driver.Identifier, driver.IdentifierCamel, driver.PackageFullName, driver.PackageVersion, driver.HasCommands);
+            var args = this.GenerateArgs(
+                workingDir,
+                this.fileSystem.Directory.GetCurrentDirectory(),
+                driver.Directory,
+                driver.Identifier,
+                driver.IdentifierCamel,
+                driver.PackageFullName,
+                driver.PackageVersion,
+                driver.HasCommands,
+                driver.HasTemplates);
             this.CommandName = "iot-driver";
             base.RunCommand(args);
         }
@@ -87,12 +96,13 @@ namespace Cmf.CLI.Commands.New.IoT
             driver.PackageScope = AnsiConsole.Ask("What is the driver scope?", driver.PackageScope);
             driver.PackageName = AnsiConsole.Ask("What is the package name?", driver.PackageName);
             driver.PackageFullName = $"{driver.PackageScope}/{driver.PackageName}";
-
             driver.PackageVersion = AnsiConsole.Ask("What is the package version?", driver.PackageVersion);
+
             driver.Identifier = AnsiConsole.Ask("What is the identifier (Protocol name, no spaces)?", driver.Identifier).ToPascalCase();
             driver.IdentifierCamel = driver.Identifier.ToCamelCase();
 
             driver.HasCommands = AnsiConsole.Prompt(new ConfirmationPrompt("Does the protocol support commands?") { DefaultValue = driver.HasCommands });
+            driver.HasTemplates = AnsiConsole.Prompt(new ConfirmationPrompt("Do you wish to use templates? (By saying no, you will only have events and commands from the driver definition)") { DefaultValue = driver.HasTemplates });
 
             return driver;
         }
@@ -106,7 +116,8 @@ namespace Cmf.CLI.Commands.New.IoT
             string identifierCamel,
             string packageName,
             string packageVersion,
-            bool hasCommands)
+            bool hasCommands,
+            bool hasTemplates)
         {
             var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
             Log.Debug($"Creating IoT Driver at {packageLocation}");
@@ -121,7 +132,8 @@ namespace Cmf.CLI.Commands.New.IoT
                 "--packageName", packageName,
                 "--packageVersion", packageVersion,
                 "--npmRegistry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.ToString(),
-                "--hasCommands", hasCommands.ToString()
+                "--hasCommands", hasCommands.ToString(),
+                "--hasTemplates", hasTemplates.ToString()
             });
 
             return args;

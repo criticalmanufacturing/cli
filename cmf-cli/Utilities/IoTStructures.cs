@@ -151,6 +151,9 @@ namespace Cmf.CLI.Utilities
 
         [JsonIgnore]
         public bool HasCommands { get; set; }
+
+        [JsonIgnore]
+        public bool HasTemplates { get; set; }
     }
 
     [JsonObject]

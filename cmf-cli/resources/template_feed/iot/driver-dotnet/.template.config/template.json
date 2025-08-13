@@ -101,6 +101,23 @@
       "datatype": "bool",
       "description": "Is Protocol Setting",
       "displayName": "Is Protocol Setting"
+    },
+    "hasTemplates": {
+      "type": "parameter",
+      "datatype": "bool",
+      "description": "Driver Has Templates",
+      "displayName": "Driver Has Templates",
+      "defaultValue": "false"
     }
-  }
+  },
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "condition": "(!hasTemplates)",
+          "exclude": [ "**/extensions/**", "**/templates/**" ]
+        }
+      ]
+    }
+  ]
 }

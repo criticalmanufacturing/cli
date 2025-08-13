@@ -25,6 +25,7 @@
     "Agent"
   ],
   "devDependencies": {
+    "@criticalmanufacturing/node-package-bundler": "latest",
     "@types/chai": "4.3.10",
     "@types/chai-spies": "1.0.6",
     "@types/mocha": "10.0.4",
