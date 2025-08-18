@@ -379,7 +379,7 @@ export class <%= $CLI_PARAM_Identifier %>Handler extends EventEmitter {
         this._logger.debug(`<< Event [${occurrence.messageId}] Type: '${occurrence.eventId}', RequestId: '${occurrence.requestId}' ${values}`);
 
         // Emit event to the Driver's event listener
-        this.emit("on<%= $CLI_PARAM_Identifier %>EventOccurrence", occurrence);
+        this.emit("on<%= $CLI_PARAM_Identifier %>EventOccurrence", occurrence.eventId, values);
 
         if (callback) {
             callback();

@@ -132,7 +132,7 @@ namespace Cmf.Connect.IoT.Driver.<%= $CLI_PARAM_Identifier %>
         }
 
         //#if hasCommands
-        /// <summary>Get the values of requested tags</summary>
+        /// <summary>Execute Command</summary>
         /// <param name="inputValues">object with the following structure:
         ///   commandId: String with CommandId
         /// <returns>Command reply data</returns>

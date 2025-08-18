@@ -39,7 +39,7 @@ export class ExtensionHandler {
      * @param occurrenceTimeStamp Event timestamp
      * @param values Event values
      */
-    public handleEventOccurrence(eventName: string, occurrenceTimeStamp: Date, values: Map<string, any>): void {
+    public handleEventOccurrence(eventName: string, occurrenceTimeStamp: Date | null, values: Map<string, any>): void {
 
         this._logger.info(`Forwarding event '${eventName}' occurrence to controller`);
 
@@ -54,7 +54,7 @@ export class ExtensionHandler {
         }
 
         customEventOccurrence.eventName = eventName;
-        customEventOccurrence.timestamp = occurrenceTimeStamp;
+        customEventOccurrence.timestamp = occurrenceTimeStamp ?? new Date();
         customEventOccurrence.propertyValues = valuesTreated;
 
         // Publish the event occurrence to any task listening
