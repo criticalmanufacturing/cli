@@ -1575,6 +1575,14 @@ public class CmfPackageController
             // Check for the "package" folder and strip it out
             string packageFolderName = "package/";
 
+            // If the tar file has an entry just for the "package/" folder, we simply skip that entry,
+            // because the folder itself will never be a part of the converted zip, only the files/sub-folders
+            // inside of it
+            if (entry.Name == packageFolderName)
+            {
+                continue;
+            }
+
             // Iterate through the files in the TAR archive
             // If the file is in the "package" folder, strip it
             var entryName = entry.Name.StartsWith(packageFolderName) ? entry.Name.Substring(packageFolderName.Length) : entry.Name;
