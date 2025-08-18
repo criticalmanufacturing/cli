@@ -277,7 +277,18 @@ export class <%= $CLI_PARAM_Identifier %>DeviceDriver extends DeviceDriverBase {
     * @param eventId Id of the event (systemId)
     * @param values List of values of the event registered
     */
-    private async onEventOccurrence(eventId: string, values: Map<string, any>): Promise<void> {
+    private async onEventOccurrence(eventId: string, values: Map<string, any>): Promise < void> {
+        //#if hasTemplates
+        const customRegisteredEvents = Array.from(this._customEvents.values()).filter((evt: EquipmentEvent) => evt.deviceId === eventId && evt.isEnabled === true);
+        if(customRegisteredEvents.length > 0) {
+            for (const evt of customRegisteredEvents) {
+                this._extensionHandler.handleEventOccurrence(
+                    evt.name,
+                    null, // Provide event timestamp
+                    values);
+            }
+        }
+        //#endif
         const event = this.configuration.events.find(e => e.systemId === eventId);
         if (event && event.isEnabled) {
             const results: PropertyValue[] = [];
