@@ -1,24 +1,56 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-      {
-        "type": "node",
-        "request": "launch",
-        "name": "Start Driver (<%= $CLI_PARAM_Identifier %>)",
-        "program": "${workspaceRoot}/src/index.js",
-        "args": [
-          "--dev",
-          "--id=<EnterDriverInstanceId>",
-          "--mp=<EnterMonitorPort>",
-          "--config=<EnterConfigPath>/config.json"
-        ],
-        // "preLaunchTask": "manager-build",
-        "cwd": "${workspaceRoot}",
-        "outFiles": [],
-        "outputCapture": "std"
-      }
-    ]
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "inputs": [
+    {
+      "id": "managerLocation",
+      "type": "promptString",
+      "description": "Enter the location of the Automation Manager Downloaded"
+    },
+    {
+      "id": "driverInstance",
+      "type": "promptString",
+      "description": "Enter the Automation Driver Instance"
+    },
+    {
+      "id": "monitorPort",
+      "type": "promptString",
+      "default": "88",
+      "description": "Enter the Monitor Port"
+    }
+  ],
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Start Manager",
+      "program": "${input:managerLocation}/src/index.js",
+      "args": [
+        "--dev",
+        "--config=${input:managerLocation}/config.json",
+        "--monitorApplication=${input:managerLocation}/src/monitor.js"
+      ],
+      "cwd": "${workspaceRoot}",
+      "outFiles": [],
+      "outputCapture": "std",
+      "autoAttachChildProcesses": true
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Start Driver (<%= $CLI_PARAM_Identifier %>)",
+      "program": "${workspaceRoot}/src/index.js",
+      "args": [
+        "--dev",
+        "--id=AutomationDriverInstance/${input:driverInstance}",
+        "--mp=${input:monitorPort}",
+        "--config=${input:managerLocation}/config.downloaded.json"
+      ],
+      "cwd": "${workspaceRoot}",
+      "outFiles": [],
+      "outputCapture": "std"
+    }
+  ]
 }
