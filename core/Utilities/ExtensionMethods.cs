@@ -279,7 +279,9 @@ namespace Cmf.CLI.Utilities
         /// </returns>
         public static bool IsDirectory(this Uri uri)
         {
-            return (uri.HostNameType == UriHostNameType.Basic) || (uri.HostNameType == UriHostNameType.Dns && uri.IsUnc);
+            return (
+                uri.HostNameType == UriHostNameType.Basic) || 
+                (uri.HostNameType is UriHostNameType.Dns or UriHostNameType.IPv4 or UriHostNameType.IPv6 && uri.IsUnc);
         }
 
         /// <summary>
