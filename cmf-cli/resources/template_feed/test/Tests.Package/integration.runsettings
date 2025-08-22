@@ -6,11 +6,11 @@
     <MaxCpuCount>1</MaxCpuCount>
   </RunConfiguration>
   
-    <!-- Parameters used by tests at runtime -->
+  <!-- Parameters used by tests at runtime -->
   <TestRunParameters>
     <Parameter name="applicationName" value="AutomaticTests" />
-	<Parameter name="websiteAdress" value="<%= $CLI_PARAM_vmHostname %>" />
-	<Parameter name="websitePort" value="<%= $CLI_PARAM_HTMLPort %>" />
+    <Parameter name="websiteAdress" value="<%= $CLI_PARAM_vmHostname %>" />
+    <Parameter name="websitePort" value="<%= $CLI_PARAM_HTMLPort %>" />
     <Parameter name="websiteUseSSL" value="<%= $CLI_PARAM_IsSslEnabled %>" />
     <Parameter name="hostAdress" value="<%= $CLI_PARAM_vmHostname %>" />
     <Parameter name="hostPort" value="<%= $CLI_PARAM_RESTPort %>" />
@@ -29,6 +29,14 @@
     <Parameter name="reuseWebDriver" value="true" />
     <Parameter name="browser" value="chrome" />
     <Parameter name="debug" value="false" />
+
+    <!-- Security Portal Authentication -->
+    <Parameter name="authenticateViaSecurityPortalToken" value="true" />
+    <Parameter name="securityPortalClientId" value="MES" />
+    <Parameter name="securityPortalBaseAddress" value="https://<%= $CLI_PARAM_vmHostname %>/SecurityPortal/tenant" />
+    <!-- Generate PAT from the Local Environment -->
+    <Parameter name="securityPortalAccessToken" value="" />
+
     <!-- Connect IoT -->
     <Parameter name="mode" value="RemoteService" />
     <!-- This is For build, to Run Locally point to your directory -->
