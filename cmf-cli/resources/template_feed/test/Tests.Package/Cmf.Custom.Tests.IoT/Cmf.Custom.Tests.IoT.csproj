@@ -10,15 +10,15 @@
     <NoWarn>NU1605</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-		<OutputPath>..\Release</OutputPath>
-	</PropertyGroup>
+    <OutputPath>..\Release</OutputPath>
+  </PropertyGroup>
   <ItemGroup>
-	  <None Include="..\app.config">
+    <None Include="..\app.config">
       <Link>app.config</Link>
     </None>
   </ItemGroup>
   <ItemGroup>
-	  <Reference Include="Cmf.LightBusinessObjects">
+    <Reference Include="Cmf.LightBusinessObjects">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Libs\LBOs\NetStandard\Cmf.LightBusinessObjects.dll</HintPath>
     </Reference>
@@ -37,6 +37,23 @@
     <Reference Include="System.Net.Http.Formatting">
       <HintPath>..\..\Libs\LBOs\NetStandard\System.Net.Http.Formatting.dll</HintPath>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\..\Libs\LBOs\NetStandard\Cmf.LightBusinessObjects.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\Libs\LBOs\NetStandard\Libs\Cmf.LoadBalancing.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\Libs\LBOs\NetStandard\Libs\Cmf.MessageBus.Client.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\Libs\LBOs\NetStandard\Libs\Newtonsoft.Json.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\Libs\LBOs\NetStandard\Libs\System.Net.Http.Formatting.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Cmf.Custom.Tests.Biz.Common\Cmf.Custom.Tests.Biz.Common.csproj" />
