@@ -33,12 +33,12 @@ namespace Cmf.CLI.Core.Constants
         /// <summary>
         /// Repository URL for Critical Manufacturing's Collaboration Hub registry
         /// </summary>
-        public const string CollaborationHubRepository = "criticalmanufacturing-collaborationhub.io";
+        public const string CollaborationHubRepository = "cm-collaborationhub.io";
 
         /// <summary>
         /// Repository URL for Critical Manufacturing's MES registry
         /// </summary>
-        public const string MESRepository = "criticalmanufacturing-mes.io";
+        public const string MESRepository = "cm-mes.io";
 
         /// <summary>
         /// Standard name for the NuGet Source for Critical Manufacturing's packages
