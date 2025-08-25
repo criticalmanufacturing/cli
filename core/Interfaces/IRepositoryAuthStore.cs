@@ -34,6 +34,12 @@ namespace Cmf.CLI.Core.Interfaces
         /// <returns></returns>
         Task<CmfAuthFile> GetOrLoad();
 
+        /// <summary>
+        /// Resets the auth file cached in memory, forcing the next call to <see cref="GetOrLoad"/>
+        /// to re-load the credentials from disk.
+        /// </summary>
+        void Unload();
+
         Task<CmfAuthFile> Save(IList<ICredential> credentials, bool sync = true);
     }
 }
