@@ -96,6 +96,11 @@ namespace Cmf.CLI.Core.Objects
             // private constructor, can only obtain instance via the Instance property
             this.fileSystem = fileSystem;
             this.RepositoriesConfig = FileSystemUtilities.ReadRepositoriesConfig(fileSystem);
+
+            // Make sure the cached credentials are reset, to recalculate the derived credentials
+            var authStore = ServiceProvider?.GetService<IRepositoryAuthStore>();
+            authStore?.Unload();
+
             this.AppData = FileSystemUtilities.ReadAppData(fileSystem);
             if (ServiceProvider != null)
             {
