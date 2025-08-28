@@ -327,10 +327,10 @@ namespace Cmf.CLI.Handlers
 
                         if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 11)
                         {
-                            NPXCommand cmdCommand = new NPXCommand()
+                            CmdCommand cmdCommand = new CmdCommand()
                             {
-                                DisplayName = "npx yo @criticalmanufacturing/iot:packagePacker",
-                                Args = new string[] { "yo@4.3.1 @criticalmanufacturing/iot:packagePacker", $"-i \"{inputDirPath}\"", $"-o \"{outputDirPath}\"" },
+                                DisplayName = "yo @criticalmanufacturing/iot:packagePacker",
+                                Args = new string[] { $"{AppContext.BaseDirectory}resources/vendors/yo/node_modules/.bin/yo @criticalmanufacturing/iot:packagePacker", $"-i \"{inputDirPath}\"", $"-o \"{outputDirPath}\"" },
                                 WorkingDirectory = packDirectory
                             };
 
