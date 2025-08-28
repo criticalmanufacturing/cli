@@ -363,3 +363,6 @@ launchSettings.json
 report/
 
 npm/*.tgz
+
+#vendors
+!**/vendors/**
