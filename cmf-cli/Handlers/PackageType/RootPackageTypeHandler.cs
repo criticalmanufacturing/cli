@@ -88,8 +88,8 @@ namespace Cmf.CLI.Handlers
             fileSystem.Directory.CreateDirectory(packageOutputDir.FullName);
 
             // Save Icon file
-            string iconPath = fileSystem.Path.Join(packageOutputDir.FullName, CliConstants.AppIcon);
-            SaveAppIcon(packageOutputDir, appData, iconPath);
+            string iconTargetPath = fileSystem.Path.Join(packageOutputDir.FullName, CliConstants.AppIcon);
+            SaveAppIcon(appData, iconTargetPath);
 
             // Save manifest file
             string manifestPath = fileSystem.Path.Join(packageOutputDir.FullName, CliConstants.DeploymentFrameworkManifestFileName);
@@ -112,7 +112,7 @@ namespace Cmf.CLI.Handlers
             fileSystem.File.Move(tempzipPath, destZipPath, true);
 
             // clean up folder files
-            fileSystem.File.Delete(iconPath);
+            fileSystem.File.Delete(iconTargetPath);
             fileSystem.File.Delete(manifestPath);
         }
 
@@ -161,25 +161,39 @@ namespace Cmf.CLI.Handlers
         /// </summary>
         /// <param name="packageOutputDir">The package output dir.</param>
         /// <param name="appData">AppData object</param>
-        /// <param name="iconPath">Path to save the icon</param>
-        private void SaveAppIcon(IDirectoryInfo packageOutputDir, AppData appData, string iconPath)
+        /// <param name="iconTargetPath">Path to save the icon</param>
+        private void SaveAppIcon(AppData appData, string iconTargetPath)
         {
+            var projectRootPath = FileSystemUtilities
+                .GetProjectRoot(fileSystem, throwException: true)
+                .FullName;
+
+            string fullIconPath;
+
             if (string.IsNullOrWhiteSpace(appData.icon))
             {
-                string projectRootPath = FileSystemUtilities.GetProjectRoot(fileSystem, throwException: true).FullName;
-                string defaultIconPath = fileSystem.Path.Join(projectRootPath, CliConstants.AssetsFolder, CliConstants.DefaultAppIcon);
-                appData.icon = defaultIconPath;
+                fullIconPath = fileSystem.Path.Join(
+                    projectRootPath,
+                    CliConstants.AssetsFolder,
+                    CliConstants.DefaultAppIcon
+                );
             }
-            else if (!AppIconUtilities.IsIconValid(appData.icon))
+            else
             {
-                throw new CliException(string.Format(CoreMessages.InvalidValue, CoreConstants.CmfAppFileName));
+                fullIconPath = fileSystem.Path.Join(projectRootPath, appData.icon);
+
+                if (!AppIconUtilities.IsIconValid(fullIconPath))
+                {
+                    throw new CliException(
+                        string.Format(CoreMessages.InvalidValue, CoreConstants.CmfAppFileName)
+                    );
+                }
             }
 
-            string iconSource = appData.icon;
-
-            byte[] iconBytes = fileSystem.File.ReadAllBytes(iconSource);
-
-            fileSystem.File.WriteAllBytes(iconPath, iconBytes);
+            var iconBytes = fileSystem.File.ReadAllBytes(fullIconPath);
+            fileSystem.File.WriteAllBytes(iconTargetPath, iconBytes);
         }
+
+        
     }
 }

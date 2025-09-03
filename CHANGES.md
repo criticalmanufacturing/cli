@@ -2,6 +2,75 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.5.0](https://github.com/criticalmanufacturing/cli/compare/5.5.0-6...5.5.0) (2025-09-03)
+
+## [5.5.0-6](https://github.com/criticalmanufacturing/cli/compare/5.5.0-5...5.5.0-6) (2025-08-26)
+
+
+### Bug Fixes
+
+* **core:** re-calculate derived credentials after loading repository URLs ([c285253](https://github.com/criticalmanufacturing/cli/commits/c2852533ac156ced84c2db25b7af1fe79116f24b))
+
+## [5.5.0-5](https://github.com/criticalmanufacturing/cli/compare/5.5.0-4...5.5.0-5) (2025-08-22)
+
+
+### Bug Fixes
+
+* accept CIFS shares with IP addresses for host definition ([9efafb3](https://github.com/criticalmanufacturing/cli/commits/9efafb36f05edb4830b55b3b3388dd39f85e1282))
+* **core:** official critical authenticated repos domains ([13a7264](https://github.com/criticalmanufacturing/cli/commits/13a72644cd80142dd5218684d31610c23e217349))
+* **template_feed:** add missing security portal configs ([3ebb247](https://github.com/criticalmanufacturing/cli/commits/3ebb247e9e94dccc92e89f1dffadafac44853fef))
+* **template_feed:** ensure we always copy `Cmf.Custom.Tests` dependencies DLL's ([e772eb5](https://github.com/criticalmanufacturing/cli/commits/e772eb581674b6e176e142fcc5bb0255abaf07e8))
+
+## [5.5.0-4](https://github.com/criticalmanufacturing/cli/compare/5.5.0-3...5.5.0-4) (2025-08-19)
+
+
+### Features
+
+* improve launch json ([#563](https://github.com/criticalmanufacturing/cli/issues/563)) ([33d6078](https://github.com/criticalmanufacturing/cli/commits/33d607802638a9fc8a478d0b22186bd7e7351b95))
+
+## [5.5.0-3](https://github.com/criticalmanufacturing/cli/compare/5.5.0-2...5.5.0-3) (2025-08-19)
+
+
+### Bug Fixes
+
+* **pack:** fix icon path in root package app pack ([35bad62](https://github.com/criticalmanufacturing/cli/commits/35bad62751d987e5c6d76aea201f2c0fb20d1a6e))
+* skip root package entry when converting tgz to zip ([2354d6c](https://github.com/criticalmanufacturing/cli/commits/2354d6c4039bfe6fa6979f05adf00c000309d02f))
+
+## [5.5.0-2](https://github.com/criticalmanufacturing/cli/compare/5.5.0-1...5.5.0-2) (2025-08-18)
+
+
+### Bug Fixes
+
+* **iot:** new message ([8171afa](https://github.com/criticalmanufacturing/cli/commits/8171afae7e5199acca77e78147a6d1af2f929eb4))
+
+## [5.5.0-1](https://github.com/criticalmanufacturing/cli/compare/5.4.0...5.5.0-1) (2025-08-13)
+
+
+### Features
+
+* **iot:** support driver extensions ([527eb28](https://github.com/criticalmanufacturing/cli/commits/527eb284e875db36e9a796db63d8b5fcd4642720))
+* **npm-publish:** add manifestVersion to manifest ([9ffb38f](https://github.com/criticalmanufacturing/cli/commits/9ffb38fa644ce7cbec12e3d748651e8eb3dc6e39))
+
+
+### Bug Fixes
+
+* download NPM package file correct extension ([4b0b4e7](https://github.com/criticalmanufacturing/cli/commits/4b0b4e7274cd287b4aadfb8375697ffffbf8f5a1))
+* load derived credentials for internal repo operations ([470f776](https://github.com/criticalmanufacturing/cli/commits/470f77626e7888ed8f36c4a9b19fc0ac64300ee0))
+* pin scaffolded devcontainer docker buildx version to 0.25.0 ([00976ae](https://github.com/criticalmanufacturing/cli/commits/00976aedf55a2ead5618a7fec36fde0cec9a57a7))
+* skip folder entries when converting zip to tgz ([da7f476](https://github.com/criticalmanufacturing/cli/commits/da7f476eaf7768b9c21b5b589d0669824b5d87e4))
+
+
+### Under the hood
+
+* **core:** use constants where appropriate ([40bdbe2](https://github.com/criticalmanufacturing/cli/commits/40bdbe27def1d4bbd76da1f381819fde45bd3d48))
+
+## [5.5.0-0](https://github.com/criticalmanufacturing/cli/compare/5.4.0-2...5.5.0-0) (2025-08-05)
+
+
+### Features
+
+* **iot:** driver dotnet ([#497](https://github.com/criticalmanufacturing/cli/issues/497)) ([4ca2062](https://github.com/criticalmanufacturing/cli/commits/4ca206262d74e4e49949f96bb02a6cfb1e9e4d94))
+
 ## [5.4.0](https://github.com/criticalmanufacturing/cli/compare/5.4.0-2...5.4.0) (2025-08-05)
 
 ## [5.4.0-2](https://github.com/criticalmanufacturing/cli/compare/5.4.0-1...5.4.0-2) (2025-07-31)

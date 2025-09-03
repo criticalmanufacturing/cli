@@ -185,8 +185,9 @@ namespace Cmf.CLI.Core.Objects
         /// <param name="targetDatabase">The target database.</param>
         /// <param name="messageType">Type of the message.</param>
         /// <param name="relativePath"></param>
+        /// <param name="filePath">The file path.</param>
         /// <exception cref="ArgumentNullException">type</exception>
-        public Step(StepType? type, string title, string onExecute, string contentPath, string file, bool? tagFile, string targetDatabase, MessageType? messageType, string relativePath)
+        public Step(StepType? type, string title, string onExecute, string contentPath, string file, bool? tagFile, string targetDatabase, MessageType? messageType, string relativePath, string filePath)
         {
             Type = type ?? throw new ArgumentNullException(nameof(type));
             Title = title;
@@ -197,6 +198,7 @@ namespace Cmf.CLI.Core.Objects
             TargetDatabase = targetDatabase;
             MessageType = messageType;
             RelativePath = relativePath;
+            FilePath = filePath;
         }
 
         /// <summary>
@@ -238,7 +240,8 @@ namespace Cmf.CLI.Core.Objects
                    TagFile == other.TagFile &&
                    TargetDatabase == other.TargetDatabase &&
                    MessageType == other.MessageType &&
-                   RelativePath == other.RelativePath;
+                   RelativePath == other.RelativePath &&
+                   FilePath == other.FilePath;
         }
 
         #endregion

@@ -333,9 +333,16 @@ namespace Cmf.CLI.Core.Services
             if (_cachedAuthFile == null)
             {
                 _cachedAuthFile = await Load();
+                AddDerivedCredentials(_cachedAuthFile);
             }
 
             return _cachedAuthFile;
+        }
+        
+        /// <inheritdoc/>
+        public void Unload()
+        {
+            _cachedAuthFile = null;
         }
 
         public async Task<CmfAuthFile> Save(IList<ICredential> credentials, bool sync = true)
@@ -365,7 +372,7 @@ namespace Cmf.CLI.Core.Services
                 authFile.Repositories = credentialsByRepo
                     .ToDictionary(group => group.Key.RepositoryType, group => new CmfAuthFileRepositoryType { Credentials = group.Value });
                 AddDerivedCredentials(authFile);
-                
+
                 foreach (var (repoType, repoCredentials) in authFile.Repositories)
                 {
                     await GetRepositoryType(repoType).SyncCredentials(repoCredentials.Credentials);

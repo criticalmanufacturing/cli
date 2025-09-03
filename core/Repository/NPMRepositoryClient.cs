@@ -57,6 +57,9 @@ public class NPMRepositoryClient : IRepositoryClient
 
     public async Task Put(CmfPackageV1 package)
     {
+        var toLowerCase = false; // TODO: complete implementation
+        var addManifestVersion = true; // TODO: complete implementation
+
         var tmp = this.fileSystem.DirectoryInfo.New(this.fileSystem.Path.GetTempPath());
         Log.Debug($"Downloading package {package.PackageAtRef} to {tmp.FullName}...");
         var file = await package.Client.Get(package, tmp);
@@ -66,7 +69,7 @@ public class NPMRepositoryClient : IRepositoryClient
             var zipFile = file;
             file = this.fileSystem.FileInfo.New(this.fileSystem.Path.ChangeExtension(zipFile.FullName, "tgz"));
             Log.Debug($"Package at {zipFile.FullName} is in Zip format, converting to tgz at {file.FullName}...");
-            CmfPackageController.ConvertZipToTarGz(zipFile, file);
+            CmfPackageController.ConvertZipToTarGz(zipFile, file, toLowerCase, addManifestVersion);
             Log.Debug("Done!");
         }
         else if (file.Extension == ".json")
@@ -85,7 +88,7 @@ public class NPMRepositoryClient : IRepositoryClient
         var targetFile =
             targetDirectory.FileSystem.FileInfo.New(
                 targetDirectory.FileSystem.Path.Join(targetDirectory.FullName,
-                $"{package.PackageId}.{package.Version}.tgz"));
+                $"{package.PackageId}.{package.Version}.zip"));
         var tgzPkg = await client.DownloadPackage(package.PackageId.ToLowerInvariant(), package.Version, targetDirectory.FileSystem.FileInfo.New(tmp));
         if (tgzPkg == null)
         {

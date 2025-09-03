@@ -5,6 +5,9 @@ import { <%= $CLI_PARAM_Identifier %>CommunicationSettings, <%= $CLI_PARAM_Ident
 import { validateProperties, validateEvents, validateEventProperties, validateCommands, validateCommandParameters } from "./extendedData/index";
 import { Utils } from "@criticalmanufacturing/connect-iot-common";
 import { TYPES } from "./types";
+//#if hasTemplates
+import { ExtensionHandler } from "./extensions";
+//#endif
 
 @injectable()
 export class <%= $CLI_PARAM_Identifier %>DeviceDriver extends DeviceDriverBase {
@@ -13,6 +16,12 @@ export class <%= $CLI_PARAM_Identifier %>DeviceDriver extends DeviceDriverBase {
 
     @inject(TYPES.Injector)
     private _parentContainer: Container;
+
+    //#if hasTemplates
+    private _extensionHandler: ExtensionHandler;
+    // List of custom events registered
+    private _customEvents: Map<string, EquipmentEvent> = new Map<string, EquipmentEvent>();
+    //#endif
 
     public constructor() {
         super();
@@ -35,6 +44,9 @@ export class <%= $CLI_PARAM_Identifier %>DeviceDriver extends DeviceDriverBase {
             this._container.parent = this._parentContainer;
         }
 
+        //#if hasTemplates
+        await this._extensionHandler.initialize(this._container);
+        //#endif
         // Initialize the specific driver
         // ...
     }
@@ -172,6 +184,62 @@ export class <%= $CLI_PARAM_Identifier %>DeviceDriver extends DeviceDriverBase {
         // Add any specific handling here
     }
 
+    //#if hasTemplates
+    /**
+    * Register a custom/Extension Event to listen to
+    * Usually these events are registered from custom events coming from controller custom tasks
+    * @param event Event data to register
+    */
+    public registerCustomEvent(event: EquipmentEvent): void {
+
+        if(this._customEvents.has(event.name)) {
+            this.logger.warning(`Custom event '${event.name}' was already registered. Ignoring this registration.`);
+        } else {
+
+            this.logger.info(`Registering custom event '${event.name}', for topic '${event.deviceId}', associated with '${event.properties.length}' properties`);
+            this._customEvents.set(event.name, event);
+
+            const count = Array.from(this._customEvents.values()).filter((v: EquipmentEvent) => v.deviceId === event.deviceId).length;
+
+            // Only register the first event by type (deviceId)
+            if (count === 1) {
+                // Register here your template events
+                //....
+
+
+            } else {
+                this.logger.debug(`Event Topic '${event.deviceId}' already have '${count - 1}' other custom events registered. Not subscribing in broker`);
+            }
+        }
+    }
+
+    /**
+    * Unregister a custom event previously registered
+    * @param event Name of the event to unregister
+    */
+    public unregisterCustomEvent(eventName: string): void {
+
+        const eventData = this._customEvents.get(eventName);
+        if(eventData != null) {
+            this.logger.info(`UnRegistering custom event '${eventName}' with topic '${eventData.deviceId}'`);
+
+            this._customEvents.delete(eventName);
+            const count = Array.from(this._customEvents.values()).filter((v: EquipmentEvent) => v.deviceId === eventData.deviceId).length;
+
+            // Only unregister when there are no more events of that type (deviceId)
+            if (count === 0) {
+
+                // Unregister here your template events
+                //....
+
+            } else {
+                this.logger.debug(`Event Topic '${eventData.deviceId}' still has '${count}' other custom events registered`);
+            }
+        } else {
+            this.logger.warning(`Custom Event '${eventName}' was not previously registered. Ignoring this call.`);
+        }
+    }
+    //#endif
     /**
      * Handle the driver event notification. Trigger it to the controller if the trigger property was changed
 	 * Note: This is just as an example... This code is not being called anywhere
@@ -179,6 +247,17 @@ export class <%= $CLI_PARAM_Identifier %>DeviceDriver extends DeviceDriverBase {
      * @param values List of values of the event registered
      */
     private async onEventOccurrence(eventId: string, values: Map<string, any>): Promise<void> {
+        //#if hasTemplates
+        const customRegisteredEvents = Array.from(this._customEvents.values()).filter((evt: EquipmentEvent) => evt.deviceId === eventId && evt.isEnabled === true);
+        if(customRegisteredEvents.length > 0) {
+            for (const evt of customRegisteredEvents) {
+                this._extensionHandler.handleEventOccurrence(
+                    evt.name,
+                    null, // Provide event timestamp
+                    values);
+            }
+        }
+        //#endif
         const event = this.configuration.events.find(e => e.systemId === eventId);
         if (event && event.isEnabled) {
             const results: PropertyValue[] = [];

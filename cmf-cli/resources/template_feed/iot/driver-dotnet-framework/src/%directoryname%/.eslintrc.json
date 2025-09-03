@@ -1,0 +1,46 @@
+{
+  "extends": [
+    "../../.eslintrc.json"
+  ],
+  "ignorePatterns": [
+    "*.d.ts"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "./*.ts"
+      ],
+      "parserOptions": {
+        "project": [
+          "tsconfig.json",
+          "test/integration/tsconfig.json"
+        ],
+        "createDefaultProgram": false
+      }
+    }
+  ],
+  "rules": {
+    "@typescript-eslint/no-empty-function": [
+      "error",
+      {
+        "allow": [
+          "functions",
+          "methods",
+          "asyncFunctions",
+          "asyncMethods",
+          "arrowFunctions"
+        ]
+      }
+    ],
+    "prefer-spread": "off",
+    "@typescript-eslint/ban-types": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      {
+        "args": "none"
+      }
+    ],
+    "@typescript-eslint/no-non-null-assertion": "off"
+  }
+}

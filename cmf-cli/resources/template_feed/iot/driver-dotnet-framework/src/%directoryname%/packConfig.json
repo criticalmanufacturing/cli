@@ -1,0 +1,79 @@
+{
+  "type": "Component",
+  "addons": [
+    {
+      "name": "EdgeJs",
+      "version": "<ReplaceWithYourVersion>",
+      "fileMask": "*"
+    },
+    {
+      "name": "EdgeJsBootstrap",
+      "version": "<ReplaceWithYourVersion>",
+      "fileMask": "*"
+    }
+  ],
+  "templates": "${Source}/templates/",
+  "postActions": [
+    {
+      "type": "DeleteFile",
+      "source": "${Temp}/completion.sh.hbs"
+    },
+    {
+      "type": "DeleteDirectory",
+      "source": "${Temp}/src"
+    },
+    {
+      "type": "DeleteDirectory",
+      "source": "${Temp}/build"
+    },
+    {
+      "type": "DeleteDirectory",
+      "source": "${Temp}/locales"
+    },
+    {
+      "type": "DeleteDirectory",
+      "source": "${Temp}/addonsHandler"
+    },
+    {
+      "type": "DeleteDirectory",
+      "source": "${Temp}/netcoreapp1.1"
+    },
+    {
+      "type": "DeleteDirectory",
+      "source": "${Temp}/Release"
+    },
+    {
+      "type": "DeleteDirectory",
+      "source": "${Temp}/native"
+    },
+    {
+      "type": "DeleteFile",
+      "source": "${Temp}/bootstrap.deps.json"
+    },
+    {
+      "type": "DeleteFile",
+      "source": "${Temp}/bootstrap.dll"
+    },
+    {
+      "type": "DeleteFile",
+      "source": "${Temp}/Cmf.Connect.IoT.Driver.<%= $CLI_PARAM_Identifier %>.dll"
+    },
+    {
+      "type": "CopyDirectory",
+      "source": "${Source}/lib",
+      "destination": "${Temp}/lib"
+    },
+    {
+      "type": "ReplaceText",
+      "source": "${Temp}/index.js",
+      "search": "\"Cmf.Connect.IoT.Driver.<%= $CLI_PARAM_Identifier %>.dll",
+      "replace": "\"/../lib/Cmf.Connect.IoT.Driver.<%= $CLI_PARAM_Identifier %>.dll"
+    }
+  ],
+  "information": [
+    "Add other instructions in the postActions section",
+    "according to the result of the pack process of your",
+    "driver. There is no 'right' recipe. It will always",
+    "depend on the modules you are using."
+  ]
+}

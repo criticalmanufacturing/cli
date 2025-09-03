@@ -134,7 +134,7 @@ namespace Cmf.CLI.Commands.New
             this.CommandName = "iot-from1000-atl";
             base.Execute(workingDir, version, ["--useNodePackageBundler", true.ToString()]);
 
-            Log.Information($"Feel free to create your task libraries by running cmf new TaskLibrary");
+            Log.Information($"Feel free to create your library by running:\n\t- cmf new iot taskLibrary\n\t- cmf new iot driver\n\t...");
         }
 
         public void ExecuteV10ATL(IDirectoryInfo workingDir, string version)
