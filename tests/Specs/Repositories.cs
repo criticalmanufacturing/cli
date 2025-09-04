@@ -692,4 +692,86 @@ public class Repositories
       Assert.NotNull(packageJson.deployment.steps);
       Assert.Equal(2, (int)packageJson.deployment.steps.Count);
     }
+    
+    [Fact]
+    public void ConvertZipToTgz_WithPackageJson()
+    {
+      KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.0.0");
+      const string cliPackageType = "Root";
+
+      string manifestContent =
+          @$"{{
+                ""name"": ""{packageRoot.Key}"",
+                ""description"": """",
+                ""packageName"": ""Critical Manufacturing Customization"",
+                ""version"": ""{packageRoot.Value}"",
+                ""author"": ""Critical Manufacturing"",
+                ""keywords"": [
+                  ""cmf-deployment-package""
+                ],
+                ""isToForceInstall"": false,
+                ""isUniqueInstall"": true,
+                ""forceRerunAfterDatabaseRestore"": false,
+                ""deployment"": {{
+                  ""manifestVersion"": 0,
+                  ""isInstallable"": false,
+                  ""packageType"": ""{cliPackageType}"",
+                  ""targetDirectory"": """",
+                  ""targetLayerDirectory"": """",
+                  ""targetLayer"": """",
+                  ""buildDate"": null,
+                  ""steps"": [
+                    {{
+                      ""type"": ""RestoreDatabaseFromBackup"",
+                      ""contentPath"": ""online.bak"",
+                      ""elements"": [],
+                      ""targetDatabase"": ""$(Product.Database.Online)""
+                    }}
+                  ],
+                  ""packageDemands"": [],
+                  ""metadata"": {{
+                    ""originalPackageId"": ""Cmf.Database.Mes.Online""
+                  }}
+                }},
+                ""dependencies"": {{}},
+                ""mandatoryDependencies"": {{}},
+                ""conditionalDependencies"": {{}}
+              }}";
+
+      var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+      {
+          { $"repo/{packageRoot.Key}.{packageRoot.Value}.zip", new MockFileData(new DFPackageBuilder().CreateEntry("package.json", manifestContent).ToByteArray()) }
+      });
+      ExecutionContext.Initialize(fileSystem);
+
+      IFileInfo tgzPackageFile = fileSystem.FileInfo.New($"repo/{packageRoot.Key}.{packageRoot.Value}.tgz");
+
+      // test conversion zip->tgz
+      CmfPackageController.ConvertZipToTarGz(fileSystem.FileInfo.New($"repo/{packageRoot.Key}.{packageRoot.Value}.zip"), tgzPackageFile, lowercase: true);
+      
+      // get tgz info for assertion
+      using GZipStream gzipStream = new GZipStream(tgzPackageFile.OpenRead(), CompressionMode.Decompress);
+      using TarReader tarReader = new(gzipStream);
+      dynamic packageJson = null;
+      int tgzEntriesTotal = 0;
+      while (tarReader.GetNextEntry() is { } entry)
+      {
+        if (entry.Name == "package/package.json")
+        {
+          using MemoryStream ms = new();
+          entry.DataStream.CopyTo(ms);
+          packageJson = JsonConvert.DeserializeObject(Encoding.UTF8.GetString(ms.ToArray()));
+        }
+        tgzEntriesTotal++;
+      }
+
+      tgzEntriesTotal.Should().Be(1, "The tgz should contain only 1 entry, the package.json.");
+      Assert.NotNull(packageJson);
+      Assert.NotNull(packageJson.deployment);
+      Assert.NotNull(packageJson._originalPackageId);
+      Assert.NotNull(packageJson.deployment.steps);
+      Assert.Equal(1, (int)packageJson.deployment.steps.Count);
+      Assert.Equal(packageRoot.Key.ToLowerInvariant(), packageJson.name.ToString());
+      Assert.Equal(packageRoot.Key, packageJson._originalPackageId.ToString());
+    }
 }

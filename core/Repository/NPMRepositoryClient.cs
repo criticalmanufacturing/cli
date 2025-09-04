@@ -57,7 +57,7 @@ public class NPMRepositoryClient : IRepositoryClient
 
     public async Task Put(CmfPackageV1 package)
     {
-        var toLowerCase = false; // TODO: complete implementation
+        var toLowerCase = true; // TODO: complete implementation
         var addManifestVersion = true; // TODO: complete implementation
 
         var tmp = this.fileSystem.DirectoryInfo.New(this.fileSystem.Path.GetTempPath());
