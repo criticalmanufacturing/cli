@@ -343,8 +343,6 @@ namespace Cmf.CLI.Core.Objects
             string manifest
         )
         {
-            JObject root = null;
-
             using var fileStream = package.OpenRead();
             using var memoryStream = new MemoryStream();
 
@@ -362,43 +360,8 @@ namespace Cmf.CLI.Core.Objects
             var sha512_64 = Convert.ToBase64String(sha512HashBytes);
             // var sha512Hash = BitConverter.ToString(sha512HashBytes).Replace("-", "").ToLower();
             var sha512Hash = $"sha512-{sha512_64}";
-            Log.Debug($"Package content with hash {sha512Hash} and checksum {sha1Hash}");
 
-            root = JObject.Parse(
-                $$"""
-                { 
-                    "_id": "{{name}}",
-                    "name": "{{name}}",
-                    "description": "{{ctrlr.CmfPackage.Description}}",
-                    "dist-tags": { "latest": "{{ctrlr.CmfPackage.Version}}" },
-                    "versions": {
-                        "{{ctrlr.CmfPackage.Version}}" : {{manifest}}
-                    },
-                    "access": null,
-                    "_attachments": {
-                        "{{tgz}}": {
-                        "content_type": "application/octet-stream",
-                        "data": "{{dataBase64}}",
-                        "length": {{package.Length}}
-                        }
-                    }
-                }
-                """);
-            // patch version manifest
-            root["versions"][ctrlr.CmfPackage.Version]["_id"] = $"{name}@{ctrlr.CmfPackage.Version}";
-            root["versions"][ctrlr.CmfPackage.Version]["_cliVersion"] = ExecutionContext.CurrentVersion;
-            root["versions"][ctrlr.CmfPackage.Version]["_integrity"] = sha512Hash;
-            root["versions"][ctrlr.CmfPackage.Version]["dist"] = JObject.Parse($$"""
-                    {
-                    "integrity": "{{sha512Hash}}",
-                    "shasum": "{{sha1Hash}}",
-                    "tarball": "{{this.baseUrl.Replace("https://", "http://")}}/{{name}}/-/{{tgz}}"
-                    }
-                    """);
-
-
-
-            var payload = root.ToString(Formatting.None);
+            var payload = GetPublicManifest(package, ctrlr, name, tgz, manifest, dataBase64, sha1Hash, sha512Hash);
             var content = new StringContent(payload, Encoding.UTF8, "application/json");
 
             return content;
@@ -413,8 +376,6 @@ namespace Cmf.CLI.Core.Objects
         )
         {
             const string JSON_DATA_PLACEHOLDER = "$$$TGZ_BASE_64_TOKEN$$$";
-
-            JObject root = null;
 
             string sha1Hash;
             {
@@ -434,43 +395,11 @@ namespace Cmf.CLI.Core.Objects
                 sha512Hash = $"sha512-{sha512_64}";
             }
 
-            Log.Debug($"Package content with hash {sha512Hash} and checksum {sha1Hash}");
-
-            root = JObject.Parse(
-                    $$"""
-                    { 
-                        "_id": "{{name}}",
-                        "name": "{{name}}",
-                        "description": "{{ctrlr.CmfPackage.Description}}",
-                        "dist-tags": { "latest": "{{ctrlr.CmfPackage.Version}}" },
-                        "versions": {
-                            "{{ctrlr.CmfPackage.Version}}" : {{manifest}}
-                        },
-                        "access": null,
-                        "_attachments": {
-                          "{{tgz}}": {
-                            "content_type": "application/octet-stream",
-                            "data": "{{JSON_DATA_PLACEHOLDER}}",
-                            "length": {{package.Length}}
-                          }
-                        }
-                    }
-                    """);
-                // patch version manifest
-                root["versions"][ctrlr.CmfPackage.Version]["_id"] = $"{name}@{ctrlr.CmfPackage.Version}";
-                root["versions"][ctrlr.CmfPackage.Version]["_cliVersion"] = ExecutionContext.CurrentVersion;
-                root["versions"][ctrlr.CmfPackage.Version]["_integrity"] = sha512Hash;
-                root["versions"][ctrlr.CmfPackage.Version]["dist"] = JObject.Parse($$"""
-                      {
-                        "integrity": "{{sha512Hash}}",
-                        "shasum": "{{sha1Hash}}",
-                        "tarball": "{{this.baseUrl.Replace("https://", "http://")}}/{{name}}/-/{{tgz}}"
-                      }
-                      """);
-
             var payloadData = package.OpenRead();
 
-            var payload = root.ToString(Formatting.None);
+            // Create the JSON string with a dummy placeholder in the data field. Because the real data can be quite big sometimes (packages with hundreds of MBs)
+            // it is better to send the data as a stream than to hold it all in memory at the same time while performing JSON operations on it
+            var payload = GetPublicManifest(package, ctrlr, name, tgz, manifest, JSON_DATA_PLACEHOLDER, sha1Hash, sha512Hash);
             var payloadPrefix = payload.Split(JSON_DATA_PLACEHOLDER)[0];
             var payloadSuffix = payload.Split(JSON_DATA_PLACEHOLDER)[1];
 
@@ -484,7 +413,54 @@ namespace Cmf.CLI.Core.Objects
 
             return content;
         }
-        
+
+        private string GetPublicManifest(
+            IFileInfo package,
+            CmfPackageController ctrlr,
+            string name,
+            string tgz,
+            string manifest,
+            string data,
+            string sha1Hash,
+            string sha512Hash
+        ) {
+            Log.Debug($"Package content with hash {sha512Hash} and checksum {sha1Hash}");
+
+            var root = JObject.Parse(
+                $$"""
+                { 
+                    "_id": "{{name}}",
+                    "name": "{{name}}",
+                    "description": "{{ctrlr.CmfPackage.Description}}",
+                    "dist-tags": { "latest": "{{ctrlr.CmfPackage.Version}}" },
+                    "versions": {
+                        "{{ctrlr.CmfPackage.Version}}" : {{manifest}}
+                    },
+                    "access": null,
+                    "_attachments": {
+                      "{{tgz}}": {
+                        "content_type": "application/octet-stream",
+                        "data": "{{data}}",
+                        "length": {{package.Length}}
+                      }
+                    }
+                }
+                """);
+            // patch version manifest
+            root["versions"][ctrlr.CmfPackage.Version]["_id"] = $"{name}@{ctrlr.CmfPackage.Version}";
+            root["versions"][ctrlr.CmfPackage.Version]["_cliVersion"] = ExecutionContext.CurrentVersion;
+            root["versions"][ctrlr.CmfPackage.Version]["_integrity"] = sha512Hash;
+            root["versions"][ctrlr.CmfPackage.Version]["dist"] = JObject.Parse($$"""
+                  {
+                    "integrity": "{{sha512Hash}}",
+                    "shasum": "{{sha1Hash}}",
+                    "tarball": "{{this.baseUrl.Replace("https://", "http://")}}/{{name}}/-/{{tgz}}"
+                  }
+                  """);
+
+            return root.ToString(Formatting.None);
+        }
+
         private static HttpClient ApplyAuthenticationHeaders(HttpClient client, string baseUrl, ICredential credentials)
         {
             // handle authentication
