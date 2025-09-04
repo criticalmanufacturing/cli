@@ -440,7 +440,7 @@ namespace Cmf.CLI.Core.Objects
                     "_attachments": {
                       "{{tgz}}": {
                         "content_type": "application/octet-stream",
-                        "data": "{{data}}",
+                        "data": "",
                         "length": {{package.Length}}
                       }
                     }
@@ -457,6 +457,9 @@ namespace Cmf.CLI.Core.Objects
                     "tarball": "{{this.baseUrl.Replace("https://", "http://")}}/{{name}}/-/{{tgz}}"
                   }
                   """);
+
+            // patch the base64-encoded data
+            root["_attachments"][tgz]["data"] = data;
 
             return root.ToString(Formatting.None);
         }
