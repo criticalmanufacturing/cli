@@ -1,9 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
-using System.IO.Abstractions;
-using System.Linq;
 using Cmf.CLI.Builders;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
@@ -13,6 +7,12 @@ using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Services;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.Generic;
+using System.CommandLine;
+using System.CommandLine.NamingConventionBinder;
+using System.IO.Abstractions;
+using System.Linq;
 
 namespace Cmf.CLI.Commands.New
 {
@@ -160,24 +160,7 @@ namespace Cmf.CLI.Commands.New
 
             var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
 
-            // Install IoT Yeoman
-            Log.Debug($"Installing Yeoman");
-
-            new NPMCommand()
-            {
-                DisplayName = "npm yeoman",
-                Args = new string[] { "install", "yo@4.3.1", "--save-dev" },
-                WorkingDirectory = iotCustomPackageWorkDir
-            }.Exec();
-
-            Log.Debug($"Installing Yeoman IoT Generator");
-
-            new NPMCommand()
-            {
-                DisplayName = "npm yeoman generator-iot",
-                Args = new string[] { "install", $"@criticalmanufacturing/generator-iot@{mesVersion.Major}{mesVersion.Minor}x", "--save-dev" },
-                WorkingDirectory = iotCustomPackageWorkDir
-            }.Exec();
+            InstallYoeman(iotCustomPackageWorkDir, mesVersion);
 
             Log.Information($"Feel free to create your task libraries by running npm run generateTaskLibrary");
         }
@@ -253,8 +236,31 @@ namespace Cmf.CLI.Commands.New
                 ForceColorOutput = false
             }.Exec();
 
-            // Install IoT Yeoman
+            InstallYoeman(iotCustomPackageWorkDir, mesVersion);
+
+            #region Link To HTML Package
+
+            // After building the IoT Package we must ensure to also build the HTML Package
+            iotCustomPackage.RelatedPackages = new()
+            {
+                new RelatedPackage() { Path = fileSystem.Path.GetRelativePath(iotCustomPackageWorkDir.FullName, htmlPackageDir.FullName).Replace("\\", "/"), PostBuild = true, PostPack = true }
+            };
+
+            iotCustomPackage.SaveCmfPackage();
+
+            #endregion Link To HTML Package
+        }
+
+        private static void InstallYoeman(IDirectoryInfo iotCustomPackageWorkDir, Version mesVersion)
+        {
             Log.Debug($"Installing Yeoman");
+
+            new NPMCommand()
+            {
+                DisplayName = "npm inquirer (version 8.2.7 of the inquirer breaks for <Node18)",
+                Args = new string[] { "install", "inquirer@8.2.6", "--save-dev" },
+                WorkingDirectory = iotCustomPackageWorkDir
+            }.Exec();
 
             new NPMCommand()
             {
@@ -272,17 +278,7 @@ namespace Cmf.CLI.Commands.New
                 WorkingDirectory = iotCustomPackageWorkDir
             }.Exec();
 
-            #region Link To HTML Package
-
-            // After building the IoT Package we must ensure to also build the HTML Package
-            iotCustomPackage.RelatedPackages = new()
-            {
-                new RelatedPackage() { Path = fileSystem.Path.GetRelativePath(iotCustomPackageWorkDir.FullName, htmlPackageDir.FullName).Replace("\\", "/"), PostBuild = true, PostPack = true }
-            };
-
-            iotCustomPackage.SaveCmfPackage();
-
-            #endregion Link To HTML Package
+            Log.Information($"Installed Yeoman IoT");
         }
     }
 }
