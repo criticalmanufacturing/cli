@@ -1,10 +1,12 @@
 ﻿using Cmf.CLI.Builders;
 using Cmf.CLI.Commands.restore;
+using Cmf.CLI.Core;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Cmf.CLI.Handlers
@@ -112,6 +114,16 @@ namespace Cmf.CLI.Handlers
                 text = Regex.Replace(text, pattern, newVersion, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
                 this.fileSystem.File.WriteAllText(filePath, text);
             }
+        }
+
+        /// <summary>
+        /// Bumps the MES version of the package
+        /// </summary>
+        /// <param name="version">The new MES version.</param>
+        public override void MESBump(string version, string iotVersion, List<string> iotPackagesToIgnore)
+        {
+            base.MESBump(version, iotVersion, iotPackagesToIgnore);
+            MESBumpUtilities.UpdateCSharpProject(this.fileSystem, this.CmfPackage, version, true);
         }
     }
 }

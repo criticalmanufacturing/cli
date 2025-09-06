@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Cmf.CLI.Handlers
 {
@@ -284,6 +285,16 @@ namespace Cmf.CLI.Handlers
                 // IoT -> src -> Package XPTO
                 IoTUtilities.BumpIoTCustomPackages(CmfPackage.GetFileInfo().DirectoryName, version, buildNr, packageNames, this.fileSystem);
             }
+        }
+
+        /// <summary>
+        /// Bumps the MES version of the package
+        /// </summary>
+        /// <param name="version">The new MES version.</param>
+        public override void MESBump(string version, string iotVersion, List<string> iotPackagesToIgnore)
+        {
+            base.MESBump(version, iotVersion, iotPackagesToIgnore);
+            MESBumpUtilities.UpdateNPMProject(this.fileSystem, this.CmfPackage, version);
         }
 
         /// <summary>
