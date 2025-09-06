@@ -46,7 +46,8 @@
     "deploymentDir": {
       "type": "parameter",
       "datatype": "string",
-      "replaces": "<%= $CLI_PARAM_DeploymentDir %>"
+      "replaces": "<%= $CLI_PARAM_DeploymentDir %>",
+      "defaultValue": ""
     },
     "repositoryType": {
       "type": "parameter",
@@ -78,11 +79,6 @@
       "valueSource": "deploymentDir",
       "valueTransform": "jsonEncode"
     },
-    "CIRepo": {
-      "type": "parameter",
-      "datatype": "string",
-      "replaces": "<%= $CLI_PARAM_CIRepo %>"
-    },
     "ADArtifactsRepo": {
       "type": "parameter",
       "datatype": "string",
@@ -93,10 +89,10 @@
       "datatype": "string",
       "replaces": "<%= $CLI_PARAM_RCRepo %>"
     },
-    "DeliveredRepo": {
+    "CIRepo": {
       "type": "parameter",
       "datatype": "string",
-      "replaces": "<%= $CLI_PARAM_DeliveredRepo %>"
+      "replaces": "\"<%= $CLI_PARAM_CIRepo %>\""
     },
     "CIRepo-JSON": {
       "type": "derived",
@@ -107,7 +103,6 @@
     "CIRepo_MainBranch": {
       "type": "generated",
       "generator": "join",
-      //"replaces": "<%= $CLI_PARAM_CIRepo_MainBranch %>",
       "parameters": {
         "symbols": [
           {
@@ -138,17 +133,85 @@
         ]
       }
     },
-    //    "CIRepo_MainBranch-JSON": {
-    //      "type": "derived",
-    //      "replaces": "\"<%= $CLI_PARAM_CIRepo_MainBranch %>\"",
-    //      "valueSource": "CIRepo_MainBranch",
-    //      "valueTransform": "jsonEncode"
-    //    },
+    "DeliveredRepo": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_DeliveredRepo %>"
+    },
     "DeliveredRepo-JSON": {
       "type": "derived",
       "replaces": "\"<%= $CLI_PARAM_DeliveredRepo %>\"",
       "valueSource": "DeliveredRepo",
       "valueTransform": "jsonEncode"
+    },
+    "DeliveredRepo_JSON": {
+      "type": "generated",
+      "generator": "regex",
+      "datatype": "string",
+      "replaces": "\"<%= $CLI_PARAM_DeliveredRepo_JSON %>\"",
+      "parameters": {
+        "source": "DeliveredRepo-JSON",
+        "steps": [
+          {
+            "regex": "^(.*)$",
+            "replacement": "[$1]"
+          },
+          {
+            "regex": "\\[",
+            "replacement": "[\n        "
+          },
+          {
+            "regex": "\\]",
+            "replacement": "\n    ]"
+          },
+          {
+            "regex": ",",
+            "replacement": ",\n        "
+          }
+        ]
+      }
+    },
+    "ReleaseRepos": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_ReleaseRepos %>"
+    },
+    "ReleaseRepos-JSON": {
+      "type": "derived",
+      "replaces": "\"<%= $CLI_PARAM_ReleaseRepos %>\"",
+      "valueSource": "ReleaseRepos",
+      "valueTransform": "jsonEncode"
+    },
+    "ReleaseRepos_JSON": {
+      "type": "generated",
+      "generator": "regex",
+      "datatype": "string",
+      "replaces": "\"<%= $CLI_PARAM_ReleaseRepos_JSON %>\"",
+      "parameters": {
+        "source": "ReleaseRepos-JSON",
+        "steps": [
+          {
+            "regex": ";",
+            "replacement": "\",\""
+          },
+          {
+            "regex": "^(.*)$",
+            "replacement": "[$1]"
+          },
+          {
+            "regex": "\\[",
+            "replacement": "[\n        "
+          },
+          {
+            "regex": "\\]",
+            "replacement": "\n    ]"
+          },
+          {
+            "regex": ",",
+            "replacement": ",\n        "
+          }
+        ]
+      }
     },
     "MESVersion": {
       "type": "parameter",
