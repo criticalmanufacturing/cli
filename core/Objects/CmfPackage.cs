@@ -548,13 +548,13 @@ namespace Cmf.CLI.Core.Objects
 
             if (this.Dependencies.HasAny())
             {
-                var allDirectories = repoUris?.All(r => r.IsDirectory());
-                if (allDirectories == false)
+                var urlRepos = repoUris?.Where(r => !r.IsDirectory()).ToList();
+                if (urlRepos?.Count > 0)
                 {
-                    throw new CliException(CoreMessages.UrlsNotSupported);
+                    Log.Warning($"{CoreMessages.UrlsNotSupported}, discarding repositories {string.Join(", ", urlRepos.Select(r => r.OriginalString))}");
                 }
 
-                IDirectoryInfo[] repoDirectories = repoUris?.Select(r => r.GetDirectory()).Where(d=> d.Exists==true).ToArray();
+                IDirectoryInfo[] repoDirectories = repoUris?.Where(r => r.IsDirectory()).Select(r => r.GetDirectory()).Where(d=> d.Exists==true).ToArray();
                 if (ExecutionContext.Instance.RunningOnWindows && repoDirectories != null && repoDirectories.Length == 0)
                 {
                     Log.Warning($"None of the provided repositories exist: {string.Join(", ", repoUris.Select(d => d.OriginalString))}");
