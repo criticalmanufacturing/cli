@@ -163,7 +163,7 @@ namespace Cmf.CLI.Commands
 
             try
             {
-                IDirectoryInfo[] repoDirectories = ExecutionContext.Instance.RepositoriesConfig.Repositories?.Select(r => r.GetDirectory()).ToArray();
+                IDirectoryInfo[] repoDirectories = ExecutionContext.Instance.RepositoriesConfig.Repositories?.Where(r => r.IsDirectory()).Select(r => r.GetDirectory()).ToArray();
 
                 // Assemble current package
                 AssemblePackage(outputDir, repoDirectories, cmfPackage, includeTestPackages);
@@ -173,8 +173,8 @@ namespace Cmf.CLI.Commands
 
                 // Save Dependencies File
                 // This file will be needed for CMF Internal Releases to know where the external dependencies are located
-                string depedenciesFilePath = this.fileSystem.Path.Join(outputDir.FullName, CliConstants.FileDependencies);
-                fileSystem.File.WriteAllText(depedenciesFilePath, JsonConvert.SerializeObject(packagesLocation));
+                string dependenciesFilePath = this.fileSystem.Path.Join(outputDir.FullName, CliConstants.FileDependencies);
+                fileSystem.File.WriteAllText(dependenciesFilePath, JsonConvert.SerializeObject(packagesLocation));
             }
             catch (Exception e)
             {

@@ -791,6 +791,7 @@ namespace tests.Specs
         {
             string cirepo = MockUnixSupport.Path(@"y:\cirepo");
             string approvedrepo = MockUnixSupport.Path(@"y:\approvedrepo");
+            string npmrepo = "https://server.io/api/npm/1234/dev";
             string root = MockUnixSupport.Path(@"x:\test");
             
             KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.1.0");
@@ -835,6 +836,7 @@ namespace tests.Specs
                     @$"{{
                         ""CIRepository"": ""{cirepo.Replace(@"\", @"\\")}"",
                         ""Repositories"": [
+                            ""{npmrepo.Replace(@"\", @"\\")}"",
                             ""{approvedrepo.Replace(@"\", @"\\")}""
                         ]
                     }}"
