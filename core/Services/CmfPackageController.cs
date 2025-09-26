@@ -546,9 +546,10 @@ public class CmfPackageController
 
         // due to a bug (not returning the keywords) in the npm registry that we are using
         // we need to disable these checks for some cases
-        string disableKeywordsEnvVar = Environment.GetEnvironmentVariable("cmf_cli_disable_keywords_check");
-        bool disableKeywords = disableKeywordsEnvVar?.ToLowerInvariant() == "true" || disableKeywordsEnvVar == "1";
-        if (!disableKeywords)
+        string disableNpmPropertiesCheckEnvVar = Environment.GetEnvironmentVariable("cmf_cli_disable_npm_properties_check");
+        bool disableNpmPropertiesCheck = disableNpmPropertiesCheckEnvVar?.ToLowerInvariant() == "true" || disableNpmPropertiesCheckEnvVar == "1";
+        Log.Debug("Disable NPM properties check: " + disableNpmPropertiesCheck);
+        if (!disableNpmPropertiesCheck)
         {
             // If none of the keywords are found, this package is not valid and cannot be accepted by cmf cli 
             if (!isTestPackage && !isDeploymentPackage)
@@ -602,83 +603,89 @@ public class CmfPackageController
         //     }
         // }
 
-        var deploymentVariables = rootNode.Children<JObject>();
         string packageType = null;
-
-        foreach (var entry in deploymentVariables)
+        if (!disableNpmPropertiesCheck)
         {
-            // string manifestVersionString = entry.Property("manifestVersion")?.Value.ToString();
-            // int manifestVersion = -1;
-            // Int32.TryParse(manifestVersionString, out manifestVersion);
-            // package.ManifestVersion = manifestVersion;
+            var deploymentVariables = rootNode.Children<JObject>();
 
-            // string minSqlCompatibilityString = entry.Property("minSqlCompatibility")?.Value.ToString();
-            // int minSqlCompatibility = -1;
-            // Int32.TryParse(minSqlCompatibilityString, out minSqlCompatibility);
-            // package.MinSqlCompatibility = minSqlCompatibility;
-
-            if (!string.IsNullOrEmpty(entry.Property("packageType")?.Value.ToString()))
+            foreach (var entry in deploymentVariables)
             {
-                packageType = entry.Property("packageType")?.Value.ToString();
+                // string manifestVersionString = entry.Property("manifestVersion")?.Value.ToString();
+                // int manifestVersion = -1;
+                // Int32.TryParse(manifestVersionString, out manifestVersion);
+                // package.ManifestVersion = manifestVersion;
+
+                // string minSqlCompatibilityString = entry.Property("minSqlCompatibility")?.Value.ToString();
+                // int minSqlCompatibility = -1;
+                // Int32.TryParse(minSqlCompatibilityString, out minSqlCompatibility);
+                // package.MinSqlCompatibility = minSqlCompatibility;
+
+                if (!string.IsNullOrEmpty(entry.Property("packageType")?.Value.ToString()))
+                {
+                    packageType = entry.Property("packageType")?.Value.ToString();
+                }
+
+                // if (!string.IsNullOrEmpty(entry.Property("targetDirectory")?.Value.ToString()))
+                // {
+                //     targetDirectory = entry.Property("targetDirectory")?.Value.ToString();
+                // }
+                //
+                // if (!string.IsNullOrEmpty(entry.Property("targetLayerDirectory")?.Value.ToString()))
+                // {
+                //     package.TargetLayerDirectory = entry.Property("targetLayerDirectory")?.Value.ToString();
+                // }
+                //
+                // if (!string.IsNullOrEmpty(entry.Property("targetLayer")?.Value.ToString()))
+                // {
+                //     package.TargetLayer = entry.Property("targetLayer")?.Value.ToString();
+                // }
+
+                // if (!string.IsNullOrEmpty(entry.Property("buildDate")?.Value.ToString()))
+                // {
+                //     DateTime dt;
+                //     if (DateTime.TryParse(entry.Property("buildDate").Value.ToString(), out dt))
+                //         package.BuildDate = dt;
+                // }
+                // else
+                // {
+                //     package.BuildDate = (DateTime?)null;
+                // }
+                // package.IsInstallable = bool.Parse(entry.Property("isInstallable")?.Value.ToString() ?? "false");
             }
-
-            // if (!string.IsNullOrEmpty(entry.Property("targetDirectory")?.Value.ToString()))
-            // {
-            //     targetDirectory = entry.Property("targetDirectory")?.Value.ToString();
-            // }
-            //
-            // if (!string.IsNullOrEmpty(entry.Property("targetLayerDirectory")?.Value.ToString()))
-            // {
-            //     package.TargetLayerDirectory = entry.Property("targetLayerDirectory")?.Value.ToString();
-            // }
-            //
-            // if (!string.IsNullOrEmpty(entry.Property("targetLayer")?.Value.ToString()))
-            // {
-            //     package.TargetLayer = entry.Property("targetLayer")?.Value.ToString();
-            // }
-
-            // if (!string.IsNullOrEmpty(entry.Property("buildDate")?.Value.ToString()))
-            // {
-            //     DateTime dt;
-            //     if (DateTime.TryParse(entry.Property("buildDate").Value.ToString(), out dt))
-            //         package.BuildDate = dt;
-            // }
-            // else
-            // {
-            //     package.BuildDate = (DateTime?)null;
-            // }
-            // package.IsInstallable = bool.Parse(entry.Property("isInstallable")?.Value.ToString() ?? "false");
         }
 
-        var auxArr = (JObject)rootNode.Value;
         var steps = new List<Step>();
-        if (auxArr.Property("steps").Value.Type == JTokenType.Array)
+        if (!disableNpmPropertiesCheck)
         {
-            var stepsEl = (JArray)auxArr.Property("steps").Value;
-
-            if (stepsEl != null)
+            var auxArr = (JObject)rootNode.Value;
+            if (auxArr.Property("steps").Value.Type == JTokenType.Array)
             {
-                foreach (var element in stepsEl)
-                {
-                    if (element.Type == JTokenType.Object)
-                    {
-                        var elem = (JObject)element;
+                var stepsEl = (JArray)auxArr.Property("steps").Value;
 
-                        Step step = new Step(
-                            type: Enum.Parse(typeof(StepType), elem.Property("type")?.Value.ToString()) is StepType
-                                ? (StepType)Enum.Parse(typeof(StepType), elem.Property("type")?.Value.ToString())
-                                : StepType.Generic,
-                            title: elem.Property("title")?.Value.ToString(),
-                            onExecute: elem.Property("onExecute")?.Value.ToString(),
-                            contentPath: elem.Property("contentPath")?.Value.ToString(),
-                            file: null,
-                            tagFile: elem.Property("tagFile")?.Value.ToString() != null ? bool.Parse(elem.Property("tagFile")?.Value.ToString()) : null,
-                            targetDatabase: elem.Property("targetDatabase")?.Value.ToString(),
-                            messageType: MessageType.ImportObject, // TODO: get value
-                            relativePath: null,
-                            filePath: elem.Property("filePath")?.Value.ToString()
-                        );
-                        steps.Add(step);
+                if (stepsEl != null)
+                {
+                    foreach (var element in stepsEl)
+                    {
+                        if (element.Type == JTokenType.Object)
+                        {
+                            var elem = (JObject)element;
+
+                            Step step = new Step(
+                                type: Enum.Parse(typeof(StepType), elem.Property("type")?.Value.ToString()) is StepType
+                                    ? (StepType)Enum.Parse(typeof(StepType), elem.Property("type")?.Value.ToString())
+                                    : StepType.Generic,
+                                title: elem.Property("title")?.Value.ToString(),
+                                onExecute: elem.Property("onExecute")?.Value.ToString(),
+                                contentPath: elem.Property("contentPath")?.Value.ToString(),
+                                file: null,
+                                tagFile: elem.Property("tagFile")?.Value.ToString() != null ? bool.Parse(elem.Property("tagFile")?.Value.ToString()) : null,
+                                targetDatabase: elem.Property("targetDatabase")?.Value.ToString(),
+                                messageType: MessageType.ImportObject, // TODO: get value
+                                relativePath: null,
+                                filePath: elem.Property("filePath")?.Value.ToString()
+                            );
+                            steps.Add(step);
+                        }
                     }
                 }
             }
@@ -686,44 +693,44 @@ public class CmfPackageController
 
         #region PackageDemands Parsing
 
-        // var demandsAuxArr = (JObject)rootNode.Value;
-        // if (demandsAuxArr.Property("packageDemands")?.Value.Type == JTokenType.Array)
-        // {
-        //     var packageDemands = (JArray)demandsAuxArr.Property("packageDemands").Value;
-        //
-        //     if (packageDemands != null)
-        //     {
-        //         foreach (var item in packageDemands)
-        //         {
-        //             if (item.Type == JTokenType.Object)
-        //             {
-        //                 var element = (JObject)item;
-        //
-        //                 PackageDemand demand = ParseDemand(element);
-        //                 package.AddDemand(demand);
-        //             }
-        //         }
-        //     }
-        // }
+            // var demandsAuxArr = (JObject)rootNode.Value;
+            // if (demandsAuxArr.Property("packageDemands")?.Value.Type == JTokenType.Array)
+            // {
+            //     var packageDemands = (JArray)demandsAuxArr.Property("packageDemands").Value;
+            //
+            //     if (packageDemands != null)
+            //     {
+            //         foreach (var item in packageDemands)
+            //         {
+            //             if (item.Type == JTokenType.Object)
+            //             {
+            //                 var element = (JObject)item;
+            //
+            //                 PackageDemand demand = ParseDemand(element);
+            //                 package.AddDemand(demand);
+            //             }
+            //         }
+            //     }
+            // }
 
-        #endregion
+            #endregion
 
-        // var varsAuxArray = (JObject)rootNode.Value;
-        // if (varsAuxArray.Property("variables")?.Value != null)
-        // {
-        //     if (varsAuxArray.Property("variables").Value.Type == JTokenType.Array)
-        //     {
-        //         var variablesElements = (JArray)varsAuxArray.Property("variables").Value;
-        //         if (variablesElements != null)
-        //         {
-        //             foreach (JObject variableElement in variablesElements)
-        //             {
-        //                 var variable = ParseVariable(variableElement);
-        //                 package.AddVariable(variable);
-        //             }
-        //         }
-        //     }
-        // }
+            // var varsAuxArray = (JObject)rootNode.Value;
+            // if (varsAuxArray.Property("variables")?.Value != null)
+            // {
+            //     if (varsAuxArray.Property("variables").Value.Type == JTokenType.Array)
+            //     {
+            //         var variablesElements = (JArray)varsAuxArray.Property("variables").Value;
+            //         if (variablesElements != null)
+            //         {
+            //             foreach (JObject variableElement in variablesElements)
+            //             {
+            //                 var variable = ParseVariable(variableElement);
+            //                 package.AddVariable(variable);
+            //             }
+            //         }
+            //     }
+            // }
 
         DependencyCollection deps = new();
         DependencyCollection testPackages = new();
