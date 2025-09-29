@@ -544,53 +544,46 @@ public class CmfPackageController
 
         var rootNode = json.Property("deployment");
 
-        // due to a bug (not returning the keywords) in the npm registry that we are using
-        // we need to disable these checks for some cases
-        string disableKeywordsEnvVar = Environment.GetEnvironmentVariable("cmf_cli_disable_keywords_check");
-        bool disableKeywords = disableKeywordsEnvVar?.ToLowerInvariant() == "true" || disableKeywordsEnvVar == "1";
-        if (!disableKeywords)
+        // If none of the keywords are found, this package is not valid and cannot be accepted by cmf cli 
+        if (!isTestPackage && !isDeploymentPackage)
         {
-            // If none of the keywords are found, this package is not valid and cannot be accepted by cmf cli 
-            if (!isTestPackage && !isDeploymentPackage)
-            {
-                throw new CliException($"Invalid manifest file: one of the following keywords must be present: {JSONPackageKeyword} or {JSONTestsPackageKeyword}.");
-            }
-            else if (isTestPackage && isDeploymentPackage)
-            {
-                throw new CliException($"Invalid manifest file: only one of the following keywords can be present at the same time: {JSONPackageKeyword} and {JSONTestsPackageKeyword}.");
-            }
-            else if (isDeploymentPackage && rootNode == null)
-            {
-                throw new CliException("Invalid manifest file: missing \"deployment\" property.");
-            }
+            throw new CliException($"Invalid manifest file: one of the following keywords must be present: {JSONPackageKeyword} or {JSONTestsPackageKeyword}.");
+        }
+        else if (isTestPackage && isDeploymentPackage)
+        {
+            throw new CliException($"Invalid manifest file: only one of the following keywords can be present at the same time: {JSONPackageKeyword} and {JSONTestsPackageKeyword}.");
+        }
+        else if (isDeploymentPackage && rootNode == null)
+        {
+            throw new CliException("Invalid manifest file: missing \"deployment\" property.");
         }
 
         // Some packages (only the Test ones right now) do not have a manifest.xml, because they are not
-            // Deployment Framework packages. Nonetheless, we want the CLI to be able to, amongst other things,
-            // publish those packages to the repositories alongside the other ones. So, for those packages only, we 
-            // allow not having a "deployment" property.
-            if (isTestPackage)
-            {
-                return new CmfPackageV1(
-                    json.Property("name")?.Value.ToString(),
-                    json.Property("name")?.Value.ToString(),
-                    json.Property("version")?.Value.ToString(),
-                    json.Property("description")?.Value?.ToString(),
-                    PackageType.Tests,
-                    null,
-                    null,
-                    false,
-                    false,
-                    keywords: string.Join(", ", keywords),
-                    true,
-                    [],
-                    [],
-                    null,
-                    null,
-                    waitForIntegrationEntries: false,
-                    []
-                );
-            }
+        // Deployment Framework packages. Nonetheless, we want the CLI to be able to, amongst other things,
+        // publish those packages to the repositories alongside the other ones. So, for those packages only, we 
+        // allow not having a "deployment" property.
+        if (isTestPackage)
+        {
+            return new CmfPackageV1(
+                json.Property("name")?.Value.ToString(),
+                json.Property("name")?.Value.ToString(),
+                json.Property("version")?.Value.ToString(),
+                json.Property("description")?.Value?.ToString(),
+                PackageType.Tests,
+                null,
+                null,
+                false,
+                false,
+                keywords: string.Join(", ", keywords),
+                true,
+                [],
+                [],
+                null,
+                null,
+                waitForIntegrationEntries: false,
+                []
+            );
+        }
         // if (!string.IsNullOrEmpty(json.Property("systemName")?.Value.ToString()))
         // {
         //     package.AddMetadata(PackageManifestReader.MetadataKey.ApplicationName, json.Property("systemName").Value.ToString());
