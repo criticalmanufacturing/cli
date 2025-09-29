@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -37,6 +38,7 @@ namespace Cmf.CLI.Core.Repository.Credentials
 
         protected IFileSystem _fileSystem;
         protected IPortalLoginCommand _loginCommand;
+        protected string _portalBearerToken = string.Empty;
 
         public PortalRepositoryCredentials(IFileSystem fileSystem, IPortalLoginCommand loginCommand)
         {
@@ -98,6 +100,8 @@ namespace Cmf.CLI.Core.Repository.Credentials
 
             var token = await _fileSystem.File.ReadAllTextAsync(tokenFile.FullName);
 
+            _portalBearerToken = GetPortalBearerToken(token);
+
             return new BearerCredential
             {
                 RepositoryType = RepositoryType,
@@ -117,7 +121,7 @@ namespace Cmf.CLI.Core.Repository.Credentials
                     var derivedUrls = repositoriesToCheck.ToList().Where(url =>
                         cmfDomainListWithExtras.Contains(url?.Host)
                     );
-                    
+
                     var token = ((BearerCredential)cred).Token;
 
                     var username = ParseJwt(token).Subject;
@@ -146,6 +150,14 @@ namespace Cmf.CLI.Core.Repository.Credentials
                         Repository = CmfAuthConstants.DockerRepository,
                         Username = username,
                         Password = token,
+                    };
+                    // Portal NPM
+                    yield return new BearerCredential
+                    {
+                        RepositoryType = RepositoryCredentialsType.NPM,
+                        Repository = CmfAuthConstants.PortalNPMRepository,
+                        // if for some reason the bearertoken is not valid, try to renew it
+                        Token = (!string.IsNullOrEmpty(_portalBearerToken) && IsTokenValid(_portalBearerToken)) ? _portalBearerToken : GetPortalBearerToken(token),
                     };
 
                     foreach (var url in derivedUrls)
@@ -261,6 +273,35 @@ namespace Cmf.CLI.Core.Repository.Credentials
             var payloadString = Encoding.UTF8.GetString(payloadBytes);
 
             return JsonConvert.DeserializeObject<JWTPayload>(payloadString);
+        }
+
+        protected string GetPortalBearerToken(string pat)
+        {
+            string portalBearerToken = string.Empty;
+
+            using (var client = new HttpClient())
+            {
+            var content = new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                { "client_id", "Applications" },
+                { "grant_type", "refresh_token" },
+                { "refresh_token", pat }
+            });
+
+            var response = client.PostAsync(
+                CmfAuthConstants.PortalOAuthEndpointUrl,
+                content
+            ).GetAwaiter().GetResult();
+
+            if (response.IsSuccessStatusCode)
+            {
+                var result = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                var tokenResponse = JsonConvert.DeserializeObject<dynamic>(result);
+                portalBearerToken = tokenResponse.access_token;
+            }
+            }
+
+            return portalBearerToken;
         }
 
         protected class JWTPayload
