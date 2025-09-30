@@ -330,7 +330,7 @@ namespace Cmf.CLI.Handlers
                             CmdCommand cmdCommand = new CmdCommand()
                             {
                                 DisplayName = "yo @criticalmanufacturing/iot:packagePacker",
-                                Args = new string[] { $"{AppContext.BaseDirectory}resources/vendors/yo/node_modules/.bin/yo @criticalmanufacturing/iot:packagePacker", $"-i \"{inputDirPath}\"", $"-o \"{outputDirPath}\"" },
+                                Args = new string[] { "\"", $"{AppContext.BaseDirectory}resources/vendors/yo/node_modules/.bin/yo @criticalmanufacturing/iot:packagePacker", $"-i \"{inputDirPath}\"", $"-o \"{outputDirPath}\"", "\"" },
                                 WorkingDirectory = packDirectory
                             };
 
