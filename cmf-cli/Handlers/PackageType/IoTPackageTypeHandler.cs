@@ -327,16 +327,17 @@ namespace Cmf.CLI.Handlers
 
                         if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 11)
                         {
-                            IFileInfo file = this.fileSystem.FileInfo.New($"{AppContext.BaseDirectory}resources/vendors/yo/node_modules/.bin/yo");
+                            IFileInfo yo = this.fileSystem.FileInfo.New($"{AppContext.BaseDirectory}resources/vendors/yo/node_modules/.bin/yo");
                             if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())
                             {
-                                file.UnixFileMode = UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute | UnixFileMode.GroupRead | UnixFileMode.GroupExecute | UnixFileMode.OtherRead | UnixFileMode.OtherExecute;
+                                Log.Debug("Setting execute permissions on yo binary");
+                                yo.UnixFileMode = UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute | UnixFileMode.GroupRead | UnixFileMode.GroupExecute | UnixFileMode.OtherRead | UnixFileMode.OtherExecute;
                             }
                             
                             CmdCommand cmdCommand = new CmdCommand()
                             {
                                 DisplayName = "yo @criticalmanufacturing/iot:packagePacker",
-                                Args = new string[] { "\"", $"{AppContext.BaseDirectory}resources/vendors/yo/node_modules/.bin/yo @criticalmanufacturing/iot:packagePacker", $"-i \"{inputDirPath}\"", $"-o \"{outputDirPath}\"", "\"" },
+                                Args = new string[] { "\"", $"{yo} @criticalmanufacturing/iot:packagePacker", $"-i \"{inputDirPath}\"", $"-o \"{outputDirPath}\"", "\"" },
                                 WorkingDirectory = packDirectory
                             };
 

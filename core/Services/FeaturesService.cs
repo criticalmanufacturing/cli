@@ -30,6 +30,7 @@ public class FeaturesService : IFeaturesService
     private bool GetFeatureState(string feature)
     {
         var featval = Environment.GetEnvironmentVariable($"{envvarprefix}_feature__{feature}");
+        Log.Debug($"Feature '{feature}' evaluated to '{featval}'");
         
         return (featval?.ToLowerInvariant() == "true" || featval == "1");
     }
