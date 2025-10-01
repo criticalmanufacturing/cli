@@ -332,6 +332,7 @@ namespace Cmf.CLI.Handlers
                             {
                                 Log.Debug("Setting execute permissions on yo binary");
                                 yo.UnixFileMode = UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute | UnixFileMode.GroupRead | UnixFileMode.GroupExecute | UnixFileMode.OtherRead | UnixFileMode.OtherExecute;
+                                fileSystem.File.SetUnixFileMode(yo.FullName, yo.UnixFileMode);
                             }
                             
                             CmdCommand cmdCommand = new CmdCommand()
