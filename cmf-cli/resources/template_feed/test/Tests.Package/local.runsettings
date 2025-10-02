@@ -33,6 +33,7 @@
 		<Parameter name="reuseWebDriver" value="true" />
 		<Parameter name="browser" value="chrome" />
 		<Parameter name="debug" value="false" />
+		<Parameter name="headless" value="false" /> <!-- on devcontainer use headless as `true` -->
 
 		<!-- Security Portal Authentication -->
 		<Parameter name="authenticateViaSecurityPortalToken" value="true" />
