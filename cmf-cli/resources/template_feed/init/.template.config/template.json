@@ -333,7 +333,8 @@
     "ISOLocation": {
       "type": "parameter",
       "datatype": "string",
-      "replaces": "<%= $CLI_PARAM_ISOLocation %>"
+      "replaces": "<%= $CLI_PARAM_ISOLocation %>",
+      "defaultValue": ""
     },
     "ISOLocation_JSON": {
       "type": "derived",
