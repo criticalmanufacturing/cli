@@ -94,7 +94,8 @@
         ReconstructClickhouseKafkaTables = 19,
 
         CleanupS3InstallationFolder = 20,
-        
-        CreateAppUser = 21
+
+        CreateAppUser = 21,
+        UpdateConfiguration = 22
     }
 }
