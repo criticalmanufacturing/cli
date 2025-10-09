@@ -37,7 +37,7 @@ namespace Core.Objects
 
             if (_credentials == null)
             {
-                Log.Warning($"CIFS credentials not found for shares: {uri}.");
+                Log.Debug($"CIFS credentials not found for shares: {uri}.");
             }
             else
             {
