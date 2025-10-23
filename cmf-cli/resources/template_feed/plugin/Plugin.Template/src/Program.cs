@@ -16,7 +16,7 @@ try
     var registryAddress = Environment.GetEnvironmentVariable("cmf_<%= $CLI_PARAM_PluginBinary %>_registry");
 
     var (rootCommand, parser) = await StartupModule.Configure(
-        packageName: "<%= $CLI_PARAM_PluginName %>",
+        packageId: "<%= $CLI_PARAM_PluginName %>",
         envVarPrefix: "cmf_<%= $CLI_PARAM_PluginBinary %>",
         description: "<%= $CLI_PARAM_PluginDescription %>",
         args: args);
