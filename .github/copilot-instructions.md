@@ -208,7 +208,7 @@ Triggered on: Push to main, PRs affecting `docs/**`
 
 Uses **Earthly** to build MkDocs documentation site.
 
-### DevContainer Features Tests (`.github/workflows/decontainer-pr-tests.yml`)
+### DevContainer Features Tests (`.github/workflows/devcontainer-pr-tests.yml`)
 
 Triggered on: PRs affecting `features/**`
 
