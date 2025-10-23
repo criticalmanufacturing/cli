@@ -181,7 +181,10 @@ namespace Cmf.CLI.Builders
                     {
                         property.Value.TryGetProperty("IsFile", out JsonElement isFile);
 
-                        if (isFile.ToString().ToBool())
+                        // Treat empty string or missing IsFile as false (inline workflow)
+                        bool isFileValue = !string.IsNullOrEmpty(isFile.ToString()) && isFile.ToString().ToBool();
+
+                        if (isFileValue)
                         {
                             property.Value.TryGetProperty("Workflow", out JsonElement workflow);
                             names.Add(new WorkflowsToValidate(name.GetString(), workflow.GetString()));
