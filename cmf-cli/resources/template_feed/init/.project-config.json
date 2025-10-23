@@ -37,7 +37,9 @@
 //#if (AppEnvironmentConfig != null)
   "AppEnvironmentConfig": "<%= $CLI_PARAM_AppEnvironmentConfig %>",
 //#endif
+//#if (ISOLocation != null && ISOLocation != "")
   "ISOLocation": "<%= $CLI_PARAM_ISOLocation_JSON %>",
+//#endif
 //#if (deploymentDir != null && deploymentDir != "")
   "DeploymentDir": "<%= $CLI_PARAM_DeploymentDir %>",
   "DeliveredRepo": "<%= $CLI_PARAM_DeliveredRepo %>",
