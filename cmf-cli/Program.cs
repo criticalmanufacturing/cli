@@ -37,7 +37,7 @@ namespace Cmf.CLI
                 var fileSystem = new FileSystem();
 
                 var (rootCommand, parser) = await StartupModule.Configure(
-                    packageName: CliConstants.PackageName,
+                    packageId: CliConstants.PackageName,
                     envVarPrefix: "cmf_cli",
                     description: "Critical Manufacturing CLI",
                     args: args,
