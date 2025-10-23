@@ -158,10 +158,10 @@ namespace Cmf.CLI.Handlers
         internal virtual void GenerateDeploymentFrameworkManifest(IDirectoryInfo packageOutputDir)
         {
             Log.Debug("Generating DeploymentFramework manifest");
-            string path = $"{packageOutputDir.FullName}/{CliConstants.DeploymentFrameworkManifestFileName}";
+            string path = $"{packageOutputDir.FullName}/{CoreConstants.DeploymentFrameworkManifestFileName}";
 
             // Get Template
-            string fileContent = ResourceUtilities.GetEmbeddedResourceContent($"{CliConstants.FolderTemplates}/{CliConstants.DeploymentFrameworkManifestFileName}");
+            string fileContent = ResourceUtilities.GetEmbeddedResourceContent($"{CliConstants.FolderTemplates}/{CoreConstants.DeploymentFrameworkManifestFileName}");
 
             StringReader dFManifestReader = new(fileContent);
             XDocument dFManifestTemplate = XDocument.Load(dFManifestReader);

@@ -9,6 +9,7 @@ using System;
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
+using Cmf.CLI.Core.Constants;
 
 namespace Cmf.CLI.Commands.restore
 {
@@ -66,7 +67,7 @@ namespace Cmf.CLI.Commands.restore
         public void Execute(IDirectoryInfo packagePath, Uri[] repos)
         {
             using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
-            IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{packagePath}/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{packagePath}/{CoreConstants.CmfPackageFileName}");
             IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile, setDefaultValues: false);
             if (repos != null)
             {

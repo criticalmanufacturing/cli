@@ -12,6 +12,7 @@ using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
 using System.Linq;
+using Cmf.CLI.Core.Constants;
 
 namespace Cmf.CLI.Commands
 {
@@ -111,7 +112,7 @@ namespace Cmf.CLI.Commands
                 ExecutionContext.Instance.RepositoriesConfig.Repositories.InsertRange(0, repos);
             }
 
-            IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"{workingDir}/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"{workingDir}/{CoreConstants.CmfPackageFileName}");
 
             CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: false, fileSystem: fileSystem);
 

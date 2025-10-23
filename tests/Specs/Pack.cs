@@ -942,7 +942,7 @@ namespace tests.Specs
             });
             ExecutionContext.Initialize(fileSystem);
 
-            IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"repo/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"repo/{CoreConstants.CmfPackageFileName}");
 
             string message = string.Empty;
             try
@@ -985,7 +985,7 @@ namespace tests.Specs
             });
 
             ExecutionContext.Initialize(fileSystem);
-            IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"repo/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"repo/{CoreConstants.CmfPackageFileName}");
 
             string message = string.Empty;
             try
@@ -1298,7 +1298,7 @@ namespace tests.Specs
             }, MockUnixSupport.Path(@"C:\repo\Cmf.Custom.Test"));
             ExecutionContext.Initialize(fileSystem);
 
-            IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"./{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"./{CoreConstants.CmfPackageFileName}");
 
             // Act
             var packCommand = new PackCommand(fileSystem);

@@ -11,6 +11,7 @@ using tests.Objects;
 using Xunit;
 using System.Collections.Generic;
 using FluentAssertions;
+using Cmf.CLI.Core.Constants;
 
 namespace tests.Specs
 {
@@ -37,7 +38,7 @@ namespace tests.Specs
             string exceptionMessage = string.Empty;
             try
             {
-                var cmfPackage = fileSystem.FileInfo.New(CliConstants.CmfPackageFileName);
+                var cmfPackage = fileSystem.FileInfo.New(CoreConstants.CmfPackageFileName);
                 var packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfPackage) as PresentationPackageTypeHandler;
 
                 packageTypeHandler.GetContentToPack(fileSystem.DirectoryInfo.New("output"));
@@ -67,7 +68,7 @@ namespace tests.Specs
             string exceptionMessage = string.Empty;
             try
             {
-                var cmfPackage = fileSystem.FileInfo.New(CliConstants.CmfPackageFileName);
+                var cmfPackage = fileSystem.FileInfo.New(CoreConstants.CmfPackageFileName);
                 var packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfPackage);
             }
             catch (Exception ex)

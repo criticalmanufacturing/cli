@@ -6,6 +6,7 @@ using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using Cmf.CLI.Core.Objects;
 using Xunit;
+using Cmf.CLI.Core.Constants;
 
 namespace tests.Specs
 {
@@ -42,7 +43,7 @@ namespace tests.Specs
             });
 
             ExecutionContext.Initialize(fileSystem);
-            IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"repo/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"repo/{CoreConstants.CmfPackageFileName}");
 
             string message = string.Empty;
             CmfPackage cmfPackage = null;
@@ -90,7 +91,7 @@ namespace tests.Specs
             });
 
             ExecutionContext.Initialize(fileSystem);
-            IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"repo/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"repo/{CoreConstants.CmfPackageFileName}");
 
             string message = string.Empty;
             try

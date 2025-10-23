@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using Xunit;
+using Cmf.CLI.Core.Constants;
 
 namespace tests.Specs;
 
@@ -22,7 +23,7 @@ public class Bump
     public void Bump_MetadataWithAnyQuoteType(string quoteType, string version)
     {
         // files
-        string cmfPackageJson = $"help/{CliConstants.CmfPackageFileName}";
+        string cmfPackageJson = $"help/{CoreConstants.CmfPackageFileName}";
         string npmPackageJson = "/help/package.json";
         string metadataTS =
             "/help/src/packages/cmf.docs.area.cmf.custom.help/src/cmf.docs.area.cmf.custom.help.metadata.ts";
@@ -114,7 +115,7 @@ public class Bump
         KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.0.0");
         KeyValuePair<string, string> packageBusiness = new("Cmf.Custom.Business", "1.0.0");
         KeyValuePair<string, string> packageTest = new("Cmf.Custom.Tests", "1.0.0");        
-        string testsCmfPackageJson = $"Cmf.Custom.Tests/{CliConstants.CmfPackageFileName}";
+        string testsCmfPackageJson = $"Cmf.Custom.Tests/{CoreConstants.CmfPackageFileName}";
         string businessAssemblyInfo = "Cmf.Custom.Business/Cmf.Custom.Common/Properties/AssemblyInfo.cs";
         string testAssemblyInfo = "Cmf.Custom.Tests/Cmf.Custom.E2ETests/Properties/AssemblyInfo.cs";
 
@@ -330,7 +331,7 @@ public class Bump
 
         ExecutionContext.Initialize(fileSystem);
 
-        IFileInfo cmfPackageFile = fileSystem.FileInfo.New($"Cmf.Custom.Business/{CliConstants.CmfPackageFileName}");
+        IFileInfo cmfPackageFile = fileSystem.FileInfo.New($"Cmf.Custom.Business/{CoreConstants.CmfPackageFileName}");
 
         BusinessPackageTypeHandler packageTypeHandler =
             PackageTypeFactory.GetPackageTypeHandler(cmfPackageFile) as BusinessPackageTypeHandler;
@@ -361,7 +362,7 @@ public class Bump
         KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.0.0");
         KeyValuePair<string, string> packageBusiness = new("Cmf.Custom.Business", "1.0.0");
         KeyValuePair<string, string> packageTest = new("Cmf.Custom.Tests", "1.0.0");        
-        string businessCmfPackageJson = $"Cmf.Custom.Business/{CliConstants.CmfPackageFileName}";
+        string businessCmfPackageJson = $"Cmf.Custom.Business/{CoreConstants.CmfPackageFileName}";
         string businessAssemblyInfo = "Cmf.Custom.Business/Cmf.Custom.Common/Properties/AssemblyInfo.cs";
         string testAssemblyInfo = "Cmf.Custom.Tests/Cmf.Custom.E2ETests/Properties/AssemblyInfo.cs";
 
@@ -577,7 +578,7 @@ public class Bump
 
         ExecutionContext.Initialize(fileSystem);
 
-        IFileInfo cmfPackageFile = fileSystem.FileInfo.New($"Cmf.Custom.Tests/{CliConstants.CmfPackageFileName}");
+        IFileInfo cmfPackageFile = fileSystem.FileInfo.New($"Cmf.Custom.Tests/{CoreConstants.CmfPackageFileName}");
 
         TestPackageTypeHandler packageTypeHandler =
             PackageTypeFactory.GetPackageTypeHandler(cmfPackageFile) as TestPackageTypeHandler;

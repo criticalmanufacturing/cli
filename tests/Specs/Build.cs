@@ -17,6 +17,7 @@ using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
 using Xunit;
+using Cmf.CLI.Core.Constants;
 
 namespace tests.Specs;
 
@@ -230,7 +231,7 @@ public class Build
             });
 
         ExecutionContext.Initialize(fileSystem);
-        IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"{url}/{CliConstants.CmfPackageFileName}");
+        IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"{url}/{CoreConstants.CmfPackageFileName}");
         fileSystem.Directory.SetCurrentDirectory(url);
 
         string message = string.Empty;
@@ -271,7 +272,7 @@ public class Build
 
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
             {
-                { $"{url}/{CliConstants.CmfPackageFileName}", new MockFileData(
+                { $"{url}/{CoreConstants.CmfPackageFileName}", new MockFileData(
                 @$"{{
                   ""packageId"": ""{packageRoot.Key}"",
                   ""version"": ""{packageRoot.Value}"",
@@ -328,7 +329,7 @@ public class Build
             });
 
         ExecutionContext.Initialize(fileSystem);
-        IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"{url}/{CliConstants.CmfPackageFileName}");
+        IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"{url}/{CoreConstants.CmfPackageFileName}");
         fileSystem.Directory.SetCurrentDirectory(url);
 
         string message = string.Empty;
@@ -426,7 +427,7 @@ public class Build
             });
 
         ExecutionContext.Initialize(fileSystem);
-        IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"{url}/{CliConstants.CmfPackageFileName}");
+        IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"{url}/{CoreConstants.CmfPackageFileName}");
         fileSystem.Directory.SetCurrentDirectory(url);
 
         string message = string.Empty;
@@ -485,7 +486,7 @@ public class Build
         if (!withRelatedSteps)
         {
             // data cmfpackage file
-            fileSystem.AddFile($"{packageData.Key}/{CliConstants.CmfPackageFileName}", new MockFileData(
+            fileSystem.AddFile($"{packageData.Key}/{CoreConstants.CmfPackageFileName}", new MockFileData(
             @$"{{
                 ""packageId"": ""{packageData.Key}"",
                 ""version"": ""{packageData.Value}"",
@@ -505,7 +506,7 @@ public class Build
         else
         {
             // data cmfpackage file
-            fileSystem.AddFile($"{packageData.Key}/{CliConstants.CmfPackageFileName}", new MockFileData(
+            fileSystem.AddFile($"{packageData.Key}/{CoreConstants.CmfPackageFileName}", new MockFileData(
             @$"{{
                     ""packageId"": ""{packageData.Key}"",
                     ""version"": ""{packageData.Value}"",
@@ -633,7 +634,7 @@ public class Build
 
         ExecutionContext.Initialize(fileSystem);
 
-        IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"Cmf.Custom.Data/{CliConstants.CmfPackageFileName}");
+        IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"Cmf.Custom.Data/{CoreConstants.CmfPackageFileName}");
         DataPackageTypeHandlerV2 packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile) as DataPackageTypeHandlerV2;
 
         packageTypeHandler.RelatedPackagesHandlers
@@ -673,7 +674,7 @@ public class Build
         });
 
         ExecutionContext.Initialize(fileSystem);
-        IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"{url}/{CliConstants.CmfPackageFileName}");
+        IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"{url}/{CoreConstants.CmfPackageFileName}");
         fileSystem.Directory.SetCurrentDirectory(url);
 
         string message = string.Empty;
@@ -730,7 +731,7 @@ public class Build
         });
 
         ExecutionContext.Initialize(fileSystem);
-        IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"{url}/{CliConstants.CmfPackageFileName}");
+        IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"{url}/{CoreConstants.CmfPackageFileName}");
         fileSystem.Directory.SetCurrentDirectory(url);
 
         string message = string.Empty;

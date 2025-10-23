@@ -13,6 +13,7 @@ using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
 using System.Linq;
+using Cmf.CLI.Core.Constants;
 
 namespace Cmf.CLI.Commands.New
 {
@@ -144,7 +145,7 @@ namespace Cmf.CLI.Commands.New
 
             var packageName = base.GeneratePackageName(workingDir)!.Value.Item1;
 
-            IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{workingDir}/{packageName}/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{workingDir}/{packageName}/{CoreConstants.CmfPackageFileName}");
             var cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true, this.fileSystem);
 
             var iotRoot = cmfPackage.GetFileInfo().Directory;
@@ -197,7 +198,7 @@ namespace Cmf.CLI.Commands.New
 
             var packageName = base.GeneratePackageName(workingDir)!.Value.Item1;
 
-            IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{workingDir}/{packageName}/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{workingDir}/{packageName}/{CoreConstants.CmfPackageFileName}");
             var cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true, this.fileSystem);
 
             var iotRoot = cmfPackage.GetFileInfo().Directory;

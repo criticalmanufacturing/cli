@@ -13,6 +13,7 @@ using Cmf.CLI.Core.Services;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using ExecutionContext = Cmf.CLI.Core.Objects.ExecutionContext;
+using Cmf.CLI.Core.Constants;
 
 namespace Cmf.CLI.Commands
 {
@@ -96,7 +97,7 @@ namespace Cmf.CLI.Commands
             }
             else
             {
-                IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{workingDir}/{CliConstants.CmfPackageFileName}");
+                IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{workingDir}/{CoreConstants.CmfPackageFileName}");
 
                 // Reading cmfPackage
                 CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true, this.fileSystem);

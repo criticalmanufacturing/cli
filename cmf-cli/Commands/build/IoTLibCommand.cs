@@ -8,6 +8,7 @@ using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
 using System.Linq;
+using Cmf.CLI.Core.Constants;
 
 namespace Cmf.CLI.Commands.New
 {
@@ -61,7 +62,7 @@ namespace Cmf.CLI.Commands.New
         {
             if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major > 9)
             {
-                IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{workingDir}/{CliConstants.CmfPackageFileName}");
+                IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{workingDir}/{CoreConstants.CmfPackageFileName}");
                 var cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true, this.fileSystem);
 
                 if (cmfPackage.PackageType != PackageType.IoT)
