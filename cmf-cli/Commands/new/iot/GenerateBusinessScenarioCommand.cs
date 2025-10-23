@@ -16,7 +16,7 @@ namespace Cmf.CLI.Commands.New.IoT
     /// <summary>
     /// Generates IoT Business Scenario structure
     /// </summary>
-    [CmfCommand("businessScenario", ParentId = "new_iot", Id = "iot_businessscenario")]
+    [CmfCommand("businessScenario", ParentId = "new_iot", Id = "iot_businessscenario", MinimumMESVersion = "11.1.0")]
     public class GenerateBusinessScenarioCommand : TemplateCommand
     {
 
@@ -67,11 +67,6 @@ namespace Cmf.CLI.Commands.New.IoT
             if (workingDir == null)
             {
                 throw new CliException("This command needs to run inside an iot project. Run `cmf new iot` to create a new project.");
-            }
-
-            if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 11 || (ExecutionContext.Instance.ProjectConfig.MESVersion.Major == 11 && ExecutionContext.Instance.ProjectConfig.MESVersion.Minor < 1))
-            {
-                throw new CliException("This command is only valid for versions above 11.1.0");
             }
 
             using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);

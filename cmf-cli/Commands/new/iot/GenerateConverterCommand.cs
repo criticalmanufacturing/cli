@@ -18,7 +18,7 @@ namespace Cmf.CLI.Commands.New.IoT
     /// <summary>
     /// Generates IoT Converter structure
     /// </summary>
-    [CmfCommand("converter", ParentId = "new_iot", Id = "iot_converter")]
+    [CmfCommand("converter", ParentId = "new_iot", Id = "iot_converter", MinimumMESVersion = "11.0.0")]
     public class GenerateConverterCommand : TemplateCommand
     {
         /// <summary>
@@ -67,11 +67,6 @@ namespace Cmf.CLI.Commands.New.IoT
             if (workingDir == null)
             {
                 throw new CliException("This command needs to run inside an iot project. Run `cmf new iot` to create a new project.");
-            }
-
-            if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 11)
-            {
-                throw new CliException("This command is only valid for versions above 11.0.0");
             }
 
             using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
