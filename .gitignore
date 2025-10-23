@@ -366,3 +366,5 @@ npm/*.tgz
 
 #vendors
 !**/vendors/**
+
+.DS_Store
