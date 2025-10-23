@@ -91,16 +91,45 @@ namespace Cmf.CLI.Builders
 
                     #region Validate DEE Indicators
 
-                    if ((!fileContent.Contains("//---Start DEE Condition Code---") ||
-                        !fileContent.Contains("//---End DEE Condition Code---") ||
-                        !fileContent.Contains("//---Start DEE Code---") ||
-                        !fileContent.Contains("//---End DEE Code---")) &&
-                        (!fileContent.Contains("/** START OF USER-DEFINED VALIDATION CODE (DO NOT CHANGE OR DELETE THIS LINE!) **/") ||
-                        !fileContent.Contains("/** END OF USER-DEFINED VALIDATION CODE (DO NOT CHANGE OR DELETE THIS LINE!) **/") ||
-                        !fileContent.Contains("/** START OF USER-DEFINED CODE (DO NOT CHANGE OR DELETE THIS LINE!) **/") ||
-                        !fileContent.Contains("/** END OF USER-DEFINED CODE (DO NOT CHANGE OR DELETE THIS LINE!) **/")))
+                    // Check for standard DEE indicators
+                    var hasStartDeeCondition = fileContent.Contains("//---Start DEE Condition Code---");
+                    var hasEndDeeCondition = fileContent.Contains("//---End DEE Condition Code---");
+                    var hasStartDeeCode = fileContent.Contains("//---Start DEE Code---");
+                    var hasEndDeeCode = fileContent.Contains("//---End DEE Code---");
+                    
+                    // Check for user-defined indicators
+                    var hasStartUserValidation = fileContent.Contains("/** START OF USER-DEFINED VALIDATION CODE (DO NOT CHANGE OR DELETE THIS LINE!) **/");
+                    var hasEndUserValidation = fileContent.Contains("/** END OF USER-DEFINED VALIDATION CODE (DO NOT CHANGE OR DELETE THIS LINE!) **/");
+                    var hasStartUserCode = fileContent.Contains("/** START OF USER-DEFINED CODE (DO NOT CHANGE OR DELETE THIS LINE!) **/");
+                    var hasEndUserCode = fileContent.Contains("/** END OF USER-DEFINED CODE (DO NOT CHANGE OR DELETE THIS LINE!) **/");
+                    
+                    // Check if file has either set of indicators (standard DEE or user-defined)
+                    var hasStandardIndicators = hasStartDeeCondition && hasEndDeeCondition && hasStartDeeCode && hasEndDeeCode;
+                    var hasUserDefinedIndicators = hasStartUserValidation && hasEndUserValidation && hasStartUserCode && hasEndUserCode;
+                    
+                    if (!hasStandardIndicators && !hasUserDefinedIndicators)
                     {
-                        errors.Add($"DEE File {file.Source.FullName} is not a valid. It does not have all the valid indicators");
+                        var missingIndicators = new List<string>();
+                        
+                        // Report missing standard DEE indicators
+                        if (!hasStartDeeCondition && !hasStartUserValidation)
+                        {
+                            missingIndicators.Add("//---Start DEE Condition Code--- or /** START OF USER-DEFINED VALIDATION CODE (DO NOT CHANGE OR DELETE THIS LINE!) **/");
+                        }
+                        if (!hasEndDeeCondition && !hasEndUserValidation)
+                        {
+                            missingIndicators.Add("//---End DEE Condition Code--- or /** END OF USER-DEFINED VALIDATION CODE (DO NOT CHANGE OR DELETE THIS LINE!) **/");
+                        }
+                        if (!hasStartDeeCode && !hasStartUserCode)
+                        {
+                            missingIndicators.Add("//---Start DEE Code--- or /** START OF USER-DEFINED CODE (DO NOT CHANGE OR DELETE THIS LINE!) **/");
+                        }
+                        if (!hasEndDeeCode && !hasEndUserCode)
+                        {
+                            missingIndicators.Add("//---End DEE Code--- or /** END OF USER-DEFINED CODE (DO NOT CHANGE OR DELETE THIS LINE!) **/");
+                        }
+                        
+                        errors.Add($"DEE File {file.Source.FullName} is not valid. Missing indicators:{Environment.NewLine}{string.Join(Environment.NewLine, missingIndicators.Select(i => $"  - {i}"))}");
                     }
 
                     #endregion
