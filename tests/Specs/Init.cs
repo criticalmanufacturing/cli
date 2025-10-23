@@ -788,5 +788,79 @@ namespace tests.Specs
                 Directory.Delete(tmp, true);
             }
         }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Init_With_And_Without_ISOLocation(bool hasISOLocation)
+        {
+            var rnd = new Random();
+            var tmp = TestUtilities.GetTmpDirectory();
+
+            var projectName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
+            var deploymentDir = "\\\\share\\deployment_dir";
+            var isoLocation = "\\\\share\\iso_location";
+            var pkgVersion = $"{rnd.Next(10)}.{rnd.Next(10)}.{rnd.Next(10)}";
+
+            var cur = Directory.GetCurrentDirectory();
+            try
+            {
+                var console = new TestConsole();
+                Directory.SetCurrentDirectory(tmp);
+
+                var initCommand = new InitCommand();
+                var cmd = new Command("x");
+                initCommand.Configure(cmd);
+
+                var args = new[]
+                {
+                    projectName,
+                    "--infra", TestUtilities.GetFixturePath("init", "infrastructure.json"),
+                    "-c", TestUtilities.GetFixturePath("init", "config.json"),
+                    "--MESVersion", "11.0.0",
+                    "--DevTasksVersion", "8.1.0",
+                    "--HTMLStarterVersion", "8.0.0",
+                    "--yoGeneratorVersion", "8.1.0",
+                    "--ngxSchematicsVersion", "8.8.8",
+                    "--nugetVersion", "11.0.0",
+                    "--testScenariosNugetVersion", "11.0.0",
+                    "--deploymentDir", deploymentDir,
+                    "--version", pkgVersion,
+                    "Cmf.Custom.Package",
+                    tmp
+                };
+
+                if (hasISOLocation)
+                {
+                    args = args.Concat(new[] { "--ISOLocation", isoLocation }).ToArray();
+                }
+
+                TestUtilities.GetParser(cmd).Invoke(args, console);
+
+                console.Error.ToString().Should().BeEmpty();
+
+                Assert.True(File.Exists(".project-config.json"), "project config is missing");
+
+                var projectConfigContent = File.ReadAllText(Path.Join(tmp, ".project-config.json"));
+
+                if (hasISOLocation)
+                {
+                    projectConfigContent
+                        .Should().Contain(@"""ISOLocation""", "ISOLocation should be present in .project-config.json when provided");
+                    projectConfigContent
+                        .Should().Contain(isoLocation.Replace("\\", "\\\\"), "ISOLocation value should be correct");
+                }
+                else
+                {
+                    projectConfigContent
+                        .Should().NotContain(@"""ISOLocation""", "ISOLocation should not be present in .project-config.json when not provided");
+                }
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                Directory.Delete(tmp, true);
+            }
+        }
     }
 }
