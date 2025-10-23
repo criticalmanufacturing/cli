@@ -176,7 +176,7 @@ public class Telemetry
         
         // Call Configure to initialize DI and telemetry
         var (rootCommand, parser) = await StartupModule.Configure(
-            packageName: "plugin-test",
+            packageId: "plugin-test",
             envVarPrefix: "plugin_test",
             description: "Plugin Test",
             args: Array.Empty<string>(),
