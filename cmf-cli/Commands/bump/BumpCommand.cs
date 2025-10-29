@@ -55,7 +55,6 @@ namespace Cmf.CLI.Commands
         /// <param name="buildNr">The version for build Nr.</param>
         /// <param name="root">The root.</param>
         /// <exception cref="CliException"></exception>
-        /// <exception cref="CliException"></exception>
         public void Execute(DirectoryInfo packagePath, string version, string buildNr, string root)
         {
             using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);

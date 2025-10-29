@@ -88,6 +88,23 @@ namespace Cmf.CLI.Handlers
         }
 
         /// <summary>
+        /// Bumps the Base version of the package
+        /// </summary>
+        /// <param name="version">The new Base version.</param>
+        public override void UpgradeBase(string version, string iotVersion, List<string> iotPackagesToIgnore)
+        {
+            base.UpgradeBase(version, iotVersion, iotPackagesToIgnore);
+            UpgradeBaseUtilities.UpdateCSharpProject(this.fileSystem, this.CmfPackage, version, true);
+
+            if (iotVersion == null)
+            {
+                return;
+            }
+
+            UpgradeBaseUtilities.UpdateIoTMasterdatasAndWorkflows(this.fileSystem, this.CmfPackage, iotVersion, iotPackagesToIgnore);
+        }
+
+        /// <summary>
         /// Generates the deployment framework manifest.
         /// </summary>
         /// <param name="packageOutputDir">The package output dir.</param>
