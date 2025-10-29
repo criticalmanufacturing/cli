@@ -20,6 +20,8 @@ using System.Xml.Linq;
 using System.Xml.Serialization;
 using Cmf.CLI.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json.Linq;
+using SharpCompress.Common;
 
 [assembly: InternalsVisibleTo("tests")]
 
@@ -511,13 +513,41 @@ namespace Cmf.CLI.Handlers
         }
 
         /// <summary>
+        /// Bumps the Base version of the package
+        /// </summary>
+        /// <param name="version">The new Base version.</param>
+        public virtual void UpgradeBase(string version, string iotVersion, List<string> iotPackagesToIgnore) {
+            Log.Information($"Will bump {CmfPackage.PackageId}");
+
+            // Read and parse the JSON
+            string text = fileSystem.File.ReadAllText(CmfPackage.GetFileInfo().FullName);
+            JObject jsonObject = JObject.Parse(text);
+
+            // Get dependencies array
+            if (jsonObject.ContainsKey("dependencies"))
+            {
+                // Find the dependency and update version
+                foreach (JObject dep in (JArray)jsonObject["dependencies"])
+                {
+                    if (dep["id"]?.ToString() == "Cmf.Environment" || dep["id"]?.ToString().ToLower() == "criticalmanufacturing.deploymentmetadata")
+                    {
+                        dep["version"] = version;
+                    }
+                }
+            }
+
+            // Write back to the file
+            fileSystem.File.WriteAllText(CmfPackage.GetFileInfo().FullName, jsonObject.ToString(Newtonsoft.Json.Formatting.Indented));
+        }
+
+        /// <summary>
         /// Builds this instance.
         /// </summary>
         public virtual void Build(bool test)
         {
             #region Pre-Build Actions
 
-            foreach(var relatedPackageHandler in RelatedPackagesHandlers.Where(rp => !rp.Key.IsSet && rp.Key.PreBuild))
+            foreach (var relatedPackageHandler in RelatedPackagesHandlers.Where(rp => !rp.Key.IsSet && rp.Key.PreBuild))
             {
                 relatedPackageHandler.Value.Build(test);
                 relatedPackageHandler.Key.IsSet = true;
