@@ -31,7 +31,7 @@ namespace Cmf.CLI.Handlers
                 name:
                     $"{cmfPackage.PackageId.Replace(".", " ")} (All)",
                 keywords:
-                    CliConstants.RootPackageDefaultKeyword
+                    CoreConstants.RootPackageDefaultKeyword
             );
 
             cmfPackage.DFPackageType = PackageType.Generic;
@@ -92,7 +92,7 @@ namespace Cmf.CLI.Handlers
             SaveAppIcon(appData, iconTargetPath);
 
             // Save manifest file
-            string manifestPath = fileSystem.Path.Join(packageOutputDir.FullName, CliConstants.DeploymentFrameworkManifestFileName);
+            string manifestPath = fileSystem.Path.Join(packageOutputDir.FullName, CoreConstants.DeploymentFrameworkManifestFileName);
             dFManifestTemplate.Save(manifestPath);
 
             // Create package zip file

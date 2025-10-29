@@ -15,11 +15,6 @@ namespace Cmf.CLI.Constants
         public const string FolderTemplates = "templateFiles";
 
         /// <summary>
-        /// The folder install dependencies
-        /// </summary>
-        public const string FolderInstallDependencies = "installDependencies";
-
-        /// <summary>
         /// Tests Folder
         /// </summary>
         public const string FolderTests = "/Tests";
@@ -27,11 +22,6 @@ namespace Cmf.CLI.Constants
         #endregion
 
         #region Files
-
-        /// <summary>
-        /// The deployment framework manifest template
-        /// </summary>
-        public const string DeploymentFrameworkManifestFileName = "manifest.xml";
 
         /// <summary>
         /// The app manifest template
@@ -42,11 +32,6 @@ namespace Cmf.CLI.Constants
         /// The app deployment manifest template
         /// </summary>
         public const string AppDeploymentManifestFileName = "app_deployment_manifest.xml";
-
-        /// <summary>
-        /// The CMF package file name
-        /// </summary>
-        public const string CmfPackageFileName = "cmfpackage.json";
 
         /// <summary>
         /// The assets folder
@@ -88,19 +73,9 @@ namespace Cmf.CLI.Constants
         #region Generic
 
         /// <summary>
-        /// The root package default keyword
-        /// </summary>
-        public const string RootPackageDefaultKeyword = "cmf-root-package";
-
-        /// <summary>
         /// Driver keyword for IoT Packages
         /// </summary>
         public const string Driver = "driver";
-
-        /// <summary>
-        /// npm.js repository url
-        /// </summary>
-        public const string NpmJsUrl = "https://registry.npmjs.com";
 
         /// <summary>
         /// The default organization for naming new packages

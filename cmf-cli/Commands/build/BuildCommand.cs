@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
+using Cmf.CLI.Core.Constants;
 
 namespace Cmf.CLI.Commands
 {
@@ -69,7 +70,7 @@ namespace Cmf.CLI.Commands
         public void Execute(IDirectoryInfo packagePath, bool test = false)
         {
             using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
-            IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{packagePath}/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{packagePath}/{CoreConstants.CmfPackageFileName}");
 
             IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile, setDefaultValues: false);
 

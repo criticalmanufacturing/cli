@@ -12,6 +12,7 @@ using Cmf.CLI.Utilities;
 using System.Xml.Linq;
 using System.Linq;
 using System;
+using Cmf.CLI.Core.Constants;
 
 namespace Cmf.CLI.Commands.html;
 
@@ -56,7 +57,7 @@ public class ExtractI18nCommand : BaseCommand
             throw new CliException(string.Format(CliMessages.InvalidVersionForCommand, MIN_MES_VERSION.ToString()));
         }
 
-        var cmfPackageFile = this.fileSystem.FileInfo.New(this.fileSystem.Path.Join(packagePath.FullName, CliConstants.CmfPackageFileName));
+        var cmfPackageFile = this.fileSystem.FileInfo.New(this.fileSystem.Path.Join(packagePath.FullName, CoreConstants.CmfPackageFileName));
         if (!cmfPackageFile.Exists)
         {
             throw new CliException($"Cannot find a package at {cmfPackageFile.FullName}");

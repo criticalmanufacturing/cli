@@ -8,6 +8,7 @@ using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
+using Cmf.CLI.Core.Constants;
 
 namespace Cmf.CLI.Commands.html;
 
@@ -42,7 +43,7 @@ public class LinkLBOsCommand : BaseCommand
     /// </summary>
     public void Execute(IDirectoryInfo packagePath)
     {
-        var cmfPackageFile = this.fileSystem.FileInfo.New(this.fileSystem.Path.Join(packagePath.FullName, CliConstants.CmfPackageFileName));
+        var cmfPackageFile = this.fileSystem.FileInfo.New(this.fileSystem.Path.Join(packagePath.FullName, CoreConstants.CmfPackageFileName));
         if (!cmfPackageFile.Exists)
         {
             throw new CliException($"Cannot find a package at {cmfPackageFile.FullName}");

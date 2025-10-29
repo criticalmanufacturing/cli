@@ -10,6 +10,7 @@ using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using System.IO;
 using System.IO.Abstractions;
+using Cmf.CLI.Core.Constants;
 
 namespace Cmf.CLI.Commands
 {
@@ -59,7 +60,7 @@ namespace Cmf.CLI.Commands
         public void Execute(DirectoryInfo packagePath, string version, string buildNr, string root)
         {
             using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
-            IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{packagePath}/{CliConstants.CmfPackageFileName}");
+            IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{packagePath}/{CoreConstants.CmfPackageFileName}");
 
             if (string.IsNullOrEmpty(version) && string.IsNullOrEmpty(buildNr))
             {

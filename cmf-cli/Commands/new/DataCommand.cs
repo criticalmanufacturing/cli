@@ -12,6 +12,7 @@ using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
+using Cmf.CLI.Core.Constants;
 
 namespace Cmf.CLI.Commands.New
 {
@@ -125,7 +126,7 @@ namespace Cmf.CLI.Commands.New
 
                     #region Link To Business Package
 
-                    IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{workingDir}/{packageName}/{CliConstants.CmfPackageFileName}");
+                    IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{workingDir}/{packageName}/{CoreConstants.CmfPackageFileName}");
                     var dataPackage = CmfPackage.Load(cmfpackageFile, true, fileSystem);
 
                     dataPackage.RelatedPackages = new()

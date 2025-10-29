@@ -12,6 +12,7 @@ using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
+using Cmf.CLI.Core.Constants;
 
 namespace Cmf.CLI.Commands
 {
@@ -61,7 +62,7 @@ namespace Cmf.CLI.Commands
             var project = ExecutionContext.Instance.ProjectConfig.Tenant;
             var helpPackagesRoot = (mesVersion.Major > 9) ? this.fileSystem.Path.Join(helpRoot, "projects") : this.fileSystem.Path.Join(helpRoot, "src", "packages");
             var helpPackages = this.fileSystem.Directory.GetDirectories(helpPackagesRoot);
-            var pkgName = CmfPackage.Load(this.fileSystem.FileInfo.New(this.fileSystem.Path.Join(helpRoot, CliConstants.CmfPackageFileName))).PackageId.ToLowerInvariant();
+            var pkgName = CmfPackage.Load(this.fileSystem.FileInfo.New(this.fileSystem.Path.Join(helpRoot, CoreConstants.CmfPackageFileName))).PackageId.ToLowerInvariant();
             foreach (var helpPackagePath in helpPackages)
             {
                 var helpPackage = this.fileSystem.DirectoryInfo.New(helpPackagePath);
