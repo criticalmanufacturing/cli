@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -9,6 +10,7 @@ using Cmf.CLI.Commands.html;
 using Cmf.CLI.Commands.restore;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
+using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
@@ -158,6 +160,33 @@ namespace Cmf.CLI.Handlers
                     fileSystem.File.WriteAllText(project.PackageLock.File.FullName, JsonConvert.SerializeObject(project.PackageLock.Content, Formatting.Indented));
                 }
 
+            }
+        }
+
+        /// <summary>
+        /// Bumps the Base version of the package
+        /// </summary>
+        /// <param name="version">The new Base version.</param>
+        public override void UpgradeBase(string version, string iotVersion, List<string> iotPackagesToIgnore)
+        {
+            base.UpgradeBase(version, iotVersion, iotPackagesToIgnore);
+            UpgradeBaseUtilities.UpdateNPMProject(this.fileSystem, this.CmfPackage, version);
+
+            IFileInfo projectConfig = this.fileSystem.FileInfo.New(Path.Join(this.CmfPackage.GetFileInfo().DirectoryName, "src", "assets", "config.json"));
+            if (projectConfig.Exists)
+            {
+                Log.Information($"Updating src/assets/config.json file");
+
+                string text = fileSystem.File.ReadAllText(projectConfig.FullName);
+                JObject configObject = JsonConvert.DeserializeObject<JObject>(text);
+
+                if (configObject.ContainsKey("version"))
+                {
+                    string configVersion = (string)configObject["version"];
+                    configObject["version"] = Regex.Replace(configVersion, @"\d+\.\d+\.\d+", version);
+                }
+
+                fileSystem.File.WriteAllText(projectConfig.FullName, JsonConvert.SerializeObject(configObject, Formatting.Indented));
             }
         }
 

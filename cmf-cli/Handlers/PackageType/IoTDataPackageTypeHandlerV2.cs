@@ -4,11 +4,14 @@ using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Cmf.CLI.Handlers
 {
@@ -85,6 +88,23 @@ namespace Cmf.CLI.Handlers
 
                 #endregion Bump IoT Masterdata
             }
+        }
+
+        /// <summary>
+        /// Bumps the Base version of the package
+        /// </summary>
+        /// <param name="version">The new Base version.</param>
+        public override void UpgradeBase(string version, string iotVersion, List<string> iotPackagesToIgnore)
+        {
+            base.UpgradeBase(version, iotVersion, iotPackagesToIgnore);
+            UpgradeBaseUtilities.UpdateCSharpProject(this.fileSystem, this.CmfPackage, version, true);
+
+            if (iotVersion == null)
+            {
+                return;
+            }
+
+            UpgradeBaseUtilities.UpdateIoTMasterdatasAndWorkflows(this.fileSystem, this.CmfPackage, iotVersion, iotPackagesToIgnore);
         }
 
         /// <summary>
