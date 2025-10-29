@@ -2049,5 +2049,82 @@ namespace tests.Specs
             Assert.True(console.Error.ToString().Contains("The subworkflow Error is mentioned but there is no workflow declared with that name"), $"Json Validator did not fail for IoT Data Workflow Package: {console.Error.ToString()}");
         }
 
+        [Fact]
+        public void Data_JsonValidator_HappyPath_EmptyIsFile()
+        {
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { "/test/cmfpackage.json", new MockFileData(
+                    @"{
+                        ""packageId"": ""Cmf.Custom.Package"",
+                        ""version"": ""1.1.0"",
+                        ""description"": ""This package deploys Critical Manufacturing Customization"",
+                        ""packageType"": ""Root"",
+                        ""isInstallable"": true,
+                        ""isUniqueInstall"": false,
+                        ""dependencies"": [
+                            {
+                                ""id"": ""Cmf.Custom.Data"",
+                                ""version"": ""1.1.0""
+                            },
+                            {
+                                ""id"": ""Cmf.Custom.IoT"",
+                                ""version"": ""1.1.0""
+                            }
+                        ]
+                    }")
+                },
+                { "/test/Data/cmfpackage.json", new CmfMockJsonData(
+                    @"{
+                      ""packageId"": ""Cmf.Custom.Data"",
+                      ""version"": ""1.1.0"",
+                      ""description"": ""Cmf Custom Data Package"",
+                      ""packageType"": ""Data"",
+                      ""isInstallable"": true,
+                      ""isUniqueInstall"": true,
+                      ""contentToPack"": [
+                        {
+                            ""source"": ""MasterData/$(version)/*"",
+                            ""target"": ""MasterData/$(version)/"",
+                            ""contentType"": ""MasterData""
+                        }
+                      ]
+                    }")
+                },
+                { "/test/Data/MasterData/1.1.0/Test.json", new MockFileData(
+                    @"{
+                        ""AutomationControllerWorkflow"": {
+                            ""1"": {
+                                ""AutomationController"": ""TestController"",
+                                ""Name"": ""Test"",
+                                ""DisplayName"": ""Test"",
+                                ""IsFile"": """",
+                                ""Order"": ""1""
+                            },
+                            ""2"": {
+                                ""AutomationController"": ""TestController"",
+                                ""Name"": ""Test2"",
+                                ""DisplayName"": ""Test2"",
+                                ""IsFile"": ""No"",
+                                ""Order"": ""2""
+                            }
+                        }
+                    }")
+                }
+            });
+
+            BuildCommand buildCommand = new BuildCommand(fileSystem.FileSystem);
+
+            var cmd = new Command("build");
+            buildCommand.Configure(cmd);
+
+            var console = new TestConsole();
+            cmd.Invoke(new string[] {
+                "test/Data/"
+            }, console);
+
+            Assert.True(console.Error == null || string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator failed with empty IsFile: {console.Error?.ToString()}");
+        }
+
     }
 }
