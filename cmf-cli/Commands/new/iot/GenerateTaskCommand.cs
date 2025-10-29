@@ -169,7 +169,7 @@ namespace Cmf.CLI.Commands.New.IoT
                 var defaultValue = inputValue.DefaultValue is string ? "\"\"" : JsonConvert.SerializeObject(inputValue.DefaultValue);
 
                 inputsInterface += $"\t/** {inputValue.DisplayName} */\r\n";
-                inputsInterface += $"\tpublic {input.Key}: {IoTStructures.ConvertIoTTypesToJSTypes<DataTypeInputOutput>(input.Value.DataType)} = {defaultValue};\r\n";
+                inputsInterface += $"\tpublic {input.Key}: {IoTStructures.ConvertIoTTypesToJSTypes<DataTypeInputOutput>(inputValue.DataType)} = {defaultValue};\r\n";
             }
             return inputsInterface.TrimEnd();
         }
@@ -180,9 +180,10 @@ namespace Cmf.CLI.Commands.New.IoT
             foreach (var output in outputs)
             {
                 var outputValue = output.Value;
+                var convertedDataType = IoTStructures.ConvertIoTTypesToJSTypes<DataTypeInputOutput>(outputValue.DataType);
 
                 outputsInterface += $"\t/** {outputValue.DisplayName} */\r\n";
-                outputsInterface += $"\tpublic {output.Key}: Task.Output<{IoTStructures.ConvertIoTTypesToJSTypes<DataTypeInputOutput>(outputValue.DataType)}> = new Task.Output<{IoTStructures.ConvertIoTTypesToJSTypes(outputValue.DataType)}>();\r\n";
+                outputsInterface += $"\tpublic {output.Key}: Task.Output<{convertedDataType}> = new Task.Output<{convertedDataType}>();\r\n";
             }
             return outputsInterface.TrimEnd();
         }
@@ -412,13 +413,13 @@ namespace Cmf.CLI.Commands.New.IoT
             {
                 defaultOutput.DataType = AnsiConsole.Prompt(
                                     new SelectionPrompt<string>()
-                                    .Title("Input Data Type:")
-                                    .AddChoices(System.Enum.GetNames(typeof(DataTypeInputOutput))));
+                                    .Title("Output Data Type:")
+                                    .AddChoices(Enum.GetNames(typeof(DataTypeInputOutput))));
             }
 
             if (outputs.ContainsKey(outputName))
             {
-                AnsiConsole.Write($"Will override input {outputName}");
+                AnsiConsole.Write($"Will override output {outputName}");
                 outputs[outputName] = defaultOutput;
             }
             else

@@ -27,5 +27,5 @@
             ]
         }
     },
-    "postCreateCommand": "npm ci && echo \"alias 'cmf=/src/cmf-cli/bin/Debug/cmf'\" >> /home/vscode/.bashrc"
+    "postCreateCommand": "npm ci && echo \"alias 'cmf=cmf-cli/bin/Debug/cmf'\" >> /home/vscode/.bashrc"
 }

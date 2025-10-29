@@ -45,6 +45,9 @@ export class <%= $CLI_PARAM_Identifier %>DeviceDriver extends DeviceDriverBase {
             this._container = new Container();
             this._container.parent = this._parentContainer;
 
+            //#if hasTemplates
+            this._extensionHandler = this._container.get<ExtensionHandler>(TYPES.ExtensionHandler);
+            //#endif
             this._<%= $CLI_PARAM_IdentifierCamel %>Handler = this._container.get <<%= $CLI_PARAM_Identifier %>Handler > (TYPES.<%= $CLI_PARAM_Identifier %>Handler);
         }
 

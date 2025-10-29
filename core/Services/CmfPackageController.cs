@@ -1126,7 +1126,8 @@ public class CmfPackageController
                                                                 new JProperty("packageDemands", demandsArray))),
                                 new JProperty("dependencies", dependecies),
                                 new JProperty("mandatoryDependencies", mandatoryDependecies),
-                                new JProperty("conditionalDependencies", conditionalDependencies));
+                                new JProperty("conditionalDependencies", conditionalDependencies),
+                                new JProperty("_originalPackageId", package.PackageId));
 
         if (addManifestVersion)
         {
@@ -1538,6 +1539,28 @@ public class CmfPackageController
                                     streamWriter.Flush();
                                     tarEntryStream.Seek(0, SeekOrigin.Begin);
                                     tarWriter.Write($"package/{CoreConstants.DeploymentFrameworkManifestFileName}", tarEntryStream, zipEntry.LastWriteTime.DateTime);
+                                }
+                            }
+                        }
+                        else if (lowercase && entryName == CoreConstants.PackageJson)
+                        {
+                            using (StreamReader reader = new StreamReader(zipEntryStream, Encoding.UTF8))
+                            {
+                                var manifest = reader.ReadToEnd();
+                                // this should be handled by deserializing to CmfPackageJson and serializing again, but currently many fields are not supported
+                                // so we'll change just the necessary entries
+                                var json = JsonConvert.DeserializeObject<JObject>(manifest);
+                                json["_originalPackageId"] = json[json.ContainsKey("_originalPackageId") ? "_originalPackageId" : "name"]!.Value<string>();
+                                json["name"] = json["name"]!.Value<string>().ToLowerInvariant();
+                                manifest = JsonConvert.SerializeObject(json, Formatting.Indented);
+                                
+                                using (MemoryStream tarEntryStream = new MemoryStream())
+                                {
+                                    using var streamWriter = new StreamWriter(tarEntryStream);
+                                    streamWriter.Write(manifest);
+                                    streamWriter.Flush();
+                                    tarEntryStream.Seek(0, SeekOrigin.Begin);
+                                    tarWriter.Write($"package/{CoreConstants.PackageJson}", tarEntryStream, DateTime.Now);
                                 }
                             }
                         }

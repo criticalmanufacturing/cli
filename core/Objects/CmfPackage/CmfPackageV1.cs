@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
+using System.Linq;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Interfaces;
 using Newtonsoft.Json;
@@ -264,6 +265,23 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
                       bool? isToSetDefaultSteps, DependencyCollection dependencies, List<Step> steps,
                       List<ContentToPack> contentToPack, List<string> xmlInjection, bool? waitForIntegrationEntries, DependencyCollection testPackages = null) : this()
     {
+
+        if (dependencies != null)
+        {
+            // Remove default dependencies to ignore as they are not relevant for cli operations
+            var packageIdsToIgnore = new HashSet<string>(Dependency.DefaultDependenciesToIgnore.Select(id => id.ToLowerInvariant()));
+            dependencies.RemoveAll(d => packageIdsToIgnore.Contains(d.Id.ToLowerInvariant()));
+
+            // Normalize version ranges to just the upper limit
+            foreach (var dep in dependencies)
+            {
+                if (dep.Version.Contains('[') && dep.Version.Contains(']'))
+                {
+                    dep.Version = dep.Version.Replace("[", "").Replace("]", "").Split(',').Last().Trim();
+                }
+            }   
+        }
+
         Name = name;
         PackageId = packageId ?? throw new ArgumentNullException(nameof(packageId));
         Version = version ?? throw new ArgumentNullException(nameof(version));
@@ -282,7 +300,7 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
         WaitForIntegrationEntries = waitForIntegrationEntries;
         TestPackages = testPackages;
     }
-    
+
     /// <summary>
     /// initialize an empty CmfPackage
     /// </summary>

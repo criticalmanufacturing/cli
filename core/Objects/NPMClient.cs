@@ -287,78 +287,31 @@ namespace Cmf.CLI.Core.Objects
         {
             var toLowerCase = true; // TODO: complete implementation
             var addManifestVersion = true; // TODO: complete implementation
-           
+
             var ctrlr = new CmfPackageController(package, package.FileSystem);
-            
+
             var manifest = ctrlr.ToJson(toLowerCase, addManifestVersion);
 
             var name = toLowerCase ? ctrlr.CmfPackage.PackageId.ToLowerInvariant() : ctrlr.CmfPackage.PackageId;
             var tgz = $"{name}-{ctrlr.CmfPackage.Version}.tgz";
             Log.Debug($"Trying to publish {name} to {this.baseUrl}");
-            JObject root = null;
-            
+            HttpContent content;
+
             try
             {
-                Log.Debug("Load package content...");
-                using var fileStream = package.OpenRead();
-                using var memoryStream = new MemoryStream();
-                
-                fileStream.CopyTo(memoryStream);  // this can lead to large memory consumption
-                byte[] fileBytes = memoryStream.ToArray();
+                bool useStreamingPublish = ExecutionContext.ServiceProvider?.GetService<IFeaturesService>()?.UseStreamingPublish ?? false;
 
-                string dataBase64 = Convert.ToBase64String(fileBytes);
+                Log.Debug($"Load package content (streaming mode {(useStreamingPublish ? "enabled" : "disabled")})...");
 
-                using SHA1 sha1 = SHA1.Create();
-                byte[] sha1HashBytes = sha1.ComputeHash(fileBytes);
-                var sha1Hash = BitConverter.ToString(sha1HashBytes).Replace("-", "").ToLower();
-
-                using SHA512 sha512 = SHA512.Create();
-                byte[] sha512HashBytes = sha512.ComputeHash(fileBytes);
-                var sha512_64 = Convert.ToBase64String(sha512HashBytes);
-                // var sha512Hash = BitConverter.ToString(sha512HashBytes).Replace("-", "").ToLower();
-                var sha512Hash = $"sha512-{sha512_64}";
-                Log.Debug($"Package content with hash {sha512Hash} and checksum {sha1Hash}");
-                
-                root = JObject.Parse(
-                    $$"""
-                    { 
-                        "_id": "{{name}}",
-                        "name": "{{name}}",
-                        "description": "{{ctrlr.CmfPackage.Description}}",
-                        "dist-tags": { "latest": "{{ctrlr.CmfPackage.Version}}" },
-                        "versions": {
-                            "{{ctrlr.CmfPackage.Version}}" : {{manifest}}
-                        },
-                        "access": null,
-                        "_attachments": {
-                          "{{tgz}}": {
-                            "content_type": "application/octet-stream",
-                            "data": "{{dataBase64}}",
-                            "length": {{package.Length}}
-                          }
-                        }
-                    }
-                    """);
-                // patch version manifest
-                root["versions"][ctrlr.CmfPackage.Version]["_id"] = $"{name}@{ctrlr.CmfPackage.Version}";
-                root["versions"][ctrlr.CmfPackage.Version]["_cliVersion"] = ExecutionContext.CurrentVersion;
-                root["versions"][ctrlr.CmfPackage.Version]["_integrity"] = sha512Hash;
-                root["versions"][ctrlr.CmfPackage.Version]["dist"] = JObject.Parse($$"""
-                      {
-                        "integrity": "{{sha512Hash}}",
-                        "shasum": "{{sha1Hash}}",
-                        "tarball": "{{this.baseUrl.Replace("https://", "http://")}}/{{name}}/-/{{tgz}}"
-                      }
-                      """);
+                content = useStreamingPublish
+                    ? GetPublishBodyStream(package, ctrlr, name, tgz, manifest)
+                    : GetPublishBody(package, ctrlr, name, tgz, manifest); 
             }
             catch (Exception ex)
             {
                 throw new CliException($"Could not publish package {ctrlr.CmfPackage.PackageAtRef}!", ex);
             }
-            
-            var payload = root.ToString(Formatting.None);
-            var content = new StringContent(payload, Encoding.UTF8, "application/json");
-            // var content = JsonContent.Create(root);
+
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             Log.Debug($"PUTing package to {this.baseUrl}...");
             try
@@ -380,7 +333,135 @@ namespace Cmf.CLI.Core.Objects
                 throw new CliException(
                     $"Failed to publish package: {e.Message}");
             }
-            
+        }
+
+        private HttpContent GetPublishBody(
+            IFileInfo package,
+            CmfPackageController ctrlr,
+            string name,
+            string tgz,
+            string manifest
+        )
+        {
+            using var fileStream = package.OpenRead();
+            using var memoryStream = new MemoryStream();
+
+            fileStream.CopyTo(memoryStream);  // this can lead to large memory consumption
+            byte[] fileBytes = memoryStream.ToArray();
+
+            string dataBase64 = Convert.ToBase64String(fileBytes);
+
+            using SHA1 sha1 = SHA1.Create();
+            byte[] sha1HashBytes = sha1.ComputeHash(fileBytes);
+            var sha1Hash = BitConverter.ToString(sha1HashBytes).Replace("-", "").ToLower();
+
+            using SHA512 sha512 = SHA512.Create();
+            byte[] sha512HashBytes = sha512.ComputeHash(fileBytes);
+            var sha512_64 = Convert.ToBase64String(sha512HashBytes);
+            // var sha512Hash = BitConverter.ToString(sha512HashBytes).Replace("-", "").ToLower();
+            var sha512Hash = $"sha512-{sha512_64}";
+
+            var payload = GetPublicManifest(package, ctrlr, name, tgz, manifest, dataBase64, sha1Hash, sha512Hash);
+            var content = new StringContent(payload, Encoding.UTF8, "application/json");
+
+            return content;
+        }
+
+        private HttpContent GetPublishBodyStream(
+            IFileInfo package,
+            CmfPackageController ctrlr,
+            string name,
+            string tgz,
+            string manifest
+        )
+        {
+            const string JSON_DATA_PLACEHOLDER = "$$$TGZ_BASE_64_TOKEN$$$";
+
+            string sha1Hash;
+            {
+                using var fileStream = package.OpenRead();
+                using SHA1 sha1 = SHA1.Create();
+                byte[] sha1HashBytes = sha1.ComputeHash(fileStream);
+                sha1Hash = BitConverter.ToString(sha1HashBytes).Replace("-", "").ToLower();
+            }
+
+            string sha512Hash;
+            {
+                using var fileStream = package.OpenRead();
+                using SHA512 sha512 = SHA512.Create();
+                byte[] sha512HashBytes = sha512.ComputeHash(fileStream);
+                var sha512_64 = Convert.ToBase64String(sha512HashBytes);
+                // var sha512Hash = BitConverter.ToString(sha512HashBytes).Replace("-", "").ToLower();
+                sha512Hash = $"sha512-{sha512_64}";
+            }
+
+            var payloadData = package.OpenRead();
+
+            // Create the JSON string with a dummy placeholder in the data field. Because the real data can be quite big sometimes (packages with hundreds of MBs)
+            // it is better to send the data as a stream than to hold it all in memory at the same time while performing JSON operations on it
+            var payload = GetPublicManifest(package, ctrlr, name, tgz, manifest, JSON_DATA_PLACEHOLDER, sha1Hash, sha512Hash);
+            var payloadPrefix = payload.Split(JSON_DATA_PLACEHOLDER)[0];
+            var payloadSuffix = payload.Split(JSON_DATA_PLACEHOLDER)[1];
+
+            var stream = new ConcatStreams([
+                new MemoryStream(Encoding.UTF8.GetBytes(payloadPrefix)),
+                new CryptoStream(payloadData, new ToBase64Transform(), CryptoStreamMode.Read),
+                new MemoryStream(Encoding.UTF8.GetBytes(payloadSuffix)),
+            ]);
+
+            var content = new StreamContent(stream);
+
+            return content;
+        }
+
+        private string GetPublicManifest(
+            IFileInfo package,
+            CmfPackageController ctrlr,
+            string name,
+            string tgz,
+            string manifest,
+            string data,
+            string sha1Hash,
+            string sha512Hash
+        ) {
+            Log.Debug($"Package content with hash {sha512Hash} and checksum {sha1Hash}");
+
+            var root = JObject.Parse(
+                $$"""
+                { 
+                    "_id": "{{name}}",
+                    "name": "{{name}}",
+                    "description": "{{ctrlr.CmfPackage.Description}}",
+                    "dist-tags": { "latest": "{{ctrlr.CmfPackage.Version}}" },
+                    "versions": {
+                        "{{ctrlr.CmfPackage.Version}}" : {{manifest}}
+                    },
+                    "access": null,
+                    "_attachments": {
+                      "{{tgz}}": {
+                        "content_type": "application/octet-stream",
+                        "data": "",
+                        "length": {{package.Length}}
+                      }
+                    }
+                }
+                """);
+            // patch version manifest
+            root["versions"][ctrlr.CmfPackage.Version]["_id"] = $"{name}@{ctrlr.CmfPackage.Version}";
+            root["versions"][ctrlr.CmfPackage.Version]["_cliVersion"] = ExecutionContext.CurrentVersion;
+            root["versions"][ctrlr.CmfPackage.Version]["_integrity"] = sha512Hash;
+            root["versions"][ctrlr.CmfPackage.Version]["dist"] = JObject.Parse($$"""
+                  {
+                    "integrity": "{{sha512Hash}}",
+                    "shasum": "{{sha1Hash}}",
+                    "tarball": "{{this.baseUrl.Replace("https://", "http://")}}/{{name}}/-/{{tgz}}"
+                  }
+                  """);
+
+            // patch the base64-encoded data
+            root["_attachments"][tgz]["data"] = data;
+
+            return root.ToString(Formatting.None);
         }
 
         private static HttpClient ApplyAuthenticationHeaders(HttpClient client, string baseUrl, ICredential credentials)
@@ -388,13 +469,13 @@ namespace Cmf.CLI.Core.Objects
             // handle authentication
             client.DefaultRequestHeaders.Authorization = credentials switch
             {
-                BearerCredential bearer => 
+                BearerCredential bearer =>
                     new AuthenticationHeaderValue("Bearer", bearer.Token),
-                BasicCredential basic => 
+                BasicCredential basic =>
                     new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes($"{basic.Username}:{basic.Password}"))),
                 _ => null,
             };
-            
+
             if (baseUrl != CoreConstants.NpmJsUrl)
             {
                 // remove the scope @ as it's not a valid user agent character

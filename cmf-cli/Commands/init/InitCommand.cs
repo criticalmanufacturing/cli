@@ -32,7 +32,9 @@ namespace Cmf.CLI.Commands
         public string version { get; set; }
         public IFileInfo config { get; set; }
         public IFileInfo appConfig { get; set; }
-        public IDirectoryInfo deploymentDir { get; set; }
+        public Uri deploymentDir { get; set; }
+        public Uri ciRepo { get; set; }
+        public List<Uri> releaseRepos { get; set; }
         public string BaseVersion { get; set; }
         public string DevTasksVersion { get; set; }
         public string HTMLStarterVersion { get; set; }
@@ -111,26 +113,21 @@ namespace Cmf.CLI.Commands
                 aliases: new[] { "-c", "--config" },
                 parseArgument: argResult => Parse<IFileInfo>(argResult),
                 isDefault: true,
-                description: "Configuration file exported from Setup")
-                { IsRequired = true });
+                description: "Configuration file exported from Setup"
+            ) { IsRequired = true });
             cmd.AddOption(new Option<IFileInfo>(
                     aliases: ["--appConfig"],
                     parseArgument: argResult => Parse<IFileInfo>(argResult),
                     isDefault: true,
-                    description: "App Configuration file")
-                { IsRequired = false });
+                    description: "App Configuration file"
+            ) { IsRequired = false });
             cmd.AddOption(new Option<RepositoryType>(
                     aliases: new[] { "-t", "--repositoryType" },
                     getDefaultValue: () => CliConstants.DefaultRepositoryType,
-                    description: "The type of repository we should initialize. Are we customizing MES or creating a new Application?")
-                { IsRequired = true });
-            
+                    description: "The type of repository we should initialize. Are we customizing MES or creating a new Application?"
+            ) { IsRequired = true });
+
             // template-time options. These are all mandatory
-            cmd.AddOption(new Option<IDirectoryInfo>(
-                aliases: new[] { "--deploymentDir" },
-                parseArgument: argResult => Parse<IDirectoryInfo>(argResult),
-                description: "Deployments directory"
-            ){ IsRequired = true });
             cmd.AddOption(new Option<string>(
                 aliases: new[] { "--baseVersion", "--MESVersion" },
                 description: "Target CM framework/MES version"
@@ -161,6 +158,24 @@ namespace Cmf.CLI.Commands
                 description: "Test Scenarios Nuget Version"
             ) { IsRequired = true });
 
+            // repositories
+            cmd.AddOption(new Option<Uri>(
+                aliases: new[] { "--deploymentDir" },
+                description: "Deployments directory. Deprecated, supports only file paths/network shares. When using NPM feeds, use --ciRepo and --releaseRepos instead."
+            ) { IsRequired = false });
+            cmd.AddOption(new Option<Uri>(
+                aliases: new[] { "--ciRepo" },
+                description: "The repository (network share or NPM feed) where CI packages are published to. Must be passed only and only if --deploymentDir is not."
+            ) { IsRequired = false });
+            cmd.AddOption(new Option<List<Uri>>(
+                aliases: new[] { "--releaseRepos" },
+                description: "The list of repositories (network shares and/or NPM feeds) where approved packages to be delivered are published to. Must be passed only and only if --deploymentDir is not."
+            )
+            {
+                Arity = ArgumentArity.ZeroOrMore,
+                AllowMultipleArgumentsPerToken = true
+            });
+
             // infra options
             cmd.AddOption(new Option<IFileInfo>(
                 aliases: new[] { "--infra", "--infrastructure" },
@@ -171,7 +186,7 @@ namespace Cmf.CLI.Commands
             cmd.AddOption(new Option<Uri>(
                 aliases: new[] { "--nugetRegistry" },
                 description: "NuGet registry that contains the MES packages"
-                ));
+            ));
             cmd.AddOption(new Option<Uri>(
                 aliases: new[] { "--npmRegistry" },
                 description: "NPM registry that contains the MES packages"
@@ -196,8 +211,7 @@ namespace Cmf.CLI.Commands
             cmd.AddOption(new Option<string>(
                 aliases: new[] { "--appId" },
                 description: $"Application identifier. {OnlyIfTypeAppWarning}"
-            )
-            { IsRequired = false });
+            ) { IsRequired = false });
 
             cmd.AddOption(new Option<string>(
                 aliases: new[] { "--appName" },
@@ -207,8 +221,7 @@ namespace Cmf.CLI.Commands
             cmd.AddOption(new Option<string>(
                 aliases: new[] { "--appAuthor" },
                 description: $"Application author. {OnlyIfTypeAppWarning}"
-            )
-            { IsRequired = false });
+            ) { IsRequired = false });
 
             cmd.AddOption(new Option<string>(
                 aliases: new[] { "--appDescription" },
@@ -227,11 +240,10 @@ namespace Cmf.CLI.Commands
             ) { IsRequired = false });
 
             // Add the handler
-            cmd.Handler = CommandHandler
-                .Create((InitArguments args) =>
-                {
-                    this.Execute(args);
-                });
+            cmd.Handler = CommandHandler.Create((InitArguments args) =>
+            {
+                this.Execute(args);
+            });
         }
 
         /// <summary>
@@ -304,20 +316,61 @@ namespace Cmf.CLI.Commands
 
             if (x.deploymentDir != null)
             {
-                args.AddRange(new [] {"--deploymentDir", x.deploymentDir.FullName});
-                args.AddRange(new [] {"--DeliveredRepo", $"{x.deploymentDir.FullName}\\Delivered"});
-                args.AddRange(new[] { "--CIRepo", $"{x.deploymentDir.FullName}\\CIPackages" });
+                if (x.ciRepo != null)
+                {
+                    throw new CliException("Invalid option `--ciRepo` when also using `--deploymentDir`. Use one or the other, but not both.");
+                }
+                if (x.releaseRepos != null)
+                {
+                    throw new CliException("Invalid option `--releaseRepos` when also using `--deploymentDir`. Use one or the other, but not both.");
+                }
+
+                string deploymentDirPath = null;
+                try
+                {
+                    if (x.deploymentDir.IsUnc)
+                    {
+                        deploymentDirPath = x.deploymentDir.OriginalString;
+                    }
+                    else
+                    {
+                        deploymentDirPath = this.fileSystem.DirectoryInfo.New(x.deploymentDir.LocalPath).FullName;
+                    }
+                }
+                catch
+                {
+                    deploymentDirPath = x.deploymentDir.OriginalString;
+                }
+
+                args.AddRange(new[] { "--deploymentDir", deploymentDirPath });
+                args.AddRange(new[] { "--DeliveredRepo", $"{deploymentDirPath}\\Delivered" });
+                args.AddRange(new[] { "--CIRepo", $"{deploymentDirPath}\\CIPackages" });
             }
+            else
+            {
+                if (x.ciRepo == null)
+                {
+                    throw new CliException("Missing option `--ciRepo` or `--deploymentDir`. Please specify one or the other (but not both).");
+                }
+                if (x.releaseRepos == null)
+                {
+                    throw new CliException("Missing option `--releaseRepos` or `--deploymentDir`. Please specify one or the other (but not both).");
+                }
+
+                args.AddRange(new[] { "--ReleaseRepos", string.Join(";", x.releaseRepos.Select(r => r.AbsoluteUri)) });
+                args.AddRange(new[] { "--CIRepo", x.ciRepo.AbsoluteUri });
+            }
+
             if (x.BaseVersion != null)
             {
-                args.AddRange(new [] {"--MESVersion", x.BaseVersion});
+                args.AddRange(new[] { "--MESVersion", x.BaseVersion });
             }
-            
+
             args.AddRange(new [] {"--DevTasksVersion", x.DevTasksVersion ?? ""});
             args.AddRange(new [] {"--HTMLStarterVersion", x.HTMLStarterVersion ?? ""});
             args.AddRange(new [] {"--yoGeneratorVersion", x.yoGeneratorVersion ?? ""});
             args.AddRange(new [] {"--ngxSchematicsVersion", x.ngxSchematicsVersion ?? ""});
-            
+
             if (x.nugetVersion != null)
             {
                 args.AddRange(new [] {"--nugetVersion", x.nugetVersion});
@@ -375,15 +428,13 @@ namespace Cmf.CLI.Commands
                 args.AddRange(new[] { "--nugetRegistryPassword", x.nugetRegistryPassword });
             }          
 
-
-            
             #endregion           
 
             #region version-specific bits
 
             var version = Version.Parse(x.BaseVersion);
             args.AddRange(new []{ "--dotnetSDKVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().DotNetSdk(version) });
-            
+
             if (version.Major > 9)
             {
                 if (string.IsNullOrWhiteSpace(x.ngxSchematicsVersion))
@@ -413,26 +464,26 @@ namespace Cmf.CLI.Commands
                 }
             }
             #endregion
-            
+
             if (x.config != null)
             {
                 args.AddRange(ParseConfigFile(x.config));
             }
-            
+
             if (x.appConfig != null)
             {
                 args.AddRange(new string[] {"--AppEnvironmentConfig", x.appConfig.Name});
             }
-            
+
             this.RunCommand(args);
-            
+
             // Copy app icon to assets
             if (x.appIcon != null)
             {
                 var assetsPath = fileSystem.Path.Join(FileSystemUtilities.GetProjectRoot(fileSystem, throwException: true).FullName, "assets");
                 x.appIcon.CopyTo(fileSystem.Path.Join(assetsPath, x.appIcon.Name));
             }
-            
+
             // Copy MES config to Environment Configs
             if (x.config != null)
             {
@@ -440,7 +491,7 @@ namespace Cmf.CLI.Commands
                 x.config.CopyTo(this.fileSystem.Path.Join(envConfigPath, x.config.Name));
                 fileSystem.FileInfo.New(this.fileSystem.Path.Join(envConfigPath, ".gitkeep")).Delete();
             }
-            
+
             // Copy app config to Environment Configs
             if (x.appConfig != null)
             {
@@ -448,7 +499,7 @@ namespace Cmf.CLI.Commands
                 x.appConfig.CopyTo(this.fileSystem.Path.Join(envConfigPath, x.appConfig.Name));
                 fileSystem.FileInfo.New(this.fileSystem.Path.Join(envConfigPath, ".gitkeep")).Delete();
             }
-            
+
             if (x.repositoryType == RepositoryType.App)
             {
                 Log.Information("Apps need to have an ApplicationVersion package. Make sure you create at least one business package for your application using the addApplicationVersionAssembly flag");

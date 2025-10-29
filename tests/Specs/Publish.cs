@@ -150,7 +150,7 @@ public class Publish
         Assert.NotNull(json);
         
         Assert.True(json.ContainsKey("name"));
-        Assert.Equal("Cmf.Custom.Tests", json["name"]!.Value<string>());
+        Assert.Equal("cmf.custom.tests", json["name"]!.Value<string>()); // publishing to NPM causes the package id to become lowercase
 
         Assert.True(json.ContainsKey("version"));
         Assert.Equal("1.1.0", json["version"]!.Value<string>());

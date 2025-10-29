@@ -602,6 +602,12 @@ public class RepositoryCredentials
                 Repository = CmfAuthConstants.DockerRepository,
                 Username = "CMF\\UNAME",
                 Password = token,
+            },
+            new BearerCredential
+            {
+                RepositoryType = RepositoryCredentialsType.NPM,
+                Repository = CmfAuthConstants.PortalNPMRepository,
+                Token = token,
             }
         ]);
     }
@@ -702,6 +708,12 @@ public class RepositoryCredentials
                 Repository = testRepo3.OriginalString,
                 Username = "CMF\\UNAME",
                 Password = token,
+            },
+            new BearerCredential
+            {
+                RepositoryType = RepositoryCredentialsType.NPM,
+                Repository = CmfAuthConstants.PortalNPMRepository,
+                Token = token,
             }
         ]);
     }

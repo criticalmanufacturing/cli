@@ -220,7 +220,7 @@ namespace tests.Specs
             }, console);
 
             Assert.True(string.IsNullOrEmpty(console.Error.ToString()) == !shouldError, $"Json Validator did not fail for IoT Data Workflow Package: {console.Error.ToString()}");
-            Assert.True(console.Error.ToString().Contains("It does not have all the valid indicators") == shouldError, $"Json Validator did not fail for IoT Data Workflow Package: {console.Error.ToString()}");
+            Assert.True(console.Error.ToString().Contains("Missing indicators:") == shouldError, $"Json Validator did not fail for IoT Data Workflow Package: {console.Error.ToString()}");
         }
         
         [Theory]
@@ -302,7 +302,7 @@ namespace tests.Specs
             }, console);
 
             Assert.True(!string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator did not fail for IoT Data Workflow Package: {console.Error.ToString()}");
-            Assert.True(console.Error.ToString().Contains("It does not have all the valid indicators"), $"Json Validator did not fail for IoT Data Workflow Package: {console.Error.ToString()}");
+            Assert.True(console.Error.ToString().Contains("Missing indicators:"), $"Json Validator did not fail for IoT Data Workflow Package: {console.Error.ToString()}");
         }
 
         [Fact]
@@ -361,6 +361,75 @@ namespace tests.Specs
 
             Assert.True(!string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator did not fail for IoT Data Workflow Package: {console.Error.ToString()}");
             Assert.True(console.Error.ToString().Contains("UseReference contains a whitespace, please refer to the valid format UseReference"), $"Json Validator did not fail for IoT Data Workflow Package: {console.Error.ToString()}");
+        }
+
+        [Fact]
+        public void Data_DEEValidator_DetailedMissingIndicators()
+        {
+            // Test that specific missing indicators are reported in error message
+            var dee = MOCKDEE;
+            // Remove start and end DEE Code indicators
+            dee = dee.Replace("//---Start DEE Code---", "");
+            dee = dee.Replace("//---End DEE Code---", "");
+
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { "/test/cmfpackage.json", new MockFileData(
+                    @"{
+                        ""packageId"": ""Cmf.Custom.Package"",
+                        ""version"": ""1.1.0"",
+                        ""description"": ""This package deploys Critical Manufacturing Customization"",
+                        ""packageType"": ""Root"",
+                        ""isInstallable"": true,
+                        ""isUniqueInstall"": false,
+                        ""dependencies"": [
+                            {
+                                ""id"": ""Cmf.Custom.Data"",
+                                ""version"": ""1.1.0""
+                            }
+                        ]
+                    }")
+                },
+                { "/test/Data/cmfpackage.json", new CmfMockJsonData(
+                    @"{
+                      ""packageId"": ""Cmf.Custom.Data"",
+                      ""version"": ""1.1.0"",
+                      ""description"": ""Cmf Custom Data Package"",
+                      ""packageType"": ""Data"",
+                      ""isInstallable"": true,
+                      ""isUniqueInstall"": true,
+                      ""contentToPack"": [
+                        {
+                            ""source"": ""DEEs/*"",
+                            ""target"": ""DeeRules"",
+                            ""contentType"": ""DEE""
+                        }
+                      ]
+                    }")
+                },
+                { "/test/Data/DEEs/test/test.cs", new MockFileData(dee)
+                }
+            });
+
+            BuildCommand buildCommand = new BuildCommand(fileSystem.FileSystem);
+
+            var cmd = new Command("build");
+            buildCommand.Configure(cmd);
+
+            var console = new TestConsole();
+            cmd.Invoke(new string[] {
+                "test/Data/"
+            }, console);
+
+            var errorOutput = console.Error.ToString();
+            
+            // Verify that the error message contains detailed information about missing indicators
+            Assert.True(!string.IsNullOrEmpty(errorOutput), "Expected validation error but got none");
+            Assert.True(errorOutput.Contains("Missing indicators:"), "Error message should contain 'Missing indicators:'");
+            Assert.True(errorOutput.Contains("//---Start DEE Code---") || errorOutput.Contains("/** START OF USER-DEFINED CODE"), 
+                "Error message should specify the missing start code indicator");
+            Assert.True(errorOutput.Contains("//---End DEE Code---") || errorOutput.Contains("/** END OF USER-DEFINED CODE"), 
+                "Error message should specify the missing end code indicator");
         }
     }
 }

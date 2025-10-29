@@ -24,7 +24,7 @@ namespace Cmf.CLI.Core.Constants
         /// Repository URL for Critical Manufacturing's public NPM registry
         /// </summary>
         public const string NPMRepository = "https://criticalmanufacturing.io/repository/npm/";
-    
+
         /// <summary>
         /// Repository URL for Critical Manufacturing's public Docker registry
         /// </summary>
@@ -41,9 +41,19 @@ namespace Cmf.CLI.Core.Constants
         public const string MESRepository = "cm-mes.io";
 
         /// <summary>
+        /// Repository URL for Critical Manufacturing's portal NPM registry
+        /// </summary>
+        public const string PortalNPMRepository = "https://portal.criticalmanufacturing.com/api/package";
+
+        /// <summary>
         /// Standard name for the NuGet Source for Critical Manufacturing's packages
         /// </summary>
         public const string NuGetKey = "CMF";
+
+        /// <summary>
+        /// OAuth endpoint for Critical Manufacturing's Customer Portal
+        /// </summary>
+        public const string PortalOAuthEndpointUrl = "https://security.criticalmanufacturing.com/api/tenant/CustomerPortal/oauth2/token";
 
         #endregion
     }

@@ -148,7 +148,7 @@ namespace tests.Specs
             Assert.Contains("Required argument missing for command: 'x'", console.Error.ToString());
             foreach (var optionName in new[]
                  {
-                     "baseVersion", "nugetVersion", "testScenariosNugetVersion", "deploymentDir"
+                     "baseVersion", "nugetVersion", "testScenariosNugetVersion"
                  })
             {
                 Assert.Contains($"Option '--{optionName}' is required.", console.Error.ToString());
@@ -521,7 +521,6 @@ namespace tests.Specs
                     "--ExtraUnknownOption", "RandomValue"
                 }, console);
 
-
                 console.Error.ToString().Should().Contain("Unrecognized command or argument '--ExtraUnknownOption'");
                 console.Error.ToString().Should().Contain("Unrecognized command or argument 'RandomValue'.");
 
@@ -570,7 +569,6 @@ namespace tests.Specs
                     "--version", pkgVersion,
                     "--UnknownOption", "RandomValue"
                 }, console);
-
 
                 console.Error.ToString().Should().BeEmpty();
 
@@ -621,7 +619,6 @@ namespace tests.Specs
                     tmp
                 }, console);
 
-
                 console.Error.ToString().Should().BeEmpty();
 
                 File.Exists(".project-config.json").Should().BeTrue("project config is missing");
@@ -639,7 +636,157 @@ namespace tests.Specs
             }
         }
         
-        
-        
+        [Fact]
+        public void Init_With_Both_DeploymentDir_And_Releaserepos()
+        {
+            var rnd = new Random();
+            var tmp = TestUtilities.GetTmpDirectory();
+
+            var projectName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
+            var deploymentDir = "\\\\share\\deployment_dir";
+            var releaseRepo = "https://release.com";
+            var ciRepo = "https://ci.com";
+
+            var pkgVersion = $"{rnd.Next(10)}.{rnd.Next(10)}.{rnd.Next(10)}";
+
+            var cur = Directory.GetCurrentDirectory();
+            try
+            {
+                var console = new TestConsole();
+                Directory.SetCurrentDirectory(tmp);
+
+                var initCommand = new InitCommand();
+                var cmd = new Command("x");
+                initCommand.Configure(cmd);
+
+                var args = new[]
+                {
+                    projectName,
+                    "--infra", TestUtilities.GetFixturePath("init", "infrastructure.json"),
+                    "-c", TestUtilities.GetFixturePath("init", "config.json"),
+                    "--MESVersion", "11.0.0",
+                    "--DevTasksVersion", "8.1.0",
+                    "--HTMLStarterVersion", "8.0.0",
+                    "--yoGeneratorVersion", "8.1.0",
+                    "--ngxSchematicsVersion", "8.8.8",
+                    "--nugetVersion", "11.0.0",
+                    "--testScenariosNugetVersion", "11.0.0",
+                    "--deploymentDir", deploymentDir,
+                    "--releaseRepos", releaseRepo,
+                    "--ciRepo", ciRepo,
+                    "--version", pkgVersion,
+                    "Cmf.Custom.Package",
+                    tmp
+                };
+
+                TestUtilities.GetParser(cmd).Invoke(args, console);
+
+                console.Error.ToString().Should().NotBeEmpty("Error should be thrown when both deploymentDir and releaseRepos are provided");
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                Directory.Delete(tmp, true);
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Init_With_And_Without_DeploymentDir(bool hasDeploymentDir)
+        {
+            var rnd = new Random();
+            var tmp = TestUtilities.GetTmpDirectory();
+
+            var projectName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
+            var deploymentDir = "\\\\share\\deployment_dir";
+            var deliveredRepo = $"{deploymentDir}\\Delivered";
+            var ciRepo = hasDeploymentDir ? $"{deploymentDir}\\CIPackages" : "https://ci.com/";
+            var ciRepoSuffix = hasDeploymentDir ? "\\development" : string.Empty;
+            var releaseRepo1 = "https://release.com/";
+            var releaseRepo2 = "https://release-next.com/";
+
+            var pkgVersion = $"{rnd.Next(10)}.{rnd.Next(10)}.{rnd.Next(10)}";
+
+            var cur = Directory.GetCurrentDirectory();
+            try
+            {
+                var console = new TestConsole();
+                Directory.SetCurrentDirectory(tmp);
+
+                var initCommand = new InitCommand();
+                var cmd = new Command("x");
+                initCommand.Configure(cmd);
+
+                var args = new[]
+                {
+                    projectName,
+                    "--infra", TestUtilities.GetFixturePath("init", "infrastructure.json"),
+                    "-c", TestUtilities.GetFixturePath("init", "config.json"),
+                    "--MESVersion", "11.0.0",
+                    "--DevTasksVersion", "8.1.0",
+                    "--HTMLStarterVersion", "8.0.0",
+                    "--yoGeneratorVersion", "8.1.0",
+                    "--ngxSchematicsVersion", "8.8.8",
+                    "--nugetVersion", "11.0.0",
+                    "--testScenariosNugetVersion", "11.0.0",
+                    "--version", pkgVersion,
+                    "Cmf.Custom.Package",
+                    tmp
+                };
+
+                if (hasDeploymentDir)
+                {
+                    args = args.Concat(new[] { "--deploymentDir", deploymentDir }).ToArray();
+                }
+                else
+                {
+                    args = args.Concat(new[] { "--releaseRepos", releaseRepo1, releaseRepo2 }).ToArray();
+                    args = args.Concat(new[] { "--ciRepo", ciRepo }).ToArray();
+                }
+
+                TestUtilities.GetParser(cmd).Invoke(args, console);
+
+                console.Error.ToString().Should().BeEmpty();
+
+                Assert.True(File.Exists(".project-config.json"), "project config is missing");
+                Assert.True(File.Exists("repositories.json"), "repositories.json is missing");
+
+                File.ReadAllText(Path.Join(tmp, ".project-config.json"))
+                    .Should().Contain($@"""CIRepo"": ""{ciRepo.Replace("\\", "\\\\")}""", "CIRepo is not correct");
+                File.ReadAllText(Path.Join(tmp, "repositories.json"))
+                    .Should().Contain($@"""CIRepository"": ""{ciRepo.Replace("\\", "\\\\")}{ciRepoSuffix.Replace("\\", "\\\\")}""", "CIRepository is not correct");
+
+                var newline = "\n"; // can't use Environment.NewLine somehow, it breaks the test
+                var whitespace = "    ";
+                var longWhitespace = "        ";
+
+                if (hasDeploymentDir)
+                {
+                    File.ReadAllText(Path.Join(tmp, ".project-config.json"))
+                        .Should().NotContain(@"""ReleaseRepos""", "ReleaseRepos should not be present in .project-config.json");
+                    File.ReadAllText(Path.Join(tmp, ".project-config.json"))
+                        .Should().Contain($@"""DeploymentDir"": ""{deploymentDir.Replace("\\", "\\\\")}""", "DeploymentDir is not correct");
+                    File.ReadAllText(Path.Join(tmp, ".project-config.json"))
+                        .Should().Contain($@"""DeliveredRepo"": ""{deliveredRepo.Replace("\\", "\\\\")}""", "DeliveredRepo is not correct");
+                    File.ReadAllText(Path.Join(tmp, "repositories.json"))
+                        .Should().Contain($@"""Repositories"": [{newline}{longWhitespace}""{deliveredRepo.Replace("\\", "\\\\")}""{newline}{whitespace}]", "Repositories is not correct");
+                }
+                else
+                {
+                    File.ReadAllText(Path.Join(tmp, ".project-config.json"))
+                        .Should().NotContain(@"""DeploymentDir""", "DeploymentDir should not be present in .project-config.json");
+                    File.ReadAllText(Path.Join(tmp, ".project-config.json"))
+                        .Should().NotContain(@"""DeliveredRepo""", "DeliveredRepo should not be present in .project-config.json");
+                    File.ReadAllText(Path.Join(tmp, "repositories.json"))
+                        .Should().Contain($@"""Repositories"": [{newline}{longWhitespace}""{releaseRepo1}"",{newline}{longWhitespace}""{releaseRepo2}""{newline}{whitespace}]", "Repositories is not correct");
+                }
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                Directory.Delete(tmp, true);
+            }
+        }
     }
 }
