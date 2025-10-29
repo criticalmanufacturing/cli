@@ -126,7 +126,17 @@ namespace Cmf.CLI.Handlers
                 this.fileSystem.File.WriteAllText(filePath, text);
             }
         }
-    
+
+        /// <summary>
+        /// Bumps the Base version of the package
+        /// </summary>
+        /// <param name="version">The new Base version.</param>
+        public override void UpgradeBase(string version, string iotVersion, List<string> iotPackagesToIgnore)
+        {
+            base.UpgradeBase(version, iotVersion, iotPackagesToIgnore);
+            UpgradeBaseUtilities.UpdateCSharpProject(this.fileSystem, this.CmfPackage, version, false);
+        }
+
         #endregion
     }
 }

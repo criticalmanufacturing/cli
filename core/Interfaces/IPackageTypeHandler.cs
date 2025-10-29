@@ -26,6 +26,14 @@ namespace Cmf.CLI.Core.Interfaces
         public abstract void Bump(string version, string buildNr, Dictionary<string, object> bumpInformation = null);
 
         /// <summary>
+        /// Bumps the Base version of the package
+        /// </summary>
+        /// <param name="version">The new Base version.</param>
+        /// <param name="iotVersion">New MES version for the IoT workflows & masterdata</param>
+        /// <param name="iotPackagesToIgnore">IoT packages to ignore when updating the MES version of the tasks in IoT workflows</param>
+        public abstract void UpgradeBase(string version, string iotVersion, List<string> iotPackagesToIgnore);
+
+        /// <summary>
         /// Builds this instance.
         /// </summary>
         public void Build(bool test = false);
