@@ -4,6 +4,7 @@ using Cmf.CLI.Commands.build.business.BusinessLinter.Rules;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Moq;
+using System.Linq;
 using Xunit;
 
 namespace tests.Specs;

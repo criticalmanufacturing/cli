@@ -3,6 +3,7 @@ using Cmf.CLI.Commands.build.business.BusinessLinter.Abstractions;
 using Cmf.CLI.Commands.build.business.BusinessLinter.Extensions;
 using Cmf.CLI.Core.Attributes;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
@@ -55,6 +56,7 @@ public class LintCommand : BaseCommand
 	{
 		if (string.IsNullOrEmpty(solutionPath))
 		{
+			Console.Error.WriteLine("Error: Solution path is required.");
 			return;
 		}
 
