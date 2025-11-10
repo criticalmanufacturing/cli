@@ -172,7 +172,7 @@ namespace Cmf.CLI.Commands.New
             Log.Verbose("Executing npm install, this will take a while...");
             (new NPMCommand() { Command = "install", WorkingDirectory = pkgFolder }).Exec();
 
-            var helpDevTasksConfigPath = this.fileSystem.Path.GetTempFileName();
+            var helpDevTasksConfigPath = this.fileSystem.Path.Combine(this.fileSystem.Path.GetTempPath(), this.fileSystem.Path.GetRandomFileName());
             var helpDevTasksConfigJson =
 $@"{{
     ""answers"": {{
@@ -183,7 +183,7 @@ $@"{{
     }}
 }}";
             this.fileSystem.File.WriteAllText(helpDevTasksConfigPath, helpDevTasksConfigJson);
-            var helpWebAppConfigPath = this.fileSystem.Path.GetTempFileName();
+            var helpWebAppConfigPath = this.fileSystem.Path.Combine(this.fileSystem.Path.GetTempPath(), this.fileSystem.Path.GetRandomFileName());
             var helpWebAppConfigJson =
 @"{
     ""answers"": {
@@ -264,7 +264,7 @@ $@"{{
             Log.Verbose("Generating documentation package. This will take a while...");
             var tenant = ExecutionContext.Instance.ProjectConfig.Tenant;
             var assetsPkgName = $"cmf.docs.area.{pkgName.ToLowerInvariant()}";
-            var helpPkgConfigPath = this.fileSystem.Path.GetTempFileName();
+            var helpPkgConfigPath = this.fileSystem.Path.Combine(this.fileSystem.Path.GetTempPath(), this.fileSystem.Path.GetRandomFileName());
             var helpPkgConfigJson =
 $@"{{
     ""answers"": {{
