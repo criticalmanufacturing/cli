@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.IO;
+using System.IO.Abstractions;
 using Newtonsoft.Json;
 
 namespace Cmf.CLI.Core.Objects
@@ -44,10 +45,44 @@ namespace Cmf.CLI.Core.Objects
         {
             if (reader.TokenType == JsonToken.String)
             {
-                var value = (serializer.Deserialize(reader, typeof(string)) as string);
+                var value = serializer.Deserialize(reader, typeof(string)) as string;
                 if (string.IsNullOrEmpty(value))
                     return null;
-                return new Uri(value, UriKind.Absolute);
+
+                try
+                {
+                    // First, try to create as absolute URI (handles http://, https://, file:// schemes)
+                    return new Uri(value, UriKind.Absolute);
+                }
+                catch (UriFormatException)
+                {
+                    // If absolute URI creation fails, handle different path formats
+                    try
+                    {
+                        // Check if it's a UNC path (starts with \\)
+                        if (value.StartsWith("\\\\", StringComparison.Ordinal))
+                        {
+                            return new Uri(value);
+                        }
+
+                        // Check if it's an absolute local path (starts with / on Unix or drive letter on Windows)
+                        if (Path.IsPathRooted(value))
+                        {
+                            return new Uri(Path.GetFullPath(value));
+                        }
+
+                        // Handle relative paths by converting to absolute file URI
+                        // Get the current working directory and combine with the relative path
+                        var absolutePath = Path.GetFullPath(value);
+                        return new Uri(absolutePath);
+                    }
+                    catch (Exception)
+                    {
+                        // If all URI creation attempts fail, return a file URI with the original value
+                        // This maintains backward compatibility while allowing the system to handle the path
+                        return new Uri($"file:///{value.Replace('\\', '/')}", UriKind.Absolute);
+                    }
+                }
             }
 
             return hasExistingValue ? existingValue : null;
@@ -64,11 +99,58 @@ namespace Cmf.CLI.Core.Objects
 
         public override List<Uri> ReadJson(JsonReader reader, Type objectType, List<Uri> existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
-            var array = serializer.Deserialize(reader, objectType) as List<Uri>;
+            // First deserialize as a list of strings
+            var stringArray = serializer.Deserialize(reader, typeof(List<string>)) as List<string>;
             
-            array = array?.Select(u => new Uri(u.OriginalString, UriKind.Absolute)).ToList();
+            if (stringArray == null)
+                return existingValue ?? new List<Uri>();
 
-            return array ?? existingValue;
+            var result = new List<Uri>();
+            var uriConverter = new UriConverter();
+            
+            foreach (var uriString in stringArray)
+            {
+                if (!string.IsNullOrEmpty(uriString))
+                {
+                    try
+                    {
+                        // Use the same logic as UriConverter
+                        // First, try to create as absolute URI (handles http://, https://, file:// schemes)
+                        result.Add(new Uri(uriString, UriKind.Absolute));
+                    }
+                    catch (UriFormatException)
+                    {
+                        // If absolute URI creation fails, handle different path formats
+                        try
+                        {
+                            // Check if it's a UNC path (starts with \\)
+                            if (uriString.StartsWith("\\\\", StringComparison.Ordinal))
+                            {
+                                result.Add(new Uri(uriString));
+                            }
+                            // Check if it's an absolute local path (starts with / on Unix or drive letter on Windows)
+                            else if (Path.IsPathRooted(uriString))
+                            {
+                                result.Add(new Uri(Path.GetFullPath(uriString)));
+                            }
+                            // Handle relative paths by converting to absolute file URI
+                            else
+                            {
+                                var absolutePath = Path.GetFullPath(uriString);
+                                result.Add(new Uri(absolutePath));
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            // If all URI creation attempts fail, return a file URI with the original value
+                            // This maintains backward compatibility while allowing the system to handle the path
+                            result.Add(new Uri($"file:///{uriString.Replace('\\', '/')}", UriKind.Absolute));
+                        }
+                    }
+                }
+            }
+
+            return result;
         }
 
         public override bool CanWrite => false;
