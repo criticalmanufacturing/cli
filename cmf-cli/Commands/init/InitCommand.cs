@@ -343,8 +343,8 @@ namespace Cmf.CLI.Commands
                 }
 
                 args.AddRange(new[] { "--deploymentDir", deploymentDirPath });
-                args.AddRange(new[] { "--DeliveredRepo", $"{deploymentDirPath}\\Delivered" });
-                args.AddRange(new[] { "--CIRepo", $"{deploymentDirPath}\\CIPackages" });
+                args.AddRange(new[] { "--DeliveredRepo", $"{deploymentDirPath}{(x.deploymentDir.IsUnc ? "\\" : System.IO.Path.DirectorySeparatorChar.ToString())}Delivered" });
+                args.AddRange(new[] { "--CIRepo", $"{deploymentDirPath}{(x.deploymentDir.IsUnc ? "\\" : System.IO.Path.DirectorySeparatorChar.ToString())}CIPackages" });
             }
             else
             {
