@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.7.0-1](https://github.com/criticalmanufacturing/cli/compare/5.7.0-0...5.7.0-1) (2025-11-12)
+
+
+### Bug Fixes
+
+* enhance URI handling in RepositoriesConfig ([0fbebe3](https://github.com/criticalmanufacturing/cli/commits/0fbebe3f6a5611ee3e10432f3fc425983a466cba))
+
 ## [5.7.0-0](https://github.com/criticalmanufacturing/cli/compare/5.6.0-11...5.7.0-0) (2025-11-07)
 
 
