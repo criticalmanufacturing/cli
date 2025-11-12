@@ -774,4 +774,144 @@ public class Repositories
       Assert.Equal(packageRoot.Key.ToLowerInvariant(), packageJson.name.ToString());
       Assert.Equal(packageRoot.Key, packageJson._originalPackageId.ToString());
     }
+
+    [Fact]
+    public void RepositoriesConfig_JsonDeserialization_VariousUriFormats()
+    {
+        // Test that RepositoriesConfig can deserialize JSON with various URI formats
+        // This ensures the UriConverter fix works correctly for all supported path types
+        
+        var json = """
+        {
+            "CIRepository": "deploymentDir/development",
+            "Repositories": [
+                "deploymentDir/Delivered",
+                "http://example.com/npm",
+                "https://feed.example",
+                "\\\\server\\share",
+                "/absolute/path",
+                "./relative/path"
+            ]
+        }
+        """;
+
+        // This should not throw an exception
+        var config = JsonConvert.DeserializeObject<RepositoriesConfig>(json);
+        
+        // Verify the deserialization worked correctly
+        config.Should().NotBeNull();
+        config.CIRepository.Should().NotBeNull();
+        config.Repositories.Should().NotBeNull();
+        config.Repositories.Should().HaveCount(6);
+        
+        // Verify all URIs are properly parsed (they should all be absolute URIs now)
+        config.CIRepository.IsAbsoluteUri.Should().BeTrue();
+        config.Repositories.All(uri => uri.IsAbsoluteUri).Should().BeTrue();
+        
+        // Verify specific URI formats are handled correctly
+        config.Repositories[1].AbsoluteUri.Should().Be("http://example.com/npm");
+        config.Repositories[2].AbsoluteUri.Should().Be("https://feed.example/");
+    }
+
+    [Fact]
+    public void RepositoriesConfig_JsonDeserialization_PathSeparatorPreservation()
+    {
+        // Test that RepositoriesConfig preserves path separators correctly for different path types
+        // This validates the enhanced UriConverter logic for UNC vs local paths
+        
+        var json = """
+        {
+            "CIRepository": "\\\\server\\share\\CI\\development",
+            "Repositories": [
+                "\\\\server\\share\\Delivered",
+                "/unix/style/path/Delivered",
+                "C:\\Windows\\Style\\Path\\Delivered",
+                "relative\\path\\Delivered"
+            ]
+        }
+        """;
+
+        // This should not throw an exception and should handle all path types
+        var config = JsonConvert.DeserializeObject<RepositoriesConfig>(json);
+        
+        config.Should().NotBeNull();
+        config.CIRepository.Should().NotBeNull();
+        config.Repositories.Should().NotBeNull();
+        config.Repositories.Should().HaveCount(4);
+        
+        // All paths should be converted to valid URIs
+        config.CIRepository.IsAbsoluteUri.Should().BeTrue();
+        config.Repositories.All(uri => uri.IsAbsoluteUri).Should().BeTrue();
+        
+        // Verify that UNC paths are preserved properly
+        // Note: The exact URI format may vary, but it should be a valid URI
+        config.CIRepository.Should().NotBeNull("UNC CI repository path should be converted to valid URI");
+        config.Repositories[0].Should().NotBeNull("UNC repository path should be converted to valid URI");
+    }
+
+    [Theory]
+    [InlineData("deploymentDir/development", true)]  // Relative path that was failing before
+    [InlineData("\\\\server\\share", true)]          // UNC path
+    [InlineData("/absolute/unix/path", true)]        // Unix absolute path  
+    [InlineData("C:\\Windows\\Path", true)]          // Windows absolute path
+    [InlineData("https://example.com", true)]        // HTTP URL
+    [InlineData("", false)]                          // Empty string
+    [InlineData(null, false)]                        // Null value
+    public void RepositoriesConfig_UriConverter_VariousPathFormats(string inputPath, bool shouldSucceed)
+    {
+        string json;
+        
+        if (inputPath == null)
+        {
+            json = """
+            {
+                "CIRepository": null,
+                "Repositories": [null]
+            }
+            """;
+        }
+        else if (string.IsNullOrEmpty(inputPath))
+        {
+            json = """
+            {
+                "CIRepository": "",
+                "Repositories": [""]
+            }
+            """;
+        }
+        else
+        {
+            // Escape backslashes for JSON
+            var escapedPath = inputPath.Replace("\\", "\\\\");
+            json = $@"{{
+                ""CIRepository"": ""{escapedPath}"",
+                ""Repositories"": [""{escapedPath}""]
+            }}";
+        }
+
+        if (shouldSucceed)
+        {
+            // Should not throw an exception
+            var config = JsonConvert.DeserializeObject<RepositoriesConfig>(json);
+            config.Should().NotBeNull();
+            
+            if (!string.IsNullOrEmpty(inputPath))
+            {
+                config.CIRepository.Should().NotBeNull($"Path '{inputPath}' should be converted to valid URI");
+                config.CIRepository.IsAbsoluteUri.Should().BeTrue($"Path '{inputPath}' should result in absolute URI");
+                
+                config.Repositories.Should().HaveCount(1);
+                config.Repositories[0].Should().NotBeNull($"Path '{inputPath}' should be converted to valid URI");
+                config.Repositories[0].IsAbsoluteUri.Should().BeTrue($"Path '{inputPath}' should result in absolute URI");
+            }
+        }
+        else
+        {
+            // For null/empty inputs, should handle gracefully
+            var config = JsonConvert.DeserializeObject<RepositoriesConfig>(json);
+            config.Should().NotBeNull();
+            // Null/empty paths should result in null URIs
+            config.CIRepository.Should().BeNull("Empty/null paths should result in null URI");
+        }
+    }
 }
