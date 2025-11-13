@@ -56,9 +56,9 @@ namespace Cmf.CLI.Core
                 .BuildServiceProvider();
 
             // initialize Telemetry
-            ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!
+ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!
                 .InitializeTracerProvider(ExecutionContext.PackageId, ExecutionContext.CurrentVersion);
-            ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!
+                ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!
                 .InitializeActivitySource(ExecutionContext.PackageId);
 
             AppDomain.CurrentDomain.UnhandledException += (sender, eventArgs) =>
@@ -68,7 +68,19 @@ namespace Cmf.CLI.Core
                 ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!.LogException(eventArgs.ExceptionObject as Exception);
             };
 
-            await VersionChecks();
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await VersionChecks();
+                }
+                catch (Exception ex)
+                {
+                    Log.Warning("Version check failed (non-blocking).");
+                    Log.Exception(ex);
+                }
+            });
+
 
             // add LogLevelOption
             rootCommand.AddOption(LoggerHelpers.LogLevelOption);
