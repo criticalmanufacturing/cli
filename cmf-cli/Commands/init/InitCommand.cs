@@ -326,25 +326,47 @@ namespace Cmf.CLI.Commands
                 }
 
                 string deploymentDirPath = null;
+                bool isUncPath = false;
+                
                 try
                 {
-                    if (x.deploymentDir.IsUnc)
+                    // Check if it's an absolute URI first
+                    if (x.deploymentDir.IsAbsoluteUri)
                     {
-                        deploymentDirPath = x.deploymentDir.OriginalString;
+                        try
+                        {
+                            isUncPath = x.deploymentDir.IsUnc;
+                            deploymentDirPath = x.deploymentDir.OriginalString;
+                        }
+                        catch
+                        {
+                            // If IsUnc fails, fall back to LocalPath for file URIs
+                            deploymentDirPath = x.deploymentDir.IsFile ? 
+                                this.fileSystem.DirectoryInfo.New(x.deploymentDir.LocalPath).FullName : 
+                                x.deploymentDir.OriginalString;
+                        }
                     }
                     else
                     {
-                        deploymentDirPath = this.fileSystem.DirectoryInfo.New(x.deploymentDir.LocalPath).FullName;
+                        // For relative URIs, resolve to absolute path
+                        var relativePath = x.deploymentDir.OriginalString;
+                        deploymentDirPath = this.fileSystem.DirectoryInfo.New(relativePath).FullName;
+                        isUncPath = false; // Relative paths converted to absolute are not UNC
                     }
                 }
                 catch
                 {
+                    // Last resort: use original string and assume it's not UNC
                     deploymentDirPath = x.deploymentDir.OriginalString;
+                    isUncPath = false;
                 }
 
+                // Determine the appropriate path separator
+                var pathSeparator = isUncPath ? "\\" : System.IO.Path.DirectorySeparatorChar.ToString();
+
                 args.AddRange(new[] { "--deploymentDir", deploymentDirPath });
-                args.AddRange(new[] { "--DeliveredRepo", $"{deploymentDirPath}{(x.deploymentDir.IsUnc ? "\\" : System.IO.Path.DirectorySeparatorChar.ToString())}Delivered" });
-                args.AddRange(new[] { "--CIRepo", $"{deploymentDirPath}{(x.deploymentDir.IsUnc ? "\\" : System.IO.Path.DirectorySeparatorChar.ToString())}CIPackages" });
+                args.AddRange(new[] { "--DeliveredRepo", $"{deploymentDirPath}{pathSeparator}Delivered" });
+                args.AddRange(new[] { "--CIRepo", $"{deploymentDirPath}{pathSeparator}CIPackages" });
             }
             else
             {
