@@ -343,7 +343,7 @@ namespace Cmf.CLI.Utilities
             return (str.ToLowerInvariant()) switch
             {
                 "true" or "yes" or "1" => true,
-                "false" or "no" or "0" or null => false,
+                "false" or "no" or "0" or "" or null => false,
                 _ => throw new ArgumentException("string was not true or false", str)
             };
         }

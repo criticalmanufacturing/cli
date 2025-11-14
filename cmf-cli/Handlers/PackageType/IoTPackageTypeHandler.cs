@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Cmf.CLI.Handlers
 {
@@ -284,6 +285,16 @@ namespace Cmf.CLI.Handlers
                 // IoT -> src -> Package XPTO
                 IoTUtilities.BumpIoTCustomPackages(CmfPackage.GetFileInfo().DirectoryName, version, buildNr, packageNames, this.fileSystem);
             }
+        }
+
+        /// <summary>
+        /// Bumps the Base version of the package
+        /// </summary>
+        /// <param name="version">The new Base version.</param>
+        public override void UpgradeBase(string version, string iotVersion, List<string> iotPackagesToIgnore)
+        {
+            base.UpgradeBase(version, iotVersion, iotPackagesToIgnore);
+            UpgradeBaseUtilities.UpdateNPMProject(this.fileSystem, this.CmfPackage, version);
         }
 
         /// <summary>

@@ -1,10 +1,12 @@
 ﻿using Cmf.CLI.Builders;
 using Cmf.CLI.Commands.restore;
+using Cmf.CLI.Core;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Cmf.CLI.Handlers
@@ -112,6 +114,16 @@ namespace Cmf.CLI.Handlers
                 text = Regex.Replace(text, pattern, newVersion, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
                 this.fileSystem.File.WriteAllText(filePath, text);
             }
+        }
+
+        /// <summary>
+        /// Bumps the Base version of the package
+        /// </summary>
+        /// <param name="version">The new Base version.</param>
+        public override void UpgradeBase(string version, string iotVersion, List<string> iotPackagesToIgnore)
+        {
+            base.UpgradeBase(version, iotVersion, iotPackagesToIgnore);
+            UpgradeBaseUtilities.UpdateCSharpProject(this.fileSystem, this.CmfPackage, version, true);
         }
     }
 }

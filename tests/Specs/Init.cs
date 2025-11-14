@@ -14,6 +14,7 @@ using System.IO;
 using System.Linq;
 using Cmf.CLI.Services;
 using Xunit;
+using Newtonsoft.Json;
 using Assert = tests.AssertWithMessage;
 
 namespace tests.Specs
@@ -781,6 +782,265 @@ namespace tests.Specs
                     File.ReadAllText(Path.Join(tmp, "repositories.json"))
                         .Should().Contain($@"""Repositories"": [{newline}{longWhitespace}""{releaseRepo1}"",{newline}{longWhitespace}""{releaseRepo2}""{newline}{whitespace}]", "Repositories is not correct");
                 }
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                Directory.Delete(tmp, true);
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Init_With_And_Without_ISOLocation(bool hasISOLocation)
+        {
+            var rnd = new Random();
+            var tmp = TestUtilities.GetTmpDirectory();
+
+            var projectName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
+            var deploymentDir = "\\\\share\\deployment_dir";
+            var isoLocation = "\\\\share\\iso_location";
+            var pkgVersion = $"{rnd.Next(10)}.{rnd.Next(10)}.{rnd.Next(10)}";
+
+            var cur = Directory.GetCurrentDirectory();
+            try
+            {
+                var console = new TestConsole();
+                Directory.SetCurrentDirectory(tmp);
+
+                var initCommand = new InitCommand();
+                var cmd = new Command("x");
+                initCommand.Configure(cmd);
+
+                var args = new[]
+                {
+                    projectName,
+                    "--infra", TestUtilities.GetFixturePath("init", "infrastructure.json"),
+                    "-c", TestUtilities.GetFixturePath("init", "config.json"),
+                    "--MESVersion", "11.0.0",
+                    "--DevTasksVersion", "8.1.0",
+                    "--HTMLStarterVersion", "8.0.0",
+                    "--yoGeneratorVersion", "8.1.0",
+                    "--ngxSchematicsVersion", "8.8.8",
+                    "--nugetVersion", "11.0.0",
+                    "--testScenariosNugetVersion", "11.0.0",
+                    "--deploymentDir", deploymentDir,
+                    "--version", pkgVersion,
+                    "Cmf.Custom.Package",
+                    tmp
+                };
+
+                if (hasISOLocation)
+                {
+                    args = args.Concat(new[] { "--ISOLocation", isoLocation }).ToArray();
+                }
+
+                TestUtilities.GetParser(cmd).Invoke(args, console);
+
+                console.Error.ToString().Should().BeEmpty();
+
+                Assert.True(File.Exists(".project-config.json"), "project config is missing");
+
+                var projectConfigContent = File.ReadAllText(Path.Join(tmp, ".project-config.json"));
+
+                if (hasISOLocation)
+                {
+                    projectConfigContent
+                        .Should().Contain(@"""ISOLocation""", "ISOLocation should be present in .project-config.json when provided");
+                    projectConfigContent
+                        .Should().Contain(isoLocation.Replace("\\", "\\\\"), "ISOLocation value should be correct");
+                }
+                else
+                {
+                    projectConfigContent
+                        .Should().NotContain(@"""ISOLocation""", "ISOLocation should not be present in .project-config.json when not provided");
+                }
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                Directory.Delete(tmp, true);
+            }
+        }
+
+        [Theory]
+        [InlineData("\\\\server\\share\\deployment", true, "\\")]  // UNC path should use backslash
+        public void Init_DeploymentDir_PathSeparatorHandling(string deploymentDirPath, bool expectedIsUnc, string expectedSeparator)
+        {
+            var rnd = new Random();
+            var tmp = TestUtilities.GetTmpDirectory();
+
+            var projectName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
+            var pkgVersion = $"{rnd.Next(10)}.{rnd.Next(10)}.{rnd.Next(10)}";
+
+            var cur = Directory.GetCurrentDirectory();
+            try
+            {
+                var console = new TestConsole();
+                Directory.SetCurrentDirectory(tmp);
+
+                var initCommand = new InitCommand();
+                var cmd = new Command("x");
+                initCommand.Configure(cmd);
+
+                var args = new[]
+                {
+                    projectName,
+                    "--infra", TestUtilities.GetFixturePath("init", "infrastructure.json"),
+                    "-c", TestUtilities.GetFixturePath("init", "config.json"),
+                    "--MESVersion", "11.0.0",
+                    "--ngxSchematicsVersion", "8.8.8",
+                    "--nugetVersion", "11.0.0",
+                    "--testScenariosNugetVersion", "11.0.0",
+                    "--deploymentDir", deploymentDirPath,
+                    "--version", pkgVersion,
+                    "Cmf.Custom.Package",
+                    tmp
+                };
+
+                TestUtilities.GetParser(cmd).Invoke(args, console);
+
+                console.Error.ToString().Should().BeEmpty("No errors should occur during initialization");
+
+                Assert.True(File.Exists(".project-config.json"), "project config is missing");
+                Assert.True(File.Exists("repositories.json"), "repositories.json is missing");
+
+                var projectConfig = File.ReadAllText(Path.Join(tmp, ".project-config.json"));
+                var repositoriesConfig = File.ReadAllText(Path.Join(tmp, "repositories.json"));
+
+                // Verify the correct separator is used based on path type
+                var expectedDeliveredRepo = $"{deploymentDirPath}{expectedSeparator}Delivered";
+                var expectedCIPackagesRepo = $"{deploymentDirPath}{expectedSeparator}CIPackages";
+                var expectedCIRepoInRepos = $"{deploymentDirPath}{expectedSeparator}CIPackages{expectedSeparator}development";
+
+                projectConfig.Should().Contain($@"""CIRepo"": ""{expectedCIPackagesRepo.Replace("\\", "\\\\").Replace("/", "\\/")}""", 
+                    $"CIRepo should use {expectedSeparator} separator for {(expectedIsUnc ? "UNC" : "local")} path");
+                projectConfig.Should().Contain($@"""DeliveredRepo"": ""{expectedDeliveredRepo.Replace("\\", "\\\\").Replace("/", "\\/")}""", 
+                    $"DeliveredRepo should use {expectedSeparator} separator for {(expectedIsUnc ? "UNC" : "local")} path");
+                repositoriesConfig.Should().Contain($@"""CIRepository"": ""{expectedCIRepoInRepos.Replace("\\", "\\\\").Replace("/", "\\/")}""", 
+                    $"CIRepository should use {expectedSeparator} separator for {(expectedIsUnc ? "UNC" : "local")} path");
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                Directory.Delete(tmp, true);
+            }
+        }
+
+        [Fact]
+        public void Init_DeploymentDir_UncVsLocalPathDetection()
+        {
+            var rnd = new Random();
+            var tmp = TestUtilities.GetTmpDirectory();
+            var projectName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
+            var pkgVersion = $"{rnd.Next(10)}.{rnd.Next(10)}.{rnd.Next(10)}";
+
+            var cur = Directory.GetCurrentDirectory();
+            try
+            {
+                var console = new TestConsole();
+                Directory.SetCurrentDirectory(tmp);
+
+                var initCommand = new InitCommand();
+                var cmd = new Command("x");
+                initCommand.Configure(cmd);
+
+                // Test with UNC path
+                var uncPath = "\\\\server\\share\\deployment";
+                var args = new[]
+                {
+                    projectName,
+                    "--infra", TestUtilities.GetFixturePath("init", "infrastructure.json"),
+                    "-c", TestUtilities.GetFixturePath("init", "config.json"),
+                    "--MESVersion", "11.0.0",
+                    "--ngxSchematicsVersion", "8.8.8",
+                    "--nugetVersion", "11.0.0",
+                    "--testScenariosNugetVersion", "11.0.0",
+                    "--deploymentDir", uncPath,
+                    "--version", pkgVersion,
+                    "Cmf.Custom.Package",
+                    tmp
+                };
+
+                TestUtilities.GetParser(cmd).Invoke(args, console);
+
+                console.Error.ToString().Should().BeEmpty("No errors should occur during UNC path initialization");
+
+                var projectConfig = File.ReadAllText(Path.Join(tmp, ".project-config.json"));
+
+                // For UNC paths, backslash should be used consistently
+                projectConfig.Should().Contain(@"""CIRepo"": ""\\\\server\\share\\deployment\\CIPackages""", 
+                    "UNC paths should preserve backslash separators in CIRepo");
+                projectConfig.Should().Contain(@"""DeliveredRepo"": ""\\\\server\\share\\deployment\\Delivered""", 
+                    "UNC paths should preserve backslash separators in DeliveredRepo");
+
+                var repositoriesConfig = File.ReadAllText(Path.Join(tmp, "repositories.json"));
+                repositoriesConfig.Should().Contain(@"""CIRepository"": ""\\\\server\\share\\deployment\\CIPackages\\development""", 
+                    "UNC paths should preserve backslash separators in CIRepository");
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                Directory.Delete(tmp, true);
+            }
+        }
+
+        [Fact]
+        public void Init_DeploymentDir_ErrorHandling_RepositoriesJsonParsing()
+        {
+            var rnd = new Random();
+            var tmp = TestUtilities.GetTmpDirectory();
+            var projectName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
+            var pkgVersion = $"{rnd.Next(10)}.{rnd.Next(10)}.{rnd.Next(10)}";
+
+            var cur = Directory.GetCurrentDirectory();
+            try
+            {
+                var console = new TestConsole();
+                Directory.SetCurrentDirectory(tmp);
+
+                var initCommand = new InitCommand();
+                var cmd = new Command("x");
+                initCommand.Configure(cmd);
+
+                // Test with a UNC path that should work properly
+                var uncPath = "\\\\server\\share\\deployment";
+                var args = new[]
+                {
+                    projectName,
+                    "--infra", TestUtilities.GetFixturePath("init", "infrastructure.json"),
+                    "-c", TestUtilities.GetFixturePath("init", "config.json"),
+                    "--MESVersion", "11.0.0",
+                    "--ngxSchematicsVersion", "8.8.8",
+                    "--nugetVersion", "11.0.0",
+                    "--testScenariosNugetVersion", "11.0.0",
+                    "--deploymentDir", uncPath,
+                    "--version", pkgVersion,
+                    "Cmf.Custom.Package",
+                    tmp
+                };
+
+                TestUtilities.GetParser(cmd).Invoke(args, console);
+
+                // Should not crash with URI format exceptions
+                console.Error.ToString().Should().BeEmpty("No errors should occur during UNC path initialization");
+
+                Assert.True(File.Exists(".project-config.json"), "project config should be created");
+                Assert.True(File.Exists("repositories.json"), "repositories.json should be created");
+
+                // The most important test: repositories.json should be parseable without URI format exceptions
+                var repositoriesJsonContent = File.ReadAllText(Path.Join(tmp, "repositories.json"));
+                
+                // This is the critical test - parsing repositories.json should not throw URI format exceptions
+                var repositoriesConfig = JsonConvert.DeserializeObject<RepositoriesConfig>(repositoriesJsonContent);
+                repositoriesConfig.Should().NotBeNull("Repositories config should be parseable");
+                repositoriesConfig.CIRepository.Should().NotBeNull("CI Repository should be set");
+                repositoriesConfig.Repositories.Should().NotBeNull("Repositories should be set");
+                
+                // Verify all URIs are valid absolute URIs
+                repositoriesConfig.CIRepository.IsAbsoluteUri.Should().BeTrue("CI Repository should be absolute URI");
+                repositoriesConfig.Repositories.All(uri => uri.IsAbsoluteUri).Should().BeTrue("All repositories should be absolute URIs");
             }
             finally
             {

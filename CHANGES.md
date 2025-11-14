@@ -2,6 +2,39 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.7.0](https://github.com/criticalmanufacturing/cli/compare/5.7.0-2...5.7.0) (2025-11-14)
+
+## [5.7.0-2](https://github.com/criticalmanufacturing/cli/compare/5.7.0-0...5.7.0-2) (2025-11-13)
+
+
+### Bug Fixes
+
+* enhance URI handling in RepositoriesConfig ([0fbebe3](https://github.com/criticalmanufacturing/cli/commits/0fbebe3f6a5611ee3e10432f3fc425983a466cba))
+* improve deployment directory handling for absolute and relative URIs ([4eb7263](https://github.com/criticalmanufacturing/cli/commits/4eb72630ff9f5f697316101f2d8203cd771ef3ba))
+
+## [5.7.0-1](https://github.com/criticalmanufacturing/cli/compare/5.7.0-0...5.7.0-1) (2025-11-12)
+
+
+### Bug Fixes
+
+* enhance URI handling in RepositoriesConfig ([0fbebe3](https://github.com/criticalmanufacturing/cli/commits/0fbebe3f6a5611ee3e10432f3fc425983a466cba))
+
+## [5.7.0-0](https://github.com/criticalmanufacturing/cli/compare/5.6.0-11...5.7.0-0) (2025-11-07)
+
+
+### Features
+
+* make ISOLocation optional in project config ([79e2ff7](https://github.com/criticalmanufacturing/cli/commits/79e2ff78d13fb2dccb4243a10d1e1c108bf98025))
+* **upgrade-base:** add upgrade base command to cli ([65d93e1](https://github.com/criticalmanufacturing/cli/commits/65d93e1b8d3a4b29792c650feb09fd4501099650))
+
+
+### Bug Fixes
+
+* improve DEEValidatorCommand error handling with detailed messages ([29e0809](https://github.com/criticalmanufacturing/cli/commits/29e080911ccb0a301b2f3cebce0409e8ec3b7dcd))
+* **iot-tasks:** output task selection ([f05628d](https://github.com/criticalmanufacturing/cli/commits/f05628dab12c86d104c720092036c9ac25f6fd08))
+* **json validator:** handle empty IsFile property ([#588](https://github.com/criticalmanufacturing/cli/issues/588)) ([2c88eed](https://github.com/criticalmanufacturing/cli/commits/2c88eedd6bc88019bc80d603b7e73d99b3224c65))
+* prismjs version 1.30.0 on help scaffold template ([969ed00](https://github.com/criticalmanufacturing/cli/commits/969ed00f695d7be24d0910f14db5852bf6ce25bf))
+
 ## [5.5.0](https://github.com/criticalmanufacturing/cli/compare/5.5.0-6...5.5.0) (2025-09-03)
 
 ## [5.5.0-6](https://github.com/criticalmanufacturing/cli/compare/5.5.0-5...5.5.0-6) (2025-08-26)
