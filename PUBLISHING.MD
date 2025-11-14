@@ -1,70 +1,50 @@
-# Publish to NPM from GitHub
-Publishing from GitHub is done using releases. As a guideline creating:
 
-- a release publishes a new version of the cli to the **@latest** tag
-    - these releases should only be created from branch _main_
+# cmf-cli Release & Publishing Guide
 
-- a pre-release publishes a new version of the cli to the **@next** tag
-    - these releases may be created from branch _development_
+## Stable Releases
 
+1. Bump the version:
+   - Run one of:
+     - `npm run bump:feature` (for new features)
+     - `npm run bump:breaking` (for breaking changes)
+     - `npm run bump:patch` (for bug fixes)
+2. Open a PR to the `development` branch.
+3. After merging to `development`, open a PR from `development` to `main` titled:
+   `Release Major.Minor.Patch`
+   - **Important:** Merge (do not rebase) this PR.
+4. After merging to `main`, follow the process to publish to NPM as `@latest`.
+5. Merge back changes from `main` to `development` via another PR.
 
-Go to [Releases](https://github.com/criticalmanufacturing/cli/releases) and click "Draft a new release"
+## Unstable Releases
 
+1. Bump the pre-release version:
+   - Run one of:
+     - `npm run bump:pre:feature`
+     - `npm run bump:pre:breaking`
+     - `npm run bump:pre:patch`
+2. Open a PR to the `development` branch.
+3. After merging, follow the process to publish to NPM as `@next`.
 
-# Publish to NPM locally
-At root, run:
+## Publishing to NPM from GitHub
 
-- If needed
-  
-    > npm i
-    
-- clean dist folder
-  
-    > npm run build:clean 
-    
-- bump version. Run one of these:
+To publish a new version to NPM using GitHub Releases:
 
-    > npm run bump:pre # bump pre-release version
-    > npm run bump:patch # bug fixing release
-    > npm run bump:feature # feature release
-    > npm run bump:breaking # release with breaking changes
+1. Go to [GitHub Releases](https://github.com/criticalmanufacturing/cli/releases) and click **Draft a new release**.
 
-- cross-compile cmf-cli
-  
-    > npm run build:prod 
+### For Unstable Releases (`@next`)
+- Branch: `development`
+- Tag: Use the bumped version (e.g., `5.5.0-1`)
+- Release title: Use the version (e.g., `5.5.0-1`)
+- Click **Generate Release Notes**
+- Check **Set as a pre-release**
+- Click **Publish release**
+- This triggers the [npm-publish GitHub Action](https://github.com/criticalmanufacturing/cli/actions/workflows/npm-publish.yml) to publish to the `@next` tag.
 
-- publish a pre-release to predefined repo. 
-  
-    > npm run publish
-
-- if we are publishing a *live* release, run
-
-    > npm run publish:live
-
-- <u>COMMIT the following files</u>
-
-  > cmf-cli\npm\package.json
-  >
-  > cmf-cli\npm\package-lock.json
-
-## Publish a development version
-Development versions are published from feature branches for testing. Currently they need to be published using Bash:
-
-    > npm run publish:dev
-
-This will publish a fat (binaries included) package with version `0.0.0-<branchname>-<timestamp>` to our internal registry. The tag `@<branchname>` will also be created.
-
-There's no point in committing the package.json files in this case.
-
-## Example
-An example flow for a bugfix would be:
-
-- fix a bug in cli
-- `npm run build:clean`
-- `npm run bump:pre`
-- `npm run build:prod`
-- `npm run publish`
-- install @criticalmanufacturing/cli@next and test your changes
-- `npm run bump:patch`
-- `npm run publish:live` to push the update to `latest`
-- commit the updated package files
+### For Stable Releases (`@latest`)
+- Branch: `main`
+- Tag: Use the bumped version (e.g., `5.5.0`)
+- Release title: Use the version (e.g., `5.5.0`)
+- Click **Generate Release Notes**
+- Check **Set as the latest release**
+- Click **Publish release**
+- This triggers the [npm-publish GitHub Action](https://github.com/criticalmanufacturing/cli/actions/workflows/npm-publish.yml) to publish to the `@latest` tag.
