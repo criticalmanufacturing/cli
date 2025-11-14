@@ -28,6 +28,7 @@ namespace Cmf.CLI.Core
         /// <param name="registerExtraServices">function to add extra services to the ServiceProvider</param>
         public static async Task<Tuple<RootCommand, Parser>> Configure(string packageName, string envVarPrefix, string description, string[] args, INPMClient npmClient = null, Action<IServiceCollection> registerExtraServices = null)
         {
+            Log.Warning("New version telemetry assync 1.1");
             // in a scenario that cli is not running on a terminal,
             // the AnsiConsole.Profile.Width defaults to 80,which is a low value and causes unexpected break lines.
             // in that cases we need to double the value
@@ -56,9 +57,9 @@ namespace Cmf.CLI.Core
                 .BuildServiceProvider();
 
             // initialize Telemetry
-ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!
+            ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!
                 .InitializeTracerProvider(ExecutionContext.PackageId, ExecutionContext.CurrentVersion);
-                ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!
+            ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!
                 .InitializeActivitySource(ExecutionContext.PackageId);
 
             AppDomain.CurrentDomain.UnhandledException += (sender, eventArgs) =>
@@ -68,19 +69,7 @@ ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!
                 ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!.LogException(eventArgs.ExceptionObject as Exception);
             };
 
-            _ = Task.Run(async () =>
-            {
-                try
-                {
-                    await VersionChecks();
-                }
-                catch (Exception ex)
-                {
-                    Log.Warning("Version check failed (non-blocking).");
-                    Log.Exception(ex);
-                }
-            });
-
+            await VersionChecks();
 
             // add LogLevelOption
             rootCommand.AddOption(LoggerHelpers.LogLevelOption);
