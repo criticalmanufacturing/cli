@@ -158,4 +158,11 @@
     <value>Some packages were not found: {0}</value>
     <comment>0 - List of Packages</comment>
   </data>
+  <data name="NodeNotInstalled" xml:space="preserve">
+    <value>Node.js is not installed or not found in PATH. Please install Node.js before building HTML packages. See https://criticalmanufacturing.github.io/cli/01-install/#nodejs-and-npm for installation instructions.</value>
+  </data>
+  <data name="IncompatibleNodeVersion" xml:space="preserve">
+    <value>Node.js version {0} is not compatible with MES version {1}. This MES version requires Node.js v{2}.x. Please install the correct Node.js version. See https://criticalmanufacturing.github.io/cli/01-install/#nodejs-and-npm for version compatibility.</value>
+    <comment>0 - Installed Node.js version; 1 - Target MES version; 2 - Required Node.js major version</comment>
+  </data>
 </root>
