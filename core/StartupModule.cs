@@ -70,19 +70,6 @@ namespace Cmf.CLI.Core
                 }
             }, TaskScheduler.Default);
 
-            // Ensure that telemetry finishes before exiting the program.
-            AppDomain.CurrentDomain.ProcessExit += (_, __) =>
-            {
-                try
-                {
-                    telemetryProviderInitTask.GetAwaiter().GetResult();
-                }
-                catch (Exception ex)
-                {
-                    Log.Debug("Telemetry flush failed on exit: " + ex);
-                }
-            };
-
             AppDomain.CurrentDomain.UnhandledException += (sender, eventArgs) =>
             {
                 Log.Debug("Uncaught exception!");
@@ -109,6 +96,13 @@ namespace Cmf.CLI.Core
                 .UseExceptionHandler((exception, context) => CliException.Handler(exception))
                 .CancelOnProcessTermination()
                 .Build();
+
+
+            // Only await if provider task is still running
+            if (!telemetryProviderInitTask.IsCompleted)
+            {
+                telemetryProviderInitTask.GetAwaiter().GetResult();
+            }
 
             return new(rootCommand, parser);
         }

@@ -155,7 +155,7 @@ public class Telemetry
 
     /// <summary>
     /// This test simulates the plugin behavior. It will call the startup module and start main activity.
-    /// A mock is used for version check which has a realistic delay that will give enough time for telemetry async startup.
+    /// Since in this test the version check will be instant, the provider will have to wait until finish.
     /// In the end of the test the output is verified to ensure telemetry was started.
     /// </summary>
     [Fact]
@@ -172,12 +172,7 @@ public class Telemetry
         mockVersionService.SetupGet(s => s.PackageId).Returns("plugin-test");
         
         var mockNpmClient = new Mock<INPMClient>();
-        mockNpmClient.Setup(c => c.GetLatestVersion(false))
-        .Returns(() => Task.Run(async () =>
-        {
-            await Task.Delay(1500); // VersionCheck delay gives telemetry async enough time to start.
-            return "2.0.0";
-        }));
+        mockNpmClient.Setup(c => c.GetLatestVersion(false)).Returns(() => Task.FromResult("2.0.0"));
         
         // Call Configure to initialize DI and telemetry
         var (rootCommand, parser) = await StartupModule.Configure(
