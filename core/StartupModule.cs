@@ -28,7 +28,6 @@ namespace Cmf.CLI.Core
         /// <param name="registerExtraServices">function to add extra services to the ServiceProvider</param>
         public static async Task<Tuple<RootCommand, Parser>> Configure(string packageName, string envVarPrefix, string description, string[] args, INPMClient npmClient = null, Action<IServiceCollection> registerExtraServices = null)
         {
-            Log.Warning("New version telemetry assync 1.1");
             // in a scenario that cli is not running on a terminal,
             // the AnsiConsole.Profile.Width defaults to 80,which is a low value and causes unexpected break lines.
             // in that cases we need to double the value
@@ -55,12 +54,34 @@ namespace Cmf.CLI.Core
             
             ExecutionContext.ServiceProvider = serviceCollection
                 .BuildServiceProvider();
+            
+             // initialize Telemetry
+            var telemetry = ExecutionContext.ServiceProvider.GetService<ITelemetryService>();
+            telemetry.InitializeActivitySource(ExecutionContext.PackageId);
 
-            // initialize Telemetry
-            ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!
-                .InitializeTracerProvider(ExecutionContext.PackageId, ExecutionContext.CurrentVersion);
-            ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!
-                .InitializeActivitySource(ExecutionContext.PackageId);
+            // Initialize tracer asynchronously
+            var telemetryProviderInitTask = telemetry.InitializeTracerProviderAsync(ExecutionContext.PackageId,ExecutionContext.CurrentVersion);
+
+            _ = telemetryProviderInitTask.ContinueWith(t =>
+            {
+                if (t.Exception != null) 
+                {
+                    Log.Error($"Telemetry initialization faulted: {t.Exception}");
+                }
+            }, TaskScheduler.Default);
+
+            // Ensure that telemetry finishes before exiting the program.
+            AppDomain.CurrentDomain.ProcessExit += (_, __) =>
+            {
+                try
+                {
+                    telemetryProviderInitTask.GetAwaiter().GetResult();
+                }
+                catch (Exception ex)
+                {
+                    Log.Debug("Telemetry flush failed on exit: " + ex);
+                }
+            };
 
             AppDomain.CurrentDomain.UnhandledException += (sender, eventArgs) =>
             {
