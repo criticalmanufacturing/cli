@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 
 namespace Cmf.CLI.Core.Objects;
 
@@ -19,6 +20,8 @@ public interface ITelemetryService
     TracerProvider InitializeTracerProvider(string version);
 
     TracerProvider InitializeTracerProvider(string serviceName, string version);
+
+    Task<TracerProvider?> InitializeTracerProviderAsync(string serviceName, string version);
 
     ActivitySource InitializeActivitySource();
 
@@ -41,6 +44,7 @@ public class TelemetryService : ITelemetryService
     private readonly string cmfCLITelemetryEnableConsoleExporterEnvVarName;
     private ActivitySource activitySource = null;
     public TracerProvider Provider { get; private set; }
+    internal Task<TracerProvider?>? _initTask;
 
     public string Name { get; protected set; }
 
@@ -100,6 +104,33 @@ public class TelemetryService : ITelemetryService
         });
         Provider = builder.Build();
         return Provider;
+    }
+
+    /// <summary>
+    /// This function will use the current InitializeTracerProvider function to initialize tracer but asynchronously.
+    /// </summary>
+    /// <returns> Task that completes once tracer is initialized. If already initialized returns the same task. </returns>
+    public Task<TracerProvider?> InitializeTracerProviderAsync(string serviceName, string version)
+    {
+        if (_initTask != null)
+        {
+             return _initTask;
+        }
+
+        _initTask = Task.Run(() =>
+        {
+            try
+            {
+                return InitializeTracerProvider(serviceName, version);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Telemetry initialization failed: {ex}");
+                return (TracerProvider?)null;
+            }
+        });
+
+        return _initTask;
     }
 
     public ActivitySource InitializeActivitySource()

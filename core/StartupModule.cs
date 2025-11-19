@@ -54,12 +54,21 @@ namespace Cmf.CLI.Core
             
             ExecutionContext.ServiceProvider = serviceCollection
                 .BuildServiceProvider();
+            
+             // initialize Telemetry
+            var telemetry = ExecutionContext.ServiceProvider.GetService<ITelemetryService>();
+            telemetry.InitializeActivitySource(ExecutionContext.PackageId);
 
-            // initialize Telemetry
-            ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!
-                .InitializeTracerProvider(ExecutionContext.PackageId, ExecutionContext.CurrentVersion);
-            ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!
-                .InitializeActivitySource(ExecutionContext.PackageId);
+            // Initialize tracer asynchronously
+            var telemetryProviderInitTask = telemetry.InitializeTracerProviderAsync(ExecutionContext.PackageId,ExecutionContext.CurrentVersion);
+
+            _ = telemetryProviderInitTask.ContinueWith(t =>
+            {
+                if (t.Exception != null) 
+                {
+                    Log.Error($"Telemetry initialization faulted: {t.Exception}");
+                }
+            }, TaskScheduler.Default);
 
             AppDomain.CurrentDomain.UnhandledException += (sender, eventArgs) =>
             {
@@ -87,6 +96,13 @@ namespace Cmf.CLI.Core
                 .UseExceptionHandler((exception, context) => CliException.Handler(exception))
                 .CancelOnProcessTermination()
                 .Build();
+
+
+            // Only await if provider task is still running
+            if (!telemetryProviderInitTask.IsCompleted)
+            {
+                telemetryProviderInitTask.GetAwaiter().GetResult();
+            }
 
             return new(rootCommand, parser);
         }
