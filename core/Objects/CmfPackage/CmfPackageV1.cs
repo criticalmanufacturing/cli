@@ -263,15 +263,11 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
     public CmfPackageV1(string name, string packageId, string version, string description, PackageType packageType,
                       string targetDirectory, string targetLayer, bool? isInstallable, bool? isUniqueInstall, string keywords,
                       bool? isToSetDefaultSteps, DependencyCollection dependencies, List<Step> steps,
-                      List<ContentToPack> contentToPack, List<string> xmlInjection, bool? waitForIntegrationEntries, DependencyCollection testPackages = null) : this()
+                      List<ContentToPack> contentToPack, List<string> xmlInjection, bool? waitForIntegrationEntries, DependencyCollection testPackages = null)
+            : this()
     {
-
         if (dependencies != null)
         {
-            // Remove default dependencies to ignore as they are not relevant for cli operations
-            var packageIdsToIgnore = new HashSet<string>(Dependency.DefaultDependenciesToIgnore.Select(id => id.ToLowerInvariant()));
-            dependencies.RemoveAll(d => packageIdsToIgnore.Contains(d.Id.ToLowerInvariant()));
-
             // Normalize version ranges to just the upper limit
             foreach (var dep in dependencies)
             {
