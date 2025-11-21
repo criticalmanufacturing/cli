@@ -314,7 +314,18 @@ public class CmfPackageController
         /// <exception cref="PackageReadingException">
         /// </exception>
         public static CmfPackageV1 FromXml(XDocument xml)
-        {
+        => FromXml(xml, keepDefaultDependencies: false);
+
+    /// <summary>
+    /// Froms the XML.
+    /// </summary>
+    /// <param name="xml">The XML.</param>
+    /// <param name="keepDefaultDependencies">Reads the XML to CmfPackage and keeps the default dependencies.</param>
+    /// <returns></returns>
+    /// <exception cref="PackageReadingException">
+    /// </exception>
+    public static CmfPackageV1 FromXml(XDocument xml, bool keepDefaultDependencies)
+    {
             // NOTE: We don't use an automatic serializer because we want full control
             // on how the file is parsed in order to be able to version it
 
@@ -511,7 +522,8 @@ public class CmfPackageController
                 null,
                 null,
                 waitForIntegrationEntries: false,
-                testPackages
+                testPackages,
+                keepDefaultDependencies: keepDefaultDependencies
             );
             
             return cmfPackage;
@@ -1414,7 +1426,7 @@ public class CmfPackageController
         {
             List<Dependency> dependencies = new List<Dependency>();
         
-            if(dependenciesJson != null && dependenciesJson.Count() > 0)
+            if (dependenciesJson != null && dependenciesJson.Count() > 0)
             {
                 foreach (JProperty item in dependenciesJson)
                 {
@@ -1521,9 +1533,14 @@ public class CmfPackageController
                             using (StreamReader reader = new StreamReader(zipEntryStream, Encoding.UTF8))
                             {
                                 var manifest = reader.ReadToEnd();
-                                var pkg = FromXml(XDocument.Parse(manifest));
+                                var xdoc = XDocument.Parse(manifest);
+
+                                // we must keep the default dependencies when converting the Xml into a CmfPackageV1 
+                                //  in order to correctly generate the json manifest.
+                                var pkg = FromXml(xdoc, keepDefaultDependencies: true);
                                 var ctrlr = new CmfPackageController(pkg, zipFile.FileSystem);
-                                var jsonManifest = ctrlr.ToJson(lowercase, addManifestVersion);
+                                string jsonManifest = ctrlr.ToJson(lowercase, addManifestVersion);
+                                
                                 using (MemoryStream tarEntryStream = new MemoryStream())
                                 {
                                     using var streamWriter = new StreamWriter(tarEntryStream);
