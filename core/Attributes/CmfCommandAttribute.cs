@@ -45,6 +45,11 @@ namespace Cmf.CLI.Core.Attributes
         /// </summary>
         public bool IsHidden { get; set; } = false;
 
+        /// <summary>
+        /// Minimum MES version required for this command (e.g., "11.0.0")
+        /// </summary>
+        public string MinimumMESVersion { get; set; }
+
         #endregion
 
         #region Public Methods
