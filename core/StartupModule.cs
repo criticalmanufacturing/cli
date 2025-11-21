@@ -20,13 +20,13 @@ namespace Cmf.CLI.Core
         /// <summary>
         /// Configures the specified package name.
         /// </summary>
-        /// <param name="packageName">Package name used for INPMClient implementations</param>
+        /// <param name="packageId">Package ID used for INPMClient implementations</param>
         /// <param name="envVarPrefix">Name of the telemetry service name used as prefix for ITelemetryService implementations</param>
         /// <param name="description">Description used for the root command</param>
         /// <param name="args">ar</param>
         /// <param name="npmClient">The NPM client. if is not set, we assume NPMClient implementation by default</param>
         /// <param name="registerExtraServices">function to add extra services to the ServiceProvider</param>
-        public static async Task<Tuple<RootCommand, Parser>> Configure(string packageName, string envVarPrefix, string description, string[] args, INPMClient npmClient = null, Action<IServiceCollection> registerExtraServices = null)
+        public static async Task<Tuple<RootCommand, Parser>> Configure(string packageId, string envVarPrefix, string description, string[] args, INPMClient npmClient = null, Action<IServiceCollection> registerExtraServices = null)
         {
             // in a scenario that cli is not running on a terminal,
             // the AnsiConsole.Profile.Width defaults to 80,which is a low value and causes unexpected break lines.
@@ -42,8 +42,8 @@ namespace Cmf.CLI.Core
 
             var serviceCollection = new ServiceCollection()
                 .AddSingleton(_ => npmClient ?? new NPMClient())
-                .AddSingleton<IVersionService>(new VersionService(packageName))
-                .AddSingleton<ITelemetryService>(new TelemetryService(packageName))
+                .AddSingleton<IVersionService>(new VersionService(packageId))
+                .AddSingleton<ITelemetryService>(new TelemetryService(packageId))
                 .AddSingleton<IProcessStartInfoCLI>(new ProcessStartInfoCLI())
                 .AddSingleton<IProjectConfigService, ProjectConfigService>();
 
