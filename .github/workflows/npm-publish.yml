@@ -54,6 +54,21 @@ jobs:
           args: dist/cmf-cli.osx-x64.zip application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Get version from npm package
+        id: package-version
+        run: echo "version=$(node -p "require('./npm/package.json').version")" >> $GITHUB_OUTPUT
+      - name: Upload win-x64 to criticalmanufacturing.io
+        run: curl -v --user "tfsproductbuild:${{secrets.CRITICALMANUFACTURING_IO_TOKEN}}" --upload-file dist/cmf-cli.win-x64.zip https://criticalmanufacturing.io/repository/tools/cmf-cli.win-x64.zip
+      - name: Upload linux-x64 to criticalmanufacturing.io
+        run: curl -v --user "tfsproductbuild:${{secrets.CRITICALMANUFACTURING_IO_TOKEN}}" --upload-file dist/cmf-cli.linux-x64.zip https://criticalmanufacturing.io/repository/tools/cmf-cli.linux-x64.zip
+      - name: Upload osx-x64 to criticalmanufacturing.io
+        run: curl -v --user "tfsproductbuild:${{secrets.CRITICALMANUFACTURING_IO_TOKEN}}" --upload-file dist/cmf-cli.osx-x64.zip https://criticalmanufacturing.io/repository/tools/cmf-cli.osx-x64.zip
+      - name: Upload win-x64 to criticalmanufacturing.com.cn
+        run: curl -v --user "tfsproductbuild:${{secrets.CRITICALMANUFACTURING_CN_TOKEN}}" --upload-file dist/cmf-cli.win-x64.zip https://repository.criticalmanufacturing.com.cn/repository/tools/cmf-cli.win-x64.zip
+      - name: Upload linux-x64 to criticalmanufacturing.com.cn
+        run: curl -v --user "tfsproductbuild:${{secrets.CRITICALMANUFACTURING_CN_TOKEN}}" --upload-file dist/cmf-cli.linux-x64.zip https://repository.criticalmanufacturing.com.cn/repository/tools/cmf-cli.linux-x64.zip
+      - name: Upload osx-x64 to criticalmanufacturing.com.cn
+        run: curl -v --user "tfsproductbuild:${{secrets.CRITICALMANUFACTURING_CN_TOKEN}}" --upload-file dist/cmf-cli.osx-x64.zip https://repository.criticalmanufacturing.com.cn/repository/tools/cmf-cli.osx-x64.zip
       - run: npm run publish
         if: "github.event.release.prerelease"
         env:
