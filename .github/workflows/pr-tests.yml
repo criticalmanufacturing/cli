@@ -44,3 +44,5 @@ jobs:
         run: dotnet build --configuration Release --no-restore
       - name: Test
         run: dotnet test --no-restore --verbosity normal --filter "TestCategory!=Internal"
+      - name: Run npm package tests
+        run: cd npm && npm install --ignore-scripts && npm test   
