@@ -7,8 +7,8 @@ const path = require('path'),
     rimraf = require('rimraf'),
     fs = require('fs'),
     axios = require('axios'),
-    httpsProxyAgent = require('https-proxy-agent'),
-    httpProxyAgent = require('http-proxy-agent'),
+    HttpsProxyAgent = require('https-proxy-agent'),
+    HttpProxyAgent = require('http-proxy-agent'),
     proxyFromEnv = require('proxy-from-env'),
     AdmZip = require("adm-zip"),
     tmp = require('tmp'),
@@ -34,6 +34,41 @@ async function verifyAndPlaceBinary(binName, binPath, callback) {
 }
 
 /**
+ * Downloads and extracts a zip file from the given URL to the destination path
+ * @param {string} pkgUrl - The URL to download from
+ * @param {string} dest - The destination path to extract to
+ * @returns {Promise<void>}
+ */
+async function downloadAndExtract(pkgUrl, dest) {
+    console.info(`Fetching release archive from ${pkgUrl}`);
+    
+    // support for http/s proxies through env vars
+    const proxy = proxyFromEnv.getProxyForUrl(pkgUrl);
+    let httpAgent, httpsAgent;
+    if (proxy) {
+        httpAgent = new HttpProxyAgent(proxy);
+        httpsAgent = new HttpsProxyAgent(proxy);
+    }
+
+    // make req (override axios automatic proxy since it is not working properly)
+    const response = await axios({
+        url: pkgUrl,
+        method: 'GET',
+        proxy: false,
+        httpAgent: httpAgent,
+        httpsAgent: httpsAgent,
+        responseType: 'arraybuffer',
+    });
+    
+    const zip = tmp.tmpNameSync();
+    debug(`Writing temporary zip file to ${zip}`);
+    fs.writeFileSync(zip, response.data);
+    debug(`Extracting zip file ${zip} to ${dest}`);
+    (new AdmZip(zip)).extractAllTo(dest);
+    rimraf.sync(zip);
+}
+
+/**
  * Reads the configuration from application's package.json,
  * validates properties, copied the binary from the package and stores at
  * ./bin in the package's root. NPM already has support to install binary files
@@ -49,36 +84,33 @@ async function install(callback) {
     const src= `./dist/${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}`;
 
     if (!fs.existsSync("./dist")) {
-        // download respective release zip from github
-        const pkgUrl = opts.binUrl.replace("{{version}}", opts.version).replace("{{platform}}", PLATFORM_MAPPING[process.platform]).replace("{{arch}}", ARCH_MAPPING[process.arch]);
-        console.info(`Getting release archive from ${pkgUrl} into ${path.resolve(src)}`);
-        try {
-            // support for http/s proxies through env vars
-            const proxy = proxyFromEnv.getProxyForUrl(pkgUrl);
-            let httpAgent, httpsAgent;
-            if (proxy) {
-                httpAgent = new httpProxyAgent.HttpProxyAgent(proxy);
-                httpsAgent = new httpsProxyAgent.HttpsProxyAgent(proxy);
+        // download respective release zip from github or fallback repositories
+        const primaryUrl = opts.binUrl.replace("{{version}}", opts.version).replace("{{platform}}", PLATFORM_MAPPING[process.platform]).replace("{{arch}}", ARCH_MAPPING[process.arch]);
+        
+        // Fallback URLs for alternative repositories
+        const fallbackUrls = [
+            `https://criticalmanufacturing.io/repository/tools/cmf-cli.${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}.zip`,
+            `https://repository.criticalmanufacturing.com.cn/repository/tools/cmf-cli.${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}.zip`
+        ];
+        
+        // Try downloading from primary URL and fallbacks
+        const allUrls = [primaryUrl, ...fallbackUrls];
+        let downloadSucceeded = false;
+        
+        for (const pkgUrl of allUrls) {
+            try {
+                await downloadAndExtract(pkgUrl, src);
+                console.info(`Package downloaded successfully from ${pkgUrl}`);
+                downloadSucceeded = true;
+                break;
+            } catch (e) {
+                error(`Failed to download from ${pkgUrl}: ${e.message}`);
             }
-
-            // make req (override axios automatic proxy since it is not working properly)
-            const response = await axios({
-                url: pkgUrl,
-                method: 'GET',
-                proxy: false,
-                httpAgent: httpAgent,
-                httpsAgent: httpsAgent,
-                responseType: 'arraybuffer', // to do this with streaming we must deal with chunking
-            });
-            const zip = tmp.tmpNameSync();
-            debug(`Writing temporary zip file to ${zip}`);
-            fs.writeFileSync(zip, response.data);
-            debug(`Extracting zip file ${zip} to ${src}`);
-            (new AdmZip(zip)).extractAllTo(src);
-            rimraf.sync(zip);
-        } catch (e) {
-            error(e);
-            callback(`Could not install version ${opts.version} on your platform ${process.platform}/${process.arch}: ${e.message}`);
+        }
+        
+        if (!downloadSucceeded) {
+            callback(`Could not install version ${opts.version} on your platform ${process.platform}/${process.arch} from any repository.`);
+            return;
         }
     }
 

@@ -38,7 +38,7 @@ jobs:
             6.0.x
             8.0.x
       - name: Setup node versions
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
           node-version: '12'
       - name: Install dependencies
@@ -47,6 +47,8 @@ jobs:
         run: dotnet build --configuration Release --no-restore
       - name: Test
         run: dotnet test --configuration Release --no-build --no-restore --verbosity normal --filter "TestCategory!=Integration" --collect:"XPlat Code Coverage" --logger trx --results-directory TestResults
+      - name: Run npm package tests
+        run: cd npm && npm install --ignore-scripts && npm test
       - name: Merge Coverage Reports
         run: |
           dotnet tool install --global dotnet-reportgenerator-globaltool
