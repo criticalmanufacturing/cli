@@ -1,10 +1,13 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Cmf.CLI.Core;
 using Cmf.CLI.Core.Objects;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using OpenTelemetry.Trace;
 using tests.Mocks;
 using Xunit;
 
@@ -148,5 +151,54 @@ public class Telemetry
         var tagNames = activity.TagObjects.Select(kv => kv.Key).ToList();
         tagNames.Distinct().Count().Should().Be(expectedTags.Length);
         tagNames.All(expectedTags.Contains).Should().BeTrue();
+    }
+
+    /// <summary>
+    /// This test simulates the plugin behavior. It will call the startup module and start main activity.
+    /// Since in this test the version check will be instant, the provider will have to wait until finish.
+    /// In the end of the test the output is verified to ensure telemetry was started.
+    /// </summary>
+    [Fact]
+    public async Task SimulatePluginTelemetryBehavior()
+    {
+        Environment.SetEnvironmentVariable("plugin_test_enable_telemetry", "1");
+        Environment.SetEnvironmentVariable("plugin_test_enable_extended_telemetry", "1");
+        Environment.SetEnvironmentVariable("plugin_test_telemetry_enable_console_exporter", "1");
+        ExecutionContext.EnvVarPrefix = "plugin_test";
+
+        // Mock dependencies
+        var mockVersionService = new Mock<IVersionService>();
+        mockVersionService.SetupGet(s => s.CurrentVersion).Returns("2.0.0");
+        mockVersionService.SetupGet(s => s.PackageId).Returns("plugin-test");
+        
+        var mockNpmClient = new Mock<INPMClient>();
+        mockNpmClient.Setup(c => c.GetLatestVersion(false)).Returns(() => Task.FromResult("2.0.0"));
+        
+        // Call Configure to initialize DI and telemetry
+        var (rootCommand, parser) = await StartupModule.Configure(
+            packageName: "plugin-test",
+            envVarPrefix: "plugin_test",
+            description: "Plugin Test",
+            args: Array.Empty<string>(),
+            npmClient: mockNpmClient.Object,
+            registerExtraServices: collection =>
+            {
+                collection.AddSingleton(mockVersionService.Object);
+                collection.AddSingleton<ITelemetryService>(new TelemetryService("plugin_test"));
+            }
+        );
+
+        // Simulate the plugin start activity call and ensure it's not null.
+        var telemetryService = ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!;
+        using var activity = telemetryService.StartActivity("Main");
+        Assert.NotNull(activity);
+
+        // End the activity and check the output to see if telemetry was initiated correctly.
+        using var sw = new StringWriter();
+        Console.SetOut(sw);
+        activity?.Dispose();
+        telemetryService.Provider.ForceFlush();
+        var consoleOutput = sw.ToString();
+        Assert.Contains("telemetry.sdk.version", consoleOutput);
     }
 }
