@@ -87,6 +87,15 @@ namespace Cmf.CLI.Core.Objects
         /// </value>
         [JsonProperty(Order = 9)]
         public string TargetDatabase { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the old system name.
+        /// </summary>
+        /// <value>
+        /// The old system name.
+        /// </value>
+        [JsonProperty(Order = 11)]
+        public string OldSystemName { get; set; }
 
         /// <summary>
         /// Gets or sets the type of the message.
@@ -188,6 +197,10 @@ namespace Cmf.CLI.Core.Objects
         /// <param name="filePath">The file path.</param>
         /// <exception cref="ArgumentNullException">type</exception>
         public Step(StepType? type, string title, string onExecute, string contentPath, string file, bool? tagFile, string targetDatabase, MessageType? messageType, string relativePath, string filePath)
+            : this(type, title, onExecute, contentPath, file, tagFile, targetDatabase, messageType, relativePath, filePath, null)
+        { }
+        
+        public Step(StepType? type, string title, string onExecute, string contentPath, string file, bool? tagFile, string targetDatabase, MessageType? messageType, string relativePath, string filePath, string oldSystemName)
         {
             Type = type ?? throw new ArgumentNullException(nameof(type));
             Title = title;
@@ -199,6 +212,7 @@ namespace Cmf.CLI.Core.Objects
             MessageType = messageType;
             RelativePath = relativePath;
             FilePath = filePath;
+            OldSystemName = oldSystemName;
         }
 
         /// <summary>
@@ -241,7 +255,8 @@ namespace Cmf.CLI.Core.Objects
                    TargetDatabase == other.TargetDatabase &&
                    MessageType == other.MessageType &&
                    RelativePath == other.RelativePath &&
-                   FilePath == other.FilePath;
+                   FilePath == other.FilePath &&
+                   OldSystemName == other.OldSystemName;
         }
 
         #endregion
