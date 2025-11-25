@@ -34,7 +34,8 @@
 		<Parameter name="browser" value="chrome" />
 		<Parameter name="debug" value="false" />
 		<Parameter name="headless" value="false" /> <!-- on devcontainer use headless as `true` -->
-
+		<Parameter name="useRemoteWebDriver" value="false" />
+		<Parameter name="remoteWebDriverUrl" value="" />
 		<!-- Security Portal Authentication -->
 		<Parameter name="authenticateViaSecurityPortalToken" value="true" />
 		<Parameter name="securityPortalClientId" value="MES" />
