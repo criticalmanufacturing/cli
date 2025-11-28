@@ -7,8 +7,8 @@ const path = require('path'),
     rimraf = require('rimraf'),
     fs = require('fs'),
     axios = require('axios'),
-    httpsProxyAgent = require('https-proxy-agent'),
-    httpProxyAgent = require('http-proxy-agent'),
+    HttpsProxyAgent = require('https-proxy-agent'),
+    HttpProxyAgent = require('http-proxy-agent'),
     proxyFromEnv = require('proxy-from-env'),
     AdmZip = require("adm-zip"),
     tmp = require('tmp'),
@@ -46,8 +46,8 @@ async function downloadAndExtract(pkgUrl, dest) {
     const proxy = proxyFromEnv.getProxyForUrl(pkgUrl);
     let httpAgent, httpsAgent;
     if (proxy) {
-        httpAgent = new httpProxyAgent.HttpProxyAgent(proxy);
-        httpsAgent = new httpsProxyAgent.HttpsProxyAgent(proxy);
+        httpAgent = new HttpProxyAgent(proxy);
+        httpsAgent = new HttpsProxyAgent(proxy);
     }
 
     // make req (override axios automatic proxy since it is not working properly)
