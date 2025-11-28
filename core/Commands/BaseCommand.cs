@@ -1,5 +1,6 @@
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Objects;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
@@ -89,6 +90,28 @@ namespace Cmf.CLI.Core.Commands
             // Call "Configure" method
             BaseCommand cmdHandler = Activator.CreateInstance(cmd) as BaseCommand;
             cmdHandler.Configure(cmdInstance);
+            
+            // Validate MES version requirement if specified
+            if (!string.IsNullOrWhiteSpace(dec.MinimumMESVersion))
+            {
+                // Add a middleware to validate the version before command execution
+                cmdInstance.AddValidator(commandResult =>
+                {
+                    try
+                    {
+                        var validationService = ExecutionContext.ServiceProvider?.GetService<IMESVersionValidationService>();
+                        validationService?.ValidateMinimumVersion(dec.MinimumMESVersion);
+                    }
+                    catch (MESVersionValidationException ex)
+                    {
+                        commandResult.ErrorMessage = ex.Message;
+                    }
+                    catch (Exception ex)
+                    {
+                        commandResult.ErrorMessage = $"Version validation error: {ex.Message}";
+                    }
+                });
+            }
 
             // Add commands that depend on me
             var childCommands = commandTypes.Where(
