@@ -270,15 +270,15 @@ describe('postinstall.js', () => {
 // Helper function to create a mock downloadAndExtract function
 function createDownloadAndExtractFunction() {
     const proxyFromEnv = require('proxy-from-env');
-    const httpProxyAgent = require('http-proxy-agent');
-    const httpsProxyAgent = require('https-proxy-agent');
+    const HttpProxyAgent = require('http-proxy-agent');
+    const HttpsProxyAgent = require('https-proxy-agent');
 
     async function downloadAndExtract(pkgUrl, dest) {
         const proxy = proxyFromEnv.getProxyForUrl(pkgUrl);
         let httpAgent, httpsAgent;
         if (proxy) {
-            httpAgent = new httpProxyAgent.HttpProxyAgent(proxy);
-            httpsAgent = new httpsProxyAgent.HttpsProxyAgent(proxy);
+            httpAgent = new HttpProxyAgent(proxy);
+            httpsAgent = new HttpsProxyAgent(proxy);
         }
 
         const response = await axios({
