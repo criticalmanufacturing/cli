@@ -4,7 +4,7 @@
         <TargetFramework>net8.0</TargetFramework>
         <PackageId>CriticalManufacturing.CLI.Core</PackageId>
         <RootNamespace>Cmf.CLI.Core</RootNamespace>
-        <Version>5.7.0</Version>
+        <Version>5.7.1-0</Version>
         <Authors>CriticalManufacturing</Authors>
         <Company>CriticalManufacturing</Company>
         <PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
