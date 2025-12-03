@@ -1,0 +1,13 @@
+﻿{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Setup Start Manager",
+      "type": "shell",
+      "hide": false,
+      "command": "cmf-dev iot setupStartManager .",
+      "problemMatcher": []
+    }
+  ],
+  "statusbar.default.hide": true
+}
