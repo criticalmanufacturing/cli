@@ -1,4 +1,6 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-dotnet test --filter "(TestCategory!=LongRunning)&(TestCategory!=Node12)"
+if git diff --cached --name-only | grep -E '^(cmf-cli|core)/' >/dev/null; then
+    dotnet test --filter "(TestCategory!=LongRunning)&(TestCategory!=Node12)"
+fi
