@@ -1,13 +1,16 @@
 {
-  // Use IntelliSense to learn about possible attributes.
-  // Hover to view descriptions of existing attributes.
-  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "inputs": [
     {
       "id": "managerLocation",
       "type": "promptString",
-      "description": "Enter the location of the Automation Manager Downloaded"
+      "description": "Enter the location of the Automation Manager Downloaded",
+      "default": "./Manager"
+    },
+    {
+      "id": "managerId",
+      "type": "promptString",
+      "description": "Enter the 'Automation Manager ID' of the Automation Manager"
     },
     {
       "id": "driverInstance",
@@ -30,7 +33,8 @@
       "args": [
         "--dev",
         "--config=${input:managerLocation}/config.json",
-        "--monitorApplication=${input:managerLocation}/src/monitor.js"
+        "--monitorApplication=${input:managerLocation}/src/monitor.js",
+        "--id=${input:managerId}"
       ],
       "cwd": "${workspaceRoot}",
       "outFiles": [],
