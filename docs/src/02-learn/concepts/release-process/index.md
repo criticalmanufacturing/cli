@@ -2,35 +2,35 @@
 
 By default, @criticalmanufacturing/cli scaffolding does not provide any built-in CI/CD pipelines, giving you the flexibility to choose any tool/platform that suits your needs.
 
-However, on following sub-sections we share as a reference our internal process, that you can use to build your own pipeline.
+However, on following sub-sections we share some commands that should be used to build your own pipeline.
 
-### Pull Requests (PRs) Pipeline
+### Pull Request validation
 
-For each changed package, we run the command `cmf build --test`, which compiles the package and runs unit tests if available, comparing with the target branch.
+Changed packages can be validated by running the command `cmf build --test`, within the package folder.
+
+This package validation can, and should, be done only on changed packages.
 
 !!! note
 
-    A package is considered as "changed" when any file is
+    A package can be considered "changed" when any file is
     modified inside a folder with a ***cmfpackage.json***
     file.
 
-An alternative is to run `cmf build --test` for all packages.
+### Continuous Integration
 
-### Continuous Integration (CI) Piepeline
+After the changes are merged into the main branch, you can perform the following steps to have a package to be installed:
 
-After merging code into the main branch, we perform the following steps:
+1. `cmf build --test` that builds and validates the packages
+2. `cmf pack -o {{packages_ci_out_dir_path}}` to generate a package that can be installed via DevOpsCenter or Critical Manufacturing Setup.
 
-1. Run `cmf build --test` to ensure the successful building of all packages and execution of unit tests.
-2. Run `cmf pack -o {{packages_ci_out_dir_path}}` to generate a package that can be installed via DevOpsCenter or Critical Manufacturing Setup.
-
-### Continuous Deployment (CD) Pipeline
+### Continuous Deployment
 
 Install the package on the target MES environment (according to below instructions) and run the regression tests.
 
 === "Containers Environment"
 
-    1. Follow the instructions in the [DevOps Center documentation](https://portal.criticalmanufacturing.com/Help/devops-center/guide/).
-    2. Copy the generated packages to the folder defined in volume **Boot Packages**.
+    1. Follow the instructions in the [DevOps Center documentation](https://portal.criticalmanufacturing.com/Help/devops-center/guide/devops_center_main_page_about/).
+    2. Copy the generated packages to the folder defined in **Installation Data Path**.
     3. In the Configuration > General Data step, set the Package to Install as `RootPackageId@PackageVersion`.
 
 === "Traditional Environment (Windows VMs)"
