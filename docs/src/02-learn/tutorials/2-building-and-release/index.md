@@ -95,7 +95,7 @@ cmf assemble
 
 ## Install
 
-To install the release package, follow the process presented on the [Release Process Concept](../../concepts/release-process/index.md#continuous-deployment-cd-pipeline) page.
+To install the release package, follow the process presented on the [Release Process Concept](../../concepts/release-process/index.md#continuous-deployment) page.
 
 ## Additional Considerations
 
