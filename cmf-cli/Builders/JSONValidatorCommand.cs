@@ -179,12 +179,25 @@ namespace Cmf.CLI.Builders
                     if (property.Value.ValueKind == JsonValueKind.Object &&
                         property.Value.TryGetProperty("Name", out JsonElement name))
                     {
+                        // IsFile is deprecated in favor of `mdfile:` prefix
+                        // It indicates on the property where to find the information 
                         property.Value.TryGetProperty("IsFile", out JsonElement isFile);
+                        property.Value.TryGetProperty("Workflow", out JsonElement workflow);
 
-                        if (isFile.ToString().ToBool())
+                        // Check if the workflow has prefix
+                        bool isWorkflowPath = workflow.ToString().StartsWith("mdfile:");
+                        
+                        if (isFile.ToString().ToBool() || isWorkflowPath)
                         {
-                            property.Value.TryGetProperty("Workflow", out JsonElement workflow);
-                            names.Add(new WorkflowsToValidate(name.GetString(), workflow.GetString()));
+                            string workflowValue = workflow.GetString();
+
+                            // If has the prefix, it should strip the extention to get only the path
+                            if (isWorkflowPath)
+                            {
+                                workflowValue = workflowValue.Replace("mdfile://", "");
+                            }
+
+                            names.Add(new WorkflowsToValidate(name.GetString(), workflowValue));
                         }
                         else
                         {
