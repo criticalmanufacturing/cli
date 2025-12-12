@@ -171,7 +171,7 @@ namespace Cmf.CLI.Commands.New
             Log.Verbose("Executing npm install, this will take a while...");
             (new NPMCommand() { Command = "install", WorkingDirectory = pkgFolder }).Exec();
 
-            var htmlDevTasksConfigPath = this.fileSystem.Path.GetTempFileName();
+            var htmlDevTasksConfigPath = this.fileSystem.Path.Combine(this.fileSystem.Path.GetTempPath(), this.fileSystem.Path.GetRandomFileName());
             var htmlDevTasksConfigJson =
 $@"{{
     ""answers"": {{
@@ -182,7 +182,7 @@ $@"{{
     }}
 }}";
             this.fileSystem.File.WriteAllText(htmlDevTasksConfigPath, htmlDevTasksConfigJson);
-            var htmlWebAppConfigPath = this.fileSystem.Path.GetTempFileName();
+            var htmlWebAppConfigPath = this.fileSystem.Path.Combine(this.fileSystem.Path.GetTempPath(), this.fileSystem.Path.GetRandomFileName());
             var htmlWebAppConfigJson =
 $@"{{
     ""answers"": {{

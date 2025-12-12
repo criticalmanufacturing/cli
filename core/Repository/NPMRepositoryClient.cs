@@ -84,7 +84,7 @@ public class NPMRepositoryClient : IRepositoryClient
 
     public async Task<IFileInfo> Get(CmfPackageV1 package, IDirectoryInfo targetDirectory)
     {
-        var tmp = targetDirectory.FileSystem.Path.GetTempFileName().Replace(".tmp", ".tgz");
+        var tmp = targetDirectory.FileSystem.Path.Combine(targetDirectory.FileSystem.Path.GetTempPath(), targetDirectory.FileSystem.Path.GetRandomFileName()).Replace(".tmp", ".tgz");
         var targetFile =
             targetDirectory.FileSystem.FileInfo.New(
                 targetDirectory.FileSystem.Path.Join(targetDirectory.FullName,
