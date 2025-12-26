@@ -381,7 +381,8 @@ public class CmfPackageController
                         targetDatabase: element.Attribute("targetDatabase")?.Value,
                         messageType: MessageType.ImportObject, // TODO: get value
                         relativePath: null,
-                        filePath: element.Attribute("filePath")?.Value
+                        filePath: element.Attribute("filePath")?.Value,
+                        oldSystemName: element.Attribute("oldSystemName")?.Value
                     );
                     
                     // // Create an XmlSerializer for the Person type
