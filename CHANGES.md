@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.8.0-0](https://github.com/criticalmanufacturing/cli/compare/5.7.1-0...5.8.0-0) (2025-12-26)
+
+
+### Features
+
+* add support for mdfile prefix on json validatior ([ee29ec5](https://github.com/criticalmanufacturing/cli/commits/ee29ec573a76960cf9b02e6c18ba89e5f1ddc995))
+* support for dev setup start manager ([d6c8a99](https://github.com/criticalmanufacturing/cli/commits/d6c8a99971acc06e7b05c41169526ec73c7d913a))
+
+
+### Bug Fixes
+
+* send oldSystemName to Stpe constructor ([8a84033](https://github.com/criticalmanufacturing/cli/commits/8a840334341857d79549c60efc36be26b03b30d3))
+
 ### [5.7.1-0](https://github.com/criticalmanufacturing/cli/compare/5.7.0-2...5.7.1-0) (2025-11-28)
 
 
