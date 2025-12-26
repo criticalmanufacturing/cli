@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.7.1](https://github.com/criticalmanufacturing/cli/compare/5.7.1-0...5.7.1) (2025-12-29)
+
+
+### Bug Fixes
+
+* send oldSystemName to Stpe constructor ([5c72d81](https://github.com/criticalmanufacturing/cli/commits/5c72d816991c6a2af098a6a78ff97af751755a83))
+
 ### [5.7.1-0](https://github.com/criticalmanufacturing/cli/compare/5.7.0-2...5.7.1-0) (2025-11-28)
 
 
