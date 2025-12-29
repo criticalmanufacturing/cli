@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.7.1](https://github.com/criticalmanufacturing/cli/compare/5.7.1-0...5.7.1) (2025-12-29)
+
+
+### Bug Fixes
+
+* send oldSystemName to Stpe constructor ([5c72d81](https://github.com/criticalmanufacturing/cli/commits/5c72d816991c6a2af098a6a78ff97af751755a83))
+
+### [5.7.1-0](https://github.com/criticalmanufacturing/cli/compare/5.7.0-2...5.7.1-0) (2025-11-28)
+
+
+### Features
+
+* **help:** cleaning package json ([cc92416](https://github.com/criticalmanufacturing/cli/commits/cc92416be675e611f472dbd7163f55ff7eeaeffe))
+* include old-system-name in step and log unknown step attributes ([b9ba976](https://github.com/criticalmanufacturing/cli/commits/b9ba9768c666e223fef64e0d70bf5ff4dcfa8878))
+* **telemetry:** improve telemetry startup time ([700059f](https://github.com/criticalmanufacturing/cli/commits/700059f362be2ee9be11c3292d96ac7cd9d05aeb))
+
+
+### Bug Fixes
+
+* remove default deps removal from CmfPackageV1 ([6fd7c20](https://github.com/criticalmanufacturing/cli/commits/6fd7c20938c1749aeb36f196dfdebcc437b600ba))
+
 ## [5.7.0](https://github.com/criticalmanufacturing/cli/compare/5.7.0-2...5.7.0) (2025-11-14)
 
 ## [5.7.0-2](https://github.com/criticalmanufacturing/cli/compare/5.7.0-0...5.7.0-2) (2025-11-13)

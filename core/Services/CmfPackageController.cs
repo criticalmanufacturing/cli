@@ -32,6 +32,18 @@ public class CmfPackageController
     private IFileSystem fileSystem;
 
     public CmfPackageV1 CmfPackage => this.package; 
+
+    public static readonly IReadOnlyList<string> KnownStepAttributes =
+    [
+        "type",
+        "title",
+        "onExecute",
+        "contentPath",
+        "tagFile",
+        "targetDatabase",
+        "filePath",
+        "oldSystemName"
+    ];
     
     public CmfPackageController(CmfPackageV1 package, IFileSystem fileSystem)
     {
@@ -234,6 +246,17 @@ public class CmfPackageController
     }
     
     
+    private static void LogUnknownAttributes(XElement element, IEnumerable<string> knownAttributes = null)
+    {
+        knownAttributes ??= [];
+        var allAttributes = element.Attributes().Select(a => a.Name.LocalName);
+
+        var unknownAttributes = allAttributes.Except(knownAttributes).ToList();
+        if (unknownAttributes.Count > 0)
+        {
+            Log.Debug($"Step (type: {element.Attribute("type")?.Value}) has unknown attributes. Attributes: {string.Join(", ", unknownAttributes)}");
+        }
+    }
     
     private static CmfPackageV1 FromXmlManifest(string manifest, bool setDefaultValues = false)
     {
@@ -344,6 +367,8 @@ public class CmfPackageController
             {
                 foreach (var element in stepsElements)
                 {
+                    LogUnknownAttributes(element, KnownStepAttributes);
+                    
                     Step step = new Step(
                         type: Enum.Parse(typeof(StepType), element.Attribute("type")?.Value) is StepType
                             ? (StepType)Enum.Parse(typeof(StepType), element.Attribute("type")?.Value)
@@ -356,7 +381,8 @@ public class CmfPackageController
                         targetDatabase: element.Attribute("targetDatabase")?.Value,
                         messageType: MessageType.ImportObject, // TODO: get value
                         relativePath: null,
-                        filePath: element.Attribute("filePath")?.Value
+                        filePath: element.Attribute("filePath")?.Value,
+                        oldSystemName: element.Attribute("oldSystemName")?.Value
                     );
                     
                     // // Create an XmlSerializer for the Person type
