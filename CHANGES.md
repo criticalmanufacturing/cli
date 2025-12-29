@@ -15,6 +15,13 @@ All notable changes to this project will be documented in this file. See [standa
 
 * send oldSystemName to Stpe constructor ([8a84033](https://github.com/criticalmanufacturing/cli/commits/8a840334341857d79549c60efc36be26b03b30d3))
 
+### [5.7.1](https://github.com/criticalmanufacturing/cli/compare/5.7.1-0...5.7.1) (2025-12-29)
+
+
+### Bug Fixes
+
+* send oldSystemName to Stpe constructor ([5c72d81](https://github.com/criticalmanufacturing/cli/commits/5c72d816991c6a2af098a6a78ff97af751755a83))
+
 ### [5.7.1-0](https://github.com/criticalmanufacturing/cli/compare/5.7.0-2...5.7.1-0) (2025-11-28)
 
 
