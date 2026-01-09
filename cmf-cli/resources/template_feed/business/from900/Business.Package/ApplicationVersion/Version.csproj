@@ -3,8 +3,8 @@
 		<TargetFramework><%= $CLI_PARAM_TargetFramework %></TargetFramework>
 		<AssemblyTitle>ApplicationVersion</AssemblyTitle>
 		<Product><%= $CLI_PARAM_LicensedAppName %></Product>
-		<AssemblyName>Cmf.<%= $CLI_PARAM_idSegment %>.ApplicationVersion</AssemblyName>
-		<RootNamespace>Cmf.<%= $CLI_PARAM_idSegment %>.ApplicationVersion</RootNamespace>
+		<AssemblyName><%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_idSegment %>.ApplicationVersion</AssemblyName>
+		<RootNamespace><%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_idSegment %>.ApplicationVersion</RootNamespace>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<AssemblyVersion><%= $CLI_PARAM_assemblyVersion %></AssemblyVersion>
 		<FileVersion><%= $CLI_PARAM_fileVersion %></FileVersion>

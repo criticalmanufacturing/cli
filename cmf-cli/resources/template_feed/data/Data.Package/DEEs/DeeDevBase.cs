@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Cmf.Custom.<%= $CLI_PARAM_Tenant %>.Actions
+namespace <%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.<%= $CLI_PARAM_Tenant %>.Actions
 {
     public abstract class DeeDevBase
     {
