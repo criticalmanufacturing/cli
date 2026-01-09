@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework><%= $CLI_PARAM_TargetFramework %></TargetFramework>
+		<OutputType>Library</OutputType>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<AssemblyName><%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.<%= $CLI_PARAM_idSegment %>.Services</AssemblyName>
+		<RootNamespace><%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.<%= $CLI_PARAM_idSegment %>.Services</RootNamespace>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<OutputPath><%= $CLI_PARAM_localEnvRelativePath %>\BusinessTier</OutputPath>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<OutputPath>..\Release</OutputPath>
+	</PropertyGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\<%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.Orchestration\<%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.<%= $CLI_PARAM_idSegment %>.Orchestration.csproj" />
+	</ItemGroup>
+</Project>

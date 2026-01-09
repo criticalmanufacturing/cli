@@ -12,7 +12,7 @@ using Cmf.Foundation.ApplicationVersion;
 
 #endregion Using Directives
 
-namespace Cmf.<%= $CLI_PARAM_Tenant %>.ApplicationVersion
+namespace <%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Tenant %>.ApplicationVersion
 {
     /// <summary>
     /// NRepresents the application version information gathering.

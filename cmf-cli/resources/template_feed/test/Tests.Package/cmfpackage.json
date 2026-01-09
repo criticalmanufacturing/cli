@@ -1,5 +1,5 @@
 {
-  "packageId": "Cmf.Custom.Tests",
+  "packageId": "<%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.Tests",
   "version": "<%= $CLI_PARAM_CustomPackageVersion %>",
   "description": "This package tests Critical Manufacturing MES <%= $CLI_PARAM_Tenant %> Customization",
   "packageType": "Tests",

@@ -86,12 +86,8 @@ namespace Cmf.CLI.Commands
             ));
         }
 
-        protected (string, string)? GeneratePackageName(IDirectoryInfo workingDir)
+        protected (string, string) GetOrganizationAndProductFromProjectConfig()
         {
-
-            string featureName = null;
-            var projectRoot = FileSystemUtilities.GetProjectRoot(this.fileSystem, throwException: true);
-
             //load .project-config
             var projectConfig = ExecutionContext.Instance.ProjectConfig;
             var organization = Constants.CliConstants.DefaultOrganization;
@@ -104,8 +100,19 @@ namespace Cmf.CLI.Commands
             {
                 product = projectConfig.Product;
             }
+
+            return (organization, product);
+        }
+
+        protected (string, string)? GeneratePackageName(IDirectoryInfo workingDir)
+        {
+            var (organization, product) = GetOrganizationAndProductFromProjectConfig();
+
             var packageName = $"{organization}.{product}.{this.packageType}";
 
+            var projectRoot = FileSystemUtilities.GetProjectRoot(this.fileSystem, throwException: true);
+
+            string featureName = null;
             if (string.Equals(projectRoot.FullName, workingDir.FullName))
             {
                 // is a root-level package.
@@ -155,7 +162,10 @@ namespace Cmf.CLI.Commands
             var (packageName, featureName) = names.Value;
 
             //load .project-config
-            var tenant = ExecutionContext.Instance.ProjectConfig.Tenant;
+            var projectConfig = ExecutionContext.Instance.ProjectConfig;
+            var tenant = projectConfig.Tenant;
+
+            var (organization, product) = this.GetOrganizationAndProductFromProjectConfig();
 
             args =
             [
@@ -168,7 +178,9 @@ namespace Cmf.CLI.Commands
                                 "--name", packageName,
                                 "--packageVersion", version,
                                 "--idSegment", featureName != null ? $"{tenant}.{featureName}" : tenant,
-                                "--Tenant", tenant
+                                "--Tenant", tenant,
+                                "--Product", product,
+                                "--Organization", organization
                             }),
                 .. (args ?? []),
             ];
