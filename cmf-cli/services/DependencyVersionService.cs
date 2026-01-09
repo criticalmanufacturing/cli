@@ -35,34 +35,52 @@ public class DependencyVersionService : IDependencyVersionService
     public const string NODE12 = "12.20.2";
     public const string NG15 = "15.2.1";
     public const string NG17 = "17.2.1";
+    public const string NG21 = "21.0.7";
     public const string NG15_ZONE = "0.12.0";
     public const string NG17_ZONE = "0.14.3";
+    public const string NG21_ZONE = "0.16.0";
     public const string NG15_TSESLINT = "5.44.0";
     public const string NG17_TSESLINT = "6.10.0";
+    public const string NG21_TSESLINT = "8.52.0";
     public const string NG15_ESLINT = "8.28.0";
     public const string NG17_ESLINT = "8.53.0";
+    public const string NG21_ESLINT = "9.39.2";
     public const string NG15_TS = "4.8.4";
     public const string NG17_TS = "5.3.3";
+    public const string NG21_TS = "5.9.2";
 
     public string DotNetSdk(Version version) => version.Major > 10 ? NET8SDK : version.Major > 8 ? NET6SDK : NET3SDK;
     public string Node(Version version) => version.Major > 10 ? NODE20 : version.Major > 9 ? NODE18 : NODE12;
 
-    public AngularDeps Angular(Version version) => version.Major > 10
-        ? new AngularDeps()
+    public AngularDeps Angular(Version version) =>
+        version.Major switch
         {
-            CLI = NG17,
-            Zone = NG17_ZONE,
-            Typescript = NG17_TS,
-            ESLint = NG17_ESLINT,
-            TSESLint = NG17_TSESLINT
-        }
-        : new AngularDeps()
-        {
-            CLI = NG15,
-            Zone = NG15_ZONE,
-            Typescript = NG15_TS,
-            ESLint = NG15_ESLINT,
-            TSESLint = NG15_TSESLINT
+            <= 10 => new AngularDeps()
+            {
+                CLI = NG15,
+                Zone = NG15_ZONE,
+                Typescript = NG15_TS,
+                ESLint = NG15_ESLINT,
+                TSESLint = NG15_TSESLINT
+            },
+            11 => new AngularDeps()
+            {
+                CLI = NG17,
+                Zone = NG17_ZONE,
+                Typescript = NG17_TS,
+                ESLint = NG17_ESLINT,
+                TSESLint = NG17_TSESLINT
+            },
+            12 => new AngularDeps()
+            {
+                CLI = NG21,
+                Zone = NG21_ZONE,
+                Typescript = NG21_TS,
+                ESLint = NG21_ESLINT,
+                TSESLint = NG21_TSESLINT
+            },
+            _ => throw new NotSupportedException($"No Angular dependencies defined for MES version {version}")
         };
+
     public string AngularCLI(Version version) => Version.Parse(this.Angular(version).CLI).Major.ToString();
 }

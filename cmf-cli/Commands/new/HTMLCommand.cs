@@ -80,6 +80,8 @@ namespace Cmf.CLI.Commands.New
         /// <param name="htmlPackage">The MES Presentation HTML package path</param>
         public void Execute(IDirectoryInfo workingDir, string version, IFileInfo htmlPackage)
         {
+            CommandUtilities.ThrowIfNoProjectConfig(ExecutionContext.Instance);
+
             if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major > 9)
             {
                 this.ExecuteV10(workingDir, version);
@@ -333,12 +335,13 @@ $@"{{
 
             // this won't return null because it has to success on the base.Execute call
             var ngCliVersion = ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().AngularCLI(ExecutionContext.Instance.ProjectConfig.MESVersion);
+            string ngCliCommand = $"@angular/cli@{ngCliVersion}";
             var packageName = base.GeneratePackageName(workingDir)!.Value.Item1;
             var packageDir = workingDir.GetDirectories(packageName).First();
             var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
 
             var schematicsVersion = ngxSchematicsVersion.ToString() ?? $"@release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}";
-            
+
             //After v11 we use Angular default routing
             var routing = mesVersion.Major >= 11 ? "true" : "false";
 
@@ -346,21 +349,29 @@ $@"{{
             // ng new <packageName> --routing false --style less
             new NPXCommand()
             {
-                Command = $"@angular/cli@{ngCliVersion}",
-                Args = new[] { "new", packageName, "--routing", routing, "--style", "less" },
+                Command = ngCliCommand,
+                Args = [
+                        "new", packageName,
+                                            "--routing", routing,
+                                            "--style", "less",
+                                            "--ssr", "false"
+                ],
                 WorkingDirectory = workingDir,
                 ForceColorOutput = false
             }.Exec();
+
             Log.Debug($"Adding @criticalmanufacturing/ngx-schematics@{schematicsVersion} to the package, which can be used to scaffold new components and libraries");
             // cd <packageName>
             // ng add --skip-confirmation @criticalmanufacturing/ngx-schematics [--npmRegistry http://npm.example/] --eslint --application <Core|MES>
             new NPXCommand()
             {
-                Command = $"@angular/cli@{ngCliVersion}",
-                Args = new[] { "add", "--registry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.OriginalString,
+                Command = ngCliCommand,
+                Args = [
+                    "add", "--registry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.OriginalString,
                                       "--skip-confirmation", $"@criticalmanufacturing/ngx-schematics@{schematicsVersion}",
                                       "--eslint", "--application", baseLayer.ToString(),
-                                      "--version", $"release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}" },
+                                      "--version", $"release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}"
+                ],
                 WorkingDirectory = packageDir,
                 ForceColorOutput = false
             }.Exec();
@@ -369,13 +380,24 @@ $@"{{
             var rootPkgJsonPath = this.fileSystem.Path.Join(packageDir.FullName, "package.json");
             var json = fileSystem.File.ReadAllText(rootPkgJsonPath);
             dynamic rootPkgJson = JsonConvert.DeserializeObject(json);
+
             if (rootPkgJson == null)
             {
                 throw new CliException("Could not load package.json");
             }
+
+            if (mesVersion.Major < 12)
+            {
+                rootPkgJson.devDependencies["cross-env"] = "^7.0.3";
+                // Note: Version 12 no longer uses jquery-ui
+                rootPkgJson.devDependencies["jquery-ui"] = "1.13.2";
+            }
+            else
+            {
+                rootPkgJson.devDependencies["cross-env"] = "^10.1.0";
+            }
+
             rootPkgJson.scripts["serve"] = "cross-env NODE_OPTIONS=--max-old-space-size=8192 npm run start -- --host 0.0.0.0 --disable-host-check --port 7000";
-            rootPkgJson.devDependencies["cross-env"] = "^7.0.3";
-            rootPkgJson.devDependencies["jquery-ui"] = "1.13.2";
 
             if (ExecutionContext.Instance.ProjectConfig.RepositoryType == RepositoryType.App)
             {
@@ -399,7 +421,7 @@ $@"{{
 
                 Log.Verbose("Updated index.html");
             }
-            
+
             json = JsonConvert.SerializeObject(rootPkgJson, Formatting.Indented);
             this.fileSystem.File.WriteAllText(rootPkgJsonPath, json);
             Log.Verbose("Updated package.json");
@@ -411,6 +433,7 @@ $@"{{
             var configJsonPath = this.fileSystem.Path.Join(packageDir.FullName, "src",
                 this.fileSystem.Path.Join("assets", "config.json"));
             var configJsonStr = fileSystem.File.ReadAllText(configJsonPath);
+
             if (!configJsonStr.Contains("$("))
             {
                 // config.json has no tokens and can be malformed. We need to make sure it parses, so we inject some dummy values that will be thrown away later
@@ -423,6 +446,7 @@ $@"{{
                     "\"isLoadBalancerEnabled\": false\n");
             }
             configJsonStr = Regex.Replace(configJsonStr, @"\$\([^\)]+\)", "0", RegexOptions.Multiline);
+
             dynamic configJsonJson = null;
             try
             {
