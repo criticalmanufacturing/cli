@@ -7,6 +7,7 @@
         },
         "ghcr.io/criticalmanufacturing/portal-sdk/install:1": {},
         "ghcr.io/devcontainers/features/docker-in-docker": {
+            "version": "28.5.2",
             "dockerDefaultAddressPool":"base=10.250.0.0/16,size=24"
         },
         "ghcr.io/kreemer/features/chrometesting": {}
@@ -62,6 +63,6 @@
     },
     "forwardPorts": [
         80
-    ],  
+    ],
     "initializeCommand": "docker pull criticalmanufacturing.io/criticalmanufacturing/devcontainer:<%= $CLI_PARAM_MESVersion-Major %>"
 }
