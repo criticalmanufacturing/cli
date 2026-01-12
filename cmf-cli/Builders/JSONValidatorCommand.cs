@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -88,6 +89,10 @@ namespace Cmf.CLI.Builders
 
                     try
                     {
+                        #region Check that there are no duplicate keys
+                        ValidateDuplicateKeys(fileContent);
+                        #endregion
+
                         var json = JsonDocument.Parse(fileContent);
 
                         #region Collect JSON SubWorkflows to Validate
@@ -237,6 +242,59 @@ namespace Cmf.CLI.Builders
             }
             return names;
         }
+
+        /// <summary>
+        /// Detects duplicate keys in a JSON, prints them as errors and throws an exception
+        /// </summary>
+        static void ValidateDuplicateKeys(string json)
+        {
+            List<string> duplicates = new List<string>();
+            var reader = new Utf8JsonReader(Encoding.UTF8.GetBytes(json), new JsonReaderOptions { CommentHandling = JsonCommentHandling.Skip });
+
+            void ParseObject(ref Utf8JsonReader r, string path)
+            {
+                HashSet<string> keys = [];
+
+                while (r.Read())
+                {
+                    if (r.TokenType == JsonTokenType.PropertyName)
+                    {
+                        string key = r.GetString();
+                        string fullPath = string.IsNullOrEmpty(path) ? key : $"{path}.{key}";
+
+                        if (!keys.Add(key))
+                            duplicates.Add(fullPath);
+
+                        if (!r.Read())
+                        {
+                            return;
+                        }
+
+                        // Recurse if value is an object
+                        if (r.TokenType == JsonTokenType.StartObject)
+                        {
+                            ParseObject(ref r, fullPath);
+                        }
+
+                    }
+                    else if (r.TokenType == JsonTokenType.EndObject)
+                    {
+                        return;
+                    }
+                }
+            }
+
+            ParseObject(ref reader, "");
+            if (duplicates.Count > 0)
+            {
+                for (int i = 0; i < duplicates.Count; i++)
+                {
+                    Log.Error($"Repeated key: {duplicates[i]}");
+                }
+                throw new Exception();
+            }
+        }
+
     }
 
     public record WorkflowsToValidate
