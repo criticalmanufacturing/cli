@@ -1,0 +1,14 @@
+{
+  "system" : {
+    "tenantName" : "<%= $CLI_PARAM_Tenant %>",
+    "address" : "http://localhost",
+    "timeout" : 120000,
+    "authentication" : {
+      "type" : "SecurityPortal",
+      "settings" : {
+        "clientId" : "MES", 
+        "accessToken" : "PERSONAL_ACCESS_TOKEN"
+      }
+    }
+  }
+}

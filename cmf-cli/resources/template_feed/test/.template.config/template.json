@@ -99,6 +99,11 @@
       "datatype": "string",
       "replaces": "<%= $CLI_PARAM_localEnvRelativePath %>"
     },
+    "output": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_output %>"
+    },
     // versioned bits
     "targetFramework": {
       "type": "parameter",
