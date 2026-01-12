@@ -22,7 +22,6 @@
                 "Angular.ng-template",
                 "dbaeumer.vscode-eslint",
                 "esbenp.prettier-vscode",
-                "eamodio.gitlens",
                 "github.vscode-github-actions"
             ]
         }
