@@ -4,8 +4,106 @@ datasources:
 #if (app)
   - name: CMF gRPC Datasource
     type: criticalmanufacturing-grpc-datasource
+    uid: KHanA1bVk
+    access: proxy
+    url: 
+    user: 
+    database: 
+    basicAuth: false
+    isDefault: false
     jsonData:
-      endpoint: <data-manager-url>:<port>
+      endpoint: data-manager:6189
+
+  - name: DataManager-Cubes
+    type: retrodaredevil-wildgraphql-datasource
+    uid: PCqMAq1QX
+    access: proxy
+    url: http://traefik:8082/datamanager/cube/graphql
+    user: 
+    database: 
+    basicAuth: false
+    isDefault: false
+    jsonData:
+  
+  - name: DataManager-OData-Apps
+    type: criticalmanufacturing-odata-datasource
+    uid: lywgWAC7S
+    access: proxy
+    url: http://traefik:8081/datamanager/odata/apps
+    user:
+    database:
+    basicAuth: false
+    isDefault: false
+    jsonData:
+      keepCookies:
+        - access_token
+      tlsSkipVerify: true
+
+  - name: DataManager-OData-CDM
+    type: criticalmanufacturing-odata-datasource
+    uid: r1Y5GTCpa
+    access: proxy
+    url: http://traefik:8081/datamanager/odata/cdm
+    user:
+    database:
+    basicAuth: false
+    isDefault: false
+    jsonData:
+      keepCookies:
+        - access_token
+      tlsSkipVerify: true
+
+  - name: DataManager-OData-DWH
+    type: criticalmanufacturing-odata-datasource
+    uid: 97e8uVcB5
+    access: proxy
+    url: http://traefik:8081/datamanager/odata/dwh
+    user:
+    database:
+    basicAuth: false
+    isDefault: false
+    jsonData:
+      keepCookies:
+        - access_token
+      tlsSkipVerify: true
+
+  - name: DataManager-OData-IoTEvents
+    type: criticalmanufacturing-odata-datasource
+    uid: 1rStvySjN
+    access: proxy
+    url: http://traefik:8081/datamanager/odata/iotevents
+    user:
+    database:
+    basicAuth: false
+    isDefault: false
+    jsonData:
+      keepCookies:
+        - access_token
+      tlsSkipVerify: true
+
+  - name: DataManager-OData-ODS
+    type: criticalmanufacturing-odata-datasource
+    uid: QwTFQXDwo
+    access: proxy
+    url: http://traefik:8081/datamanager/odata/ods
+    user:
+    database:
+    basicAuth: false
+    isDefault: false
+    jsonData:
+      keepCookies:
+        - access_token
+      tlsSkipVerify: true
+
+  - name: DataManager-OData-UserDefined
+    type: criticalmanufacturing-odata-datasource
+    uid: rYpwDuuQK
+    access: proxy
+    url: http://traefik:8081/datamanager/odata/userdefined
+    user:
+    database:
+    basicAuth: false
+    isDefault: false
 #else
   ~
 #endif
