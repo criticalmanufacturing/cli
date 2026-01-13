@@ -23,12 +23,15 @@ const lboConfigs = open("../cmfLbo_config.json");
 // Define k6 test options.
 // For more details: https://grafana.com/docs/k6/latest/using-k6/k6-options/how-to/
 export let options = {
-    iterations: 100, // Total number of test iterations
-    vus: 5, // Number of Virtual Users to run concurrently
+    iterations: 100, // Total number of test iterations.
+    vus: 5, // Number of Virtual Users to run concurrently.
     thresholds: {
-        // Define pass/fail criteria for metrics
+        // Define pass/fail criteria for metrics.
         // For more details: https://grafana.com/docs/k6/latest/using-k6/thresholds/
-        'http_req_duration{scenario:default}': ['p(95)<100'] 
+        'http_req_duration{scenario:default}': ['p(95)<100'],
+
+        // Exit with error if any validation using 'check' fails.
+        checks: ['rate==1'],
     },
     // Provide the test name to the TestTags utility method.
     // It allows for metrics identification on observability.
@@ -83,9 +86,12 @@ export default PerformanceTest.Run(async ({settings, siteId}) => {
     const site: Cmf.Foundation.BusinessObjects.Site = output.Instance;
     
     // Validate that the returned result is the requested Site.
-    // For more details on k6 checks: https://grafana.com/docs/k6/latest/using-k6/checks/
+    // Note: k6 checks do not fail the test suite by default unless a threshold is defined.
+    // See: https://grafana.com/docs/k6/latest/using-k6/checks/
+    // Assertions can be used as an alternative but currently remain outside of core k6.
+    // See: https://grafana.com/docs/k6/latest/using-k6/assertions/
     check(site, {
-        'Successfully retrieved Site': (m) => m.Id === getObjectById.Id,
+        'Successfully retrieved Site': (s) => s.Id === getObjectById.Id,
     });
 });
 
