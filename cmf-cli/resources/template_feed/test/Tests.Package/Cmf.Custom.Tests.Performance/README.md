@@ -76,7 +76,7 @@ npm start Tests/get_material.ts
 
 ### With OpenTelemetry
 
-To export metrics to an OpenTelemetry collector, update the [telemetry.env](./telemetry.env) file with the appropriate exporter configurations and execute the test using the npm helper task:
+To export metrics to an OpenTelemetry collector, update the [k6.env](./k6.env) file with the appropriate exporter configurations and execute the test using the npm helper task:
 
 ```bash
 npm run otel Tests/get_material.ts
