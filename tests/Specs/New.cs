@@ -517,6 +517,81 @@ namespace tests.Specs
             }
         }
 
+        [Theory]
+        [InlineData("11.2.2", false)]
+        [InlineData("11.2.3", true)]
+        [InlineData("11.2.4", true)]
+        [InlineData("12.0.0", true)]
+        public void Tests_PerformanceTemplate(string mesVersion, bool shouldIncludePerformance)
+        {
+            var packageId = "Cmf.Custom.Tests";
+            var dir = TestUtilities.GetTmpDirectory();
+
+            var rnd = new Random();
+            var pkgVersion = $"{rnd.Next(10)}.{rnd.Next(10)}.{rnd.Next(10)}";
+
+            var cur = Directory.GetCurrentDirectory();
+            var console = new TestConsole();
+            try
+            {
+                Directory.SetCurrentDirectory(dir);
+
+                // place new fixture: an init'd repository with specific MES version
+                CopyNewFixture(dir, mesVersion);
+
+                var projCfg = Path.Join(dir, ".project-config.json");
+                if (File.Exists(projCfg))
+                {
+                    File.WriteAllText(projCfg, File.ReadAllText(projCfg)
+                        .Replace("install_path", MockUnixSupport.Path(@"x:\install_path").Replace(@"\", @"\\"))
+                        .Replace("backup_share", MockUnixSupport.Path(@"y:\backup_share").Replace(@"\", @"\\"))
+                        .Replace("temp_folder", MockUnixSupport.Path(@"z:\temp_folder").Replace(@"\", @"\\"))
+                    );
+                }
+
+                var newCommand = new TestCommand();
+                var cmd = new Command("x");
+                newCommand.Configure(cmd);
+                var args = new List<string>
+                {
+                    "--version", pkgVersion
+                };
+                TestUtilities.GetParser(cmd).Invoke(args.ToArray(), console);
+
+                string errors = console.Error.ToString().Trim();
+                Assert.True(errors.Length == 0, $"Errors found in console: {errors}");
+                Assert.True(Directory.Exists(packageId), "Package folder is missing");
+
+                // Check if Performance directory exists based on MES version
+                var performanceDir = Path.Combine(packageId, "Cmf.Custom.Tests.Performance");
+                if (shouldIncludePerformance)
+                {
+                    Assert.True(Directory.Exists(performanceDir), $"Performance Tests directory should exist for MES version {mesVersion}");
+                }
+                else
+                {
+                    Assert.False(Directory.Exists(performanceDir), $"Performance Tests directory should not exist for MES version {mesVersion}");
+                }
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                int tries = 3;
+                while (tries > 0)
+                {
+                    try
+                    {
+                        Directory.Delete(dir, true);
+                        break;
+                    }
+                    catch
+                    {
+                        tries--;
+                    }
+                }
+            }
+        }
+
         [Fact, Trait("TestCategory", "LongRunning")]
         public void Traditional()
         {

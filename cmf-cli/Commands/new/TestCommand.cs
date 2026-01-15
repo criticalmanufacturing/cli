@@ -93,6 +93,11 @@ namespace Cmf.CLI.Commands.New
             
             #region version-specific bits
             args.AddRange(new []{ "--targetFramework", mesVersion.Major > 8 ? mesVersion.Major >= 11 ? "net8.0" : "net6.0" : "netcoreapp3.1" });
+
+            if (mesVersion >= new Version(11, 2, 3))
+            {
+                args.Add("--hostPerformanceTests");
+            }
             #endregion
 
             this.executedArgs = args.ToArray();

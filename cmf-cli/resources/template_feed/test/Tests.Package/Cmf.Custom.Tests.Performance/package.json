@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "@types/k6": "^1.4.0",
+    "cmf-k6": "file:<%= $CLI_PARAM_output %>/Libs/LBOs/K6/cmf_k6/cmf-k6-0.0.1.tgz"
+  },
+  "scripts": {
+    "start": "set -a && . ./k6.env && set +a && k6 run",
+    "otel": "set -a && . ./k6.env && set +a && k6 run -o opentelemetry",
+    "all": "find Tests/*.ts -maxdepth 1 -type f -exec npm start {} \\;"
+  }
+}

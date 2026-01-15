@@ -59,6 +59,12 @@
       "datatype": "string",
       "replaces": "<%= $CLI_PARAM_MESVersion %>"
     },
+    "hostPerformanceTests": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "replaces": "<%= $CLI_PARAM_hostPerformanceTests %>"
+    },
     "testScenariosNugetVersion": {
       "type": "parameter",
       "datatype": "string",
@@ -99,11 +105,28 @@
       "datatype": "string",
       "replaces": "<%= $CLI_PARAM_localEnvRelativePath %>"
     },
+    "output": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_output %>"
+    },
     // versioned bits
     "targetFramework": {
       "type": "parameter",
       "datatype": "string",
       "replaces": "<%= $CLI_PARAM_TargetFramework %>"
     }
-  }
+  },
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "condition": "(!hostPerformanceTests)",
+          "exclude": [
+            "**/Cmf.Custom.Tests.Performance/**"
+          ]
+        }
+      ]
+    }
+  ]
 }
