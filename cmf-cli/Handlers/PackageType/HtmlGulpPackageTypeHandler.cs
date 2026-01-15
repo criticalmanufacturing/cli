@@ -30,9 +30,17 @@ namespace Cmf.CLI.Handlers
         public HtmlGulpPackageTypeHandler(CmfPackage cmfPackage) : base(cmfPackage)
         {
             // Validate Node.js version before proceeding with build setup
-            var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
-            var requiredNodeVersion = ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Node(mesVersion);
-            NodeVersionUtilities.ValidateNodeVersion(mesVersion, requiredNodeVersion);
+            // Only validate if ExecutionContext is properly initialized
+            if (ExecutionContext.Instance?.ProjectConfig != null && ExecutionContext.ServiceProvider != null)
+            {
+                var dependencyVersionService = ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>();
+                if (dependencyVersionService != null)
+                {
+                    var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+                    var requiredNodeVersion = dependencyVersionService.Node(mesVersion);
+                    NodeVersionUtilities.ValidateNodeVersion(mesVersion, requiredNodeVersion);
+                }
+            }
 
             cmfPackage.SetDefaultValues
             (
