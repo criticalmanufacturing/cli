@@ -353,11 +353,6 @@ $@"{{
                 "--style", "less"
             ];
 
-            if (ngCliVersion.Major >= 17)
-            {
-                ngNewCmdOptions.AddRange(["--ssr", "false"]);
-            }
-
             if (ngCliVersion.Major >= 21)
             {
                 ngNewCmdOptions.AddRange(["--zoneless", "false"]);
