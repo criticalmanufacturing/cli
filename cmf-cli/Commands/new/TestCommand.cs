@@ -8,6 +8,7 @@ using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
 using System.Linq;
+using System;
 
 namespace Cmf.CLI.Commands.New
 {
