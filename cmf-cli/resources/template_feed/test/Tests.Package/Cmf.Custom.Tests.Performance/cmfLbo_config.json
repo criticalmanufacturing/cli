@@ -4,7 +4,7 @@
     "address" : "http://localhost",
     "timeout" : 120000,
     "authentication" : {
-      "type" : "SecurityPortal",
+      "type" : "PAT",
       "settings" : {
         "clientId" : "MES", 
         "accessToken" : "PERSONAL_ACCESS_TOKEN"
