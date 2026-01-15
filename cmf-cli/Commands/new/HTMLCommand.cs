@@ -334,11 +334,12 @@ $@"{{
             base.Execute(workingDir, version); // create package base - generate cmfpackage.json
 
             // this won't return null because it has to success on the base.Execute call
-            var ngCliVersion = ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().AngularCLI(ExecutionContext.Instance.ProjectConfig.MESVersion);
-            string ngCliCommand = $"@angular/cli@{ngCliVersion}";
+            var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            var angularDeps = ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(mesVersion);
+            var ngCliVersion = angularDeps.CLI;
+            string ngCliCommand = $"@angular/cli@{ngCliVersion.Major}";
             var packageName = base.GeneratePackageName(workingDir)!.Value.Item1;
             var packageDir = workingDir.GetDirectories(packageName).First();
-            var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
 
             var schematicsVersion = ngxSchematicsVersion.ToString() ?? $"@release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}";
 
@@ -346,15 +347,29 @@ $@"{{
             var routing = mesVersion.Major >= 11 ? "true" : "false";
 
             Log.Debug($"Creating new web application {packageName}");
+
+            List<string> ngNewCmdOptions = [
+                "--routing", routing,
+                "--style", "less"
+            ];
+
+            if (ngCliVersion.Major >= 17)
+            {
+                ngNewCmdOptions.AddRange(["--ssr", "false"]);
+            }
+
+            if (ngCliVersion.Major >= 21)
+            {
+                ngNewCmdOptions.AddRange(["--zoneless", "false"]);
+            }
+
             // ng new <packageName> --routing false --style less
             new NPXCommand()
             {
                 Command = ngCliCommand,
                 Args = [
                         "new", packageName,
-                                            "--routing", routing,
-                                            "--style", "less",
-                                            "--ssr", "false"
+                        ..ngNewCmdOptions
                 ],
                 WorkingDirectory = workingDir,
                 ForceColorOutput = false

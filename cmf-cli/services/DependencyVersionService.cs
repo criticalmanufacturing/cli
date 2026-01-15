@@ -4,7 +4,7 @@ namespace Cmf.CLI.Services;
 
 public record AngularDeps
 {
-    public string CLI { get; init; }
+    public Version CLI { get; init; }
     public string Zone { get; init; }
     public string Typescript { get; init; }
     public string ESLint { get; init; }
@@ -52,12 +52,12 @@ public class DependencyVersionService : IDependencyVersionService
     public string DotNetSdk(Version version) => version.Major > 10 ? NET8SDK : version.Major > 8 ? NET6SDK : NET3SDK;
     public string Node(Version version) => version.Major > 10 ? NODE20 : version.Major > 9 ? NODE18 : NODE12;
 
-    public AngularDeps Angular(Version version) =>
-        version.Major switch
+    public AngularDeps Angular(Version productVersion) =>
+        productVersion.Major switch
         {
             <= 10 => new AngularDeps()
             {
-                CLI = NG15,
+                CLI = Version.Parse(NG15),
                 Zone = NG15_ZONE,
                 Typescript = NG15_TS,
                 ESLint = NG15_ESLINT,
@@ -65,7 +65,7 @@ public class DependencyVersionService : IDependencyVersionService
             },
             11 => new AngularDeps()
             {
-                CLI = NG17,
+                CLI = Version.Parse(NG17),
                 Zone = NG17_ZONE,
                 Typescript = NG17_TS,
                 ESLint = NG17_ESLINT,
@@ -73,14 +73,14 @@ public class DependencyVersionService : IDependencyVersionService
             },
             12 => new AngularDeps()
             {
-                CLI = NG21,
+                CLI = Version.Parse(NG21),
                 Zone = NG21_ZONE,
                 Typescript = NG21_TS,
                 ESLint = NG21_ESLINT,
                 TSESLint = NG21_TSESLINT
             },
-            _ => throw new NotSupportedException($"No Angular dependencies defined for MES version {version}")
+            _ => throw new NotSupportedException($"No Angular dependencies defined for MES version {productVersion}")
         };
 
-    public string AngularCLI(Version version) => Version.Parse(this.Angular(version).CLI).Major.ToString();
+    public string AngularCLI(Version productVersion) => this.Angular(productVersion).CLI.Major.ToString();
 }
