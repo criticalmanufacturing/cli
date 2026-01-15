@@ -103,7 +103,7 @@ export async function teardown({settings, siteId}) {
     const lboService = new LboService(settings);
 
     // Terminate Site
-    const facilityOutput: GenericServiceManagement.OutputObjects.GetObjectByIdOutput = 
+    const getObjectById: GenericServiceManagement.OutputObjects.GetObjectByIdOutput = 
         await lboService.call(
             new GenericServiceManagement.InputObjects.GetObjectByIdInput({
                 Id: siteId,
@@ -113,7 +113,7 @@ export async function teardown({settings, siteId}) {
         );
     await lboService.call(
         new GenericServiceManagement.InputObjects.TerminateObjectInput({
-            Object: facilityOutput.Instance
+            Object: getObjectById.Instance
         })
     );
 
