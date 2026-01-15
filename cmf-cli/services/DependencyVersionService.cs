@@ -35,7 +35,7 @@ public class DependencyVersionService : IDependencyVersionService
     public const string NODE12 = "12.20.2";
     public const string NG15 = "15.2.1";
     public const string NG17 = "17.2.1";
-    public const string NG21 = "21.0.7";
+    public const string NG21 = "21.1.0";
     public const string NG15_ZONE = "0.12.0";
     public const string NG17_ZONE = "0.14.3";
     public const string NG21_ZONE = "0.16.0";
@@ -47,7 +47,7 @@ public class DependencyVersionService : IDependencyVersionService
     public const string NG21_ESLINT = "9.39.2";
     public const string NG15_TS = "4.8.4";
     public const string NG17_TS = "5.3.3";
-    public const string NG21_TS = "5.9.2";
+    public const string NG21_TS = "5.9.3";
 
     public string DotNetSdk(Version version) => version.Major > 10 ? NET8SDK : version.Major > 8 ? NET6SDK : NET3SDK;
     public string Node(Version version) => version.Major > 10 ? NODE20 : version.Major > 9 ? NODE18 : NODE12;
