@@ -48,6 +48,7 @@ namespace Cmf.CLI.Commands
         public IFileInfo ISOLocation { get; set; }
         public string nugetRegistryUsername { get; set; }
         public string nugetRegistryPassword { get; set; }
+        public string Tenant { get; set; }
         public RepositoryType repositoryType { get; set; }
         public string appId { get; set; }
         public string appName { get; set; }
@@ -175,6 +176,11 @@ namespace Cmf.CLI.Commands
                 Arity = ArgumentArity.ZeroOrMore,
                 AllowMultipleArgumentsPerToken = true
             });
+
+            cmd.AddOption(new Option<string>(
+                aliases: new[] { "--tenant" },
+                description: "MES Tenant Name"
+            ) { IsRequired = false });
 
             // infra options
             cmd.AddOption(new Option<IFileInfo>(
@@ -490,6 +496,16 @@ namespace Cmf.CLI.Commands
             if (x.config != null)
             {
                 args.AddRange(ParseConfigFile(x.config));
+            }
+            
+            if (!string.IsNullOrEmpty(x.Tenant))
+            {
+                args.AddRange(new string[] { "--Tenant", x.Tenant });
+            }
+            
+            if (!args.Contains("--Tenant"))
+            {
+                throw new CliException("Tenant information is missing. Please provide it either in the config file or through the --tenant option.");
             }
 
             if (x.appConfig != null)
