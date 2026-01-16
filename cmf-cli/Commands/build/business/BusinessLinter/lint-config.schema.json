@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Business Linter Configuration",
+  "description": "Configuration file for the Business Package Linter (future enhancement)",
+  "type": "object",
+  "properties": {
+    "rules": {
+      "type": "object",
+      "description": "Configuration for linting rules",
+      "properties": {
+        "NoLoadInForeach": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true,
+              "description": "Enable or disable this rule"
+            },
+            "severity": {
+              "type": "string",
+              "enum": ["error", "warning", "info"],
+              "default": "warning",
+              "description": "Severity level for violations"
+            }
+          }
+        }
+      }
+    },
+    "exclude": {
+      "type": "array",
+      "description": "File patterns to exclude from linting",
+      "items": {
+        "type": "string"
+      },
+      "examples": [
+        "**/Generated/**",
+        "**/*.Designer.cs"
+      ]
+    }
+  },
+  "examples": [
+    {
+      "rules": {
+        "NoLoadInForeach": {
+          "enabled": true,
+          "severity": "warning"
+        }
+      },
+      "exclude": [
+        "**/obj/**",
+        "**/bin/**"
+      ]
+    }
+  ]
+}
