@@ -1,0 +1,20 @@
+{
+  "packageId": "Cmf.Custom.Test",
+  "version": "1.0.0",
+  "description": "Test package with conditional dependency",
+  "packageType": "Root",
+  "isInstallable": true,
+  "isUniqueInstall": false,
+  "dependencies": [
+    {
+      "id": "Cmf.FEC.Database.Analytics.Pre",
+      "version": "4.0.0",
+      "conditional": true
+    },
+    {
+      "id": "Cmf.Foundation.Common",
+      "version": "5.0.0"
+    }
+  ],
+  "contentToPack": []
+}

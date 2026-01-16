@@ -42,9 +42,18 @@ namespace Cmf.CLI.Core.Objects
         public bool Mandatory { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether this <see cref="Dependency" /> is conditional.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if conditional; otherwise, <c>false</c>.
+        /// </value>
+        [JsonProperty(Order = 3)]
+        public bool Conditional { get; set; }
+
+        /// <summary>
         /// The CmfPackage that satisfies this dependency
         /// </summary>
-        [JsonProperty(Order = 3)]
+        [JsonProperty(Order = 4)]
         [JsonIgnore]
         public CmfPackage CmfPackage { get; set; }
         
@@ -52,14 +61,14 @@ namespace Cmf.CLI.Core.Objects
         /// <summary>
         /// The CmfPackage that satisfies this dependency
         /// </summary>
-        [JsonProperty(Order = 3)]
+        [JsonProperty(Order = 5)]
         [JsonIgnore]
         public CmfPackageV1 CmfPackageV1 { get; set; }
 
         /// <summary>
         /// Is this package missing, i.e. we could not find it anywhere to satisfy this dependency
         /// </summary>
-        [JsonProperty(Order = 4)]
+        [JsonProperty(Order = 6)]
         [JsonIgnore]
         [XmlIgnore]
         public bool IsMissing => this.CmfPackage == null && this.CmfPackageV1 == null;
@@ -131,6 +140,15 @@ namespace Cmf.CLI.Core.Objects
         public bool ShouldSerializeMandatory()
         {
             return this.Mandatory == false;
+        }
+
+        /// <summary>
+        /// Should Serialize Conditional
+        /// </summary>
+        /// <returns>returns true only when Conditional is true</returns>
+        public bool ShouldSerializeConditional()
+        {
+            return this.Conditional == true;
         }
 
         #endregion Public Methods
