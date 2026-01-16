@@ -450,11 +450,11 @@ public class CmfPackageController
 
                     if (!string.IsNullOrWhiteSpace(id) && !string.IsNullOrWhiteSpace(versionRange))
                     {
-                        result = new Dependency(id, versionRange) { Mandatory = isMandatory/*, isConditional*/};
+                        result = new Dependency(id, versionRange) { Mandatory = isMandatory, Conditional = isConditional };
                     }
                     // else if (!string.IsNullOrWhiteSpace(id))
                     // {
-                    //     result = new Dependency(id) { Mandatory = isMandatory/*, isConditional*/};
+                    //     result = new Dependency(id) { Mandatory = isMandatory, Conditional = isConditional };
                     // }
                     else
                     {
