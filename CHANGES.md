@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.8.0-2](https://github.com/criticalmanufacturing/cli/compare/5.8.0-1...5.8.0-2) (2026-01-16)
+
+
+### Bug Fixes
+
+* duplicate keys now recognise deep array paths ([00a64ef](https://github.com/criticalmanufacturing/cli/commits/00a64ef8de1ff0d359dbcfdf8ef347d6ce7fe7df))
+
 ## [5.8.0-1](https://github.com/criticalmanufacturing/cli/compare/5.7.1...5.8.0-1) (2026-01-15)
 
 
