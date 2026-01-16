@@ -2121,5 +2121,141 @@ namespace tests.Specs
             Assert.True(console.Error == null || string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator failed with empty IsFile: {console.Error?.ToString()}");
         }
 
+        [Fact]
+        public void Data_JsonValidator_Repeated_Keys_IoT_Event_Definition()
+        {
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { "/test/cmfpackage.json", new CmfMockJsonData(
+                    @"{
+                        ""packageId"": ""Cmf.Custom.Package"",
+                        ""version"": ""1.1.0"",
+                        ""description"": ""This package deploys Critical Manufacturing Customization"",
+                        ""packageType"": ""Root"",
+                        ""isInstallable"": true,
+                        ""isUniqueInstall"": false,
+                        ""dependencies"": [
+                            {
+                                ""id"": ""Cmf.Custom.IoT"",
+                                ""version"": ""1.1.0""
+                            }
+                        ]
+                    }"
+                )},
+                { "/test/IoT/cmfpackage.json", new CmfMockJsonData(
+                    @"{
+                      ""packageId"": ""Cmf.Custom.IoT"",
+                      ""version"": ""1.1.0"",
+                      ""description"": ""Cmf Custom Foxconn IoT Package"",
+                      ""packageType"": ""Root"",
+                      ""isInstallable"": true,
+                      ""isUniqueInstall"": false,
+                      ""dependencies"": [
+	                    {
+                          ""id"": ""Cmf.Custom.IoTData"",
+                          ""version"": ""1.1.0""
+                        }
+                      ]
+                    }"
+                )},
+                { "/test/IoTData/cmfpackage.json", new CmfMockJsonData(
+                    @"{
+                      ""packageId"": ""Cmf.Custom.IoTData"",
+                      ""version"": ""1.1.0"",
+                      ""description"": ""Cmf Custom Foxconn IoTData Package"",
+                      ""packageType"": ""IoTData"",
+                      ""isInstallable"": true,
+                      ""isUniqueInstall"": false,
+                      ""contentToPack"": [
+                        {
+                            {
+                              ""source"": ""MasterData/$(version)/*"",
+                              ""target"": ""MasterData /$(version)/"",
+                                ""contentType"": ""MasterData""
+                            },
+                      ]
+                    }"
+                )},
+                { "/test/IoTData/MasterData/1.0.0IoT.json", new CmfMockJsonData(
+                    @"{
+                        ""<DM>AutomationProtocol"": {
+                        ""1"": {
+                            ""Name"": ""TEST_Protocol"",
+                            ""Description"": ""TEST_Protocol"",
+                            ""Type"":"" ""General"",
+                            ""Package"": ""@criticalmanufacturing/connect-iot-driver-test"",
+                            ""PackageVersion"": ""test""
+                    }"
+                )},
+                { "/test/IoTData/AutomationWorkflowFiles/MasterData/1.0.0/TestWorkflowIoT.json", new CmfMockJsonData(
+                    @"{
+	                     ""tasks"": [
+                            {
+                                ""id"": ""task_22180"",
+                                ""reference"": {
+                                    ""name"": ""equipmentCommand""
+                                },
+                                ""settings"": {
+                                    ""_command"": {
+                                        ""$type"": ""aa"",
+                                        ""Name"": ""bb"",
+                                        ""Parameters"": [
+                                            {
+                                                ""$type"": ""cc"",
+                                                ""Name"": ""dd""
+                                            }
+                                        ],
+                                        ""DeviceCommandId"": """",
+                                        ""ExtendedData"": """"
+                                    },
+                                    ""_inputs"": [
+                                    ]
+                                },
+                                ""driver"": ""RestClient""
+                            },
+                            {
+                                ""id"": ""task_16195"",
+                                ""reference"": {
+                                    ""name"": ""ddddd""
+                                },
+                                ""settings"": {
+                                    ""inputs"": [
+                                    ],
+                                    ""outputs"": [
+                                    ]
+                                }
+                            }
+                        ]
+                        ""converters"": [
+                            {
+                            }
+                        ],
+	                    ""links"": [
+                            {
+                            }
+                        ],
+	                    ""layout"": {
+                            ""general"": {
+                            },
+		                    ""drawers"": {
+                            }
+                        }
+                    }")
+                }
+            });
+
+            BuildCommand buildCommand = new BuildCommand(fileSystem.FileSystem);
+
+            var cmd = new Command("build");
+            buildCommand.Configure(cmd);
+
+            var console = new TestConsole();
+            cmd.Invoke(new string[] {
+                "test/"
+            }, console);
+
+            Assert.True(console.Error == null || string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator failed with repeated keys on different levels in arrays: {console.Error?.ToString()}");
+        }
+
     }
 }
