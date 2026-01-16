@@ -3,14 +3,14 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32421.90
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cmf.Custom.<%= $CLI_PARAM_idSegment %>.Common", "Cmf.Custom.Common\Cmf.Custom.<%= $CLI_PARAM_idSegment %>.Common.csproj", "{6C3D698D-7F9E-4E39-A571-DEB63582CA52}"		 
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "<%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.<%= $CLI_PARAM_idSegment %>.Common", "<%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.Common\<%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.<%= $CLI_PARAM_idSegment %>.Common.csproj", "{6C3D698D-7F9E-4E39-A571-DEB63582CA52}"		 
 EndProject	  
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cmf.Custom.<%= $CLI_PARAM_idSegment %>.Services", "Cmf.Custom.Services\Cmf.Custom.<%= $CLI_PARAM_idSegment %>.Services.csproj", "{FA684AB7-3BB6-47CB-ACD8-48CA53F2DCEF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "<%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.<%= $CLI_PARAM_idSegment %>.Services", "<%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.Services\<%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.<%= $CLI_PARAM_idSegment %>.Services.csproj", "{FA684AB7-3BB6-47CB-ACD8-48CA53F2DCEF}"
 	ProjectSection(ProjectDependencies) = postProject
 		{4F4342A5-3D64-4D54-B83B-368F768E2A95} = {4F4342A5-3D64-4D54-B83B-368F768E2A95}
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cmf.Custom.<%= $CLI_PARAM_idSegment %>.Orchestration", "Cmf.Custom.Orchestration\Cmf.Custom.<%= $CLI_PARAM_idSegment %>.Orchestration.csproj", "{4F4342A5-3D64-4D54-B83B-368F768E2A95}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "<%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.<%= $CLI_PARAM_idSegment %>.Orchestration", "<%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.Orchestration\<%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.<%= $CLI_PARAM_idSegment %>.Orchestration.csproj", "{4F4342A5-3D64-4D54-B83B-368F768E2A95}"
 	ProjectSection(ProjectDependencies) = postProject
 		{6C3D698D-7F9E-4E39-A571-DEB63582CA52} = {6C3D698D-7F9E-4E39-A571-DEB63582CA52}
 	EndProjectSection

@@ -11,6 +11,7 @@ using tests.Objects;
 using Xunit;
 using System.Collections.Generic;
 using FluentAssertions;
+using Cmf.CLI.Core.Enums;
 
 namespace tests.Specs
 {
@@ -136,6 +137,368 @@ namespace tests.Specs
                 contentToPack[i].Source.FullName.Should().EndWith($"file_{i:000}.txt");
             }
 
+        }
+
+        [Fact]
+        public void DatabasePackageTypeHandler_OnlyOnlineTarget_AddsOnlyOnlineStep()
+        {
+            // Arrange
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { "/repo/cmfpackage.json", new MockFileData(
+                @"{
+                  ""packageId"": ""Cmf.Custom.Database"",
+                  ""version"": ""1.0.0"",
+                  ""packageType"": ""Database"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": true,
+                  ""contentToPack"": [
+                    {
+                      ""source"": ""ONLINE/UpgradeScripts/$(version)/*"",
+                      ""target"": ""Online/""
+                    }
+                  ],
+                  ""steps"": []
+                }")}
+            });
+
+            ExecutionContext.Initialize(fileSystem);
+            var cmfPackage = CmfPackage.Load(fileSystem.FileInfo.New("/repo/cmfpackage.json"), setDefaultValues: true);
+            
+            // Act
+            var handler = new DatabasePackageTypeHandler(cmfPackage);
+            
+            // Assert
+            cmfPackage.Steps.Should().NotBeNull();
+            cmfPackage.Steps.Should().HaveCount(1);
+            cmfPackage.Steps[0].ContentPath.Should().Be("Online/*.sql");
+            cmfPackage.Steps[0].TargetDatabase.Should().Be("$(Product.Database.Online)");
+            cmfPackage.Steps[0].Type.Should().Be(StepType.RunSql);
+        }
+
+        [Fact]
+        public void DatabasePackageTypeHandler_OnlyODSTarget_AddsOnlyODSStep()
+        {
+            // Arrange
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { "/repo/cmfpackage.json", new MockFileData(
+                @"{
+                  ""packageId"": ""Cmf.Custom.Database"",
+                  ""version"": ""1.0.0"",
+                  ""packageType"": ""Database"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": true,
+                  ""contentToPack"": [
+                    {
+                      ""source"": ""ODS/UpgradeScripts/$(version)/*"",
+                      ""target"": ""ODS/""
+                    }
+                  ],
+                  ""steps"": []
+                }")}
+            });
+
+            ExecutionContext.Initialize(fileSystem);
+            var cmfPackage = CmfPackage.Load(fileSystem.FileInfo.New("/repo/cmfpackage.json"), setDefaultValues: true);
+            
+            // Act
+            var handler = new DatabasePackageTypeHandler(cmfPackage);
+            
+            // Assert
+            cmfPackage.Steps.Should().NotBeNull();
+            cmfPackage.Steps.Should().HaveCount(1);
+            cmfPackage.Steps[0].ContentPath.Should().Be("ODS/*.sql");
+            cmfPackage.Steps[0].TargetDatabase.Should().Be("$(Product.Database.Ods)");
+            cmfPackage.Steps[0].Type.Should().Be(StepType.EnqueueSql);
+        }
+
+        [Fact]
+        public void DatabasePackageTypeHandler_OnlyDWHTarget_AddsOnlyDWHStep()
+        {
+            // Arrange
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { "/repo/cmfpackage.json", new MockFileData(
+                @"{
+                  ""packageId"": ""Cmf.Custom.Database"",
+                  ""version"": ""1.0.0"",
+                  ""packageType"": ""Database"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": true,
+                  ""contentToPack"": [
+                    {
+                      ""source"": ""DWH/UpgradeScripts/$(version)/*"",
+                      ""target"": ""DWH/""
+                    }
+                  ],
+                  ""steps"": []
+                }")}
+            });
+
+            ExecutionContext.Initialize(fileSystem);
+            var cmfPackage = CmfPackage.Load(fileSystem.FileInfo.New("/repo/cmfpackage.json"), setDefaultValues: true);
+            
+            // Act
+            var handler = new DatabasePackageTypeHandler(cmfPackage);
+            
+            // Assert
+            cmfPackage.Steps.Should().NotBeNull();
+            cmfPackage.Steps.Should().HaveCount(1);
+            cmfPackage.Steps[0].ContentPath.Should().Be("DWH/*.sql");
+            cmfPackage.Steps[0].TargetDatabase.Should().Be("$(Product.Database.Dwh)");
+            cmfPackage.Steps[0].Type.Should().Be(StepType.EnqueueSql);
+        }
+
+        [Fact]
+        public void DatabasePackageTypeHandler_AllThreeTargets_AddsAllSteps()
+        {
+            // Arrange
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { "/repo/cmfpackage.json", new MockFileData(
+                @"{
+                  ""packageId"": ""Cmf.Custom.Database"",
+                  ""version"": ""1.0.0"",
+                  ""packageType"": ""Database"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": true,
+                  ""contentToPack"": [
+                    {
+                      ""source"": ""ONLINE/UpgradeScripts/$(version)/*"",
+                      ""target"": ""Online/""
+                    },
+                    {
+                      ""source"": ""ODS/UpgradeScripts/$(version)/*"",
+                      ""target"": ""ODS/""
+                    },
+                    {
+                      ""source"": ""DWH/UpgradeScripts/$(version)/*"",
+                      ""target"": ""DWH/""
+                    }
+                  ],
+                  ""steps"": []
+                }")}
+            });
+
+            ExecutionContext.Initialize(fileSystem);
+            var cmfPackage = CmfPackage.Load(fileSystem.FileInfo.New("/repo/cmfpackage.json"), setDefaultValues: true);
+            
+            // Act
+            var handler = new DatabasePackageTypeHandler(cmfPackage);
+            
+            // Assert
+            cmfPackage.Steps.Should().NotBeNull();
+            cmfPackage.Steps.Should().HaveCount(3);
+            
+            // Verify Online step
+            cmfPackage.Steps.Should().Contain(s => 
+                s.ContentPath == "Online/*.sql" && 
+                s.TargetDatabase == "$(Product.Database.Online)" &&
+                s.Type == StepType.RunSql);
+            
+            // Verify ODS step
+            cmfPackage.Steps.Should().Contain(s => 
+                s.ContentPath == "ODS/*.sql" && 
+                s.TargetDatabase == "$(Product.Database.Ods)" &&
+                s.Type == StepType.EnqueueSql);
+            
+            // Verify DWH step
+            cmfPackage.Steps.Should().Contain(s => 
+                s.ContentPath == "DWH/*.sql" && 
+                s.TargetDatabase == "$(Product.Database.Dwh)" &&
+                s.Type == StepType.EnqueueSql);
+        }
+
+        [Fact]
+        public void DatabasePackageTypeHandler_EmptyContentToPack_AddsNoSteps()
+        {
+            // Arrange
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { "/repo/cmfpackage.json", new MockFileData(
+                @"{
+                  ""packageId"": ""Cmf.Custom.Database"",
+                  ""version"": ""1.0.0"",
+                  ""packageType"": ""Database"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": true,
+                  ""contentToPack"": [],
+                  ""steps"": []
+                }")}
+            });
+
+            ExecutionContext.Initialize(fileSystem);
+            var cmfPackage = CmfPackage.Load(fileSystem.FileInfo.New("/repo/cmfpackage.json"), setDefaultValues: true);
+            
+            // Act
+            var handler = new DatabasePackageTypeHandler(cmfPackage);
+            
+            // Assert
+            cmfPackage.Steps.Should().NotBeNull();
+            cmfPackage.Steps.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void DatabasePackageTypeHandler_TargetWithoutTrailingSlash_AddsCorrectStep()
+        {
+            // Arrange
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { "/repo/cmfpackage.json", new MockFileData(
+                @"{
+                  ""packageId"": ""Cmf.Custom.Database"",
+                  ""version"": ""1.0.0"",
+                  ""packageType"": ""Database"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": true,
+                  ""contentToPack"": [
+                    {
+                      ""source"": ""ONLINE/UpgradeScripts/$(version)/*"",
+                      ""target"": ""Online""
+                    }
+                  ],
+                  ""steps"": []
+                }")}
+            });
+
+            ExecutionContext.Initialize(fileSystem);
+            var cmfPackage = CmfPackage.Load(fileSystem.FileInfo.New("/repo/cmfpackage.json"), setDefaultValues: true);
+            
+            // Act
+            var handler = new DatabasePackageTypeHandler(cmfPackage);
+            
+            // Assert
+            cmfPackage.Steps.Should().NotBeNull();
+            cmfPackage.Steps.Should().HaveCount(1);
+            cmfPackage.Steps[0].ContentPath.Should().Be("Online/*.sql");
+        }
+
+        [Fact]
+        public void DatabasePackageTypeHandler_FalsePositiveTargets_DoesNotMatch()
+        {
+            // Arrange
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { "/repo/cmfpackage.json", new MockFileData(
+                @"{
+                  ""packageId"": ""Cmf.Custom.Database"",
+                  ""version"": ""1.0.0"",
+                  ""packageType"": ""Database"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": true,
+                  ""contentToPack"": [
+                    {
+                      ""source"": ""OnlineBackup/*"",
+                      ""target"": ""OnlineBackup/""
+                    },
+                    {
+                      ""source"": ""ODSArchive/*"",
+                      ""target"": ""ODSArchive/""
+                    },
+                    {
+                      ""source"": ""DWHTemp/*"",
+                      ""target"": ""DWHTemp/""
+                    }
+                  ],
+                  ""steps"": []
+                }")}
+            });
+
+            ExecutionContext.Initialize(fileSystem);
+            var cmfPackage = CmfPackage.Load(fileSystem.FileInfo.New("/repo/cmfpackage.json"), setDefaultValues: true);
+            
+            // Act
+            var handler = new DatabasePackageTypeHandler(cmfPackage);
+            
+            // Assert
+            cmfPackage.Steps.Should().NotBeNull();
+            cmfPackage.Steps.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void DatabasePackageTypeHandler_CaseInsensitiveMatching_AddsCorrectSteps()
+        {
+            // Arrange
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { "/repo/cmfpackage.json", new MockFileData(
+                @"{
+                  ""packageId"": ""Cmf.Custom.Database"",
+                  ""version"": ""1.0.0"",
+                  ""packageType"": ""Database"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": true,
+                  ""contentToPack"": [
+                    {
+                      ""source"": ""ONLINE/UpgradeScripts/$(version)/*"",
+                      ""target"": ""online/""
+                    },
+                    {
+                      ""source"": ""ODS/UpgradeScripts/$(version)/*"",
+                      ""target"": ""ods/""
+                    },
+                    {
+                      ""source"": ""DWH/UpgradeScripts/$(version)/*"",
+                      ""target"": ""dwh/""
+                    }
+                  ],
+                  ""steps"": []
+                }")}
+            });
+
+            ExecutionContext.Initialize(fileSystem);
+            var cmfPackage = CmfPackage.Load(fileSystem.FileInfo.New("/repo/cmfpackage.json"), setDefaultValues: true);
+            
+            // Act
+            var handler = new DatabasePackageTypeHandler(cmfPackage);
+            
+            // Assert
+            cmfPackage.Steps.Should().NotBeNull();
+            cmfPackage.Steps.Should().HaveCount(3);
+        }
+
+        [Fact]
+        public void DatabasePackageTypeHandler_MixedValidAndInvalidTargets_AddsOnlyValidSteps()
+        {
+            // Arrange
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { "/repo/cmfpackage.json", new MockFileData(
+                @"{
+                  ""packageId"": ""Cmf.Custom.Database"",
+                  ""version"": ""1.0.0"",
+                  ""packageType"": ""Database"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": true,
+                  ""contentToPack"": [
+                    {
+                      ""source"": ""ONLINE/UpgradeScripts/$(version)/*"",
+                      ""target"": ""Online/""
+                    },
+                    {
+                      ""source"": ""OnlineBackup/*"",
+                      ""target"": ""OnlineBackup/""
+                    },
+                    {
+                      ""source"": ""OtherFolder/*"",
+                      ""target"": ""OtherFolder/""
+                    }
+                  ],
+                  ""steps"": []
+                }")}
+            });
+
+            ExecutionContext.Initialize(fileSystem);
+            var cmfPackage = CmfPackage.Load(fileSystem.FileInfo.New("/repo/cmfpackage.json"), setDefaultValues: true);
+            
+            // Act
+            var handler = new DatabasePackageTypeHandler(cmfPackage);
+            
+            // Assert
+            cmfPackage.Steps.Should().NotBeNull();
+            cmfPackage.Steps.Should().HaveCount(1);
+            cmfPackage.Steps[0].ContentPath.Should().Be("Online/*.sql");
         }
     }
 }

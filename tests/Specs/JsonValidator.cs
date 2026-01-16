@@ -420,7 +420,6 @@ namespace tests.Specs
                                 ""Name"": ""Test2"",
                                 ""DisplayName"": ""Test2"",
                                 ""IsFile"": ""Yes"",
-                                ""IsFile"": ""Yes"",
                                 ""Workflow"": ""Test2/Test2.json"",
                                 ""Order"": ""2""
                             }
@@ -499,7 +498,6 @@ namespace tests.Specs
                                 ""AutomationController"": ""TestController"",
                                 ""Name"": ""TestFail"",
                                 ""DisplayName"": ""TestFail"",
-                                ""IsFile"": ""Yes"",
                                 ""IsFile"": ""Yes"",
                                 ""Workflow"": ""TestFail\\testfail.json"",
                                 ""Order"": ""2""
@@ -585,7 +583,6 @@ namespace tests.Specs
                                 ""AutomationController"": ""TestController"",
                                 ""Name"": ""Test2"",
                                 ""DisplayName"": ""Test2"",
-                                ""IsFile"": ""Yes"",
                                 ""IsFile"": ""Yes"",
                                 ""Workflow"": ""Test2/Test2.json"",
                                 ""Order"": ""2""
@@ -1094,7 +1091,6 @@ namespace tests.Specs
                                 ""Name"": ""Test2"",
                                 ""DisplayName"": ""Test2"",
                                 ""IsFile"": ""Yes"",
-                                ""IsFile"": ""Yes"",
                                 ""Workflow"": ""Test2/Test2.json"",
                                 ""Order"": ""2""
                             }
@@ -1602,7 +1598,6 @@ namespace tests.Specs
                                 ""AutomationController"": ""TestController"",
                                 ""Name"": ""Test2"",
                                 ""DisplayName"": ""Test2"",
-                                ""IsFile"": ""Yes"",
                                 ""IsFile"": ""Yes"",
                                 ""Workflow"": ""Test2/Test2.json"",
                                 ""Order"": ""2""

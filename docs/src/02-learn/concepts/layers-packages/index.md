@@ -293,6 +293,7 @@ The created package structure incorporates folders for various test categories:
 * __Tests.GUI__: Includes project files for Graphical User Interface (GUI) tests.
 * __Tests.GUI.PageObjects__: Provides project files for defining objects to interact with GUI functionalities during testing.
 * __Tests.IoT__: Encompasses project files for Internet of Things (IoT) specific tests.
+* __Tests.Performance__: Accommodates project files for Performance Tests, designed to measure and validate system performance characteristics and benchmarks.
 * __MasterData__: This folder serves as a repository to store test master data. This data is used to set up the MES environment before actual test execution.
 
 ``` log
@@ -311,6 +312,8 @@ The created package structure incorporates folders for various test categories:
  ┃ ┃ ┣ 📂Framework
  ┃ ┃ ┣ 📂Tests
  ┃ ┃ ┣ 📜Cmf.Custom.Tests.IoT.csproj        #== IoT Tests Project
+ ┃ ┣ 📂Cmf.Custom.Tests.Performance
+ ┃ ┃ ┗ 📜package.json
  ┃ ┣ 📂MasterData
  ┃ ┃ ┣ 📂Files                 #== Master Data for Test Environment
  ┃ ┃ ┗ 📜cmfpackage.json

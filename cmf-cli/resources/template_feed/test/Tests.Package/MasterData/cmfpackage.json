@@ -1,5 +1,5 @@
 ﻿{
-  "packageId": "Cmf.Custom.Tests.MasterData",
+  "packageId": "<%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.Tests.MasterData",
   "version": "<%= $CLI_PARAM_CustomPackageVersion %>",
   "description": "Cmf <%= $CLI_PARAM_Tenant %> Test MasterData Package",
   "packageType": "Data",
