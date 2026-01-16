@@ -1328,5 +1328,37 @@ namespace tests.Specs
             Assert.Equal(JTokenType.Array, json.Property("keywords").Value.Type);
             Assert.Equal("cmf-tests-package", json.Property("keywords").Value.Values<string>().First());
         }
+
+        [Fact]
+        public void Dependency_ConditionalProperty()
+        {
+            // Create a dependency with conditional=true
+            var conditionalDep = new Dependency("Cmf.FEC.Database.Analytics.Pre", "4.0.0")
+            {
+                Conditional = true
+            };
+            
+            // Create a dependency with conditional=false (default)
+            var normalDep = new Dependency("Cmf.Foundation.Common", "5.0.0");
+            
+            // Serialize to JSON
+            var conditionalJson = JsonConvert.SerializeObject(conditionalDep);
+            var normalJson = JsonConvert.SerializeObject(normalDep);
+            
+            // Verify conditional property is present when true (JSON.NET uses PascalCase by default)
+            Assert.Contains("\"Conditional\":true", conditionalJson);
+            
+            // Verify conditional property is not present when false (ShouldSerializeConditional returns false)
+            Assert.DoesNotContain("Conditional", normalJson);
+            
+            // Verify deserialization works
+            var deserializedConditional = JsonConvert.DeserializeObject<Dependency>(conditionalJson);
+            Assert.True(deserializedConditional.Conditional);
+            Assert.Equal("Cmf.FEC.Database.Analytics.Pre", deserializedConditional.Id);
+            
+            var deserializedNormal = JsonConvert.DeserializeObject<Dependency>(normalJson);
+            Assert.False(deserializedNormal.Conditional);
+            Assert.Equal("Cmf.Foundation.Common", deserializedNormal.Id);
+        }
     }
 }
