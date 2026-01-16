@@ -257,29 +257,40 @@ namespace Cmf.CLI.Builders
 
                 while (r.Read())
                 {
-                    if (r.TokenType == JsonTokenType.PropertyName)
+                    switch (r.TokenType)
                     {
-                        string key = r.GetString();
-                        string fullPath = string.IsNullOrEmpty(path) ? key : $"{path}.{key}";
+                        case JsonTokenType.PropertyName:
+                            {
+                                string key = r.GetString();
+                                string fullPath = string.IsNullOrEmpty(path) ? key : $"{path}.{key}";
 
-                        if (!keys.Add(key))
-                            duplicates.Add(fullPath);
+                                if (!keys.Add(key))
+                                    duplicates.Add(fullPath);
 
-                        if (!r.Read())
-                        {
+                                r.Read(); // move to value
+
+                                if (r.TokenType == JsonTokenType.StartObject)
+                                {
+                                    ParseObject(ref r, fullPath);
+                                }
+                                else if (r.TokenType == JsonTokenType.StartArray)
+                                {
+                                    ParseObject(ref r, fullPath);
+                                }
+                                break;
+                            }
+
+                        case JsonTokenType.StartObject:
+                            ParseObject(ref r, path);
+                            break;
+
+                        case JsonTokenType.StartArray:
+                            ParseObject(ref r, path);
+                            break;
+
+                        case JsonTokenType.EndObject:
+                        case JsonTokenType.EndArray:
                             return;
-                        }
-
-                        // Recurse if value is an object
-                        if (r.TokenType == JsonTokenType.StartObject)
-                        {
-                            ParseObject(ref r, fullPath);
-                        }
-
-                    }
-                    else if (r.TokenType == JsonTokenType.EndObject)
-                    {
-                        return;
                     }
                 }
             }
