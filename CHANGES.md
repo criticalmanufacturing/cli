@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.9.0-0](https://github.com/criticalmanufacturing/cli/compare/5.8.0-2...5.9.0-0) (2026-01-27)
+
+
+### Features
+
+* add Conditional property support to Dependency ([9c7bb36](https://github.com/criticalmanufacturing/cli/commits/9c7bb3634b603dfbc5eba208eedd8371a1a1a4b2))
+
 ## [5.8.0-2](https://github.com/criticalmanufacturing/cli/compare/5.8.0-1...5.8.0-2) (2026-01-16)
 
 
