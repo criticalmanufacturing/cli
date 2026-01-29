@@ -1,3 +1,4 @@
+#nullable enable 
 using Cmf.CLI.Utilities;
 using OpenTelemetry;
 using OpenTelemetry.Exporter;
@@ -14,12 +15,12 @@ namespace Cmf.CLI.Core.Objects;
 
 public interface ITelemetryService
 {
-    public TracerProvider Provider { get; }
+    public TracerProvider? Provider { get; }
     public string Name { get; }
 
-    TracerProvider InitializeTracerProvider(string version);
+    TracerProvider? InitializeTracerProvider(string version);
 
-    TracerProvider InitializeTracerProvider(string serviceName, string version);
+    TracerProvider? InitializeTracerProvider(string serviceName, string version);
 
     Task<TracerProvider?> InitializeTracerProviderAsync(string serviceName, string version);
 
@@ -27,11 +28,11 @@ public interface ITelemetryService
 
     ActivitySource InitializeActivitySource(string name);
 
-    Activity StartActivity(string name, ActivityKind kind = ActivityKind.Internal);
+    Activity? StartActivity(string name, ActivityKind kind = ActivityKind.Internal);
 
-    Activity StartBareActivity(string name, ActivityKind kind = ActivityKind.Internal);
+    Activity? StartBareActivity(string name, ActivityKind kind = ActivityKind.Internal);
 
-    Activity StartExtendedActivity(string name, ActivityKind kind = ActivityKind.Internal);
+    Activity? StartExtendedActivity(string name, ActivityKind kind = ActivityKind.Internal);
 
     void LogException(Exception exception);
 }
@@ -42,8 +43,8 @@ public class TelemetryService : ITelemetryService
     private readonly string cmfCLIEnableExtendedTelemetryEnvVarName;
     private readonly string cmfCLITelemetryHostEnvVarName;
     private readonly string cmfCLITelemetryEnableConsoleExporterEnvVarName;
-    private ActivitySource activitySource = null;
-    public TracerProvider Provider { get; private set; }
+    private ActivitySource? activitySource;
+    public TracerProvider? Provider { get; private set; }
     internal Task<TracerProvider?>? _initTask;
 
     public string Name { get; protected set; }
@@ -73,12 +74,12 @@ public class TelemetryService : ITelemetryService
         cmfCLITelemetryEnableConsoleExporterEnvVarName = $"{ExecutionContext.EnvVarPrefix ?? "cmf_cli"}_telemetry_enable_console_exporter";
     }
 
-    public TracerProvider InitializeTracerProvider(string version)
+    public TracerProvider? InitializeTracerProvider(string version)
     {
         return InitializeTracerProvider(Name, version);
     }
 
-    public TracerProvider InitializeTracerProvider(string serviceName, string version)
+    public TracerProvider? InitializeTracerProvider(string serviceName, string version)
     {
         if (!GenericUtilities.IsEnvVarTruthy(cmfCLIEnableTelemetryEnvVarName))
         {
@@ -144,9 +145,9 @@ public class TelemetryService : ITelemetryService
         return activitySource;
     }
 
-    public Activity StartBareActivity(string name, ActivityKind kind = ActivityKind.Internal)
+    public Activity? StartBareActivity(string name, ActivityKind kind = ActivityKind.Internal)
     {
-        var activity = this.activitySource.StartActivity(name, kind);
+        var activity = this.activitySource?.StartActivity(name, kind);
         activity?.SetTag("version", ExecutionContext.CurrentVersion);
         if (ExecutionContext.IsDevVersion)
         {
@@ -160,9 +161,9 @@ public class TelemetryService : ITelemetryService
         return activity;
     }
 
-    public Activity StartExtendedActivity(string name, ActivityKind kind = ActivityKind.Internal) => GenericUtilities.IsEnvVarTruthy(cmfCLIEnableExtendedTelemetryEnvVarName) ? this.StartActivity(name, kind) : null;
+    public Activity? StartExtendedActivity(string name, ActivityKind kind = ActivityKind.Internal) => GenericUtilities.IsEnvVarTruthy(cmfCLIEnableExtendedTelemetryEnvVarName) ? this.StartActivity(name, kind) : null;
 
-    public Activity StartActivity(string name, ActivityKind kind = ActivityKind.Internal)
+    public Activity? StartActivity(string name, ActivityKind kind = ActivityKind.Internal)
     {
         var activity = this.StartBareActivity(name, kind);
         if (GenericUtilities.IsEnvVarTruthy(cmfCLIEnableExtendedTelemetryEnvVarName))
@@ -185,7 +186,7 @@ public class TelemetryService : ITelemetryService
 
         if (Provider != null)
         {
-            var tracer = Provider?.GetTracer(serviceName, serviceVersion);
+            var tracer = Provider.GetTracer(serviceName, serviceVersion);
             var span = tracer.StartSpan("Unhandled Exception");
             span.SetAttribute("event", "error");
             span.SetAttribute("exception", exception.Message);
