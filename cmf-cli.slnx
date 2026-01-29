@@ -1,0 +1,5 @@
+<Solution>
+    <Project Name="cmf-cli" Path="cmf-cli/cmf.csproj" />
+    <Project Name="core" Path="core/core.csproj" />
+    <Project Name="tests" Path="tests/tests.csproj" />
+</Solution>
