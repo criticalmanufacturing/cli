@@ -8,6 +8,10 @@ This directory contains comprehensive migration guides for the Critical Manufact
 
 A complete, production-ready migration plan for upgrading from .NET 8 to .NET 10.
 
+**Quick Links:**
+- 📋 [Quick Start Guide (5-min read)](./QUICK-START.md) - TL;DR version with essential steps
+- 📖 [Full Migration Plan (45-min read)](./dotnet10-migration-plan.md) - Comprehensive 1,662-line guide
+
 **Includes:**
 - ✅ Breaking changes analysis with risk assessment
 - ✅ Step-by-step migration strategy with checkpoints
