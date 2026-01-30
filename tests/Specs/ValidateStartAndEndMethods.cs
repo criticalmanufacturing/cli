@@ -69,7 +69,8 @@ public class ValidateStartAndEndMethods
 		processor.Process();
 
 		// Assert
-		logger.Verify(x => x.Warning(string.Format(ErrorMessages.StartMethodMethodNameIsIncorrect, _baseClassName, wrongMethodName)), Times.Once);
+		var expectedMessage = string.Format(ErrorMessages.StartMethodMethodNameIsIncorrect, _baseClassName, wrongMethodName);
+		logger.Verify(x => x.Warning(expectedMessage), Times.Once);
 		logger.Verify(x => x.Warning(It.IsAny<string>()), Times.Once);
 	}
 
@@ -98,8 +99,10 @@ public class ValidateStartAndEndMethods
 		processor.Process();
 
 		// Assert
-		logger.Verify(x => x.Warning(string.Format(ErrorMessages.MethodParameterMissingOrIncorrectlyNamed, "StartMethod", _baseClassName, _baseMethodName, "NewParameterType")), Times.Once);
-		logger.Verify(x => x.Warning(string.Format(ErrorMessages.MethodHasIncorrectNumberOfParameters, "StartMethod", _baseClassName, _baseMethodName, 3, 4)), Times.Once);
+		var expectedMessage1 = string.Format(ErrorMessages.MethodParameterMissingOrIncorrectlyNamed, "StartMethod", _baseClassName, _baseMethodName, "NewParameterType");
+		var expectedMessage2 = string.Format(ErrorMessages.MethodHasIncorrectNumberOfParameters, "StartMethod", _baseClassName, _baseMethodName, 3, 4);
+		logger.Verify(x => x.Warning(expectedMessage1), Times.Once);
+		logger.Verify(x => x.Warning(expectedMessage2), Times.Once);
 		logger.Verify(x => x.Warning(It.IsAny<string>()), Times.Exactly(2));
 	}
 
@@ -125,8 +128,10 @@ public class ValidateStartAndEndMethods
 		processor.Process();
 
 		// Assert
-		logger.Verify(x => x.Warning(string.Format(ErrorMessages.InputOutputMethodDoNotCoincide, _baseClassName, wrongMethodName)), Times.Once);
-		logger.Verify(x => x.Warning(string.Format(ErrorMessages.MethodParameterMissingOrIncorrectlyNamed, "EndMethod", _baseClassName, wrongMethodName, _baseOutputType)), Times.Once);
+		var expectedMessage1 = string.Format(ErrorMessages.InputOutputMethodDoNotCoincide, _baseClassName, wrongMethodName);
+		var expectedMessage2 = string.Format(ErrorMessages.MethodParameterMissingOrIncorrectlyNamed, "EndMethod", _baseClassName, wrongMethodName, _baseOutputType);
+		logger.Verify(x => x.Warning(expectedMessage1), Times.Once);
+		logger.Verify(x => x.Warning(expectedMessage2), Times.Once);
 		logger.Verify(x => x.Warning(It.IsAny<string>()), Times.Exactly(2));
 	}
 
@@ -152,7 +157,8 @@ public class ValidateStartAndEndMethods
 		processor.Process();
 
 		// Assert
-		logger.Verify(x => x.Warning(string.Format(ErrorMessages.InputOutputMethodDoNotCoincide, _baseClassName, wrongMethodName)), Times.Once);
+		var expectedMessage = string.Format(ErrorMessages.InputOutputMethodDoNotCoincide, _baseClassName, wrongMethodName);
+		logger.Verify(x => x.Warning(expectedMessage), Times.Once);
 		logger.Verify(x => x.Warning(It.IsAny<string>()), Times.Once);
 	}
 
@@ -177,7 +183,8 @@ public class ValidateStartAndEndMethods
 		processor.Process();
 
 		// Assert
-		logger.Verify(x => x.Warning(string.Format(ErrorMessages.InputOutputMethodDoNotCoincide, _baseClassName, _baseMethodName)), Times.Once);
+		var expectedMessage = string.Format(ErrorMessages.InputOutputMethodDoNotCoincide, _baseClassName, _baseMethodName);
+		logger.Verify(x => x.Warning(expectedMessage), Times.Once);
 	}
 
 	private void PrepareScenario(out List<ParameterSyntax> parameters, out InvocationExpressionSyntax statement, List<ArgumentSyntax> aditionalArguments = null, List<ParameterSyntax> aditionalParameters = null)

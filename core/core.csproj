@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <PackageId>CriticalManufacturing.CLI.Core</PackageId>
         <RootNamespace>Cmf.CLI.Core</RootNamespace>
         <Version>5.8.0-3</Version>
