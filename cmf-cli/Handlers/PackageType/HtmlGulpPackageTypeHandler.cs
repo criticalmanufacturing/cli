@@ -8,6 +8,8 @@ using Cmf.CLI.Core;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
+using Cmf.CLI.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using Microsoft.TemplateEngine.Abstractions;
@@ -27,6 +29,19 @@ namespace Cmf.CLI.Handlers
         /// <param name="cmfPackage"></param>
         public HtmlGulpPackageTypeHandler(CmfPackage cmfPackage) : base(cmfPackage)
         {
+            // Validate Node.js version before proceeding with build setup
+            // Only validate if ExecutionContext is properly initialized
+            if (ExecutionContext.Instance?.ProjectConfig != null && ExecutionContext.ServiceProvider != null)
+            {
+                var dependencyVersionService = ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>();
+                if (dependencyVersionService != null)
+                {
+                    var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+                    var requiredNodeVersion = dependencyVersionService.Node(mesVersion);
+                    NodeVersionUtilities.ValidateNodeVersion(mesVersion, requiredNodeVersion);
+                }
+            }
+
             cmfPackage.SetDefaultValues
             (
                 targetDirectory:
