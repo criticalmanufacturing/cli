@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.8.0](https://github.com/criticalmanufacturing/cli/compare/5.8.0-3...5.8.0) (2026-02-05)
+
 ## [5.8.0-3](https://github.com/criticalmanufacturing/cli/compare/5.8.0-2...5.8.0-3) (2026-01-27)
 
 
