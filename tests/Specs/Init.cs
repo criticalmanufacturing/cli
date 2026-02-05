@@ -8,8 +8,6 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.IO;
-using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
 using Cmf.CLI.Services;
@@ -33,9 +31,10 @@ namespace tests.Specs
                 newCommand.Configure(cmd);
 
                 var console = new TestConsole();
-                cmd.Invoke(new[] {
+                var parseResult = cmd.Parse(new[] {
                     "--reset"
-                }, console);
+                });
+                parseResult.Invoke(console);
         }
 
         [Theory]

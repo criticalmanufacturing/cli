@@ -1,12 +1,10 @@
 using System;
 using Xunit;
 using System.CommandLine;
-using System.CommandLine.Invocation;
 using System.IO.Abstractions;
 using Moq;
 using Cmf.CLI.Commands;
-using System.CommandLine.NamingConventionBinder;
-using System.CommandLine.IO;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Formats.Tar;
 using System.IO.Abstractions.TestingHelpers;
@@ -23,6 +21,7 @@ using FluentAssertions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using tests.Mocks;
+using System.Linq;
 
 namespace tests.Specs;
 
@@ -40,20 +39,24 @@ public class Publish
         var cmd = new Command("publish");
         publishCommand.Configure(cmd);
 
+        var fileArg = cmd.Arguments.FirstOrDefault(a => a.Name == "file") as Argument<IFileInfo>;
+        var repositoryOpt = cmd.Options.OfType<Option<Uri>>().FirstOrDefault();
+
         IFileInfo _file = null;
         Uri _repository = null;
-        cmd.Handler = CommandHandler.Create<IFileInfo, Uri>((
-            file, repository) =>
+
+        cmd.SetAction((parseResult, cancellationToken) =>
         {
-            _file = file;
-            _repository = repository;
-        }
-        );
+            _file = parseResult.GetValue(fileArg);
+            _repository = parseResult.GetValue(repositoryOpt);
+            return Task.FromResult(0);
+        });
 
         var console = new TestConsole();
-        cmd.Invoke(new[] {
+        var parseResult = cmd.Parse(new[] {
             inputFile, "--repository", inputRepository
-        }, console);
+        });
+        parseResult.Invoke(console);
 
         Assert.Equal(inputFile, _file.FullName);
         Assert.Equal(inputRepository, _repository.OriginalString);
