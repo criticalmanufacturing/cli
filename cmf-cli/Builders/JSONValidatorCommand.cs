@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -88,6 +89,10 @@ namespace Cmf.CLI.Builders
 
                     try
                     {
+                        #region Check that there are no duplicate keys
+                        ValidateDuplicateKeys(fileContent);
+                        #endregion
+
                         var json = JsonDocument.Parse(fileContent);
 
                         #region Collect JSON SubWorkflows to Validate
@@ -179,12 +184,25 @@ namespace Cmf.CLI.Builders
                     if (property.Value.ValueKind == JsonValueKind.Object &&
                         property.Value.TryGetProperty("Name", out JsonElement name))
                     {
+                        // IsFile is deprecated in favor of `mdfile:` prefix
+                        // It indicates on the property where to find the information 
                         property.Value.TryGetProperty("IsFile", out JsonElement isFile);
+                        property.Value.TryGetProperty("Workflow", out JsonElement workflow);
 
-                        if (isFile.ToString().ToBool())
+                        // Check if the workflow has prefix
+                        bool isWorkflowPath = workflow.ToString().StartsWith("mdfile:");
+
+                        if (isFile.ToString().ToBool() || isWorkflowPath)
                         {
-                            property.Value.TryGetProperty("Workflow", out JsonElement workflow);
-                            names.Add(new WorkflowsToValidate(name.GetString(), workflow.GetString()));
+                            string workflowValue = workflow.GetString();
+
+                            // If has the prefix, it should strip the extention to get only the path
+                            if (isWorkflowPath)
+                            {
+                                workflowValue = workflowValue.Replace("mdfile://", "");
+                            }
+
+                            names.Add(new WorkflowsToValidate(name.GetString(), workflowValue));
                         }
                         else
                         {
@@ -224,6 +242,70 @@ namespace Cmf.CLI.Builders
             }
             return names;
         }
+
+        /// <summary>
+        /// Detects duplicate keys in a JSON, prints them as errors and throws an exception
+        /// </summary>
+        static void ValidateDuplicateKeys(string json)
+        {
+            List<string> duplicates = new List<string>();
+            var reader = new Utf8JsonReader(Encoding.UTF8.GetBytes(json), new JsonReaderOptions { CommentHandling = JsonCommentHandling.Skip });
+
+            void ParseObject(ref Utf8JsonReader r, string path)
+            {
+                HashSet<string> keys = [];
+
+                while (r.Read())
+                {
+                    switch (r.TokenType)
+                    {
+                        case JsonTokenType.PropertyName:
+                            {
+                                string key = r.GetString();
+                                string fullPath = string.IsNullOrEmpty(path) ? key : $"{path}.{key}";
+
+                                if (!keys.Add(key))
+                                    duplicates.Add(fullPath);
+
+                                r.Read(); // move to value
+
+                                if (r.TokenType == JsonTokenType.StartObject)
+                                {
+                                    ParseObject(ref r, fullPath);
+                                }
+                                else if (r.TokenType == JsonTokenType.StartArray)
+                                {
+                                    ParseObject(ref r, fullPath);
+                                }
+                                break;
+                            }
+
+                        case JsonTokenType.StartObject:
+                            ParseObject(ref r, path);
+                            break;
+
+                        case JsonTokenType.StartArray:
+                            ParseObject(ref r, path);
+                            break;
+
+                        case JsonTokenType.EndObject:
+                        case JsonTokenType.EndArray:
+                            return;
+                    }
+                }
+            }
+
+            ParseObject(ref reader, "");
+            if (duplicates.Count > 0)
+            {
+                for (int i = 0; i < duplicates.Count; i++)
+                {
+                    Log.Error($"Repeated key: {duplicates[i]}");
+                }
+                throw new Exception();
+            }
+        }
+
     }
 
     public record WorkflowsToValidate

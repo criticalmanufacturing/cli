@@ -2,6 +2,65 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.8.0](https://github.com/criticalmanufacturing/cli/compare/5.8.0-3...5.8.0) (2026-02-05)
+
+## [5.8.0-3](https://github.com/criticalmanufacturing/cli/compare/5.8.0-2...5.8.0-3) (2026-01-27)
+
+
+### Features
+
+* add Conditional property support to Dependency ([9c7bb36](https://github.com/criticalmanufacturing/cli/commits/9c7bb3634b603dfbc5eba208eedd8371a1a1a4b2))
+
+## [5.8.0-2](https://github.com/criticalmanufacturing/cli/compare/5.8.0-1...5.8.0-2) (2026-01-16)
+
+
+### Bug Fixes
+
+* duplicate keys now recognise deep array paths ([00a64ef](https://github.com/criticalmanufacturing/cli/commits/00a64ef8de1ff0d359dbcfdf8ef347d6ce7fe7df))
+
+## [5.8.0-1](https://github.com/criticalmanufacturing/cli/compare/5.7.1...5.8.0-1) (2026-01-15)
+
+
+### Features
+
+* add Tenant option to InitCommand ([86828af](https://github.com/criticalmanufacturing/cli/commits/86828afb705c50c09bb977010ae86b734f7df797))
+* added Organization and Product variables to templates ([fb79aec](https://github.com/criticalmanufacturing/cli/commits/fb79aece7bbfada03daba41e63adb9952e0ff284))
+* **new test:** add performance tests template ([#633](https://github.com/criticalmanufacturing/cli/issues/633)) ([1b63cf0](https://github.com/criticalmanufacturing/cli/commits/1b63cf09d5efeaabb1f0be038cfe077c4f0e46ce))
+* update JSON Validator to check for duplicate keys ([a2c5106](https://github.com/criticalmanufacturing/cli/commits/a2c5106ed43d5bd899226ac30baff4de971c0508))
+
+
+### Bug Fixes
+
+* **init:** pin docker's version to prevent traefik's failures ([baf0b7b](https://github.com/criticalmanufacturing/cli/commits/baf0b7b8035c2cc452ba03e323226c00aee33ce1))
+* only add database steps for types referenced in contentToPack ([1045c34](https://github.com/criticalmanufacturing/cli/commits/1045c34b9c4cc68de13b35325231403b13206ed2))
+* removed duplicate keys from test jsons ([fff3cdb](https://github.com/criticalmanufacturing/cli/commits/fff3cdb9a83616829bcf266bb3dd4afa6dbe138f))
+
+## [5.8.0-0](https://github.com/criticalmanufacturing/cli/compare/5.7.1-0...5.8.0-0) (2025-12-26)
+
+
+### Features
+
+* add support for mdfile prefix on json validatior ([ee29ec5](https://github.com/criticalmanufacturing/cli/commits/ee29ec573a76960cf9b02e6c18ba89e5f1ddc995))
+* support for dev setup start manager ([d6c8a99](https://github.com/criticalmanufacturing/cli/commits/d6c8a99971acc06e7b05c41169526ec73c7d913a))
+
+
+### Bug Fixes
+
+* send oldSystemName to Stpe constructor ([8a84033](https://github.com/criticalmanufacturing/cli/commits/8a840334341857d79549c60efc36be26b03b30d3))
+
+## [5.8.0-0](https://github.com/criticalmanufacturing/cli/compare/5.7.1-0...5.8.0-0) (2025-12-26)
+
+
+### Features
+
+* add support for mdfile prefix on json validatior ([ee29ec5](https://github.com/criticalmanufacturing/cli/commits/ee29ec573a76960cf9b02e6c18ba89e5f1ddc995))
+* support for dev setup start manager ([d6c8a99](https://github.com/criticalmanufacturing/cli/commits/d6c8a99971acc06e7b05c41169526ec73c7d913a))
+
+
+### Bug Fixes
+
+* send oldSystemName to Stpe constructor ([8a84033](https://github.com/criticalmanufacturing/cli/commits/8a840334341857d79549c60efc36be26b03b30d3))
+
 ### [5.7.1](https://github.com/criticalmanufacturing/cli/compare/5.7.1-0...5.7.1) (2025-12-29)
 
 

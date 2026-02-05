@@ -1,18 +1,14 @@
 {
     "image": "criticalmanufacturing.io/criticalmanufacturing/devcontainer:<%= $CLI_PARAM_MESVersion-Major %>",
-    "runArgs": [
-        "--network",
-        "host"
-    ],
+    "runArgs": [],
     "features": {
         "ghcr.io/criticalmanufacturing/cli/install:1": {
             "version": "<%= $CLI_PARAM_CLIVersion-MajorRange %>"
         },
         "ghcr.io/criticalmanufacturing/portal-sdk/install:1": {},
-        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
-            // Bug in buildx originally tracked here: https://github.com/docker/buildx/issues/3328
-            // Until the devcontainer feature is updated to include the fix for this issue, we need to pin to an earlier version
-            "mobyBuildxVersion": "0.25.0"
+        "ghcr.io/devcontainers/features/docker-in-docker": {
+            "version": "28.5.2",
+            "dockerDefaultAddressPool":"base=10.250.0.0/16,size=24"
         },
         "ghcr.io/kreemer/features/chrometesting": {}
     },

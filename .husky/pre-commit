@@ -1,4 +1,13 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-dotnet test --filter "(TestCategory!=LongRunning)&(TestCategory!=Node12)"
+# Get list of staged files
+staged_files=$(git diff --cached --name-only)
+
+# Check if any changes are in cmf-cli, core, or tests folders
+if echo "$staged_files" | grep -qE "^(cmf-cli|core|tests)/"; then
+  echo "Changes detected in cmf-cli, core, or tests folders. Running tests..."
+  dotnet test --filter "(TestCategory!=LongRunning)&(TestCategory!=Node12)"
+else
+  echo "No changes in cmf-cli, core, or tests folders. Skipping tests."
+fi

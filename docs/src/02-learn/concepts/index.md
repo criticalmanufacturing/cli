@@ -19,8 +19,8 @@ This section lays the foundation for your @criticalmanufacturing/cli journey by 
   Uncover the various MES package types you can utilize to build your customizations. [Layer Packages](layers-packages/index.md) provides a comprehensive overview of these packages and their functionalities.
 
 * __[Streamlining Your Release Process](release-process/index.md)__  
-  While [Release Process](release-process/index.md) page showcases the
-  internal release process used by CM Teams, it serves as a valuable starting
+  In [Release Process](release-process/index.md) page we share the cli
+  commands used by CM Teams on release process, it serves as a valuable starting
   point for building your own customized workflow. Adapt the recommendations
   and integrate them with your preferred CI/CD tools for smooth deployment.
 

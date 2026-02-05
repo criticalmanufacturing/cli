@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<OutputType>Library</OutputType>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<AssemblyName><%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.<%= $CLI_PARAM_idSegment %>.Common</AssemblyName>
+		<RootNamespace><%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.<%= $CLI_PARAM_idSegment %>.Common</RootNamespace>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<OutputPath><%= $CLI_PARAM_localEnvRelativePath %>\BusinessTier</OutputPath>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<OutputPath>..\Release</OutputPath>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="cmf.common.customactionutilities" Version="<%= $CLI_PARAM_MESVersion %>" GeneratePathProperty="true" />
+		<PackageReference Include="Cmf.Foundation.BusinessObjects" Version="<%= $CLI_PARAM_MESVersion %>"/>
+		<PackageReference Include="Cmf.Navigo.BusinessObjects" Version="<%= $CLI_PARAM_MESVersion %>"/>
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="$(Pkgcmf_common_customactionutilities)\lib\$(TargetFramework)\*" CopyToOutputDirectory="PreserveNewest" />
+	</ItemGroup>
+</Project>

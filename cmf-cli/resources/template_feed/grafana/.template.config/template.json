@@ -38,6 +38,18 @@
       "replaces": "<%= $CLI_PARAM_Tenant %>",
       "fileRename": "%Tenant%"
     },
+    "Product": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_Product %>",
+      "fileRename": "%Product%"
+    },
+    "Organization": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_Organization %>",
+      "fileRename": "%Org%"
+    },
     "app": {
       "type": "parameter",
       "datatype": "bool",
