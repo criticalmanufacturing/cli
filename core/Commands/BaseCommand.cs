@@ -68,7 +68,7 @@ namespace Cmf.CLI.Core.Commands
             foreach (var cmd in topmostCommands)
             {
                 var childCmd = FindChildCommands(cmd, commandTypes);
-                command.AddCommand(childCmd);
+                command.Subcommands.Add(childCmd);
             }
         }
 
@@ -84,7 +84,11 @@ namespace Cmf.CLI.Core.Commands
             var cmdName = dec.Name;
 
             // Create command
-            var cmdInstance = new Command(cmdName) { IsHidden = dec.IsHidden, Description = dec.Description };
+            var cmdInstance = new Command(cmdName)
+            {
+                Hidden = dec.IsHidden,
+                Description = dec.Description
+            };
 
             // Call "Configure" method
             BaseCommand cmdHandler = Activator.CreateInstance(cmd) as BaseCommand;
@@ -105,7 +109,7 @@ namespace Cmf.CLI.Core.Commands
             foreach (var child in childCommands)
             {
                 var childCmd = FindChildCommands(child, commandTypes);
-                cmdInstance.AddCommand(childCmd);
+                cmdInstance.Subcommands.Add(childCmd);
             }
             return cmdInstance;
         }
@@ -121,7 +125,7 @@ namespace Cmf.CLI.Core.Commands
         protected T Parse<T>(ArgumentResult argResult, string @default = null)
         {
             var argValue = @default;
-            if (argResult.Tokens.Any())
+            if (argResult?.Tokens?.Any() == true)
             {
                 argValue = argResult.Tokens.First().Value;
             }
@@ -138,6 +142,115 @@ namespace Cmf.CLI.Core.Commands
                 {} stringType when stringType == typeof(string) => (T)(object)argValue,
                 _ => throw new ArgumentOutOfRangeException("This method only parses directories, file paths or strings")
             };
+        }
+
+        /// <summary>
+        /// Parse URI from argument result, supporting both regular URIs and UNC paths/file paths
+        /// </summary>
+        /// <param name="argResult">the arguments to parse</param>
+        /// <returns>Parsed URI or null if no valid value</returns>
+        protected Uri ParseUri(ArgumentResult argResult)
+        {
+            if (argResult?.Tokens?.Any() != true)
+            {
+                return null;
+            }
+
+            var value = argResult.Tokens.First().Value;
+            return ParseUriFromString(value);
+        }
+
+        /// <summary>
+        /// Parse URI array from argument result
+        /// </summary>
+        /// <param name="argResult">the arguments to parse</param>
+        /// <returns>Array of parsed URIs or null if no tokens</returns>
+        protected Uri[] ParseUriArray(ArgumentResult argResult)
+        {
+            if (argResult?.Tokens?.Any() != true)
+            {
+                return null;
+            }
+
+            var uris = new System.Collections.Generic.List<Uri>();
+            foreach (var token in argResult.Tokens)
+            {
+                var value = token.Value;
+                if (string.IsNullOrEmpty(value))
+                {
+                    continue;
+                }
+
+                var parsedUri = ParseUriFromString(value);
+                if (parsedUri != null)
+                {
+                    uris.Add(parsedUri);
+                }
+            }
+
+            return uris.Count > 0 ? uris.ToArray() : null;
+        }
+
+        /// <summary>
+        /// Parse URI from string value
+        /// </summary>
+        private Uri ParseUriFromString(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return null;
+            }
+
+            // Try to create URI directly first
+            if (Uri.TryCreate(value, UriKind.Absolute, out var uri))
+            {
+                return uri;
+            }
+
+            // Handle UNC paths (\\server\share or \\share\path)
+            if (value.StartsWith("\\\\"))
+            {
+                var uncPath = value.Replace("\\", "/");
+                if (Uri.TryCreate($"file:{uncPath}", UriKind.Absolute, out var uncUri))
+                {
+                    return uncUri;
+                }
+            }
+
+            // Handle Windows drive paths (C:\path or d:\xpto)
+            if (value.Length >= 3 && value[1] == ':' && (value[2] == '\\' || value[2] == '/'))
+            {
+                var normalizedPath = value.Replace('\\', '/');
+                if (Uri.TryCreate($"file:///{normalizedPath}", UriKind.Absolute, out var driveUri))
+                {
+                    return driveUri;
+                }
+            }
+
+            // Check if it's a relative path - preserve it as a relative URI
+            if (Uri.TryCreate(value, UriKind.Relative, out var relativeUri))
+            {
+                return relativeUri;
+            }
+
+            // Handle other formats - try to make absolute
+            try
+            {
+                var fullPath = System.IO.Path.GetFullPath(value);
+                return new Uri(fullPath);
+            }
+            catch
+            {
+                // As a last resort, try to use the value as-is in a file URI
+                try
+                {
+                    return new Uri($"file:///{value.Replace('\\', '/')}");
+                }
+                catch
+                {
+                    return null;
+                }
+            }
         }
     }
 }
