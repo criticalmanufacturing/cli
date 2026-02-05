@@ -5,9 +5,9 @@ using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Cmf.CLI.Commands.New
 {
@@ -40,16 +40,20 @@ namespace Cmf.CLI.Commands.New
                 this.fileSystem
             );
 
-            cmd.AddArgument(new Argument<IDirectoryInfo>(
-                name: "workingDir",
-                parse: (argResult) => Parse<IDirectoryInfo>(argResult, nearestRootPackage?.FullName),
-                isDefault: true
-            )
+            var workingDirArgument = new Argument<IDirectoryInfo>("workingDir")
             {
-                Description = "Working Directory"
-            });
+                Description = "Working Directory",
+                CustomParser = argResult => Parse<IDirectoryInfo>(argResult, nearestRootPackage?.FullName),
+                DefaultValueFactory = _ => Parse<IDirectoryInfo>(null, nearestRootPackage?.FullName)
+            };
+            cmd.Add(workingDirArgument);
 
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo>(this.Execute);
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                var workingDir = parseResult.GetValue(workingDirArgument);
+                Execute(workingDir);
+                return Task.FromResult(0);
+            });
         }
 
         /// <summary>

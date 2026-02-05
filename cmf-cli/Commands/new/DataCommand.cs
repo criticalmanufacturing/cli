@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
-using System.Linq;
-using System.Text.Json;
+using System.Threading.Tasks;
 using Cmf.CLI.Builders;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
@@ -34,14 +32,24 @@ namespace Cmf.CLI.Commands.New
         /// <inheritdoc />
         public override void Configure(Command cmd)
         {
-            base.GetBaseCommandConfig(cmd);
-            cmd.AddOption(new Option<IDirectoryInfo>(
-                aliases: new[] { "--businessPackage" },
-                parseArgument: argResult => Parse<IDirectoryInfo>(argResult),
-                isDefault: true,
-                description: "Business package where the Process Rules project should be built"
-            ));
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, string, IDirectoryInfo>(this.Execute);
+            var (workingDirArg, versionOpt) = GetBaseCommandConfig(cmd);
+
+            var businessPackageOption = new Option<IDirectoryInfo>("--businessPackage")
+            {
+                Description = "Business package where the Process Rules project should be built",
+                CustomParser = argResult => Parse<IDirectoryInfo>(argResult)
+            };
+            cmd.Add(businessPackageOption);
+
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                var workingDir = parseResult.GetValue(workingDirArg);
+                var version = parseResult.GetValue(versionOpt);
+                var businessPackage = parseResult.GetValue(businessPackageOption);
+
+                Execute(workingDir, version, businessPackage);
+                return Task.FromResult(0);
+            });
         }
 
         /// <inheritdoc />

@@ -2,9 +2,8 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
-using System.CommandLine.Parsing;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Utilities;
@@ -43,15 +42,14 @@ namespace Cmf.CLI.Commands
         /// </summary>
         /// <param name="cmd"></param>
         public override void Configure(Command cmd)
-        {
-            cmd.TreatUnmatchedTokensAsErrors = false;
+        {            
             // Add the handler
-            cmd.Handler = CommandHandler.Create(
-                (ParseResult parseResult, IConsole console) =>
-                {
-                    // console.Out.WriteLine($"{parseResult}");
-                    this.Execute(parseResult.UnparsedTokens);
-                });
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                // Get unmatched tokens from parseResult
+                this.Execute(parseResult.UnmatchedTokens);
+                return Task.FromResult(0);
+            });
         }
 
         /// <summary>
