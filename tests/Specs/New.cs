@@ -11,8 +11,6 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.IO;
-using System.CommandLine.Parsing;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
@@ -23,6 +21,7 @@ using Xunit;
 using Assert = tests.AssertWithMessage;
 using Moq;
 using Cmf.CLI.Core.Interfaces;
+using tests.Objects;
 
 namespace tests.Specs
 {
@@ -48,9 +47,11 @@ namespace tests.Specs
             newCommand.Configure(cmd);
 
             var console = new TestConsole();
-            cmd.Invoke(new[] {
+            var parseResult = cmd.Parse(new string[] {
                 "--reset"
-            }, console);
+            });
+            parseResult.Invoke(console);
+
         }
 
         [Theory]
