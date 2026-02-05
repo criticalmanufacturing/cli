@@ -1,5 +1,4 @@
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core.Attributes;
@@ -7,6 +6,7 @@ using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+using System.Threading.Tasks;
 
 namespace Cmf.CLI.Commands
 {
@@ -23,37 +23,57 @@ namespace Cmf.CLI.Commands
         /// <param name="cmd"></param>
         public override void Configure(Command cmd)
         {
-            cmd.AddArgument(new Argument<IDirectoryInfo>(
-                name: "packagePath",
-                parse: (argResult) => Parse<IDirectoryInfo>(argResult, "."),
-                isDefault: true
-            )
+            var pathArgument = new Argument<IDirectoryInfo>("path")
             {
-                Description = "Package Path"
-            });
+                Description = "Working Directory",
+                CustomParser = argResult => Parse<IDirectoryInfo>(argResult, "."),
+                DefaultValueFactory = _ => Parse<IDirectoryInfo>(null, ".")
+            };
+            cmd.Add(pathArgument);
 
-            cmd.AddOption(new Option<string>(
-                aliases: new string[] { "-v", "--version" },
-                description: "Will bump all versions to the version specified"));
+            var versionOption = new Option<string>("--version", "-v")
+            {
+                Description = "Will bump all versions to the version specified"
+            };
+            cmd.Add(versionOption);
 
-            cmd.AddOption(new Option<string>(
-                aliases: new string[] { "-b", "--buildNrVersion" },
-                description: "Will add this version next to the version (v-b)"));
+            var buildNrVersionOption = new Option<string>("--buildNrVersion", "-b")
+            {
+                Description = "Will add this version next to the version (v-b)"
+            };
+            cmd.Add(buildNrVersionOption);
+            
+            var preReleaseVersionOption = new Option<string>("--preReleaseVersion", "-p")
+            {
+                Description = "Will add this version as pre-release version (v-p)"
+            };
+            cmd.Add(preReleaseVersionOption);
 
-            cmd.AddOption(new Option<string>(
-                aliases: new string[] { "-p", "--preReleaseVersion" },
-                description: "Will add this version as pre-release version (v-p)"));
+            var packageNamesOption = new Option<string>("--packageNames", "-pckNames")
+            {
+                Description = "Packages to be bumped"
+            };
+            cmd.Add(packageNamesOption);
 
-            cmd.AddOption(new Option<string>(
-                aliases: new string[] { "-pckNames", "--packageNames" },
-                description: "Packages to be bumped"));
+            var isToTagOption = new Option<bool>("--isToTag", "-isToTag")
+            {
+                Description = "Instead of replacing the version will add -$version",
+                DefaultValueFactory = _ => false
+            };
+            cmd.Add(isToTagOption);
 
-            cmd.AddOption(new Option<bool>(
-                aliases: new string[] { "-isToTag", "--isToTag" },
-                getDefaultValue: () => { return false; },
-                description: "Instead of replacing the version will add -$version"));
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                var path = parseResult.GetValue(pathArgument);
+                var version = parseResult.GetValue(versionOption);
+                var buildNr = parseResult.GetValue(buildNrVersionOption);
+                var preReleaseVersion = parseResult.GetValue(preReleaseVersionOption);
+                var packageNames = parseResult.GetValue(packageNamesOption);
+                var isToTag = parseResult.GetValue(isToTagOption);
 
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, string, string, string, string, bool>(Execute);
+                Execute(path, version, buildNr, preReleaseVersion, packageNames, isToTag);
+                return Task.FromResult(0);
+            });        
         }
 
         /// <summary>

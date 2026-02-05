@@ -1,18 +1,12 @@
 ﻿using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
-using Cmf.CLI.Core.Commands;
-using Cmf.CLI.Core.Constants;
-using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Core.Repository.Credentials;
-using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Threading.Tasks;
@@ -47,7 +41,29 @@ namespace Cmf.CLI.Commands
         public override void Configure(Command cmd)
         {
             // Add the handler
-            cmd.Handler = CommandHandler.Create(Execute);
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                // Get parent command arguments
+                RepositoryCredentialsType? repositoryType = null;
+                string repository = null;
+
+                // In beta5, we need to access parent command arguments through the parse result
+                // The parent command is "login" which has repositoryType and repository arguments
+                if (cmd.Parents.FirstOrDefault() is Command parentCommand)
+                {
+                    if (parentCommand.Arguments.FirstOrDefault(a => a.Name == "repositoryType") is Argument<RepositoryCredentialsType?> repositoryTypeArg)
+                    {
+                        repositoryType = parseResult.GetValue(repositoryTypeArg);
+                    }
+                    if (parentCommand.Arguments.FirstOrDefault(a => a.Name == "repository") is Argument<string> repositoryArg)
+                    {
+                        repository = parseResult.GetValue(repositoryArg);
+                    }
+                }
+
+                Execute(repositoryType, repository);
+                return Task.FromResult(0);
+            });
         }
 
         /// <summary>
