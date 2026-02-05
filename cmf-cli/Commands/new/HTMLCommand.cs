@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Cmf.CLI.Builders;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
@@ -40,15 +40,25 @@ namespace Cmf.CLI.Commands.New
         /// <inheritdoc />
         public override void Configure(Command cmd)
         {
-            base.GetBaseCommandConfig(cmd);
-            cmd.AddOption(new Option<IFileInfo>(
-                aliases: new[] { "--htmlPkg", "--htmlPackage" },
-                description: "Path to the MES Presentation HTML package (required for MES versions up to 9.x)",
-                isDefault: false,
-                parseArgument: argResult => Parse<IFileInfo>(argResult)
-            )
-            { IsRequired = false });
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, string, IFileInfo>(this.Execute);
+            var (workingDirArg, versionOpt) = base.GetBaseCommandConfig(cmd);
+
+            var htmlPkgOption = new Option<IFileInfo>("--htmlPackage", "--htmlPkg")
+            {
+                Description = "Path to the MES Presentation HTML package (required for MES versions up to 9.x)",
+                Required = false,
+                CustomParser = argResult => Parse<IFileInfo>(argResult)
+            };
+            cmd.Add(htmlPkgOption);
+
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                var workingDir = parseResult.GetValue(workingDirArg);
+                var version = parseResult.GetValue(versionOpt);
+                var htmlPackage = parseResult.GetValue(htmlPkgOption);
+
+                Execute(workingDir, version, htmlPackage);
+                return Task.FromResult(0);
+            });
         }
 
         /// <inheritdoc />

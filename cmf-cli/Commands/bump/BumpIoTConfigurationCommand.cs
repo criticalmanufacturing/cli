@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Threading.Tasks;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Objects;
@@ -26,61 +26,96 @@ namespace Cmf.CLI.Commands
         /// <param name="cmd"></param>
         public override void Configure(Command cmd)
         {
-            cmd.AddArgument(new Argument<IDirectoryInfo>(
-                name: "path",
-                parse: (argResult) => Parse<IDirectoryInfo>(argResult, "."),
-                isDefault: true
-            )
+            var pathArgument = new Argument<IDirectoryInfo>("path")
             {
-                Description = "Working Directory"
-            });
+                Description = "Working Directory",
+                CustomParser = argResult => Parse<IDirectoryInfo>(argResult, "."),
+                DefaultValueFactory = _ => Parse<IDirectoryInfo>(null, ".")
+            };
+            cmd.Add(pathArgument);
 
-            cmd.AddOption(new Option<string>(
-                aliases: new string[] { "-v", "--version" },
-                description: "Will bump all versions to the version specified"));
+            var versionOption = new Option<string>("--version", "-v")
+            {
+                Description = "Will bump all versions to the version specified"
+            };
+            cmd.Add(versionOption);
 
-            cmd.AddOption(new Option<string>(
-                aliases: new string[] { "-b", "--buildNrVersion" },
-                description: "Will add this version next to the version (v-b)"));
+            var buildNrVersionOption = new Option<string>("--buildNrVersion", "-b")
+            {
+                Description = "Will add this version next to the version (v-b)"
+            };
+            cmd.Add(buildNrVersionOption);
 
-            cmd.AddOption(new Option<bool>(
-                aliases: new string[] { "-md", "--masterData" },
-                getDefaultValue: () => { return false; },
-                description: "Will bump IoT MasterData version (only applies to .json)"));
+            var masterDataOption = new Option<bool>("--masterData", "-md")
+            {
+                Description = "Will bump IoT MasterData version (only applies to .json)",
+                DefaultValueFactory = _ => false
+            };
+            cmd.Add(masterDataOption);
 
-            cmd.AddOption(new Option<bool>(
-                aliases: new string[] { "-iot", "--iot" },
-                getDefaultValue: () => { return true; },
-                description: "Will bump IoT Automation Workflows"));
+            var iotOption = new Option<bool>("--iot", "-iot")
+            {
+                Description = "Will bump IoT Automation Workflows",
+                DefaultValueFactory = _ => true
+            };
+            cmd.Add(iotOption);
 
-            cmd.AddOption(new Option<string>(
-                aliases: new string[] { "-pckNames", "--packageNames" },
-                description: "Packages to be bumped"));
+            var packageNamesOption = new Option<string>("--packageNames", "-pckNames")
+            {
+                Description = "Packages to be bumped"
+            };
+            cmd.Add(packageNamesOption);
 
-            cmd.AddOption(new Option<string>(
-                aliases: new string[] { "-r", "--root" },
-                description: "Specify root to specify version where we want to apply the bump"));
+            var rootOption = new Option<string>("--root", "-r")
+            {
+                Description = "Specify root to specify version where we want to apply the bump"
+            };
+            cmd.Add(rootOption);
 
-            cmd.AddOption(new Option<string>(
-                aliases: new string[] { "-g", "--group" },
-                description: "Group of workflows to change, typically they are grouped by Automation Manager"));
+            var groupOption = new Option<string>("--group", "-g")
+            {
+                Description = "Group of workflows to change, typically they are grouped by Automation Manager"
+            };
+            cmd.Add(groupOption);
 
-            cmd.AddOption(new Option<string>(
-                aliases: new string[] { "-wkflName", "--workflowName" },
-                description: "Specific workflow to be bumped"));
+            var workflowNameOption = new Option<string>("--workflowName", "-wkflName")
+            {
+                Description = "Specific workflow to be bumped"
+            };
+            cmd.Add(workflowNameOption);
 
-            cmd.AddOption(new Option<bool>(
-                aliases: new string[] { "-isToTag", "--isToTag" },
-                getDefaultValue: () => { return false; },
-                description: "Instead of replacing the version will add -$version"));
+            var isToTagOption = new Option<bool>("--isToTag", "-isToTag")
+            {
+                Description = "Instead of replacing the version will add -$version",
+                DefaultValueFactory = _ => false
+            };
+            cmd.Add(isToTagOption);
 
-            cmd.AddOption(new Option<bool>(
-                aliases: new string[] { "-mdCustomization", "--mdCustomization" },
-                getDefaultValue: () => { return false; },
-                description: "Instead of replacing the version will add -$version"));
+            var mdCustomizationOption = new Option<bool>("--mdCustomization", "-mdCustomization")
+            {
+                Description = "Instead of replacing the version will add -$version",
+                DefaultValueFactory = _ => false
+            };
+            cmd.Add(mdCustomizationOption);
 
             // Add the handler
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, string, string, bool, bool, string, string, string, string, bool, bool>(Execute);
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                var path = parseResult.GetValue(pathArgument);
+                var version = parseResult.GetValue(versionOption);
+                var buildNr = parseResult.GetValue(buildNrVersionOption);
+                var isToBumpMasterdata = parseResult.GetValue(masterDataOption);
+                var isToBumpIoT = parseResult.GetValue(iotOption);
+                var packageNames = parseResult.GetValue(packageNamesOption);
+                var root = parseResult.GetValue(rootOption);
+                var group = parseResult.GetValue(groupOption);
+                var workflowName = parseResult.GetValue(workflowNameOption);
+                var isToTag = parseResult.GetValue(isToTagOption);
+                var onlyMdCustomization = parseResult.GetValue(mdCustomizationOption);
+
+                Execute(path, version, buildNr, isToBumpMasterdata, isToBumpIoT, packageNames, root, group, workflowName, isToTag, onlyMdCustomization);
+                return Task.FromResult(0);
+            });
         }
 
         /// <summary>
