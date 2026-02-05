@@ -1,7 +1,6 @@
 using Cmf.CLI.Commands;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.IO;
 using System.IO.Abstractions.TestingHelpers;
 using tests.Objects;
 using Xunit;
@@ -142,9 +141,10 @@ namespace tests.Specs
             buildCommand.Configure(cmd);
 
             var console = new TestConsole();
-            cmd.Invoke(new string[] {
+            var parseResult = cmd.Parse(new string[] {
                 "test/Data/"
-            }, console);
+            });
+            parseResult.Invoke(console);
 
             Assert.True(console.Error == null || string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator failed {console.Error.ToString()}");
         }
@@ -215,9 +215,10 @@ namespace tests.Specs
             buildCommand.Configure(cmd);
 
             var console = new TestConsole();
-            cmd.Invoke(new string[] {
+            var parseResult = cmd.Parse(new string[] {
                 "test/Data/"
-            }, console);
+            });
+            parseResult.Invoke(console);
 
             Assert.True(string.IsNullOrEmpty(console.Error.ToString()) == !shouldError, $"Json Validator did not fail for IoT Data Workflow Package: {console.Error.ToString()}");
             Assert.True(console.Error.ToString().Contains("Missing indicators:") == shouldError, $"Json Validator did not fail for IoT Data Workflow Package: {console.Error.ToString()}");
@@ -297,9 +298,10 @@ namespace tests.Specs
             buildCommand.Configure(cmd);
 
             var console = new TestConsole();
-            cmd.Invoke(new string[] {
+            var parseResult = cmd.Parse(new string[] {
                 "test/Data/"
-            }, console);
+            });
+            parseResult.Invoke(console);
 
             Assert.True(!string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator did not fail for IoT Data Workflow Package: {console.Error.ToString()}");
             Assert.True(console.Error.ToString().Contains("Missing indicators:"), $"Json Validator did not fail for IoT Data Workflow Package: {console.Error.ToString()}");
@@ -355,9 +357,10 @@ namespace tests.Specs
             buildCommand.Configure(cmd);
 
             var console = new TestConsole();
-            cmd.Invoke(new string[] {
+            var parseResult = cmd.Parse(new string[] {
                 "test/Data/"
-            }, console);
+            });
+            parseResult.Invoke(console);
 
             Assert.True(!string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator did not fail for IoT Data Workflow Package: {console.Error.ToString()}");
             Assert.True(console.Error.ToString().Contains("UseReference contains a whitespace, please refer to the valid format UseReference"), $"Json Validator did not fail for IoT Data Workflow Package: {console.Error.ToString()}");
@@ -417,9 +420,10 @@ namespace tests.Specs
             buildCommand.Configure(cmd);
 
             var console = new TestConsole();
-            cmd.Invoke(new string[] {
+            var parseResult = cmd.Parse(new string[] {
                 "test/Data/"
-            }, console);
+            });
+            parseResult.Invoke(console);
 
             var errorOutput = console.Error.ToString();
             
