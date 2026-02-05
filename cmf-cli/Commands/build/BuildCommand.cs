@@ -6,8 +6,8 @@ using Cmf.CLI.Factories;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
+using System.Threading.Tasks;
 
 namespace Cmf.CLI.Commands
 {
@@ -45,21 +45,30 @@ namespace Cmf.CLI.Commands
             {
                 packagePath = this.fileSystem.Path.GetRelativePath(this.fileSystem.Directory.GetCurrentDirectory(), packageRoot.FullName);
             }
-            cmd.AddArgument(new Argument<IDirectoryInfo>(
-                name: "packagePath",
-                parse: (argResult) => Parse<IDirectoryInfo>(argResult, packagePath),
-                isDefault: true)
+
+            var packagePathArgument = new Argument<IDirectoryInfo>("packagePath")
             {
-                Description = "Package Path"
+                Description = "Package Path",
+                CustomParser = argResult => Parse<IDirectoryInfo>(argResult, packagePath),
+                DefaultValueFactory = _ => Parse<IDirectoryInfo>(null, packagePath)
+            };
+            cmd.Add(packagePathArgument);
+
+            var testOption = new Option<bool>("--test")
+            {
+                Description = "Build and Run Unit Tests",
+                DefaultValueFactory = _ => false
+            };
+            cmd.Add(testOption);
+
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                var pkgPath = parseResult.GetValue(packagePathArgument);
+                var test = parseResult.GetValue(testOption);
+
+                Execute(pkgPath, test);
+                return Task.FromResult(0);
             });
-
-            cmd.AddOption(new Option<bool>(
-                aliases: new[] { "--test" },
-                description: "Build and Run Unit Tests",
-                getDefaultValue: () => false
-            ));
-
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, bool>(Execute);
         }
 
         /// <summary>
