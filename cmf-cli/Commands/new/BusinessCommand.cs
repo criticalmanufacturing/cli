@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
+using System.Threading.Tasks;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
@@ -40,13 +40,23 @@ namespace Cmf.CLI.Commands.New
         /// <param name="cmd"></param>
         public override void Configure(Command cmd)
         {
-            cmd.AddOption(new Option<bool>(
-                aliases: new[] { "--addApplicationVersionAssembly", "-av" },
-                description: "Will add application version project to the final solution if project is an app"
-            ));
-            base.GetBaseCommandConfig(cmd);
+            var addApplicationVersionAssemblyOption = new Option<bool>("--addApplicationVersionAssembly", "-av")
+            {
+                Description = "Will add application version project to the final solution if project is an app"
+            };
+            cmd.Add(addApplicationVersionAssemblyOption);
 
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, string, bool>(this.Execute);
+            var (workingDirArg, versionOpt) = base.GetBaseCommandConfig(cmd);
+
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                var workingDir = parseResult.GetValue(workingDirArg);
+                var version = parseResult.GetValue(versionOpt);
+                var addApplicationVersionAssembly = parseResult.GetValue(addApplicationVersionAssemblyOption);
+
+                Execute(workingDir, version, addApplicationVersionAssembly);
+                return Task.FromResult(0);
+            });
         }
 
         /// <summary>
