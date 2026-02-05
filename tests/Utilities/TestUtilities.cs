@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.Builder;
-using System.CommandLine.IO;
 using System.CommandLine.Parsing;
 using System.Diagnostics;
 using System.IO;
@@ -17,6 +15,7 @@ using Cmf.CLI.Commands;
 using Cmf.CLI.Core.Attributes;
 using FluentAssertions;
 using Xunit;
+using tests;
 
 namespace Cmf.Common.Cli.TestUtilities
 {
@@ -147,25 +146,18 @@ namespace Cmf.Common.Cli.TestUtilities
         }
 
         /// <summary>
-        /// Create a minimal parser to invoke commands with
-        /// The default parser brings a lot of extras that we don't require in the tests
+        /// Returns a CommandWrapper that supports beta4-style Invoke(args, console) pattern
         /// </summary>
         /// <param name="cmd"></param>
         /// <returns></returns>
-        public static Parser GetParser(Command cmd)
+        public static CommandWrapper GetParser(Command cmd)
         {
-            return new CommandLineBuilder(cmd)
-                .UseEnvironmentVariableDirective()
-                .UseParseDirective()
-                .UseParseErrorReporting()
-                .UseExceptionHandler()
-                .CancelOnProcessTermination()
-                .Build();
+            // In beta5, wrap the command to support the old Parser.Invoke(args, console) pattern
+            return new CommandWrapper(cmd);
         }
 
         /// <summary>
-        /// Create a minimal parser to invoke commands with
-        /// The default parser brings a lot of extras that we don't require in the tests
+        /// Invoke command with test console
         /// </summary>
         /// <param name="cmd"></param>
         /// <returns></returns>
@@ -177,7 +169,8 @@ namespace Cmf.Common.Cli.TestUtilities
             var root = new Command("cmf");
             cmd.Configure(root);
 
-            var result = GetParser(root).Invoke(args, console);
+            var parseResult = root.Parse(args);
+            var result = parseResult.Invoke(console);
 
             if (result != 0)
             {
@@ -186,8 +179,7 @@ namespace Cmf.Common.Cli.TestUtilities
         }
 
         /// <summary>
-        /// Create a minimal parser to invoke commands with
-        /// The default parser brings a lot of extras that we don't require in the tests
+        /// Invoke command asynchronously with test console
         /// </summary>
         /// <param name="cmd"></param>
         /// <returns></returns>
@@ -197,7 +189,8 @@ namespace Cmf.Common.Cli.TestUtilities
             var console = new TestConsole();
 
             var attr = cmd.GetType().GetCustomAttributes<CmfCommandAttribute>(false).First();
-            var root= new Command(attr.Name) { IsHidden = attr.IsHidden, Description = attr.Description };
+            var root= new Command(attr.Name) { Description = attr.Description };
+            // Note: IsHidden property was removed in System.CommandLine beta5
             cmd.Configure(root);
 
             if (setupParents)
@@ -217,8 +210,9 @@ namespace Cmf.Common.Cli.TestUtilities
                     currentCmd = parentCmd;
 
                     // Create command
-                    var cmdInstance = new Command(parentCmd.attribute.Name) { IsHidden = parentCmd.attribute.IsHidden, Description = parentCmd.attribute.Description };
-                    cmdInstance.AddCommand(root);
+                    var cmdInstance = new Command(parentCmd.attribute.Name) { Description = parentCmd.attribute.Description };
+                    // Note: IsHidden property was removed in System.CommandLine beta5
+                    cmdInstance.Subcommands.Add(root);
                     root = cmdInstance;
 
                     // Call "Configure" method
@@ -228,7 +222,8 @@ namespace Cmf.Common.Cli.TestUtilities
                 }
             }
 
-            var result = await GetParser(root).InvokeAsync(args, console);
+            var parseResult = root.Parse(args);
+            var result = await parseResult.InvokeAsync(console);
 
             if (result != 0)
             {
