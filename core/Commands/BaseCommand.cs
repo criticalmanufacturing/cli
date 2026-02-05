@@ -76,6 +76,7 @@ namespace Cmf.CLI.Core.Commands
             {
                 var childCmd = FindChildCommands(cmd, commandTypes);
                 command.Add(childCmd);
+                command.Add(childCmd);
             }
         }
 
@@ -90,7 +91,11 @@ namespace Cmf.CLI.Core.Commands
             var dec = cmd.GetCustomAttribute<CmfCommandAttribute>() ?? throw new Exception("Could not retrieve command metadata.");
             var cmdName = string.IsNullOrWhiteSpace(dec.Name) ? throw new Exception("Could not retrieve command name.") : dec.Name;
             // Create command
-            var cmdInstance = new Command(cmdName) { Hidden = dec.IsHidden, Description = dec.Description };
+            var cmdInstance = new Command(cmdName)
+            {
+                Hidden = dec.IsHidden,
+                Description = dec.Description
+            };
 
             // Call "Configure" method
             BaseCommand? cmdHandler = Activator.CreateInstance(cmd) as BaseCommand;
@@ -134,6 +139,7 @@ namespace Cmf.CLI.Core.Commands
             {
                 var childCmd = FindChildCommands(child, commandTypes);
                 cmdInstance.Add(childCmd);
+                cmdInstance.Add(childCmd);
             }
             return cmdInstance;
         }
@@ -149,6 +155,7 @@ namespace Cmf.CLI.Core.Commands
         protected T? Parse<T>(ArgumentResult argResult, string? @default = null)
         {
             var argValue = @default;
+            if (argResult?.Tokens?.Any() == true)
             if (argResult?.Tokens?.Any() == true)
             {
                 argValue = argResult.Tokens.First().Value;
