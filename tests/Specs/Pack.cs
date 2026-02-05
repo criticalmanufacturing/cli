@@ -62,7 +62,17 @@ namespace tests.Specs
             var forceOpt = cmd.Options.FirstOrDefault(o => o.Name == "force" || o.Aliases.Any(a => a == "--force" || a == "-f")) as Option<bool>;
 
             cmd.SetAction((parseResult, cancellationToken) =>
+            // Get the arguments/options that were configured
+            var workingDirArg = cmd.Arguments.FirstOrDefault(a => a.Name == "workingDir") as Argument<IDirectoryInfo>;
+            var outputDirOpt = cmd.Options.FirstOrDefault(o => o.Name == "outputDir" || o.Aliases.Any(a => a == "--outputDir" || a == "-o")) as Option<IDirectoryInfo>;
+            var forceOpt = cmd.Options.FirstOrDefault(o => o.Name == "force" || o.Aliases.Any(a => a == "--force" || a == "-f")) as Option<bool>;
+
+            cmd.SetAction((parseResult, cancellationToken) =>
             {
+                _workingDir = parseResult.GetValue(workingDirArg)?.Name;
+                _outputDir = parseResult.GetValue(outputDirOpt)?.Name;
+                _force = parseResult.GetValue(forceOpt);
+                return Task.FromResult(0);
                 _workingDir = parseResult.GetValue(workingDirArg)?.Name;
                 _outputDir = parseResult.GetValue(outputDirOpt)?.Name;
                 _force = parseResult.GetValue(forceOpt);
