@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Enums;
@@ -43,16 +43,21 @@ namespace Cmf.CLI.Commands
             {
                 packagePath = this.fileSystem.Path.GetRelativePath(this.fileSystem.Directory.GetCurrentDirectory(), packageRoot.FullName);
             }
-            var arg = new Argument<IDirectoryInfo>(
-                name: "packagePath",
-                parse: (argResult) => Parse<IDirectoryInfo>(argResult, packagePath),
-                isDefault: true)
-            {
-                Description = "Package Path"
-            };
 
-            cmd.AddArgument(arg);
-            cmd.Handler = CommandHandler.Create(this.Execute);
+            var packagePathArgument = new Argument<IDirectoryInfo>("packagePath")
+            {
+                Description = "Package Path",
+                CustomParser = argResult => Parse<IDirectoryInfo>(argResult, packagePath),
+                DefaultValueFactory = _ => Parse<IDirectoryInfo>(null, packagePath)
+            };
+            cmd.Add(packagePathArgument);
+
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                var pkgPath = parseResult.GetValue(packagePathArgument);
+                Execute(pkgPath);
+                return Task.FromResult(0);
+            });
         }
 
         /// <summary>
