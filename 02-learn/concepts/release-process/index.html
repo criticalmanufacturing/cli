@@ -880,10 +880,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#pull-requests-prs-pipeline" class="md-nav__link">
+  <a href="#pull-request-validation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Pull Requests (PRs) Pipeline
+        Pull Request validation
       
     </span>
   </a>
@@ -891,10 +891,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#continuous-integration-ci-piepeline" class="md-nav__link">
+  <a href="#continuous-integration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Continuous Integration (CI) Piepeline
+        Continuous Integration
       
     </span>
   </a>
@@ -902,10 +902,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#continuous-deployment-cd-pipeline" class="md-nav__link">
+  <a href="#continuous-deployment" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Continuous Deployment (CD) Pipeline
+        Continuous Deployment
       
     </span>
   </a>
@@ -2430,10 +2430,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#pull-requests-prs-pipeline" class="md-nav__link">
+  <a href="#pull-request-validation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Pull Requests (PRs) Pipeline
+        Pull Request validation
       
     </span>
   </a>
@@ -2441,10 +2441,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#continuous-integration-ci-piepeline" class="md-nav__link">
+  <a href="#continuous-integration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Continuous Integration (CI) Piepeline
+        Continuous Integration
       
     </span>
   </a>
@@ -2452,10 +2452,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#continuous-deployment-cd-pipeline" class="md-nav__link">
+  <a href="#continuous-deployment" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Continuous Deployment (CD) Pipeline
+        Continuous Deployment
       
     </span>
   </a>
@@ -2484,30 +2484,30 @@
 
 <h1 id="release-process">Release Process</h1>
 <p>By default, @criticalmanufacturing/cli scaffolding does not provide any built-in CI/CD pipelines, giving you the flexibility to choose any tool/platform that suits your needs.</p>
-<p>However, on following sub-sections we share as a reference our internal process, that you can use to build your own pipeline.</p>
-<h3 id="pull-requests-prs-pipeline">Pull Requests (PRs) Pipeline</h3>
-<p>For each changed package, we run the command <code>cmf build --test</code>, which compiles the package and runs unit tests if available, comparing with the target branch.</p>
+<p>However, on following sub-sections we share some commands that should be used to build your own pipeline.</p>
+<h3 id="pull-request-validation">Pull Request validation</h3>
+<p>Changed packages can be validated by running the command <code>cmf build --test</code>, within the package folder.</p>
+<p>This package validation can, and should, be done only on changed packages.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>A package is considered as "changed" when any file is
+<p>A package can be considered "changed" when any file is
 modified inside a folder with a <strong><em>cmfpackage.json</em></strong>
 file.</p>
 </div>
-<p>An alternative is to run <code>cmf build --test</code> for all packages.</p>
-<h3 id="continuous-integration-ci-piepeline">Continuous Integration (CI) Piepeline</h3>
-<p>After merging code into the main branch, we perform the following steps:</p>
+<h3 id="continuous-integration">Continuous Integration</h3>
+<p>After the changes are merged into the main branch, you can perform the following steps to have a package to be installed:</p>
 <ol>
-<li>Run <code>cmf build --test</code> to ensure the successful building of all packages and execution of unit tests.</li>
-<li>Run <code>cmf pack -o {{packages_ci_out_dir_path}}</code> to generate a package that can be installed via DevOpsCenter or Critical Manufacturing Setup.</li>
+<li><code>cmf build --test</code> that builds and validates the packages</li>
+<li><code>cmf pack -o {{packages_ci_out_dir_path}}</code> to generate a package that can be installed via DevOpsCenter or Critical Manufacturing Setup.</li>
 </ol>
-<h3 id="continuous-deployment-cd-pipeline">Continuous Deployment (CD) Pipeline</h3>
+<h3 id="continuous-deployment">Continuous Deployment</h3>
 <p>Install the package on the target MES environment (according to below instructions) and run the regression tests.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Containers Environment</label><label for="__tabbed_1_2">Traditional Environment (Windows VMs)</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <ol>
-<li>Follow the instructions in the <a href="https://portal.criticalmanufacturing.com/Help/devops-center/guide/">DevOps Center documentation</a>.</li>
-<li>Copy the generated packages to the folder defined in volume <strong>Boot Packages</strong>.</li>
+<li>Follow the instructions in the <a href="https://portal.criticalmanufacturing.com/Help/devops-center/guide/devops_center_main_page_about/">DevOps Center documentation</a>.</li>
+<li>Copy the generated packages to the folder defined in <strong>Installation Data Path</strong>.</li>
 <li>In the Configuration &gt; General Data step, set the Package to Install as <code>RootPackageId@PackageVersion</code>.</li>
 </ol>
 </div>
