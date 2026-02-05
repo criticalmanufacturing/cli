@@ -16,8 +16,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.IO;
-using System.CommandLine.NamingConventionBinder;
+using System.Threading.Tasks;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
@@ -28,6 +27,7 @@ using System.Xml.Linq;
 using Cmf.CLI.Core.Constants;
 using tests.Objects;
 using Xunit;
+
 
 namespace tests.Specs
 {
@@ -55,18 +55,24 @@ namespace tests.Specs
             var cmd = new Command("pack");
             packCommand.Configure(cmd);
 
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, IDirectoryInfo, string, bool, bool>(
-            (workingDir, outputDir, repo, force, skipDependencies) =>
+            // Get the arguments/options that were configured
+            var workingDirArg = cmd.Arguments.FirstOrDefault(a => a.Name == "workingDir") as Argument<IDirectoryInfo>;
+            var outputDirOpt = cmd.Options.FirstOrDefault(o => o.Name == "outputDir" || o.Aliases.Any(a => a == "--outputDir" || a == "-o")) as Option<IDirectoryInfo>;
+            var forceOpt = cmd.Options.FirstOrDefault(o => o.Name == "force" || o.Aliases.Any(a => a == "--force" || a == "-f")) as Option<bool>;
+
+            cmd.SetAction((parseResult, cancellationToken) =>
             {
-                _workingDir = workingDir.Name;
-                _outputDir = outputDir.Name;
-                _force = force;
+                _workingDir = parseResult.GetValue(workingDirArg)?.Name;
+                _outputDir = parseResult.GetValue(outputDirOpt)?.Name;
+                _force = parseResult.GetValue(forceOpt);
+                return Task.FromResult(0);
             });
 
             var console = new TestConsole();
-            cmd.Invoke(new[] {
+            var parseResult = cmd.Parse(new string[] {
                 "-o", "test_package_dir", "working_dir"
-            }, console);
+            });
+            parseResult.Invoke(console);
 
             Assert.Equal("working_dir", _workingDir);
             Assert.Equal("test_package_dir", _outputDir);
@@ -85,18 +91,23 @@ namespace tests.Specs
             var cmd = new Command("pack");
             packCommand.Configure(cmd);
 
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, IDirectoryInfo, string, bool, bool>(
-            (workingDir, outputDir, repo, force, skipDependencies) =>
+            var workingDirArg = cmd.Arguments.FirstOrDefault(a => a.Name == "workingDir") as Argument<IDirectoryInfo>;
+            var outputDirOpt = cmd.Options.FirstOrDefault(o => o.Name == "outputDir" || o.Aliases.Any(a => a == "--outputDir" || a == "-o")) as Option<IDirectoryInfo>;
+            var forceOpt = cmd.Options.FirstOrDefault(o => o.Name == "force" || o.Aliases.Any(a => a == "--force" || a == "-f")) as Option<bool>;
+
+            cmd.SetAction((parseResult, cancellationToken) =>
             {
-                _workingDir = workingDir.Name;
-                _outputDir = outputDir.Name;
-                _force = force;
+                _workingDir = parseResult.GetValue(workingDirArg)?.Name;
+                _outputDir = parseResult.GetValue(outputDirOpt)?.Name;
+                _force = parseResult.GetValue(forceOpt);
+                return Task.FromResult(0);
             });
 
             var console = new TestConsole();
-            cmd.Invoke(new[] {
-                "working_dir"
-            }, console);
+            var parseResult = cmd.Parse(new string[] {
+               "working_dir"
+            });
+            parseResult.Invoke(console);
 
             Assert.Equal("working_dir", _workingDir);
             Assert.Equal("Package", _outputDir);
@@ -115,18 +126,23 @@ namespace tests.Specs
             var cmd = new Command("pack");
             packCommand.Configure(cmd);
 
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, IDirectoryInfo, string, bool, bool>(
-            (workingDir, outputDir, repo, force, skipDependencies) =>
+            var workingDirArg = cmd.Arguments.FirstOrDefault(a => a.Name == "workingDir") as Argument<IDirectoryInfo>;
+            var outputDirOpt = cmd.Options.FirstOrDefault(o => o.Name == "outputDir" || o.Aliases.Any(a => a == "--outputDir" || a == "-o")) as Option<IDirectoryInfo>;
+            var forceOpt = cmd.Options.FirstOrDefault(o => o.Name == "force" || o.Aliases.Any(a => a == "--force" || a == "-f")) as Option<bool>;
+
+            cmd.SetAction((parseResult, cancellationToken) =>
             {
-                _workingDir = workingDir.Name;
-                _outputDir = outputDir.Name;
-                _force = force;
+                _workingDir = parseResult.GetValue(workingDirArg)?.Name;
+                _outputDir = parseResult.GetValue(outputDirOpt)?.Name;
+                _force = parseResult.GetValue(forceOpt);
+                return Task.FromResult(0);
             });
 
             var console = new TestConsole();
-            cmd.Invoke(new[] {
-                "-o", "test_package_dir"
-            }, console);
+            var parseResult = cmd.Parse(new string[] {
+               "-o", "test_package_dir"
+            });
+            parseResult.Invoke(console);
 
             var curDir = new DirectoryInfo(System.IO.Directory.GetCurrentDirectory());
             Assert.Equal(curDir.Name, _workingDir);
@@ -146,18 +162,22 @@ namespace tests.Specs
             var cmd = new Command("pack");
             packCommand.Configure(cmd);
 
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, IDirectoryInfo, string, bool, bool>(
-            (workingDir, outputDir, repo, force, skipDependencies) =>
+            var workingDirArg = cmd.Arguments.FirstOrDefault(a => a.Name == "workingDir") as Argument<IDirectoryInfo>;
+            var outputDirOpt = cmd.Options.FirstOrDefault(o => o.Name == "outputDir" || o.Aliases.Any(a => a == "--outputDir" || a == "-o")) as Option<IDirectoryInfo>;
+            var forceOpt = cmd.Options.FirstOrDefault(o => o.Name == "force" || o.Aliases.Any(a => a == "--force" || a == "-f")) as Option<bool>;
+
+            cmd.SetAction((parseResult, cancellationToken) =>
             {
-                _workingDir = workingDir.Name;
-                _outputDir = outputDir.Name;
-                _force = force;
+                _workingDir = parseResult.GetValue(workingDirArg)?.Name;
+                _outputDir = parseResult.GetValue(outputDirOpt)?.Name;
+                _force = parseResult.GetValue(forceOpt);
+                return Task.FromResult(0);
             });
 
-            var console = new TestConsole();
-            cmd.Invoke(new string[] {
-            }, console);
 
+            var console = new TestConsole();
+            var parseResult = cmd.Parse(new string[]{});
+            parseResult.Invoke(console);
             var curDir = new DirectoryInfo(System.IO.Directory.GetCurrentDirectory());
 
             Assert.Equal(curDir.Name, _workingDir);
@@ -392,9 +412,8 @@ namespace tests.Specs
             packCommand.Configure(cmd);
 
             TestConsole console = new TestConsole();
-            cmd.Invoke(new string[] {
-            }, console);
-
+            var parseResult = cmd.Parse(new string[]{});
+            parseResult.Invoke(console);
             DirectoryInfo curDir = new DirectoryInfo(System.IO.Directory.GetCurrentDirectory());
 
             Assert.True(Directory.Exists($"{dir}/Package"), "Package folder is missing");
@@ -440,8 +459,8 @@ namespace tests.Specs
                 packCommand.Configure(cmd);
 
                 TestConsole console = new();
-                cmd.Invoke(Array.Empty<string>(), console);
-
+                var parseResult = cmd.Parse(Array.Empty<string>());
+                parseResult.Invoke(console);
                 DirectoryInfo curDir = new(System.IO.Directory.GetCurrentDirectory());
 
                 Assert.True(Directory.Exists($"{dir}/Package"), "Package folder is missing");
@@ -528,7 +547,8 @@ namespace tests.Specs
                 packCommand.Configure(cmd);
 
                 TestConsole console = new();
-                cmd.Invoke(Array.Empty<string>(), console);
+                var parseResult = cmd.Parse(Array.Empty<string>());
+                parseResult.Invoke(console);
 
                 DirectoryInfo curDir = new(System.IO.Directory.GetCurrentDirectory());
 
@@ -577,8 +597,9 @@ namespace tests.Specs
             packCommand.Configure(cmd);
 
             TestConsole console = new TestConsole();
-            cmd.Invoke(new string[] {
-            }, console);
+
+            var parseResult = cmd.Parse(new string[] {});
+            parseResult.Invoke(console);
 
             DirectoryInfo curDir = new DirectoryInfo(System.IO.Directory.GetCurrentDirectory());
 
