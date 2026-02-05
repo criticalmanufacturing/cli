@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
+using System.CommandLine.Parsing;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Cmf.CLI.Builders;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
@@ -34,20 +35,30 @@ namespace Cmf.CLI.Commands.New
         /// <inheritdoc />
         public override void Configure(Command cmd)
         {
-            base.GetBaseCommandConfig(cmd);
-            cmd.AddOption(new Option<IDirectoryInfo>(
-                aliases: new[] { "--businessPackage" },
-                parseArgument: argResult => Parse<IDirectoryInfo>(argResult),
-                isDefault: true,
-                description: "Business package where the Process Rules project should be built"
-            ));
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, string, IDirectoryInfo>(this.Execute);
+            var (workingDirArg, versionOpt) = GetBaseCommandConfig(cmd);
+
+            var businessPackageOption = new Option<IDirectoryInfo>("--businessPackage")
+            {
+                Description = "Business package where the Process Rules project should be built"
+            };
+            businessPackageOption.CustomParser = argResult => Parse<IDirectoryInfo>(argResult);
+            cmd.Options.Add(businessPackageOption);
+
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                var workingDir = parseResult.GetValue(workingDirArg);
+                var version = parseResult.GetValue(versionOpt);
+                var businessPackage = parseResult.GetValue(businessPackageOption);
+
+                Execute(workingDir, version, businessPackage);
+                return Task.FromResult(0);
+            });
         }
 
         /// <inheritdoc />
         protected override List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args)
         {
-            var repoType = ExecutionContext.Instance.ProjectConfig.RepositoryType ?? CliConstants.DefaultRepositoryType;
+            var repoType = Core.Objects.ExecutionContext.Instance.ProjectConfig.RepositoryType ?? CliConstants.DefaultRepositoryType;
 
             var relativePathToRoot =
                 this.fileSystem.Path.Join("..", //always one level deeper
@@ -64,7 +75,7 @@ namespace Cmf.CLI.Commands.New
             
             #region version-specific bits
 
-            var version = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            var version = Core.Objects.ExecutionContext.Instance.ProjectConfig.MESVersion;
             args.AddRange(new []{ "--targetFramework", version.Major > 8 ? "net6.0" : "netstandard2.0" });
             #endregion
 

@@ -9,9 +9,10 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
+using System.CommandLine.Parsing;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Cmf.CLI.Commands
 {
@@ -54,34 +55,52 @@ namespace Cmf.CLI.Commands
         /// <param name="cmd"></param>
         public override void Configure(Command cmd)
         {
-            cmd.AddArgument(new Argument<IDirectoryInfo>(
-                name: "workingDir",
-                parse: (argResult) => Parse<IDirectoryInfo>(argResult, "."),
-                isDefault: true)
+            var workingDirArgument = new Argument<IDirectoryInfo>("workingDir")
             {
-                Description = "Working Directory"
-            });
+                Description = "Working Directory",
+                DefaultValueFactory = _ => Parse<IDirectoryInfo>(null, ".")
+            };
+            workingDirArgument.CustomParser = argResult => Parse<IDirectoryInfo>(argResult, ".");
+            cmd.Arguments.Add(workingDirArgument);
 
-            cmd.AddOption(new Option<IDirectoryInfo>(
-                aliases: new string[] { "-o", "--outputDir" },
-                parseArgument: argResult => Parse<IDirectoryInfo>(argResult, "Assemble"),
-                isDefault: true,
-                description: "Output directory for assembled package"));
+            var outputDirOption = new Option<IDirectoryInfo>("--outputDir", "-o")
+            {
+                Description = "Output directory for assembled package",
+                DefaultValueFactory = _ => Parse<IDirectoryInfo>(null, "Assemble")
+            };
+            outputDirOption.CustomParser = argResult => Parse<IDirectoryInfo>(argResult, "Assemble");
+            cmd.Options.Add(outputDirOption);
 
-            cmd.AddOption(new Option<Uri>(
-                aliases: new string[] { "--cirepo" },
-                description: "Repository where Continuous Integration packages are located (url or folder)"));
+            var ciRepoOption = new Option<Uri>("--cirepo")
+            {
+                Description = "Repository where Continuous Integration packages are located (url or folder)"
+            };
+            cmd.Options.Add(ciRepoOption);
 
-            cmd.AddOption(new Option<Uri[]>(
-                aliases: new string[] { "-r", "--repos", "--repo" },
-                description: "Repository or repositories where published dependencies are located (url or folder)"));
+            var reposOption = new Option<Uri[]>("--repos", "-r", "--repo")
+            {
+                Description = "Repository or repositories where published dependencies are located (url or folder)"
+            };
+            cmd.Options.Add(reposOption);
 
-            cmd.AddOption(new Option<bool>(
-                aliases: new string[] { "--includeTestPackages" },
-                description: "Include test packages on assemble"));
+            var includeTestPackagesOption = new Option<bool>("--includeTestPackages")
+            {
+                Description = "Include test packages on assemble"
+            };
+            cmd.Options.Add(includeTestPackagesOption);
 
             // Add the handler
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, IDirectoryInfo, Uri, Uri[], bool>(Execute);
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                var workingDir = parseResult.GetValue(workingDirArgument);
+                var outputDir = parseResult.GetValue(outputDirOption);
+                var ciRepo = parseResult.GetValue(ciRepoOption);
+                var repos = parseResult.GetValue(reposOption);
+                var includeTestPackages = parseResult.GetValue(includeTestPackagesOption);
+
+                Execute(workingDir, outputDir, ciRepo, repos, includeTestPackages);
+                return Task.FromResult(0);
+            });
         }
 
         /// <summary>

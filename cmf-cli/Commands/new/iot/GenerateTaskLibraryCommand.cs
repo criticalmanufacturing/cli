@@ -10,9 +10,10 @@ using Newtonsoft.Json;
 using Spectre.Console;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
+using System.CommandLine.Parsing;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Cmf.CLI.Commands.New.IoT
 {
@@ -46,17 +47,20 @@ namespace Cmf.CLI.Commands.New.IoT
                 this.fileSystem
             );
 
-            cmd.AddArgument(new Argument<IDirectoryInfo>(
-                name: "workingDir",
-                parse: (argResult) => Parse<IDirectoryInfo>(argResult, nearestIoTPackage?.FullName),
-                isDefault: true
-            )
+            var workingDirArgument = new Argument<IDirectoryInfo>("workingDir")
             {
                 Description = "Working Directory"
+            };
+            workingDirArgument.CustomParser = argResult => Parse<IDirectoryInfo>(argResult, nearestIoTPackage?.FullName);
+            workingDirArgument.DefaultValueFactory = _ => Parse<IDirectoryInfo>(null, nearestIoTPackage?.FullName);
+            cmd.Arguments.Add(workingDirArgument);
+
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                var workingDir = parseResult.GetValue(workingDirArgument);
+                Execute(workingDir);
+                return Task.FromResult(0);
             });
-
-
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo>(this.Execute);
         }
 
         /// <summary>
@@ -72,12 +76,12 @@ namespace Cmf.CLI.Commands.New.IoT
                 throw new CliException("This command needs to run inside an iot project. Run `cmf new iot` to create a new project.");
             }
 
-            if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 11)
+            if (Core.Objects.ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 11)
             {
                 throw new CliException("This command is only valid for versions above 11.0.0");
             }
 
-            using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
+            using var activity = Core.Objects.ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
 
             var dirName = AnsiConsole.Ask("What is the directory name?", "controller-engine-custom-tasks");
             var packageScope = AnsiConsole.Ask("What is the package scope?", "@criticalmanufacturing");
@@ -119,15 +123,15 @@ namespace Cmf.CLI.Commands.New.IoT
             string identifier,
             List<string> dependsOnScope, List<string> mandatoryForScope, List<string> dependsOnProtocol, List<string> mandatoryForProtocol)
         {
-            var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            var mesVersion = Core.Objects.ExecutionContext.Instance.ProjectConfig.MESVersion;
             Log.Debug($"Creating IoT Task Library Package at {workingDir}");
 
             var args = new List<string>();
             args.AddRange(new[]
             {
                 "--directoryName", dirName,
-                "--npmRegistry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.ToString(),
-                "--nodeVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Node(ExecutionContext.Instance.ProjectConfig.MESVersion),
+                "--npmRegistry", Core.Objects.ExecutionContext.Instance.ProjectConfig.NPMRegistry.ToString(),
+                "--nodeVersion", Core.Objects.ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Node(Core.Objects.ExecutionContext.Instance.ProjectConfig.MESVersion),
                 "--identifier", identifier,
                 "--identifierLower", identifier.Replace(" ", "").ToLower().Trim(),
                 "--packageName", fullPackageName,

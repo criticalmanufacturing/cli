@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
+using System.CommandLine.Parsing;
 using System.IO.Abstractions;
+using System.Threading.Tasks;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Commands;
 using Cmf.CLI.Core.Objects;
@@ -38,24 +39,37 @@ namespace Cmf.CLI.Commands.New
         public override void Configure(Command cmd)
         {
             var root = FileSystemUtilities.GetProjectRoot(this.fileSystem);
-            cmd.AddArgument(new Argument<string>(
-                name: "packageName",
-                description: "The Feature package name"
-            ));
-            cmd.AddArgument(new Argument<IDirectoryInfo>(
-                name: "workingDir",
-                parse: (argResult) => Parse<IDirectoryInfo>(argResult, root?.FullName),
-                isDefault: true
-            )
+
+            var packageNameArgument = new Argument<string>("packageName")
+            {
+                Description = "The Feature package name"
+            };
+            cmd.Arguments.Add(packageNameArgument);
+
+            var workingDirArgument = new Argument<IDirectoryInfo>("workingDir")
             {
                 Description = "Working Directory"
+            };
+            workingDirArgument.CustomParser = argResult => Parse<IDirectoryInfo>(argResult, root?.FullName);
+            workingDirArgument.DefaultValueFactory = _ => Parse<IDirectoryInfo>(null, root?.FullName);
+            cmd.Arguments.Add(workingDirArgument);
+
+            var versionOption = new Option<string>("--version")
+            {
+                Description = "Package Version",
+                DefaultValueFactory = _ => "1.0.0"
+            };
+            cmd.Options.Add(versionOption);
+
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                var workingDir = parseResult.GetValue(workingDirArgument);
+                var packageName = parseResult.GetValue(packageNameArgument);
+                var version = parseResult.GetValue(versionOption);
+
+                Execute(workingDir, packageName, version);
+                return Task.FromResult(0);
             });
-            cmd.AddOption(new Option<string>(
-                aliases: new[] { "--version" },
-                description: "Package Version",
-                getDefaultValue: () => "1.0.0"
-            ));
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, string, string>(Execute);
         }
 
         /// <summary>
@@ -79,7 +93,7 @@ namespace Cmf.CLI.Commands.New
                 // template symbols
                 "--name", packageName,
                 "--packageVersion", version,
-                "--MESVersion", ExecutionContext.Instance.ProjectConfig.MESVersion.ToString()
+                "--MESVersion", Core.Objects.ExecutionContext.Instance.ProjectConfig.MESVersion.ToString()
             };
             
             base.RunCommand(args);

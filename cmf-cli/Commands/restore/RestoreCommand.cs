@@ -7,8 +7,9 @@ using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
+using System.CommandLine.Parsing;
 using System.IO.Abstractions;
+using System.Threading.Tasks;
 
 namespace Cmf.CLI.Commands.restore
 {
@@ -39,9 +40,11 @@ namespace Cmf.CLI.Commands.restore
         /// <param name="cmd"></param>
         public override void Configure(Command cmd)
         {
-            cmd.AddOption(new Option<Uri[]>(
-                aliases: new string[] { "-r", "--repos", "--repo" },
-                description: "Repositories where dependencies are located (folder)"));
+            var reposOption = new Option<Uri[]>("--repos", "-r", "--repo")
+            {
+                Description = "Repositories where dependencies are located (folder)"
+            };
+            cmd.Options.Add(reposOption);
 
             var packageRoot = FileSystemUtilities.GetPackageRoot(this.fileSystem);
             var packagePath = ".";
@@ -49,13 +52,23 @@ namespace Cmf.CLI.Commands.restore
             {
                 packagePath = this.fileSystem.Path.GetRelativePath(this.fileSystem.Directory.GetCurrentDirectory(), packageRoot.FullName);
             }
-            var arg = new Argument<IDirectoryInfo>(
-                name: "packagePath",
-                parse: (argResult) => Parse<IDirectoryInfo>(argResult, packagePath),
-                isDefault: true,
-                description: "Package path");
-            cmd.AddArgument(arg);
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, Uri[]>(Execute);
+
+            var packagePathArgument = new Argument<IDirectoryInfo>("packagePath")
+            {
+                Description = "Package path"
+            };
+            packagePathArgument.CustomParser = argResult => Parse<IDirectoryInfo>(argResult, packagePath);
+            packagePathArgument.DefaultValueFactory = _ => Parse<IDirectoryInfo>(null, packagePath);
+            cmd.Arguments.Add(packagePathArgument);
+
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                var pkgPath = parseResult.GetValue(packagePathArgument);
+                var repos = parseResult.GetValue(reposOption);
+
+                Execute(pkgPath, repos);
+                return Task.FromResult(0);
+            });
         }
 
         /// <summary>
@@ -65,15 +78,15 @@ namespace Cmf.CLI.Commands.restore
         /// <param name="repos">The package repositories URI/path</param>
         public void Execute(IDirectoryInfo packagePath, Uri[] repos)
         {
-            using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
+            using var activity = Core.Objects.ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
             IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{packagePath}/{CliConstants.CmfPackageFileName}");
             IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile, setDefaultValues: false);
             if (repos != null)
             {
-                ExecutionContext.Instance.RepositoriesConfig.Repositories.InsertRange(0, repos);
+                Core.Objects.ExecutionContext.Instance.RepositoriesConfig.Repositories.InsertRange(0, repos);
             }
            
-            packageTypeHandler.RestoreDependencies(ExecutionContext.Instance.RepositoriesConfig.Repositories.ToArray());
+            packageTypeHandler.RestoreDependencies(Core.Objects.ExecutionContext.Instance.RepositoriesConfig.Repositories.ToArray());
         }
     }
 }

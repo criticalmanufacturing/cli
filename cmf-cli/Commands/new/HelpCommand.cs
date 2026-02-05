@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
+using System.CommandLine.Parsing;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Cmf.CLI.Builders;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
@@ -42,14 +43,25 @@ namespace Cmf.CLI.Commands.New
         /// <inheritdoc />
         public override void Configure(Command cmd)
         {
-            base.GetBaseCommandConfig(cmd);
-            cmd.AddOption(new Option<IFileInfo>(
-                aliases: new[] { "--docPkg", "--documentationPackage" },
-                description: "Path to the MES documentation package (required for MES versions up to 9.x)",
-                parseArgument: argResult => Parse<IFileInfo>(argResult)
-            )
-            { IsRequired = false });
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, string, IFileInfo>(this.Execute);
+            var (workingDirArg, versionOpt) = base.GetBaseCommandConfig(cmd);
+
+            var docPkgOption = new Option<IFileInfo>("--documentationPackage", "--docPkg")
+            {
+                Description = "Path to the MES documentation package (required for MES versions up to 9.x)",
+                Required = false
+            };
+            docPkgOption.CustomParser = argResult => Parse<IFileInfo>(argResult);
+            cmd.Options.Add(docPkgOption);
+
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                var workingDir = parseResult.GetValue(workingDirArg);
+                var version = parseResult.GetValue(versionOpt);
+                var documentationPackage = parseResult.GetValue(docPkgOption);
+
+                Execute(workingDir, version, documentationPackage);
+                return Task.FromResult(0);
+            });
         }
 
         /// <inheritdoc />
@@ -63,21 +75,21 @@ namespace Cmf.CLI.Commands.New
                 ).Replace("\\", "/");
 
             var requireModuleSES =
-                ExecutionContext.Instance.ProjectConfig.MESVersion >= new Version(11, 0, 0) &&
-                ExecutionContext.Instance.ProjectConfig.MESVersion < new Version(11, 2, 0);
+                Core.Objects.ExecutionContext.Instance.ProjectConfig.MESVersion >= new Version(11, 0, 0) &&
+                Core.Objects.ExecutionContext.Instance.ProjectConfig.MESVersion < new Version(11, 2, 0);
 
             args.AddRange(new[]
             {
                 "--rootRelativePath", relativePathToRoot,
                 "--ngxSchematicsVersion", this.schematicsVersion,
-                "--npmRegistry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.OriginalString,
-                "--MESVersion", ExecutionContext.Instance.ProjectConfig.MESVersion.ToString(),
-                "--nodeVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Node(ExecutionContext.Instance.ProjectConfig.MESVersion),
-                "--ngVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(ExecutionContext.Instance.ProjectConfig.MESVersion).CLI,
-                "--zoneVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(ExecutionContext.Instance.ProjectConfig.MESVersion).Zone,
-                "--tsVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(ExecutionContext.Instance.ProjectConfig.MESVersion).Typescript,
-                "--esLintVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(ExecutionContext.Instance.ProjectConfig.MESVersion).ESLint,
-                "--tsesVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(ExecutionContext.Instance.ProjectConfig.MESVersion).TSESLint,
+                "--npmRegistry", Core.Objects.ExecutionContext.Instance.ProjectConfig.NPMRegistry.OriginalString,
+                "--MESVersion", Core.Objects.ExecutionContext.Instance.ProjectConfig.MESVersion.ToString(),
+                "--nodeVersion", Core.Objects.ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Node(Core.Objects.ExecutionContext.Instance.ProjectConfig.MESVersion),
+                "--ngVersion", Core.Objects.ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(Core.Objects.ExecutionContext.Instance.ProjectConfig.MESVersion).CLI,
+                "--zoneVersion", Core.Objects.ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(Core.Objects.ExecutionContext.Instance.ProjectConfig.MESVersion).Zone,
+                "--tsVersion", Core.Objects.ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(Core.Objects.ExecutionContext.Instance.ProjectConfig.MESVersion).Typescript,
+                "--esLintVersion", Core.Objects.ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(Core.Objects.ExecutionContext.Instance.ProjectConfig.MESVersion).ESLint,
+                "--tsesVersion", Core.Objects.ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(Core.Objects.ExecutionContext.Instance.ProjectConfig.MESVersion).TSESLint,
                 "--assetsPkgName", this.assetsPkgName,
                 "--requireModuleSES", requireModuleSES.ToString(),
                 "--dfPackageNamePascalCase", this.dfPackageNamePascalCase
@@ -94,10 +106,10 @@ namespace Cmf.CLI.Commands.New
         /// <param name="documentationPackage">The MES documentation package path</param>
         public void Execute(IDirectoryInfo workingDir, string version, IFileInfo documentationPackage)
         {
-            if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major > 9)
+            if (Core.Objects.ExecutionContext.Instance.ProjectConfig.MESVersion.Major > 9)
             {
                 Log.Debug("Running v>=10 template");
-                this.ExecuteV10(workingDir, version, ExecutionContext.Instance.ProjectConfig.MESVersion.Major);
+                this.ExecuteV10(workingDir, version, Core.Objects.ExecutionContext.Instance.ProjectConfig.MESVersion.Major);
             }
             else
             {
@@ -119,7 +131,7 @@ namespace Cmf.CLI.Commands.New
             base.Execute(workingDir, version); // create package base - generate cmfpackage.json
             var nameIdx = Array.FindIndex(base.executedArgs, item => string.Equals(item, "--name"));
             var pkgName = base.executedArgs[nameIdx + 1];
-            var htmlStarterVersion = ExecutionContext.Instance.ProjectConfig.HTMLStarterVersion;
+            var htmlStarterVersion = Core.Objects.ExecutionContext.Instance.ProjectConfig.HTMLStarterVersion;
             // clone HTMLStarter content in the folder
             var pkgFolder = workingDir.GetDirectories(pkgName).FirstOrDefault();
             if (!pkgFolder?.Exists ?? false)
@@ -136,10 +148,10 @@ namespace Cmf.CLI.Commands.New
             {
                 throw new CliException("Could not load package.json");
             }
-            var devTasksVersion = ExecutionContext.Instance.ProjectConfig.DevTasksVersion;
-            var yoGeneratorVersion = ExecutionContext.Instance.ProjectConfig.YoGeneratorVersion;
-            var projectName = ExecutionContext.Instance.ProjectConfig.ProjectName;
-            var repositoryURL = ExecutionContext.Instance.ProjectConfig.RepositoryURL;
+            var devTasksVersion = Core.Objects.ExecutionContext.Instance.ProjectConfig.DevTasksVersion;
+            var yoGeneratorVersion = Core.Objects.ExecutionContext.Instance.ProjectConfig.YoGeneratorVersion;
+            var projectName = Core.Objects.ExecutionContext.Instance.ProjectConfig.ProjectName;
+            var repositoryURL = Core.Objects.ExecutionContext.Instance.ProjectConfig.RepositoryURL;
             rootPkgJson.devDependencies["@criticalmanufacturing/dev-tasks"] = devTasksVersion.ToString();
             rootPkgJson.devDependencies["@criticalmanufacturing/generator-html"] = yoGeneratorVersion.ToString();
             rootPkgJson.devDependencies["@types/node"] = "^12.0.0";
@@ -158,8 +170,8 @@ namespace Cmf.CLI.Commands.New
             {
                 throw new CliException("Could not load .dev-tasks.json");
             }
-            var npmRegistry = ExecutionContext.Instance.ProjectConfig.NPMRegistry;
-            var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            var npmRegistry = Core.Objects.ExecutionContext.Instance.ProjectConfig.NPMRegistry;
+            var mesVersion = Core.Objects.ExecutionContext.Instance.ProjectConfig.MESVersion;
             devTasksJson.packagePrefix = "cmf.docs.area";
             devTasksJson.webAppPrefix = "cmf.docs.area";
             devTasksJson.registry = npmRegistry;
@@ -236,13 +248,13 @@ $@"{{
             {
                 throw new CliException("Could not load config.json");
             }
-            var restPort = ExecutionContext.Instance.ProjectConfig.RESTPort;
+            var restPort = Core.Objects.ExecutionContext.Instance.ProjectConfig.RESTPort;
             configJsonJson.host.rest.enableSsl = false;
             configJsonJson.host.rest.address = "localhost";
             configJsonJson.host.rest.port = restPort;
             configJsonJson.host.isLoadBalancerEnabled = false;
-            configJsonJson.host.tenant.name = ExecutionContext.Instance.ProjectConfig.Tenant;
-            configJsonJson.general.defaultDomain = ExecutionContext.Instance.ProjectConfig.DefaultDomain;
+            configJsonJson.host.tenant.name = Core.Objects.ExecutionContext.Instance.ProjectConfig.Tenant;
+            configJsonJson.general.defaultDomain = Core.Objects.ExecutionContext.Instance.ProjectConfig.DefaultDomain;
             configJsonJson.version = $"{projectName} $(Build.BuildNumber) - {mesVersion}";
             configJsonJson.packages.available = docPkgConfigJson.packages.available;
             configJsonJson.packages.Remove("bundlePath");
@@ -262,7 +274,7 @@ $@"{{
 
             // generate doc package
             Log.Verbose("Generating documentation package. This will take a while...");
-            var tenant = ExecutionContext.Instance.ProjectConfig.Tenant;
+            var tenant = Core.Objects.ExecutionContext.Instance.ProjectConfig.Tenant;
             var assetsPkgName = $"cmf.docs.area.{pkgName.ToLowerInvariant()}";
             var helpPkgConfigPath = this.fileSystem.Path.GetTempFileName();
             var helpPkgConfigJson =
@@ -312,13 +324,13 @@ $@"{{
 
         public void ExecuteV10(IDirectoryInfo workingDir, string version,int majorVersion)
         {
-            var ngxSchematicsVersion = ExecutionContext.Instance.ProjectConfig.NGXSchematicsVersion;
+            var ngxSchematicsVersion = Core.Objects.ExecutionContext.Instance.ProjectConfig.NGXSchematicsVersion;
             if (ngxSchematicsVersion == null)
             {
                 throw new CliException("Seems like the repository scaffolding was run on a previous version of MES. Please re-init for versions 10+.");
             }
 
-            var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            var mesVersion = Core.Objects.ExecutionContext.Instance.ProjectConfig.MESVersion;
 
             this.schematicsVersion = ngxSchematicsVersion.ToString() ?? $"@release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}";
 
@@ -333,7 +345,7 @@ $@"{{
                     break;
             }
                         
-            var ngCliVersion = ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().AngularCLI(ExecutionContext.Instance.ProjectConfig.MESVersion);
+            var ngCliVersion = Core.Objects.ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().AngularCLI(Core.Objects.ExecutionContext.Instance.ProjectConfig.MESVersion);
             var packageName = base.GeneratePackageName(workingDir)!.Value.Item1;
             var projectName = packageName.Replace(".", "-").ToLowerInvariant();
             this.assetsPkgName = $"cmf-docs-area-{projectName.ToLowerInvariant()}";
@@ -361,7 +373,7 @@ $@"{{
             }.Exec();
 
             // generate the assets structure in projects/<docPackage>/assets
-            var tenant = ExecutionContext.Instance.ProjectConfig.Tenant;
+            var tenant = Core.Objects.ExecutionContext.Instance.ProjectConfig.Tenant;
             Log.Verbose("Generating assets...");
             base.ExecuteTemplate("helpSrcPkg", new[]
             {

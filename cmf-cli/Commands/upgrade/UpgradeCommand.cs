@@ -11,11 +11,13 @@ using SharpCompress.Common;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
+using System.CommandLine.Parsing;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Cmf.CLI.Commands
 {
@@ -48,8 +50,14 @@ namespace Cmf.CLI.Commands
         /// <param name="cmd"></param>
         public override void Configure(Command cmd)
         {
-            // Add the handler
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo>(Execute);
+            // Add the handler using SetAction
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                // If you have a packagePath argument/option defined, get it from parseResult
+                // For now, assuming no arguments are needed for this dummy command
+                Execute(null);
+                return Task.FromResult(0);
+            });
         }
 
         public void Execute(IDirectoryInfo packagePath) {}

@@ -1,4 +1,3 @@
-
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Interfaces;
@@ -8,8 +7,9 @@ using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
+using System.CommandLine.Parsing;
 using System.IO.Abstractions;
+using System.Threading.Tasks;
 
 namespace Cmf.CLI.Commands
 {
@@ -47,27 +47,39 @@ namespace Cmf.CLI.Commands
             {
                 workingDir = this.fileSystem.Path.GetRelativePath(this.fileSystem.Directory.GetCurrentDirectory(), packageRoot.FullName);
             }
-            cmd.AddArgument(new Argument<IDirectoryInfo>(
-                name: "workingDir",
-                parse: (argResult) => Parse<IDirectoryInfo>(argResult, workingDir),
-                isDefault: true
-            )
+
+            var workingDirArgument = new Argument<IDirectoryInfo>("workingDir")
             {
-                Description = "Working Directory"
-            });
+                Description = "Working Directory",
+                DefaultValueFactory = _ => Parse<IDirectoryInfo>(null, workingDir)
+            };
+            workingDirArgument.CustomParser = argResult => Parse<IDirectoryInfo>(argResult, workingDir);
+            cmd.Arguments.Add(workingDirArgument);
 
-            cmd.AddOption(new Option<IDirectoryInfo>(
-                aliases: new string[] { "-o", "--outputDir" },
-                parseArgument: argResult => Parse<IDirectoryInfo>(argResult, $"{workingDir}/Package"),
-                isDefault: true,
-                description: "Output directory for created package"));
+            var outputDirOption = new Option<IDirectoryInfo>("--outputDir", "-o")
+            {
+                Description = "Output directory for created package",
+                DefaultValueFactory = _ => Parse<IDirectoryInfo>(null, "Package"),
+                CustomParser = argResult => Parse<IDirectoryInfo>(argResult, "Package")
+            };
+            cmd.Options.Add(outputDirOption);
 
-            cmd.AddOption(new Option<bool>(
-                aliases: new string[] { "-f", "--force" },
-                description: "Overwrite all packages even if they already exists"));
+            var forceOption = new Option<bool>("--force", "-f")
+            {
+                Description = "Overwrite all packages even if they already exists"
+            };
+            cmd.Options.Add(forceOption);
 
             // Add the handler
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, IDirectoryInfo, bool>(Execute);
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                var workDir = parseResult.GetValue(workingDirArgument);
+                var outputDir = parseResult.GetValue(outputDirOption);
+                var force = parseResult.GetValue(forceOption);
+
+                Execute(workDir, outputDir, force);
+                return Task.FromResult(0);
+            });
         }
 
         /// <summary>
@@ -79,7 +91,7 @@ namespace Cmf.CLI.Commands
         /// <returns></returns>
         public void Execute(IDirectoryInfo workingDir, IDirectoryInfo outputDir, bool force)
         {
-            using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
+            using var activity = Core.Objects.ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
             IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{workingDir}/{CliConstants.CmfPackageFileName}");
 
             // Reading cmfPackage

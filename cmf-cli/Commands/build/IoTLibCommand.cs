@@ -5,9 +5,10 @@ using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
+using System.CommandLine.Parsing;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Cmf.CLI.Commands.New
 {
@@ -40,16 +41,20 @@ namespace Cmf.CLI.Commands.New
                 this.fileSystem
             );
 
-            cmd.AddArgument(new Argument<IDirectoryInfo>(
-                name: "workingDir",
-                parse: (argResult) => Parse<IDirectoryInfo>(argResult, nearestRootPackage?.FullName),
-                isDefault: true
-            )
+            var workingDirArgument = new Argument<IDirectoryInfo>("workingDir")
             {
                 Description = "Working Directory"
-            });
+            };
+            workingDirArgument.CustomParser = argResult => Parse<IDirectoryInfo>(argResult, nearestRootPackage?.FullName);
+            workingDirArgument.DefaultValueFactory = _ => Parse<IDirectoryInfo>(null, nearestRootPackage?.FullName);
+            cmd.Arguments.Add(workingDirArgument);
 
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo>(this.Execute);
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                var workingDir = parseResult.GetValue(workingDirArgument);
+                Execute(workingDir);
+                return Task.FromResult(0);
+            });
         }
 
         /// <summary>
@@ -59,7 +64,7 @@ namespace Cmf.CLI.Commands.New
         /// <param name="version">package version</param>
         public void Execute(IDirectoryInfo workingDir)
         {
-            if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major > 9)
+            if (Core.Objects.ExecutionContext.Instance.ProjectConfig.MESVersion.Major > 9)
             {
                 IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{workingDir}/{CliConstants.CmfPackageFileName}");
                 var cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true, this.fileSystem);

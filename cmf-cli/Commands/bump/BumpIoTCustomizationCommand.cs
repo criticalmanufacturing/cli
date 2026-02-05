@@ -1,5 +1,4 @@
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core.Attributes;
@@ -7,6 +6,8 @@ using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+using System.Threading.Tasks;
+
 
 namespace Cmf.CLI.Commands
 {
@@ -23,34 +24,52 @@ namespace Cmf.CLI.Commands
         /// <param name="cmd"></param>
         public override void Configure(Command cmd)
         {
-            cmd.AddArgument(new Argument<IDirectoryInfo>(
-                name: "packagePath",
-                parse: (argResult) => Parse<IDirectoryInfo>(argResult, "."),
-                isDefault: true
-            )
+            var pathArgument = new Argument<IDirectoryInfo>("path")
             {
-                Description = "Package Path"
-            });
+                Description = "Working Directory"
+            };
+            pathArgument.CustomParser = argResult => Parse<IDirectoryInfo>(argResult, ".");
+            pathArgument.DefaultValueFactory = _ => Parse<IDirectoryInfo>(null, ".");
+            cmd.Arguments.Add(pathArgument);
 
-            cmd.AddOption(new Option<string>(
-                aliases: new string[] { "-v", "--version" },
-                description: "Will bump all versions to the version specified"));
+            var versionOption = new Option<string>("--version", "-v")
+            {
+                Description = "Will bump all versions to the version specified"
+            };
+            cmd.Options.Add(versionOption);
 
-            cmd.AddOption(new Option<string>(
-                aliases: new string[] { "-b", "--buildNrVersion" },
-                description: "Will add this version next to the version (v-b)"));
+            var buildNrVersionOption = new Option<string>("--buildNrVersion", "-b")
+            {
+                Description = "Will add this version next to the version (v-b)"
+            };
+            cmd.Options.Add(buildNrVersionOption);
 
-            cmd.AddOption(new Option<string>(
-                aliases: new string[] { "-pckNames", "--packageNames" },
-                description: "Packages to be bumped"));
+            var packageNamesOption = new Option<string>("--packageNames", "-pckNames")
+            {
+                Description = "Packages to be bumped"
+            };
+            cmd.Options.Add(packageNamesOption);
 
-            cmd.AddOption(new Option<bool>(
-                aliases: new string[] { "-isToTag", "--isToTag" },
-                getDefaultValue: () => { return false; },
-                description: "Instead of replacing the version will add -$version"));
+            var isToTagOption = new Option<bool>("--isToTag", "-isToTag")
+            {
+                Description = "Instead of replacing the version will add -$version",
+                DefaultValueFactory = _ => false
+            };
+            cmd.Options.Add(isToTagOption);
 
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, string, string, string, bool>(Execute);
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                var path = parseResult.GetValue(pathArgument);
+                var version = parseResult.GetValue(versionOption);
+                var buildNr = parseResult.GetValue(buildNrVersionOption);
+                var packageNames = parseResult.GetValue(packageNamesOption);
+                var isToTag = parseResult.GetValue(isToTagOption);
+
+                Execute(path, version, buildNr, packageNames, isToTag);
+                return Task.FromResult(0);
+            });        
         }
+
 
         /// <summary>
         /// Executes the specified package path.

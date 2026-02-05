@@ -108,7 +108,7 @@ namespace Cmf.CLI.Commands
                 var cmdInstance = new Command(commandPlugin.Key);
                 var commandHandler = new PluginCommand(commandPlugin.Key, commandPlugin.Value);
                 commandHandler.Configure(cmdInstance);
-                command.AddCommand(cmdInstance);
+                command.Subcommands.Add(cmdInstance);
             }
         }
     }

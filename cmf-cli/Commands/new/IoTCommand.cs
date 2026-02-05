@@ -10,9 +10,10 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
+using System.CommandLine.Parsing;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Cmf.CLI.Commands.New
 {
@@ -41,26 +42,38 @@ namespace Cmf.CLI.Commands.New
 
         public override void Configure(Command cmd)
         {
-            base.GetBaseCommandConfig(cmd);
+            var (workingDirArg, versionOpt) = base.GetBaseCommandConfig(cmd);
 
-            cmd.AddOption(new Option<string>(
-                aliases: new[] { "--htmlPackageLocation" },
-                description: "Location of the HTML Package"
-            ));
+            var htmlPackageLocationOption = new Option<string>("--htmlPackageLocation")
+            {
+                Description = "Location of the HTML Package"
+            };
+            cmd.Options.Add(htmlPackageLocationOption);
 
-            cmd.AddOption(new Option<bool>(
-                aliases: new[] { "--isAngularPackage" },
-                description: "Customization package with angular"
-            ));
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, string, string, bool>(this.Execute);
+            var isAngularPackageOption = new Option<bool>("--isAngularPackage")
+            {
+                Description = "Customization package with angular"
+            };
+            cmd.Options.Add(isAngularPackageOption);
+
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                var workingDir = parseResult.GetValue(workingDirArg);
+                var version = parseResult.GetValue(versionOpt);
+                var htmlPackageLocation = parseResult.GetValue(htmlPackageLocationOption);
+                var isAngularPackage = parseResult.GetValue(isAngularPackageOption);
+
+                Execute(workingDir, version, htmlPackageLocation, isAngularPackage);
+                return Task.FromResult(0);
+            });
         }
 
         /// <inheritdoc />
         protected override List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args)
         {
-            var npmRegistry = ExecutionContext.Instance.ProjectConfig.NPMRegistry;
-            var devTasksVersion = ExecutionContext.Instance.ProjectConfig.DevTasksVersion;
-            var repoType = ExecutionContext.Instance.ProjectConfig.RepositoryType ?? CliConstants.DefaultRepositoryType;
+            var npmRegistry = Core.Objects.ExecutionContext.Instance.ProjectConfig.NPMRegistry;
+            var devTasksVersion = Core.Objects.ExecutionContext.Instance.ProjectConfig.DevTasksVersion;
+            var repoType = Core.Objects.ExecutionContext.Instance.ProjectConfig.RepositoryType ?? CliConstants.DefaultRepositoryType;
             Log.Debug($"Creating IoT Package at {workingDir} for repo type {repoType} using registry {npmRegistry}");
 
             // calculate relative path to local environment and create a new symbol for it
@@ -84,7 +97,7 @@ namespace Cmf.CLI.Commands.New
                 "--iotpackages", $"{packageName}.Packages",
                 "--rootInnerRelativePath", relativePathToRoot,
                 "--npmRegistry", npmRegistry.OriginalString,
-                "--nodeVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Node(ExecutionContext.Instance.ProjectConfig.MESVersion),
+                "--nodeVersion", Core.Objects.ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Node(Core.Objects.ExecutionContext.Instance.ProjectConfig.MESVersion),
                 "--repositoryType", repoType.ToString()
             });
 
@@ -99,7 +112,7 @@ namespace Cmf.CLI.Commands.New
         /// <param name="htmlPackageLocation">location of html package</param>
         public void Execute(IDirectoryInfo workingDir, string version, string htmlPackageLocation, bool isAngularPackage)
         {
-            var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            var mesVersion = Core.Objects.ExecutionContext.Instance.ProjectConfig.MESVersion;
             if (mesVersion.Major > 9)
             {
                 // (ATL) Automation Task Library Package
@@ -158,7 +171,7 @@ namespace Cmf.CLI.Commands.New
             var iotCustomPackageWorkDir = iotCustomPackage.GetFileInfo().Directory;
             var iotCustomPackageName = base.GeneratePackageName(iotCustomPackageWorkDir)!.Value.Item1;
 
-            var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            var mesVersion = Core.Objects.ExecutionContext.Instance.ProjectConfig.MESVersion;
 
             InstallYoeman(iotCustomPackageWorkDir, mesVersion);
 
@@ -172,7 +185,7 @@ namespace Cmf.CLI.Commands.New
                 throw new CliException(CliMessages.IoTV10HTMLPackageMustBeProvided);
             }
 
-            var ngxSchematicsVersion = ExecutionContext.Instance.ProjectConfig.NGXSchematicsVersion;
+            var ngxSchematicsVersion = Core.Objects.ExecutionContext.Instance.ProjectConfig.NGXSchematicsVersion;
 
             if (ngxSchematicsVersion == null)
             {
@@ -183,7 +196,7 @@ namespace Cmf.CLI.Commands.New
 
             if (!htmlPackageDir.Exists) throw new CliException(string.Format(CliMessages.SomePackagesNotFound, string.Join(", ", htmlPackageLocation)));
 
-            var baseLayer = ExecutionContext.Instance.ProjectConfig.BaseLayer ?? CliConstants.DefaultBaseLayer;
+            var baseLayer = Core.Objects.ExecutionContext.Instance.ProjectConfig.BaseLayer ?? CliConstants.DefaultBaseLayer;
             this.baseWebPackage = baseLayer == BaseLayer.MES
                 ? "@criticalmanufacturing/mes-ui-web"
                 : "@criticalmanufacturing/core-ui-web";
@@ -193,7 +206,7 @@ namespace Cmf.CLI.Commands.New
             base.Execute(workingDir, version); // create package base - generate cmfpackage.json
 
             // this won't return null because it has to success on the base.Execute call
-            var ngCliVersion = ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().AngularCLI(ExecutionContext.Instance.ProjectConfig.MESVersion);
+            var ngCliVersion = Core.Objects.ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().AngularCLI(Core.Objects.ExecutionContext.Instance.ProjectConfig.MESVersion);
 
             var packageName = base.GeneratePackageName(workingDir)!.Value.Item1;
 
@@ -211,7 +224,7 @@ namespace Cmf.CLI.Commands.New
             var iotCustomPackageWorkDir = iotCustomPackage.GetFileInfo().Directory;
             var iotCustomPackageName = base.GeneratePackageName(iotCustomPackageWorkDir)!.Value.Item1;
 
-            var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            var mesVersion = Core.Objects.ExecutionContext.Instance.ProjectConfig.MESVersion;
 
             var schematicsVersion = ngxSchematicsVersion.ToString() ?? $"@release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}";
 
@@ -231,7 +244,7 @@ namespace Cmf.CLI.Commands.New
             new NPXCommand()
             {
                 Command = $"@angular/cli@{ngCliVersion}",
-                Args = new[] { "add", "--registry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.OriginalString, "--skip-confirmation", $"@criticalmanufacturing/ngx-iot-schematics@{schematicsVersion}", "--lint", "--base-app", baseLayer.ToString(), "--version", $"release-{mesVersion.Major}{mesVersion.Minor}" },
+                Args = new[] { "add", "--registry", Core.Objects.ExecutionContext.Instance.ProjectConfig.NPMRegistry.OriginalString, "--skip-confirmation", $"@criticalmanufacturing/ngx-iot-schematics@{schematicsVersion}", "--lint", "--base-app", baseLayer.ToString(), "--version", $"release-{mesVersion.Major}{mesVersion.Minor}" },
                 WorkingDirectory = iotCustomPackageWorkDir,
                 ForceColorOutput = false
             }.Exec();
