@@ -2,9 +2,7 @@ using System;
 using System.IO.Abstractions.TestingHelpers;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
-using System.CommandLine.IO;
-using System.CommandLine.Parsing;
+using System.Threading.Tasks;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
@@ -13,7 +11,6 @@ using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Commands;
 
 using Cmf.CLI.Utilities;
-using Cmf.Common.Cli.TestUtilities;
 using tests.Objects;
 using Assert = tests.AssertWithMessage;
 using Xunit;
@@ -227,17 +224,21 @@ namespace tests.Specs
           var cmd = new Command("ls");
           listDependenciesCommand.Configure(cmd);
 
-          cmd.Handler = CommandHandler.Create<IDirectoryInfo, Uri[]>(
-            (workingDir, repos) =>
-            {
-              _workingDir = workingDir.Name;
-              _repos = repos?.Select(uri => uri.OriginalString).ToArray();
-            });
+          var workingDirArg = cmd.Arguments.FirstOrDefault(a => a.Name == "workingDir") as Argument<IDirectoryInfo>;
+          var reposOpt = cmd.Options.FirstOrDefault(o => o.Name == "repos" || o.Aliases.Any(a => a == "--repos" || a == "-r")) as Option<Uri[]>;
+
+          cmd.SetAction((parseResult, cancellationToken) =>
+          {
+              _workingDir = parseResult.GetValue(workingDirArg)?.Name;
+              _repos = parseResult.GetValue(reposOpt)?.Select(uri => uri.OriginalString).ToArray();
+              return Task.FromResult(0);
+          });
 
           var console = new TestConsole();
-          cmd.Invoke(new[] {
-            "-r", "d:\\xpto", "-r", "e:\\packages"
-          }, console);
+          var parseResult = cmd.Parse(new string[] {
+              "-r", "d:\\xpto", "-r", "e:\\packages"
+          });
+          parseResult.Invoke(console);
           
           var curDir = new DirectoryInfo(System.IO.Directory.GetCurrentDirectory());
           Assert.Equal(curDir.Name, _workingDir, "working dir does not match expected");
@@ -256,17 +257,22 @@ namespace tests.Specs
           var cmd = new Command("ls");
           listDependenciesCommand.Configure(cmd);
 
-          cmd.Handler = CommandHandler.Create<IDirectoryInfo, Uri[]>(
-            (workingDir, repos) =>
-            {
-              _workingDir = workingDir.Name;
-              _repos = repos;
-            });
+          var workingDirArg = cmd.Arguments.FirstOrDefault(a => a.Name == "workingDir") as Argument<IDirectoryInfo>;
+          var reposOpt = cmd.Options.FirstOrDefault(o => o.Name == "repos" || o.Aliases.Any(a => a == "--repos" || a == "-r")) as Option<Uri[]>;
+
+          cmd.SetAction((parseResult, cancellationToken) =>
+          {
+              _workingDir = parseResult.GetValue(workingDirArg)?.Name;
+              _repos = parseResult.GetValue(reposOpt);
+              return Task.FromResult(0);
+          });
 
           var console = new TestConsole();
-          cmd.Invoke(new[] {
-            "-r", "d:\\xpto", "-r", "http://repository.example"
-          }, console);
+
+          var parseResult = cmd.Parse(new string[] {
+              "-r", "d:\\xpto", "-r", "http://repository.example"
+          });
+          parseResult.Invoke(console);
           
           var curDir = new DirectoryInfo(System.IO.Directory.GetCurrentDirectory());
           Assert.Equal(curDir.Name, _workingDir, "working dir does not match expected");
@@ -287,18 +293,21 @@ namespace tests.Specs
           var cmd = new Command("ls");
           listDependenciesCommand.Configure(cmd);
 
-          cmd.Handler = CommandHandler.Create<IDirectoryInfo, Uri[]>(
-            (workingDir, repos) =>
-            {
-              _workingDir = workingDir.Name;
-              _repos = repos;
-            });
+          var workingDirArg = cmd.Arguments.FirstOrDefault(a => a.Name == "workingDir") as Argument<IDirectoryInfo>;
+          var reposOpt = cmd.Options.FirstOrDefault(o => o.Name == "repos" || o.Aliases.Any(a => a == "--repos" || a == "-r")) as Option<Uri[]>;
+
+          cmd.SetAction((parseResult, cancellationToken) =>
+          {
+              _workingDir = parseResult.GetValue(workingDirArg)?.Name;
+              _repos = parseResult.GetValue(reposOpt);
+              return Task.FromResult(0);
+          });
 
           var console = new TestConsole();
-          cmd.Invoke(new[] {
+          var parseResult = cmd.Parse(new string[] {
             "-r", "..\\xpto", "-r", "\\root_dir"
-          }, console);
-          
+          });
+            parseResult.Invoke(console);
           var curDir = new DirectoryInfo(System.IO.Directory.GetCurrentDirectory());
           Assert.Equal(curDir.Name, _workingDir, "working dir does not match expected");
           Assert.Equal(2, _repos.Length, "Expecting 2 repositories");
@@ -317,18 +326,21 @@ namespace tests.Specs
           var cmd = new Command("ls");
           listDependenciesCommand.Configure(cmd);
 
-          cmd.Handler = CommandHandler.Create<IDirectoryInfo, Uri[]>(
-            (workingDir, repos) =>
-            {
-              _workingDir = workingDir.Name;
-              _repos = repos?.Select(uri => uri.OriginalString).ToArray();
-            });
+          var workingDirArg = cmd.Arguments.FirstOrDefault(a => a.Name == "workingDir") as Argument<IDirectoryInfo>;
+          var reposOpt = cmd.Options.FirstOrDefault(o => o.Name == "repos" || o.Aliases.Any(a => a == "--repos" || a == "-r")) as Option<Uri[]>;
+
+          cmd.SetAction((parseResult, cancellationToken) =>
+          {
+              _workingDir = parseResult.GetValue(workingDirArg)?.Name;
+              _repos = parseResult.GetValue(reposOpt)?.Select(uri => uri.OriginalString).ToArray();
+              return Task.FromResult(0);
+          });
 
           var console = new TestConsole();
-          cmd.Invoke(new[] {
+          var parseResult = cmd.Parse(new string[] {
             "-r", "d:\\xpto"
-          }, console);
-          
+          });
+            parseResult.Invoke(console);
           var curDir = new DirectoryInfo(System.IO.Directory.GetCurrentDirectory());
           Assert.Equal(curDir.Name, _workingDir, "working dir does not match expected");
           Assert.Equal(1, _repos.Length, "Expecting 2 repositories");
