@@ -1,8 +1,9 @@
 using System;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
+using System.CommandLine.Parsing;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Threading.Tasks;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Interfaces;
@@ -34,49 +35,51 @@ public class PublishCommand : BaseCommand
 
     public override void Configure(Command cmd)
     {
-        cmd.AddArgument(new Argument<IFileInfo>(
-            name: "file",
-            parse: (argResult) => Parse<IFileInfo>(argResult),
-            isDefault: false)
+        var fileArgument = new Argument<IFileInfo>("file")
         {
             Description = "Package file"
-        });
+        };
+        fileArgument.CustomParser = argResult => Parse<IFileInfo>(argResult);
+        cmd.Arguments.Add(fileArgument);
 
-        cmd.AddOption(new Option<bool>(
-            aliases: new string[] { "--ci" },
-            description: "Use the Continuous Integration repository URL from the repositories file"
-        ));
+        var ciOption = new Option<bool>("--ci")
+        {
+            Description = "Use the Continuous Integration repository URL from the repositories file"
+        };
+        cmd.Options.Add(ciOption);
 
-        cmd.AddOption(new Option<bool>(
-            aliases: new string[] { "--release" },
-            description: "Use the first non-CI repository URL from the repositories file"
-        ));
+        var releaseOption = new Option<bool>("--release")
+        {
+            Description = "Use the first non-CI repository URL from the repositories file"
+        };
+        cmd.Options.Add(releaseOption);
 
-        cmd.AddOption(new Option<Uri>(
-            aliases: new string[] { "--repository" },
-            description: "Repository the package should be published to",
-            parseArgument: result =>
-            {
-                var value = result.Tokens[0].Value;
-                if (!Uri.TryCreate(value, UriKind.Absolute, out var uri))
-                {
-                    result.ErrorMessage = "The repository must be a valid absolute URI.";
-                    return null;
-                }
-                return uri;
-            }
-        ));
+        var repositoryOption = new Option<Uri>("--repository")
+        {
+            Description = "Repository the package should be published to"
+        };
+        repositoryOption.CustomParser = argResult => ParseUri(argResult);
+        cmd.Options.Add(repositoryOption);
 
-        cmd.IsHidden =
-            !(ExecutionContext.ServiceProvider?.GetService<IFeaturesService>()?.UseRepositoryClients ?? false);
+        cmd.Hidden =
+            !(Core.Objects.ExecutionContext.ServiceProvider?.GetService<IFeaturesService>()?.UseRepositoryClients ?? false);
 
         // Add the handler
-        cmd.Handler = CommandHandler.Create<IFileInfo, Uri, bool, bool>(Execute);
+        cmd.SetAction((parseResult, cancellationToken) =>
+        {
+            var file = parseResult.GetValue(fileArgument);
+            var repository = parseResult.GetValue(repositoryOption);
+            var ci = parseResult.GetValue(ciOption);
+            var release = parseResult.GetValue(releaseOption);
+
+            Execute(file, repository, ci, release);
+            return Task.FromResult(0);
+        });
     }
 
     public void Execute(IFileInfo file, Uri repository, bool ci, bool release)
     {
-        using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
+        using var activity = Core.Objects.ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
 
         if (!file.Exists || file.Directory == null)
         {
@@ -102,11 +105,11 @@ public class PublishCommand : BaseCommand
                 $"The `--{(ci ? "ci" : "release")}` flag can only be used when no explicit `--repository is passed`.");
         }
 
-        var repositoryLocator = ExecutionContext.ServiceProvider?.GetService<IRepositoryLocator>();
+        var repositoryLocator = Core.Objects.ExecutionContext.ServiceProvider?.GetService<IRepositoryLocator>();
 
         if (ci)
         {
-            repository = ExecutionContext.Instance.RepositoriesConfig?.CIRepository;
+            repository = Core.Objects.ExecutionContext.Instance.RepositoriesConfig?.CIRepository;
 
             if (repository == null)
             {
@@ -116,7 +119,7 @@ public class PublishCommand : BaseCommand
         }
         else if (release)
         {
-            repository = ExecutionContext.Instance.RepositoriesConfig?.Repositories?.FirstOrDefault();
+            repository = Core.Objects.ExecutionContext.Instance.RepositoriesConfig?.Repositories?.FirstOrDefault();
 
             if (repository == null)
             {
@@ -133,14 +136,14 @@ public class PublishCommand : BaseCommand
 
         // If it passes the above checks the only possible client for the requested file 
         // is a ArchiveRepositoryClient with only a single Package
-        var client = ExecutionContext.ServiceProvider?.GetService<IRepositoryLocator>()
+        var client = Core.Objects.ExecutionContext.ServiceProvider?.GetService<IRepositoryLocator>()
             .GetRepositoryClient(new Uri(file.FullName), file.FileSystem) as ArchiveRepositoryClient;
         if (client == null)
         {
             throw new CliException($"Could not determine repository type for {file.FullName}!");
         }
         Log.Debug($"Got client {client.GetType().Name} for package file {file.FullName}");
-        var repoClient = ExecutionContext.ServiceProvider?.GetService<IRepositoryLocator>()
+        var repoClient = Core.Objects.ExecutionContext.ServiceProvider?.GetService<IRepositoryLocator>()
             .GetRepositoryClient(repository, file.FileSystem);
         if (repoClient == null)
         {

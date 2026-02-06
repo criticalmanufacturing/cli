@@ -1,7 +1,8 @@
 ﻿using System;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
+using System.CommandLine.Parsing;
 using System.IO.Abstractions;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Cmf.CLI.Constants;
@@ -43,21 +44,30 @@ namespace Cmf.CLI.Commands
         /// <param name="cmd"></param>
         public override void Configure(Command cmd)
         {
-            cmd.AddArgument(new Argument<IDirectoryInfo>(
-                name: "workingDir",
-                parse: (argResult) => Parse<IDirectoryInfo>(argResult, "."),
-                isDefault: true
-            )
+            var workingDirArgument = new Argument<IDirectoryInfo>("workingDir")
             {
                 Description = "Working Directory"
-            });
+            };
+            workingDirArgument.CustomParser = argResult => Parse<IDirectoryInfo>(argResult, ".");
+            workingDirArgument.DefaultValueFactory = _ => Parse<IDirectoryInfo>(null, ".");
+            cmd.Arguments.Add(workingDirArgument);
 
-            cmd.AddOption(new Option<Uri[]>(
-                aliases: new string[] { "-r", "--repos", "--repo" },
-                description: "Repositories where dependencies are located (folder)"));
+            var reposOption = new Option<Uri[]>("--repos", "-r", "--repo")
+            {
+                Description = "Repositories where dependencies are located (folder)",
+                CustomParser = argResult => ParseUriArray(argResult)
+            };
+            cmd.Options.Add(reposOption);
 
             // Add the handler
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, Uri[]>(Execute);
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                var workingDir = parseResult.GetValue(workingDirArgument);
+                var repos = parseResult.GetValue(reposOption);
+
+                Execute(workingDir, repos);
+                return Task.FromResult(0);
+            });
         }
 
         /// <summary>
@@ -115,9 +125,6 @@ namespace Cmf.CLI.Commands
                     Log.Render(tree);
                 });
             }
-
-            
-            
         }
     }
 }

@@ -36,7 +36,7 @@ namespace Cmf.CLI
             {
                 var fileSystem = new FileSystem();
 
-                var (rootCommand, parser) = await StartupModule.Configure(
+                var rootCommand = await StartupModule.Configure(
                     packageName: CliConstants.PackageName,
                     envVarPrefix: "cmf_cli",
                     description: "Critical Manufacturing CLI",
@@ -54,16 +54,16 @@ namespace Cmf.CLI
                         collection.AddSingleton<IRepositoryAuthStore>(RepositoryAuthStore.FromEnvironmentConfig(fileSystem));
                     });
 
-                using var activity = ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!.StartActivity("Main");
+                using var activity = Core.Objects.ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!.StartActivity("Main");
 
                 var result = -1;
                 
                 if (rootCommand != null)
                 {
-                    var nonPluginCommands = rootCommand.Children.Where(symbol => symbol is Command).ToList();
+                    var nonPluginCommands = rootCommand.Subcommands.ToList();
                     BaseCommand.AddPluginCommands(rootCommand);
                     var pluginCommands =
-                        rootCommand.Children.Where(cmd => cmd is Command && nonPluginCommands.All(np => np.Name != cmd.Name)).ToList();
+                        rootCommand.Subcommands.Where(cmd => nonPluginCommands.All(np => np.Name != cmd.Name)).ToList();
 
                     if (args.Length > 0 && pluginCommands.FirstOrDefault(pc => pc.Name == args[0]) is Command pluginMatch)
                     {
@@ -71,19 +71,43 @@ namespace Cmf.CLI
                         var pluginArgs = args[1..];
 
                         // we should invoke this through the System.CommandLine API but right now we'd have to generate a new pipeline. We'll revisit this in a next version, as it's expected the pipeline instantiation gets more flexible.
-                        var type = pluginMatch!.Handler!.GetType();
-                        var method = type.GetField("_handlerDelegate", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)!;
-                        var del = method.GetValue(pluginMatch.Handler) as Delegate;
-                        var pluginCommand = del!.Target as PluginCommand;
-                        pluginCommand!.Execute(pluginArgs);
-                        result = 0;
+                        
+                        // For beta5, we need to access the Action property instead of Handler
+                        var action = pluginMatch.Action;
+                        if (action != null)
+                        {
+                            // Parse and invoke the plugin command
+                            var parseResult = rootCommand.Parse(string.Join(" ", args));
+                            await parseResult.InvokeAsync();
+                            result = 0;
+                        }
+                        else
+                        {
+                            // Fallback: try to get the plugin command directly
+                            // This part may need adjustment based on your PluginCommand implementation
+                            var type = action?.GetType();
+                            if (type != null)
+                            {
+                                var method = type.GetField("_handlerDelegate", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+                                if (method != null)
+                                {
+                                    var del = method.GetValue(action) as Delegate;
+                                    var pluginCommand = del?.Target as PluginCommand;
+                                    pluginCommand?.Execute(pluginArgs);
+                                    result = 0;
+                                }
+                            }
+                        }
                     }
                     else
                     {
-                        ExecutionContext.Initialize(fileSystem);
-                        ExecutionContext.ServiceProvider.GetService<IRepositoryLocator>()!
-                            .InitializeClientsForRepositories(ExecutionContext.Instance.FileSystem);
-                        result = await parser.InvokeAsync(args);
+                        Core.Objects.ExecutionContext.Initialize(fileSystem);
+                        Core.Objects.ExecutionContext.ServiceProvider.GetService<IRepositoryLocator>()!
+                            .InitializeClientsForRepositories(Core.Objects.ExecutionContext.Instance.FileSystem);
+                        
+                        // Parse and invoke using beta5 pattern
+                        ParseResult parseResult = rootCommand.Parse(args);
+                        result = await parseResult.InvokeAsync();
                     }
                 }
                  
@@ -100,7 +124,7 @@ namespace Cmf.CLI
             {
                 Log.Debug("Caught exception at program.");
                 Log.Exception(WrappedException.Unwrap(e));
-                ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!.LogException(e);
+                Core.Objects.ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!.LogException(e);
                 return (int)ErrorCode.Default;
             }
         }

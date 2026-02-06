@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Threading.Tasks;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
@@ -88,167 +88,262 @@ namespace Cmf.CLI.Commands
         /// <param name="cmd"></param>
         public override void Configure(Command cmd)
         {
-            cmd.AddArgument(new Argument<string>(
-                name: "projectName",
-                parse: (argResult) => ParseArgument<string>(argResult)
-            ));
-            cmd.AddArgument(new Argument<string>(
-                name: "rootPackageName",
-                parse: (argResult) => ParseArgument<string>(argResult, "Cmf.Custom.Package"),
-                isDefault: true
-            ));
-            cmd.AddArgument(new Argument<IDirectoryInfo>(
-                name: "workingDir",
-                parse: (argResult) => ParseArgument<IDirectoryInfo>(argResult, "."),
-                isDefault: true
-            )
+            var projectNameArgument = new Argument<string>("projectName");
+            projectNameArgument.CustomParser = argResult => ParseArgument<string>(argResult);
+            cmd.Arguments.Add(projectNameArgument);
+
+            var rootPackageNameArgument = new Argument<string>("rootPackageName");
+            rootPackageNameArgument.CustomParser = argResult => ParseArgument<string>(argResult, "Cmf.Custom.Package");
+            rootPackageNameArgument.DefaultValueFactory = _ => "Cmf.Custom.Package";
+            cmd.Arguments.Add(rootPackageNameArgument);
+
+            var workingDirArgument = new Argument<IDirectoryInfo>("workingDir")
             {
                 Description = "Working Directory"
-            });
-            cmd.AddOption(new Option<string>(
-                aliases: new[] { "--version" },
-                description: "Package Version",
-                getDefaultValue: () => "1.0.0"
-            ));
-            cmd.AddOption(new Option<IFileInfo>(
-                aliases: new[] { "-c", "--config" },
-                parseArgument: argResult => Parse<IFileInfo>(argResult),
-                isDefault: true,
-                description: "Configuration file exported from Setup"
-            ) { IsRequired = true });
-            cmd.AddOption(new Option<IFileInfo>(
-                    aliases: ["--appConfig"],
-                    parseArgument: argResult => Parse<IFileInfo>(argResult),
-                    isDefault: true,
-                    description: "App Configuration file"
-            ) { IsRequired = false });
-            cmd.AddOption(new Option<RepositoryType>(
-                    aliases: new[] { "-t", "--repositoryType" },
-                    getDefaultValue: () => CliConstants.DefaultRepositoryType,
-                    description: "The type of repository we should initialize. Are we customizing MES or creating a new Application?"
-            ) { IsRequired = true });
+            };
+            workingDirArgument.CustomParser = argResult => ParseArgument<IDirectoryInfo>(argResult, ".");
+            workingDirArgument.DefaultValueFactory = _ => ParseArgument<IDirectoryInfo>(null, ".");
+            cmd.Arguments.Add(workingDirArgument);
+
+            var versionOption = new Option<string>("--version")
+            {
+                Description = "Package Version",
+                DefaultValueFactory = _ => "1.0.0"
+            };
+            cmd.Options.Add(versionOption);
+
+            var configOption = new Option<IFileInfo>("--config", "-c")
+            {
+                Description = "Configuration file exported from Setup",
+                Required = true
+            };
+            configOption.CustomParser = argResult => Parse<IFileInfo>(argResult);
+            cmd.Options.Add(configOption);
+
+            var appConfigOption = new Option<IFileInfo>("--appConfig")
+            {
+                Description = "App Configuration file",
+                Required = false
+            };
+            appConfigOption.CustomParser = argResult => Parse<IFileInfo>(argResult);
+            cmd.Options.Add(appConfigOption);
+
+            var repositoryTypeOption = new Option<RepositoryType>("--repositoryType", "-t")
+            {
+                Description = "The type of repository we should initialize. Are we customizing MES or creating a new Application?",
+                DefaultValueFactory = _ => CliConstants.DefaultRepositoryType,
+                Required = true
+            };
+            cmd.Options.Add(repositoryTypeOption);
 
             // template-time options. These are all mandatory
-            cmd.AddOption(new Option<string>(
-                aliases: new[] { "--baseVersion", "--MESVersion" },
-                description: "Target CM framework/MES version"
-            ) { IsRequired = true });
-            cmd.AddOption(new Option<string>(
-                aliases: new[] { "--DevTasksVersion" },
-                description: "Critical Manufacturing dev-tasks version. Only required if you are targeting a version lower than v10."
-            ) { IsRequired = false });
-            cmd.AddOption(new Option<string>(
-                aliases: new[] { "--HTMLStarterVersion" },
-                description: "HTML Starter version. Only required if you are targeting a version lower than v10."
-            ) { IsRequired = false });
-            cmd.AddOption(new Option<string>(
-                aliases: new[] { "--yoGeneratorVersion" },
-                description: "@criticalmanufacturing/html Yeoman generator version. Only required if you are targeting a version lower than v10."
-            ) { IsRequired = false });
-            cmd.AddOption(new Option<string>(
-                aliases: new[] { "--ngxSchematicsVersion" },
-                description: "@criticalmanufacturing/ngx-schematics version. Only required if you are targeting a version equal or higher than v10."
-            ) { IsRequired = false });
-            cmd.AddOption(new Option<string>(
-                aliases: new[] { "--nugetVersion" },
-                description: "NuGet versions to target. This is usually the MES version"
-            ) { IsRequired = true });
-            // TODO: remove this one?
-            cmd.AddOption(new Option<string>(
-                aliases: new[] { "--testScenariosNugetVersion" },
-                description: "Test Scenarios Nuget Version"
-            ) { IsRequired = true });
+            var baseVersionOption = new Option<string>("--baseVersion", "--MESVersion")
+            {
+                Description = "Target CM framework/MES version",
+                Required = true
+            };
+            cmd.Options.Add(baseVersionOption);
+
+            var devTasksVersionOption = new Option<string>("--DevTasksVersion")
+            {
+                Description = "Critical Manufacturing dev-tasks version. Only required if you are targeting a version lower than v10.",
+                Required = false
+            };
+            cmd.Options.Add(devTasksVersionOption);
+
+            var htmlStarterVersionOption = new Option<string>("--HTMLStarterVersion")
+            {
+                Description = "HTML Starter version. Only required if you are targeting a version lower than v10.",
+                Required = false
+            };
+            cmd.Options.Add(htmlStarterVersionOption);
+
+            var yoGeneratorVersionOption = new Option<string>("--yoGeneratorVersion")
+            {
+                Description = "@criticalmanufacturing/html Yeoman generator version. Only required if you are targeting a version lower than v10.",
+                Required = false
+            };
+            cmd.Options.Add(yoGeneratorVersionOption);
+
+            var ngxSchematicsVersionOption = new Option<string>("--ngxSchematicsVersion")
+            {
+                Description = "@criticalmanufacturing/ngx-schematics version. Only required if you are targeting a version equal or higher than v10.",
+                Required = false
+            };
+            cmd.Options.Add(ngxSchematicsVersionOption);
+
+            var nugetVersionOption = new Option<string>("--nugetVersion")
+            {
+                Description = "NuGet versions to target. This is usually the MES version",
+                Required = true
+            };
+            cmd.Options.Add(nugetVersionOption);
+
+            var testScenariosNugetVersionOption = new Option<string>("--testScenariosNugetVersion")
+            {
+                Description = "Test Scenarios Nuget Version",
+                Required = true
+            };
+            cmd.Options.Add(testScenariosNugetVersionOption);
 
             // repositories
-            cmd.AddOption(new Option<Uri>(
-                aliases: new[] { "--deploymentDir" },
-                description: "Deployments directory. Deprecated, supports only file paths/network shares. When using NPM feeds, use --ciRepo and --releaseRepos instead."
-            ) { IsRequired = false });
-            cmd.AddOption(new Option<Uri>(
-                aliases: new[] { "--ciRepo" },
-                description: "The repository (network share or NPM feed) where CI packages are published to. Must be passed only and only if --deploymentDir is not."
-            ) { IsRequired = false });
-            cmd.AddOption(new Option<List<Uri>>(
-                aliases: new[] { "--releaseRepos" },
-                description: "The list of repositories (network shares and/or NPM feeds) where approved packages to be delivered are published to. Must be passed only and only if --deploymentDir is not."
-            )
+            var deploymentDirOption = new Option<Uri>("--deploymentDir")
             {
-                Arity = ArgumentArity.ZeroOrMore,
-                AllowMultipleArgumentsPerToken = true
-            });
+                Description = "Deployments directory. Deprecated, supports only file paths/network shares. When using NPM feeds, use --ciRepo and --releaseRepos instead.",
+                Required = false,
+                CustomParser = argResult => ParseUri(argResult)
+            };
+            cmd.Options.Add(deploymentDirOption);
 
-            cmd.AddOption(new Option<string>(
-                aliases: new[] { "--tenant" },
-                description: "MES Tenant Name"
-            ) { IsRequired = false });
+            var ciRepoOption = new Option<Uri>("--ciRepo")
+            {
+                Description = "The repository (network share or NPM feed) where CI packages are published to. Must be passed only and only if --deploymentDir is not.",
+                Required = false,
+                CustomParser = argResult => ParseUri(argResult)
+            };
+            cmd.Options.Add(ciRepoOption);
+
+            var releaseReposOption = new Option<List<Uri>>("--releaseRepos")
+            {
+                Description = "The list of repositories (network shares and/or NPM feeds) where approved packages to be delivered are published to. Must be passed only and only if --deploymentDir is not.",
+                Arity = ArgumentArity.ZeroOrMore,
+                AllowMultipleArgumentsPerToken = true,
+                CustomParser = argResult => ParseUriList(argResult)
+            };
+            cmd.Options.Add(releaseReposOption);
+
+            var tenantOption = new Option<string>("--tenant")
+            {
+                Description = "MES Tenant Name",
+                Required = false
+            };
+            cmd.Options.Add(tenantOption);
 
             // infra options
-            cmd.AddOption(new Option<IFileInfo>(
-                aliases: new[] { "--infra", "--infrastructure" },
-                parseArgument: argResult => Parse<IFileInfo>(argResult),
-                isDefault: true,
-                description: "Infrastructure JSON file"
-            ));
-            cmd.AddOption(new Option<Uri>(
-                aliases: new[] { "--nugetRegistry" },
-                description: "NuGet registry that contains the MES packages"
-            ));
-            cmd.AddOption(new Option<Uri>(
-                aliases: new[] { "--npmRegistry" },
-                description: "NPM registry that contains the MES packages"
-            ));
+            var infrastructureOption = new Option<IFileInfo>("--infrastructure", "--infra")
+            {
+                Description = "Infrastructure JSON file"
+            };
+            infrastructureOption.CustomParser = argResult => Parse<IFileInfo>(argResult);
+            cmd.Options.Add(infrastructureOption);
 
-            cmd.AddOption(new Option<IFileInfo>(
-                aliases: new[] { "--ISOLocation" },
-                parseArgument: argResult => Parse<IFileInfo>(argResult),
-                isDefault: true,
-                description: "MES ISO file"
-            ));
-            cmd.AddOption(new Option<string>(
-                aliases: new[] { "--nugetRegistryUsername" },
-                description: "NuGet registry username"
-            ));
-            cmd.AddOption(new Option<string>(
-                aliases: new[] { "--nugetRegistryPassword" },
-                description: "NuGet registry password"
-            ));
+            var nugetRegistryOption = new Option<Uri>("--nugetRegistry")
+            {
+                Description = "NuGet registry that contains the MES packages",
+                CustomParser = argResult => ParseUri(argResult)
+            };
+            cmd.Options.Add(nugetRegistryOption);
+
+            var npmRegistryOption = new Option<Uri>("--npmRegistry")
+            {
+                Description = "NPM registry that contains the MES packages",
+                CustomParser = argResult => ParseUri(argResult)
+            };
+            cmd.Options.Add(npmRegistryOption);
+
+            var isoLocationOption = new Option<IFileInfo>("--ISOLocation")
+            {
+                Description = "MES ISO file"
+            };
+            isoLocationOption.CustomParser = argResult => Parse<IFileInfo>(argResult);
+            cmd.Options.Add(isoLocationOption);
+
+            var nugetRegistryUsernameOption = new Option<string>("--nugetRegistryUsername")
+            {
+                Description = "NuGet registry username"
+            };
+            cmd.Options.Add(nugetRegistryUsernameOption);
+
+            var nugetRegistryPasswordOption = new Option<string>("--nugetRegistryPassword")
+            {
+                Description = "NuGet registry password"
+            };
+            cmd.Options.Add(nugetRegistryPasswordOption);
 
             const string OnlyIfTypeAppWarning = "Use only if repository type is App.";
-            cmd.AddOption(new Option<string>(
-                aliases: new[] { "--appId" },
-                description: $"Application identifier. {OnlyIfTypeAppWarning}"
-            ) { IsRequired = false });
 
-            cmd.AddOption(new Option<string>(
-                aliases: new[] { "--appName" },
-                description: $"Application name. {OnlyIfTypeAppWarning}"
-            ) { IsRequired = false });
+            var appIdOption = new Option<string>("--appId")
+            {
+                Description = $"Application identifier. {OnlyIfTypeAppWarning}",
+                Required = false
+            };
+            cmd.Options.Add(appIdOption);
 
-            cmd.AddOption(new Option<string>(
-                aliases: new[] { "--appAuthor" },
-                description: $"Application author. {OnlyIfTypeAppWarning}"
-            ) { IsRequired = false });
+            var appNameOption = new Option<string>("--appName")
+            {
+                Description = $"Application name. {OnlyIfTypeAppWarning}",
+                Required = false
+            };
+            cmd.Options.Add(appNameOption);
 
-            cmd.AddOption(new Option<string>(
-                aliases: new[] { "--appDescription" },
-                description: $"Application description. {OnlyIfTypeAppWarning}"
-            ) { IsRequired = false });
+            var appAuthorOption = new Option<string>("--appAuthor")
+            {
+                Description = $"Application author. {OnlyIfTypeAppWarning}",
+                Required = false
+            };
+            cmd.Options.Add(appAuthorOption);
 
-            cmd.AddOption(new Option<string>(
-                aliases: new[] { "--appLicensedApplication" },
-                description: $"License for new application. {OnlyIfTypeAppWarning}"
-            ) { IsRequired = false });
+            var appDescriptionOption = new Option<string>("--appDescription")
+            {
+                Description = $"Application description. {OnlyIfTypeAppWarning}",
+                Required = false
+            };
+            cmd.Options.Add(appDescriptionOption);
 
-            cmd.AddOption(new Option<IFileInfo>(
-                aliases: new[] { "--appIcon" },
-                parseArgument: argResult => Parse<IFileInfo>(argResult),
-                description: $"Application icon. {OnlyIfTypeAppWarning}"
-            ) { IsRequired = false });
+            var appLicensedApplicationOption = new Option<string>("--appLicensedApplication")
+            {
+                Description = $"License for new application. {OnlyIfTypeAppWarning}",
+                Required = false
+            };
+            cmd.Options.Add(appLicensedApplicationOption);
+
+            var appIconOption = new Option<IFileInfo>("--appIcon")
+            {
+                Description = $"Application icon. {OnlyIfTypeAppWarning}",
+                Required = false
+            };
+            appIconOption.CustomParser = argResult => Parse<IFileInfo>(argResult);
+            cmd.Options.Add(appIconOption);
 
             // Add the handler
-            cmd.Handler = CommandHandler.Create((InitArguments args) =>
+            cmd.SetAction((parseResult, cancellationToken) =>
             {
-                this.Execute(args);
+                var args = new InitArguments
+                {
+                    projectName = parseResult.GetValue(projectNameArgument),
+                    rootPackageName = parseResult.GetValue(rootPackageNameArgument),
+                    workingDir = parseResult.GetValue(workingDirArgument),
+                    version = parseResult.GetValue(versionOption),
+                    config = parseResult.GetValue(configOption),
+                    appConfig = parseResult.GetValue(appConfigOption),
+                    repositoryType = parseResult.GetValue(repositoryTypeOption),
+                    BaseVersion = parseResult.GetValue(baseVersionOption),
+                    DevTasksVersion = parseResult.GetValue(devTasksVersionOption),
+                    HTMLStarterVersion = parseResult.GetValue(htmlStarterVersionOption),
+                    yoGeneratorVersion = parseResult.GetValue(yoGeneratorVersionOption),
+                    ngxSchematicsVersion = parseResult.GetValue(ngxSchematicsVersionOption),
+                    nugetVersion = parseResult.GetValue(nugetVersionOption),
+                    testScenariosNugetVersion = parseResult.GetValue(testScenariosNugetVersionOption),
+                    deploymentDir = parseResult.GetValue(deploymentDirOption),
+                    ciRepo = parseResult.GetValue(ciRepoOption),
+                    releaseRepos = parseResult.GetValue(releaseReposOption),
+                    Tenant = parseResult.GetValue(tenantOption),
+                    infrastructure = parseResult.GetValue(infrastructureOption),
+                    nugetRegistry = parseResult.GetValue(nugetRegistryOption),
+                    npmRegistry = parseResult.GetValue(npmRegistryOption),
+                    ISOLocation = parseResult.GetValue(isoLocationOption),
+                    nugetRegistryUsername = parseResult.GetValue(nugetRegistryUsernameOption),
+                    nugetRegistryPassword = parseResult.GetValue(nugetRegistryPasswordOption),
+                    appId = parseResult.GetValue(appIdOption),
+                    appName = parseResult.GetValue(appNameOption),
+                    appAuthor = parseResult.GetValue(appAuthorOption),
+                    appDescription = parseResult.GetValue(appDescriptionOption),
+                    appLicensedApplication = parseResult.GetValue(appLicensedApplicationOption),
+                    appIcon = parseResult.GetValue(appIconOption)
+                };
+
+                Execute(args);
+                return Task.FromResult(0);
             });
         }
 
@@ -257,7 +352,7 @@ namespace Cmf.CLI.Commands
         /// </summary>
         internal void Execute(InitArguments x)
         {
-            using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
+            using var activity = Core.Objects.ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
             var args = new List<string>()
             {
                 // engine options
@@ -268,7 +363,7 @@ namespace Cmf.CLI.Commands
                 "--projectName", x.projectName,
                 "--repositoryType", x.repositoryType.ToString(),
                 "--baseLayer", x.repositoryType == RepositoryType.App ? BaseLayer.Core.ToString() : BaseLayer.MES.ToString(),
-                "--CLIVersion", ExecutionContext.CurrentVersion
+                "--CLIVersion", Core.Objects.ExecutionContext.CurrentVersion
             };
 
             if (x.repositoryType == RepositoryType.App)
@@ -326,7 +421,7 @@ namespace Cmf.CLI.Commands
                 {
                     throw new CliException("Invalid option `--ciRepo` when also using `--deploymentDir`. Use one or the other, but not both.");
                 }
-                if (x.releaseRepos != null)
+                if (x.releaseRepos != null && x.releaseRepos.Count > 0)
                 {
                     throw new CliException("Invalid option `--releaseRepos` when also using `--deploymentDir`. Use one or the other, but not both.");
                 }
@@ -380,7 +475,7 @@ namespace Cmf.CLI.Commands
                 {
                     throw new CliException("Missing option `--ciRepo` or `--deploymentDir`. Please specify one or the other (but not both).");
                 }
-                if (x.releaseRepos == null)
+                if (x.releaseRepos == null || x.releaseRepos.Count == 0)
                 {
                     throw new CliException("Missing option `--releaseRepos` or `--deploymentDir`. Please specify one or the other (but not both).");
                 }
@@ -545,6 +640,18 @@ namespace Cmf.CLI.Commands
         }
 
         bool isToIgnoreOptionToken = false;
+
+        /// <summary>
+        /// Parse list of URIs from argument result
+        /// </summary>
+        /// <param name="argResult">the arguments to parse</param>
+        /// <returns>List of parsed URIs or null if no tokens</returns>
+        private List<Uri> ParseUriList(ArgumentResult argResult)
+        {
+            var array = ParseUriArray(argResult);
+            return array != null ? new List<Uri>(array) : null;
+        }
+
         /// <summary>
         /// parse argument specific for InitCommand
         /// This is needed until this issue is not fixed:
@@ -561,9 +668,10 @@ namespace Cmf.CLI.Commands
         {
             var argValue = @default;
 
-            if (!isToIgnoreOptionToken && argResult.Tokens.Any())
+            if (!isToIgnoreOptionToken && argResult != null && argResult.Tokens.Any())
             {
-                var isOptionAndShouldBeIgnored = isToIgnoreOptionToken || (bool)argResult.Tokens?.FirstOrDefault()?.Value.StartsWith("-");
+                var firstTokenValue = argResult.Tokens?.FirstOrDefault()?.Value;
+                var isOptionAndShouldBeIgnored = isToIgnoreOptionToken || (firstTokenValue?.StartsWith("-") ?? false);
                 if (isOptionAndShouldBeIgnored)
                 {
                     isToIgnoreOptionToken = true;

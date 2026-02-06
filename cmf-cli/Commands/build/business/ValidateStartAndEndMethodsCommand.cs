@@ -4,9 +4,9 @@ using Cmf.CLI.Commands.build.business.ValidateStartEndMethods.Extensions;
 using Cmf.CLI.Core.Attributes;
 using Microsoft.Extensions.DependencyInjection;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Cmf.CLI.Commands.build.business;
 
@@ -31,22 +31,27 @@ public class ValidateStartAndEndMethodsCommand : BaseCommand
 	/// <param name="cmd"></param>
 	public override void Configure(Command cmd)
 	{
-		cmd.AddArgument(new Argument<string>(
-			name: "solutionPath",
-			description: "The solution path"
-		));
-
-		var filesArgument = new Argument<string[]>(
-			name: "files",
-			description: "The files to validate"
-		)
+		var solutionPathArgument = new Argument<string>("solutionPath")
 		{
+			Description = "The solution path"
+		};
+		cmd.Arguments.Add(solutionPathArgument);
+
+		var filesArgument = new Argument<string[]>("files")
+		{
+			Description = "The files to validate",
 			Arity = ArgumentArity.ZeroOrMore
 		};
+		cmd.Arguments.Add(filesArgument);
 
-		cmd.AddArgument(filesArgument);
+		cmd.SetAction((parseResult, cancellationToken) =>
+		{
+			var solutionPath = parseResult.GetValue(solutionPathArgument);
+			var files = parseResult.GetValue(filesArgument);
 
-		cmd.Handler = CommandHandler.Create<string, string[]>(Execute);
+			Execute(solutionPath, files);
+			return Task.FromResult(0);
+		});
 	}
 
 	/// <summary>
