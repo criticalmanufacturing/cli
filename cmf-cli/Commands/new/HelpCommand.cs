@@ -66,6 +66,8 @@ namespace Cmf.CLI.Commands.New
                 ExecutionContext.Instance.ProjectConfig.MESVersion >= new Version(11, 0, 0) &&
                 ExecutionContext.Instance.ProjectConfig.MESVersion < new Version(11, 2, 0);
 
+            var angularDeps = ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(ExecutionContext.Instance.ProjectConfig.MESVersion);
+
             args.AddRange(new[]
             {
                 "--rootRelativePath", relativePathToRoot,
@@ -73,11 +75,11 @@ namespace Cmf.CLI.Commands.New
                 "--npmRegistry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.OriginalString,
                 "--MESVersion", ExecutionContext.Instance.ProjectConfig.MESVersion.ToString(),
                 "--nodeVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Node(ExecutionContext.Instance.ProjectConfig.MESVersion),
-                "--ngVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(ExecutionContext.Instance.ProjectConfig.MESVersion).CLI,
-                "--zoneVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(ExecutionContext.Instance.ProjectConfig.MESVersion).Zone,
-                "--tsVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(ExecutionContext.Instance.ProjectConfig.MESVersion).Typescript,
-                "--esLintVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(ExecutionContext.Instance.ProjectConfig.MESVersion).ESLint,
-                "--tsesVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(ExecutionContext.Instance.ProjectConfig.MESVersion).TSESLint,
+                "--ngVersion", angularDeps.CLI.Major.ToString(),
+                "--zoneVersion", angularDeps.Zone,
+                "--tsVersion", angularDeps.Typescript,
+                "--esLintVersion", angularDeps.ESLint,
+                "--tsesVersion", angularDeps.TSESLint,
                 "--assetsPkgName", this.assetsPkgName,
                 "--requireModuleSES", requireModuleSES.ToString(),
                 "--dfPackageNamePascalCase", this.dfPackageNamePascalCase
@@ -310,7 +312,7 @@ $@"{{
             Log.Information("Help package generated");
         }
 
-        public void ExecuteV10(IDirectoryInfo workingDir, string version,int majorVersion)
+        public void ExecuteV10(IDirectoryInfo workingDir, string version, int majorVersion)
         {
             var ngxSchematicsVersion = ExecutionContext.Instance.ProjectConfig.NGXSchematicsVersion;
             if (ngxSchematicsVersion == null)
@@ -325,23 +327,23 @@ $@"{{
             //Switch between v10 and v11 template 
             switch (majorVersion)
             {
-                case 10: 
+                case 10:
                     this.CommandName = "help10";
                     break;
                 case 11:
                     this.CommandName = "help11";
                     break;
             }
-                        
+
             var ngCliVersion = ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().AngularCLI(ExecutionContext.Instance.ProjectConfig.MESVersion);
             var packageName = base.GeneratePackageName(workingDir)!.Value.Item1;
             var projectName = packageName.Replace(".", "-").ToLowerInvariant();
             this.assetsPkgName = $"cmf-docs-area-{projectName.ToLowerInvariant()}";
             this.dfPackageNamePascalCase = string.Join("", projectName.Split("-").Select(seg => Regex.Replace(seg, @"\b(\w)", m => m.Value.ToUpper())));
-            
+
             base.Execute(workingDir, version); // create package base and web application
-            // this won't return null because it has to success on the base.Execute call
-            
+                                               // this won't return null because it has to success on the base.Execute call
+
             // ng generate library <docPackage>
             var pkgFolder = workingDir.GetDirectories(packageName).FirstOrDefault();
             if (!pkgFolder?.Exists ?? false)
