@@ -13,11 +13,11 @@ namespace Cmf.CLI.Core.Repository.Credentials
 
         public RepositoryCredentialsType RepositoryType { get; set; }
 
-        public string Repository { get; set; }
+        public string Repository { get; set; } = string.Empty;
 
-        public string Token { get; set; }
+        public string Token { get; set; } = string.Empty;
 
-        public string Key { get; set; }
+        public string Key { get; set; } = string.Empty;
 
         public BearerCredential() { }
 

@@ -1,4 +1,3 @@
-using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Utilities;
 using PeanutButter.INI;
@@ -40,7 +39,7 @@ namespace Cmf.CLI.Core.Repository.Credentials
 
         public async Task SyncCredentials(IList<ICredential> credentials)
         {
-            IFileInfo npmrcFile = null;
+            IFileInfo? npmrcFile = null;
 
             try
             {

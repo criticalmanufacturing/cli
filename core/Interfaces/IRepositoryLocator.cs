@@ -16,5 +16,5 @@ public interface IRepositoryLocator
     
     void InitializeClientsForRepositories(IFileSystem fileSystem);
 
-    Task<CmfPackageV1> FindPackage(string packageId, string packageVersion);
+    Task<CmfPackageV1?> FindPackage(string packageId, string packageVersion);
 }

@@ -17,14 +17,14 @@ public class NPMRepositoryClient : IRepositoryClient
     private IFileSystem fileSystem;
     private Uri registryUrl;
     private INPMClientEx client;
-    public NPMRepositoryClient(string registryUrl, IFileSystem fileSystem = null, INPMClientEx client = null)
+    public NPMRepositoryClient(string registryUrl, IFileSystem? fileSystem = null, INPMClientEx? client = null)
     {
         this.registryUrl = new Uri(registryUrl);
         this.client = client ?? new NPMClient(registryUrl);
         this.fileSystem = fileSystem ?? new FileSystem();
     }
 
-    public async Task<CmfPackageV1> Find(string packageId, string version)
+    public async Task<CmfPackageV1?> Find(string packageId, string version)
     {
         try
         {
@@ -62,7 +62,8 @@ public class NPMRepositoryClient : IRepositoryClient
 
         var tmp = this.fileSystem.DirectoryInfo.New(this.fileSystem.Path.GetTempPath());
         Log.Debug($"Downloading package {package.PackageAtRef} to {tmp.FullName}...");
-        var file = await package.Client.Get(package, tmp);
+        var file = await (package.Client ?? throw new CliException($"Package {package.PackageAtRef} has no associated client")).Get(package, tmp)
+            ?? throw new CliException($"Could not retrieve package {package.PackageAtRef}");
         Log.Debug("Done!");
         if (file.Extension == ".zip")
         {
@@ -82,7 +83,7 @@ public class NPMRepositoryClient : IRepositoryClient
         Log.Debug("Publishing via NPMClient completed!");
     }
 
-    public async Task<IFileInfo> Get(CmfPackageV1 package, IDirectoryInfo targetDirectory)
+    public async Task<IFileInfo?> Get(CmfPackageV1 package, IDirectoryInfo targetDirectory)
     {
         var tmp = targetDirectory.FileSystem.Path.GetTempFileName().Replace(".tmp", ".tgz");
         var targetFile =
@@ -102,7 +103,8 @@ public class NPMRepositoryClient : IRepositoryClient
     {
         IDirectoryInfo depPkgDir = targetDirectory;
         var fileSystem = targetDirectory.FileSystem;
-        var pkgFile = await this.Get(package, fileSystem.DirectoryInfo.New(fileSystem.Path.GetTempPath()));
+        var pkgFile = await this.Get(package, fileSystem.DirectoryInfo.New(fileSystem.Path.GetTempPath()))
+            ?? throw new CliException($"Could not find package {package.PackageAtRef}");
         // TODO: extract to utility
         using (Stream zipToOpen = pkgFile.OpenRead())
         {

@@ -18,7 +18,7 @@ namespace Cmf.CLI.Core.Services
     {
         protected IFileInfo _authFile;
 
-        protected CmfAuthFile _cachedAuthFile = null;
+        protected CmfAuthFile? _cachedAuthFile = null;
 
         public RepositoryAuthStore(IFileInfo authFile)
         {
@@ -58,7 +58,7 @@ namespace Cmf.CLI.Core.Services
             };
         }
 
-        protected async Task<CmfAuthFile> ReadFile()
+        protected async Task<CmfAuthFile?> ReadFile()
         {
             Log.Debug($"Reading auth file {_authFile.FullName}...");
             var contents = await _authFile.FileSystem.File.ReadAllTextAsync(_authFile.FullName);
@@ -83,18 +83,19 @@ namespace Cmf.CLI.Core.Services
 
         protected IDictionary<IRepositoryCredentials, IList<ICredential>> GroupWithRepository(IList<ICredential> credentials)
         {
-            var allRepositoryCredentials = ExecutionContext.ServiceProvider.GetServices<IRepositoryCredentials>()
+            var allRepositoryCredentials = (ExecutionContext.ServiceProvider?.GetServices<IRepositoryCredentials>() ?? [])
                 .ToDictionary(repo => repo.RepositoryType);
 
             return credentials
-                .GroupBy(cred => allRepositoryCredentials.GetValueOrDefault(cred.RepositoryType))
+                .Where(cred => allRepositoryCredentials.ContainsKey(cred.RepositoryType))
+                .GroupBy(cred => allRepositoryCredentials[cred.RepositoryType])
                 .ToDictionary(
                     group => group.Key,
                     group => group.ToList() as IList<ICredential>
                 );
         }
 
-        protected ICredential GetEnvironmentCredentialsFor(IRepositoryCredentials repositoryType, string repository)
+        protected ICredential? GetEnvironmentCredentialsFor(IRepositoryCredentials repositoryType, string repository)
         {
             var envVarPrefix = repositoryType.GetEnvironmentVariablePrefix(repository);
 
@@ -102,22 +103,25 @@ namespace Cmf.CLI.Core.Services
 
             var type = GetEnvironmentVariable($"{envVarPrefix}__AUTH_TYPE", PropertyRequirement.Optional);
 
-            ICredential credentials = type?.ToLowerInvariant() switch
+            ICredential? credentials = type?.ToLowerInvariant() switch
             {
                 "bearer" => new BearerCredential
                 {
                     RepositoryType = repositoryType.RepositoryType,
                     Repository = repository,
-                    Token = GetEnvironmentVariable($"{envVarPrefix}__TOKEN", PropertyRequirement.Mandatory),
+                    Token = GetEnvironmentVariable($"{envVarPrefix}__TOKEN", PropertyRequirement.Mandatory)
+                        ?? throw new InvalidOperationException($"Mandatory environment variable {envVarPrefix}__TOKEN is missing"),
                 },
                 "basic" => new BasicCredential
                 {
                     RepositoryType = repositoryType.RepositoryType,
                     Repository = repository,
-                    Domain = GetEnvironmentVariable($"{envVarPrefix}__DOMAIN", repositoryType.DomainPropertyRequirement),
-                    Key = GetEnvironmentVariable($"{envVarPrefix}__KEY", repositoryType.KeyPropertyRequirement),
-                    Username = GetEnvironmentVariable($"{envVarPrefix}__USERNAME", PropertyRequirement.Mandatory),
-                    Password = GetEnvironmentVariable($"{envVarPrefix}__PASSWORD", PropertyRequirement.Mandatory),
+                    Domain = GetEnvironmentVariable($"{envVarPrefix}__DOMAIN", repositoryType.DomainPropertyRequirement) ?? string.Empty,
+                    Key = GetEnvironmentVariable($"{envVarPrefix}__KEY", repositoryType.KeyPropertyRequirement) ?? string.Empty,
+                    Username = GetEnvironmentVariable($"{envVarPrefix}__USERNAME", PropertyRequirement.Mandatory)
+                        ?? throw new InvalidOperationException($"Mandatory environment variable {envVarPrefix}__USERNAME is missing"),
+                    Password = GetEnvironmentVariable($"{envVarPrefix}__PASSWORD", PropertyRequirement.Mandatory)
+                        ?? throw new InvalidOperationException($"Mandatory environment variable {envVarPrefix}__PASSWORD is missing"),
                 },
                 "" or null => null,
                 _ => throw new Exception($"Invalid authentication type \"{type}\" specified in environment variable \"{envVarPrefix}__AUTH_TYPE\"")
@@ -133,7 +137,7 @@ namespace Cmf.CLI.Core.Services
             return credentials;
         }
 
-        protected string GetEnvironmentVariable(string envVarName, PropertyRequirement requirement)
+        protected string? GetEnvironmentVariable(string envVarName, PropertyRequirement requirement)
         {
             var value = Environment.GetEnvironmentVariable(envVarName);
 
@@ -142,11 +146,17 @@ namespace Cmf.CLI.Core.Services
             return value;
         }
 
-        protected ICredential GetCredentialsFor(IRepositoryCredentials repositoryType, CmfAuthFile authFile, string repository, bool ignoreEnvVars = false)
+        protected ICredential? GetCredentialsFor(IRepositoryCredentials? repositoryType, CmfAuthFile authFile, string repository, bool ignoreEnvVars = false)
         {
-            Log.Debug($"Get credentials for \"{repositoryType?.RepositoryType}\" \"{repository}\"...");
+            if (repositoryType == null)
+            {
+                Log.Debug($"  > no repository type provided, returning no credentials...");
+                return null;
+            }
 
-            ICredential credentials;
+            Log.Debug($"Get credentials for \"{repositoryType.RepositoryType}\" \"{repository}\"...");
+
+            ICredential? credentials;
 
             if (!ignoreEnvVars)
             {
@@ -190,7 +200,7 @@ namespace Cmf.CLI.Core.Services
 
         public IRepositoryCredentials GetRepositoryType(RepositoryCredentialsType repositoryType)
         {
-            var allRepositoryCredentials = ExecutionContext.ServiceProvider.GetServices<IRepositoryCredentials>();
+            var allRepositoryCredentials = ExecutionContext.ServiceProvider?.GetServices<IRepositoryCredentials>() ?? [];
 
             var repositoryCredentials = allRepositoryCredentials
                 .FirstOrDefault(repo => repo.RepositoryType == repositoryType);
@@ -208,7 +218,7 @@ namespace Cmf.CLI.Core.Services
         public T GetRepositoryType<T>()
             where T : IRepositoryCredentials
         {
-            var allRepositoryCredentials = ExecutionContext.ServiceProvider.GetServices<IRepositoryCredentials>();
+            var allRepositoryCredentials = ExecutionContext.ServiceProvider?.GetServices<IRepositoryCredentials>() ?? [];
 
             var repositoryCredentials = allRepositoryCredentials
                 .OfType<T>()
@@ -224,23 +234,23 @@ namespace Cmf.CLI.Core.Services
             return repositoryCredentials;
         }
 
-        public ICredential GetEnvironmentCredentialsFor(RepositoryCredentialsType repositoryType, string repository)
+        public ICredential? GetEnvironmentCredentialsFor(RepositoryCredentialsType repositoryType, string repository)
         {
             return GetEnvironmentCredentialsFor(GetRepositoryType(repositoryType), repository);
         }
 
-        public ICredential GetEnvironmentCredentialsFor<T>(string repository)
+        public ICredential? GetEnvironmentCredentialsFor<T>(string repository)
             where T : IRepositoryCredentials
         {
             return GetEnvironmentCredentialsFor(GetRepositoryType<T>(), repository);
         }
 
-        public ICredential GetCredentialsFor(RepositoryCredentialsType repositoryType, CmfAuthFile authFile, string repository, bool ignoreEnvVars = false)
+        public ICredential? GetCredentialsFor(RepositoryCredentialsType repositoryType, CmfAuthFile authFile, string repository, bool ignoreEnvVars = false)
         {
             return GetCredentialsFor(GetRepositoryType(repositoryType), authFile, repository, ignoreEnvVars);
         }
 
-        public ICredential GetCredentialsFor<T>(CmfAuthFile authFile, string repository, bool ignoreEnvVars = false)
+        public ICredential? GetCredentialsFor<T>(CmfAuthFile authFile, string repository, bool ignoreEnvVars = false)
             where T : IRepositoryCredentials
         {
             return GetCredentialsFor(GetRepositoryType<T>(), authFile, repository, ignoreEnvVars);

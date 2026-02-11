@@ -15,7 +15,7 @@ namespace Cmf.CLI.Core.Objects
         /// </summary>
         /// <param name="dependency">The dependency.</param>
         /// <returns></returns>
-        public CmfPackage GetDependency(Dependency dependency)
+        public CmfPackage? GetDependency(Dependency dependency)
         {
             return this.FirstOrDefault(x => x.PackageId.IgnoreCaseEquals(dependency.Id) && x.Version.IgnoreCaseEquals(dependency.Version));
         }
