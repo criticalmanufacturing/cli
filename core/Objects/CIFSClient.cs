@@ -17,23 +17,20 @@ namespace Core.Objects
     public class CIFSClient : ICIFSClient
     {
         public string Server { get; private set; }
-        public List<SharedFolder> SharedFolders { get; private set; }
+        public List<SharedFolder>? SharedFolders { get; private set; }
         public bool IsConnected { get; private set; }
 
         private ISMBClient _smbClient;
-        private ICredential _credentials;
+        private ICredential? _credentials;
 
-        [Obsolete("Only one share per CIFSClient is supported now. Remove this and refactor the rest of the code.")]
-        public CIFSClient(string server, IEnumerable<Uri> uris, ISMBClient smbClient = null) : this(uris.Single())
-        { }
 
-        public CIFSClient(Uri uri, ISMBClient smbClient = null)
+        public CIFSClient(Uri uri, ISMBClient? smbClient = null)
         {
-            var authStore = ExecutionContext.ServiceProvider.GetService<IRepositoryAuthStore>();
+            var authStore = ExecutionContext.ServiceProvider?.GetService<IRepositoryAuthStore>();
 
             Server = uri.Host;
             _smbClient = smbClient ?? new SMB2Client();
-            _credentials = authStore.GetCredentialsFor<CIFSRepositoryCredentials>(authStore.GetOrLoad().GetAwaiter().GetResult(), uri.AbsoluteUri);
+            _credentials = authStore?.GetCredentialsFor<CIFSRepositoryCredentials>(authStore.GetOrLoad().GetAwaiter().GetResult(), uri.AbsoluteUri);
 
             if (_credentials == null)
             {
@@ -55,7 +52,7 @@ namespace Core.Objects
         {
             if (_credentials is not BasicCredential basicCredential)
             {
-                throw new InvalidAuthTypeException(_credentials);
+                throw new InvalidAuthTypeException(_credentials!);
             }
 
             Log.Debug($"Connecting to SMB server {Server} with username {basicCredential.Username}");
@@ -91,7 +88,7 @@ namespace Core.Objects
         private Uri _uri { get; set; }
         private IFileSystem _fileSystem;
 
-        public SharedFolder(Uri uri, ISMBClient client, IFileSystem fileSystem = null)
+        public SharedFolder(Uri uri, ISMBClient client, IFileSystem? fileSystem = null)
         {
             _client = client;
             _server = uri.Host;
@@ -104,11 +101,6 @@ namespace Core.Objects
             }
             _uri = uri;
             _fileSystem = fileSystem ?? new FileSystem();
-            Load();
-        }
-
-        private void Load()
-        {
             _smbFileStore = _client.TreeConnect(_share, out NTStatus status);
             if (status != NTStatus.STATUS_SUCCESS)
             {
@@ -122,14 +114,14 @@ namespace Core.Objects
             }
         }
 
-        public Tuple<Uri, Stream> GetFile(string fileName)
+        public Tuple<Uri, Stream>? GetFile(string fileName)
         {
             if (!Exists)
             {
                 throw new InvalidOperationException("Cannot perform actions in a non-existent shared folder.");
             }
 
-            Tuple<Uri, Stream> fileStream = null;
+            Tuple<Uri, Stream>? fileStream = null;
             var filepath = String.IsNullOrEmpty(_path) ? fileName : $"{_path}/{fileName}";
             var status = _smbFileStore.CreateFile(out object fileHandle, out FileStatus fileStatus, filepath, AccessMask.GENERIC_READ, SMBLibrary.FileAttributes.Normal, ShareAccess.Read | ShareAccess.Write, CreateDisposition.FILE_OPEN, CreateOptions.FILE_NON_DIRECTORY_FILE, null);
             if (status == NTStatus.STATUS_SUCCESS)

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Specialized;
 using System.Diagnostics;
 
@@ -9,7 +10,7 @@ namespace Cmf.CLI.Core.Objects
     public class ProcessStartInfoCLI : IProcessStartInfoCLI
     {
         private ProcessStartInfo ps;
-        public Process Process { get; set; }
+        public Process? Process { get; set; }
 
         public ProcessStartInfoCLI()
         {
@@ -26,22 +27,22 @@ namespace Cmf.CLI.Core.Objects
             this.ps = new ProcessStartInfo(fileName, arguments);
         }
 
-        public Process Start()
+        public Process? Start()
         {
             return StartProcess();
         }
 
         public void AddEvenErrorDataReceived(DataReceivedEventHandler handler)
         {
-            this.Process.ErrorDataReceived += handler;
+            (this.Process ?? throw new InvalidOperationException("Process has not been started.")).ErrorDataReceived += handler;
         }
 
         public void AddEventOutDataReceived(DataReceivedEventHandler handler)
         {
-            this.Process.OutputDataReceived += handler;
+            (this.Process ?? throw new InvalidOperationException("Process has not been started.")).OutputDataReceived += handler;
         }
 
-        protected Process StartProcess()
+        protected Process? StartProcess()
         {
             this.Process = System.Diagnostics.Process.Start(this.ps);
             return this.Process;
@@ -49,22 +50,22 @@ namespace Cmf.CLI.Core.Objects
 
         public void BeginOutputReadLine()
         {
-            this.Process.BeginOutputReadLine();
+            (this.Process ?? throw new InvalidOperationException("Process has not been started.")).BeginOutputReadLine();
         }
 
         public void BeginErrorReadLine()
         {
-            this.Process.BeginErrorReadLine();
+            (this.Process ?? throw new InvalidOperationException("Process has not been started.")).BeginErrorReadLine();
         }
 
         public void WaitForExit()
         {
-            this.Process.WaitForExit();
+            (this.Process ?? throw new InvalidOperationException("Process has not been started.")).WaitForExit();
         }
 
         public void Dispose()
         {
-            this.Process.Dispose();
+            this.Process?.Dispose();
         }
 
         public string FileName
@@ -102,7 +103,7 @@ namespace Cmf.CLI.Core.Objects
             get => this.ps.EnvironmentVariables;
         }
 
-        public int ExitCode { get => this.Process.ExitCode; }
+        public int ExitCode { get => (this.Process ?? throw new InvalidOperationException("Process has not been started.")).ExitCode; }
 
     }
 }

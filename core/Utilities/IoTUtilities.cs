@@ -6,6 +6,7 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Cmf.CLI.Core;
+using Newtonsoft.Json.Linq;
 
 namespace Cmf.CLI.Utilities
 {
@@ -29,33 +30,48 @@ namespace Cmf.CLI.Utilities
 
             if (!string.IsNullOrEmpty(workflowName) && workflowFiles.Any(wf => wf.Contains(workflowName)))
             {
-                workflowFiles = workflowFiles.Where(wf => wf.Contains(workflowName))?.ToList();
+                workflowFiles = workflowFiles.Where(wf => wf.Contains(workflowName)).ToList();
             }
 
             foreach (var workflowFile in workflowFiles)
             {
                 string packageJson = fileSystem.File.ReadAllText(workflowFile);
-                dynamic packageJsonObject = JsonConvert.DeserializeObject(packageJson);
+                JObject packageJsonObject = JsonConvert.DeserializeObject<JObject>(packageJson)
+                    ?? throw new InvalidOperationException("Invalid JSON");
 
-                foreach (var tasks in packageJsonObject?["tasks"])
+                var tasksArray = packageJsonObject["tasks"] as JArray ?? [];
+
+                foreach (var tasks in tasksArray)
                 {
-                    string packageName = tasks["reference"]["package"]["name"]?.ToString()?.Split("/")[1]?.Replace("connect-iot-", "");
-                    if (packageNames == null || !string.IsNullOrEmpty(packageNames) && packageNames.Contains(packageName))
+                    string? packageName = tasks["reference"]?["package"]?["name"]?.ToString()?.Split("/")[1]?.Replace("connect-iot-", "");
+                    if (packageName is not null && 
+                        (packageNames == null || !string.IsNullOrEmpty(packageNames) && packageNames.Contains(packageName)))
                     {
-                        string currentVersion = tasks["reference"]["package"]["version"]?.ToString().Split("-")[0];
-
-                        tasks["reference"]["package"]["version"] = GenericUtilities.RetrieveNewVersion(currentVersion, version, buildNr);
+                        string? currentVersion = tasks["reference"]?["package"]?["version"]?.ToString().Split("-")[0];
+                        if (currentVersion is null)
+                        {
+                            Log.Warning($"Could not find version for package {packageName} in workflow {workflowFile}. Skipping version bump for this package.");
+                            continue;
+                        }
+                        tasks["reference"]?["package"]?["version"] = GenericUtilities.RetrieveNewVersion(currentVersion, version, buildNr);
                     }
                 }
 
-                foreach (var converters in packageJsonObject?["converters"])
-                {
-                    string packageName = converters["reference"]["package"]["name"]?.ToString()?.Split("/")[1]?.Replace("connect-iot-", "");
-                    if (packageNames == null || !string.IsNullOrEmpty(packageNames) && packageNames.Contains(packageName))
-                    {
-                        string currentVersion = converters["reference"]["package"]["version"]?.ToString().Split("-")[0];
+                var convertersArray = packageJsonObject["converters"] as JArray ?? [];
 
-                        converters["reference"]["package"]["version"] = GenericUtilities.RetrieveNewVersion(currentVersion, version, buildNr);
+                foreach (var converters in convertersArray)
+                {
+                    string? packageName = converters["reference"]?["package"]?["name"]?.ToString()?.Split("/")[1]?.Replace("connect-iot-", "");
+                    if (packageName is not null && 
+                        (packageNames == null || !string.IsNullOrEmpty(packageNames) && packageNames.Contains(packageName)))
+                    {
+                        string? currentVersion = converters["reference"]?["package"]?["version"]?.ToString().Split("-")[0];
+                        if (currentVersion is null)
+                        {
+                            Log.Warning($"Could not find version for package {packageName} in workflow {workflowFile}. Skipping version bump for this package.");
+                            continue;
+                        }
+                        converters["reference"]?["package"]?["version"] = GenericUtilities.RetrieveNewVersion(currentVersion, version, buildNr);
                     }
                 }
 
@@ -72,70 +88,97 @@ namespace Cmf.CLI.Utilities
         /// <param name="packageNames">The package names.</param>
         /// <param name="onlyCustomization">if set to <c>true</c> [only customization].</param>
         /// <param name="fileSystem">the underlying file system</param>
-        public static void BumpIoTMasterData(string automationWorkflowFileGroup, string version, string buildNr, IFileSystem fileSystem, string packageNames = null, bool onlyCustomization = true)
+        public static void BumpIoTMasterData(string automationWorkflowFileGroup, string version, string buildNr, IFileSystem fileSystem, string? packageNames = null, bool onlyCustomization = true)
         {
-            IDirectoryInfo parentDirectory = fileSystem.Directory.GetParent(automationWorkflowFileGroup);
+            IDirectoryInfo parentDirectory =
+                fileSystem.Directory.GetParent(automationWorkflowFileGroup)
+                ?? throw new ArgumentException(
+                    $"Path '{automationWorkflowFileGroup}' has no parent directory",
+                    nameof(automationWorkflowFileGroup));            
             List<string> jsonMasterDatas = fileSystem.Directory.GetFiles(parentDirectory.FullName, "*.json").ToList();
 
             foreach (var jsonMasterData in jsonMasterDatas)
             {
                 string jsonFile = fileSystem.File.ReadAllText(jsonMasterData);
-                dynamic jsonObject = JsonConvert.DeserializeObject(jsonFile);
-
+                JObject jsonObject =
+                    JsonConvert.DeserializeObject<JObject>(jsonFile)
+                    ?? throw new InvalidOperationException("Invalid JSON");
                 if (onlyCustomization && !String.IsNullOrEmpty(packageNames))
                 {
-                    var automationProtocols = jsonObject?["<DM>AutomationProtocol"] ?? new string[] { };
-
+                    var automationProtocols =
+                        jsonObject["<DM>AutomationProtocol"] as JArray
+                        ?? [];
                     // Update Automation Protocol
-                    for (int i = 1; i <= automationProtocols.Length; i++)
+                    
+                    foreach (var token in automationProtocols)
                     {
+                        if (token is not JObject protocol)
+                            throw new InvalidOperationException("Invalid JSON structure for Automation Protocol");
+                        
                         // Assumes @instance/packageName
-                        string packageName = automationProtocols?[i.ToString()]?["Package"]?.ToString()?.Split("/")[1];
-                        string currentVersion = automationProtocols?[i.ToString()]?["PackageVersion"]?.ToString()?.Split("-")[0];
+                        var packageName = protocol["Package"]?.ToString()?.Split('/')?.ElementAtOrDefault(1);
 
-                        if (!String.IsNullOrEmpty(automationProtocols?[i.ToString()]?["Package"]?.ToString()) &&
-                                packageNames.Contains(packageName))
+                        var currentVersion = protocol["PackageVersion"]?.ToString()?.Split('-')?.FirstOrDefault();
+
+                        if (!string.IsNullOrEmpty(packageName) &&
+                            !string.IsNullOrEmpty(currentVersion) &&
+                            packageNames?.Contains(packageName) == true)
                         {
-                            automationProtocols[i.ToString()]["PackageVersion"] = GenericUtilities.RetrieveNewVersion(currentVersion, version, buildNr);
+                            protocol["PackageVersion"] = GenericUtilities.RetrieveNewVersion(currentVersion, version, buildNr);
                         }
                     }
                 }
                 else if (!onlyCustomization)
                 {
                     // Update Automation Protocol
-                    var automationProtocols = jsonObject?["<DM>AutomationProtocol"] ?? new string[] { };
-                    for (int i = 1; i <= automationProtocols.Length; i++)
+                    var automationProtocols =
+                        jsonObject["<DM>AutomationProtocol"] as JArray ?? [];
+                    foreach (var token in automationProtocols)
                     {
+                        if (token is not JObject protocol)
+                            throw new InvalidOperationException("Invalid JSON structure for AutomationProtocol");
                         // Assumes @instance/packageName
-                        string packageName = automationProtocols?[i.ToString()]?["Package"]?.ToString()?.Split("/")[1];
-                        string currentVersion = automationProtocols?[i.ToString()]?["PackageVersion"]?.ToString()?.Split("-")[0];
+                        var packageName = protocol["Package"]?.ToString()?.Split('/').ElementAtOrDefault(1);                        
+                        var currentVersion = protocol["PackageVersion"]?.ToString()?.Split('-').FirstOrDefault();
 
-                        if (!String.IsNullOrEmpty(automationProtocols?[i.ToString()]?["Package"]?.ToString()) &&
-                                packageNames.Contains(packageName))
+                        if (!string.IsNullOrEmpty(packageName) &&
+                            !string.IsNullOrEmpty(currentVersion) &&
+                            packageNames?.Contains(packageName) == true)
                         {
-                            automationProtocols[i.ToString()]["PackageVersion"] = GenericUtilities.RetrieveNewVersion(currentVersion, version, buildNr);
-                        }
+                            protocol["PackageVersion"] = GenericUtilities.RetrieveNewVersion(currentVersion, version, buildNr);                        }
                     }
                     // Update Automation Manager
-                    var automationManagers = jsonObject?["<DM>AutomationManager"] ?? new string[] { };
-                    for (int i = 1; i <= automationManagers.Length; i++)
+                    var automationManagers = jsonObject["<DM>AutomationManager"] as JArray ?? [];
+                    foreach (var token in automationManagers)
                     {
-                        string currentVersion = automationManagers?[i.ToString()]?["ManagerPackageVersion"]?.ToString()?.Split("-")[0];
-                        if (!String.IsNullOrEmpty(automationManagers?[i.ToString()]?["Package"]?.ToString()))
+                        if (token is not JObject manager)
+                            throw new InvalidOperationException("Invalid JSON structure for AutomationManager");
+
+                        var currentVersion = manager["ManagerPackageVersion"]?.ToString()?.Split('-').FirstOrDefault();
+
+                        if (!string.IsNullOrEmpty(currentVersion))
                         {
-                            automationManagers[i.ToString()]["ManagerPackageVersion"] = GenericUtilities.RetrieveNewVersion(currentVersion, version, buildNr);
-                            automationManagers[i.ToString()]["MonitorPackageVersion"] = GenericUtilities.RetrieveNewVersion(currentVersion, version, buildNr);
+                            var newVersion = GenericUtilities.RetrieveNewVersion(currentVersion, version, buildNr);
+
+                            manager["ManagerPackageVersion"] = newVersion;
+                            manager["MonitorPackageVersion"] = newVersion;
                         }
                     }
 
                     // Update Automation Controller
-                    var automationControllers = jsonObject["<DM>AutomationController"];
-                    for (int i = 1; i <= automationControllers.Length; i++)
+                    var automationControllers = jsonObject["<DM>AutomationController"] as JArray ?? [];
+
+                    foreach (var token in automationControllers)
                     {
-                        string currentVersion = automationManagers?[i.ToString()]?["ControllerPackageVersion"]?.ToString()?.Split("-")[0];
-                        if (!String.IsNullOrEmpty(automationManagers?[i.ToString()]?["Package"]?.ToString()))
+                        if (token is not JObject controller)
+                            throw new InvalidOperationException("Invalid JSON structure for AutomationController");
+
+                        var currentVersion = controller["ControllerPackageVersion"]?.ToString()?.Split('-').FirstOrDefault();
+
+                        if (!string.IsNullOrEmpty(currentVersion))
                         {
-                            automationManagers[i.ToString()]["ControllerPackageVersion"] = GenericUtilities.RetrieveNewVersion(currentVersion, version, buildNr);
+                            controller["ControllerPackageVersion"] = 
+                                GenericUtilities.RetrieveNewVersion(currentVersion, version, buildNr);
                         }
                     }
                 }
@@ -175,9 +218,10 @@ namespace Cmf.CLI.Utilities
                     if (fileSystem.File.Exists(iotPackage + "/package.json"))
                     {
                         string packageJson = fileSystem.File.ReadAllText(iotPackage + "/package.json");
-                        dynamic packageJsonObject = JsonConvert.DeserializeObject(packageJson);
-
-                        packageJsonObject["version"] = GenericUtilities.RetrieveNewVersion(packageJsonObject["version"].ToString(), version, buildNr);
+                        JObject packageJsonObject = 
+                            JsonConvert.DeserializeObject<JObject>(packageJson) ?? 
+                            throw new InvalidOperationException("Invalid JSON");
+                        packageJsonObject["version"] = GenericUtilities.RetrieveNewVersion(packageJsonObject["version"]?.ToString(), version, buildNr);
 
                         packageJson = JsonConvert.SerializeObject(packageJsonObject, Formatting.Indented);
                         fileSystem.File.WriteAllText(iotPackage + "/package.json", packageJson);

@@ -1,4 +1,3 @@
-using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Utilities;
 using System;
@@ -60,7 +59,7 @@ namespace Cmf.CLI.Core.Repository.Credentials
         public async Task SyncCredentials(IList<ICredential> credentials)
         {
 
-            IFileInfo nugetConfigFile = null;
+            IFileInfo? nugetConfigFile = null;
             try
             {
                 nugetConfigFile = GetConfigFile();
