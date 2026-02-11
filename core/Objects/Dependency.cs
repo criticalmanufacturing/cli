@@ -21,7 +21,7 @@ namespace Cmf.CLI.Core.Objects
         /// The identifier.
         /// </value>
         [JsonProperty(Order = 0)]
-        public string Id { get; set; }
+        public string? Id { get; set; }
 
         /// <summary>
         /// Gets or sets the version.
@@ -30,7 +30,7 @@ namespace Cmf.CLI.Core.Objects
         /// The version.
         /// </value>
         [JsonProperty(Order = 1)]
-        public string Version { get; set; }
+        public string? Version { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this <see cref="Dependency" /> is mandatory.
@@ -55,15 +55,15 @@ namespace Cmf.CLI.Core.Objects
         /// </summary>
         [JsonProperty(Order = 4)]
         [JsonIgnore]
-        public CmfPackage CmfPackage { get; set; }
-        
-        
+        public CmfPackage? CmfPackage { get; set; }
+
+
         /// <summary>
         /// The CmfPackage that satisfies this dependency
         /// </summary>
         [JsonProperty(Order = 5)]
         [JsonIgnore]
-        public CmfPackageV1 CmfPackageV1 { get; set; }
+        public CmfPackageV1? CmfPackageV1 { get; set; }
 
         /// <summary>
         /// Is this package missing, i.e. we could not find it anywhere to satisfy this dependency
@@ -87,7 +87,7 @@ namespace Cmf.CLI.Core.Objects
         /// If the dependency is part of the DefaultDependenciesToIgnore, should be marked as ignorable
         /// </summary>
         [JsonIgnore]
-        public bool IsIgnorable => DefaultDependenciesToIgnore.Contains(Id.ToLower());
+        public bool IsIgnorable => Id != null && DefaultDependenciesToIgnore.Contains(Id.ToLower());
 
         #endregion Internal Properties
 
@@ -101,7 +101,7 @@ namespace Cmf.CLI.Core.Objects
         /// <exception cref="ArgumentNullException">id
         /// or
         /// version</exception>
-        public Dependency(string id, string version) : this()
+        public Dependency(string? id, string? version) : this()
         {
             Id = id ?? throw new ArgumentNullException(nameof(id));
             Version = version ?? throw new ArgumentNullException(nameof(version));
@@ -126,7 +126,7 @@ namespace Cmf.CLI.Core.Objects
         /// <returns>
         ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
         /// </returns>
-        public bool Equals(Dependency other)
+        public bool Equals(Dependency? other)
         {
             return other != null &&
                    Id.IgnoreCaseEquals(other.Id) &&

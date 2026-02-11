@@ -7,15 +7,15 @@ namespace Cmf.CLI.Core.Objects;
 
 public interface IProjectConfigService
 {
-    public ProjectConfig ProjectConfig { get; }
-    public ProjectConfig Load(IFileSystem fileSystem);
+    public ProjectConfig? ProjectConfig { get; }
+    public ProjectConfig? Load(IFileSystem fileSystem);
 }
 
 public class ProjectConfigService : IProjectConfigService
 {
     private bool? isInsideProject = null;
-    public ProjectConfig ProjectConfig { get; private set; }
-    public ProjectConfig Load(IFileSystem fileSystem)
+    public ProjectConfig? ProjectConfig { get; private set; }
+    public ProjectConfig? Load(IFileSystem fileSystem)
     {
         if (System.Environment.GetEnvironmentVariable("cmf_cli_internal_disable_projectconfig_cache") != null || ProjectConfig == null)
         {

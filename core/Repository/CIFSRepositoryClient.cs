@@ -18,8 +18,8 @@ namespace Cmf.CLI.Core.Repository;
 
 public class CIFSRepositoryClient : ICIFSRepositoryClient
 {
-    private ICIFSClient client = null;
-    private Uri root = null;
+    private ICIFSClient? client;
+    private Uri? root;
     private IFileSystem fileSystem;
 
     public CIFSRepositoryClient(string rootPath, IFileSystem fileSystem)
@@ -29,7 +29,7 @@ public class CIFSRepositoryClient : ICIFSRepositoryClient
         this.fileSystem = fileSystem ?? new FileSystem();
     }
     
-    public Task<CmfPackageV1> Find(string packageId, string version)
+    public Task<CmfPackageV1?> Find(string packageId, string version)
     {
         string dependencyFileName = $"{packageId}.{version}.*";
         return GetFromRepository(dependencyFileName, true);
@@ -39,14 +39,15 @@ public class CIFSRepositoryClient : ICIFSRepositoryClient
     {        
         var tmp = this.fileSystem.DirectoryInfo.New(this.fileSystem.Path.GetTempPath());
         Log.Debug($"Retrieving Package {package.PackageDotRef} to temp directory {tmp.FullName}");
-        var file = await package.Client.Get(package, tmp);
+        var file = await (package.Client ?? throw new CliException($"Package {package.PackageAtRef} has no associated client")).Get(package, tmp)
+            ?? throw new CliException($"Could not retrieve package {package.PackageAtRef}");
 
         Log.Debug($"Saving to file {this.root}...");
-        this.client.SharedFolders.Single(sf => sf.Exists)?.PutFile(file.FullName, $"{package.PackageDotRef}.zip");
+        this.client?.SharedFolders?.Single(sf => sf.Exists)?.PutFile(file.FullName, $"{package.PackageDotRef}.zip");
         Log.Debug($"File saved successfully");
     }
 
-    public Task<IFileInfo> Get(CmfPackageV1 package, IDirectoryInfo targetDirectory)
+    public Task<IFileInfo?> Get(CmfPackageV1 package, IDirectoryInfo targetDirectory)
     {
         var targetFile =
             targetDirectory.FileSystem.FileInfo.New(
@@ -55,14 +56,15 @@ public class CIFSRepositoryClient : ICIFSRepositoryClient
         
         string dependencyFileName = $"{package.PackageId}.{package.Version}.*";
         this.DownloadFile(dependencyFileName, targetFile);
-        return Task.FromResult(targetFile);
+        return Task.FromResult<IFileInfo?>(targetFile);
     }
 
     public async Task<IDirectoryInfo> Extract(CmfPackageV1 package, IDirectoryInfo targetDirectory)
     {
         IDirectoryInfo depPkgDir = targetDirectory;
         var fileSystem = targetDirectory.FileSystem;
-        var pkgFile = await this.Get(package, fileSystem.DirectoryInfo.New(fileSystem.Path.GetTempPath()));
+        var pkgFile = await this.Get(package, fileSystem.DirectoryInfo.New(fileSystem.Path.GetTempPath()))
+            ?? throw new CliException($"Could not find package {package.PackageAtRef}");
         using (Stream zipToOpen = pkgFile.OpenRead())
         {
             using (ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read))
@@ -104,17 +106,17 @@ public class CIFSRepositoryClient : ICIFSRepositoryClient
         return depPkgDir;
     }
 
-    private Stream GetFileStream(string file)
+    private Stream? GetFileStream(string file)
     {
-        var (_, stream) = this.client?.SharedFolders?.FirstOrDefault(sf => sf.Exists)?.GetFile(file) ?? new Tuple<Uri, Stream>(null, null);
-        return stream;
+        var tuple = this.client?.SharedFolders?.FirstOrDefault(sf => sf.Exists)?.GetFile(file);
+        return tuple?.Item2;
     }
-    
-    private Task<CmfPackageV1> GetFromRepository(string dependencyFileName, bool fromManifest)
+
+    private Task<CmfPackageV1?> GetFromRepository(string dependencyFileName, bool fromManifest)
     {
         var stream = this.GetFileStream(dependencyFileName);
         if(stream != null)
-        {                   
+        {
             if(fromManifest)
             {
                 using (ZipArchive zip = new(stream, ZipArchiveMode.Read))
@@ -125,7 +127,7 @@ public class CIFSRepositoryClient : ICIFSRepositoryClient
                         using var manifStream = manifest.Open();
                         using var reader = new StreamReader(manifStream);
                         var pkg = CmfPackageController.FromXml(XDocument.Parse(reader.ReadToEnd()));
-                        return Task.FromResult(pkg);
+                        return Task.FromResult<CmfPackageV1?>(pkg);
                     }
                 }
             }
@@ -135,7 +137,7 @@ public class CIFSRepositoryClient : ICIFSRepositoryClient
                 // cmfPackage.SharedFolder = share;
             }
         }
-        return null;
+        return Task.FromResult<CmfPackageV1?>(null);
     }
 
     private IFileInfo DownloadFile(string file, IFileInfo output)
@@ -145,7 +147,7 @@ public class CIFSRepositoryClient : ICIFSRepositoryClient
             output.Create();
         }
         using var fileStream = output.OpenWrite();
-        var stream = this.GetFileStream(file);
+        var stream = this.GetFileStream(file) ?? throw new CliException($"File '{file}' not found in CIFS share.");
         Log.Debug("Saving to temp file");
         Stopwatch stopwatch = new Stopwatch();
         stopwatch.Start();
@@ -155,6 +157,6 @@ public class CIFSRepositoryClient : ICIFSRepositoryClient
         return output;
     }
 
-    public string RepositoryRoot => this.root?.OriginalString;
+    public string RepositoryRoot => this.root?.OriginalString ?? string.Empty;
     public bool Unreacheable => this.client?.IsConnected ?? false;
 }

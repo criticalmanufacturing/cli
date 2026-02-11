@@ -13,7 +13,7 @@ namespace Cmf.CLI.Core.Repository;
 public class LocalRepositoryClient : IRepositoryClient
 {
     private IDirectoryInfo root;
-    private IFileInfo file = null;
+    private IFileInfo? file;
     
     public LocalRepositoryClient(string rootPath) : this(rootPath, new FileSystem())
     {
@@ -28,7 +28,7 @@ public class LocalRepositoryClient : IRepositoryClient
         if (checkFile.Exists)
         {
             file = checkFile;
-            root = checkFile.Directory;
+            root = checkFile.Directory ?? fileSystem.DirectoryInfo.New(rootPath);
         }
         else
         {
@@ -36,7 +36,7 @@ public class LocalRepositoryClient : IRepositoryClient
         }
     }
     
-    public async Task<CmfPackageV1> Find(string packageId, string version)
+    public async Task<CmfPackageV1?> Find(string packageId, string version)
     {
         return (await this.List()).FirstOrDefault(p =>
         {
@@ -65,7 +65,7 @@ public class LocalRepositoryClient : IRepositoryClient
         throw new NotSupportedException("Cannot publish to the local source repository!");
     }
 
-    public Task<IFileInfo> Get(CmfPackageV1 package, IDirectoryInfo targetDirectory)
+    public Task<IFileInfo?> Get(CmfPackageV1 package, IDirectoryInfo targetDirectory)
     {
         throw new NotSupportedException();
     }
