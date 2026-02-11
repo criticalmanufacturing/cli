@@ -21,7 +21,7 @@ namespace Cmf.CLI.Core.Objects
         /// <value>
         /// The source.
         /// </value>
-        public string Source { get; set; }
+        public string? Source { get; set; }
 
         /// <summary>
         /// Gets or sets the target.
@@ -29,7 +29,7 @@ namespace Cmf.CLI.Core.Objects
         /// <value>
         /// The target.
         /// </value>
-        public string Target { get; set; }
+        public string? Target { get; set; }
 
         /// <summary>
         /// Gets or sets the ignore file.
@@ -37,7 +37,7 @@ namespace Cmf.CLI.Core.Objects
         /// <value>
         /// The ignore file.
         /// </value>
-        public List<string> IgnoreFiles { get; set; }
+        public required List<string> IgnoreFiles { get; set; }
 
         /// <summary>
         /// Gets or sets the action to be applied to the content
@@ -77,7 +77,7 @@ namespace Cmf.CLI.Core.Objects
         /// <returns>
         ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
         /// </returns>
-        public bool Equals(ContentToPack other)
+        public bool Equals(ContentToPack? other)
         {
             return other != null &&
                    Source.IgnoreCaseEquals(other.Source) &&

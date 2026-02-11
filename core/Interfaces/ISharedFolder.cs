@@ -5,6 +5,6 @@ namespace Cmf.CLI.Core.Interfaces
 {
     public interface ISharedFolder
     {
-        public Tuple<Uri, Stream> GetFile(string fileName);
+        public Tuple<Uri, Stream>? GetFile(string fileName);
     }
 }
