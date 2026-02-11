@@ -55,6 +55,12 @@ namespace Cmf.CLI.Core.Commands
             {
                 return;
             }
+
+            var entryAssembly = Assembly.GetEntryAssembly();
+            if (entryAssembly == null)
+            {
+                return;
+            }
             // Get all types that are marked with CmfCommand attribute
             var commandTypes = new List<Type>();
             foreach (Type type in entryAssembly.GetTypes())
@@ -91,11 +97,7 @@ namespace Cmf.CLI.Core.Commands
             var dec = cmd.GetCustomAttribute<CmfCommandAttribute>() ?? throw new Exception("Could not retrieve command metadata.");
             var cmdName = string.IsNullOrWhiteSpace(dec.Name) ? throw new Exception("Could not retrieve command name.") : dec.Name;
             // Create command
-            var cmdInstance = new Command(cmdName)
-            {
-                Hidden = dec.IsHidden,
-                Description = dec.Description
-            };
+            var cmdInstance = new Command(cmdName) { Hidden = dec?.IsHidden ?? false, Description = dec?.Description };
 
             // Call "Configure" method
             BaseCommand? cmdHandler = Activator.CreateInstance(cmd) as BaseCommand;
