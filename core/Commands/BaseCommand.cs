@@ -48,9 +48,15 @@ namespace Cmf.CLI.Core.Commands
         /// <param name="command">Command to which commands will be added</param>
         public static void AddChildCommands(Command command)
         {
+
+            var entryAssembly = Assembly.GetEntryAssembly();
+            if (entryAssembly == null)
+            {
+                return;
+            }
             // Get all types that are marked with CmfCommand attribute
             var commandTypes = new List<Type>();
-            foreach (Type type in Assembly.GetEntryAssembly().GetTypes())
+            foreach (Type type in entryAssembly.GetTypes())
             {
                 if (type.GetCustomAttributes<CmfCommandAttribute>(false).Any())
                 {
@@ -81,14 +87,13 @@ namespace Cmf.CLI.Core.Commands
         private static Command FindChildCommands(Type cmd, List<Type> commandTypes)
         {
             var dec = cmd.GetCustomAttribute<CmfCommandAttribute>();
-            var cmdName = dec.Name;
-
+            var cmdName = (dec?.Name) ?? throw new Exception("Could not retrieve command name.");
             // Create command
-            var cmdInstance = new Command(cmdName) { IsHidden = dec.IsHidden, Description = dec.Description };
+            var cmdInstance = new Command(cmdName) { IsHidden = dec?.IsHidden ?? false, Description = dec?.Description };
 
             // Call "Configure" method
-            BaseCommand cmdHandler = Activator.CreateInstance(cmd) as BaseCommand;
-            cmdHandler.Configure(cmdInstance);
+            BaseCommand? cmdHandler = Activator.CreateInstance(cmd) as BaseCommand;
+            cmdHandler?.Configure(cmdInstance);
 
             // Add commands that depend on me
             var childCommands = commandTypes.Where(
@@ -98,7 +103,7 @@ namespace Cmf.CLI.Core.Commands
                         .Cast<CmfCommandAttribute>()
                         .First();
                     // ParentId has precedence to Parent
-                    return !string.IsNullOrWhiteSpace(attr.ParentId) && attr.ParentId == dec.Id ||
+                    return !string.IsNullOrWhiteSpace(attr.ParentId) && attr.ParentId == dec?.Id ||
                         string.IsNullOrWhiteSpace(attr.ParentId) && attr.Parent == cmdName;
                 });
 
@@ -118,7 +123,7 @@ namespace Cmf.CLI.Core.Commands
         /// <param name="default">the default value if no value is passed for the argument</param>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         /// <returns></returns>
-        protected T Parse<T>(ArgumentResult argResult, string @default = null)
+        protected T? Parse<T>(ArgumentResult argResult, string? @default = null)
         {
             var argValue = @default;
             if (argResult.Tokens.Any())
@@ -128,7 +133,7 @@ namespace Cmf.CLI.Core.Commands
 
             if (string.IsNullOrEmpty(argValue))
             {
-                return default(T);
+                return default;
             }
 
             return typeof(T) switch

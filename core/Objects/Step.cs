@@ -243,7 +243,7 @@ namespace Cmf.CLI.Core.Objects
         /// <returns>
         ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
         /// </returns>
-        public bool Equals(Step other)
+        public bool Equals(Step? other)
         {
             return other != null &&
                    Type == other.Type &&

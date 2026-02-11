@@ -36,7 +36,7 @@ public class LocalRepositoryClient : IRepositoryClient
         }
     }
     
-    public async Task<CmfPackageV1> Find(string packageId, string version)
+    public async Task<CmfPackageV1?> Find(string packageId, string version)
     {
         return (await this.List()).FirstOrDefault(p =>
         {

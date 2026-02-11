@@ -61,13 +61,13 @@ namespace Cmf.CLI.Core.Commands
         {
             Log.Debug($"Going to generate template {templateName}");
             // TODO: args needs to become a dictionary
-            var parameters = new Dictionary<string, string>();
-            List<List<string>> argList = null;
+            var parameters = new Dictionary<string, string?>();
+            List<List<string>>? argList = null;
             try
             {
                 argList = args.ToList().Aggregate(new List<List<string>>(), (list, s) =>
                 {
-                    if (s?.StartsWith("--") ?? false)
+                    if (s.StartsWith("--"))
                     {
                         list.Add(new List<string>() { s });
                     }
@@ -82,7 +82,7 @@ namespace Cmf.CLI.Core.Commands
             catch (Exception e)
             {
                 Log.Debug(e.Message);
-                Log.Debug(e.StackTrace);
+                Log.Debug(e.StackTrace ?? "");
                 throw;
             }
             foreach (var list in argList)
@@ -109,7 +109,8 @@ namespace Cmf.CLI.Core.Commands
             var version = (Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly())
                 .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
                 ?.InformationalVersion;
-            var templateEngineHost = CreateHost(version, fileSystem);
+            var templateEngineHost = CreateHost(version ?? throw new Exception("Could not retrieve version information from assembly")
+                , fileSystem);
             using var bootstrapper = new Bootstrapper(templateEngineHost, false);
 
             #if DEBUG
@@ -192,7 +193,7 @@ namespace Cmf.CLI.Core.Commands
                 public ITemplatePackageProviderFactory Factory { get; }
                 // disable warning due to unused event (part of ITemplatePackageProvider)
                 #pragma warning disable CS0067
-                public event Action TemplatePackagesChanged;
+                public event Action? TemplatePackagesChanged;
                 #pragma warning restore CS0067
                 public Guid Id => new Guid("22a853c8-fae7-42fb-bc58-d858010becf5");
             }

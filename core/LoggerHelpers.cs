@@ -15,7 +15,7 @@ namespace Cmf.CLI.Core
         private static ParseArgument<LogLevel> parseLogLevel = argResult =>
         {
             var loglevel = LogLevel.Verbose;
-            string loglevelStr = "verbose";
+            string? loglevelStr = "verbose";
             if (argResult.Tokens.Any())
             {
                 loglevelStr = argResult.Tokens[0].Value;

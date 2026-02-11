@@ -52,7 +52,7 @@ namespace Cmf.CLI.Core.Objects
         
         Task<CmfPackageV1> FetchPackageVersion(string packageName, string version);
 
-        Task<IFileInfo> DownloadPackage(string packageName, string version, IFileInfo output);
+        Task<IFileInfo?> DownloadPackage(string packageName, string version, IFileInfo output);
 
         Task PublishPackage(IFileInfo package);
     }
@@ -102,12 +102,15 @@ namespace Cmf.CLI.Core.Objects
             public List<PackageResult> Objects { get; set; }
         }
 
-        public NPMClient(string baseUrl = CoreConstants.NpmJsUrl, HttpClient client = null)
+        public NPMClient(string baseUrl = CoreConstants.NpmJsUrl, HttpClient? client = null)
         {
             this.baseUrl = baseUrl.TrimEnd('/');
             this.client = client ?? new HttpClient();
 
-            var authStore = ExecutionContext.ServiceProvider.GetService<IRepositoryAuthStore>();
+            var authStore =
+                ExecutionContext.ServiceProvider.GetService<IRepositoryAuthStore>()
+                ?? throw new InvalidOperationException(
+                    "IRepositoryAuthStore is not registered");
             var credentials = authStore.GetCredentialsFor<NPMRepositoryCredentials>(authStore.GetOrLoad().GetAwaiter().GetResult(), baseUrl);
 
             ApplyAuthenticationHeaders(this.client, baseUrl, credentials);
@@ -250,7 +253,7 @@ namespace Cmf.CLI.Core.Objects
             return ctrlr.CmfPackage;
         }
 
-        public async Task<IFileInfo> DownloadPackage(string packageName, string version, IFileInfo output)
+        public async Task<IFileInfo?> DownloadPackage(string packageName, string version, IFileInfo output)
         {
             var client = this.client;
             
@@ -446,11 +449,14 @@ namespace Cmf.CLI.Core.Objects
                     }
                 }
                 """);
-            // patch version manifest
-            root["versions"][ctrlr.CmfPackage.Version]["_id"] = $"{name}@{ctrlr.CmfPackage.Version}";
-            root["versions"][ctrlr.CmfPackage.Version]["_cliVersion"] = ExecutionContext.CurrentVersion;
-            root["versions"][ctrlr.CmfPackage.Version]["_integrity"] = sha512Hash;
-            root["versions"][ctrlr.CmfPackage.Version]["dist"] = JObject.Parse($$"""
+
+                var versions = root["versions"] ?? throw new InvalidOperationException("versions missing");
+                var versionObj = versions[ctrlr.CmfPackage.Version] ?? throw new InvalidOperationException("versions missing");
+                // patch version manifest
+                versionObj["_id"] = $"{name}@{ctrlr.CmfPackage.Version}";
+                versionObj["_cliVersion"] = ExecutionContext.CurrentVersion;
+                versionObj["_integrity"] = sha512Hash;
+                versionObj["dist"] = JObject.Parse($$"""
                   {
                     "integrity": "{{sha512Hash}}",
                     "shasum": "{{sha1Hash}}",
@@ -459,7 +465,7 @@ namespace Cmf.CLI.Core.Objects
                   """);
 
             // patch the base64-encoded data
-            root["_attachments"][tgz]["data"] = data;
+            root["_attachments"]?[tgz]?["data"] = data;
 
             return root.ToString(Formatting.None);
         }

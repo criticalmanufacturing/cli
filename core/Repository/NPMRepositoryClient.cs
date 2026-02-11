@@ -17,14 +17,14 @@ public class NPMRepositoryClient : IRepositoryClient
     private IFileSystem fileSystem;
     private Uri registryUrl;
     private INPMClientEx client;
-    public NPMRepositoryClient(string registryUrl, IFileSystem fileSystem = null, INPMClientEx client = null)
+    public NPMRepositoryClient(string registryUrl, IFileSystem? fileSystem = null, INPMClientEx? client = null)
     {
         this.registryUrl = new Uri(registryUrl);
         this.client = client ?? new NPMClient(registryUrl);
         this.fileSystem = fileSystem ?? new FileSystem();
     }
 
-    public async Task<CmfPackageV1> Find(string packageId, string version)
+    public async Task<CmfPackageV1?> Find(string packageId, string version)
     {
         try
         {

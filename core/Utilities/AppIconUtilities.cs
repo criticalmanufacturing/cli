@@ -30,7 +30,7 @@ namespace Cmf.CLI.Core.Utilities
 
             using SixLabors.ImageSharp.Image image = SixLabors.ImageSharp.Image.Load(path);
 
-            bool isPNG = image.Metadata.DecodedImageFormat.FileExtensions.Contains(PNG_EXTENSION);
+            bool isPNG = image.Metadata.DecodedImageFormat?.FileExtensions.Contains(PNG_EXTENSION) ?? false;
 
             if (!isPNG)
             {

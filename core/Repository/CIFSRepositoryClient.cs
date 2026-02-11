@@ -29,7 +29,7 @@ public class CIFSRepositoryClient : ICIFSRepositoryClient
         this.fileSystem = fileSystem ?? new FileSystem();
     }
     
-    public Task<CmfPackageV1> Find(string packageId, string version)
+    public Task<CmfPackageV1?> Find(string packageId, string version)
     {
         string dependencyFileName = $"{packageId}.{version}.*";
         return GetFromRepository(dependencyFileName, true);
@@ -42,7 +42,7 @@ public class CIFSRepositoryClient : ICIFSRepositoryClient
         var file = await package.Client.Get(package, tmp);
 
         Log.Debug($"Saving to file {this.root}...");
-        this.client.SharedFolders.Single(sf => sf.Exists)?.PutFile(file.FullName, $"{package.PackageDotRef}.zip");
+        this.client.SharedFolders?.Single(sf => sf.Exists)?.PutFile(file.FullName, $"{package.PackageDotRef}.zip");
         Log.Debug($"File saved successfully");
     }
 
@@ -110,7 +110,7 @@ public class CIFSRepositoryClient : ICIFSRepositoryClient
         return stream;
     }
     
-    private Task<CmfPackageV1> GetFromRepository(string dependencyFileName, bool fromManifest)
+    private Task<CmfPackageV1?> GetFromRepository(string dependencyFileName, bool fromManifest)
     {
         var stream = this.GetFileStream(dependencyFileName);
         if(stream != null)

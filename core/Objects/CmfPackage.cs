@@ -319,7 +319,7 @@ namespace Cmf.CLI.Core.Objects
         public CmfPackage(string name, string packageId, string version, string description, PackageType packageType,
                           string targetDirectory, string targetLayer, bool? isInstallable, bool? isUniqueInstall, string keywords,
                           bool? isToSetDefaultSteps, DependencyCollection dependencies, List<Step> steps,
-                          List<ContentToPack> contentToPack, List<string> xmlInjection, bool? waitForIntegrationEntries, List<string> baseLocalizationFiles, DependencyCollection testPackages = null) : this()
+                          List<ContentToPack> contentToPack, List<string> xmlInjection, bool? waitForIntegrationEntries, List<string> baseLocalizationFiles, DependencyCollection? testPackages = null) : this()
         {
             Name = name;
             PackageId = packageId ?? throw new ArgumentNullException(nameof(packageId));
@@ -420,7 +420,7 @@ namespace Cmf.CLI.Core.Objects
         /// <returns>
         ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
         /// </returns>
-        public bool Equals(CmfPackage other)
+        public bool Equals(CmfPackage? other)
         {
             return other != null &&
                    PackageId.IgnoreCaseEquals(other.PackageId) &&
@@ -473,14 +473,14 @@ namespace Cmf.CLI.Core.Objects
         /// <param name="steps">The steps.</param>
         /// <exception cref="CliException"></exception>
         public void SetDefaultValues(
-            string name = null,
-            string targetDirectory = null,
-            string targetLayer = null,
+            string? name = null,
+            string? targetDirectory = null,
+            string? targetLayer = null,
             bool? isInstallable = null,
             bool? isUniqueInstall = null,
-            string keywords = null,
+            string? keywords = null,
             bool? waitForIntegrationEntries = null,
-            List<Step> steps = null)
+            List<Step>? steps = null)
         {
             if (IsToSetDefaultValues)
             {
@@ -647,7 +647,7 @@ namespace Cmf.CLI.Core.Objects
         /// <exception cref="Cmf.CLI.Utilities.CliException">
         /// </exception>
         /// <exception cref="CliException"></exception>
-        public static CmfPackage Load(IFileInfo file, bool setDefaultValues = false, IFileSystem fileSystem = null)
+        public static CmfPackage Load(IFileInfo file, bool setDefaultValues = false, IFileSystem? fileSystem = null)
         {
             fileSystem ??= ExecutionContext.Instance.FileSystem;
             if (!file.Exists)
@@ -826,7 +826,7 @@ namespace Cmf.CLI.Core.Objects
         /// <param name="setDefaultValues">should set default values</param>
         /// <param name="fileSystem">the underlying file system</param>
         /// <returns>a CmfPackage</returns>
-        public static CmfPackage FromManifest(string manifest, bool setDefaultValues = false, IFileSystem fileSystem = null)
+        public static CmfPackage FromManifest(string manifest, bool setDefaultValues = false, IFileSystem? fileSystem = null)
         {
             fileSystem ??= new FileSystem();
             StringReader dFManifestReader = new(manifest);
@@ -942,7 +942,7 @@ namespace Cmf.CLI.Core.Objects
         /// </summary>
         /// <param name="obj">The object.</param>
         /// <returns></returns>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return Equals(obj as CmfPackage);
         }

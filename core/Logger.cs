@@ -80,7 +80,7 @@ namespace Cmf.CLI.Core
         /// Logs the progress of an operation, single line with a spinner
         /// </summary>
         /// <param name="msg">initial message to print</param>
-        public static void Status(string msg, Action<StatusContext> action = null)
+        public static void Status(string msg, Action<StatusContext>? action = null)
         {
             AnsiConsole.Status().Start(msg, ctx =>
             {

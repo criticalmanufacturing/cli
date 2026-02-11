@@ -50,16 +50,16 @@ public class CmfPackageController
         this.package = package;
         this.fileSystem = fileSystem;
     }
-    public CmfPackageController(IFileInfo file, IFileSystem fileSystem = null, bool setDefaultValues = false)
+    public CmfPackageController(IFileInfo file, IFileSystem? fileSystem = null, bool setDefaultValues = false)
     {
         Log.Debug("Spinning up a controller for a CmfPackage file info: " + file.FullName);
         #if DEBUG
         // TODO: this is dumb
         var stackTrace = new StackTrace();
-        var callingMethod = stackTrace.GetFrame(1).GetMethod(); // Get the calling method
-        var callerType = callingMethod.DeclaringType; // Get the caller's type
+        var callingMethod = stackTrace.GetFrame(1)?.GetMethod(); // Get the calling method
+        var callerType = callingMethod?.DeclaringType; // Get the caller's type
 
-        if (callerType.GetInterface(nameof(IRepositoryClient)) == null)
+        if (callerType?.GetInterface(nameof(IRepositoryClient)) == null)
         {
             Log.Warning("This constructor can only be invoked from RepositoryClients!");
         }
@@ -76,7 +76,7 @@ public class CmfPackageController
             Log.Debug("File is a source package");
             // source package
             var cmfPackage = CmfPackageController.FromSourceManifest(file);
-            cmfPackage.Client = ExecutionContext.ServiceProvider.GetService<IRepositoryLocator>()
+            cmfPackage.Client = ExecutionContext.ServiceProvider.GetService<IRepositoryLocator>()!
                 .GetRepositoryClient(new Uri(file.FullName), file.FileSystem); // this is a hack to avoid awaiting for the LocalRepositoryClient as it is async
             // string fileContent = file.ReadToString();
             // CmfPackage cmfPackage = JsonConvert.DeserializeObject<CmfPackage>(fileContent);
@@ -246,7 +246,7 @@ public class CmfPackageController
     }
     
     
-    private static void LogUnknownAttributes(XElement element, IEnumerable<string> knownAttributes = null)
+    private static void LogUnknownAttributes(XElement element, IEnumerable<string>? knownAttributes = null)
     {
         knownAttributes ??= [];
         var allAttributes = element.Attributes().Select(a => a.Name.LocalName);
@@ -264,7 +264,7 @@ public class CmfPackageController
         XDocument dFManifestTemplate = XDocument.Load(dFManifestReader);
         var tokens = new Dictionary<string, string>();
 
-        XElement rootNode = dFManifestTemplate.Element("deploymentPackage", true);
+        XElement? rootNode = dFManifestTemplate.Element("deploymentPackage", true);
         if (rootNode == null)
         {
             throw new CliException(string.Format(CoreMessages.InvalidManifestFile));
@@ -278,13 +278,13 @@ public class CmfPackageController
 
             if (element.Name.LocalName == "dependencies")
             {
-                var deplist = element.Elements().Select(depEl => new Dependency(depEl.Attribute("id").Value, depEl.Attribute("version").Value));
+                var deplist = element.Elements().Select(depEl => new Dependency(depEl.Attribute("id")?.Value, depEl.Attribute("version")?.Value));
                 deps.AddRange(deplist);
             }
 
             if (element.Name.LocalName == "testPackages")
             {
-                var testPackagesList = element.Elements().Select(depEl => new Dependency(depEl.Attribute("id").Value, depEl.Attribute("version").Value));
+                var testPackagesList = element.Elements().Select(depEl => new Dependency(depEl.Attribute("id")?.Value, depEl.Attribute("version")?.Value));
                 testPackages.AddRange(testPackagesList);
             }
 

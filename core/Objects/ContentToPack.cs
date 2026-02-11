@@ -77,7 +77,7 @@ namespace Cmf.CLI.Core.Objects
         /// <returns>
         ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
         /// </returns>
-        public bool Equals(ContentToPack other)
+        public bool Equals(ContentToPack? other)
         {
             return other != null &&
                    Source.IgnoreCaseEquals(other.Source) &&
