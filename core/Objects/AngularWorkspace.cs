@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
@@ -13,8 +13,8 @@ namespace Cmf.CLI.Core.Objects
         public IEnumerable<Project> Projects;
 
         private IDirectoryInfo WorkingDirectory;
-        private IEnumerable<Project> Libraries;
-        private IEnumerable<Project> Applications;
+        private IEnumerable<Project> Libraries = [];
+        private IEnumerable<Project> Applications = [];
 
         public AngularWorkspace(IDirectoryInfo cwd)
         {
@@ -26,7 +26,7 @@ namespace Cmf.CLI.Core.Objects
         private IEnumerable<Project> GetProjects()
         {
             var angularjsonStr = WorkingDirectory.FileSystem.File.ReadAllText(WorkingDirectory.GetFiles("angular.json")[0].FullName);
-            var angularjson = JsonConvert.DeserializeObject<dynamic>(angularjsonStr);
+            var angularjson = JsonConvert.DeserializeObject<dynamic>(angularjsonStr) ?? throw new InvalidOperationException("Invalid JSON");
             var projects = new List<Project>();
 
             foreach (var project in angularjson.projects)
@@ -47,7 +47,7 @@ namespace Cmf.CLI.Core.Objects
                 return new
                 {
                     Name = lib.Name,
-                    Pkg = lib.PackageJson.Content.name,
+                    Pkg = lib.PackageJson.Content?.name,
                     Deps = lib.Dependencies
                 };
             }).ToList();
@@ -59,7 +59,7 @@ namespace Cmf.CLI.Core.Objects
                 {
                     var projDep = projectDeps.Find(_p => _p.Pkg == dep);
                     return projDep?.Name;
-                }).Where(dep => dep != null).ToList());
+                }).OfType<string>().ToList());
             });
 
             // reorder libraries to make sure that are built by the correct order
@@ -73,7 +73,8 @@ namespace Cmf.CLI.Core.Objects
 
                     if (deps.Count == 0)
                     {
-                        packagesToBuild[lib] = Libraries.FirstOrDefault(l => l.Name.Equals(lib)).PackageJson.File.Directory;
+                        var matchLib = Libraries.FirstOrDefault(l => l.Name.Equals(lib)) ?? throw new InvalidOperationException($"Library '{lib}' not found");
+                        packagesToBuild[lib] = matchLib.PackageJson.File.Directory ?? throw new InvalidOperationException($"Library '{lib}' has no directory");
                         libDeps.Remove(lib);
                     }
                 }
@@ -82,7 +83,7 @@ namespace Cmf.CLI.Core.Objects
             // add application packages
             foreach (var app in Applications)
             {
-                packagesToBuild[app.Name] = app.PackageJson.File.Directory;
+                packagesToBuild[app.Name] = app.PackageJson.File.Directory ?? throw new InvalidOperationException($"Application '{app.Name}' has no directory");
             }
 
             return packagesToBuild;
@@ -92,9 +93,9 @@ namespace Cmf.CLI.Core.Objects
     public class Project
     {
         public string Name { get; protected set; }
-        public string Type { get; protected set; }
+        public string? Type { get; protected set; }
         public PackageJson PackageJson { get; protected set; }
-        public PackageJson PackageLock { get; protected set; }
+        public PackageJson? PackageLock { get; protected set; }
         public List<string> Dependencies { get; protected set; }
 
         protected dynamic _Project;
@@ -106,12 +107,12 @@ namespace Cmf.CLI.Core.Objects
             _Cwd = cwd;
             Name = project.Name;
             Type = project.Value.projectType?.ToString();
-            GetPackageJson();
-            GetDependencies();
+            (PackageJson, PackageLock) = GetPackageJson();
+            Dependencies = GetDependencies();
             Log.Debug($"Loaded package {Name}");
         }
 
-        private void GetPackageJson()
+        private (PackageJson packageJson, PackageJson? packageLock) GetPackageJson()
         {
             // package.json
             string packageJsonPath = "package.json";
@@ -124,7 +125,7 @@ namespace Cmf.CLI.Core.Objects
             {
                 throw new Exception($"No package.json found at {packageJsonPath}");
             }
-            PackageJson = new PackageJson(packageJsonFile);
+            var packageJson = new PackageJson(packageJsonFile);
 
             // package-lock.json
             string packageLockPath = "package-lock.json";
@@ -134,22 +135,22 @@ namespace Cmf.CLI.Core.Objects
             }
             var packageLockFile = _Cwd.GetFiles(packageLockPath).FirstOrDefault();
 
-            // In some cases we don't have the package-lockW
-            if (packageLockFile != null)
-            {
-                PackageLock = new PackageJson(packageLockFile);
-            }
+            // In some cases we don't have the package-lock
+            PackageJson? packageLock = packageLockFile != null ? new PackageJson(packageLockFile) : null;
+
+            return (packageJson, packageLock);
         }
 
-        private void GetDependencies()
+        private List<string> GetDependencies()
         {
-            var peerDependencies = PackageJson.Content.peerDependencies?.ToObject<Dictionary<string, string>>().Keys;
-            var dependencies = PackageJson.Content.dependencies?.ToObject<Dictionary<string, string>>().Keys;
-            Dependencies = new List<string>();
-            Dependencies.AddRange(dependencies ?? new List<string>());
-            Dependencies.AddRange(peerDependencies ?? new List<string>());
+            var peerDependencies = PackageJson.Content?.peerDependencies?.ToObject<Dictionary<string, string>>().Keys;
+            var dependencies = PackageJson.Content?.dependencies?.ToObject<Dictionary<string, string>>().Keys;
+            var deps = new List<string>();
+            deps.AddRange(dependencies ?? new List<string>());
+            deps.AddRange(peerDependencies ?? new List<string>());
 
-            Log.Debug($"Loaded dependencies from package {Name}:\n{string.Join("\n", Dependencies)}");
+            Log.Debug($"Loaded dependencies from package {Name}:\n{string.Join("\n", deps)}");
+            return deps;
         }
     }
 
@@ -157,13 +158,13 @@ namespace Cmf.CLI.Core.Objects
     {
         public IFileInfo File { get; protected set; }
 
-        public dynamic Content { get; protected set; }
+        public dynamic? Content { get; protected set; }
 
         public PackageJson(IFileInfo file)
         {
             File = file;
-            var packagejsonStr = File.FileSystem.File.ReadAllText(File?.FullName);
-            Log.Debug($"Loading file {File?.FullName}");
+            var packagejsonStr = File.FileSystem.File.ReadAllText(File.FullName);
+            Log.Debug($"Loading file {File.FullName}");
             Content = JsonConvert.DeserializeObject<dynamic>(packagejsonStr);
         }
     }

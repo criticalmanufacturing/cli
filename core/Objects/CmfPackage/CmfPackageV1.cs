@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
@@ -26,13 +27,13 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
     public string PackageAtRef => $"{PackageId}@{Version}";
     
     [JsonIgnore]
-    public IRepositoryClient Client { get; set; }
-    
+    public IRepositoryClient? Client { get; set; }
+
     // [JsonIgnore]
     // public Stream Stream { get; set; }
-    
+
     [JsonIgnore]
-    public IFileInfo SourceManifestFile { get; set; }
+    public IFileInfo? SourceManifestFile { get; set; }
     
     /// <summary>
     /// Should we set the defaults values as described in the package handler?
@@ -47,7 +48,7 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
         /// The name.
         /// </value>
         [JsonProperty(Order = 0)]
-        public string Name { get; private set; }
+        public string? Name { get; private set; }
 
         /// <summary>
         /// Gets or sets the package identifier.
@@ -56,7 +57,7 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
         /// The package identifier.
         /// </value>
         [JsonProperty(Order = 1)]
-        public string PackageId { get; private set; }
+        public required string PackageId { get; init; }
 
         /// <summary>
         /// Gets or sets the version.
@@ -65,7 +66,7 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
         /// The version.
         /// </value>
         [JsonProperty(Order = 2)]
-        public string Version { get; private set; }
+        public required string Version { get; init; }
 
         /// <summary>
         /// Gets or sets the description.
@@ -74,7 +75,7 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
         /// The description.
         /// </value>
         [JsonProperty(Order = 3)]
-        public string Description { get; private set; }
+        public string? Description { get; private set; }
 
         /// <summary>
         /// Gets or sets the type of the package.
@@ -94,7 +95,7 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
         /// The target directory.
         /// </value>
         [JsonProperty(Order = 5)]
-        public string TargetDirectory { get; private set; }
+        public string? TargetDirectory { get; private set; }
 
         /// <summary>
         /// Gets or sets the target layer, which means the container in which the packages contents should be installed.
@@ -104,7 +105,7 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
         /// The target layer.
         /// </value>
         [JsonProperty(Order = 6)]
-        public string TargetLayer { get; private set; }
+        public string? TargetLayer { get; private set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this instance is installable.
@@ -132,7 +133,7 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
         /// </value>
         [JsonProperty(Order = 9)]
         [JsonIgnore]
-        public string Keywords { get; private set; }
+        public string? Keywords { get; private set; }
 
         /// <summary>
         /// Should we set the default steps as described in the handler?
@@ -151,7 +152,7 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
         /// The dependencies.
         /// </value>
         [JsonProperty(Order = 11)]
-        public DependencyCollection Dependencies { get; private set; }
+        public DependencyCollection? Dependencies { get; private set; }
 
         /// <summary>
         /// Gets or sets the steps.
@@ -160,7 +161,7 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
         /// The steps.
         /// </value>
         [JsonProperty(Order = 12)]
-        public List<Step> Steps { get; set; }
+        public List<Step>? Steps { get; set; }
 
         /// <summary>
         /// Gets or sets the content to pack.
@@ -169,7 +170,7 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
         /// The content to pack.
         /// </value>
         [JsonProperty(Order = 13)]
-        public List<ContentToPack> ContentToPack { get; private set; }
+        public List<ContentToPack>? ContentToPack { get; private set; }
 
         /// <summary>
         /// Gets or sets the deployment framework UI file.
@@ -178,7 +179,7 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
         /// The deployment framework UI file.
         /// </value>
         [JsonProperty(Order = 14)]
-        public List<string> XmlInjection { get; private set; }
+        public List<string>? XmlInjection { get; private set; }
 
         /// <summary>
         /// Gets or sets the Test Package Id.
@@ -187,7 +188,7 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
         /// The Test Package Id.
         /// </value>
         [JsonProperty(Order = 15)]
-        public DependencyCollection TestPackages { get; set; }
+        public DependencyCollection? TestPackages { get; set; }
         
         /// <summary>
         /// Handler Version
@@ -216,7 +217,7 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
         /// The build steps.
         /// </value>
         [JsonProperty(Order = 21)]
-        public List<ProcessBuildStep> BuildSteps { get; set; }
+        public List<ProcessBuildStep>? BuildSteps { get; set; }
 
         /// <summary>
         /// Gets or sets the Related packages, and sets what are the expected behavior.
@@ -225,7 +226,7 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
         /// Packages that should be built/packed before/after the context package
         /// </value>
         [JsonProperty(Order = 22)]
-        public RelatedPackageCollection RelatedPackages { get; set; }
+        public RelatedPackageCollection? RelatedPackages { get; set; }
 
         /// <summary>
         /// Gets or sets the target directory where the dependencies contents should be extracted.
@@ -235,7 +236,7 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
         /// The dependencies target directory.
         /// </value>
         [JsonProperty(Order = 23)]
-        public string DependenciesDirectory { get; set; }
+        public string? DependenciesDirectory { get; set; }
     #endregion
 
     #region constructors
@@ -260,10 +261,11 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
     /// <param name="waitForIntegrationEntries">should wait for integration entries to complete</param>
     /// <param name="testPackages">The test Packages.</param>
     [JsonConstructor]
-    public CmfPackageV1(string name, string packageId, string version, string description, PackageType packageType,
-                      string targetDirectory, string targetLayer, bool? isInstallable, bool? isUniqueInstall, string keywords,
-                      bool? isToSetDefaultSteps, DependencyCollection dependencies, List<Step> steps,
-                      List<ContentToPack> contentToPack, List<string> xmlInjection, bool? waitForIntegrationEntries, DependencyCollection testPackages = null)
+    [SetsRequiredMembers]
+    public CmfPackageV1(string? name, string? packageId, string? version, string? description, PackageType packageType,
+                      string? targetDirectory, string? targetLayer, bool? isInstallable, bool? isUniqueInstall, string? keywords,
+                      bool? isToSetDefaultSteps, DependencyCollection? dependencies, List<Step>? steps,
+                      List<ContentToPack>? contentToPack, List<string>? xmlInjection, bool? waitForIntegrationEntries, DependencyCollection? testPackages = null)
             : this()
     {
         if (dependencies != null)
@@ -271,11 +273,11 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
             // Normalize version ranges to just the upper limit
             foreach (var dep in dependencies)
             {
-                if (dep.Version.Contains('[') && dep.Version.Contains(']'))
+                if (dep.Version != null && dep.Version.Contains('[') && dep.Version.Contains(']'))
                 {
                     dep.Version = dep.Version.Replace("[", "").Replace("]", "").Split(',').Last().Trim();
                 }
-            }   
+            }
         }
 
         Name = name;
@@ -305,12 +307,12 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
     }
     #endregion
     
-    public bool Equals(CmfPackageV1 other)
+    public bool Equals(CmfPackageV1? other)
     {
         throw new NotImplementedException();
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         if (obj is null) return false;
         if (ReferenceEquals(this, obj)) return true;

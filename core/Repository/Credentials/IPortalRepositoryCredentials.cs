@@ -5,6 +5,6 @@ namespace Cmf.CLI.Core.Repository.Credentials
 {
     public interface IPortalRepositoryCredentials : IRepositoryCredentials
     {
-        public Task<ICredential> TryRenewToken(CmfAuthFile authFile);
+        public Task<ICredential?> TryRenewToken(CmfAuthFile authFile);
     }
 }

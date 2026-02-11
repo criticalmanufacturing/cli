@@ -35,7 +35,7 @@ namespace Cmf.CLI.Core.Objects
         /// </summary>
         /// <param name="preRelease">get the pre-release latest version</param>
         /// <returns>a version identifier</returns>
-        Task<string> GetLatestVersion(bool preRelease = false);
+        Task<string?> GetLatestVersion(bool preRelease = false);
 
         /// <summary>
         /// Find plugins in the optionally provided registries
@@ -50,27 +50,27 @@ namespace Cmf.CLI.Core.Objects
     {
         Task<List<string>> SearchPackages(string query);
         
-        Task<CmfPackageV1> FetchPackageVersion(string packageName, string version);
+        Task<CmfPackageV1?> FetchPackageVersion(string packageName, string version);
 
-        Task<IFileInfo> DownloadPackage(string packageName, string version, IFileInfo output);
+        Task<IFileInfo?> DownloadPackage(string packageName, string version, IFileInfo output);
 
         Task PublishPackage(IFileInfo package);
     }
 
     public interface IPackage
     {
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public bool IsOfficial { get; set; }
-        public string Registry { get; set; }
-        public Uri Link { get; set; }
+        public string? Registry { get; set; }
+        public Uri? Link { get; set; }
     }
 
     class Package : IPackage
     {
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public bool IsOfficial { get; set; }
-        public string Registry { get; set; }
-        public Uri Link { get; set; }
+        public string? Registry { get; set; }
+        public Uri? Link { get; set; }
     }
 
     /// <summary>
@@ -89,25 +89,28 @@ namespace Cmf.CLI.Core.Objects
                 {
                     internal record PackageLinks
                     {
-                        public string Npm { get; set; }
+                        public string? Npm { get; set; }
                     }
-                    public string Name { get; set; }
-                    public string Scope { get; set; }
-                    public string Version { get; set; }
-                    public PackageLinks Links { get; set; }
+                    public string? Name { get; set; }
+                    public string? Scope { get; set; }
+                    public string? Version { get; set; }
+                    public PackageLinks? Links { get; set; }
                 }
 
-                public SearchPackage Package { get; set; }
+                public SearchPackage? Package { get; set; }
             }
-            public List<PackageResult> Objects { get; set; }
+            public List<PackageResult>? Objects { get; set; }
         }
 
-        public NPMClient(string baseUrl = CoreConstants.NpmJsUrl, HttpClient client = null)
+        public NPMClient(string baseUrl = CoreConstants.NpmJsUrl, HttpClient? client = null)
         {
             this.baseUrl = baseUrl.TrimEnd('/');
             this.client = client ?? new HttpClient();
 
-            var authStore = ExecutionContext.ServiceProvider.GetService<IRepositoryAuthStore>();
+            var authStore =
+                ExecutionContext.ServiceProvider?.GetService<IRepositoryAuthStore>()
+                ?? throw new InvalidOperationException(
+                    "IRepositoryAuthStore is not registered");
             var credentials = authStore.GetCredentialsFor<NPMRepositoryCredentials>(authStore.GetOrLoad().GetAwaiter().GetResult(), baseUrl);
 
             ApplyAuthenticationHeaders(this.client, baseUrl, credentials);
@@ -124,7 +127,7 @@ namespace Cmf.CLI.Core.Objects
         /// </summary>
         /// <param name="preRelease">get the pre-release latest version</param>
         /// <returns>a version identifier</returns>
-        public async Task<string> GetLatestVersion(bool preRelease = false)
+        public async Task<string?> GetLatestVersion(bool preRelease = false)
         {
             var client = this.client;
             client.Timeout = TimeSpan.FromSeconds(10);
@@ -162,13 +165,13 @@ namespace Cmf.CLI.Core.Objects
                         return Array.Empty<IPackage>();
                     }
                     var body = await res.Content.ReadFromJsonAsync<SearchResults>();
-                    return body.Objects.Select(obj => new Package()
+                    return body?.Objects?.Select(obj => new Package()
                     {
-                        Name = obj.Package.Name,
-                        IsOfficial = string.Equals(obj.Package.Scope, "criticalmanufacturing"),
+                        Name = obj.Package?.Name,
+                        IsOfficial = string.Equals(obj.Package?.Scope, "criticalmanufacturing"),
                         Registry = registry.AbsoluteUri,
-                        Link = new Uri(obj.Package.Links.Npm)
-                    } as IPackage);
+                        Link = obj.Package?.Links?.Npm is string npm ? new Uri(npm) : null
+                    } as IPackage) ?? Enumerable.Empty<IPackage>();
 
                 }).Select(t => t.Result).ToArray();
 
@@ -195,10 +198,10 @@ namespace Cmf.CLI.Core.Objects
             }
             var searchResult = await res.Content.ReadFromJsonAsync<SearchResults>();
 
-            return searchResult.Objects.Select(package => package.Package.Name).ToList();
+            return searchResult?.Objects?.Select(package => package.Package?.Name).OfType<string>().ToList() ?? [];
         }
         
-        public async Task<NpmPackageVersion> FetchPackageInfo(string packageName, string version)
+        public async Task<NpmPackageVersion?> FetchPackageInfo(string packageName, string version)
         {
             var client = this.client;
             var url = $"{this.baseUrl}/{packageName}";
@@ -213,10 +216,10 @@ namespace Cmf.CLI.Core.Objects
             
             var packageVersion = JsonConvert.DeserializeObject<NpmPackageInfo>(body);
 
-            return !packageVersion.Versions.ContainsKey(version) ? null : packageVersion.Versions[version];
+            return packageVersion?.Versions?.GetValueOrDefault(version);
         }
         
-        public async Task<CmfPackageV1> FetchPackageVersion(string packageName, string version)
+        public async Task<CmfPackageV1?> FetchPackageVersion(string packageName, string version)
         {
             var client = this.client;
             var url = $"{this.baseUrl}/{packageName}";
@@ -232,8 +235,12 @@ namespace Cmf.CLI.Core.Objects
             // Parse the JSON string into a JObject
             var bodyJson = JObject.Parse(body);
 
-            // Extract the 'address' property as a JObject
-            var versions = (JObject)bodyJson["versions"];
+            // Extract the 'versions' property as a JObject
+            if (bodyJson["versions"] is not JObject versions)
+            {
+                Log.Debug($"Could not get package {packageName}@{version} from {this.baseUrl}: versions property missing.");
+                return null;
+            }
 
             if (!versions.ContainsKey(version))
             {
@@ -241,16 +248,14 @@ namespace Cmf.CLI.Core.Objects
 
                 return null;
             }
-            
+
             // Convert the address JObject back into a string
-            string versionManifest = versions[version].ToString();
+            string versionManifest = versions[version]!.ToString();
 
-            var ctrlr = new CmfPackageController(CmfPackageController.FromJson(versionManifest), null);
-
-            return ctrlr.CmfPackage;
+            return CmfPackageController.FromJson(versionManifest);
         }
 
-        public async Task<IFileInfo> DownloadPackage(string packageName, string version, IFileInfo output)
+        public async Task<IFileInfo?> DownloadPackage(string packageName, string version, IFileInfo output)
         {
             var client = this.client;
             
@@ -260,6 +265,11 @@ namespace Cmf.CLI.Core.Objects
                 return null;
             }
             
+            if (pkg.Dist?.Tarball is not string tarball)
+            {
+                return null;
+            }
+
             // Get the HTTP response as a stream
             // Open a FileStream for writing the downloaded file
             if (!output.Exists)
@@ -267,9 +277,9 @@ namespace Cmf.CLI.Core.Objects
                 await using var stream = output.Create();
             }
             await using var fileStream = output.OpenWrite();
-            Log.Warning($"Downloading package {pkg.Dist.Tarball}");
+            Log.Warning($"Downloading package {tarball}");
             // Get the HTTP response as a stream
-            using var response = await client.GetAsync(pkg.Dist.Tarball, HttpCompletionOption.ResponseHeadersRead);
+            using var response = await client.GetAsync(tarball, HttpCompletionOption.ResponseHeadersRead);
             response.EnsureSuccessStatusCode(); // Throw if not successful
             Log.Debug("Download got a successful code, saving to temp file");
             Stopwatch stopwatch = new Stopwatch();
@@ -292,7 +302,8 @@ namespace Cmf.CLI.Core.Objects
 
             var manifest = ctrlr.ToJson(toLowerCase, addManifestVersion);
 
-            var name = toLowerCase ? ctrlr.CmfPackage.PackageId.ToLowerInvariant() : ctrlr.CmfPackage.PackageId;
+            var packageId = ctrlr.CmfPackage.PackageId ?? throw new CliException($"Package has no PackageId");
+            var name = toLowerCase ? packageId.ToLowerInvariant() : packageId;
             var tgz = $"{name}-{ctrlr.CmfPackage.Version}.tgz";
             Log.Debug($"Trying to publish {name} to {this.baseUrl}");
             HttpContent content;
@@ -446,11 +457,14 @@ namespace Cmf.CLI.Core.Objects
                     }
                 }
                 """);
-            // patch version manifest
-            root["versions"][ctrlr.CmfPackage.Version]["_id"] = $"{name}@{ctrlr.CmfPackage.Version}";
-            root["versions"][ctrlr.CmfPackage.Version]["_cliVersion"] = ExecutionContext.CurrentVersion;
-            root["versions"][ctrlr.CmfPackage.Version]["_integrity"] = sha512Hash;
-            root["versions"][ctrlr.CmfPackage.Version]["dist"] = JObject.Parse($$"""
+
+                var versions = root["versions"] ?? throw new InvalidOperationException("versions missing");
+                var versionObj = versions[ctrlr.CmfPackage.Version] ?? throw new InvalidOperationException("versions missing");
+                // patch version manifest
+                versionObj["_id"] = $"{name}@{ctrlr.CmfPackage.Version}";
+                versionObj["_cliVersion"] = ExecutionContext.CurrentVersion;
+                versionObj["_integrity"] = sha512Hash;
+                versionObj["dist"] = JObject.Parse($$"""
                   {
                     "integrity": "{{sha512Hash}}",
                     "shasum": "{{sha1Hash}}",
@@ -459,12 +473,12 @@ namespace Cmf.CLI.Core.Objects
                   """);
 
             // patch the base64-encoded data
-            root["_attachments"][tgz]["data"] = data;
+            root["_attachments"]?[tgz]?["data"] = data;
 
             return root.ToString(Formatting.None);
         }
 
-        private static HttpClient ApplyAuthenticationHeaders(HttpClient client, string baseUrl, ICredential credentials)
+        private static HttpClient ApplyAuthenticationHeaders(HttpClient client, string baseUrl, ICredential? credentials)
         {
             // handle authentication
             client.DefaultRequestHeaders.Authorization = credentials switch
@@ -491,22 +505,22 @@ namespace Cmf.CLI.Core.Objects
 
     public class NpmPackageInfo
     {
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public Dictionary<string, string> DistTags { get; set; }
-        public Dictionary<string, NpmPackageVersion> Versions { get; set; }
+        public string? Name { get; set; }
+        public string? Description { get; set; }
+        public Dictionary<string, string>? DistTags { get; set; }
+        public Dictionary<string, NpmPackageVersion>? Versions { get; set; }
     }
-    
+
     public class NpmPackageVersion
     {
-        public string Name { get; set; }
-        public string Version { get; set; }
-        public NpmPackageDist Dist { get; set; }
+        public string? Name { get; set; }
+        public string? Version { get; set; }
+        public NpmPackageDist? Dist { get; set; }
     }
 
     public class NpmPackageDist
     {
-        public string ShaSum { get; set; }
-        public string Tarball { get; set; }
+        public string? ShaSum { get; set; }
+        public string? Tarball { get; set; }
     }
 }

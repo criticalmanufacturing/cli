@@ -15,13 +15,13 @@ namespace Cmf.CLI.Core.Objects
     /// </summary>
     public class ExecutionContext
     {
-        private static ExecutionContext instance;
+        private static ExecutionContext? instance;
         private IFileSystem fileSystem;
 
         /// <summary>
         /// The current ExecutionContext object
         /// </summary>
-        public static ExecutionContext Instance => instance;
+        public static ExecutionContext? Instance => instance;
 
         /// <summary>
         /// The current FileSystem object
@@ -31,32 +31,32 @@ namespace Cmf.CLI.Core.Objects
         /// <summary>
         /// The current execution RepositoriesConfig object
         /// </summary>
-        public RepositoriesConfig RepositoriesConfig { get; set; }
+        public RepositoriesConfig RepositoriesConfig { get; set; } = new();
 
         /// <summary>
         /// the current repository's project config
         /// </summary>
-        public ProjectConfig ProjectConfig { get; private set; }
+        public ProjectConfig? ProjectConfig { get; private set; }
         
         /// <summary>
         /// The current repository app data (only applicable for repositories of type App)
         /// </summary>
-        public AppData AppData { get; } 
+        public AppData? AppData { get; } 
 
         /// <summary>
         /// Get the current (executing) version of the CLI
         /// </summary>
-        public static string CurrentVersion => (ServiceProvider.GetService<IVersionService>()!.CurrentVersion) ?? "dev";
+        public static string CurrentVersion => (ServiceProvider?.GetService<IVersionService>()?.CurrentVersion) ?? "dev";
 
         /// <summary>
         /// Get or set the latest version of the CLI. Use this if the CLI checks for new versions
         /// </summary>
-        public static string LatestVersion { get; set; }
+        public static string? LatestVersion { get; set; }
 
         /// <summary>
         /// Get the package id of the current running application
         /// </summary>
-        public static string PackageId => (ServiceProvider.GetService<IVersionService>()!.PackageId) ?? "unknown";
+        public static string PackageId => (ServiceProvider?.GetService<IVersionService>()?.PackageId) ?? "unknown";
 
         /// <summary>
         /// true if we're running a development/unstable version 
@@ -67,7 +67,7 @@ namespace Cmf.CLI.Core.Objects
         /// IoC container for services
         /// NOTE: As we already have this ExecutionContext object, we're not enabling Hosting, but instead we are hosting the container in the execution context
         /// </summary>
-        public static ServiceProvider ServiceProvider { get; set; }
+        public static ServiceProvider? ServiceProvider { get; set; }
 
         /// <summary>
         /// Is the current CLI outdated.
@@ -79,16 +79,16 @@ namespace Cmf.CLI.Core.Objects
         /// Prefix that should be used in environment variables defition in the whole aplication
         /// example: telemetry service envars use this prefix
         /// </summary>
-        public static string EnvVarPrefix { get; set; }
+        public static string? EnvVarPrefix { get; set; }
 
         /// <summary>
         /// Cache of the Related Packages
         /// </summary>
-        public static RelatedPackageCollection RelatedPackagesCache { get; set; }
+        public static RelatedPackageCollection RelatedPackagesCache { get; set; } = new();
 
         public bool RunningOnWindows { get; set; }
 
-        public List<ICIFSClient> CIFSClients { get; set; }
+        public List<ICIFSClient> CIFSClients { get; set; } = [];
 
         private ExecutionContext(IFileSystem fileSystem)
         {
@@ -104,7 +104,7 @@ namespace Cmf.CLI.Core.Objects
             this.AppData = FileSystemUtilities.ReadAppData(fileSystem);
             if (ServiceProvider != null)
             {
-                IProjectConfigService pcs = ServiceProvider.GetService<IProjectConfigService>();
+                IProjectConfigService? pcs = ServiceProvider.GetService<IProjectConfigService>();
                 if (pcs != null)
                 {
                     this.ProjectConfig = pcs.Load(fileSystem);

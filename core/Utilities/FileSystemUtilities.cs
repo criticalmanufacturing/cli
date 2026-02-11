@@ -36,7 +36,7 @@ namespace Cmf.CLI.Utilities
         /// <param name="fileSystem">the underlying file system</param>
         /// <returns></returns>
         /// <exception cref="DirectoryNotFoundException">$"Source directory does not exist or could not be found: {sourceDirName}</exception>
-        public static List<FileToPack> GetFilesToPack(ContentToPack contentToPack, string sourceDirName, string destDirName, IFileSystem fileSystem, List<string> contentToIgnore = null, bool copySubDirs = true, bool isCopyDependencies = false, List<FileToPack> filesToPack = null)
+        public static List<FileToPack> GetFilesToPack(ContentToPack contentToPack, string sourceDirName, string destDirName, IFileSystem fileSystem, List<string>? contentToIgnore = null, bool copySubDirs = true, bool isCopyDependencies = false, List<FileToPack>? filesToPack = null)
         {
             if (filesToPack == null)
             {
@@ -59,7 +59,7 @@ namespace Cmf.CLI.Utilities
             }
 
             // skip if is to ignore folder
-            if (contentToIgnore.Has(dir.Name))
+            if (contentToIgnore?.Has(dir.Name) == true)
             {
                 return new();
             }
@@ -70,7 +70,7 @@ namespace Cmf.CLI.Utilities
             IFileInfo[] files = dir.GetFiles();
             foreach (IFileInfo file in files)
             {
-                if (contentToIgnore.Has(file.Name))
+                if (contentToIgnore?.Has(file.Name) == true)
                 {
                     continue;
                 }
@@ -90,7 +90,7 @@ namespace Cmf.CLI.Utilities
             {
                 foreach (IDirectoryInfo subdir in dirs)
                 {
-                    if (contentToIgnore.Has(subdir.Name))
+                    if (contentToIgnore?.Has(subdir.Name) == true)
                     {
                         continue;
                     }
@@ -114,7 +114,7 @@ namespace Cmf.CLI.Utilities
         /// <param name="fileSystem">the underlying file system</param>
         /// <exception cref="DirectoryNotFoundException">Source directory does not exist or could not be found: "
         /// + sourceDirName</exception>
-        public static void CopyDirectory(string sourceDirName, string destDirName, IFileSystem fileSystem, List<string> contentToIgnore = null, bool copySubDirs = true, bool isCopyDependencies = false)
+        public static void CopyDirectory(string sourceDirName, string destDirName, IFileSystem fileSystem, List<string>? contentToIgnore = null, bool copySubDirs = true, bool isCopyDependencies = false)
         {
             // Get the subdirectories for the specified directory.
             IDirectoryInfo dir = fileSystem.DirectoryInfo.New(sourceDirName);
@@ -132,7 +132,7 @@ namespace Cmf.CLI.Utilities
             }
 
             // skip if is to ignore folder
-            if (contentToIgnore.Has(dir.Name)) return;
+            if (contentToIgnore == null || contentToIgnore.Has(dir.Name)) return;
 
             IDirectoryInfo[] dirs = dir.GetDirectories();
 
@@ -224,7 +224,7 @@ namespace Cmf.CLI.Utilities
         /// </summary>
         /// <returns></returns>
         /// <exception cref="CliException">Cannot find package root. Are you in a valid package directory?</exception>
-        public static IDirectoryInfo GetPackageRoot(IFileSystem fileSystem, string workingDir = null)
+        public static IDirectoryInfo? GetPackageRoot(IFileSystem fileSystem, string? workingDir = null)
         {
             var cwd = fileSystem.DirectoryInfo.New(workingDir ?? fileSystem.Directory.GetCurrentDirectory());
             var cur = cwd;
@@ -242,7 +242,7 @@ namespace Cmf.CLI.Utilities
         /// <returns></returns>
         /// <exception cref="CliException">Cannot find project root. Are you in a valid project directory?</exception>
         /// <exception cref="CliException">Cannot find project root. Are you in a valid project directory?</exception>
-        public static IDirectoryInfo GetProjectRoot(IFileSystem fileSystem, bool throwException = false)
+        public static IDirectoryInfo? GetProjectRoot(IFileSystem fileSystem, bool throwException = false)
         {
             var cwd = fileSystem.DirectoryInfo.New(fileSystem.Directory.GetCurrentDirectory());
             var cur = cwd;
@@ -267,9 +267,9 @@ namespace Cmf.CLI.Utilities
         /// <param name="fileSystem">the underlying file system</param>
         /// <returns></returns>
         /// <exception cref="CliException">Cannot find project root. Are you in a valid project directory?</exception>
-        public static IDirectoryInfo GetPackageRootByType(string directoryName, PackageType packageType, IFileSystem fileSystem)
+        public static IDirectoryInfo? GetPackageRootByType(string directoryName, PackageType packageType, IFileSystem fileSystem)
         {
-            var cwd = fileSystem.DirectoryInfo.New(directoryName);
+            IDirectoryInfo cwd = fileSystem.DirectoryInfo.New(directoryName);
             var cur = cwd;
             while (cur != null)
             {
@@ -304,7 +304,7 @@ namespace Cmf.CLI.Utilities
 
             envConfigName = envConfigName.Contains(fileSystem.Path.PathSeparator)
                 ? envConfigName
-                : fileSystem.Path.Join(GetProjectRoot(fileSystem).FullName, "EnvironmentConfigs", envConfigName);
+                : fileSystem.Path.Join(GetProjectRoot(fileSystem)?.FullName, "EnvironmentConfigs", envConfigName);
 
             var json = fileSystem.File.ReadAllText(envConfigName);
 
@@ -334,7 +334,7 @@ namespace Cmf.CLI.Utilities
         {
             var cwd = fileSystem.DirectoryInfo.New(fileSystem.Directory.GetCurrentDirectory());
             var cur = cwd;
-            string repoConfigPath = null;
+            string? repoConfigPath = null;
             var repoConfig = new RepositoriesConfig();
             while (cur != null)
             {
@@ -354,7 +354,7 @@ namespace Cmf.CLI.Utilities
             if (repoConfigPath != null)
             {
                 var json = fileSystem.File.ReadAllText(repoConfigPath);
-                repoConfig = JsonConvert.DeserializeObject<RepositoriesConfig>(json);
+                repoConfig = JsonConvert.DeserializeObject<RepositoriesConfig>(json) ?? new RepositoriesConfig();
             }
 
             return repoConfig;
@@ -365,9 +365,9 @@ namespace Cmf.CLI.Utilities
         /// </summary>
         /// <param name="fileSystem"></param>
         /// <returns></returns>
-        public static AppData ReadAppData(IFileSystem fileSystem)
+        public static AppData? ReadAppData(IFileSystem fileSystem)
         {
-            IDirectoryInfo projectRoot = GetProjectRoot(fileSystem);
+            IDirectoryInfo? projectRoot = GetProjectRoot(fileSystem);
 
             if (projectRoot == null)
             {
@@ -424,7 +424,7 @@ namespace Cmf.CLI.Utilities
         /// <param name="outputDir">The output dir.</param>
         /// <param name="force">if set to <c>true</c> [force].</param>
         /// <returns></returns>
-        public static IDirectoryInfo GetOutputDir(CmfPackage cmfPackage, IDirectoryInfo outputDir, bool force)
+        public static IDirectoryInfo? GetOutputDir(CmfPackage cmfPackage, IDirectoryInfo outputDir, bool force)
         {
             // Create OutputDir
             if (!outputDir.Exists)
@@ -479,10 +479,10 @@ namespace Cmf.CLI.Utilities
         /// </summary>
         /// <param name="packageFile"></param>
         /// <returns></returns>
-        public static XDocument GetManifestFromPackage(string packageFile, IFileSystem fileSystem = null)
+        public static XDocument? GetManifestFromPackage(string packageFile, IFileSystem? fileSystem = null)
         {
             fileSystem ??= new FileSystem();
-            XDocument dFManifest = null;
+            XDocument? dFManifest = null;
 
             using (var zipToOpen = fileSystem.FileStream.New(packageFile, FileMode.Open))
             {
@@ -509,7 +509,7 @@ namespace Cmf.CLI.Utilities
         /// <param name="packageFile"></param>
         /// <param name="filename"></param>
         /// <returns></returns>
-        public static string GetFileContentFromPackage(string packageFile, string filename, IFileSystem fileSystem = null)
+        public static string? GetFileContentFromPackage(string packageFile, string filename, IFileSystem? fileSystem = null)
         {
             fileSystem ??= new FileSystem();
             using (var zipToOpen = fileSystem.FileInfo.New(packageFile).OpenRead())
@@ -571,7 +571,7 @@ namespace Cmf.CLI.Utilities
         {
             string path = uri.IsUnc ? uri.OriginalString : uri.LocalPath;
 
-            return ExecutionContext.Instance.FileSystem.DirectoryInfo.New(path);
+            return (ExecutionContext.Instance ?? throw new InvalidOperationException("ExecutionContext not initialized")).FileSystem.DirectoryInfo.New(path);
         }
 
         /// <summary>
@@ -593,7 +593,7 @@ namespace Cmf.CLI.Utilities
         {
             string path = uri.IsUnc ? uri.OriginalString : uri.LocalPath;
 
-            return ExecutionContext.Instance.FileSystem.FileInfo.New(path);
+            return (ExecutionContext.Instance ?? throw new InvalidOperationException("ExecutionContext not initialized")).FileSystem.FileInfo.New(path);
         }
 
         /// <summary>

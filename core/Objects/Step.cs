@@ -32,7 +32,7 @@ namespace Cmf.CLI.Core.Objects
         /// The title.
         /// </value>
         [JsonProperty(Order = 4)]
-        public string Title { get; set; }
+        public string? Title { get; set; }
 
         /// <summary>
         /// Gets or sets the on execute.
@@ -41,7 +41,7 @@ namespace Cmf.CLI.Core.Objects
         /// The on execute.
         /// </value>
         [JsonProperty(Order = 6)]
-        public string OnExecute { get; set; }
+        public string? OnExecute { get; set; }
 
         /// <summary>
         /// Gets or sets the content path.
@@ -50,7 +50,7 @@ namespace Cmf.CLI.Core.Objects
         /// The content path.
         /// </value>
         [JsonProperty(Order = 5)]
-        public string ContentPath { get; set; }
+        public string? ContentPath { get; set; }
 
         /// <summary>
         /// Gets or sets the content.
@@ -59,7 +59,7 @@ namespace Cmf.CLI.Core.Objects
         /// The content.
         /// </value>
         [JsonProperty(Order = 10)]
-        public string Content { get; set; }
+        public string? Content { get; set; }
 
         /// <summary>
         /// Gets or sets the file.
@@ -68,7 +68,7 @@ namespace Cmf.CLI.Core.Objects
         /// The file.
         /// </value>
         [JsonProperty(Order = 7)]
-        public string File { get; set; }
+        public string? File { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether [tag file].
@@ -86,7 +86,7 @@ namespace Cmf.CLI.Core.Objects
         /// The target database.
         /// </value>
         [JsonProperty(Order = 9)]
-        public string TargetDatabase { get; set; }
+        public string? TargetDatabase { get; set; }
         
         /// <summary>
         /// Gets or sets the old system name.
@@ -95,7 +95,7 @@ namespace Cmf.CLI.Core.Objects
         /// The old system name.
         /// </value>
         [JsonProperty(Order = 11)]
-        public string OldSystemName { get; set; }
+        public string? OldSystemName { get; set; }
 
         /// <summary>
         /// Gets or sets the type of the message.
@@ -110,7 +110,7 @@ namespace Cmf.CLI.Core.Objects
         /// <summary>
         /// the path of the file to load via masterdata
         /// </summary>
-        public string FilePath { get; set; }
+        public string? FilePath { get; set; }
 
         /// <summary>
         /// create master data in collection
@@ -120,32 +120,32 @@ namespace Cmf.CLI.Core.Objects
         /// <summary>
         /// the base path of the checklist images
         /// </summary>
-        public string ChecklistImagePath { get; set; }
+        public string? ChecklistImagePath { get; set; }
 
         /// <summary>
         /// the base path of the DEEs
         /// </summary>
-        public string DeeBasePath { get; set; }
+        public string? DeeBasePath { get; set; }
 
         /// <summary>
         /// the base path of the documents
         /// </summary>
-        public string DocumentFileBasePath { get; set; }
+        public string? DocumentFileBasePath { get; set; }
 
         /// <summary>
         /// the base path for the maps
         /// </summary>
-        public string MappingFileBasePath { get; set; }
+        public string? MappingFileBasePath { get; set; }
 
         /// <summary>
         /// the base path for the automation workflows
         /// </summary>
-        public string AutomationWorkflowFileBasePath { get; set; }
+        public string? AutomationWorkflowFileBasePath { get; set; }
 
         /// <summary>
         /// the base path for the exported objects
         /// </summary>
-        public string ImportXMLObjectPath { get; set; }
+        public string? ImportXMLObjectPath { get; set; }
 
         /// <summary>
         /// the order of the steps
@@ -170,7 +170,7 @@ namespace Cmf.CLI.Core.Objects
         /// Gets or Sets the relativePath.
         /// Useful for step handlers that allow specifying relative paths for the content.
         /// </summary>
-        public string RelativePath { get; set; }
+        public string? RelativePath { get; set; }
 
         /// <summary>
         /// Gets or sets the target platform for master data content.
@@ -196,11 +196,11 @@ namespace Cmf.CLI.Core.Objects
         /// <param name="relativePath"></param>
         /// <param name="filePath">The file path.</param>
         /// <exception cref="ArgumentNullException">type</exception>
-        public Step(StepType? type, string title, string onExecute, string contentPath, string file, bool? tagFile, string targetDatabase, MessageType? messageType, string relativePath, string filePath)
+        public Step(StepType? type, string? title, string? onExecute, string? contentPath, string? file, bool? tagFile, string? targetDatabase, MessageType? messageType, string? relativePath, string? filePath)
             : this(type, title, onExecute, contentPath, file, tagFile, targetDatabase, messageType, relativePath, filePath, null)
         { }
-        
-        public Step(StepType? type, string title, string onExecute, string contentPath, string file, bool? tagFile, string targetDatabase, MessageType? messageType, string relativePath, string filePath, string oldSystemName)
+
+        public Step(StepType? type, string? title, string? onExecute, string? contentPath, string? file, bool? tagFile, string? targetDatabase, MessageType? messageType, string? relativePath, string? filePath, string? oldSystemName)
         {
             Type = type ?? throw new ArgumentNullException(nameof(type));
             Title = title;
@@ -243,7 +243,7 @@ namespace Cmf.CLI.Core.Objects
         /// <returns>
         ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
         /// </returns>
-        public bool Equals(Step other)
+        public bool Equals(Step? other)
         {
             return other != null &&
                    Type == other.Type &&

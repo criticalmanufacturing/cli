@@ -9,8 +9,8 @@ namespace Cmf.CLI.Core.Objects
     /// </summary>
     public interface IProcessStartInfoCLI : IDisposable
     {
-        public Process Start();
-        public Process Process { get; set; }
+        public Process? Start();
+        public Process? Process { get; set; }
 
         public string FileName { get; set; }
         public string WorkingDirectory { get; set; }

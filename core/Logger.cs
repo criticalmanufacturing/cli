@@ -80,7 +80,7 @@ namespace Cmf.CLI.Core
         /// Logs the progress of an operation, single line with a spinner
         /// </summary>
         /// <param name="msg">initial message to print</param>
-        public static void Status(string msg, Action<StatusContext> action = null)
+        public static void Status(string msg, Action<StatusContext>? action = null)
         {
             AnsiConsole.Status().Start(msg, ctx =>
             {
@@ -144,7 +144,7 @@ namespace Cmf.CLI.Core
         /// </summary>
         /// <param name="msg">message to be escaped</param>
         /// <returns>escaped message</returns>
-        private static string EscapeMarkup(string msg) => msg?.Replace("[", "[[").Replace("]", "]]");
+        private static string EscapeMarkup(string? msg) => (msg ?? string.Empty).Replace("[", "[[").Replace("]", "]]");
     }
 
     /// <summary>
@@ -207,11 +207,6 @@ namespace Cmf.CLI.Core
         //     The same instance so that multiple calls can be chained.
         public StatusContext Status(string status)
         {
-            if (context == null)
-            {
-                throw new ArgumentNullException("context");
-            }
-
             context.Status = status;
             return this;
         }

@@ -60,7 +60,7 @@ namespace Cmf.CLI.Core.Repository.Credentials
         public async Task SyncCredentials(IList<ICredential> credentials)
         {
 
-            IFileInfo nugetConfigFile = null;
+            IFileInfo? nugetConfigFile = null;
             try
             {
                 nugetConfigFile = GetConfigFile();

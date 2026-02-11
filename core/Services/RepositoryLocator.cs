@@ -16,7 +16,7 @@ public class RepositoryLocator : IRepositoryLocator
     private Dictionary<string, IRepositoryClient> clients = new();
     public IRepositoryClient GetRepositoryClient(Uri uri, IFileSystem fileSystem)
     {
-        IRepositoryClient client = null;
+        IRepositoryClient client;
         if (clients.TryGetValue(uri.AbsoluteUri, out var repositoryClient))
         {
             client = repositoryClient;
@@ -54,6 +54,9 @@ public class RepositoryLocator : IRepositoryLocator
                         }
                     }
                     break;
+                    default:
+                    throw new NotSupportedException(
+                        $"Unsupported repository scheme '{uri.Scheme}'.");
             }
             clients.Add(uri.AbsoluteUri, client);
         }
@@ -62,11 +65,11 @@ public class RepositoryLocator : IRepositoryLocator
 
     public IRepositoryClient GetSourceClient(IFileSystem fileSystem)
     {
-        var root = FileSystemUtilities.GetProjectRoot(fileSystem);
+        var root = FileSystemUtilities.GetProjectRoot(fileSystem) ?? throw new CliException("Not in a project repository");
         return this.GetRepositoryClient(new Uri(root.FullName), fileSystem);
     }
 
-    public void InitializeClientsForRepositories(IFileSystem fileSystem, IEnumerable<Uri> repoUris)
+    public void InitializeClientsForRepositories(IFileSystem fileSystem, IEnumerable<Uri>? repoUris)
     {
         if (repoUris == null)
         {
@@ -86,7 +89,7 @@ public class RepositoryLocator : IRepositoryLocator
         this.InitializeClientsForRepositories(fileSystem, null);
     }
 
-    public async Task<CmfPackageV1> FindPackage(string packageId, string packageVersion)
+    public async Task<CmfPackageV1?> FindPackage(string packageId, string packageVersion)
     {
         var x = this.clients.Where(pair => !pair.Value.Unreacheable).Select((pair) =>
         {

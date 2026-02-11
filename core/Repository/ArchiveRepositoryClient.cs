@@ -13,8 +13,8 @@ namespace Cmf.CLI.Core.Repository;
 
 public class ArchiveRepositoryClient : ICIFSRepositoryClient
 {
-    private IDirectoryInfo root;
-    private IFileInfo file;
+    private IDirectoryInfo? root;
+    private IFileInfo? file;
 
     public ArchiveRepositoryClient(string rootPath) : this(rootPath, new FileSystem())
     {
@@ -31,7 +31,7 @@ public class ArchiveRepositoryClient : ICIFSRepositoryClient
         }
     }
     
-    public async Task<CmfPackageV1> Find(string packageId, string version)
+    public async Task<CmfPackageV1?> Find(string packageId, string version)
     {
         ArgumentNullException.ThrowIfNull(version);
 
@@ -46,15 +46,16 @@ public class ArchiveRepositoryClient : ICIFSRepositoryClient
 
     public Task Put(CmfPackageV1 package)
     {
-        var targetFilePath = root.FileSystem.Path.Join(root.FullName, $"{package.PackageDotRef}.zip");
-        // using var fileStream = root.FileSystem.FileInfo.New(filePath).Create();
+        var r = root ?? throw new InvalidOperationException("Repository root is not set.");
+        var targetFilePath = r.FileSystem.Path.Join(r.FullName, $"{package.PackageDotRef}.zip");
+        // using var fileStream = r.FileSystem.FileInfo.New(filePath).Create();
         // package.Stream.Seek(0, SeekOrigin.Begin);
         // package.Stream.CopyTo(fileStream);
-        var originFile = package.Client.Get(package, root);
+        var originFile = (package.Client ?? throw new CliException($"Package {package.PackageAtRef} has no associated client")).Get(package, r);
         return Task.CompletedTask;
     }
 
-    public Task<IFileInfo> Get(CmfPackageV1 package, IDirectoryInfo targetDirectory)
+    public Task<IFileInfo?> Get(CmfPackageV1 package, IDirectoryInfo targetDirectory)
     {
         var files = this.Unreacheable ? [] : (this.file != null ? [file] : root?.GetFiles($"{package.PackageDotRef}.*", SearchOption.TopDirectoryOnly));
         return Task.FromResult(files?.Where(f => f.Extension is ".tgz" or ".zip").FirstOrDefault());
@@ -62,9 +63,10 @@ public class ArchiveRepositoryClient : ICIFSRepositoryClient
 
     public async Task<IDirectoryInfo> Extract(CmfPackageV1 package, IDirectoryInfo targetDirectory)
     {
-        IDirectoryInfo depPkgDir = null;
+        IDirectoryInfo? depPkgDir = null;
         var fileSystem = targetDirectory.FileSystem;
-        var pkgFile = await this.Get(package, fileSystem.DirectoryInfo.New(fileSystem.Path.GetTempPath()));
+        var pkgFile = await this.Get(package, fileSystem.DirectoryInfo.New(fileSystem.Path.GetTempPath()))
+            ?? throw new CliException($"Could not find package {package.PackageAtRef}");
         using (Stream zipToOpen = pkgFile.OpenRead())
         {
             using (ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read))
@@ -103,11 +105,11 @@ public class ArchiveRepositoryClient : ICIFSRepositoryClient
             }
         }
 
-        return depPkgDir;
+        return depPkgDir ?? targetDirectory;
     }
 
-    public string RepositoryRoot => this.root.FullName;
-    public bool Unreacheable => !this.root.Exists;
+    public string RepositoryRoot => this.root?.FullName ?? string.Empty;
+    public bool Unreacheable => !(this.root?.Exists ?? false);
 
     private Task<CmfPackageV1Collection> GetPackages(string dependencyFileName)
     {

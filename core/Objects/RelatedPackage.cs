@@ -20,7 +20,7 @@ namespace Cmf.CLI.Core.Objects
         /// <value>
         /// The path.
         /// </value>
-        public string Path { get; set; }
+        public string? Path { get; set; }
 
         /// <summary>
         /// Should trigger build before the root triggered package
@@ -55,7 +55,7 @@ namespace Cmf.CLI.Core.Objects
         public bool PostPack { get; set; }
 
         [JsonIgnore]
-        public CmfPackage CmfPackage { get; set; }
+        public CmfPackage? CmfPackage { get; set; }
 
         [JsonIgnore]
         public bool IsSet { get; set; }
@@ -68,7 +68,7 @@ namespace Cmf.CLI.Core.Objects
         /// <returns>
         ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
         /// </returns>
-        public bool Equals(RelatedPackage other)
+        public bool Equals(RelatedPackage? other)
         {
             return other != null &&
                    Path.IgnoreCaseEquals(other.Path);
