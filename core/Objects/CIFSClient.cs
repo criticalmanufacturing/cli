@@ -26,7 +26,7 @@ namespace Core.Objects
 
         public CIFSClient(Uri uri, ISMBClient? smbClient = null)
         {
-            var authStore = ExecutionContext.ServiceProvider.GetService<IRepositoryAuthStore>();
+            var authStore = ExecutionContext.ServiceProvider?.GetService<IRepositoryAuthStore>();
 
             Server = uri.Host;
             _smbClient = smbClient ?? new SMB2Client();

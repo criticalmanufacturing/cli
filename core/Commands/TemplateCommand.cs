@@ -104,7 +104,7 @@ namespace Cmf.CLI.Core.Commands
             }
             
             var name = parameters.ContainsKey("name") ? parameters["name"] : "package"; // package is a placeholder, if name isn't provided, the template doesn't use it
-            var outputPath = parameters.ContainsKey("output") ? parameters["output"] : ExecutionContext.Instance.FileSystem.Directory.GetCurrentDirectory();
+            var outputPath = parameters.TryGetValue("output", out string? value) && !string.IsNullOrEmpty(value) ? value : ExecutionContext.Instance.FileSystem.Directory.GetCurrentDirectory();
 
             var version = (Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly())
                 .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
@@ -176,7 +176,7 @@ namespace Cmf.CLI.Core.Commands
                 {
                     List<ITemplatePackage> templatePackages = new List<ITemplatePackage>();
 
-                    string assemblyLocation = ExecutionContext.Instance.FileSystem.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                    string? assemblyLocation = ExecutionContext.Instance.FileSystem.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
                     
                     IEnumerable<string> expandedPaths = InstallRequestPathResolution.ExpandMaskedPath(ExecutionContext.Instance.FileSystem.Path.Join(assemblyLocation, "resources", "template_feed"), settings);
                     foreach (string path in expandedPaths)
@@ -257,37 +257,37 @@ namespace Cmf.CLI.Core.Commands
         {
             var args = new List<string>();
             var configTxt = this.fileSystem.File.ReadAllText(configFile.FullName);
-            dynamic configJson = JsonConvert.DeserializeObject(configTxt);
+            dynamic? configJson = JsonConvert.DeserializeObject(configTxt);
             if (configJson != null)
             {
                 // here we retrieve only the entries from config that are actually useful for a template
-                args.AddRange(new string[] { "--EnvironmentName", configJson["Product.SystemName"]?.Value ?? configJson["SYSTEM_NAME"]?.Value });
-                args.AddRange(new string[] { "--RESTPort", configJson["Product.ApplicationServer.Port"]?.Value ?? configJson["APPLICATION_PUBLIC_HTTP_PORT"]?.Value });
-                args.AddRange(new string[] { "--Tenant", configJson["Product.Tenant.Name"]?.Value ?? configJson["TENANT_NAME"]?.Value });
+                args.AddRange(new string[] { "--EnvironmentName", configJson["Product.SystemName"]?.Value ?? configJson["SYSTEM_NAME"]?.Value ?? "" });
+                args.AddRange(new string[] { "--RESTPort", configJson["Product.ApplicationServer.Port"]?.Value ?? configJson["APPLICATION_PUBLIC_HTTP_PORT"]?.Value ?? "" });
+                args.AddRange(new string[] { "--Tenant", configJson["Product.Tenant.Name"]?.Value ?? configJson["TENANT_NAME"]?.Value ?? "" });
 
-                args.AddRange(new string[] { "--vmHostname", configJson["Product.ApplicationServer.Address"]?.Value ?? configJson["APPLICATION_PUBLIC_HTTP_ADDRESS"]?.Value });
-                args.AddRange(new string[] { "--DBReplica1", configJson["Package[Product.Database.Online].Database.Server"]?.Value ?? configJson["DATABASE_ONLINE_MSSQL_ADDRESS"]?.Value });
+                args.AddRange(new string[] { "--vmHostname", configJson["Product.ApplicationServer.Address"]?.Value ?? configJson["APPLICATION_PUBLIC_HTTP_ADDRESS"]?.Value ?? "" });
+                args.AddRange(new string[] { "--DBReplica1", configJson["Package[Product.Database.Online].Database.Server"]?.Value ?? configJson["DATABASE_ONLINE_MSSQL_ADDRESS"]?.Value ?? "" });
                 args.AddRange(new string[] { "--DBReplica2", configJson["Package[Product.Database.Ods].Database.Server"]?.Value ?? configJson["DATABASE_ODS_MSSQL_ADDRESS"]?.Value ?? "" });
-                args.AddRange(new string[] { "--DBServerOnline", configJson["Package[Product.Database.Online].Database.Server"]?.Value ?? configJson["DATABASE_ONLINE_MSSQL_ADDRESS"]?.Value });
+                args.AddRange(new string[] { "--DBServerOnline", configJson["Package[Product.Database.Online].Database.Server"]?.Value ?? configJson["DATABASE_ONLINE_MSSQL_ADDRESS"]?.Value ?? "" });
                 args.AddRange(new string[] { "--DBServerODS", configJson["Package[Product.Database.Ods].Database.Server"]?.Value ?? configJson["DATABASE_ODS_MSSQL_ADDRESS"]?.Value ?? "" });
                 args.AddRange(new string[] { "--DBServerDWH", configJson["Package[Product.Database.Dwh].Database.Server"]?.Value ?? configJson["DATABASE_DWH_MSSQL_ADDRESS"]?.Value ?? "" });
                 args.AddRange(new string[] { "--ReportServerURI", configJson["Package.ReportingServices.Address"]?.Value ?? configJson["REPORTING_SSRS_WEB_PORTAL_URL"]?.Value ?? "" });
 
                 if (configJson["Packages.Root.TargetDirectory"]?.Value != null)
                 {
-                    args.AddRange(new string[] { "--InstallationPath", configJson["Packages.Root.TargetDirectory"]?.Value });
+                    args.AddRange(new string[] { "--InstallationPath", configJson["Packages.Root.TargetDirectory"]?.Value ?? "" });
                 }
                 if (configJson["Product.Database.BackupShare"]?.Value != null)
                 {
-                    args.AddRange(new string[] { "--DBBackupPath", configJson["Product.Database.BackupShare"]?.Value });
+                    args.AddRange(new string[] { "--DBBackupPath", configJson["Product.Database.BackupShare"]?.Value ?? "" });
                 }
                 if (configJson["Product.DocumentManagement.TemporaryFolder"]?.Value != null)
                 {
-                    args.AddRange(new string[] { "--TemporaryPath", configJson["Product.DocumentManagement.TemporaryFolder"]?.Value });
+                    args.AddRange(new string[] { "--TemporaryPath", configJson["Product.DocumentManagement.TemporaryFolder"]?.Value ?? "" });
                 }
-                args.AddRange(new string[] { "--HTMLPort", configJson["Product.Presentation.IisConfiguration.Binding.Port"]?.Value ?? configJson["APPLICATION_PUBLIC_HTTP_PORT"]?.Value });
+                args.AddRange(new string[] { "--HTMLPort", configJson["Product.Presentation.IisConfiguration.Binding.Port"]?.Value ?? configJson["APPLICATION_PUBLIC_HTTP_PORT"]?.Value ?? "" });
 
-                args.AddRange(new string[] {"--GatewayPort", configJson["Product.Gateway.Port"]?.Value ?? configJson["APPLICATION_PUBLIC_HTTP_PORT"]?.Value });
+                args.AddRange(new string[] {"--GatewayPort", configJson["Product.Gateway.Port"]?.Value ?? configJson["APPLICATION_PUBLIC_HTTP_PORT"]?.Value ?? "" });
 
                 var defaultDomain = configJson["Product.Security.Domain"]?.Value ??
                                     configJson["SECURITY_PORTAL_STRATEGY_LOCAL_AD_DEFAULT_DOMAIN"]?.Value;
@@ -339,7 +339,7 @@ namespace Cmf.CLI.Core.Commands
         /// </summary>
         /// <param name="path">the folder path</param>
         /// <returns>the CmfPackage in the folder</returns>
-        protected CmfPackage GetPackageInFolder(string path)
+        protected CmfPackage? GetPackageInFolder(string path)
         {
             var cmfPackage = this.fileSystem.Path.Join(path, CoreConstants.CmfPackageFileName);
             if (this.fileSystem.File.Exists(cmfPackage))

@@ -144,7 +144,7 @@ namespace Cmf.CLI.Core
         /// </summary>
         /// <param name="msg">message to be escaped</param>
         /// <returns>escaped message</returns>
-        private static string EscapeMarkup(string msg) => msg?.Replace("[", "[[").Replace("]", "]]");
+        private static string EscapeMarkup(string msg) => msg.Replace("[", "[[").Replace("]", "]]");
     }
 
     /// <summary>

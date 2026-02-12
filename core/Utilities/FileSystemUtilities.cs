@@ -267,9 +267,9 @@ namespace Cmf.CLI.Utilities
         /// <param name="fileSystem">the underlying file system</param>
         /// <returns></returns>
         /// <exception cref="CliException">Cannot find project root. Are you in a valid project directory?</exception>
-        public static IDirectoryInfo GetPackageRootByType(string directoryName, PackageType packageType, IFileSystem fileSystem)
+        public static IDirectoryInfo? GetPackageRootByType(string directoryName, PackageType packageType, IFileSystem fileSystem)
         {
-            var cwd = fileSystem.DirectoryInfo.New(directoryName);
+            IDirectoryInfo cwd = fileSystem.DirectoryInfo.New(directoryName);
             var cur = cwd;
             while (cur != null)
             {
@@ -365,9 +365,9 @@ namespace Cmf.CLI.Utilities
         /// </summary>
         /// <param name="fileSystem"></param>
         /// <returns></returns>
-        public static AppData ReadAppData(IFileSystem fileSystem)
+        public static AppData? ReadAppData(IFileSystem fileSystem)
         {
-            IDirectoryInfo projectRoot = GetProjectRoot(fileSystem);
+            IDirectoryInfo? projectRoot = GetProjectRoot(fileSystem);
 
             if (projectRoot == null)
             {
