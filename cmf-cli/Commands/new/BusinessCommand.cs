@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
+using System.CommandLine.Parsing;
 using System.IO.Abstractions;
+using System.Threading.Tasks;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
@@ -40,13 +41,23 @@ namespace Cmf.CLI.Commands.New
         /// <param name="cmd"></param>
         public override void Configure(Command cmd)
         {
-            cmd.AddOption(new Option<bool>(
-                aliases: new[] { "--addApplicationVersionAssembly", "-av" },
-                description: "Will add application version project to the final solution if project is an app"
-            ));
-            base.GetBaseCommandConfig(cmd);
+            var addApplicationVersionAssemblyOption = new Option<bool>("--addApplicationVersionAssembly", "-av")
+            {
+                Description = "Will add application version project to the final solution if project is an app"
+            };
+            cmd.Options.Add(addApplicationVersionAssemblyOption);
 
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, string, bool>(this.Execute);
+            var (workingDirArg, versionOpt) = base.GetBaseCommandConfig(cmd);
+
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                var workingDir = parseResult.GetValue(workingDirArg);
+                var version = parseResult.GetValue(versionOpt);
+                var addApplicationVersionAssembly = parseResult.GetValue(addApplicationVersionAssemblyOption);
+
+                Execute(workingDir, version, addApplicationVersionAssembly);
+                return Task.FromResult(0);
+            });
         }
 
         /// <summary>
@@ -58,7 +69,7 @@ namespace Cmf.CLI.Commands.New
         /// <exception cref="CliException"></exception>
         public void Execute(IDirectoryInfo workingDir, string version, bool addApplicationVersionAssembly)
         {
-            if (ExecutionContext.Instance.ProjectConfig.RepositoryType != RepositoryType.App && addApplicationVersionAssembly)
+            if (Core.Objects.ExecutionContext.Instance.ProjectConfig.RepositoryType != RepositoryType.App && addApplicationVersionAssembly)
             {
                 throw new CliException("Application version assembly should only be included in app projects.");
             }
@@ -70,21 +81,21 @@ namespace Cmf.CLI.Commands.New
         /// <inheritdoc />
         protected override List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args)
         {
-            var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            var mesVersion = Core.Objects.ExecutionContext.Instance.ProjectConfig.MESVersion;
             var includeMESNugets = true;
             
             if (mesVersion.Major > 8)
             {
                 this.CommandName = "business9";
-                var baseLayer = ExecutionContext.Instance.ProjectConfig.BaseLayer ?? CliConstants.DefaultBaseLayer;
+                var baseLayer = Core.Objects.ExecutionContext.Instance.ProjectConfig.BaseLayer ?? CliConstants.DefaultBaseLayer;
                 includeMESNugets = baseLayer == BaseLayer.MES;
                 Log.Debug($"Project is targeting base layer {baseLayer}, so scaffolding {(includeMESNugets ? "with" : "without")} MES nugets.");
 
                 args.AddRange(new []{ "--targetFramework",  mesVersion.Major >= 11 ? "net8.0" : "net6.0" });
 
-                if (ExecutionContext.Instance.ProjectConfig.RepositoryType == RepositoryType.App)
+                if (Core.Objects.ExecutionContext.Instance.ProjectConfig.RepositoryType == RepositoryType.App)
                 {
-                    var appData = ExecutionContext.Instance.AppData ??
+                    var appData = Core.Objects.ExecutionContext.Instance.AppData ??
                         throw new CliException("Could not retrieve repository AppData.");
                     args.AddRange(new[]
                     {

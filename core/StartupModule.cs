@@ -4,7 +4,6 @@ using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.CommandLine;
-using System.CommandLine.Builder;
 using System.CommandLine.Parsing;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -26,7 +25,7 @@ namespace Cmf.CLI.Core
         /// <param name="args">ar</param>
         /// <param name="npmClient">The NPM client. if is not set, we assume NPMClient implementation by default</param>
         /// <param name="registerExtraServices">function to add extra services to the ServiceProvider</param>
-        public static async Task<Tuple<RootCommand, Parser>> Configure(string packageName, string envVarPrefix, string description, string[] args, INPMClient npmClient = null, Action<IServiceCollection> registerExtraServices = null)
+        public static async Task<RootCommand> Configure(string packageName, string envVarPrefix, string description, string[] args, INPMClient npmClient = null, Action<IServiceCollection> registerExtraServices = null)
         {
             // in a scenario that cli is not running on a terminal,
             // the AnsiConsole.Profile.Width defaults to 80,which is a low value and causes unexpected break lines.
@@ -80,23 +79,13 @@ namespace Cmf.CLI.Core
             await VersionChecks();
 
             // add LogLevelOption
-            rootCommand.AddOption(LoggerHelpers.LogLevelOption);
+            rootCommand.Options.Add(LoggerHelpers.LogLevelOption);
 
             BaseCommand.AddChildCommands(rootCommand);
 
-            var parser = new CommandLineBuilder(rootCommand)
-                .UseVersionOption(new[] { "--version", "-v" })
-                .UseHelp()
-                .UseEnvironmentVariableDirective()
-                .UseParseDirective()
-                .UseSuggestDirective()
-                .RegisterWithDotnetSuggest()
-                .UseTypoCorrections()
-                .UseParseErrorReporting()
-                .UseExceptionHandler((exception, context) => CliException.Handler(exception))
-                .CancelOnProcessTermination()
-                .Build();
-
+            // Add environment variables directive
+            // Note: SuggestDirective is included by default in RootCommand.Directives
+            rootCommand.Directives.Add(new EnvironmentVariablesDirective());
 
             // Only await if provider task is still running
             if (!telemetryProviderInitTask.IsCompleted)
@@ -104,7 +93,7 @@ namespace Cmf.CLI.Core
                 telemetryProviderInitTask.GetAwaiter().GetResult();
             }
 
-            return new(rootCommand, parser);
+            return rootCommand;
         }
 
         /// <summary>

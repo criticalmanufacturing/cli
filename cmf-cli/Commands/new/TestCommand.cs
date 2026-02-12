@@ -5,10 +5,11 @@ using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
+using System.CommandLine.Parsing;
 using System.IO.Abstractions;
 using System.Linq;
 using System;
+using System.Threading.Tasks;
 
 namespace Cmf.CLI.Commands.New
 {
@@ -31,12 +32,19 @@ namespace Cmf.CLI.Commands.New
         /// <inheritdoc />
         public override void Configure(Command cmd)
         {
-            cmd.AddOption(new Option<string>(
-                aliases: new[] { "--version" },
-                description: "Package Version",
-                getDefaultValue: () => "1.0.0"
-            ));
-            cmd.Handler = CommandHandler.Create<string>(Execute);
+            var versionOption = new Option<string>("--version")
+            {
+                Description = "Package Version",
+                DefaultValueFactory = _ => "1.0.0"
+            };
+            cmd.Options.Add(versionOption);
+
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                var version = parseResult.GetValue(versionOption);
+                Execute(version);
+                return Task.FromResult(0);
+            });
         }
 
         /// <inheritdoc />
@@ -56,8 +64,8 @@ namespace Cmf.CLI.Commands.New
             var packageName = $"{organization}.{product}.Tests";
 
             var projectRoot = FileSystemUtilities.GetProjectRoot(this.fileSystem);
-            var repoType = ExecutionContext.Instance.ProjectConfig.RepositoryType ?? CliConstants.DefaultRepositoryType;
-            var projectConfig = ExecutionContext.Instance.ProjectConfig;
+            var repoType = Core.Objects.ExecutionContext.Instance.ProjectConfig.RepositoryType ?? CliConstants.DefaultRepositoryType;
+            var projectConfig = Core.Objects.ExecutionContext.Instance.ProjectConfig;
             var tenant = projectConfig.Tenant;
             var args = new List<string>()
             {
