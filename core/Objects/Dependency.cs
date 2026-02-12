@@ -101,7 +101,7 @@ namespace Cmf.CLI.Core.Objects
         /// <exception cref="ArgumentNullException">id
         /// or
         /// version</exception>
-        public Dependency(string id, string version) : this()
+        public Dependency(string? id, string? version) : this()
         {
             Id = id ?? throw new ArgumentNullException(nameof(id));
             Version = version ?? throw new ArgumentNullException(nameof(version));
@@ -126,7 +126,7 @@ namespace Cmf.CLI.Core.Objects
         /// <returns>
         ///   <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
         /// </returns>
-        public bool Equals(Dependency other)
+        public bool Equals(Dependency? other)
         {
             return other != null &&
                    Id.IgnoreCaseEquals(other.Id) &&

@@ -19,7 +19,7 @@ namespace Cmf.CLI.Core.Repository.Credentials
         }
 
         public override void WriteJson(JsonWriter writer,
-            object value, JsonSerializer serializer)
+            object? value, JsonSerializer serializer)
         {
             throw new InvalidOperationException("Use default serialization.");
         }
@@ -36,7 +36,7 @@ namespace Cmf.CLI.Core.Repository.Credentials
             }
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
             var credential = default(ICredential);
 
@@ -44,7 +44,7 @@ namespace Cmf.CLI.Core.Repository.Credentials
             // Resolve the property name dynamically to respect the NamingStrategy (if configured) used to serialize/deserialize
             var authTypeName = GetPropertyName(serializer, nameof(ICredential.AuthType));
 
-            var authType = (string)jsonObject[authTypeName];
+            var authType = (string?)jsonObject[authTypeName];
 
             if (string.Equals(authType, AuthType.Basic.ToString(), StringComparison.InvariantCultureIgnoreCase)) credential = new BasicCredential();
             else if (string.Equals(authType, AuthType.Bearer.ToString(), StringComparison.InvariantCultureIgnoreCase)) credential = new BearerCredential();

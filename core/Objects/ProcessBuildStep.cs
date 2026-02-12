@@ -54,20 +54,20 @@ public class ProcessBuildStep : IEquatable<ProcessBuildStep>
     #region IEquatable
 
     /// <inheritdoc />
-    public bool Equals(ProcessBuildStep other)
+    public bool Equals(ProcessBuildStep? other)
     {
         if (ReferenceEquals(null, other)) return false;
         return string.Equals(this.Command, other.Command) &&
                this.Args?.Length == other.Args?.Length &&
                (
                    other.Args == null ||
-                   (this.Args?.OrderBy(x => x).SequenceEqual(other.Args?.OrderBy(x => x)) ?? true)
+                   (this.Args?.OrderBy(x => x).SequenceEqual(other.Args.OrderBy(x => x)) ?? true)
                ) &&
                this.WorkingDirectory.FullName.Equals(other.WorkingDirectory.FullName);
     }
 
     /// <inheritdoc />
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;

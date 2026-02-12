@@ -13,8 +13,8 @@ namespace Cmf.CLI.Core.Objects
         public IEnumerable<Project> Projects;
 
         private IDirectoryInfo WorkingDirectory;
-        private IEnumerable<Project> Libraries;
-        private IEnumerable<Project> Applications;
+        private IEnumerable<Project>? Libraries;
+        private IEnumerable<Project>? Applications;
 
         public AngularWorkspace(IDirectoryInfo cwd)
         {
@@ -26,7 +26,7 @@ namespace Cmf.CLI.Core.Objects
         private IEnumerable<Project> GetProjects()
         {
             var angularjsonStr = WorkingDirectory.FileSystem.File.ReadAllText(WorkingDirectory.GetFiles("angular.json")[0].FullName);
-            var angularjson = JsonConvert.DeserializeObject<dynamic>(angularjsonStr);
+            var angularjson = JsonConvert.DeserializeObject<dynamic>(angularjsonStr) ?? throw new InvalidOperationException("Invalid JSON");
             var projects = new List<Project>();
 
             foreach (var project in angularjson.projects)

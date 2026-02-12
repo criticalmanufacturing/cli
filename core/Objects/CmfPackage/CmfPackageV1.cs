@@ -262,8 +262,8 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
     [JsonConstructor]
     public CmfPackageV1(string name, string packageId, string version, string description, PackageType packageType,
                       string targetDirectory, string targetLayer, bool? isInstallable, bool? isUniqueInstall, string keywords,
-                      bool? isToSetDefaultSteps, DependencyCollection dependencies, List<Step> steps,
-                      List<ContentToPack> contentToPack, List<string> xmlInjection, bool? waitForIntegrationEntries, DependencyCollection testPackages = null)
+                      bool? isToSetDefaultSteps, DependencyCollection? dependencies, List<Step> steps,
+                      List<ContentToPack> contentToPack, List<string> xmlInjection, bool? waitForIntegrationEntries, DependencyCollection? testPackages = null)
             : this()
     {
         if (dependencies != null)
@@ -305,12 +305,12 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
     }
     #endregion
     
-    public bool Equals(CmfPackageV1 other)
+    public bool Equals(CmfPackageV1? other)
     {
         throw new NotImplementedException();
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         if (obj is null) return false;
         if (ReferenceEquals(this, obj)) return true;

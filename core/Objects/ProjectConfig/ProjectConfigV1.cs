@@ -83,10 +83,10 @@ public class BooleanJsonConverter : Newtonsoft.Json.JsonConverter
         return objectType == typeof(bool);
     }
 
-    public override object ReadJson( JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer )
+    public override object? ReadJson( JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer )
     {
         // handle True and False as old project configs have these values (remnant of powershell implementation)
-        switch ( reader.Value.ToString().ToLower().Trim() )
+        switch (reader.Value?.ToString()?.ToLower().Trim())
         {
             case "true":
                 return true;
@@ -94,13 +94,13 @@ public class BooleanJsonConverter : Newtonsoft.Json.JsonConverter
                 return false;
             case "":
                 return null;
+            default:
+                // If it's not a string representation of a boolean, try the default deserialization (which can handle actual booleans and nulls)
+                 return new JsonSerializer().Deserialize(reader, objectType);
         }
-
-        // If we reach here, we're pretty much going to throw an error so let's let Json.NET throw it's pretty-fied error message.
-        return new JsonSerializer().Deserialize( reader, objectType );
     }
 
-    public override void WriteJson( JsonWriter writer, object value, JsonSerializer serializer )
+    public override void WriteJson( JsonWriter writer, object? value, JsonSerializer serializer )
     {
     }
 

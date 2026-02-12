@@ -41,7 +41,7 @@ namespace Cmf.CLI.Core.Objects
         /// <summary>
         /// The current repository app data (only applicable for repositories of type App)
         /// </summary>
-        public AppData AppData { get; } 
+        public AppData? AppData { get; } 
 
         /// <summary>
         /// Get the current (executing) version of the CLI
@@ -56,7 +56,7 @@ namespace Cmf.CLI.Core.Objects
         /// <summary>
         /// Get the package id of the current running application
         /// </summary>
-        public static string PackageId => (ServiceProvider.GetService<IVersionService>()!.PackageId) ?? "unknown";
+        public static string PackageId => (ServiceProvider?.GetService<IVersionService>()?.PackageId) ?? "unknown";
 
         /// <summary>
         /// true if we're running a development/unstable version 
@@ -67,7 +67,7 @@ namespace Cmf.CLI.Core.Objects
         /// IoC container for services
         /// NOTE: As we already have this ExecutionContext object, we're not enabling Hosting, but instead we are hosting the container in the execution context
         /// </summary>
-        public static ServiceProvider ServiceProvider { get; set; }
+        public static ServiceProvider? ServiceProvider { get; set; }
 
         /// <summary>
         /// Is the current CLI outdated.
@@ -79,7 +79,7 @@ namespace Cmf.CLI.Core.Objects
         /// Prefix that should be used in environment variables defition in the whole aplication
         /// example: telemetry service envars use this prefix
         /// </summary>
-        public static string EnvVarPrefix { get; set; }
+        public static string? EnvVarPrefix { get; set; }
 
         /// <summary>
         /// Cache of the Related Packages
@@ -104,7 +104,7 @@ namespace Cmf.CLI.Core.Objects
             this.AppData = FileSystemUtilities.ReadAppData(fileSystem);
             if (ServiceProvider != null)
             {
-                IProjectConfigService pcs = ServiceProvider.GetService<IProjectConfigService>();
+                IProjectConfigService? pcs = ServiceProvider.GetService<IProjectConfigService>();
                 if (pcs != null)
                 {
                     this.ProjectConfig = pcs.Load(fileSystem);

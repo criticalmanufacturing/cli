@@ -8,7 +8,7 @@ namespace Cmf.CLI.Core.Objects
     public interface IVersionService
     {
         public string PackageId { get; }
-        string CurrentVersion { get;  }
+        string? CurrentVersion { get;  }
     }
 
     /// <summary>
@@ -17,12 +17,12 @@ namespace Cmf.CLI.Core.Objects
     public class VersionService : IVersionService
     {
         public string PackageId { get; protected set; }
-        public string CurrentVersion { get; protected set; }
+        public string? CurrentVersion { get; protected set; }
 
-        public VersionService(string packageId, string currentVersion)
+        public VersionService(string packageId, string? currentVersion)
         {
             PackageId = packageId;
-            CurrentVersion = currentVersion ?? Assembly.GetEntryAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "dev";
+            CurrentVersion = currentVersion ?? Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "dev";
         }
 
         public VersionService(string packageId) : this(packageId, null) { }

@@ -28,8 +28,8 @@ public class CmfPackageController
     private const string NPMAliasPrefix = "npm:"; 
         
     private static List<CmfPackageV1> loadedPackages = new();
-    private CmfPackageV1 package;
-    private IFileSystem fileSystem;
+    private CmfPackageV1 package = null!;
+    private IFileSystem fileSystem = null!;
 
     public CmfPackageV1 CmfPackage => this.package; 
 
@@ -50,16 +50,16 @@ public class CmfPackageController
         this.package = package;
         this.fileSystem = fileSystem;
     }
-    public CmfPackageController(IFileInfo file, IFileSystem fileSystem = null, bool setDefaultValues = false)
+    public CmfPackageController(IFileInfo file, IFileSystem? fileSystem = null, bool setDefaultValues = false)
     {
         Log.Debug("Spinning up a controller for a CmfPackage file info: " + file.FullName);
         #if DEBUG
         // TODO: this is dumb
         var stackTrace = new StackTrace();
-        var callingMethod = stackTrace.GetFrame(1).GetMethod(); // Get the calling method
-        var callerType = callingMethod.DeclaringType; // Get the caller's type
+        var callingMethod = stackTrace.GetFrame(1)?.GetMethod(); // Get the calling method
+        var callerType = callingMethod?.DeclaringType; // Get the caller's type
 
-        if (callerType.GetInterface(nameof(IRepositoryClient)) == null)
+        if (callerType?.GetInterface(nameof(IRepositoryClient)) == null)
         {
             Log.Warning("This constructor can only be invoked from RepositoryClients!");
         }
@@ -76,7 +76,7 @@ public class CmfPackageController
             Log.Debug("File is a source package");
             // source package
             var cmfPackage = CmfPackageController.FromSourceManifest(file);
-            cmfPackage.Client = ExecutionContext.ServiceProvider.GetService<IRepositoryLocator>()
+            cmfPackage.Client = ExecutionContext.ServiceProvider.GetService<IRepositoryLocator>()!
                 .GetRepositoryClient(new Uri(file.FullName), file.FileSystem); // this is a hack to avoid awaiting for the LocalRepositoryClient as it is async
             // string fileContent = file.ReadToString();
             // CmfPackage cmfPackage = JsonConvert.DeserializeObject<CmfPackage>(fileContent);
@@ -246,7 +246,7 @@ public class CmfPackageController
     }
     
     
-    private static void LogUnknownAttributes(XElement element, IEnumerable<string> knownAttributes = null)
+    private static void LogUnknownAttributes(XElement element, IEnumerable<string>? knownAttributes = null)
     {
         knownAttributes ??= [];
         var allAttributes = element.Attributes().Select(a => a.Name.LocalName);
@@ -264,7 +264,7 @@ public class CmfPackageController
         XDocument dFManifestTemplate = XDocument.Load(dFManifestReader);
         var tokens = new Dictionary<string, string>();
 
-        XElement rootNode = dFManifestTemplate.Element("deploymentPackage", true);
+        XElement? rootNode = dFManifestTemplate.Element("deploymentPackage", true);
         if (rootNode == null)
         {
             throw new CliException(string.Format(CoreMessages.InvalidManifestFile));
@@ -278,13 +278,13 @@ public class CmfPackageController
 
             if (element.Name.LocalName == "dependencies")
             {
-                var deplist = element.Elements().Select(depEl => new Dependency(depEl.Attribute("id").Value, depEl.Attribute("version").Value));
+                var deplist = element.Elements().Select(depEl => new Dependency(depEl.Attribute("id")!.Value, depEl.Attribute("version")!.Value));
                 deps.AddRange(deplist);
             }
 
             if (element.Name.LocalName == "testPackages")
             {
-                var testPackagesList = element.Elements().Select(depEl => new Dependency(depEl.Attribute("id").Value, depEl.Attribute("version").Value));
+                var testPackagesList = element.Elements().Select(depEl => new Dependency(depEl.Attribute("id")!.Value, depEl.Attribute("version")!.Value));
                 testPackages.AddRange(testPackagesList);
             }
 
@@ -369,15 +369,17 @@ public class CmfPackageController
                 {
                     LogUnknownAttributes(element, KnownStepAttributes);
                     
+                    var typeAttr = element.Attribute("type")?.Value;
+                    var tagFileAttr = element.Attribute("tagFile")?.Value;
                     Step step = new Step(
-                        type: Enum.Parse(typeof(StepType), element.Attribute("type")?.Value) is StepType
-                            ? (StepType)Enum.Parse(typeof(StepType), element.Attribute("type")?.Value)
+                        type: typeAttr != null && Enum.TryParse<StepType>(typeAttr, out var stepType)
+                            ? stepType
                             : StepType.Generic,
                         title: element.Attribute("title")?.Value,
                         onExecute: element.Attribute("onExecute")?.Value,
                         contentPath: element.Attribute("contentPath")?.Value,
                         file: null,
-                        tagFile: element.Attribute("tagFile")?.Value != null ? bool.Parse(element.Attribute("tagFile")?.Value) : null,
+                        tagFile: tagFileAttr != null ? bool.Parse(tagFileAttr) : null,
                         targetDatabase: element.Attribute("targetDatabase")?.Value,
                         messageType: MessageType.ImportObject, // TODO: get value
                         relativePath: null,
@@ -446,7 +448,7 @@ public class CmfPackageController
                         isConditional = (bool)conditional;
                     }
 
-                    Dependency result = null;
+                    Dependency? result = null;
 
                     if (!string.IsNullOrWhiteSpace(id) && !string.IsNullOrWhiteSpace(versionRange))
                     {
@@ -471,17 +473,17 @@ public class CmfPackageController
                     //     result.AddMetadata(attr.Name.LocalName, attr.Value);
                     // }
 
-                    deps.Add(result);
+                    deps.Add(result!);
                 }
             }
-            
+
             var testPksElements = rootNode.Element("testPackages", true)?.Elements("testPackages", true);
             if (testPksElements != null)
             {
                 foreach (var element in testPksElements)
                 {
                     var testPackagesList = element.Elements().Select(depEl =>
-                        new Dependency(depEl.Attribute("id").Value, depEl.Attribute("version").Value));
+                        new Dependency(depEl.Attribute("id")!.Value, depEl.Attribute("version")!.Value));
                     testPackages.AddRange(testPackagesList);
                 }
             }
@@ -529,7 +531,7 @@ public class CmfPackageController
                 rootNode.Element("targetDirectory", true)?.Value,
                 rootNode.Element("targetLayer", true)?.Value,
                 bool.Parse(rootNode.Element("isInstallable", true)?.Value ?? "false"),
-                rootNode.Element("isUniqueInstall", true)?.Value != null ? bool.Parse(rootNode.Element("isUniqueInstall", true).Value) : false,
+                rootNode.Element("isUniqueInstall", true)?.Value is { } isUniqueVal ? bool.Parse(isUniqueVal) : false,
                 rootNode.Element("keywords", true)?.Value,
                 true,
                 deps,
@@ -545,7 +547,8 @@ public class CmfPackageController
 
     public static CmfPackageV1 FromJson(string manifest)
     {
-        return FromJson(JsonConvert.DeserializeObject<JObject>(manifest));
+        return FromJson(JsonConvert.DeserializeObject<JObject>(manifest)
+            ?? throw new CliException("Invalid manifest: could not parse JSON"));
     }
     
     /// <summary>
@@ -559,12 +562,12 @@ public class CmfPackageController
     {
         // Confirm if it is a standard deployment package
         var keywords = new List<string>();
-        
-        if (json.Property("keywords")?.Value != null && json.Property("keywords")?.Value.Type == JTokenType.Array)
+
+        if (json.Property("keywords")?.Value is { Type: JTokenType.Array } keywordsValue)
         {
-            keywords = JsonConvert.DeserializeObject<List<string>>(json.Property("keywords")!.Value.ToString());
+            keywords = JsonConvert.DeserializeObject<List<string>>(keywordsValue.ToString()) ?? [];
         }
-        
+
         bool isDeploymentPackage = keywords.Any(k => ((JToken)k).ToString() == JSONPackageKeyword);
         bool isTestPackage = keywords.Any(k => ((JToken)k).ToString() == JSONTestsPackageKeyword);
 
@@ -621,8 +624,8 @@ public class CmfPackageController
         //     }
         // }
 
-        var deploymentVariables = rootNode.Children<JObject>();
-        string packageType = null;
+        var deploymentVariables = rootNode!.Children<JObject>();
+        string? packageType = null;
 
         foreach (var entry in deploymentVariables)
         {
@@ -669,11 +672,11 @@ public class CmfPackageController
             // package.IsInstallable = bool.Parse(entry.Property("isInstallable")?.Value.ToString() ?? "false");
         }
 
-        var auxArr = (JObject)rootNode.Value;
+        var auxArr = (JObject)rootNode!.Value!;
         var steps = new List<Step>();
-        if (auxArr.Property("steps").Value.Type == JTokenType.Array)
+        if (auxArr.Property("steps")?.Value.Type == JTokenType.Array)
         {
-            var stepsEl = (JArray)auxArr.Property("steps").Value;
+            var stepsEl = (JArray?)auxArr.Property("steps")?.Value;
 
             if (stepsEl != null)
             {
@@ -682,16 +685,18 @@ public class CmfPackageController
                     if (element.Type == JTokenType.Object)
                     {
                         var elem = (JObject)element;
+                        var typeVal = elem.Property("type")?.Value.ToString();
+                        var tagFileVal = elem.Property("tagFile")?.Value.ToString();
 
                         Step step = new Step(
-                            type: Enum.Parse(typeof(StepType), elem.Property("type")?.Value.ToString()) is StepType
-                                ? (StepType)Enum.Parse(typeof(StepType), elem.Property("type")?.Value.ToString())
+                            type: typeVal != null && Enum.TryParse<StepType>(typeVal, out var stepType)
+                                ? stepType
                                 : StepType.Generic,
                             title: elem.Property("title")?.Value.ToString(),
                             onExecute: elem.Property("onExecute")?.Value.ToString(),
                             contentPath: elem.Property("contentPath")?.Value.ToString(),
                             file: null,
-                            tagFile: elem.Property("tagFile")?.Value.ToString() != null ? bool.Parse(elem.Property("tagFile")?.Value.ToString()) : null,
+                            tagFile: tagFileVal != null ? bool.Parse(tagFileVal) : null,
                             targetDatabase: elem.Property("targetDatabase")?.Value.ToString(),
                             messageType: MessageType.ImportObject, // TODO: get value
                             relativePath: null,
@@ -1436,7 +1441,7 @@ public class CmfPackageController
         /// </summary>
         /// <param name="dependenciesJson">Dependecies json</param>
         /// <returns>Array of dependencies</returns>
-        private static List<Dependency> ConvertFromJsonToDependencies(IJEnumerable<JProperty> dependenciesJson)
+        private static List<Dependency> ConvertFromJsonToDependencies(IJEnumerable<JProperty>? dependenciesJson)
         {
             List<Dependency> dependencies = new List<Dependency>();
         
@@ -1491,7 +1496,8 @@ public class CmfPackageController
     public static CmfPackageV1 FromSourceManifest(IFileInfo cmfPackageFile)
     {
         string fileContent = cmfPackageFile.ReadToString();
-        var cmfPackage = JsonConvert.DeserializeObject<CmfPackageV1>(fileContent);
+        var cmfPackage = JsonConvert.DeserializeObject<CmfPackageV1>(fileContent)
+            ?? throw new CliException(string.Format(CoreMessages.NotFound, cmfPackageFile.FullName));
         cmfPackage.IsToSetDefaultValues = true;
         cmfPackage.SourceManifestFile = cmfPackageFile;
         return cmfPackage;
@@ -1575,9 +1581,9 @@ public class CmfPackageController
                                 var manifest = reader.ReadToEnd();
                                 // this should be handled by deserializing to CmfPackageJson and serializing again, but currently many fields are not supported
                                 // so we'll change just the necessary entries
-                                var json = JsonConvert.DeserializeObject<JObject>(manifest);
+                                var json = JsonConvert.DeserializeObject<JObject>(manifest)!;
                                 json["_originalPackageId"] = json[json.ContainsKey("_originalPackageId") ? "_originalPackageId" : "name"]!.Value<string>();
-                                json["name"] = json["name"]!.Value<string>().ToLowerInvariant();
+                                json["name"] = json["name"]!.Value<string>()!.ToLowerInvariant();
                                 manifest = JsonConvert.SerializeObject(json, Formatting.Indented);
                                 
                                 using (MemoryStream tarEntryStream = new MemoryStream())

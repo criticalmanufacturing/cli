@@ -27,8 +27,9 @@ namespace Cmf.CLI.Utilities
         /// <returns>
         /// the new version
         /// </returns>
-        public static string RetrieveNewVersion(string currentVersion, string version, string buildNr)
+        public static string RetrieveNewVersion(string? currentVersion, string version, string buildNr)
         {
+            currentVersion ??= string.Empty;
             if (!string.IsNullOrEmpty(version))
             {
                 currentVersion = version;

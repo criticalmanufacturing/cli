@@ -13,8 +13,8 @@ namespace Cmf.CLI.Core.Repository;
 
 public class ArchiveRepositoryClient : ICIFSRepositoryClient
 {
-    private IDirectoryInfo root;
-    private IFileInfo file;
+    private IDirectoryInfo? root;
+    private IFileInfo? file;
 
     public ArchiveRepositoryClient(string rootPath) : this(rootPath, new FileSystem())
     {
@@ -31,7 +31,7 @@ public class ArchiveRepositoryClient : ICIFSRepositoryClient
         }
     }
     
-    public async Task<CmfPackageV1> Find(string packageId, string version)
+    public async Task<CmfPackageV1?> Find(string packageId, string version)
     {
         ArgumentNullException.ThrowIfNull(version);
 
