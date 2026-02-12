@@ -24,7 +24,7 @@
     "cmf-docs-area-designsystem": "<%= $CLI_PARAM_MESVersion-ReleaseTag %>",
     "cmf-docs-controls": "<%= $CLI_PARAM_MESVersion-ReleaseTag %>",
     "cmf-docs-shell": "<%= $CLI_PARAM_MESVersion-ReleaseTag %>",
-    "mermaid": "9.1.3"
+    "mermaid": "10.9.3"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^<%= $CLI_PARAM_ngVersion %>", 
