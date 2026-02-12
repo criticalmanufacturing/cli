@@ -45,7 +45,8 @@ namespace Cmf.CLI.Core
                 .AddSingleton<IVersionService>(new VersionService(packageName))
                 .AddSingleton<ITelemetryService>(new TelemetryService(packageName))
                 .AddSingleton<IProcessStartInfoCLI>(new ProcessStartInfoCLI())
-                .AddSingleton<IProjectConfigService, ProjectConfigService>();
+                .AddSingleton<IProjectConfigService, ProjectConfigService>()
+                .AddSingleton<IMESVersionValidationService, MESVersionValidationService>();
 
             if (registerExtraServices != null)
             {

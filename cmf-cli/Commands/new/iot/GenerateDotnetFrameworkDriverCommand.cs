@@ -16,7 +16,7 @@ namespace Cmf.CLI.Commands.New.IoT
     /// <summary>
     /// Generates IoT Dotnet Driver Framework structure
     /// </summary>
-    [CmfCommand("driver-dotnet-framework", ParentId = "new_iot", Id = "iot_dotnet-dotnet-framework")]
+    [CmfCommand("driver-dotnet-framework", ParentId = "new_iot", Id = "iot_dotnet-dotnet-framework", MinimumMESVersion = "11.0.0")]
     public class GenerateDotnetFrameworkDriverCommand : TemplateCommand
     {
         /// <summary>
@@ -65,11 +65,6 @@ namespace Cmf.CLI.Commands.New.IoT
             if (workingDir == null)
             {
                 throw new CliException("This command needs to run inside an iot project. Run `cmf new iot` to create a new project.");
-            }
-
-            if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 11)
-            {
-                throw new CliException("This command is only valid for versions above 11.0.0");
             }
 
             using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
