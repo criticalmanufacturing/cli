@@ -158,5 +158,23 @@ namespace Cmf.CLI {
                 return ResourceManager.GetString("SomePackagesNotFound", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Node.js is not installed or not found in PATH. Please install Node.js before building HTML packages. See https://criticalmanufacturing.github.io/cli/01-install/#nodejs-and-npm for installation instructions..
+        /// </summary>
+        internal static string NodeNotInstalled {
+            get {
+                return ResourceManager.GetString("NodeNotInstalled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Node.js version {0} is not compatible with MES version {1}. This MES version requires Node.js v{2}.x. Please install the correct Node.js version. See https://criticalmanufacturing.github.io/cli/01-install/#nodejs-and-npm for version compatibility..
+        /// </summary>
+        internal static string IncompatibleNodeVersion {
+            get {
+                return ResourceManager.GetString("IncompatibleNodeVersion", resourceCulture);
+            }
+        }
     }
 }
