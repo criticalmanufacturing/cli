@@ -223,7 +223,7 @@ namespace tests.Specs
             });
 
             var packCommand = new PackCommand(fileSystem);
-            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\grafana")), fileSystem.DirectoryInfo.New("output"), false);
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\grafana")), fileSystem.DirectoryInfo.New("output"), false, false);
 
             IEnumerable<IFileInfo> assembledFiles = fileSystem.DirectoryInfo.New("output").EnumerateFiles("Cmf.Custom.Grafana.1.1.0.zip").ToList();
             Assert.Single(assembledFiles);
@@ -258,7 +258,7 @@ namespace tests.Specs
             var fileSystem = MockPackage.Html;
 
             var packCommand = new PackCommand(fileSystem);
-            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.New("output"), false);
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.New("output"), false, false);
 
             IEnumerable<IFileInfo> assembledFiles = fileSystem.DirectoryInfo.New("output").EnumerateFiles("Cmf.Custom.HTML.1.1.0.zip").ToList();
             Assert.Single(assembledFiles);
@@ -293,7 +293,7 @@ namespace tests.Specs
             var fileSystem = MockPackage.Html_OnlyLBOs;
 
             var packCommand = new PackCommand(fileSystem);
-            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.New("output"), false);
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.New("output"), false, false);
 
             IEnumerable<IFileInfo> assembledFiles = fileSystem.DirectoryInfo.New("output").EnumerateFiles("Cmf.Custom.HTML.1.1.0.zip").ToList();
             Assert.Single(assembledFiles);
@@ -327,7 +327,7 @@ namespace tests.Specs
             var fileSystem = MockPackage.Html_MissingDeclaredContent;
 
             var packCommand = new PackCommand(fileSystem);
-            var exception = Assert.Throws<CliException>(() => packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.New("output"), false));
+            var exception = Assert.Throws<CliException>(() => packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.New("output"), false, false));
             exception.Message.Should().Contain("Nothing was found on ContentToPack Sources");
         }
 
@@ -338,9 +338,9 @@ namespace tests.Specs
             var outputDir = fileSystem.DirectoryInfo.New("output");
 
             var packCommand = new PackCommand(fileSystem);
-            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), outputDir, false);
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), outputDir, false, false);
             IEnumerable<IFileInfo> assembledFiles = fileSystem.DirectoryInfo.New("output").EnumerateFiles("Cmf.Custom.HTML.1.1.0.zip").ToList();
-            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), outputDir, false);
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), outputDir, false, false);
 
             IEnumerable<IFileInfo> assembledFilesOnSecondRun = fileSystem.DirectoryInfo.New("output").EnumerateFiles("Cmf.Custom.HTML.1.1.0.zip").ToList();
             assembledFilesOnSecondRun.Should().HaveCount(1);
@@ -354,7 +354,7 @@ namespace tests.Specs
             var fileSystem = MockPackage.Root_Empty;
 
             var packCommand = new PackCommand(fileSystem);
-            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\repo")), fileSystem.DirectoryInfo.New("output"), false);
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\repo")), fileSystem.DirectoryInfo.New("output"), false, false);
         }
 
         [Fact]
@@ -363,7 +363,7 @@ namespace tests.Specs
             var fileSystem = MockPackage.Html_EmptyContentToPack;
 
             var packCommand = new PackCommand(fileSystem);
-            var exception = Assert.Throws<CliException>(() => packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.New("output"), false));
+            var exception = Assert.Throws<CliException>(() => packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.New("output"), false, false));
             exception.Message.Should().Contain("Missing mandatory property ContentToPack in file");
         }
 
@@ -1360,5 +1360,334 @@ namespace tests.Specs
             Assert.False(deserializedNormal.Conditional);
             Assert.Equal("Cmf.Foundation.Common", deserializedNormal.Id);
         }
+
+        #region Dry-Run Tests
+
+        [Fact]
+        public void DryRun_Option_IsParsed()
+        {
+            bool? _dryRun = null;
+
+            var packCommand = new PackCommand();
+            var cmd = new Command("pack");
+            packCommand.Configure(cmd);
+
+            cmd.Handler = CommandHandler.Create<IDirectoryInfo, IDirectoryInfo, bool, bool>(
+            (workingDir, outputDir, force, dryRun) =>
+            {
+                _dryRun = dryRun;
+            });
+
+            var console = new TestConsole();
+            cmd.Invoke(new[] { "--dry-run" }, console);
+
+            Assert.NotNull(_dryRun);
+            Assert.True(_dryRun ?? false);
+        }
+
+        [Fact]
+        public void DryRun_Html_DoesNotCreatePackage()
+        {
+            // Arrange: Html package (MES 9.x → HtmlGulpPackageTypeHandler) with a JS sub-package
+            // Use a fresh MockFileSystem (not the shared static) to avoid state pollution from other tests
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { MockUnixSupport.Path(@"c:\.project-config.json"), new MockFileData(@"{""MESVersion"": ""9.0.0""}") },
+                { MockUnixSupport.Path(@"c:\ui\src\packages\customization.common\package.json"), new MockFileData(@"{""name"": ""customization.package""}") },
+                { MockUnixSupport.Path(@"c:\ui\src\packages\customization.common\customization.common.js"), new MockFileData(string.Empty) },
+                { MockUnixSupport.Path(@"c:\ui\package.json"), new MockFileData(@"{""name"": ""customization.package""}") },
+                { MockUnixSupport.Path(@"c:\ui\cmfpackage.json"), new MockFileData(
+                $@"{{
+                  ""packageId"": ""Cmf.Custom.HTML"",
+                  ""version"": ""1.1.0"",
+                  ""description"": ""Cmf Custom HTML Package"",
+                  ""packageType"": ""Html"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": false,
+                  ""contentToPack"": [
+                    {{
+                      ""source"": ""{MockUnixSupport.Path("src\\packages\\*").Replace("\\", "\\\\")}"",
+                      ""target"": ""node_modules"",
+                      ""ignoreFiles"": ["".npmignore""]
+                    }}
+                  ]
+                }}") },
+            });
+            var packCommand = new PackCommand(fileSystem);
+            var outputDir = fileSystem.DirectoryInfo.New("output");
+            var tempDir = fileSystem.DirectoryInfo.New(MockUnixSupport.Path(@"c:\ui\Cmf.Custom.HTML.1.1.0"));
+
+            // Act
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path(@"c:\ui")), outputDir, false, true);
+
+            // Assert: no output dir and no temp packaging dir should have been created
+            Assert.False(outputDir.Exists, "Output directory should not be created in dry-run mode");
+            Assert.False(tempDir.Exists, "Temporary package directory should not be created in dry-run mode");
+        }
+
+        [Fact]
+        public void DryRun_Generic_DoesNotCreatePackage()
+        {
+            // Arrange: Generic package with a set of artifact files to pack
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { MockUnixSupport.Path(@"c:\.project-config.json"), new MockFileData(@"{""MESVersion"": ""9.0.0""}") },
+                { MockUnixSupport.Path(@"c:\pkg\cmfpackage.json"), new MockFileData(
+                @"{
+                  ""packageId"": ""Cmf.Custom.Generic"",
+                  ""version"": ""1.0.0"",
+                  ""description"": ""Cmf Custom Generic Package"",
+                  ""packageType"": ""Generic"",
+                  ""isInstallable"": false,
+                  ""isUniqueInstall"": false,
+                  ""contentToPack"": [
+                    { ""source"": ""artifacts"", ""target"": """" }
+                  ]
+                }")},
+                { MockUnixSupport.Path(@"c:\pkg\artifacts\report.json"), new MockFileData(@"{}") },
+                { MockUnixSupport.Path(@"c:\pkg\artifacts\schema.xsd"), new MockFileData(@"<xs:schema/>") },
+            });
+
+            var packCommand = new PackCommand(fileSystem);
+            var outputDir = fileSystem.DirectoryInfo.New("output");
+            var tempDir = fileSystem.DirectoryInfo.New(MockUnixSupport.Path(@"c:\pkg\Cmf.Custom.Generic.1.0.0"));
+
+            // Act
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path(@"c:\pkg")), outputDir, false, true);
+
+            // Assert
+            Assert.False(outputDir.Exists, "Output directory should not be created in dry-run mode");
+            Assert.False(tempDir.Exists, "Temporary package directory should not be created in dry-run mode");
+        }
+
+        [Fact]
+        public void DryRun_Business_DoesNotCreatePackage()
+        {
+            // Arrange: Business package with compiled DLL assemblies to pack
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { MockUnixSupport.Path(@"c:\.project-config.json"), new MockFileData(@"{""MESVersion"": ""9.0.0""}") },
+                { MockUnixSupport.Path(@"c:\pkg\cmfpackage.json"), new MockFileData(
+                @"{
+                  ""packageId"": ""Cmf.Custom.Business"",
+                  ""version"": ""1.0.0"",
+                  ""description"": ""Cmf Custom Business Package"",
+                  ""packageType"": ""Business"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": false,
+                  ""contentToPack"": [
+                    { ""source"": ""Release"", ""target"": """" }
+                  ]
+                }")},
+                { MockUnixSupport.Path(@"c:\pkg\Release\Cmf.Custom.Business.dll"), new MockFileData("") },
+                { MockUnixSupport.Path(@"c:\pkg\Release\Cmf.Custom.Business.Common.dll"), new MockFileData("") },
+            });
+
+            var packCommand = new PackCommand(fileSystem);
+            var outputDir = fileSystem.DirectoryInfo.New("output");
+            var tempDir = fileSystem.DirectoryInfo.New(MockUnixSupport.Path(@"c:\pkg\Cmf.Custom.Business.1.0.0"));
+
+            // Act
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path(@"c:\pkg")), outputDir, false, true);
+
+            // Assert
+            Assert.False(outputDir.Exists, "Output directory should not be created in dry-run mode");
+            Assert.False(tempDir.Exists, "Temporary package directory should not be created in dry-run mode");
+        }
+
+        [Fact]
+        public void DryRun_Data_DoesNotCreatePackage()
+        {
+            // Arrange: Data package (V2 handler) with MasterData XML files
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { MockUnixSupport.Path(@"c:\.project-config.json"), new MockFileData(@"{""MESVersion"": ""9.0.0""}") },
+                { MockUnixSupport.Path(@"c:\pkg\cmfpackage.json"), new MockFileData(
+                @"{
+                  ""packageId"": ""Cmf.Custom.Data"",
+                  ""version"": ""1.0.0"",
+                  ""description"": ""Cmf Custom Data Package"",
+                  ""packageType"": ""Data"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": true,
+                  ""contentToPack"": [
+                    { ""source"": ""MasterData"", ""target"": """" }
+                  ]
+                }")},
+                { MockUnixSupport.Path(@"c:\pkg\MasterData\ImportObjects.xml"), new MockFileData("<data/>") },
+                { MockUnixSupport.Path(@"c:\pkg\MasterData\EntityTypes.xml"), new MockFileData("<data/>") },
+            });
+
+            var packCommand = new PackCommand(fileSystem);
+            var outputDir = fileSystem.DirectoryInfo.New("output");
+            var tempDir = fileSystem.DirectoryInfo.New(MockUnixSupport.Path(@"c:\pkg\Cmf.Custom.Data.1.0.0"));
+
+            // Act
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path(@"c:\pkg")), outputDir, false, true);
+
+            // Assert
+            Assert.False(outputDir.Exists, "Output directory should not be created in dry-run mode");
+            Assert.False(tempDir.Exists, "Temporary package directory should not be created in dry-run mode");
+        }
+
+        [Fact]
+        public void DryRun_Root_DoesNotCreatePackage()
+        {
+            // Arrange: Root meta-package with no content to pack, only dependency declarations
+            // Use a fresh MockFileSystem (not the shared static) to avoid state pollution from other tests
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { MockUnixSupport.Path(@"c:\repo\cmfpackage.json"), new MockFileData(
+                @"{
+                  ""packageId"": ""Cmf.Custom.Root"",
+                  ""version"": ""1.1.0"",
+                  ""description"": ""Cmf Custom Root Package"",
+                  ""packageType"": ""Root"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": false,
+                  ""dependencies"": [
+                    { ""id"": ""Cmf.Environment"", ""version"": ""0.0.0"" }
+                  ]
+                }") },
+            });
+            var packCommand = new PackCommand(fileSystem);
+            var outputDir = fileSystem.DirectoryInfo.New("output");
+            var tempDir = fileSystem.DirectoryInfo.New(MockUnixSupport.Path(@"c:\repo\Cmf.Custom.Root.1.1.0"));
+
+            // Act
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path(@"c:\repo")), outputDir, false, true);
+
+            // Assert
+            Assert.False(outputDir.Exists, "Output directory should not be created in dry-run mode");
+            Assert.False(tempDir.Exists, "Temporary package directory should not be created in dry-run mode");
+        }
+
+        [Fact]
+        public void DryRun_Database_DoesNotCreatePackage()
+        {
+            // Arrange: Database package with SQL migration scripts for the Online database
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { MockUnixSupport.Path(@"c:\.project-config.json"), new MockFileData(@"{""MESVersion"": ""9.0.0""}") },
+                { MockUnixSupport.Path(@"c:\pkg\cmfpackage.json"), new MockFileData(
+                @"{
+                  ""packageId"": ""Cmf.Custom.Database"",
+                  ""version"": ""1.0.0"",
+                  ""description"": ""Cmf Custom Database Package"",
+                  ""packageType"": ""Database"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": false,
+                  ""contentToPack"": [
+                    { ""source"": ""Online"", ""target"": ""Online"" }
+                  ]
+                }")},
+                { MockUnixSupport.Path(@"c:\pkg\Online\001_CreateTable.sql"), new MockFileData("CREATE TABLE Foo (Id INT NOT NULL);") },
+                { MockUnixSupport.Path(@"c:\pkg\Online\002_AlterTable.sql"), new MockFileData("ALTER TABLE Foo ADD Name NVARCHAR(256);") },
+            });
+
+            var packCommand = new PackCommand(fileSystem);
+            var outputDir = fileSystem.DirectoryInfo.New("output");
+            var tempDir = fileSystem.DirectoryInfo.New(MockUnixSupport.Path(@"c:\pkg\Cmf.Custom.Database.1.0.0"));
+
+            // Act
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path(@"c:\pkg")), outputDir, false, true);
+
+            // Assert
+            Assert.False(outputDir.Exists, "Output directory should not be created in dry-run mode");
+            Assert.False(tempDir.Exists, "Temporary package directory should not be created in dry-run mode");
+        }
+
+        [Fact]
+        public void DryRun_ExportedObjects_DoesNotCreatePackage()
+        {
+            // Arrange: ExportedObjects package with XML object definition files
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { MockUnixSupport.Path(@"c:\.project-config.json"), new MockFileData(@"{""MESVersion"": ""9.0.0""}") },
+                { MockUnixSupport.Path(@"c:\pkg\cmfpackage.json"), new MockFileData(
+                @"{
+                  ""packageId"": ""Cmf.Custom.ExportedObjects"",
+                  ""version"": ""1.0.0"",
+                  ""description"": ""Cmf Custom ExportedObjects Package"",
+                  ""packageType"": ""ExportedObjects"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": false,
+                  ""contentToPack"": [
+                    { ""source"": ""ExportedObjects"", ""target"": ""ExportedObjects"" }
+                  ]
+                }")},
+                { MockUnixSupport.Path(@"c:\pkg\ExportedObjects\DataType.xml"), new MockFileData("<object/>") },
+                { MockUnixSupport.Path(@"c:\pkg\ExportedObjects\NamedDataType.xml"), new MockFileData("<object/>") },
+            });
+
+            var packCommand = new PackCommand(fileSystem);
+            var outputDir = fileSystem.DirectoryInfo.New("output");
+            var tempDir = fileSystem.DirectoryInfo.New(MockUnixSupport.Path(@"c:\pkg\Cmf.Custom.ExportedObjects.1.0.0"));
+
+            // Act
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path(@"c:\pkg")), outputDir, false, true);
+
+            // Assert
+            Assert.False(outputDir.Exists, "Output directory should not be created in dry-run mode");
+            Assert.False(tempDir.Exists, "Temporary package directory should not be created in dry-run mode");
+        }
+
+        [Fact]
+        public void DryRun_Grafana_DoesNotCreatePackage()
+        {
+            // Arrange: Grafana package with dashboard and datasource provisioning YAML files
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { MockUnixSupport.Path(@"c:\.project-config.json"), new MockFileData(
+                    @"{ ""MESVersion"": ""10.2.1"", ""RepositoryType"": ""App"" }") },
+                { MockUnixSupport.Path(@"c:\grafana\cmfpackage.json"), new MockFileData(
+                @"{
+                  ""packageId"": ""Cmf.Custom.Grafana"",
+                  ""version"": ""1.0.0"",
+                  ""description"": ""Cmf Custom Grafana Package"",
+                  ""packageType"": ""Grafana"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": true,
+                  ""steps"": [
+                    { ""order"": ""1"", ""type"": ""DeployFiles"", ""ContentPath"": ""**/**"" }
+                  ],
+                  ""buildsteps"": [],
+                  ""contentToPack"": [
+                    { ""source"": ""dashboards"", ""target"": ""dashboards"" },
+                    { ""source"": ""datasources"", ""target"": ""datasources"" }
+                  ]
+                }")},
+                { MockUnixSupport.Path(@"c:\grafana\dashboards\dashboards.yaml"), new MockFileData(
+                    "apiVersion: 1\nproviders:\n  - name: Default\n    type: file") },
+                { MockUnixSupport.Path(@"c:\grafana\datasources\datasources.yaml"), new MockFileData(
+                    "apiVersion: 1\ndatasources: ~") },
+            });
+
+            var packCommand = new PackCommand(fileSystem);
+            var outputDir = fileSystem.DirectoryInfo.New("output");
+            var tempDir = fileSystem.DirectoryInfo.New(MockUnixSupport.Path(@"c:\grafana\Cmf.Custom.Grafana.1.0.0"));
+
+            // Act
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path(@"c:\grafana")), outputDir, false, true);
+
+            // Assert
+            Assert.False(outputDir.Exists, "Output directory should not be created in dry-run mode");
+            Assert.False(tempDir.Exists, "Temporary package directory should not be created in dry-run mode");
+        }
+
+        [Fact]
+        public void DryRun_NormalExecution_CreatesPackage()
+        {
+            // Contrast test: without --dry-run the zip package is produced as expected
+            var fileSystem = MockPackage.Html;
+            var packCommand = new PackCommand(fileSystem);
+
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path(@"c:\ui")), fileSystem.DirectoryInfo.New("output"), false, false);
+
+            IEnumerable<IFileInfo> assembledFiles = fileSystem.DirectoryInfo.New("output").EnumerateFiles("*.zip").ToList();
+            Assert.Single(assembledFiles);
+        }
+
+        #endregion
     }
 }
