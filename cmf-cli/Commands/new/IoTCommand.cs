@@ -216,11 +216,11 @@ namespace Cmf.CLI.Commands.New
             var schematicsVersion = ngxSchematicsVersion.ToString() ?? $"@release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}";
 
             Log.Debug($"Creating new IoT Workspace {packageName}");
-            // ng new <packageName> --create-application false
+            // ng new <packageName> --create-application false --force
             new NPXCommand()
             {
                 Command = $"@angular/cli@{ngCliVersion}",
-                Args = new[] { "new", iotCustomPackage.PackageId, "--create-application", "false" },
+                Args = new[] { "new", iotCustomPackage.PackageId, "--create-application", "false", "--force" },
                 WorkingDirectory = iotRoot,
                 ForceColorOutput = false
             }.Exec();
