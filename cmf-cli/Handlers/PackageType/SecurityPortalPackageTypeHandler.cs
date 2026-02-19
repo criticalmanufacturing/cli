@@ -77,12 +77,21 @@ namespace Cmf.CLI.Handlers
 
                 this.fileSystem.File.WriteAllText(path, fileContent);
 
-                GenerateDeploymentFrameworkManifest(packageOutputDir);
+                if (!dryRun)
+                {
+                    GenerateDeploymentFrameworkManifest(packageOutputDir);
 
-                FinalArchive(packageOutputDir, outputDir);
+                    FinalArchive(packageOutputDir, outputDir);
 
-                Log.Debug($"{outputDir.FullName}{Path.DirectorySeparatorChar}{CmfPackage.ZipPackageName} created");
-                Log.Information($"{CmfPackage.PackageName} packed");
+                    Log.Debug($"{outputDir.FullName}{Path.DirectorySeparatorChar}{CmfPackage.ZipPackageName} created");
+                    Log.Information($"{CmfPackage.PackageName} packed");
+                }
+                else
+                {
+                    Log.Information($"Dry-run mode: Listing package structure for {CmfPackage.PackageName}");
+                    Log.Information($"Package would be created at: {outputDir.FullName}{Path.DirectorySeparatorChar}{CmfPackage.ZipPackageName}");
+                    Log.Information($"Dry-run completed for {CmfPackage.PackageName}");
+                }
 
             }
             else

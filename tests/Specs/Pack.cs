@@ -1360,5 +1360,97 @@ namespace tests.Specs
             Assert.False(deserializedNormal.Conditional);
             Assert.Equal("Cmf.Foundation.Common", deserializedNormal.Id);
         }
+
+        #region Dry-Run Tests
+
+        [Fact]
+        public void DryRun_Option_IsParsed()
+        {
+            bool? _dryRun = null;
+
+            var packCommand = new PackCommand();
+            var cmd = new Command("pack");
+            packCommand.Configure(cmd);
+
+            cmd.Handler = CommandHandler.Create<IDirectoryInfo, IDirectoryInfo, bool, bool>(
+            (workingDir, outputDir, force, dryRun) =>
+            {
+                _dryRun = dryRun;
+            });
+
+            var console = new TestConsole();
+            cmd.Invoke(new[] { "--dry-run" }, console);
+
+            Assert.NotNull(_dryRun);
+            Assert.True(_dryRun ?? false);
+        }
+
+        [Fact]
+        public void DryRun_DoesNotCreateZipFile()
+        {
+            var fileSystem = MockPackage.Html;
+
+            var packCommand = new PackCommand(fileSystem);
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.New("output_dryrun_test1"), false, true);
+
+            // Verify that no zip file was created
+            IEnumerable<IFileInfo> assembledFiles = fileSystem.DirectoryInfo.New("output_dryrun_test1").EnumerateFiles("*.zip").ToList();
+            Assert.Empty(assembledFiles);
+        }
+
+        [Fact]
+        public void DryRun_DoesNotCreateOutputFiles()
+        {
+            var fileSystem = MockPackage.Html;
+
+            var packCommand = new PackCommand(fileSystem);
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.New("output_dryrun_test2"), false, true);
+
+            // Verify that output directory doesn't contain the package
+            IEnumerable<IFileInfo> assembledFiles = fileSystem.DirectoryInfo.New("output_dryrun_test2").EnumerateFiles("*.zip").ToList();
+            Assert.Empty(assembledFiles);
+        }
+
+        [Fact]
+        public void DryRun_WithForce_DoesNotCreateFiles()
+        {
+            var fileSystem = MockPackage.Html;
+
+            var packCommand = new PackCommand(fileSystem);
+            // First run with dry-run enabled
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.New("output_dryrun_test3"), true, true);
+
+            // Verify no files were created even with force flag
+            IEnumerable<IFileInfo> assembledFiles = fileSystem.DirectoryInfo.New("output_dryrun_test3").EnumerateFiles("*.zip").ToList();
+            Assert.Empty(assembledFiles);
+        }
+
+        [Fact]
+        public void NormalExecution_CreatesFiles()
+        {
+            var fileSystem = MockPackage.Html;
+
+            var packCommand = new PackCommand(fileSystem);
+            
+            // Run normally (should create files)
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.New("output_normal_test"), false, false);
+            IEnumerable<IFileInfo> filesAfterNormal = fileSystem.DirectoryInfo.New("output_normal_test").EnumerateFiles("*.zip").ToList();
+            Assert.Single(filesAfterNormal);
+        }
+
+        [Fact]
+        public void DryRun_Handler_RespectsFlag()
+        {
+            var fileSystem = MockPackage.Html;
+
+            var packCommand = new PackCommand(fileSystem);
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.New("output_dryrun_test5"), false, true);
+
+            // Verify that the handler respected the dry-run flag
+            IEnumerable<IFileInfo> assembledFiles = fileSystem.DirectoryInfo.New("output_dryrun_test5").EnumerateFiles("*.zip").ToList();
+            Assert.Empty(assembledFiles);
+        }
+
+        #endregion
     }
 }
