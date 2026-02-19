@@ -580,14 +580,15 @@ namespace Cmf.CLI.Handlers
         /// </summary>
         /// <param name="packageOutputDir">The package output dir.</param>
         /// <param name="outputDir">The output dir.</param>
-        public virtual void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir)
+        /// <param name="dryRun">if set to <c>true</c> list the package structure without creating files.</param>
+        public virtual void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir, bool dryRun = false)
         {
             #region Pre-Pack Actions
 
             foreach (var relatedPackageHandler in RelatedPackagesHandlers.Where(rp => !rp.Key.IsSet && rp.Key.PrePack))
             {
                 var relatedPackagPackageOutputDir = FileSystemUtilities.GetPackageOutputDir(relatedPackageHandler.Key.CmfPackage, packageOutputDir, fileSystem);
-                relatedPackageHandler.Value.Pack(relatedPackagPackageOutputDir, outputDir);
+                relatedPackageHandler.Value.Pack(relatedPackagPackageOutputDir, outputDir, dryRun);
                 relatedPackageHandler.Key.IsSet = true;
             }
 
@@ -603,33 +604,56 @@ namespace Cmf.CLI.Handlers
             {
                 FilesToPack.AddRange(filesToPack);
 
-                FilesToPack.ForEach(fileToPack =>
+                if (dryRun)
                 {
-                    Log.Debug($"Packing '{fileToPack.Source.FullName} to {fileToPack.Target.FullName} by contentToPack rule (Action: {fileToPack.ContentToPack.Action.ToString()}, Source: {fileToPack.ContentToPack.Source}, Target: {fileToPack.ContentToPack.Target})");
-                    IDirectoryInfo _targetFolder = this.fileSystem.DirectoryInfo.New(fileToPack.Target.Directory.FullName);
-                    if (!_targetFolder.Exists)
+                    // Dry-run mode: list files without creating them
+                    Log.Information($"Dry-run mode: Listing package structure for {CmfPackage.PackageName}");
+                    Log.Information($"Package would be created at: {outputDir.FullName}/{CmfPackage.ZipPackageName}");
+                    Log.Information($"Files to be packed:");
+                    
+                    FilesToPack.ForEach(fileToPack =>
                     {
-                        _targetFolder.Create();
-                    }
-                });
+                        Log.Information($"  {fileToPack.Source.FullName} -> {fileToPack.Target.FullName}");
+                    });
+                }
+                else
+                {
+                    FilesToPack.ForEach(fileToPack =>
+                    {
+                        Log.Debug($"Packing '{fileToPack.Source.FullName} to {fileToPack.Target.FullName} by contentToPack rule (Action: {fileToPack.ContentToPack.Action.ToString()}, Source: {fileToPack.ContentToPack.Source}, Target: {fileToPack.ContentToPack.Target})");
+                        IDirectoryInfo _targetFolder = this.fileSystem.DirectoryInfo.New(fileToPack.Target.Directory.FullName);
+                        if (!_targetFolder.Exists)
+                        {
+                            _targetFolder.Create();
+                        }
+                    });
+                }
             }
 
-            // TODO: To be removed? Install dependencies
-            CopyInstallDependencies(packageOutputDir);
+            // Only perform actual packing operations if not in dry-run mode
+            if (!dryRun)
+            {
+                // TODO: To be removed? Install dependencies
+                CopyInstallDependencies(packageOutputDir);
 
-            GenerateDeploymentFrameworkManifest(packageOutputDir);
+                GenerateDeploymentFrameworkManifest(packageOutputDir);
 
-            FinalArchive(packageOutputDir, outputDir);
+                FinalArchive(packageOutputDir, outputDir);
 
-            Log.Debug($"{outputDir.FullName}/{CmfPackage.ZipPackageName} created");
-            Log.Information($"{CmfPackage.PackageName} packed");
+                Log.Debug($"{outputDir.FullName}/{CmfPackage.ZipPackageName} created");
+                Log.Information($"{CmfPackage.PackageName} packed");
+            }
+            else
+            {
+                Log.Information($"Dry-run completed for {CmfPackage.PackageName}");
+            }
 
             #region Post-Pack Actions
 
             foreach (var relatedPackageHandler in RelatedPackagesHandlers.Where(rp => !rp.Key.IsSet && rp.Key.PostPack))
             {
                 var relatedPackagPackageOutputDir = FileSystemUtilities.GetPackageOutputDir(relatedPackageHandler.Key.CmfPackage, packageOutputDir, fileSystem);
-                relatedPackageHandler.Value.Pack(relatedPackagPackageOutputDir, outputDir);
+                relatedPackageHandler.Value.Pack(relatedPackagPackageOutputDir, outputDir, dryRun);
                 relatedPackageHandler.Key.IsSet = true;
             }
 

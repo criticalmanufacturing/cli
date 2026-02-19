@@ -223,7 +223,7 @@ namespace tests.Specs
             });
 
             var packCommand = new PackCommand(fileSystem);
-            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\grafana")), fileSystem.DirectoryInfo.New("output"), false);
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\grafana")), fileSystem.DirectoryInfo.New("output"), false, false);
 
             IEnumerable<IFileInfo> assembledFiles = fileSystem.DirectoryInfo.New("output").EnumerateFiles("Cmf.Custom.Grafana.1.1.0.zip").ToList();
             Assert.Single(assembledFiles);
@@ -258,7 +258,7 @@ namespace tests.Specs
             var fileSystem = MockPackage.Html;
 
             var packCommand = new PackCommand(fileSystem);
-            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.New("output"), false);
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.New("output"), false, false);
 
             IEnumerable<IFileInfo> assembledFiles = fileSystem.DirectoryInfo.New("output").EnumerateFiles("Cmf.Custom.HTML.1.1.0.zip").ToList();
             Assert.Single(assembledFiles);
@@ -293,7 +293,7 @@ namespace tests.Specs
             var fileSystem = MockPackage.Html_OnlyLBOs;
 
             var packCommand = new PackCommand(fileSystem);
-            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.New("output"), false);
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.New("output"), false, false);
 
             IEnumerable<IFileInfo> assembledFiles = fileSystem.DirectoryInfo.New("output").EnumerateFiles("Cmf.Custom.HTML.1.1.0.zip").ToList();
             Assert.Single(assembledFiles);
@@ -327,7 +327,7 @@ namespace tests.Specs
             var fileSystem = MockPackage.Html_MissingDeclaredContent;
 
             var packCommand = new PackCommand(fileSystem);
-            var exception = Assert.Throws<CliException>(() => packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.New("output"), false));
+            var exception = Assert.Throws<CliException>(() => packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.New("output"), false, false));
             exception.Message.Should().Contain("Nothing was found on ContentToPack Sources");
         }
 
@@ -338,9 +338,9 @@ namespace tests.Specs
             var outputDir = fileSystem.DirectoryInfo.New("output");
 
             var packCommand = new PackCommand(fileSystem);
-            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), outputDir, false);
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), outputDir, false, false);
             IEnumerable<IFileInfo> assembledFiles = fileSystem.DirectoryInfo.New("output").EnumerateFiles("Cmf.Custom.HTML.1.1.0.zip").ToList();
-            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), outputDir, false);
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), outputDir, false, false);
 
             IEnumerable<IFileInfo> assembledFilesOnSecondRun = fileSystem.DirectoryInfo.New("output").EnumerateFiles("Cmf.Custom.HTML.1.1.0.zip").ToList();
             assembledFilesOnSecondRun.Should().HaveCount(1);
@@ -354,7 +354,7 @@ namespace tests.Specs
             var fileSystem = MockPackage.Root_Empty;
 
             var packCommand = new PackCommand(fileSystem);
-            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\repo")), fileSystem.DirectoryInfo.New("output"), false);
+            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\repo")), fileSystem.DirectoryInfo.New("output"), false, false);
         }
 
         [Fact]
@@ -363,7 +363,7 @@ namespace tests.Specs
             var fileSystem = MockPackage.Html_EmptyContentToPack;
 
             var packCommand = new PackCommand(fileSystem);
-            var exception = Assert.Throws<CliException>(() => packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.New("output"), false));
+            var exception = Assert.Throws<CliException>(() => packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), fileSystem.DirectoryInfo.New("output"), false, false));
             exception.Message.Should().Contain("Missing mandatory property ContentToPack in file");
         }
 
@@ -948,7 +948,7 @@ namespace tests.Specs
             try
             {
                 var packCommand = new PackCommand(fileSystem);
-                packCommand.Execute(cmfpackageFile.Directory, fileSystem.DirectoryInfo.New("output"), false);
+                packCommand.Execute(cmfpackageFile.Directory, fileSystem.DirectoryInfo.New("output"), false, false);
             }
             catch (Exception ex)
             {
@@ -991,7 +991,7 @@ namespace tests.Specs
             try
             {
                 var packCommand = new PackCommand(fileSystem);
-                packCommand.Execute(cmfpackageFile.Directory, fileSystem.DirectoryInfo.New("output"), false);
+                packCommand.Execute(cmfpackageFile.Directory, fileSystem.DirectoryInfo.New("output"), false, false);
             }
             catch (Exception ex)
             {
@@ -1064,7 +1064,7 @@ namespace tests.Specs
 
             var packCommand = new PackCommand(fileSystem);
             var outputFolder = fileSystem.DirectoryInfo.New("output");
-            packCommand.Execute(fileSystem.DirectoryInfo.New("/repo/Cmf.Custom.Data"), outputFolder, false);
+            packCommand.Execute(fileSystem.DirectoryInfo.New("/repo/Cmf.Custom.Data"), outputFolder, false, false);
             IEnumerable<IFileInfo> packedFiles = outputFolder.EnumerateFiles().ToList();
 
             var depFile1 = packedFiles.FirstOrDefault(x => x.Name.Equals($"{packageDep1.Key}.{packageDep1.Value}.zip"));
@@ -1127,7 +1127,7 @@ namespace tests.Specs
 
             var packCommand = new PackCommand(fileSystem);
             var outputFolder = fileSystem.DirectoryInfo.New("output");
-            packCommand.Execute(fileSystem.DirectoryInfo.New("/repo/Cmf.Custom.Data"), outputFolder, false);
+            packCommand.Execute(fileSystem.DirectoryInfo.New("/repo/Cmf.Custom.Data"), outputFolder, false, false);
             IEnumerable<IFileInfo> packedFiles = outputFolder.EnumerateFiles().ToList();
 
             var depFile1 = packedFiles.FirstOrDefault(x => x.Name.Equals($"{packageDep1.Key}.{packageDep1.Value}.zip"));
@@ -1236,7 +1236,7 @@ namespace tests.Specs
 
             var packCommand = new PackCommand(fileSystem);
             var outputFolder = fileSystem.DirectoryInfo.New("output");
-            packCommand.Execute(fileSystem.DirectoryInfo.New("/repo/Cmf.Custom.Data"), outputFolder, false);
+            packCommand.Execute(fileSystem.DirectoryInfo.New("/repo/Cmf.Custom.Data"), outputFolder, false, false);
             IEnumerable<IFileInfo> packedFiles = outputFolder.EnumerateFiles().ToList();
 
             var depFile2 = packedFiles.FirstOrDefault(x => x.Name.Equals($"{packageDep2.Key}.{packageDep2.Value}.zip"));
@@ -1302,7 +1302,7 @@ namespace tests.Specs
 
             // Act
             var packCommand = new PackCommand(fileSystem);
-            packCommand.Execute(cmfpackageFile.Directory, fileSystem.DirectoryInfo.New("./output"), false);
+            packCommand.Execute(cmfpackageFile.Directory, fileSystem.DirectoryInfo.New("./output"), false, false);
 
             // Assert
             var archive = fileSystem.FileInfo.New($"./output/{packageRoot.Key}.{packageRoot.Value}.zip");
