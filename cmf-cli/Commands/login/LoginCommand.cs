@@ -1,6 +1,4 @@
-﻿using Cmf.CLI.Core;
-using Cmf.CLI.Core.Attributes;
-using Cmf.CLI.Core.Commands;
+﻿using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Interfaces;
@@ -10,7 +8,6 @@ using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Threading.Tasks;
@@ -45,48 +42,85 @@ namespace Cmf.CLI.Commands
         /// <param name="cmd"></param>
         public override void Configure(Command cmd)
         {
-            cmd.AddArgument(new Argument<RepositoryCredentialsType?>(
-                name: "repositoryType", description: "Type of repository for login"
-            ) { Arity = ArgumentArity.ZeroOrOne });
-            cmd.AddArgument(new Argument<string>(
-                name: "repository", description: "URL of repository for login"
-            ) { Arity = ArgumentArity.ZeroOrOne });
+            var repositoryTypeArgument = new Argument<RepositoryCredentialsType?>("repositoryType")
+            {
+                Description = "Type of repository for login",
+                Arity = ArgumentArity.ZeroOrOne
+            };
+            cmd.Add(repositoryTypeArgument);
 
-            cmd.AddOption(new Option<AuthType>(
-                aliases: new[] { "-T", "--auth-type" },
-                description: "Type of authentication type to use (only needed if the repository type supports more than one)"
-            ));
-            cmd.AddOption(new Option<string>(
-                aliases: new[] { "-t", "--token" },
-                description: "Token used for this, used when the auth type is Bearer"
-            ));
-            cmd.AddOption(new Option<string>(
-                aliases: new[] { "-u", "--username" },
-                description: "Account username, used when the auth type is Basic"
-            ));
-            cmd.AddOption(new Option<string>(
-                aliases: new[] { "-p", "--password" },
-                description: "Account password, used when the auth type is Basic"
-            ));
-            cmd.AddOption(new Option<string>(
-                aliases: new[] { "-d", "--domain" },
-                description: "For repositories that support it, the domain to use when logging in."
-            ));
-            cmd.AddOption(new Option<string>(
-                aliases: new[] { "-k", "--key" },
-                description: "For repositories that support it, the key under which we should store the credential"
-            ));
-            cmd.AddOption(new Option<bool>(
-                aliases: new[] { "--store-only" },
-                description: "If true, the credentials are stord on the .cmf-auth.json file, but are not applied to the credentials file of the tool (NPM, NuGet, Docker, etc...)"
-            ));
-            cmd.AddOption(new Option<bool>(
-                aliases: new[] { "--no-prompt" },
-                description: "Do not display any interactive prompts. If a prompt was needed, an error will be raised instead"
-            ));
+            var repositoryArgument = new Argument<string>("repository")
+            {
+                Description = "URL of repository for login",
+                Arity = ArgumentArity.ZeroOrOne
+            };
+            cmd.Add(repositoryArgument);
+
+            var authTypeOption = new Option<AuthType?>("--auth-type", "-T")
+            {
+                Description = "Type of authentication type to use (only needed if the repository type supports more than one)"
+            };
+            cmd.Add(authTypeOption);
+
+            var tokenOption = new Option<string>("--token", "-t")
+            {
+                Description = "Token used for this, used when the auth type is Bearer"
+            };
+            cmd.Add(tokenOption);
+
+            var usernameOption = new Option<string>("--username", "-u")
+            {
+                Description = "Account username, used when the auth type is Basic"
+            };
+            cmd.Add(usernameOption);
+
+            var passwordOption = new Option<string>("--password", "-p")
+            {
+                Description = "Account password, used when the auth type is Basic"
+            };
+            cmd.Add(passwordOption);
+
+            var domainOption = new Option<string>("--domain", "-d")
+            {
+                Description = "For repositories that support it, the domain to use when logging in."
+            };
+            cmd.Add(domainOption);
+
+            var keyOption = new Option<string>("--key", "-k")
+            {
+                Description = "For repositories that support it, the key under which we should store the credential"
+            };
+            cmd.Add(keyOption);
+
+            var storeOnlyOption = new Option<bool>("--store-only")
+            {
+                Description = "If true, the credentials are stord on the .cmf-auth.json file, but are not applied to the credentials file of the tool (NPM, NuGet, Docker, etc...)"
+            };
+            cmd.Add(storeOnlyOption);
+
+            var noPromptOption = new Option<bool>("--no-prompt")
+            {
+                Description = "Do not display any interactive prompts. If a prompt was needed, an error will be raised instead"
+            };
+            cmd.Add(noPromptOption);
 
             // Add the handler
-            cmd.Handler = CommandHandler.Create(Execute);
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                var repositoryType = parseResult.GetValue(repositoryTypeArgument);
+                var repository = parseResult.GetValue(repositoryArgument);
+                var authType = parseResult.GetValue(authTypeOption);
+                var token = parseResult.GetValue(tokenOption);
+                var username = parseResult.GetValue(usernameOption);
+                var password = parseResult.GetValue(passwordOption);
+                var domain = parseResult.GetValue(domainOption);
+                var key = parseResult.GetValue(keyOption);
+                var storeOnly = parseResult.GetValue(storeOnlyOption);
+                var noPrompt = parseResult.GetValue(noPromptOption);
+
+                Execute(repositoryType, repository, authType, token, username, password, domain, key, storeOnly, noPrompt);
+                return Task.FromResult(0);
+            });
         }
 
         /// <summary>

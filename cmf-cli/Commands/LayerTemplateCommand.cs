@@ -5,9 +5,9 @@ using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Cmf.CLI.Commands
 {
@@ -55,15 +55,24 @@ namespace Cmf.CLI.Commands
         /// <param name="cmd">base command</param>
         public override void Configure(Command cmd)
         {
-            GetBaseCommandConfig(cmd);
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, string, List<string>>(Execute);
+            var (workingDirArg, versionOpt) = GetBaseCommandConfig(cmd);
+            
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                var workingDir = parseResult.GetValue(workingDirArg);
+                var version = parseResult.GetValue(versionOpt);
+                
+                Execute(workingDir, version, null);
+                return Task.FromResult(0);
+            });
         }
 
         /// <summary>
         /// Injects the base arguments and options into the command, required for layer commands
         /// </summary>
         /// <param name="cmd">base command</param>
-        protected void GetBaseCommandConfig(Command cmd)
+        /// <returns>Tuple with the workingDir argument and version option for use in SetAction</returns>
+        protected (Argument<IDirectoryInfo>, Option<string>) GetBaseCommandConfig(Command cmd)
         {
             var nearestRootPackage = FileSystemUtilities.GetPackageRootByType(
                 this.fileSystem.Directory.GetCurrentDirectory(),
@@ -71,19 +80,22 @@ namespace Cmf.CLI.Commands
                 this.fileSystem
             );
 
-            cmd.AddArgument(new Argument<IDirectoryInfo>(
-                name: "workingDir",
-                parse: (argResult) => Parse<IDirectoryInfo>(argResult, nearestRootPackage?.FullName),
-                isDefault: true
-            )
+            var workingDirArgument = new Argument<IDirectoryInfo>("workingDir")
             {
-                Description = "Working Directory"
-            });
-            cmd.AddOption(new Option<string>(
-                aliases: new[] { "--version" },
-                description: "Package Version",
-                getDefaultValue: () => "1.0.0"
-            ));
+                Description = "Working Directory",
+                CustomParser = argResult => Parse<IDirectoryInfo>(argResult, nearestRootPackage?.FullName),
+                DefaultValueFactory = _ => Parse<IDirectoryInfo>(null, nearestRootPackage?.FullName)
+            };
+            cmd.Add(workingDirArgument);
+
+            var versionOption = new Option<string>("--version")
+            {
+                Description = "Package Version",
+                DefaultValueFactory = _ => "1.0.0"
+            };
+            cmd.Add(versionOption);
+
+            return (workingDirArgument, versionOption);
         }
 
         protected (string, string) GetOrganizationAndProductFromProjectConfig()

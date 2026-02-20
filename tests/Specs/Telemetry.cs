@@ -175,7 +175,8 @@ public class Telemetry
         mockNpmClient.Setup(c => c.GetLatestVersion(false)).Returns(() => Task.FromResult("2.0.0"));
         
         // Call Configure to initialize DI and telemetry
-        var (rootCommand, parser) = await StartupModule.Configure(
+        // In beta5, Configure returns just RootCommand (not a tuple)
+        var rootCommand = await StartupModule.Configure(
             packageName: "plugin-test",
             envVarPrefix: "plugin_test",
             description: "Plugin Test",

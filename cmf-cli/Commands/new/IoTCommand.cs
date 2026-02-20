@@ -10,9 +10,9 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Cmf.CLI.Commands.New
 {
@@ -41,18 +41,30 @@ namespace Cmf.CLI.Commands.New
 
         public override void Configure(Command cmd)
         {
-            base.GetBaseCommandConfig(cmd);
+            var (workingDirArg, versionOpt) = base.GetBaseCommandConfig(cmd);
 
-            cmd.AddOption(new Option<string>(
-                aliases: new[] { "--htmlPackageLocation" },
-                description: "Location of the HTML Package"
-            ));
+            var htmlPackageLocationOption = new Option<string>("--htmlPackageLocation")
+            {
+                Description = "Location of the HTML Package"
+            };
+            cmd.Add(htmlPackageLocationOption);
 
-            cmd.AddOption(new Option<bool>(
-                aliases: new[] { "--isAngularPackage" },
-                description: "Customization package with angular"
-            ));
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, string, string, bool>(this.Execute);
+            var isAngularPackageOption = new Option<bool>("--isAngularPackage")
+            {
+                Description = "Customization package with angular"
+            };
+            cmd.Add(isAngularPackageOption);
+
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                var workingDir = parseResult.GetValue(workingDirArg);
+                var version = parseResult.GetValue(versionOpt);
+                var htmlPackageLocation = parseResult.GetValue(htmlPackageLocationOption);
+                var isAngularPackage = parseResult.GetValue(isAngularPackageOption);
+
+                Execute(workingDir, version, htmlPackageLocation, isAngularPackage);
+                return Task.FromResult(0);
+            });
         }
 
         /// <inheritdoc />
