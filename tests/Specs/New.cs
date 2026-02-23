@@ -11,8 +11,6 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.IO;
-using System.CommandLine.Parsing;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
@@ -48,9 +46,11 @@ namespace tests.Specs
             newCommand.Configure(cmd);
 
             var console = new TestConsole();
-            cmd.Invoke(new[] {
+            var parseResult = cmd.Parse(new string[] {
                 "--reset"
-            }, console);
+            });
+            parseResult.Invoke(console);
+
         }
 
         [Theory]

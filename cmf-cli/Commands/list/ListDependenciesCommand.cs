@@ -1,6 +1,5 @@
 ﻿using System;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -43,21 +42,30 @@ namespace Cmf.CLI.Commands
         /// <param name="cmd"></param>
         public override void Configure(Command cmd)
         {
-            cmd.AddArgument(new Argument<IDirectoryInfo>(
-                name: "workingDir",
-                parse: (argResult) => Parse<IDirectoryInfo>(argResult, "."),
-                isDefault: true
-            )
+            var workingDirArgument = new Argument<IDirectoryInfo>("workingDir")
             {
-                Description = "Working Directory"
-            });
+                Description = "Working Directory",
+                CustomParser = argResult => Parse<IDirectoryInfo>(argResult, "."),
+                DefaultValueFactory = _ => Parse<IDirectoryInfo>(null, ".")
+            };
+            cmd.Add(workingDirArgument);
 
-            cmd.AddOption(new Option<Uri[]>(
-                aliases: new string[] { "-r", "--repos", "--repo" },
-                description: "Repositories where dependencies are located (folder)"));
+            var reposOption = new Option<Uri[]>("--repos", "-r", "--repo")
+            {
+                Description = "Repositories where dependencies are located (folder)",
+                CustomParser = argResult => ParseUriArray(argResult)
+            };
+            cmd.Add(reposOption);
 
             // Add the handler
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, Uri[]>(Execute);
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                var workingDir = parseResult.GetValue(workingDirArgument);
+                var repos = parseResult.GetValue(reposOption);
+
+                Execute(workingDir, repos);
+                return Task.FromResult(0);
+            });
         }
 
         /// <summary>
@@ -115,9 +123,6 @@ namespace Cmf.CLI.Commands
                     Log.Render(tree);
                 });
             }
-
-            
-            
         }
     }
 }

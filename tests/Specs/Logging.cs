@@ -28,7 +28,11 @@ namespace tests.Specs
             _writer = new StringWriter();
             Environment.SetEnvironmentVariable("cmf_cli_loglevel", null);
 
-            LoggerHelpers.LogLevelOption.Parse(""); // reset to default log level
+            // In beta5, Option.Parse() doesn't exist - use a temporary command to parse and trigger default value
+            var tempCmd = new Command("temp");
+            tempCmd.Add(LoggerHelpers.LogLevelOption);
+            tempCmd.Parse(Array.Empty<string>());
+
             Log.AnsiConsole = AnsiConsole.Create(new AnsiConsoleSettings
             {
                 Ansi = AnsiSupport.Yes,
@@ -72,7 +76,11 @@ namespace tests.Specs
         public void LogDebug_WhenDebug_Option()
         {
             // System.Environment.SetEnvironmentVariable("cmf:cli:loglevel", "debug");
-            LoggerHelpers.LogLevelOption.Parse("--loglevel debug");
+            // In beta5, Option.Parse() doesn't exist - use a temporary command to parse
+            var tempCmd = new Command("temp");
+            tempCmd.Add(LoggerHelpers.LogLevelOption);
+            var parseResult = tempCmd.Parse(new[] { "--loglevel", "debug" });
+            parseResult.GetValue(LoggerHelpers.LogLevelOption); // trigger the custom parser
             // Log.Level = LogLevel.Debug;
 
             // var root = Program.Main(new string[] { "--loglevel", "debug", "ls" });
@@ -86,7 +94,11 @@ namespace tests.Specs
         public void LogDebug_WhenDebug_Environment()
         {
             System.Environment.SetEnvironmentVariable("cmf_cli_loglevel", "debug");
-            LoggerHelpers.LogLevelOption.Parse(""); // invoke rootCommand option parser to set environment value
+            // In beta5, Option.Parse() doesn't exist - use a temporary command to parse and trigger default value
+            var tempCmd = new Command("temp");
+            tempCmd.Add(LoggerHelpers.LogLevelOption);
+            var parseResult = tempCmd.Parse(Array.Empty<string>());
+            parseResult.GetValue(LoggerHelpers.LogLevelOption); // trigger the custom parser to read env var
             // --loglevel debug
             // Log.Level = LogLevel.Debug;
 

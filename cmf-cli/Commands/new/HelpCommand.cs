@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Cmf.CLI.Builders;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
@@ -42,14 +42,25 @@ namespace Cmf.CLI.Commands.New
         /// <inheritdoc />
         public override void Configure(Command cmd)
         {
-            base.GetBaseCommandConfig(cmd);
-            cmd.AddOption(new Option<IFileInfo>(
-                aliases: new[] { "--docPkg", "--documentationPackage" },
-                description: "Path to the MES documentation package (required for MES versions up to 9.x)",
-                parseArgument: argResult => Parse<IFileInfo>(argResult)
-            )
-            { IsRequired = false });
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, string, IFileInfo>(this.Execute);
+            var (workingDirArg, versionOpt) = base.GetBaseCommandConfig(cmd);
+
+            var docPkgOption = new Option<IFileInfo>("--documentationPackage", "--docPkg")
+            {
+                Description = "Path to the MES documentation package (required for MES versions up to 9.x)",
+                Required = false,
+                CustomParser = argResult => Parse<IFileInfo>(argResult)
+            };
+            cmd.Add(docPkgOption);
+
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                var workingDir = parseResult.GetValue(workingDirArg);
+                var version = parseResult.GetValue(versionOpt);
+                var documentationPackage = parseResult.GetValue(docPkgOption);
+
+                Execute(workingDir, version, documentationPackage);
+                return Task.FromResult(0);
+            });
         }
 
         /// <inheritdoc />

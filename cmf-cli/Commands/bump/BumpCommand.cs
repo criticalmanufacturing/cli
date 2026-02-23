@@ -7,9 +7,9 @@ using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.IO;
 using System.IO.Abstractions;
+using System.Threading.Tasks;
 
 namespace Cmf.CLI.Commands
 {
@@ -26,25 +26,42 @@ namespace Cmf.CLI.Commands
         /// <param name="cmd"></param>
         public override void Configure(Command cmd)
         {
-            cmd.AddArgument(new Argument<DirectoryInfo>(
-                name: "packagePath",
-                getDefaultValue: () => { return new("."); },
-                description: "Package path"));
+            var packagePathArgument = new Argument<DirectoryInfo>("packagePath")
+            {
+                Description = "Package path",
+                DefaultValueFactory = _ => new DirectoryInfo(".")
+            };
+            cmd.Add(packagePathArgument);
 
-            cmd.AddOption(new Option<string>(
-                aliases: new string[] { "-v", "--version" },
-                description: "Will bump all versions to the version specified"));
+            var versionOption = new Option<string>("--version", "-v")
+            {
+                Description = "Will bump all versions to the version specified"
+            };
+            cmd.Add(versionOption);
 
-            cmd.AddOption(new Option<string>(
-                aliases: new string[] { "-b", "--buildNr" },
-                description: "Will add this version next to the version (v-b)"));
+            var buildNrOption = new Option<string>("--buildNr", "-b")
+            {
+                Description = "Will add this version next to the version (v-b)"
+            };
+            cmd.Add(buildNrOption);
 
-            cmd.AddOption(new Option<string>(
-                aliases: new string[] { "-r", "--root" },
-                description: "Will bump only versions under a specific root folder (i.e. 1.0.0)"));
+            var rootOption = new Option<string>("--root", "-r")
+            {
+                Description = "Will bump only versions under a specific root folder (i.e. 1.0.0)"
+            };
+            cmd.Add(rootOption);
 
             // Add the handler
-            cmd.Handler = CommandHandler.Create<DirectoryInfo, string, string, string>(Execute);
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                var packagePath = parseResult.GetValue(packagePathArgument);
+                var version = parseResult.GetValue(versionOption);
+                var buildNr = parseResult.GetValue(buildNrOption);
+                var root = parseResult.GetValue(rootOption);
+
+                Execute(packagePath, version, buildNr, root);
+                return Task.FromResult(0);
+            });
         }
 
         /// <summary>
