@@ -80,11 +80,12 @@ namespace Cmf.CLI.Handlers
         /// </summary>
         /// <param name="packageOutputDir">source directory</param>
         /// <param name="outputDir">output directory</param>
-        public override void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir)
+        /// <param name="dryRun">if set to <c>true</c> list the package structure without creating files.</param>
+        public override void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir, bool dryRun = false)
         {
             GenerateHostConfigFile(packageOutputDir);
 
-            base.Pack(packageOutputDir, outputDir);
+            base.Pack(packageOutputDir, outputDir, dryRun);
         }
 
         /// <summary>

@@ -42,14 +42,15 @@ namespace Cmf.CLI.Handlers
         /// </summary>
         /// <param name="packageOutputDir"></param>
         /// <param name="outputDir"></param>
-        public override void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir)
+        /// <param name="dryRun">if set to <c>true</c> list the package structure without creating files.</param>
+        public override void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir, bool dryRun = false)
         {
             if (ExecutionContext.Instance.ProjectConfig?.RepositoryType == RepositoryType.App)
             {
                 GenerateAppFiles(packageOutputDir, outputDir);
             }
 
-            base.Pack(packageOutputDir, outputDir);
+            base.Pack(packageOutputDir, outputDir, dryRun);
         }
 
         /// <summary>

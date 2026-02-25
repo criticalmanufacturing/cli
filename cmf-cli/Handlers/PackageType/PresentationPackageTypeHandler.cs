@@ -228,11 +228,12 @@ namespace Cmf.CLI.Handlers
         /// </summary>
         /// <param name="packageOutputDir">The package output dir.</param>
         /// <param name="outputDir">The output dir.</param>
-        public override void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir)
+        /// <param name="dryRun">if set to <c>true</c> list the package structure without creating files.</param>
+        public override void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir, bool dryRun = false)
         {
             GeneratePresentationConfigFile(packageOutputDir);
 
-            base.Pack(packageOutputDir, outputDir);
+            base.Pack(packageOutputDir, outputDir, dryRun);
         }
 
         #endregion Public Methods

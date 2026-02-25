@@ -43,7 +43,8 @@ namespace Cmf.CLI.Core.Interfaces
         /// </summary>
         /// <param name="packageOutputDir">The package output dir.</param>
         /// <param name="outputDir">The output dir.</param>
-        public void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir);
+        /// <param name="dryRun">if set to <c>true</c> list the package structure without creating files.</param>
+        public void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir, bool dryRun = false);
 
         /// <summary>
         /// Restore package dependencies (declared in cmfpackage.json) from repository packages
