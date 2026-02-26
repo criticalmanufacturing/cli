@@ -16,7 +16,7 @@ namespace Cmf.CLI.Core.Objects
         /// The CI repository folder: this is the place where Packages built by CI are stored, by branch
         /// </summary>
         [JsonConverter(typeof(UriConverter))]
-        public Uri CIRepository { get; set; }
+        public Uri? CIRepository { get; set; }
 
         /// <summary>
         /// The DF repositories: these contain package that we treat as official (i.e. upstream dependencies or already releases packages)
@@ -36,12 +36,12 @@ namespace Cmf.CLI.Core.Objects
 
     class UriConverter : JsonConverter<Uri>
     {
-        public override void WriteJson(JsonWriter writer, Uri value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, Uri? value, JsonSerializer serializer)
         {
             throw new NotImplementedException();
         }
 
-        public override Uri ReadJson(JsonReader reader, Type objectType, Uri existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override Uri? ReadJson(JsonReader reader, Type objectType, Uri? existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             if (reader.TokenType == JsonToken.String)
             {
@@ -92,12 +92,12 @@ namespace Cmf.CLI.Core.Objects
     }
     class UriListConverter : JsonConverter<List<Uri>>
     {
-        public override void WriteJson(JsonWriter writer, List<Uri> value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, List<Uri>? value, JsonSerializer serializer)
         {
             throw new NotImplementedException();
         }
 
-        public override List<Uri> ReadJson(JsonReader reader, Type objectType, List<Uri> existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override List<Uri>? ReadJson(JsonReader reader, Type objectType, List<Uri>? existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             // First deserialize as a list of strings
             var stringArray = serializer.Deserialize(reader, typeof(List<string>)) as List<string>;

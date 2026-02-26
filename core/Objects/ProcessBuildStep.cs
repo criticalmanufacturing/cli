@@ -21,7 +21,7 @@ public class ProcessBuildStep : IEquatable<ProcessBuildStep>
     /// The arguments.
     /// </value>
     [JsonProperty(Order = 1)]
-    public string[] Args { get; set; }
+    public string[]? Args { get; set; }
 
     /// <summary>
     /// Gets or sets the command.
@@ -30,7 +30,7 @@ public class ProcessBuildStep : IEquatable<ProcessBuildStep>
     /// The command.
     /// </value>
     [JsonProperty(Order = 2)]
-    public string Command { get; set; }
+    public string? Command { get; set; }
 
     /// <summary>
     /// Gets or sets the working directory.
@@ -40,7 +40,7 @@ public class ProcessBuildStep : IEquatable<ProcessBuildStep>
     /// </value>
     [JsonConverter(typeof(AbstractionsDirectoryConverter))]
     [JsonProperty(Order = 3)]
-    public IDirectoryInfo WorkingDirectory { get; set; }
+    public IDirectoryInfo? WorkingDirectory { get; set; }
 
     /// <summary>
     /// Gets or sets the environment variables.
@@ -49,25 +49,25 @@ public class ProcessBuildStep : IEquatable<ProcessBuildStep>
     /// The environment variables to be used on a given ProcessBuildStep
     /// </value>
     [JsonProperty(Order = 4)]
-    public Dictionary<string, string> EnvironmentVariables { get; set; }
+    public Dictionary<string, string>? EnvironmentVariables { get; set; }
 
     #region IEquatable
 
     /// <inheritdoc />
-    public bool Equals(ProcessBuildStep other)
+    public bool Equals(ProcessBuildStep? other)
     {
         if (ReferenceEquals(null, other)) return false;
         return string.Equals(this.Command, other.Command) &&
                this.Args?.Length == other.Args?.Length &&
                (
                    other.Args == null ||
-                   (this.Args?.OrderBy(x => x).SequenceEqual(other.Args?.OrderBy(x => x)) ?? true)
+                   (this.Args?.OrderBy(x => x).SequenceEqual(other.Args.OrderBy(x => x)) ?? true)
                ) &&
-               this.WorkingDirectory.FullName.Equals(other.WorkingDirectory.FullName);
+               string.Equals(this.WorkingDirectory?.FullName, other.WorkingDirectory?.FullName);
     }
 
     /// <inheritdoc />
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;

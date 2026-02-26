@@ -12,7 +12,7 @@ namespace Cmf.CLI.Core.Utilities
     /// </summary>
     public class ListAbstractionsDirectoryConverter : JsonConverter
     {
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
             JToken token = JToken.Load(reader);
             List<IDirectoryInfo> directories = new();
@@ -20,18 +20,26 @@ namespace Cmf.CLI.Core.Utilities
             {
                 if (children.Type == JTokenType.String)
                 {
-                    directories.Add(ExecutionContext.Instance.FileSystem.DirectoryInfo.New(children?.ToString()));
+                    directories?.Add((ExecutionContext.Instance ?? throw new InvalidOperationException("ExecutionContext not initialized")).FileSystem.DirectoryInfo.New(children.ToString()));
                 }
             }
             return directories;
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
             writer.WriteStartArray();
-            foreach (var directory in (value as List<IDirectoryInfo>))
+            if (value is List<IDirectoryInfo> directories)
             {
-                writer.WriteValue(directory.ToString());
+                foreach (var directory in directories)
+                {
+                    writer.WriteValue(directory.ToString());
+                }
+            }
+            else
+            {
+                throw new JsonSerializationException(
+                    $"Expected {nameof(List<IDirectoryInfo>)}");
             }
             writer.WriteEndArray();
         }
@@ -49,21 +57,21 @@ namespace Cmf.CLI.Core.Utilities
     public class AbstractionsDirectoryConverter : JsonConverter
     {
         /// <inheritdoc />
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
-            writer.WriteValue((value as IDirectoryInfo).ToString());
+            writer.WriteValue((value as IDirectoryInfo)?.ToString());
         }
 
         /// <inheritdoc />
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
-            return reader.TokenType == JsonToken.String ? ExecutionContext.Instance.FileSystem.DirectoryInfo.New(reader.Value?.ToString()) : null;
+            return reader.TokenType == JsonToken.String ? (ExecutionContext.Instance ?? throw new InvalidOperationException("ExecutionContext not initialized")).FileSystem.DirectoryInfo.New((string)reader.Value!) : null;
         }
 
         /// <inheritdoc />
         public override bool CanConvert(Type objectType)
         {
-            Type t = (objectType.IsGenericType && objectType.GetGenericTypeDefinition() == typeof(Nullable<>))
+            Type? t = (objectType.IsGenericType && objectType.GetGenericTypeDefinition() == typeof(Nullable<>))
                 ? Nullable.GetUnderlyingType(objectType)
                 : objectType;
 

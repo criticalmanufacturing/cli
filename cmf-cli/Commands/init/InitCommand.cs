@@ -602,7 +602,17 @@ namespace Cmf.CLI.Commands
                 args.AddRange(new string[] { "--Tenant", x.Tenant });
             }
             
-            if (!args.Contains("--Tenant"))
+            bool hasTenant = false;
+            for (int i = args.Count - 1; i >= 0; i--)
+            {
+                if (args[i] == "--Tenant" && !string.IsNullOrEmpty(args[i + 1]) && !args[i + 1].StartsWith("--"))
+                {
+                    hasTenant = true;
+                    break;
+                }
+            }
+
+            if (!hasTenant)
             {
                 throw new CliException("Tenant information is missing. Please provide it either in the config file or through the --tenant option.");
             }

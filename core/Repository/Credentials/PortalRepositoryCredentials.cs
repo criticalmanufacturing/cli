@@ -117,7 +117,7 @@ namespace Cmf.CLI.Core.Repository.Credentials
                 if (cred.Repository == CmfAuthConstants.PortalRepository)
                 {
                     string[] cmfDomainListWithExtras = [..CmfDomainList, ..Environment.GetEnvironmentVariable("cmf_cli_derived_credentials_domain_list")?.Split(',') ?? []];
-                    Uri[] repositoriesToCheck = [ExecutionContext.Instance?.RepositoriesConfig?.CIRepository, ..ExecutionContext.Instance?.RepositoriesConfig?.Repositories ?? []];
+                    Uri?[] repositoriesToCheck = [ExecutionContext.Instance?.RepositoriesConfig?.CIRepository, ..ExecutionContext.Instance?.RepositoriesConfig?.Repositories ?? []];
                     var derivedUrls = repositoriesToCheck.ToList().Where(url =>
                         cmfDomainListWithExtras.Contains(url?.Host)
                     );
@@ -126,13 +126,15 @@ namespace Cmf.CLI.Core.Repository.Credentials
 
                     var username = ParseJwt(token).Subject;
 
+                    var resolvedUsername = username ?? string.Empty;
+
                     // NuGet
                     yield return new BasicCredential
                     {
                         RepositoryType = RepositoryCredentialsType.NuGet,
                         Repository = CmfAuthConstants.NuGetRepository,
                         Key = CmfAuthConstants.NuGetKey,
-                        Username = username,
+                        Username = resolvedUsername,
                         Password = token,
                     };
                     // NPM
@@ -140,7 +142,7 @@ namespace Cmf.CLI.Core.Repository.Credentials
                     {
                         RepositoryType = RepositoryCredentialsType.NPM,
                         Repository = CmfAuthConstants.NPMRepository,
-                        Username = username,
+                        Username = resolvedUsername,
                         Password = token,
                     };
                     // Docker
@@ -148,7 +150,7 @@ namespace Cmf.CLI.Core.Repository.Credentials
                     {
                         RepositoryType = RepositoryCredentialsType.Docker,
                         Repository = CmfAuthConstants.DockerRepository,
-                        Username = username,
+                        Username = resolvedUsername,
                         Password = token,
                     };
                     // Portal NPM
@@ -166,8 +168,8 @@ namespace Cmf.CLI.Core.Repository.Credentials
                         {
                             // Assume its an NPM repository
                             RepositoryType = RepositoryCredentialsType.NPM,
-                            Repository = url.OriginalString,
-                            Username = username,
+                            Repository = url?.OriginalString ?? string.Empty,
+                            Username = resolvedUsername,
                             Password = token,
                         };
                     }
@@ -183,12 +185,12 @@ namespace Cmf.CLI.Core.Repository.Credentials
             return GenericUtilities.BuildEnvVarPrefix(RepositoryType, $"{uri.Host}{uri.PathAndQuery.TrimEnd('/')}");
         }
 
-        public async Task<ICredential> TryRenewToken(CmfAuthFile authFile)
+        public async Task<ICredential?> TryRenewToken(CmfAuthFile authFile)
         {
-            ICredential renewedCredential = null;
+            ICredential? renewedCredential = null;
 
             // The token (might come from .cmf-auth.json or from cmfportaltoken files)
-            string token = null;
+            string? token = null;
 
             if (authFile.Repositories.TryGetValue(RepositoryType, out var portalCreds))
             {
@@ -272,7 +274,7 @@ namespace Cmf.CLI.Core.Repository.Credentials
             var payloadBytes = Convert.FromBase64String(payloadBase64);
             var payloadString = Encoding.UTF8.GetString(payloadBytes);
 
-            return JsonConvert.DeserializeObject<JWTPayload>(payloadString);
+            return JsonConvert.DeserializeObject<JWTPayload>(payloadString) ?? throw new Exception("Failed to parse JWT payload.");
         }
 
         protected string GetPortalBearerToken(string pat)
@@ -297,7 +299,7 @@ namespace Cmf.CLI.Core.Repository.Credentials
             {
                 var result = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
                 var tokenResponse = JsonConvert.DeserializeObject<dynamic>(result);
-                portalBearerToken = tokenResponse.access_token;
+                portalBearerToken = tokenResponse?.access_token ?? string.Empty;
             }
             }
 
@@ -306,16 +308,16 @@ namespace Cmf.CLI.Core.Repository.Credentials
 
         protected class JWTPayload
         {
-            public string ClientId { get; set; }
+            public string? ClientId { get; set; }
 
-            public string TenantName { get; set; }
+            public string? TenantName { get; set; }
 
-            public string StrategyId { get; set; }
+            public string? StrategyId { get; set; }
 
             [JsonProperty(PropertyName = "sub")]
-            public string Subject { get; set; }
+            public string? Subject { get; set; }
 
-            public string Scope { get; set; }
+            public string? Scope { get; set; }
 
             [JsonProperty(PropertyName = "iat")]
             [JsonConverter(typeof(UnixDateTimeConverter))]
@@ -326,10 +328,10 @@ namespace Cmf.CLI.Core.Repository.Credentials
             public DateTimeOffset ExpirationTime { get; set; }
 
             [JsonProperty(PropertyName = "aud")]
-            public string Audience { get; set; }
+            public string? Audience { get; set; }
 
             [JsonProperty(PropertyName = "iss")]
-            public string Issuer { get; set; }
+            public string? Issuer { get; set; }
         }
     }
 

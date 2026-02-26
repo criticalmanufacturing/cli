@@ -28,8 +28,8 @@ public class CmfPackageController
     private const string NPMAliasPrefix = "npm:"; 
         
     private static List<CmfPackageV1> loadedPackages = new();
-    private CmfPackageV1 package;
-    private IFileSystem fileSystem;
+    private CmfPackageV1 package = null!;
+    private IFileSystem fileSystem = null!;
 
     public CmfPackageV1 CmfPackage => this.package; 
 
@@ -50,16 +50,16 @@ public class CmfPackageController
         this.package = package;
         this.fileSystem = fileSystem;
     }
-    public CmfPackageController(IFileInfo file, IFileSystem fileSystem = null, bool setDefaultValues = false)
+    public CmfPackageController(IFileInfo file, IFileSystem? fileSystem = null, bool setDefaultValues = false)
     {
         Log.Debug("Spinning up a controller for a CmfPackage file info: " + file.FullName);
         #if DEBUG
         // TODO: this is dumb
         var stackTrace = new StackTrace();
-        var callingMethod = stackTrace.GetFrame(1).GetMethod(); // Get the calling method
-        var callerType = callingMethod.DeclaringType; // Get the caller's type
+        var callingMethod = stackTrace.GetFrame(1)?.GetMethod(); // Get the calling method
+        var callerType = callingMethod?.DeclaringType; // Get the caller's type
 
-        if (callerType.GetInterface(nameof(IRepositoryClient)) == null)
+        if (callerType?.GetInterface(nameof(IRepositoryClient)) == null)
         {
             Log.Warning("This constructor can only be invoked from RepositoryClients!");
         }
@@ -76,7 +76,7 @@ public class CmfPackageController
             Log.Debug("File is a source package");
             // source package
             var cmfPackage = CmfPackageController.FromSourceManifest(file);
-            cmfPackage.Client = ExecutionContext.ServiceProvider.GetService<IRepositoryLocator>()
+            cmfPackage.Client = ExecutionContext.ServiceProvider!.GetService<IRepositoryLocator>()!
                 .GetRepositoryClient(new Uri(file.FullName), file.FileSystem); // this is a hack to avoid awaiting for the LocalRepositoryClient as it is async
             // string fileContent = file.ReadToString();
             // CmfPackage cmfPackage = JsonConvert.DeserializeObject<CmfPackage>(fileContent);
@@ -184,7 +184,7 @@ public class CmfPackageController
         
     }
     
-    public async Task LoadDependencies(IEnumerable<Uri> repoUris, StatusContext ctx, bool recurse = false)
+    public async Task LoadDependencies(IEnumerable<Uri> repoUris, StatusContext? ctx, bool recurse = false)
     {
         using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity("CmfPackageController LoadDependencies");
         activity?.SetTag("cmfPackage", $"{package.PackageId}.{package.Version}");
@@ -199,7 +199,7 @@ public class CmfPackageController
             // {
             //     throw new CliException($"Some of the provided repositories do not exist: {string.Join(", ", missingRepoDirectories.Select(d => d.FullName))}");
             // }
-            foreach (var dependency in package.Dependencies)
+            foreach (var dependency in package.Dependencies!)
             {
                 ctx?.Status($"Working on dependency {dependency.Id}@{dependency.Version}");
                 Log.Debug($"Working on dependency {dependency.Id}@{dependency.Version}");
@@ -213,8 +213,8 @@ public class CmfPackageController
                 if (dependencyPackage == null)
                 {
                     // dependencyPackage = LoadFromRepo(repoDirectories, dependency.Id, dependency.Version);
-                    dependencyPackage = await ExecutionContext.ServiceProvider.GetService<IRepositoryLocator>()
-                        .FindPackage(dependency.Id, dependency.Version);
+                    dependencyPackage = await ExecutionContext.ServiceProvider!.GetRequiredService<IRepositoryLocator>()
+                        .FindPackage(dependency.Id!, dependency.Version!);
                 }
 
                 // 3) search in the source code repository (only if this is a local package)
@@ -225,8 +225,9 @@ public class CmfPackageController
                     // {
                     //     dependencyPackage.Uri = new Uri(dependencyPackage.FileInfo.FullName);
                     // }
-                    dependencyPackage = await ExecutionContext.ServiceProvider.GetService<IRepositoryLocator>().GetSourceClient(this.fileSystem)
-                        .Find(dependency.Id, dependency.Version);
+                    dependencyPackage = await ExecutionContext.ServiceProvider!.GetRequiredService<IRepositoryLocator>()
+                        .GetSourceClient(this.fileSystem)
+                        .Find(dependency.Id!, dependency.Version!);
                 }
 
                 if (dependencyPackage != null)
@@ -246,7 +247,7 @@ public class CmfPackageController
     }
     
     
-    private static void LogUnknownAttributes(XElement element, IEnumerable<string> knownAttributes = null)
+    private static void LogUnknownAttributes(XElement element, IEnumerable<string>? knownAttributes = null)
     {
         knownAttributes ??= [];
         var allAttributes = element.Attributes().Select(a => a.Name.LocalName);
@@ -264,7 +265,7 @@ public class CmfPackageController
         XDocument dFManifestTemplate = XDocument.Load(dFManifestReader);
         var tokens = new Dictionary<string, string>();
 
-        XElement rootNode = dFManifestTemplate.Element("deploymentPackage", true);
+        XElement? rootNode = dFManifestTemplate.Element("deploymentPackage", true);
         if (rootNode == null)
         {
             throw new CliException(string.Format(CoreMessages.InvalidManifestFile));
@@ -278,13 +279,13 @@ public class CmfPackageController
 
             if (element.Name.LocalName == "dependencies")
             {
-                var deplist = element.Elements().Select(depEl => new Dependency(depEl.Attribute("id").Value, depEl.Attribute("version").Value));
+                var deplist = element.Elements().Select(depEl => new Dependency(depEl.Attribute("id")!.Value, depEl.Attribute("version")!.Value));
                 deps.AddRange(deplist);
             }
 
             if (element.Name.LocalName == "testPackages")
             {
-                var testPackagesList = element.Elements().Select(depEl => new Dependency(depEl.Attribute("id").Value, depEl.Attribute("version").Value));
+                var testPackagesList = element.Elements().Select(depEl => new Dependency(depEl.Attribute("id")!.Value, depEl.Attribute("version")!.Value));
                 testPackages.AddRange(testPackagesList);
             }
 
@@ -369,15 +370,17 @@ public class CmfPackageController
                 {
                     LogUnknownAttributes(element, KnownStepAttributes);
                     
+                    var typeAttr = element.Attribute("type")?.Value;
+                    var tagFileAttr = element.Attribute("tagFile")?.Value;
                     Step step = new Step(
-                        type: Enum.Parse(typeof(StepType), element.Attribute("type")?.Value) is StepType
-                            ? (StepType)Enum.Parse(typeof(StepType), element.Attribute("type")?.Value)
+                        type: typeAttr != null && Enum.TryParse<StepType>(typeAttr, out var stepType)
+                            ? stepType
                             : StepType.Generic,
                         title: element.Attribute("title")?.Value,
                         onExecute: element.Attribute("onExecute")?.Value,
                         contentPath: element.Attribute("contentPath")?.Value,
                         file: null,
-                        tagFile: element.Attribute("tagFile")?.Value != null ? bool.Parse(element.Attribute("tagFile")?.Value) : null,
+                        tagFile: tagFileAttr != null ? bool.Parse(tagFileAttr) : null,
                         targetDatabase: element.Attribute("targetDatabase")?.Value,
                         messageType: MessageType.ImportObject, // TODO: get value
                         relativePath: null,
@@ -446,7 +449,7 @@ public class CmfPackageController
                         isConditional = (bool)conditional;
                     }
 
-                    Dependency result = null;
+                    Dependency? result = null;
 
                     if (!string.IsNullOrWhiteSpace(id) && !string.IsNullOrWhiteSpace(versionRange))
                     {
@@ -471,17 +474,17 @@ public class CmfPackageController
                     //     result.AddMetadata(attr.Name.LocalName, attr.Value);
                     // }
 
-                    deps.Add(result);
+                    deps.Add(result!);
                 }
             }
-            
+
             var testPksElements = rootNode.Element("testPackages", true)?.Elements("testPackages", true);
             if (testPksElements != null)
             {
                 foreach (var element in testPksElements)
                 {
                     var testPackagesList = element.Elements().Select(depEl =>
-                        new Dependency(depEl.Attribute("id").Value, depEl.Attribute("version").Value));
+                        new Dependency(depEl.Attribute("id")!.Value, depEl.Attribute("version")!.Value));
                     testPackages.AddRange(testPackagesList);
                 }
             }
@@ -529,7 +532,7 @@ public class CmfPackageController
                 rootNode.Element("targetDirectory", true)?.Value,
                 rootNode.Element("targetLayer", true)?.Value,
                 bool.Parse(rootNode.Element("isInstallable", true)?.Value ?? "false"),
-                rootNode.Element("isUniqueInstall", true)?.Value != null ? bool.Parse(rootNode.Element("isUniqueInstall", true).Value) : false,
+                rootNode.Element("isUniqueInstall", true)?.Value is { } isUniqueVal ? bool.Parse(isUniqueVal) : false,
                 rootNode.Element("keywords", true)?.Value,
                 true,
                 deps,
@@ -545,7 +548,8 @@ public class CmfPackageController
 
     public static CmfPackageV1 FromJson(string manifest)
     {
-        return FromJson(JsonConvert.DeserializeObject<JObject>(manifest));
+        return FromJson(JsonConvert.DeserializeObject<JObject>(manifest)
+            ?? throw new CliException("Invalid manifest: could not parse JSON"));
     }
     
     /// <summary>
@@ -559,12 +563,12 @@ public class CmfPackageController
     {
         // Confirm if it is a standard deployment package
         var keywords = new List<string>();
-        
-        if (json.Property("keywords")?.Value != null && json.Property("keywords")?.Value.Type == JTokenType.Array)
+
+        if (json.Property("keywords")?.Value is { Type: JTokenType.Array } keywordsValue)
         {
-            keywords = JsonConvert.DeserializeObject<List<string>>(json.Property("keywords")!.Value.ToString());
+            keywords = JsonConvert.DeserializeObject<List<string>>(keywordsValue.ToString()) ?? [];
         }
-        
+
         bool isDeploymentPackage = keywords.Any(k => ((JToken)k).ToString() == JSONPackageKeyword);
         bool isTestPackage = keywords.Any(k => ((JToken)k).ToString() == JSONTestsPackageKeyword);
 
@@ -591,9 +595,9 @@ public class CmfPackageController
         if (isTestPackage)
         {
             return new CmfPackageV1(
-                json.Property("name")?.Value.ToString(),
-                json.Property("name")?.Value.ToString(),
-                json.Property("version")?.Value.ToString(),
+                json.Property("name")?.Value?.ToString(),
+                json.Property("name")?.Value?.ToString(),
+                json.Property("version")?.Value?.ToString(),
                 json.Property("description")?.Value?.ToString(),
                 PackageType.Tests,
                 null,
@@ -610,53 +614,53 @@ public class CmfPackageController
                 []
             );
         }
-        // if (!string.IsNullOrEmpty(json.Property("systemName")?.Value.ToString()))
+        // if (!string.IsNullOrEmpty(json.Property("systemName")?.Value?.ToString()))
         // {
         //     package.AddMetadata(PackageManifestReader.MetadataKey.ApplicationName, json.Property("systemName").Value.ToString());
         //
-        //     var targetSystemVersionText = json.Property("systemVersion")?.Value.ToString();
+        //     var targetSystemVersionText = json.Property("systemVersion")?.Value?.ToString();
         //     if (!string.IsNullOrWhiteSpace(targetSystemVersionText))
         //     {
         //         package.AddMetadata(PackageManifestReader.MetadataKey.ApplicationVersion, targetSystemVersionText);
         //     }
         // }
 
-        var deploymentVariables = rootNode.Children<JObject>();
-        string packageType = null;
+        var deploymentVariables = rootNode!.Children<JObject>();
+        string? packageType = null;
 
         foreach (var entry in deploymentVariables)
         {
-            // string manifestVersionString = entry.Property("manifestVersion")?.Value.ToString();
+            // string manifestVersionString = entry.Property("manifestVersion")?.Value?.ToString();
             // int manifestVersion = -1;
             // Int32.TryParse(manifestVersionString, out manifestVersion);
             // package.ManifestVersion = manifestVersion;
 
-            // string minSqlCompatibilityString = entry.Property("minSqlCompatibility")?.Value.ToString();
+            // string minSqlCompatibilityString = entry.Property("minSqlCompatibility")?.Value?.ToString();
             // int minSqlCompatibility = -1;
             // Int32.TryParse(minSqlCompatibilityString, out minSqlCompatibility);
             // package.MinSqlCompatibility = minSqlCompatibility;
 
-            if (!string.IsNullOrEmpty(entry.Property("packageType")?.Value.ToString()))
+            if (!string.IsNullOrEmpty(entry.Property("packageType")?.Value?.ToString()))
             {
-                packageType = entry.Property("packageType")?.Value.ToString();
+                packageType = entry.Property("packageType")?.Value?.ToString();
             }
 
-            // if (!string.IsNullOrEmpty(entry.Property("targetDirectory")?.Value.ToString()))
+            // if (!string.IsNullOrEmpty(entry.Property("targetDirectory")?.Value?.ToString()))
             // {
-            //     targetDirectory = entry.Property("targetDirectory")?.Value.ToString();
+            //     targetDirectory = entry.Property("targetDirectory")?.Value?.ToString();
             // }
             //
-            // if (!string.IsNullOrEmpty(entry.Property("targetLayerDirectory")?.Value.ToString()))
+            // if (!string.IsNullOrEmpty(entry.Property("targetLayerDirectory")?.Value?.ToString()))
             // {
-            //     package.TargetLayerDirectory = entry.Property("targetLayerDirectory")?.Value.ToString();
+            //     package.TargetLayerDirectory = entry.Property("targetLayerDirectory")?.Value?.ToString();
             // }
             //
-            // if (!string.IsNullOrEmpty(entry.Property("targetLayer")?.Value.ToString()))
+            // if (!string.IsNullOrEmpty(entry.Property("targetLayer")?.Value?.ToString()))
             // {
-            //     package.TargetLayer = entry.Property("targetLayer")?.Value.ToString();
+            //     package.TargetLayer = entry.Property("targetLayer")?.Value?.ToString();
             // }
 
-            // if (!string.IsNullOrEmpty(entry.Property("buildDate")?.Value.ToString()))
+            // if (!string.IsNullOrEmpty(entry.Property("buildDate")?.Value?.ToString()))
             // {
             //     DateTime dt;
             //     if (DateTime.TryParse(entry.Property("buildDate").Value.ToString(), out dt))
@@ -666,14 +670,14 @@ public class CmfPackageController
             // {
             //     package.BuildDate = (DateTime?)null;
             // }
-            // package.IsInstallable = bool.Parse(entry.Property("isInstallable")?.Value.ToString() ?? "false");
+            // package.IsInstallable = bool.Parse(entry.Property("isInstallable")?.Value?.ToString() ?? "false");
         }
 
-        var auxArr = (JObject)rootNode.Value;
+        var auxArr = (JObject)rootNode!.Value!;
         var steps = new List<Step>();
-        if (auxArr.Property("steps").Value.Type == JTokenType.Array)
+        if (auxArr.Property("steps")?.Value.Type == JTokenType.Array)
         {
-            var stepsEl = (JArray)auxArr.Property("steps").Value;
+            var stepsEl = (JArray?)auxArr.Property("steps")?.Value;
 
             if (stepsEl != null)
             {
@@ -682,20 +686,22 @@ public class CmfPackageController
                     if (element.Type == JTokenType.Object)
                     {
                         var elem = (JObject)element;
+                        var typeVal = elem.Property("type")?.Value?.ToString();
+                        var tagFileVal = elem.Property("tagFile")?.Value?.ToString();
 
                         Step step = new Step(
-                            type: Enum.Parse(typeof(StepType), elem.Property("type")?.Value.ToString()) is StepType
-                                ? (StepType)Enum.Parse(typeof(StepType), elem.Property("type")?.Value.ToString())
+                            type: typeVal != null && Enum.TryParse<StepType>(typeVal, out var stepType)
+                                ? stepType
                                 : StepType.Generic,
-                            title: elem.Property("title")?.Value.ToString(),
-                            onExecute: elem.Property("onExecute")?.Value.ToString(),
-                            contentPath: elem.Property("contentPath")?.Value.ToString(),
+                            title: elem.Property("title")?.Value?.ToString(),
+                            onExecute: elem.Property("onExecute")?.Value?.ToString(),
+                            contentPath: elem.Property("contentPath")?.Value?.ToString(),
                             file: null,
-                            tagFile: elem.Property("tagFile")?.Value.ToString() != null ? bool.Parse(elem.Property("tagFile")?.Value.ToString()) : null,
-                            targetDatabase: elem.Property("targetDatabase")?.Value.ToString(),
+                            tagFile: tagFileVal != null ? bool.Parse(tagFileVal) : null,
+                            targetDatabase: elem.Property("targetDatabase")?.Value?.ToString(),
                             messageType: MessageType.ImportObject, // TODO: get value
                             relativePath: null,
-                            filePath: elem.Property("filePath")?.Value.ToString()
+                            filePath: elem.Property("filePath")?.Value?.ToString()
                         );
                         steps.Add(step);
                     }
@@ -765,8 +771,8 @@ public class CmfPackageController
                     version = parts[1];
                 }
 
-                bool isDependencyMandatory = mandatoryDependencies.Any(item => item.Id.Equals(id) && item.Version.Equals(version));
-                bool isDependencyConditional = conditionalDependencies.Any(item => item.Id.Equals(id) && item.Version.Equals(version));
+                bool isDependencyMandatory = mandatoryDependencies.Any(item => item.Id == id && item.Version == version);
+                bool isDependencyConditional = conditionalDependencies.Any(item => item.Id == id && item.Version == version);
 
                 if (!string.IsNullOrWhiteSpace(id) && version != null)
                 {
@@ -792,7 +798,7 @@ public class CmfPackageController
         //         foreach (JObject uiElement in uiElements)
         //         {
         //             var step = (PackageWizardStep)ParseGroup(uiElement, new PackageWizardStep());
-        //             step.Id = uiElement.Property("id")?.Value.ToString();
+        //             step.Id = uiElement.Property("id")?.Value?.ToString();
         //             package.UserInterface.AddStep(step);
         //         }
         //     }
@@ -815,29 +821,29 @@ public class CmfPackageController
         // package.IsRootPackage = keywords.Any(s => s.Equals(JSONPackageKeywordIsRootPackage)) ? true : false;
         //
         //
-        // package.PackageId = json.Property("name")?.Value.ToString();
-        // package.TargetDirectory = json.Property("targetDirectory")?.Value.ToString();
-        // package.TargetLayer = json.Property("targetLayer")?.Value.ToString();
-        // package.IsUniqueInstall = bool.Parse(json.Property("isUniqueInstall")?.Value.ToString() ?? "false");
-        // package.IsToForceInstall = bool.Parse(json.Property("isToForceInstall")?.Value.ToString() ?? "false");
-        // if (bool.TryParse(json.Property("forceRerunAfterDatabaseRestore")?.Value.ToString(), out bool forceRerunAfterDatabaseRestore))
+        // package.PackageId = json.Property("name")?.Value?.ToString();
+        // package.TargetDirectory = json.Property("targetDirectory")?.Value?.ToString();
+        // package.TargetLayer = json.Property("targetLayer")?.Value?.ToString();
+        // package.IsUniqueInstall = bool.Parse(json.Property("isUniqueInstall")?.Value?.ToString() ?? "false");
+        // package.IsToForceInstall = bool.Parse(json.Property("isToForceInstall")?.Value?.ToString() ?? "false");
+        // if (bool.TryParse(json.Property("forceRerunAfterDatabaseRestore")?.Value?.ToString(), out bool forceRerunAfterDatabaseRestore))
         // {
         //     package.ForceRerunAfterDatabaseRestore = forceRerunAfterDatabaseRestore;
         // }
-        // package.Version = Cmf.Core.Versioning.Version.Parse(json.Property("version")?.Value.ToString());
-        // string description = json.Property("description")?.Value.ToString();
+        // package.Version = Cmf.Core.Versioning.Version.Parse(json.Property("version")?.Value?.ToString());
+        // string description = json.Property("description")?.Value?.ToString();
         // package.Description = string.IsNullOrEmpty(description) ? null : description;
-        // package.Name = json.Property("packageName")?.Value.ToString();
+        // package.Name = json.Property("packageName")?.Value?.ToString();
         var cmfPackage = new CmfPackageV1(
-            json.Property("packageName")?.Value.ToString(),
-            json.Property("name")?.Value.ToString(),
-            json.Property("version")?.Value.ToString(),
+            json.Property("packageName")?.Value?.ToString(),
+            json.Property("name")?.Value?.ToString(),
+            json.Property("version")?.Value?.ToString(),
             json.Property("description")?.Value?.ToString(),
             cliPackageType,
-            json.Property("targetDirectory")?.Value.ToString(),
-            json.Property("targetLayer")?.Value.ToString(),
-            bool.Parse(json.Property("isInstallable")?.Value.ToString() ?? "false"),
-            bool.Parse(json.Property("isUniqueInstall")?.Value.ToString() ?? "false"),
+            json.Property("targetDirectory")?.Value?.ToString(),
+            json.Property("targetLayer")?.Value?.ToString(),
+            bool.Parse(json.Property("isInstallable")?.Value?.ToString() ?? "false"),
+            bool.Parse(json.Property("isUniqueInstall")?.Value?.ToString() ?? "false"),
             keywords: string.Join(", ", keywords),
             true,
             deps,
@@ -896,24 +902,24 @@ public class CmfPackageController
         JObject jObject = new JObject();
         foreach (JObject desc in stepsArray)
         {
-            var children = desc.Value<JObject>();
+            var children = desc.Value<JObject>()!;
 
             if (children.Properties() != null)
             {
-                var values = children.Value<JObject>();
+                var values = children.Value<JObject>()!;
                 foreach (var value in values)
                 {
-                    if (value.Value.Type == JTokenType.Array)
+                    if (value.Value is { Type: JTokenType.Array } entityTypes)
                     {
-                        var entityTypes = value.Value;
                         var entities = entityTypes.Values<JObject>();
                         foreach (var entity in entities)
                         {
-                            var x = entity.Value<JObject>();
-                            var xx = x.Value<JObject>();
+                            if (entity == null) continue;
+                            var x = entity.Value<JObject>()!;
+                            var xx = x.Value<JObject>()!;
                             foreach (var xxx in xx)
                             {
-                                var final = xxx.Value.Value<JObject>();
+                                if (xxx.Value?.Value<JObject>() is not { } final) continue;
                                 foreach (var finalElement in final)
                                 {
                                     if (finalElement.Key.StartsWith("@"))
@@ -971,7 +977,7 @@ public class CmfPackageController
 
         // List of dependencies following the format "<Id>@<Version>" that have already been added to the dependency list.
         // Used to detect duplicates (Id and Version are the same) and show an error message in such scenarios
-        var duplicateDependencies = package.Dependencies
+        var duplicateDependencies = (package.Dependencies ?? [])
             .GroupBy(dep => $"{dep.Id}@{dep.Version}")
             .Where(group => group.Count() > 1)
             .Select(group => group.Key)
@@ -984,7 +990,7 @@ public class CmfPackageController
 
         // Collection of PackageIds that appear more than once in this list of dependencies (with different versions)
         // These packages will need to use the npm alias functionality
-        var duplicateDependencyIds = package.Dependencies
+        var duplicateDependencyIds = (package.Dependencies ?? [])
             .GroupBy(dep => dep.Id)
             .Where(group => group.Count() > 1)
             .Select(group => group.Key)
@@ -1005,20 +1011,20 @@ public class CmfPackageController
                 counter++;
 
                 aliasName = $"{packageName}__{counter}";
-            } while (package.Dependencies.Any(dep => dep.Id.IgnoreCaseEquals(aliasName)));
+            } while (package.Dependencies?.Any(dep => dep.Id.IgnoreCaseEquals(aliasName)) ?? false);
 
             dependencyAliases[packageName] = counter;
 
             return aliasName;
         }
 
-        foreach (var dependency in package.Dependencies)
+        foreach (var dependency in package.Dependencies ?? [])
         {
             // If this dependency is declared more than once on this package (usually for different versions)
             // We need to register as an alias with a different JS key
             var property = duplicateDependencyIds.Contains(dependency.Id)
-                ? new JProperty(getUniquePackageAlias(dependency.Id), $"{NPMAliasPrefix}{dependency.Id}@{dependency.Version}")
-                : new JProperty(dependency.Id, dependency.Version);
+                ? new JProperty(getUniquePackageAlias(dependency.Id!), $"{NPMAliasPrefix}{dependency.Id}@{dependency.Version}")
+                : new JProperty(dependency.Id!, dependency.Version);
 
             dependecies.Add(property);
 
@@ -1090,24 +1096,24 @@ public class CmfPackageController
 
         foreach (JObject desc in demandsArray)
         {
-            var children = desc.Value<JObject>();
+            var children = desc.Value<JObject>()!;
 
             if (children.Properties() != null)
             {
-                var values = children.Value<JObject>();
+                var values = children.Value<JObject>()!;
                 foreach (var value in values)
                 {
-                    if (value.Value.Type == JTokenType.Array)
+                    if (value.Value is { Type: JTokenType.Array } entityTypes)
                     {
-                        var entityTypes = value.Value;
                         var entities = entityTypes.Values<JObject>();
                         foreach (var entity in entities)
                         {
-                            var entityValueAux = entity.Value<JObject>();
-                            var entityValues = entityValueAux.Value<JObject>();
+                            if (entity == null) continue;
+                            var entityValueAux = entity.Value<JObject>()!;
+                            var entityValues = entityValueAux.Value<JObject>()!;
                             foreach (var entityValue in entityValues)
                             {
-                                var final = entityValue.Value.Value<JObject>();
+                                if (entityValue.Value?.Value<JObject>() is not { } final) continue;
                                 foreach (var finalElement in final)
                                 {
                                     if (finalElement.Key.StartsWith("@"))
@@ -1168,25 +1174,25 @@ public class CmfPackageController
         if (uiArray.Count > 0)
         {
             var uiProperty = new JProperty("ui", uiArray);
-            var jsonFinal = (JObject)jsonObject.Property("deployment").Value;
+            var jsonFinal = (JObject)jsonObject.Property("deployment")!.Value;
             jsonFinal.Add(uiProperty);
-            jsonObject.Property("deployment").Value = jsonFinal;
+            jsonObject.Property("deployment")!.Value = jsonFinal;
 
 
         }
         if (variablesArray.Count > 0)
         {
             var varProperty = new JProperty("variables", variablesArray);
-            var jsonFinal = (JObject)jsonObject.Property("deployment").Value;
+            var jsonFinal = (JObject)jsonObject.Property("deployment")!.Value;
             jsonFinal.Add(varProperty);
-            jsonObject.Property("deployment").Value = jsonFinal;
+            jsonObject.Property("deployment")!.Value = jsonFinal;
         }
         if (metadata.HasValues)
         {
             var metadataProperty = new JProperty("metadata", metadata);
-            var jsonFinal = (JObject)jsonObject.Property("deployment").Value;
+            var jsonFinal = (JObject)jsonObject.Property("deployment")!.Value;
             jsonFinal.Add(metadataProperty);
-            jsonObject.Property("deployment").Value = jsonFinal;
+            jsonObject.Property("deployment")!.Value = jsonFinal;
         }
 
         return JsonConvert.SerializeObject(jsonObject, Formatting.Indented);
@@ -1197,13 +1203,13 @@ public class CmfPackageController
     //     {
     //         result = result ?? new PackageWizardStepGroup();
     //
-    //         result.Id = uiElement.Property("id")?.Value.ToString();
-    //         result.Order = int.Parse(uiElement.Property("order")?.Value.ToString() ?? "0");
-    //         result.Title = uiElement.Property("title")?.Value.ToString();
-    //         result.Type = uiElement.Property("type")?.Value.ToString();
-    //         result.RequiresValidation = bool.Parse(uiElement.Property("requiresValidation")?.Value.ToString() ?? "false");
-    //         result.IsAdvanced = bool.Parse(uiElement.Property("isAdvanced")?.Value.ToString() ?? "false");
-    //         result.Condition = uiElement.Property("condition")?.Value.ToString();
+    //         result.Id = uiElement.Property("id")?.Value?.ToString();
+    //         result.Order = int.Parse(uiElement.Property("order")?.Value?.ToString() ?? "0");
+    //         result.Title = uiElement.Property("title")?.Value?.ToString();
+    //         result.Type = uiElement.Property("type")?.Value?.ToString();
+    //         result.RequiresValidation = bool.Parse(uiElement.Property("requiresValidation")?.Value?.ToString() ?? "false");
+    //         result.IsAdvanced = bool.Parse(uiElement.Property("isAdvanced")?.Value?.ToString() ?? "false");
+    //         result.Condition = uiElement.Property("condition")?.Value?.ToString();
     //
     //         var groupElements = uiElement.Property("groups")?.Value;
     //         if (groupElements?.Type == JTokenType.Array)
@@ -1259,16 +1265,16 @@ public class CmfPackageController
     //     {
     //         var result = new VariableDefinition
     //         {
-    //             Name = element.Property("name")?.Value.ToString(),
-    //             ValueType = element.Property("valueType")?.Value.ToString(),
-    //             IsRequired = bool.Parse(element.Property("isRequired")?.Value.ToString() ?? "false"),
-    //             GroupName = element.Property("groupName")?.Value.ToString(),
-    //             Label = element.Property("label")?.Value.ToString(),
-    //             ReadOnly = bool.Parse(element.Property("readOnly")?.Value.ToString() ?? "false"),
-    //             ValidationConfiguration = element.Property("validationConfiguration")?.Value.ToString(),
-    //             Placeholder = element.Property("placeholder")?.Value.ToString(),
-    //             Default = element.Property("default")?.Value.ToString(),
-    //             IsToValidate = bool.Parse(element.Property("isToValidate")?.Value.ToString() ?? "true"),
+    //             Name = element.Property("name")?.Value?.ToString(),
+    //             ValueType = element.Property("valueType")?.Value?.ToString(),
+    //             IsRequired = bool.Parse(element.Property("isRequired")?.Value?.ToString() ?? "false"),
+    //             GroupName = element.Property("groupName")?.Value?.ToString(),
+    //             Label = element.Property("label")?.Value?.ToString(),
+    //             ReadOnly = bool.Parse(element.Property("readOnly")?.Value?.ToString() ?? "false"),
+    //             ValidationConfiguration = element.Property("validationConfiguration")?.Value?.ToString(),
+    //             Placeholder = element.Property("placeholder")?.Value?.ToString(),
+    //             Default = element.Property("default")?.Value?.ToString(),
+    //             IsToValidate = bool.Parse(element.Property("isToValidate")?.Value?.ToString() ?? "true"),
     //         };
     //
     //         return result;
@@ -1299,8 +1305,8 @@ public class CmfPackageController
     //         {
     //             var packageDeploymentStep = new PackageDeploymentStep();
     //
-    //             packageDeploymentStep.ReevaluatePlan = bool.Parse(element.Property("reevaluatePlan")?.Value.ToString() ?? "false");
-    //             packageDeploymentStep.PackageId = element.Property("packageId")?.Value.ToString();
+    //             packageDeploymentStep.ReevaluatePlan = bool.Parse(element.Property("reevaluatePlan")?.Value?.ToString() ?? "false");
+    //             packageDeploymentStep.PackageId = element.Property("packageId")?.Value?.ToString();
     //             step = packageDeploymentStep;
     //         }
     //         else
@@ -1308,17 +1314,17 @@ public class CmfPackageController
     //             step = new PackageStep();
     //         }
     //
-    //         step.Type = element.Property("type")?.Value.ToString();
-    //         step.Id = element.Property("id")?.Value.ToString();
-    //         step.Title = element.Property("title")?.Value.ToString();
-    //         step.ContentPath = element.Property("contentPath")?.Value.ToString();
-    //         step.OnInitialize = element.Property("onInitialize")?.Value.ToString();
-    //         step.OnAquire = element.Property("onAquire")?.Value.ToString();
-    //         step.OnValidate = element.Property("onValidate")?.Value.ToString();
-    //         step.OnPrepare = element.Property("onPrepare")?.Value.ToString();
-    //         step.OnExecute = element.Property("onExecute")?.Value.ToString();
-    //         step.OnComplete = element.Property("onComplete")?.Value.ToString();
-    //         step.OnCleanup = element.Property("onCleanup")?.Value.ToString();
+    //         step.Type = element.Property("type")?.Value?.ToString();
+    //         step.Id = element.Property("id")?.Value?.ToString();
+    //         step.Title = element.Property("title")?.Value?.ToString();
+    //         step.ContentPath = element.Property("contentPath")?.Value?.ToString();
+    //         step.OnInitialize = element.Property("onInitialize")?.Value?.ToString();
+    //         step.OnAquire = element.Property("onAquire")?.Value?.ToString();
+    //         step.OnValidate = element.Property("onValidate")?.Value?.ToString();
+    //         step.OnPrepare = element.Property("onPrepare")?.Value?.ToString();
+    //         step.OnExecute = element.Property("onExecute")?.Value?.ToString();
+    //         step.OnComplete = element.Property("onComplete")?.Value?.ToString();
+    //         step.OnCleanup = element.Property("onCleanup")?.Value?.ToString();
     //
     //         var extraAttributes = element.Properties().Where(a => !coreAttributes.Contains(a.Name)).ToList();
     //         foreach (var a in extraAttributes)
@@ -1408,10 +1414,10 @@ public class CmfPackageController
         //
         //     PackageDemand demand = new PackageDemand();
         //
-        //     demand.Type = (PackageDemandType)Enum.Parse(typeof(PackageDemandType), element.Property("type")?.Value.ToString());
-        //     demand.Id = element.Property("id")?.Value.ToString();
-        //     demand.Title = element.Property("title")?.Value.ToString();
-        //     demand.Value = element.Property("value")?.Value.ToString();
+        //     demand.Type = (PackageDemandType)Enum.Parse(typeof(PackageDemandType), element.Property("type")?.Value?.ToString());
+        //     demand.Id = element.Property("id")?.Value?.ToString();
+        //     demand.Title = element.Property("title")?.Value?.ToString();
+        //     demand.Value = element.Property("value")?.Value?.ToString();
         //
         //     var extraAttributes = element.Properties().Where(a => !coreAttributes.Contains(a.Name)).ToList();
         //     foreach (var a in extraAttributes)
@@ -1436,7 +1442,7 @@ public class CmfPackageController
         /// </summary>
         /// <param name="dependenciesJson">Dependecies json</param>
         /// <returns>Array of dependencies</returns>
-        private static List<Dependency> ConvertFromJsonToDependencies(IJEnumerable<JProperty> dependenciesJson)
+        private static List<Dependency> ConvertFromJsonToDependencies(IJEnumerable<JProperty>? dependenciesJson)
         {
             List<Dependency> dependencies = new List<Dependency>();
         
@@ -1491,7 +1497,8 @@ public class CmfPackageController
     public static CmfPackageV1 FromSourceManifest(IFileInfo cmfPackageFile)
     {
         string fileContent = cmfPackageFile.ReadToString();
-        var cmfPackage = JsonConvert.DeserializeObject<CmfPackageV1>(fileContent);
+        var cmfPackage = JsonConvert.DeserializeObject<CmfPackageV1>(fileContent)
+            ?? throw new CliException(string.Format(CoreMessages.NotFound, cmfPackageFile.FullName));
         cmfPackage.IsToSetDefaultValues = true;
         cmfPackage.SourceManifestFile = cmfPackageFile;
         return cmfPackage;
@@ -1575,9 +1582,9 @@ public class CmfPackageController
                                 var manifest = reader.ReadToEnd();
                                 // this should be handled by deserializing to CmfPackageJson and serializing again, but currently many fields are not supported
                                 // so we'll change just the necessary entries
-                                var json = JsonConvert.DeserializeObject<JObject>(manifest);
+                                var json = JsonConvert.DeserializeObject<JObject>(manifest)!;
                                 json["_originalPackageId"] = json[json.ContainsKey("_originalPackageId") ? "_originalPackageId" : "name"]!.Value<string>();
-                                json["name"] = json["name"]!.Value<string>().ToLowerInvariant();
+                                json["name"] = json["name"]!.Value<string>()!.ToLowerInvariant();
                                 manifest = JsonConvert.SerializeObject(json, Formatting.Indented);
                                 
                                 using (MemoryStream tarEntryStream = new MemoryStream())

@@ -30,7 +30,7 @@ namespace Cmf.CLI.Utilities
         /// <returns>
         ///   <c>true</c> if the specified source has any; otherwise, <c>false</c>.
         /// </returns>
-        public static bool HasAny<TSource>(this IEnumerable<TSource> source)
+        public static bool HasAny<TSource>(this IEnumerable<TSource>? source)
         {
             return source != null && source.Any();
         }
@@ -44,9 +44,9 @@ namespace Cmf.CLI.Utilities
         /// <returns>
         ///   <c>true</c> if the specified source has any; otherwise, <c>false</c>.
         /// </returns>
-        public static bool HasAny<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate = null)
+        public static bool HasAny<TSource>(this IEnumerable<TSource>? source, Func<TSource, bool>? predicate = null)
         {
-            return source != null && source.Any(predicate);
+            return source != null && predicate != null && source.Any(predicate);
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace Cmf.CLI.Utilities
         /// <returns>
         ///   <c>true</c> if [has] [the specified object]; otherwise, <c>false</c>.
         /// </returns>
-        public static bool Has(this IEnumerable<object> objects, object obj)
+        public static bool Has(this IEnumerable<object>? objects, object obj)
         {
             return objects != null && objects.Any(x => x.Equals(obj));
         }
@@ -68,15 +68,15 @@ namespace Cmf.CLI.Utilities
         /// <param name="obj">The object.</param>
         /// <param name="token">The token.</param>
         /// <returns></returns>
-        public static object GetPropertyValueFromTokenName(this object obj, string token)
+        public static object? GetPropertyValueFromTokenName(this object obj, string token)
         {
-            object result = null;
+            object? result = null;
 
             if (token.IsToken())
             {
                 string propertyName = GetTokenName(token);
 
-                PropertyInfo propertyInfo = obj.GetType().GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                PropertyInfo? propertyInfo = obj.GetType().GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
 
                 if (propertyInfo != null)
                 {
@@ -93,7 +93,7 @@ namespace Cmf.CLI.Utilities
         /// <param name="str">The string.</param>
         /// <param name="value">The value.</param>
         /// <returns></returns>
-        public static bool IgnoreCaseEquals(this string str, string value)
+        public static bool IgnoreCaseEquals(this string? str, string? value)
         {
             return str != null && value != null && str.Equals(value, System.StringComparison.InvariantCultureIgnoreCase);
         }
@@ -170,7 +170,7 @@ namespace Cmf.CLI.Utilities
             bool result = false;
 
             if (obj == null ||
-                (obj.IsList() && (obj as IList).Count == 0))
+                (obj.IsList() && (obj as IList)?.Count == 0))
             {
                 result = true;
             }
@@ -199,7 +199,7 @@ namespace Cmf.CLI.Utilities
         /// <returns>
         /// A <see cref="XElement" /> that matches the specified <see cref="XName" />, or null.
         /// </returns>
-        public static XElement Element(this XContainer element, XName name, bool ignoreCase)
+        public static XElement? Element(this XContainer element, XName name, bool ignoreCase)
         {
             var el = element.Element(name);
             if (el != null)
@@ -221,7 +221,7 @@ namespace Cmf.CLI.Utilities
         /// <returns>
         /// A collection of <see cref="XElement" /> that matches the specified <see cref="XName" />, or null.
         /// </returns>
-        public static IEnumerable<XElement> Elements(this XContainer element, XName name, bool ignoreCase)
+        public static IEnumerable<XElement>? Elements(this XContainer element, XName name, bool ignoreCase)
         {
             if (!ignoreCase)
                 return null;
@@ -236,11 +236,11 @@ namespace Cmf.CLI.Utilities
         /// <param name="packDirectory">The pack directory.</param>
         /// <param name="fileName">The name of the file to retrieve.</param>
         /// <returns></returns>
-        public static object GetFile(this IDirectoryInfo packDirectory, string fileName)
+        public static object? GetFile(this IDirectoryInfo packDirectory, string fileName)
         {
-            dynamic obj = null;
+            dynamic? obj = null;
 
-            IFileInfo packageJsonFile = packDirectory.GetFiles(fileName).FirstOrDefault();
+            IFileInfo? packageJsonFile = packDirectory.GetFiles(fileName).FirstOrDefault();
 
             if (packageJsonFile != null)
             {

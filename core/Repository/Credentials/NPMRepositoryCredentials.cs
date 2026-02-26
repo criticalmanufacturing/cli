@@ -40,7 +40,7 @@ namespace Cmf.CLI.Core.Repository.Credentials
 
         public async Task SyncCredentials(IList<ICredential> credentials)
         {
-            IFileInfo npmrcFile = null;
+            IFileInfo? npmrcFile = null;
 
             try
             {

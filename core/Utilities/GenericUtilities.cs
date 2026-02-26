@@ -27,8 +27,9 @@ namespace Cmf.CLI.Utilities
         /// <returns>
         /// the new version
         /// </returns>
-        public static string RetrieveNewVersion(string currentVersion, string version, string buildNr)
+        public static string RetrieveNewVersion(string? currentVersion, string version, string buildNr)
         {
+            currentVersion ??= string.Empty;
             if (!string.IsNullOrEmpty(version))
             {
                 currentVersion = version;
@@ -199,7 +200,7 @@ namespace Cmf.CLI.Utilities
 
                     if (!dep.IsMissing)
                     {
-                        var curNode = tree.AddNode($"{dep.CmfPackage.PackageId}@{dep.CmfPackage.Version} [[{dep.CmfPackage.Location.ToString()}]]");
+                        var curNode = tree.AddNode($"{dep.CmfPackage?.PackageId}@{dep.CmfPackage?.Version} [[{dep.CmfPackage?.Location.ToString()}]]");
                         BuildTreeNodes(dep.CmfPackage, curNode);
                     }
                     else if (dep.IsMissing)
@@ -224,16 +225,17 @@ namespace Cmf.CLI.Utilities
         /// <param name="pkg">the root package</param>
         public static Tree BuildTree(CmfPackageV1 pkg)
         {
-            var tree = new Tree($"{pkg.PackageId}@{pkg.Version} [[{pkg.Client.RepositoryRoot}]]");
-            if (pkg.Dependencies.HasAny())
+            var tree = new Tree($"{pkg.PackageId}@{pkg.Version} [[{pkg.Client?.RepositoryRoot ?? "unknown"}]]");
+            var deps = pkg.Dependencies;
+            if (deps.HasAny())
             {
-                for (int i = 0; i < pkg.Dependencies.Count; i++)
+                for (int i = 0; i < deps!.Count; i++)
                 {
-                    Dependency dep = pkg.Dependencies[i];
+                    Dependency dep = deps[i];
 
                     if (!dep.IsMissing)
                     {
-                        var curNode = tree.AddNode($"{dep.CmfPackageV1.PackageId}@{dep.CmfPackageV1.Version} [[{dep.CmfPackageV1.Client.RepositoryRoot}]]");
+                        var curNode = tree.AddNode($"{dep.CmfPackageV1?.PackageId}@{dep.CmfPackageV1?.Version} [[{dep.CmfPackageV1?.Client?.RepositoryRoot ?? "unknown"}]]");
                         BuildTreeNodes(dep.CmfPackageV1, curNode);
                     }
                     else if (dep.IsMissing)
@@ -263,7 +265,7 @@ namespace Cmf.CLI.Utilities
             return enableConsoleExporter is "1" or "true" or "TRUE" or "True";
         }
 
-        public static void ValidatePropertyRequirement(string fieldName, string value, PropertyRequirement requirement)
+        public static void ValidatePropertyRequirement(string fieldName, string? value, PropertyRequirement requirement)
         {
             if (requirement == PropertyRequirement.Ignored && !string.IsNullOrEmpty(value))
             {
@@ -285,17 +287,18 @@ namespace Cmf.CLI.Utilities
 
         #region Private Methods
 
-        private static void BuildTreeNodes(CmfPackage pkg, TreeNode node)
+        private static void BuildTreeNodes(CmfPackage? pkg, TreeNode node)
         {
-            if (pkg.Dependencies.HasAny())
+            var deps = pkg?.Dependencies;
+            if (deps.HasAny())
             {
-                for (int i = 0; i < pkg.Dependencies.Count; i++)
+                for (int i = 0; i < deps!.Count; i++)
                 {
-                    Dependency dep = pkg.Dependencies[i];
+                    Dependency dep = deps[i];
 
                     if (!dep.IsMissing)
                     {
-                        var curNode = node.AddNode($"{dep.CmfPackage.PackageId}@{dep.CmfPackage.Version} [[{dep.CmfPackage.Location.ToString()}]]");
+                        var curNode = node.AddNode($"{dep.CmfPackage?.PackageId}@{dep.CmfPackage?.Version} [[{dep.CmfPackage?.Location.ToString()}]]");
                         BuildTreeNodes(dep.CmfPackage, curNode);
                     }
                     else if (dep.IsMissing)
@@ -313,17 +316,18 @@ namespace Cmf.CLI.Utilities
             }
         }
         
-        private static void BuildTreeNodes(CmfPackageV1 pkg, TreeNode node)
+        private static void BuildTreeNodes(CmfPackageV1? pkg, TreeNode node)
         {
-            if (pkg.Dependencies.HasAny())
+            var deps = pkg?.Dependencies;
+            if (deps.HasAny())
             {
-                for (int i = 0; i < pkg.Dependencies.Count; i++)
+                for (int i = 0; i < deps!.Count; i++)
                 {
-                    Dependency dep = pkg.Dependencies[i];
+                    Dependency dep = deps[i];
 
                     if (!dep.IsMissing)
                     {
-                        var curNode = node.AddNode($"{dep.CmfPackageV1.PackageId}@{dep.CmfPackageV1.Version} [[{dep.CmfPackageV1.Client.RepositoryRoot}]]");
+                        var curNode = node.AddNode($"{dep.CmfPackageV1?.PackageId}@{dep.CmfPackageV1?.Version} [[{dep.CmfPackageV1?.Client?.RepositoryRoot ?? "unknown"}]]");
                         BuildTreeNodes(dep.CmfPackageV1, curNode);
                     }
                     else if (dep.IsMissing)

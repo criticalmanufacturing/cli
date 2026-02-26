@@ -7,10 +7,9 @@ namespace Cmf.CLI.Core
 {
     public static class LoggerHelpers
     {
-        private static LogLevel ParseLogLevel(ArgumentResult argResult = null)
+        private static LogLevel ParseLogLevel(ArgumentResult? argResult = null)
         {
-            string loglevelStr = "verbose";
-
+            string? loglevelStr = "verbose";
             if (argResult?.Tokens.Count > 0)
             {
                 loglevelStr = argResult.Tokens[0].Value;

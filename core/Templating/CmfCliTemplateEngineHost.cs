@@ -25,10 +25,10 @@ namespace Cmf.CLI.Core.Templating
             IPhysicalFileSystem fileSystem,
             string hostIdentifier,
             string version,
-            Dictionary<string, string> defaults = null,
-            IReadOnlyList<(Type InterfaceType, IIdentifiedComponent Instance)> builtIns = null,
-            IReadOnlyList<string> fallbackHostTemplateConfigNames = null,
-            ILoggerFactory loggerFactory = null)
+            Dictionary<string, string>? defaults = null,
+            IReadOnlyList<(Type InterfaceType, IIdentifiedComponent Instance)>? builtIns = null,
+            IReadOnlyList<string>? fallbackHostTemplateConfigNames = null,
+            ILoggerFactory? loggerFactory = null)
         {
             HostIdentifier = hostIdentifier;
             Version = version;
@@ -57,7 +57,7 @@ namespace Cmf.CLI.Core.Templating
         public ILoggerFactory LoggerFactory => _loggerFactory;
 
         // stub that will be built out soon.
-        public virtual bool TryGetHostParamDefault(string paramName, out string value)
+        public virtual bool TryGetHostParamDefault(string paramName, out string? value)
         {
             switch (paramName)
             {

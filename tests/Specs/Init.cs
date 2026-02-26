@@ -1202,14 +1202,7 @@ namespace tests.Specs
                     tmp
                 }, console);
 
-                // Current behavior: the validation check `if (!args.Contains("--Tenant"))` passes
-                // because ParseConfigFile adds --Tenant (with null value), but then template engine
-                // fails trying to process null tenant value
-                // TODO: Fix validation to check for non-null/non-empty tenant value, not just presence of key
-                // The expected message should be: "Tenant information is missing. Please provide it either in the config file or through the --tenant option."
-                // But currently we get a reflection/template engine error instead
-                console.Error.ToString().Should().NotBeEmpty("Should have an error when tenant is missing");
-                // We can't assert the exact error message since it's a technical error, not the user-friendly one
+                console.Error.ToString().Should().Contain("Tenant information is missing. Please provide it either in the config file or through the --tenant option.");
             }
             finally
             {
