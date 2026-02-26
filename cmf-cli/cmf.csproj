@@ -75,16 +75,6 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-        <EmbeddedResource Include="installDependencies\Data\GenerateLBOs.ps1" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Update="installDependencies\**">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
-    </ItemGroup>
-
     <ItemGroup>
         <Folder Include="Properties\" />
     </ItemGroup>
