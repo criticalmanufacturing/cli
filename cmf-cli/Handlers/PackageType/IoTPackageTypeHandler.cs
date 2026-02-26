@@ -238,15 +238,6 @@ namespace Cmf.CLI.Handlers
         }
 
         /// <summary>
-        /// Copies the install dependencies.
-        /// </summary>
-        /// <param name="packageOutputDir">The package output dir.</param>
-        protected override void CopyInstallDependencies(IDirectoryInfo packageOutputDir)
-        {
-            FileSystemUtilities.CopyInstallDependenciesFiles(packageOutputDir, PackageType.IoT, this.fileSystem);
-        }
-
-        /// <summary>
         /// Bumps the specified CMF package.
         /// </summary>
         /// <param name="version">The version.</param>

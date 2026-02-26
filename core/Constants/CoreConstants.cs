@@ -5,15 +5,6 @@
     /// </summary>
     public static class CoreConstants
     {
-        #region Folders
-
-        /// <summary>
-        /// The folder install dependencies
-        /// </summary>
-        public const string FolderInstallDependencies = "installDependencies";
-
-        #endregion
-
         #region Files
 
         /// <summary>
