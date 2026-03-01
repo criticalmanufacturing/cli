@@ -46,7 +46,7 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release --no-restore
       - name: Test
-        run: dotnet test --configuration Release --no-build --no-restore --verbosity normal --filter "TestCategory!=Internal" --collect:"XPlat Code Coverage" --logger trx --results-directory TestResults
+        run: dotnet test --configuration Release --no-build --no-restore --verbosity normal --filter "TestCategory!=Integration" --collect:"XPlat Code Coverage" --logger trx --results-directory TestResults
       - name: Merge Coverage Reports
         run: |
           dotnet tool install --global dotnet-reportgenerator-globaltool
@@ -66,6 +66,7 @@ jobs:
       - name: Add Coverage PR Comment
         uses: marocchino/sticky-pull-request-comment@v2
         if: github.event_name == 'pull_request'
+        continue-on-error: true
         with:
           recreate: true
           path: code-coverage-results.md

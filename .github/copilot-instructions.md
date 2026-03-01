@@ -113,6 +113,7 @@ npm run build:prod:osx    # macOS only (~60s)
 - `TestCategory=Internal` - Tests requiring internal infrastructure (excluded in CI)
 - `TestCategory=LongRunning` - Tests that take several minutes
 - `TestCategory=Node12` - Tests requiring Node.js 12
+- `TestCategory=Node18` - Tests requiring Node.js 18
 
 **Run tests (standard, used in CI):**
 ```bash
