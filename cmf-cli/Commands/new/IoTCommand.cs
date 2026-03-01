@@ -216,6 +216,19 @@ namespace Cmf.CLI.Commands.New
             var schematicsVersion = ngxSchematicsVersion.ToString() ?? $"@release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}";
 
             Log.Debug($"Creating new IoT Workspace {packageName}");
+
+            // The ng new command creates its own .vscode folder but our template as its own that we want to keep
+            // If the .vscode folder files already exist then the ng new command will error out,
+            // so we temporarily move it before placing it back
+            var vscodeSourcePath = fileSystem.Path.Combine(iotCustomPackageWorkDir.FullName, ".vscode");
+            var tempVscodePath = fileSystem.Path.Combine(iotCustomPackageWorkDir.FullName, $".vscode_backup");
+            
+            if (fileSystem.Directory.Exists(vscodeSourcePath))
+            {
+                fileSystem.Directory.Move(vscodeSourcePath, tempVscodePath);
+                Log.Debug($"Backed up .vscode folder to temporary location: {tempVscodePath}");
+            }
+
             // ng new <packageName> --create-application false
             new NPXCommand()
             {
@@ -224,6 +237,15 @@ namespace Cmf.CLI.Commands.New
                 WorkingDirectory = iotRoot,
                 ForceColorOutput = false
             }.Exec();
+
+            // Copy our template's .vscode folder to its final location while overwritting the angular CLI files
+            if (fileSystem.Directory.Exists(vscodeSourcePath))
+            {
+                fileSystem.Directory.Delete(vscodeSourcePath, true);
+                Log.Debug($"Deleted existing .vscode folder created by the angular CLI new command at: {vscodeSourcePath}");
+            }
+            fileSystem.Directory.Move(tempVscodePath, vscodeSourcePath);
+            Log.Debug($"Restored .vscode folder from temporary location");
 
             Log.Debug($"Adding @criticalmanufacturing/ngx-iot-schematics@{schematicsVersion} to the package, which can be used to scaffold new components and libraries");
             // cd <packageName>
