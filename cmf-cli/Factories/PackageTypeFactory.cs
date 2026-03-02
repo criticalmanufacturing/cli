@@ -50,14 +50,12 @@ namespace Cmf.CLI.Factories
                 PackageType.IoT => new IoTPackageTypeHandler(cmfPackage),
                 PackageType.IoTData => cmfPackage.HandlerVersion switch
                 {
-                    2 => new IoTDataPackageTypeHandlerV2(cmfPackage),
-                    1 => new IoTDataPackageTypeHandler(cmfPackage),
+                    1 => throw new CliException("Support for V1 Data packages was removed in CLI 6.0.0"),
                     _ => new IoTDataPackageTypeHandlerV2(cmfPackage)
                 },
                 PackageType.Data => cmfPackage.HandlerVersion switch
                 {
-                    2 => new DataPackageTypeHandlerV2(cmfPackage),
-                    1 => new DataPackageTypeHandler(cmfPackage),
+                    1 => throw new CliException("Support for V1 Data packages was removed in CLI 6.0.0"),
                     _ => new DataPackageTypeHandlerV2(cmfPackage)
                 },
                 PackageType.Reporting => new ReportingPackageTypeHandler(cmfPackage),
