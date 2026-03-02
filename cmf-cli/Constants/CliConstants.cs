@@ -15,11 +15,6 @@ namespace Cmf.CLI.Constants
         public const string FolderTemplates = "templateFiles";
 
         /// <summary>
-        /// The folder install dependencies
-        /// </summary>
-        public const string FolderInstallDependencies = "installDependencies";
-
-        /// <summary>
         /// Tests Folder
         /// </summary>
         public const string FolderTests = "/Tests";
