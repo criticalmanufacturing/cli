@@ -474,18 +474,6 @@ namespace Cmf.CLI.Handlers
 
         #endregion Private Methods
 
-        #region Protected Methods
-
-        /// <summary>
-        /// Copies the install dependencies.
-        /// </summary>
-        /// <param name="packageOutputDir">The package output dir.</param>
-        protected virtual void CopyInstallDependencies(IDirectoryInfo packageOutputDir)
-        {
-        }
-
-        #endregion Protected Methods
-
         #region Public Methods
 
         /// <summary>
@@ -613,9 +601,6 @@ namespace Cmf.CLI.Handlers
                     }
                 });
             }
-
-            // TODO: To be removed? Install dependencies
-            CopyInstallDependencies(packageOutputDir);
 
             GenerateDeploymentFrameworkManifest(packageOutputDir);
 
