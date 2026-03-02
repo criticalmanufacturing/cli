@@ -406,18 +406,6 @@ namespace Cmf.CLI.Utilities
         }
 
         /// <summary>
-        /// Copies the install dependencies.
-        /// </summary>
-        /// <param name="packageOutputDir">The package output dir.</param>
-        /// <param name="packageType">Type of the package.</param>
-        /// <param name="fileSystem">the underlying file system</param>
-        public static void CopyInstallDependenciesFiles(IDirectoryInfo packageOutputDir, PackageType packageType, IFileSystem fileSystem)
-        {
-            string sourceDirectory = fileSystem.Path.Join(AppDomain.CurrentDomain.BaseDirectory, CoreConstants.FolderInstallDependencies, packageType.ToString());
-            CopyDirectory(sourceDirectory, packageOutputDir.FullName, fileSystem, isCopyDependencies: true);
-        }
-
-        /// <summary>
         /// Gets the output dir.
         /// </summary>
         /// <param name="cmfPackage">The CMF package.</param>
