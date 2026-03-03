@@ -12,6 +12,9 @@ using Cmf.CLI.Utilities;
 using System.Xml.Linq;
 using System.Linq;
 using System;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 
 namespace Cmf.CLI.Commands.html;
 
@@ -25,6 +28,21 @@ public class ExtractI18nCommand : BaseCommand
     /// The minimum MES Version that supports this command
     /// </summary>
     private readonly Version MIN_MES_VERSION = new Version(11, 2, 0);
+
+    /// <summary>
+    /// constructor
+    /// </summary>
+    public ExtractI18nCommand(): base()
+    {
+    }
+
+    /// <summary>
+    /// constructor
+    /// </summary>
+    /// <param name="fileSystem"></param>
+    public ExtractI18nCommand(IFileSystem fileSystem): base(fileSystem)
+    {
+    }
 
     public override void Configure(Command cmd)
     {
@@ -68,11 +86,29 @@ public class ExtractI18nCommand : BaseCommand
         var packageDirectory = cmfPackage.GetFileInfo().Directory;
         Debug.Assert(projectRoot != null, "Invalid repository! Run this command inside a project repository.");
 
+        var angularJsonPath = this.fileSystem.Path.Join(packageDirectory.FullName, "angular.json");
+        var json = fileSystem.File.ReadAllText(angularJsonPath);
+        dynamic angularJson = JsonConvert.DeserializeObject(json);
+
+        var projects = angularJson["projects"] as JObject;
+        var appProject = projects?.Properties()
+            .FirstOrDefault(p => p.Value["projectType"]?.ToString() == "application");
+        var angularProjectName = appProject?.Name;
+
+        var args = new List<string> { "--format", "xlf" };
+
+        if (angularProjectName != null && 
+            projects[angularProjectName]?["architect"]?["build"]?["configurations"]?["i18n-extract"] != null)
+        {
+            args.Add("--build-target");
+            args.Add($"{angularProjectName}:build:production,i18n-extract");
+        }
+
         new NgCommand()
         {
             DisplayName = $"ng extract-i18n",
             Command = "extract-i18n",
-            Args = new[] { "--format", "xlf" },
+            Args = args.ToArray(),
             WorkingDirectory = packageDirectory
         }.Exec()?.Wait();
 
