@@ -23,7 +23,7 @@ namespace Cmf.CLI.Core
         /// <param name="args">ar</param>
         /// <param name="npmClient">The NPM client. if is not set, we assume NPMClient implementation by default</param>
         /// <param name="registerExtraServices">function to add extra services to the ServiceProvider</param>
-        public static async Task<RootCommand> Configure(string packageName, string envVarPrefix, string description, string[] args, INPMClient npmClient = null, Action<IServiceCollection> registerExtraServices = null)
+        public static async Task<RootCommand> Configure(string packageName, string envVarPrefix, string description, string[] args, INPMClient? npmClient = null, Action<IServiceCollection>? registerExtraServices = null)
         {
             // in a scenario that cli is not running on a terminal,
             // the AnsiConsole.Profile.Width defaults to 80,which is a low value and causes unexpected break lines.
@@ -54,12 +54,12 @@ namespace Cmf.CLI.Core
             
              // initialize Telemetry
             var telemetry = ExecutionContext.ServiceProvider.GetService<ITelemetryService>();
-            telemetry.InitializeActivitySource(ExecutionContext.PackageId);
+            telemetry?.InitializeActivitySource(ExecutionContext.PackageId);
 
             // Initialize tracer asynchronously
-            var telemetryProviderInitTask = telemetry.InitializeTracerProviderAsync(ExecutionContext.PackageId,ExecutionContext.CurrentVersion);
+            var telemetryProviderInitTask = telemetry?.InitializeTracerProviderAsync(ExecutionContext.PackageId,ExecutionContext.CurrentVersion);
 
-            _ = telemetryProviderInitTask.ContinueWith(t =>
+            _ = telemetryProviderInitTask?.ContinueWith(t =>
             {
                 if (t.Exception != null) 
                 {
@@ -70,8 +70,11 @@ namespace Cmf.CLI.Core
             AppDomain.CurrentDomain.UnhandledException += (sender, eventArgs) =>
             {
                 Log.Debug("Uncaught exception!");
-                Log.Exception(eventArgs.ExceptionObject as Exception);
-                ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!.LogException(eventArgs.ExceptionObject as Exception);
+                if (eventArgs.ExceptionObject is Exception ex)
+                {
+                    Log.Exception(ex);
+                    ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.LogException(ex);
+                }
             };
 
             await VersionChecks();
@@ -86,7 +89,7 @@ namespace Cmf.CLI.Core
             rootCommand.Directives.Add(new EnvironmentVariablesDirective());
 
             // Only await if provider task is still running
-            if (!telemetryProviderInitTask.IsCompleted)
+            if (telemetryProviderInitTask != null && !telemetryProviderInitTask.IsCompleted)
             {
                 telemetryProviderInitTask.GetAwaiter().GetResult();
             }
@@ -99,10 +102,10 @@ namespace Cmf.CLI.Core
         /// </summary>
         internal static async Task VersionChecks()
         {
-            using var activity = ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!
+            using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?
                 .StartActivity("version");
 
-            var npmClient = ExecutionContext.ServiceProvider.GetService<INPMClient>();
+            var npmClient = ExecutionContext.ServiceProvider?.GetService<INPMClient>();
 
             if (ExecutionContext.IsDevVersion)
             {
@@ -110,14 +113,17 @@ namespace Cmf.CLI.Core
                     $"You are using {ExecutionContext.PackageId} development version {ExecutionContext.CurrentVersion}. This in unsupported in production and should only be used for testing.");
             }
 
-            ExecutionContext.LatestVersion = await npmClient!.GetLatestVersion(ExecutionContext.IsDevVersion);
-            if (ExecutionContext.LatestVersion != null && ExecutionContext.LatestVersion != ExecutionContext.CurrentVersion)
+            if (npmClient != null)
             {
-                Log.Warning(
-                    $"Using {ExecutionContext.PackageId} version {ExecutionContext.CurrentVersion} while {ExecutionContext.LatestVersion} is available. Please update.");
-                // after this run, every activity will have these tags (check TelemetryService)
-                activity?.SetTag("isOutdated", true);
-                activity?.SetTag("latestVersion", ExecutionContext.LatestVersion);
+                ExecutionContext.LatestVersion = await npmClient.GetLatestVersion(ExecutionContext.IsDevVersion);
+                if (ExecutionContext.LatestVersion != null && ExecutionContext.LatestVersion != ExecutionContext.CurrentVersion)
+                {
+                    Log.Warning(
+                        $"Using {ExecutionContext.PackageId} version {ExecutionContext.CurrentVersion} while {ExecutionContext.LatestVersion} is available. Please update.");
+                    // after this run, every activity will have these tags (check TelemetryService)
+                    activity?.SetTag("isOutdated", true);
+                    activity?.SetTag("latestVersion", ExecutionContext.LatestVersion);
+                }
             }
         }
     }
