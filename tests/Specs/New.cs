@@ -22,11 +22,11 @@ using System.Threading.Tasks;
 using Cmf.CLI.Services;
 using Xunit;
 using Assert = tests.AssertWithMessage;
-using Moq;
 using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Utilities;
 using Cmf.CLI.Core.Repository.Credentials;
 using Cmf.CLI.Core.Services;
+using Spectre.Console;
 using Cmf.CLI.Core;
 
 namespace tests.Specs
@@ -50,7 +50,10 @@ namespace tests.Specs
 
         private void NpmLogin()
         {
-            Log.Information("Building service provider...");
+            // Set log level to default to print any npm command logs
+            LoggerHelpers.LogLevelOption.Parse("");
+
+            Spectre.Console.AnsiConsole.Console.MarkupLine("Building service provider...");
 
             var fs = new FileSystem();
 
@@ -64,13 +67,14 @@ namespace tests.Specs
                 .AddSingleton<IRepositoryAuthStore>(RepositoryAuthStore.FromEnvironmentConfig(fs))
                 .BuildServiceProvider();
 
-            Log.Information("Finished building tests' service provider.");
+            Spectre.Console.AnsiConsole.Console.MarkupLine("Finished building tests' service provider.");
 
             var npmUser = System.Environment.GetEnvironmentVariable(NPM_USER_ENV_VAR);
             var npmToken = System.Environment.GetEnvironmentVariable(NPM_TOKEN_ENV_VAR);
 
             if (!NPM_REGISTRY.IsNullOrEmpty() && !npmUser.IsNullOrEmpty() && !npmToken.IsNullOrEmpty()) {
-                Log.Information($"Running cmf login command for '{NPM_REGISTRY}'...");
+                Spectre.Console.AnsiConsole.Console.MarkupLine($"Running cmf login command for '{NPM_REGISTRY}'...");
+
                 // We just want to login into NPM
                 // If we log onto Portal then the command will attempt to login into all the derived credentials as well
                 var loginCmd = new LoginCommand();
@@ -79,7 +83,7 @@ namespace tests.Specs
                     Cmf.CLI.Core.Repository.Credentials.AuthType.Basic, null,
                     npmUser, npmToken, null, null, false, true);
                     
-                Log.Information($"Successfully logged in on '{NPM_REGISTRY}'.");
+                Spectre.Console.AnsiConsole.Console.MarkupLine($"Successfully logged in on '{NPM_REGISTRY}'.");
             }
         }
     }
