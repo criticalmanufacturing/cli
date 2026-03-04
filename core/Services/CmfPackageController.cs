@@ -379,11 +379,14 @@ public class CmfPackageController
                         file: null,
                         tagFile: element.Attribute("tagFile")?.Value != null ? bool.Parse(element.Attribute("tagFile")?.Value) : null,
                         targetDatabase: element.Attribute("targetDatabase")?.Value,
-                        messageType: MessageType.ImportObject, // TODO: get value
+                        messageType: element.Attribute("messageType") != null && Enum.TryParse(element.Attribute("messageType").Value, out MessageType messageType) ? messageType : null,
                         relativePath: null,
                         filePath: element.Attribute("filePath")?.Value,
                         oldSystemName: element.Attribute("oldSystemName")?.Value
                     );
+                    
+                    step.DeeBasePath = element.Attribute("deeBasePath")?.Value;
+                    step.ImportXMLObjectPath = element.Attribute("importXMLObjectPath")?.Value;
                     
                     // // Create an XmlSerializer for the Person type
                     // XmlSerializer serializer = new XmlSerializer(typeof(Step));
