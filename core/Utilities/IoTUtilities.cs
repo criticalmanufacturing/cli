@@ -19,11 +19,11 @@ namespace Cmf.CLI.Utilities
         /// </summary>
         /// <param name="group">The group.</param>
         /// <param name="version">The version.</param>
-        /// <param name="buildNr">The version of the build (v-b).</param>
+        /// <param name="versionSuffix">The version suffix.</param>
         /// <param name="workflowName">Name of the workflow.</param>
         /// <param name="packageNames">The package names.</param>
         /// <param name="fileSystem">the underlying file system</param>
-        public static void BumpWorkflowFiles(string group, string version, string buildNr, string workflowName, string packageNames, IFileSystem fileSystem)
+        public static void BumpWorkflowFiles(string group, string version, string versionSuffix, string workflowName, string packageNames, IFileSystem fileSystem)
         {
             List<string> workflowFiles = fileSystem.Directory.GetFiles(group, "*.json").ToList();
 
@@ -44,7 +44,7 @@ namespace Cmf.CLI.Utilities
                     {
                         string currentVersion = tasks["reference"]["package"]["version"]?.ToString().Split("-")[0];
 
-                        tasks["reference"]["package"]["version"] = GenericUtilities.RetrieveNewVersion(currentVersion, version, buildNr);
+                        tasks["reference"]["package"]["version"] = GenericUtilities.RetrieveNewVersion(currentVersion, version, versionSuffix);
                     }
                 }
 
@@ -55,7 +55,7 @@ namespace Cmf.CLI.Utilities
                     {
                         string currentVersion = converters["reference"]["package"]["version"]?.ToString().Split("-")[0];
 
-                        converters["reference"]["package"]["version"] = GenericUtilities.RetrieveNewVersion(currentVersion, version, buildNr);
+                        converters["reference"]["package"]["version"] = GenericUtilities.RetrieveNewVersion(currentVersion, version, versionSuffix);
                     }
                 }
 
@@ -68,11 +68,11 @@ namespace Cmf.CLI.Utilities
         /// </summary>
         /// <param name="automationWorkflowFileGroup">The automation workflow file group.</param>
         /// <param name="version">The version.</param>
-        /// <param name="buildNr">The version of the build (v-b).</param>
+        /// <param name="versionSuffix">The version suffix.</param>
         /// <param name="packageNames">The package names.</param>
         /// <param name="onlyCustomization">if set to <c>true</c> [only customization].</param>
         /// <param name="fileSystem">the underlying file system</param>
-        public static void BumpIoTMasterData(string automationWorkflowFileGroup, string version, string buildNr, IFileSystem fileSystem, string packageNames = null, bool onlyCustomization = true)
+        public static void BumpIoTMasterData(string automationWorkflowFileGroup, string version, string versionSuffix, IFileSystem fileSystem, string packageNames = null, bool onlyCustomization = true)
         {
             IDirectoryInfo parentDirectory = fileSystem.Directory.GetParent(automationWorkflowFileGroup);
             List<string> jsonMasterDatas = fileSystem.Directory.GetFiles(parentDirectory.FullName, "*.json").ToList();
@@ -96,7 +96,7 @@ namespace Cmf.CLI.Utilities
                         if (!String.IsNullOrEmpty(automationProtocols?[i.ToString()]?["Package"]?.ToString()) &&
                                 packageNames.Contains(packageName))
                         {
-                            automationProtocols[i.ToString()]["PackageVersion"] = GenericUtilities.RetrieveNewVersion(currentVersion, version, buildNr);
+                            automationProtocols[i.ToString()]["PackageVersion"] = GenericUtilities.RetrieveNewVersion(currentVersion, version, versionSuffix);
                         }
                     }
                 }
@@ -113,7 +113,7 @@ namespace Cmf.CLI.Utilities
                         if (!String.IsNullOrEmpty(automationProtocols?[i.ToString()]?["Package"]?.ToString()) &&
                                 packageNames.Contains(packageName))
                         {
-                            automationProtocols[i.ToString()]["PackageVersion"] = GenericUtilities.RetrieveNewVersion(currentVersion, version, buildNr);
+                            automationProtocols[i.ToString()]["PackageVersion"] = GenericUtilities.RetrieveNewVersion(currentVersion, version, versionSuffix);
                         }
                     }
                     // Update Automation Manager
@@ -123,8 +123,8 @@ namespace Cmf.CLI.Utilities
                         string currentVersion = automationManagers?[i.ToString()]?["ManagerPackageVersion"]?.ToString()?.Split("-")[0];
                         if (!String.IsNullOrEmpty(automationManagers?[i.ToString()]?["Package"]?.ToString()))
                         {
-                            automationManagers[i.ToString()]["ManagerPackageVersion"] = GenericUtilities.RetrieveNewVersion(currentVersion, version, buildNr);
-                            automationManagers[i.ToString()]["MonitorPackageVersion"] = GenericUtilities.RetrieveNewVersion(currentVersion, version, buildNr);
+                            automationManagers[i.ToString()]["ManagerPackageVersion"] = GenericUtilities.RetrieveNewVersion(currentVersion, version, versionSuffix);
+                            automationManagers[i.ToString()]["MonitorPackageVersion"] = GenericUtilities.RetrieveNewVersion(currentVersion, version, versionSuffix);
                         }
                     }
 
@@ -135,7 +135,7 @@ namespace Cmf.CLI.Utilities
                         string currentVersion = automationManagers?[i.ToString()]?["ControllerPackageVersion"]?.ToString()?.Split("-")[0];
                         if (!String.IsNullOrEmpty(automationManagers?[i.ToString()]?["Package"]?.ToString()))
                         {
-                            automationManagers[i.ToString()]["ControllerPackageVersion"] = GenericUtilities.RetrieveNewVersion(currentVersion, version, buildNr);
+                            automationManagers[i.ToString()]["ControllerPackageVersion"] = GenericUtilities.RetrieveNewVersion(currentVersion, version, versionSuffix);
                         }
                     }
                 }
@@ -159,10 +159,10 @@ namespace Cmf.CLI.Utilities
         /// </summary>
         /// <param name="packagePath">The package path.</param>
         /// <param name="version">The version.</param>
-        /// <param name="buildNr">The version of the build (v-b).</param>
+        /// <param name="versionSuffix">The version suffix.</param>
         /// <param name="packageNames">The package names.</param>
         /// <param name="fileSystem">the underlying file system</param>
-        public static void BumpIoTCustomPackages(string packagePath, string version, string buildNr, string packageNames, IFileSystem fileSystem)
+        public static void BumpIoTCustomPackages(string packagePath, string version, string versionSuffix, string packageNames, IFileSystem fileSystem)
         {
             string[] iotPackages = fileSystem.Directory.GetDirectories(packagePath + "/src/", "*");
 
@@ -177,7 +177,7 @@ namespace Cmf.CLI.Utilities
                         string packageJson = fileSystem.File.ReadAllText(iotPackage + "/package.json");
                         dynamic packageJsonObject = JsonConvert.DeserializeObject(packageJson);
 
-                        packageJsonObject["version"] = GenericUtilities.RetrieveNewVersion(packageJsonObject["version"].ToString(), version, buildNr);
+                        packageJsonObject["version"] = GenericUtilities.RetrieveNewVersion(packageJsonObject["version"].ToString(), version, versionSuffix);
 
                         packageJson = JsonConvert.SerializeObject(packageJsonObject, Formatting.Indented);
                         fileSystem.File.WriteAllText(iotPackage + "/package.json", packageJson);
@@ -190,7 +190,7 @@ namespace Cmf.CLI.Utilities
 
                         var metadataVersion = Regex.Match(metadata, "version: \\\"(.*?)\\\",", RegexOptions.Singleline)?.Value?.Split("version: \"")[1]?.Split("\",")[0];
                             
-                        metadata = Regex.Replace(metadata, "version: \\\"(.*?)\\\",", $"version: \"{GenericUtilities.RetrieveNewVersion(metadataVersion, version, buildNr)}\",");
+                        metadata = Regex.Replace(metadata, "version: \\\"(.*?)\\\",", $"version: \"{GenericUtilities.RetrieveNewVersion(metadataVersion, version, versionSuffix)}\",");
 
                         fileSystem.File.WriteAllText(iotPackage + "/src/metadata.ts", metadata);
                     }

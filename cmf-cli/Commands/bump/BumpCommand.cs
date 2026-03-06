@@ -38,13 +38,17 @@ namespace Cmf.CLI.Commands
             cmd.AddOption(new Option<string>(
                 aliases: new string[] { "-b", "--buildNr" },
                 description: "Will add this version next to the version (v-b)"));
+            
+            cmd.AddOption(new Option<string>(
+                aliases: new string[] { "-p", "--preRelease" },
+                description: "Will add this version as pre-release version (v-p)"));
 
             cmd.AddOption(new Option<string>(
                 aliases: new string[] { "-r", "--root" },
                 description: "Will bump only versions under a specific root folder (i.e. 1.0.0)"));
 
             // Add the handler
-            cmd.Handler = CommandHandler.Create<DirectoryInfo, string, string, string>(Execute);
+            cmd.Handler = CommandHandler.Create<DirectoryInfo, string, string, string, string>(Execute);
         }
 
         /// <summary>
@@ -55,20 +59,26 @@ namespace Cmf.CLI.Commands
         /// <param name="buildNr">The version for build Nr.</param>
         /// <param name="root">The root.</param>
         /// <exception cref="CliException"></exception>
-        public void Execute(DirectoryInfo packagePath, string version, string buildNr, string root)
+        /// <exception cref="CliException"></exception>
+        public void Execute(DirectoryInfo packagePath, string version, string buildNr, string preRelease, string root)
         {
             using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
             IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{packagePath}/{CliConstants.CmfPackageFileName}");
 
-            if (string.IsNullOrEmpty(version) && string.IsNullOrEmpty(buildNr))
+            if (string.IsNullOrEmpty(version) && (string.IsNullOrEmpty(buildNr) || string.IsNullOrEmpty(preRelease)))
             {
-                throw new CliException(string.Format(CliMessages.MissingMandatoryProperties, "version, buildNr"));
+                throw new CliException(string.Format(CliMessages.MissingMandatoryProperties, "version, buildNr, preRelease"));
+            }
+
+            if (!string.IsNullOrEmpty(buildNr) && !string.IsNullOrEmpty(preRelease))
+            {
+                throw new CliException(string.Format(CliMessages.MutuallyExclusiveProperties, "buildNr, preRelease"));
             }
 
             // Reading cmfPackage
             CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile);
 
-            Execute(cmfPackage, version, buildNr, root);
+            Execute(cmfPackage, version, buildNr, preRelease, root);
         }
 
         /// <summary>
@@ -79,7 +89,7 @@ namespace Cmf.CLI.Commands
         /// <param name="buildNr">The version for build Nr.</param>
         /// <param name="root">The root.</param>
         /// <exception cref="CliException"></exception>
-        public void Execute(CmfPackage cmfPackage, string version, string buildNr, string root)
+        public void Execute(CmfPackage cmfPackage, string version, string buildNr, string preRelease, string root)
         {
             IDirectoryInfo packageDirectory = cmfPackage.GetFileInfo().Directory;
             IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfPackage);
@@ -90,7 +100,9 @@ namespace Cmf.CLI.Commands
                 { "root", root }
             };
 
-            packageTypeHandler.Bump(version, buildNr, bumpInformation);
+            string versionSuffix = !string.IsNullOrEmpty(buildNr) ? buildNr : preRelease;
+
+            packageTypeHandler.Bump(version, versionSuffix, bumpInformation);
 
             // will save with new version
             cmfPackage.SaveCmfPackage();

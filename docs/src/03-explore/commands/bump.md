@@ -21,6 +21,7 @@ Name | Description
 ---- | -----------
 `-v, --version <version>` | Will bump all versions to the version specified
 `-b, --buildNr <buildNr>` | Will add this version next to the version (v-b)
+`-p, --preRelease <preRelease>` | Will add this version as pre-release version (v-p)
 `-r, --root <root>` | Will bump only versions under a specific root folder (i.e. 1.0.0)
 `-?, -h, --help` | Show help and usage information
 

@@ -21,6 +21,7 @@ Name | Description
 ---- | -----------
 `-v, --version <version>` | Will bump all versions to the version specified
 `-b, --buildNrVersion <buildNrVersion>` | Will add this version next to the version (v-b)
+`-p, --preReleaseVersion <preReleaseVersion>` | Will add this version as pre-release version (v-p)
 `-md, --masterData` | Will bump IoT MasterData version (only applies to .json) [default: False]
 `-iot` | Will bump IoT Automation Workflows [default: True]
 `-pckNames, --packageNames <packageNames>` | Packages to be bumped

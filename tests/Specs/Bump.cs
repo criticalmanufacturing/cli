@@ -106,6 +106,98 @@ public class Bump
     }
 
     [Theory]
+    [InlineData("alpha.1")]
+    [InlineData("beta")]
+    [InlineData("rc.1")]
+    [InlineData("featureA")]
+    public void Bump_PreRelease(string preRelease)
+    {
+        // files
+        string cmfPackageJson = $"help/{CliConstants.CmfPackageFileName}";
+        string npmPackageJson = "/help/package.json";
+        string metadataTS =
+            "/help/src/packages/cmf.docs.area.cmf.custom.help/src/cmf.docs.area.cmf.custom.help.metadata.ts";
+
+        string bumpVersion = "1.0.1";
+        string expectedVersion = $"{bumpVersion}-{preRelease}";
+
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            {
+                MockUnixSupport.Path(@"c:\.project-config.json"), new MockFileData(
+                    @"{
+              ""MESVersion"": ""9.0.0""
+            }")
+            },
+            {
+                cmfPackageJson, new MockFileData(
+                    @$"{{
+                      ""packageId"": ""Cmf.Custom.Help"",
+                      ""version"": ""1.0.0"",
+                      ""description"": ""Cmf Custom Cmf.Custom.Help Package"",
+                      ""packageType"": ""Help"",
+                      ""isInstallable"": true,
+                      ""isUniqueInstall"": false,
+                      ""contentToPack"": [
+                        {{
+                          ""source"": ""src/packages/*"",
+                          ""target"": ""node_modules"",
+                          ""ignoreFiles"": [
+                            "".npmignore""
+                          ]
+                        }}
+                      ]
+                }}")
+            },
+            {
+                npmPackageJson, new MockFileData(
+                    @$"{{
+                      ""name"": ""cmf.docs.area"",
+                      ""version"": ""1.0.0"",
+                      ""description"": ""Help customization package"",
+                      ""private"": true,
+                      ""scripts"": {{
+                        ""preinstall"": ""node npm.preinstall.js"",
+                        ""postinstall"": ""node npm.postinstall.js""
+                      }},
+                      ""repository"": {{
+                        ""type"": ""git"",
+                        ""url"": ""https://url/git""
+                      }}
+                }}")
+            },
+            {
+                metadataTS, new MockFileData(
+                    @$"
+                (...)
+                function applyConfig (packageName: string) {{
+                  const config: PackageMetadata = {{
+                    version: ""1.0.0"",
+                (...)
+            ")
+            }
+        });
+
+        ExecutionContext.ServiceProvider = (new ServiceCollection())
+            .AddSingleton<IProjectConfigService>(new ProjectConfigService())
+            .BuildServiceProvider();
+        ExecutionContext.Initialize(fileSystem);
+
+        IFileInfo cmfpackageFile = fileSystem.FileInfo.New(cmfPackageJson);
+        IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile);
+        packageTypeHandler.Bump(bumpVersion, preRelease);
+
+        string cmfPackageVersion = (packageTypeHandler as HelpGulpPackageTypeHandler).CmfPackage.Version;
+        dynamic packageFile = JsonConvert.DeserializeObject(fileSystem.File.ReadAllText(npmPackageJson));
+        string packageFileVersion = packageFile.version;
+        string metadataFile = fileSystem.File.ReadAllText(metadataTS);
+
+        cmfPackageVersion.Should().Be(expectedVersion);
+        packageFileVersion.Should().Be(expectedVersion);
+        metadataFile.Should().Contain($"version: \"{expectedVersion}\"");
+    }
+
+    [Theory]
     [InlineData("1.1.0", ".")]
     [InlineData("1.1.0", "Cmf.Custom.Business")]
     public void Bump_BusinessFromDifferentPaths(string version, string runPath)
