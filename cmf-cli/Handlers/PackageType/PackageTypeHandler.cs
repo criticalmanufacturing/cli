@@ -501,14 +501,13 @@ namespace Cmf.CLI.Handlers
 
             var currentVersion = CmfPackage.Version.Split("-")[0];
             var currentVersionSuffix = CmfPackage.Version.Split("-").Length > 1 ? CmfPackage.Version.Split("-")[1] : null;
-            if (!currentVersion.IgnoreCaseEquals(version))
+            if (!currentVersion.IgnoreCaseEquals(version) || !currentVersionSuffix.IgnoreCaseEquals(versionSuffix))
             {
-                // TODO :: Uncomment if the cmfpackage.json support build number
-                // cmfPackage.SetVersion(GenericUtilities.RetrieveNewVersion(currentVersion, version, versionSuffix));
+                CmfPackage.SetVersion(GenericUtilities.RetrieveNewVersion(currentVersion, version, versionSuffix));
 
-                CmfPackage.SetVersion(!string.IsNullOrWhiteSpace(version) ? version : CmfPackage.Version);
+                string oldVersion = $"{currentVersion}{(string.IsNullOrEmpty(currentVersionSuffix) ? string.Empty : $"-{currentVersionSuffix}")}";
 
-                Log.Information($"Will bump {CmfPackage.PackageId} from version {currentVersion} to version {CmfPackage.Version}");
+                Log.Information($"Will bump {CmfPackage.PackageId} from version {oldVersion} to version {CmfPackage.Version}");
             }
         }
 
