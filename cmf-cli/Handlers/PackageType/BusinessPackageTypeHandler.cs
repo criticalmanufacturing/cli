@@ -109,9 +109,9 @@ namespace Cmf.CLI.Handlers
                 string major = versionTags != null && versionTags.Length > 0 ? versionTags[0] : metadataVersionInfo[0];
                 string minor = versionTags != null && versionTags.Length > 1 ? versionTags[1] : metadataVersionInfo[1];
                 string patch = versionTags != null && versionTags.Length > 2 ? versionTags[2] : metadataVersionInfo[2];
-                string suffix = !string.IsNullOrEmpty(versionSuffix) ? versionSuffix : "0";
+                string suffix = !string.IsNullOrEmpty(versionSuffix) && int.TryParse(versionSuffix, out _) ? versionSuffix : "0";
                 string newVersion = string.Format(@"Version(""{0}.{1}.{2}.{3}"")", major, minor, patch, suffix);
-                text = Regex.Replace(text, pattern, newVersion, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                text = Regex.Replace(text, pattern, newVersion, RegexOptions.IgnoreCase);
                 this.fileSystem.File.WriteAllText(filePath, text);
             }
         }
