@@ -21,9 +21,9 @@ namespace Cmf.CLI.Core.Interfaces
         /// Bumps the specified version.
         /// </summary>
         /// <param name="version">The version.</param>
-        /// <param name="buildNr">The version for build Nr.</param>
+        /// <param name="versionSuffix">The version suffix.</param>
         /// <param name="bumpInformation">The bump information.</param>
-        public abstract void Bump(string version, string buildNr, Dictionary<string, object> bumpInformation = null);
+        public abstract void Bump(string version, string versionSuffix, Dictionary<string, object> bumpInformation = null);
 
         /// <summary>
         /// Bumps the Base version of the package

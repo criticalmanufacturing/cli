@@ -23,19 +23,19 @@ namespace Cmf.CLI.Utilities
         /// </summary>
         /// <param name="currentVersion"></param>
         /// <param name="version"></param>
-        /// <param name="buildNr"></param>
+        /// <param name="versionSuffix"></param>
         /// <returns>
         /// the new version
         /// </returns>
-        public static string RetrieveNewVersion(string currentVersion, string version, string buildNr)
+        public static string RetrieveNewVersion(string currentVersion, string version, string versionSuffix)
         {
             if (!string.IsNullOrEmpty(version))
             {
                 currentVersion = version;
             }
-            if (!string.IsNullOrEmpty(buildNr))
+            if (!string.IsNullOrEmpty(versionSuffix))
             {
-                currentVersion += "-" + buildNr;
+                currentVersion += "-" + versionSuffix;
             }
 
             return currentVersion;
@@ -46,18 +46,18 @@ namespace Cmf.CLI.Utilities
         /// </summary>
         /// <param name="currentVersion"></param>
         /// <param name="version"></param>
-        /// <param name="buildNr"></param>
+        /// <param name="versionSuffix"></param>
         /// <returns>
         /// the new version
         /// </returns>
-        public static string RetrieveNewPresentationVersion(string currentVersion, string version, string buildNr)
+        public static string RetrieveNewPresentationVersion(string currentVersion, string version, string versionSuffix)
         {
-            GenericUtilities.GetCurrentPresentationVersion(currentVersion, out string originalVersion, out string originalBuildNumber);
+            GenericUtilities.GetCurrentPresentationVersion(currentVersion, out string originalVersion, out string originalVersionSuffix);
 
             string newVersion = !string.IsNullOrEmpty(version) ? version : originalVersion;
-            if (!string.IsNullOrEmpty(buildNr))
+            if (!string.IsNullOrEmpty(versionSuffix))
             {
-                newVersion += "-" + buildNr;
+                newVersion += "-" + versionSuffix;
             }
 
             return newVersion;
@@ -67,15 +67,15 @@ namespace Cmf.CLI.Utilities
         /// Get current version based on string, for
         /// the format 1.0.0-1234
         /// where 1.0.0 will be the version
-        /// and the 1234 will be the build number
+        /// and the 1234 will be the version suffix
         /// </summary>
         /// <param name="source">Source information to be parsed</param>
         /// <param name="version">Version Number</param>
-        /// <param name="buildNr">Build Number</param>
-        public static void GetCurrentPresentationVersion(string source, out string version, out string buildNr)
+        /// <param name="versionSuffix">Version Suffix</param>
+        public static void GetCurrentPresentationVersion(string source, out string version, out string versionSuffix)
         {
             version = string.Empty;
-            buildNr = string.Empty;
+            versionSuffix = string.Empty;
 
             if (!string.IsNullOrWhiteSpace(source))
             {
@@ -83,7 +83,7 @@ namespace Cmf.CLI.Utilities
                 version = sourceInfo[0];
                 if (sourceInfo.Length > 1)
                 {
-                    buildNr = sourceInfo[1];
+                    versionSuffix = sourceInfo[1];
                 }
             }
         }

@@ -43,6 +43,10 @@ namespace Cmf.CLI.Commands
                 aliases: new string[] { "-b", "--buildNrVersion" },
                 description: "Will add this version next to the version (v-b)"));
 
+            cmd.AddOption(new Option<string>(
+                aliases: new string[] { "-p", "--preReleaseVersion" },
+                description: "Will add this version as pre-release version (v-p)"));
+
             cmd.AddOption(new Option<bool>(
                 aliases: new string[] { "-md", "--masterData" },
                 getDefaultValue: () => { return false; },
@@ -80,7 +84,7 @@ namespace Cmf.CLI.Commands
                 description: "Instead of replacing the version will add -$version"));
 
             // Add the handler
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, string, string, bool, bool, string, string, string, string, bool, bool>(Execute);
+            cmd.Handler = CommandHandler.Create<IDirectoryInfo, string, string, string, bool, bool, string, string, string, string, bool, bool>(Execute);
         }
 
         /// <summary>
@@ -88,7 +92,8 @@ namespace Cmf.CLI.Commands
         /// </summary>
         /// <param name="path">The package directory.</param>
         /// <param name="version">The version.</param>
-        /// <param name="buildNr"></param>
+        /// <param name="buildNrVersion"></param>
+        /// <param name="preReleaseVersion"></param>
         /// <param name="isToBumpMasterdata">if set to <c>true</c> [is to bump masterdata].</param>
         /// <param name="isToBumpIoT">if set to <c>true</c> [is to bump io t].</param>
         /// <param name="packageNames">The package names.</param>
@@ -97,8 +102,9 @@ namespace Cmf.CLI.Commands
         /// <param name="workflowName">Name of the workflow.</param>
         /// <param name="isToTag">if set to <c>true</c> [is to tag].</param>
         /// <param name="onlyMdCustomization">if set to <c>true</c> [only md customization].</param>
+        /// <exception cref="CliException"></exception>
         /// <returns></returns>
-        public void Execute(IDirectoryInfo path, string version, string buildNr, bool isToBumpMasterdata, bool isToBumpIoT, string packageNames, string root, string group, string workflowName, bool isToTag, bool onlyMdCustomization)
+        public void Execute(IDirectoryInfo path, string version, string buildNrVersion, string preReleaseVersion, bool isToBumpMasterdata, bool isToBumpIoT, string packageNames, string root, string group, string workflowName, bool isToTag, bool onlyMdCustomization)
         {
             using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
             
@@ -115,6 +121,13 @@ namespace Cmf.CLI.Commands
                 automationWorkflowDirectories = automationWorkflowDirectories.Where(awf => awf.Contains(root))?.ToList();
             }
 
+            if (!string.IsNullOrEmpty(buildNrVersion) && !string.IsNullOrEmpty(preReleaseVersion))
+            {
+                throw new CliException(string.Format(CliMessages.MutuallyExclusiveProperties, "buildNrVersion, preReleaseVersion"));
+            }
+
+            string versionSuffix = !string.IsNullOrEmpty(buildNrVersion) ? buildNrVersion : preReleaseVersion;
+
             foreach (string automationWorkflowDirectory in automationWorkflowDirectories)
             {
                 #region Bump AutomationWorkflow
@@ -129,7 +142,7 @@ namespace Cmf.CLI.Commands
                         groups = groups.Where(gr => gr.Contains(group)).ToList();
                     }
 
-                    groups.ForEach(group => IoTUtilities.BumpWorkflowFiles(group, version, buildNr, workflowName, packageNames, this.fileSystem));
+                    groups.ForEach(group => IoTUtilities.BumpWorkflowFiles(group, version, versionSuffix, workflowName, packageNames, this.fileSystem));
                 }
 
                 #endregion Bump AutomationWorkflow
@@ -138,7 +151,7 @@ namespace Cmf.CLI.Commands
 
                 if (isToBumpMasterdata)
                 {
-                    IoTUtilities.BumpIoTMasterData(automationWorkflowDirectory, version, buildNr, this.fileSystem, onlyCustomization: onlyMdCustomization);
+                    IoTUtilities.BumpIoTMasterData(automationWorkflowDirectory, version, versionSuffix, this.fileSystem, onlyCustomization: onlyMdCustomization);
                 }
 
                 #endregion Bump IoT Masterdata
