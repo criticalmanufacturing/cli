@@ -48,7 +48,8 @@ namespace Cmf.CLI.Handlers
         /// </summary>
         /// <param name="packageOutputDir">The package output dir.</param>
         /// <param name="outputDir">The output dir.</param>
-        public override void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir)
+        /// <param name="dryRun">if set to <c>true</c> list the package structure without creating files.</param>
+        public override void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir, bool dryRun = false)
         {
             Log.Debug("Generating SecurityPortal config.json");
             string path = $"{packageOutputDir.FullName}{Path.DirectorySeparatorChar}{CliConstants.CmfPackageSecurityPortalConfig}";
@@ -76,12 +77,21 @@ namespace Cmf.CLI.Handlers
 
                 this.fileSystem.File.WriteAllText(path, fileContent);
 
-                GenerateDeploymentFrameworkManifest(packageOutputDir);
+                if (!dryRun)
+                {
+                    GenerateDeploymentFrameworkManifest(packageOutputDir);
 
-                FinalArchive(packageOutputDir, outputDir);
+                    FinalArchive(packageOutputDir, outputDir);
 
-                Log.Debug($"{outputDir.FullName}{Path.DirectorySeparatorChar}{CmfPackage.ZipPackageName} created");
-                Log.Information($"{CmfPackage.PackageName} packed");
+                    Log.Debug($"{outputDir.FullName}{Path.DirectorySeparatorChar}{CmfPackage.ZipPackageName} created");
+                    Log.Information($"{CmfPackage.PackageName} packed");
+                }
+                else
+                {
+                    Log.Information($"Dry-run mode: Listing package structure for {CmfPackage.PackageName}");
+                    Log.Information($"Package would be created at: {outputDir.FullName}{Path.DirectorySeparatorChar}{CmfPackage.ZipPackageName}");
+                    Log.Information($"Dry-run completed for {CmfPackage.PackageName}");
+                }
 
             }
             else

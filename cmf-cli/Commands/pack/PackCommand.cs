@@ -66,8 +66,12 @@ namespace Cmf.CLI.Commands
                 aliases: new string[] { "-f", "--force" },
                 description: "Overwrite all packages even if they already exists"));
 
+            cmd.AddOption(new Option<bool>(
+                aliases: new string[] { "--dry-run" },
+                description: "List the final structure of the package without creating files"));
+
             // Add the handler
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, IDirectoryInfo, bool>(Execute);
+            cmd.Handler = CommandHandler.Create<IDirectoryInfo, IDirectoryInfo, bool, bool>(Execute);
         }
 
         /// <summary>
@@ -76,8 +80,9 @@ namespace Cmf.CLI.Commands
         /// <param name="workingDir">The working dir.</param>
         /// <param name="outputDir">The output dir.</param>
         /// <param name="force">if set to <c>true</c> [force].</param>
+        /// <param name="dryRun">if set to <c>true</c> list the package structure without creating files.</param>
         /// <returns></returns>
-        public void Execute(IDirectoryInfo workingDir, IDirectoryInfo outputDir, bool force)
+        public void Execute(IDirectoryInfo workingDir, IDirectoryInfo outputDir, bool force, bool dryRun)
         {
             using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
             IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{workingDir}/{CliConstants.CmfPackageFileName}");
@@ -86,7 +91,7 @@ namespace Cmf.CLI.Commands
             CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true);
             cmfPackage.ValidatePackage();
 
-            Execute(cmfPackage, outputDir, force);
+            Execute(cmfPackage, outputDir, force, dryRun);
         }
 
         /// <summary>
@@ -95,10 +100,11 @@ namespace Cmf.CLI.Commands
         /// <param name="cmfPackage">The CMF package.</param>
         /// <param name="outputDir">The output dir.</param>
         /// <param name="force">if set to <c>true</c> [force].</param>
+        /// <param name="dryRun">if set to <c>true</c> list the package structure without creating files.</param>
         /// <returns></returns>
         /// <exception cref="CmfPackageCollection">
         /// </exception>
-        public void Execute(CmfPackage cmfPackage, IDirectoryInfo outputDir, bool force)
+        public void Execute(CmfPackage cmfPackage, IDirectoryInfo outputDir, bool force, bool dryRun)
         {
             // TODO: Need to review file patterns in contentToPack and contentToIgnore
             IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfPackage);
@@ -119,7 +125,7 @@ namespace Cmf.CLI.Commands
 
             try
             {
-                packageTypeHandler.Pack(packageOutputDir, outputDir);
+                packageTypeHandler.Pack(packageOutputDir, outputDir, dryRun);
             }
             catch (Exception e)
             {
@@ -127,8 +133,11 @@ namespace Cmf.CLI.Commands
             }
             finally
             {
-                // Clean-Up
-                packageOutputDir.Delete(true);
+                // Clean-Up - only delete temp directory if not in dry-run mode
+                if (!dryRun && packageOutputDir.Exists)
+                {
+                    packageOutputDir.Delete(true);
+                }
             }
         }
     }
