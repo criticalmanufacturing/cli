@@ -133,6 +133,15 @@ namespace Cmf.CLI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Mutually exclusive properties: {0}.
+        /// </summary>
+        internal static string MutuallyExclusiveProperties {
+            get {
+                return ResourceManager.GetString("MutuallyExclusiveProperties", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to This is not a root package.
         /// </summary>
         internal static string NotARootPackage {

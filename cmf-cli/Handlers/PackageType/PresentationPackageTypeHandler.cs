@@ -181,11 +181,11 @@ namespace Cmf.CLI.Handlers
         /// Bumps the specified version.
         /// </summary>
         /// <param name="version">The version.</param>
-        /// <param name="buildNr">The version for build Nr.</param>
+        /// <param name="versionSuffix">The version suffix.</param>
         /// <param name="bumpInformation">The bump information.</param>
-        public override void Bump(string version, string buildNr, Dictionary<string, object> bumpInformation = null)
+        public override void Bump(string version, string versionSuffix, Dictionary<string, object> bumpInformation = null)
         {
-            base.Bump(version, buildNr, bumpInformation);
+            base.Bump(version, versionSuffix, bumpInformation);
 
             string parentDirectory = CmfPackage.GetFileInfo().DirectoryName;
             string[] filesToUpdate = this.fileSystem.Directory.GetFiles(parentDirectory, "package.json", SearchOption.AllDirectories);
@@ -203,7 +203,7 @@ namespace Cmf.CLI.Handlers
                     throw new CliException(string.Format(CoreMessages.MissingMandatoryPropertyInFile, "version", fileName));
                 }
 
-                jsonObj["version"] = GenericUtilities.RetrieveNewPresentationVersion(jsonObj["version"].ToString(), version, buildNr);
+                jsonObj["version"] = GenericUtilities.RetrieveNewPresentationVersion(jsonObj["version"].ToString(), version, versionSuffix);
 
                 this.fileSystem.File.WriteAllText(fileName, Newtonsoft.Json.JsonConvert.SerializeObject(jsonObj, Newtonsoft.Json.Formatting.Indented));
             }
@@ -228,7 +228,7 @@ namespace Cmf.CLI.Handlers
                     continue; // in case that version is not found on metadata.ts skip this
                 }
 
-                var metadataVersion = GenericUtilities.RetrieveNewPresentationVersion(regexMatch[1], version, buildNr);
+                var metadataVersion = GenericUtilities.RetrieveNewPresentationVersion(regexMatch[1], version, versionSuffix);
                 metadataFile = Regex.Replace(metadataFile, regex, string.Format("version: \"{0}\"", metadataVersion));
                 this.fileSystem.File.WriteAllText(fileName, metadataFile);
             }

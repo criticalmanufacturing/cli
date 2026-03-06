@@ -41,6 +41,10 @@ namespace Cmf.CLI.Commands
                 description: "Will add this version next to the version (v-b)"));
 
             cmd.AddOption(new Option<string>(
+                aliases: new string[] { "-p", "--preReleaseVersion" },
+                description: "Will add this version as pre-release version (v-p)"));
+
+            cmd.AddOption(new Option<string>(
                 aliases: new string[] { "-pckNames", "--packageNames" },
                 description: "Packages to be bumped"));
 
@@ -49,7 +53,7 @@ namespace Cmf.CLI.Commands
                 getDefaultValue: () => { return false; },
                 description: "Instead of replacing the version will add -$version"));
 
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, string, string, string, bool>(Execute);
+            cmd.Handler = CommandHandler.Create<IDirectoryInfo, string, string, string, string, bool>(Execute);
         }
 
         /// <summary>
@@ -57,12 +61,13 @@ namespace Cmf.CLI.Commands
         /// </summary>
         /// <param name="packagePath">The package path.</param>
         /// <param name="version">The version.</param>
-        /// <param name="buildNr"></param>
+        /// <param name="buildNrVersion"></param>
+        /// <param name="preReleaseVersion"></param>
         /// <param name="packageNames">The package names.</param>
         /// <param name="isToTag">if set to <c>true</c> [is to tag].</param>
         /// <exception cref="CliException"></exception>
         /// <exception cref="CliException"></exception>
-        public void Execute(IDirectoryInfo packagePath, string version, string buildNr, string packageNames, bool isToTag)
+        public void Execute(IDirectoryInfo packagePath, string version, string buildNrVersion, string preReleaseVersion, string packageNames, bool isToTag)
         {
             using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
             IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{packagePath}/{CliConstants.CmfPackageFileName}");
@@ -72,10 +77,15 @@ namespace Cmf.CLI.Commands
                 throw new CliException(string.Format(CliMessages.MissingMandatoryProperty, "version"));
             }
 
+            if (!string.IsNullOrEmpty(buildNrVersion) && !string.IsNullOrEmpty(preReleaseVersion))
+            {
+                throw new CliException(string.Format(CliMessages.MutuallyExclusiveProperties, "buildNrVersion, preReleaseVersion"));
+            }
+
             // Reading cmfPackage
             CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile);
 
-            Execute(cmfPackage, version, buildNr, packageNames, isToTag);
+            Execute(cmfPackage, version, buildNrVersion, preReleaseVersion, packageNames, isToTag);
         }
 
         /// <summary>
@@ -83,12 +93,14 @@ namespace Cmf.CLI.Commands
         /// </summary>
         /// <param name="cmfPackage">The CMF package.</param>
         /// <param name="version">The version.</param>
-        /// <param name="buildNr"></param>
+        /// <param name="buildNrVersion">The version for build Nr.</param>
+        /// <param name="preReleaseVersion">The pre-release version.</param>
         /// <param name="packageNames">The package names.</param>
         /// <param name="isToTag">if set to <c>true</c> [is to tag].</param>
         /// <exception cref="CliException"></exception>
-        public void Execute(CmfPackage cmfPackage, string version, string buildNr, string packageNames, bool isToTag)
+        public void Execute(CmfPackage cmfPackage, string version, string buildNrVersion, string preReleaseVersion, string packageNames, bool isToTag)
         {
+            string versionSuffix = !string.IsNullOrEmpty(buildNrVersion) ? buildNrVersion : preReleaseVersion;
             if (cmfPackage.PackageType != PackageType.IoT)
             {
                 IDirectoryInfo packageDirectory = cmfPackage.GetFileInfo().Directory;
@@ -96,12 +108,12 @@ namespace Cmf.CLI.Commands
                 foreach (var iotPackage in iotPackages)
                 {
                     // IoT -> src -> Package XPTO
-                    IoTUtilities.BumpIoTCustomPackages(iotPackage.GetFileInfo().DirectoryName, version, buildNr, packageNames, this.fileSystem);
+                    IoTUtilities.BumpIoTCustomPackages(iotPackage.GetFileInfo().DirectoryName, version, versionSuffix, packageNames, this.fileSystem);
                 }
             }
             else
             {
-                IoTUtilities.BumpIoTCustomPackages(cmfPackage.GetFileInfo().DirectoryName, version, buildNr, packageNames, this.fileSystem);
+                IoTUtilities.BumpIoTCustomPackages(cmfPackage.GetFileInfo().DirectoryName, version, versionSuffix, packageNames, this.fileSystem);
             }
         }
     }

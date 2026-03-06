@@ -148,11 +148,11 @@ namespace Cmf.CLI.Handlers
         /// of each project to the specified version.
         /// </summary>
         /// <param name="version">The version.</param>
-        /// <param name="buildNr">The version for build Nr.</param>
+        /// <param name="versionSuffix">The version suffix.</param>
         /// <param name="bumpInformation">The bump information.</param>
-        public override void Bump(string version, string buildNr, Dictionary<string, object> bumpInformation = null)
+        public override void Bump(string version, string versionSuffix, Dictionary<string, object> bumpInformation = null)
         {
-            base.Bump(version, buildNr, bumpInformation);
+            base.Bump(version, versionSuffix, bumpInformation);
 
             foreach (var project in Workspace.Projects)
             {
@@ -160,7 +160,7 @@ namespace Cmf.CLI.Handlers
                 {
                     throw new CliException(string.Format(CoreMessages.MissingMandatoryPropertyInFile, "version", project.PackageJson.File.FullName));
                 }
-                project.PackageJson.Content.version = GenericUtilities.RetrieveNewPresentationVersion(project.PackageJson.Content.version.ToString(), version, buildNr);
+                project.PackageJson.Content.version = GenericUtilities.RetrieveNewPresentationVersion(project.PackageJson.Content.version.ToString(), version, versionSuffix);
 
                 // write package.json
                 fileSystem.File.WriteAllText(project.PackageJson.File.FullName, JsonConvert.SerializeObject(project.PackageJson.Content, Formatting.Indented));

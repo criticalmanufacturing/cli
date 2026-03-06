@@ -33,11 +33,11 @@ namespace Cmf.CLI.Handlers
         /// Bumps the specified CMF package.
         /// </summary>
         /// <param name="version">The version.</param>
-        /// <param name="buildNr">The version for build Nr.</param>
+        /// <param name="versionSuffix">The version suffix.</param>
         /// <param name="bumpInformation">The bump information.</param>
-        public override void Bump(string version, string buildNr, Dictionary<string, object> bumpInformation = null)
+        public override void Bump(string version, string versionSuffix, Dictionary<string, object> bumpInformation = null)
         {
-            base.Bump(version, buildNr, bumpInformation);
+            base.Bump(version, versionSuffix, bumpInformation);
             // Get All AutomationWorkflowFiles Folders
             List<string> automationWorkflowDirectory = this.fileSystem.Directory.GetDirectories(CmfPackage.GetFileInfo().DirectoryName, "AutomationWorkflowFiles", SearchOption.AllDirectories).ToList();
 
@@ -78,13 +78,13 @@ namespace Cmf.CLI.Handlers
                 // Get All Group Folders
                 List<string> groups = this.fileSystem.Directory.GetDirectories(automationWorkflowFileGroup, "*").ToList();
 
-                groups.ForEach(group => IoTUtilities.BumpWorkflowFiles(group, version, buildNr, null, packageNames, this.fileSystem));
+                groups.ForEach(group => IoTUtilities.BumpWorkflowFiles(group, version, versionSuffix, null, packageNames, this.fileSystem));
 
                 #endregion Bump AutomationWorkflow
 
                 #region Bump IoT Masterdata
 
-                IoTUtilities.BumpIoTMasterData(automationWorkflowFileGroup, version, buildNr, this.fileSystem, packageNames, onlyCustomization: true);
+                IoTUtilities.BumpIoTMasterData(automationWorkflowFileGroup, version, versionSuffix, this.fileSystem, packageNames, onlyCustomization: true);
 
                 #endregion Bump IoT Masterdata
             }

@@ -147,6 +147,10 @@
     <value>Missing mandatory property {0}</value>
     <comment>0 - Property name</comment>
   </data>
+  <data name="MutuallyExclusiveProperties" xml:space="preserve">
+    <value>Mutually exclusive properties: {0}</value>
+    <comment>0 - List of properties</comment>
+  </data>
   <data name="NotARootPackage" xml:space="preserve">
     <value>This is not a root package</value>
   </data>
