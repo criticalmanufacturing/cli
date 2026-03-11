@@ -83,8 +83,8 @@ namespace Cmf.CLI.Commands
 
             var regex = new Regex("\"?id\"?:\\s+[\"'](.*)[\"']"); // match for menu item IDs
 
-            var packagesDir = (mesVersion.Major > 9) ? this.fileSystem.DirectoryInfo.New(this.fileSystem.Path.Join(helpRoot, "projects")) : this.fileSystem.DirectoryInfo.New(this.fileSystem.Path.Join(helpRoot, "src", "packages"));
-            var helpPackages = packagesDir.GetDirectories("cmf.docs.area.*".Replace(".", (mesVersion.Major > 9) ? "-" : "."));
+            var packagesDir = this.fileSystem.DirectoryInfo.New(this.fileSystem.Path.Join(helpRoot, "projects"));
+            var helpPackages = packagesDir.GetDirectories("cmf.docs.area.*".Replace(".", "-"));
 
             void GetMetadataFromFolder(IDirectoryInfo current, List<object> metadata, IDirectoryInfo parent = null)
             {
