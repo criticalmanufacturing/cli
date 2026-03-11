@@ -789,7 +789,7 @@ namespace tests.Specs
                 Directory.SetCurrentDirectory(cur);
                 Directory.Delete(dir, true);
             }
-        }
+        }*/
 
         [Fact, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node12"), Trait("TestCategory", "Integration")]
         public void Features_Help()
