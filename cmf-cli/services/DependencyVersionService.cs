@@ -22,6 +22,13 @@ public interface IDependencyVersionService
     /// <param name="productVersion">The product version to use</param>
     /// <returns>String representing the .NET SDK version</returns>
     string DotNetSdk(Version productVersion);
+
+    /// <summary>
+    /// Returns the expected .NET Target Framework for the given product version
+    /// </summary>
+    /// <param name="productVersion"></param>
+    /// <returns>String representing the .NET Target Framework</returns>
+    string DotNetTargetFramework(Version productVersion);
     
     /// <summary>
     /// Returns the expected Node.js version for the given product version
@@ -50,12 +57,12 @@ public interface IDependencyVersionService
 /// </summary>
 public class DependencyVersionService : IDependencyVersionService
 {
-    public const string NET3SDK = "3.1.102";
+    public const string NET6TARGETFRAMEWORK = "net6.0";
+    public const string NET8TARGETFRAMEWORK = "net8.0";
     public const string NET6SDK = "6.0.201"; // avoid >2xx as it requires HTTPS for nuget pulls
     public const string NET8SDK = "8.0.301";
     public const string NODE20 = "20";
     public const string NODE18 = "18";
-    public const string NODE12 = "12.20.2";
     public const string NG15 = "15.2.1";
     public const string NG17 = "17.2.1";
     public const string NG21 = "21.1.0";
@@ -72,8 +79,9 @@ public class DependencyVersionService : IDependencyVersionService
     public const string NG17_TS = "5.3.3";
     public const string NG21_TS = "5.9.3";
 
-    public string DotNetSdk(Version productVersion) => productVersion.Major > 10 ? NET8SDK : productVersion.Major > 8 ? NET6SDK : NET3SDK;
-    public string Node(Version productVersion) => productVersion.Major > 10 ? NODE20 : productVersion.Major > 9 ? NODE18 : NODE12;
+    public string DotNetSdk(Version productVersion) => productVersion.Major >= 11 ? NET8SDK :  NET6SDK;
+    public string DotNetTargetFramework(Version productVersion) => productVersion.Major >= 11 ? NET8TARGETFRAMEWORK :  NET6TARGETFRAMEWORK;
+    public string Node(Version productVersion) => productVersion.Major >= 11 ? NODE20 :  NODE18;
 
     public AngularDeps Angular(Version productVersion) =>
         productVersion.Major switch
