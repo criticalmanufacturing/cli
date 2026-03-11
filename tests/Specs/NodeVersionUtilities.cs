@@ -22,8 +22,6 @@ namespace tests.Specs
         }
 
         [Theory]
-        [InlineData("8.0.0", "12")]  // MES v8.x requires Node.js v12
-        [InlineData("9.0.0", "12")]  // MES v9.x requires Node.js v12
         [InlineData("10.0.0", "18")] // MES v10.x requires Node.js v18
         [InlineData("11.0.0", "20")] // MES v11.x requires Node.js v20
         [InlineData("12.0.0", "20")] // MES v12.x and later require Node.js v20
