@@ -70,11 +70,7 @@ namespace Cmf.CLI.Commands.New
                 "--repositoryType", repoType.ToString()
             });
             
-            #region version-specific bits
-
-            var version = ExecutionContext.Instance.ProjectConfig.MESVersion;
-            args.AddRange(new []{ "--targetFramework", version.Major > 8 ? "net6.0" : "netstandard2.0" });
-            #endregion
+            args.AddRange(new []{ "--targetFramework", "net6.0"});
 
             return args;
         }

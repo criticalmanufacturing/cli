@@ -75,6 +75,9 @@ namespace Cmf.CLI
                         ExecutionContext.Initialize(fileSystem);
                         ExecutionContext.ServiceProvider.GetService<IRepositoryLocator>()!
                             .InitializeClientsForRepositories(ExecutionContext.Instance.FileSystem);
+
+                        // Global validation for all CLI core commands
+                        ValidateMesVersion();
                         
                         // Parse and invoke using beta5 pattern
                         ParseResult parseResult = rootCommand.Parse(args);
@@ -97,6 +100,20 @@ namespace Cmf.CLI
                 Log.Exception(WrappedException.Unwrap(e));
                 ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!.LogException(e);
                 return (int)ErrorCode.Default;
+            }
+        }
+
+        /// <summary>
+        /// This function will validate MES Version on every command.
+        /// This server to lock the CLI from executing on any project below version 10.
+        /// </summary>
+        private static void ValidateMesVersion()
+        {
+            var majorVersion = ExecutionContext.Instance.ProjectConfig?.MESVersion?.Major;
+
+            if (majorVersion < 10)
+            {
+                throw new CliException("MES Versions under 10 are no longer supported with the newest version of the CLI.");
             }
         }
     }

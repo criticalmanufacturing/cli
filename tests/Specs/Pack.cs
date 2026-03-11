@@ -294,7 +294,6 @@ namespace tests.Specs
 
                     List<string> expectedFiles = new()
                     {
-                        "config.json",
                         "manifest.xml",
                         "node_modules/customization.package/package.json",
                         "node_modules/customization.package/customization.common.js"
@@ -358,10 +357,11 @@ namespace tests.Specs
             var fileSystem = MockPackage.Html;
             var outputDir = fileSystem.DirectoryInfo.New("output");
 
-            var packCommand = new PackCommand(fileSystem);
-            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), outputDir, false, false);
+            var firstPackCommand = new PackCommand(fileSystem);
+            firstPackCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), outputDir,  false, false);
             IEnumerable<IFileInfo> assembledFiles = fileSystem.DirectoryInfo.New("output").EnumerateFiles("Cmf.Custom.HTML.1.1.0.zip").ToList();
-            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), outputDir, false, false);
+            var secondPackCommand = new PackCommand(fileSystem);
+            secondPackCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), outputDir,  false, false);
 
             IEnumerable<IFileInfo> assembledFilesOnSecondRun = fileSystem.DirectoryInfo.New("output").EnumerateFiles("Cmf.Custom.HTML.1.1.0.zip").ToList();
             assembledFilesOnSecondRun.Should().HaveCount(1);
@@ -622,35 +622,6 @@ namespace tests.Specs
         }
 
         [Theory]
-        [InlineData("8.1.0", new[] { StepType.DeployRepositoryFiles, StepType.GenerateRepositoryIndex })]
-        [InlineData("9.1.0", new StepType[0])]
-        public void IoTDFStepsForVersion(string version, StepType[] forbiddenStepTypes)
-        {
-            var mockFS = new MockFileSystem(new Dictionary<string, MockFileData>
-            {{ MockUnixSupport.Path(@"c:\.project-config.json"), new MockFileData(
-    $@"{{
-                ""MESVersion"": ""{version}""
-                }}")
-            }, {
-                MockUnixSupport.Path(@"c:\.pkg.json"), new MockFileData(
-                    $@"{{
-                ""type"": ""{PackageType.IoT}"",
-                ""packageId"": ""xxxxx"",
-                ""version"": ""9.9.9"",
-                ""contentToPack"": [{{}}]
-                }}")
-            }});
-
-            ExecutionContext.Initialize(mockFS);
-            var pkg = CmfPackage.Load(mockFS.FileSystem.FileInfo.New(MockUnixSupport.Path(@"c:\.pkg.json")), true,
-                mockFS);
-            var _ = new IoTPackageTypeHandler(pkg);
-
-            pkg.Steps.Any(step => forbiddenStepTypes.ToList().Contains(step.Type ?? StepType.Generic)).Should()
-                .BeFalse();
-        }
-
-        [Theory]
         [InlineData("10.2.7", StepType.IoTAutomationTaskLibrariesSync)]
         public void IoTATLDFNoStepsForVersion(string version, StepType mustNotHave)
         {
@@ -881,10 +852,11 @@ namespace tests.Specs
 
             var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
             {
+                { $"output/assets", new MockDirectoryData() },
                 // project config file
                 { ".project-config.json", new MockFileData(
                     @$"{{
-                        ""MESVersion"": ""9.0.0""
+                        ""MESVersion"": ""10.0.0""
                     }}")},
 
                 // root cmfpackage file
@@ -921,6 +893,27 @@ namespace tests.Specs
                   ]
                 }}")},
 
+                // angular file (html case)
+                { $"Cmf.Custom.{packageType}/angular.json", new MockFileData(
+                  $@"{{
+                      ""$schema"": ""./node_modules/@angular/cli/lib/config/schema.json"",
+                      ""version"": 1,
+                      ""newProjectRoot"": ""projects"",
+                      ""projects"": {{
+                          ""Cmf.Custom.HTML"": {{
+                              ""projectType"": ""application"",
+                              ""schematics"": {{
+                                  ""@schematics/angular:component"": {{
+                                      ""style"": ""less""
+                                  }}
+                              }},
+                              ""root"": """",
+                              ""sourceRoot"": ""src"",
+                          }}
+                      }}
+                  }}")
+                },
+
                 // js package
                 { $"Cmf.Custom.{packageType}/src/packages/customization.common/package.json", new MockFileData(@"{""name"": ""customization.package""}")},
                 { $"Cmf.Custom.{packageType}/src/packages/customization.common/customization.common.js", new MockFileData("")},
@@ -933,11 +926,16 @@ namespace tests.Specs
             ExecutionContext.Initialize(fileSystem);
 
             IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"Cmf.Custom.{packageType}/cmfpackage.json");
-            PresentationPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile, true) as PresentationPackageTypeHandler;
+            Cmf.CLI.Handlers.PackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile, true) as Cmf.CLI.Handlers.PackageTypeHandler;
 
             packageTypeHandler.GeneratePresentationConfigFile(fileSystem.DirectoryInfo.New("output"));
 
+            string htmlPath = MockUnixSupport.Path(@"output\\assets\\config.json").Replace("\\", "\\\\");
             IFileInfo configJsonFile = fileSystem.FileInfo.New(MockUnixSupport.Path(@"output\\config.json").Replace("\\", "\\\\"));
+            if(packageType.Equals("Html")) 
+            {
+                configJsonFile = fileSystem.FileInfo.New(htmlPath);
+            }
             dynamic configJsonFileContent = JsonConvert.DeserializeObject(fileSystem.File.ReadAllText(configJsonFile.FullName));
 
             string customizationVersion = configJsonFileContent.customizationVersion?.ToString();

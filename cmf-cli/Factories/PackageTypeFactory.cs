@@ -72,45 +72,22 @@ namespace Cmf.CLI.Factories
 
         private static IPackageTypeHandler HelpHandler(CmfPackage cmfPackage)
         {
-            var targetVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
-            var minimumVersion = new Version("10.0.0");
-            if (targetVersion.CompareTo(minimumVersion) < 0)
-            {
-                return new HelpGulpPackageTypeHandler(cmfPackage);
-            }
-
             return new HelpNgCliPackageTypeHandler(cmfPackage);
         }
 
         private static IPackageTypeHandler HtmlHandler(CmfPackage cmfPackage)
         {
-            var targetVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
-            var minimumVersion = new Version("10.0.0");
-            if (targetVersion.CompareTo(minimumVersion) < 0)
-            {
-                return new HtmlGulpPackageTypeHandler(cmfPackage);
-            }
-
             return new HtmlNgCliPackageTypeHandler(cmfPackage);
         }
 
         /// <summary>
         /// Creates the specific Security Portal package handler.
-        /// 
-        /// If the ProjectConfig's MESVersion is less than 10.0.0, a <seealso cref="SecurityPortalPackageTypeHandler"/> is created and returned.
         /// Otherwise, a <seealso cref="SecurityPortalPackageTypeHandlerV2"/> is created and returned.
         /// </summary>
         /// <param name="cmfPackage"></param>
         /// <returns></returns>
         private static IPackageTypeHandler SecurityPortalHandler(CmfPackage cmfPackage)
         {
-            var targetVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
-            var minimumVersion = new Version("10.0.0");
-            if (targetVersion.CompareTo(minimumVersion) < 0)
-            {
-                return new SecurityPortalPackageTypeHandler(cmfPackage);
-            }
-
             return new SecurityPortalPackageTypeHandlerV2(cmfPackage);
         }
     }
