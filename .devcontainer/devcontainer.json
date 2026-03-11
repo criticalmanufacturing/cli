@@ -7,8 +7,8 @@
             "additionalVersions": ["6.0","8.0"]
         },
         "ghcr.io/devcontainers/features/node": {
-            "version": "12",
-            "additionalVersions": ["18","20"]
+            "version": "18",
+            "additionalVersions": ["20"]
         },
         "ghcr.io/devcontainers/features/github-cli": {},
         "ghcr.io/nils-geistmann/devcontainers-features/zsh": {

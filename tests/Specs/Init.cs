@@ -38,7 +38,6 @@ namespace tests.Specs
         }
 
         [Theory]
-        [InlineData("8.2.0", DependencyVersionService.NET3SDK)]
         [InlineData("10.2.0", DependencyVersionService.NET6SDK)]
         [InlineData("11.0.0", DependencyVersionService.NET8SDK)]
         public void Init_(string baseVersionStr, string dotnetSDKVersion)
@@ -156,7 +155,7 @@ namespace tests.Specs
         }
 
         [Fact]
-        public void Init_Fail_MissingOptionsForLTv10()
+        public void Init_Fail_ForLTv10()
         {
             var console = new TestConsole();
             var tmp = TestUtilities.GetTmpDirectory();
@@ -183,13 +182,11 @@ namespace tests.Specs
                     "--nugetRegistry", "http://nuget.example/feed",
                     "--npmRegistry", "http://npm.example/feed",
                     "--ISOLocation", "dummy",
+                    "--ngxSchematicsVersion", "1.3.7",
                     "--deploymentDir", deploymentDir,
                 }, console);
 
-                Assert.Contains("DevTasksVersion is required", console.Error.ToString());
-                Assert.Contains("HTMLStarterVersion is required", console.Error.ToString());
-                Assert.Contains("yoGeneratorVersion is required", console.Error.ToString());
-                console.Error.ToString().Should().NotContain("ngxSchematicsVersion is required");
+                console.Error.ToString().Should().Contain("MES Versions under 10 are no longer supported with the newest version of the CLI. Please use cmf-cli 5.8.0 or lower.");
             }
             finally
             {
@@ -229,7 +226,7 @@ namespace tests.Specs
                     "--deploymentDir", deploymentDir,
                 }, console);
 
-                Assert.Contains("ngxSchematicsVersion is required", console.Error.ToString());
+                Assert.Contains("--ngxSchematicsVersion is missing, please specify it.", console.Error.ToString());
                 console.Error.ToString().Should().NotContain("DevTasksVersion is required");
                 console.Error.ToString().Should().NotContain("HTMLStarterVersion is required");
                 console.Error.ToString().Should().NotContain("yoGeneratorVersion is required");
@@ -558,16 +555,17 @@ namespace tests.Specs
                     projectName,
                     "--infra", TestUtilities.GetFixturePath("init", "infrastructure.json"),
                     "-c", TestUtilities.GetFixturePath("init", "config.json"),
-                    "--MESVersion", "8.2.0",
-                    "--DevTasksVersion", "8.1.0",
-                    "--HTMLStarterVersion", "8.0.0",
-                    "--yoGeneratorVersion", "8.1.0",
-                    "--nugetVersion", "8.2.0",
-                    "--testScenariosNugetVersion", "8.2.0",
+                    "--MESVersion", "10.2.0",
+                    "--DevTasksVersion", "10.2.0",
+                    "--HTMLStarterVersion", "10.2.0",
+                    "--yoGeneratorVersion", "10.2.0",
+                    "--nugetVersion", "10.2.0",
+                    "--testScenariosNugetVersion", "10.2.0",
                     "--deploymentDir", deploymentDir,
                     "--ISOLocation", isoLocation,
                     "--version", pkgVersion,
-                    "--UnknownOption", "RandomValue"
+                    "--UnknownOption", "RandomValue",
+                    "--ngxSchematicsVersion", "10.2.0"
                 }, console);
 
                 console.Error.ToString().Should().BeEmpty();
@@ -606,15 +604,16 @@ namespace tests.Specs
                     projectName,
                     "--infra", TestUtilities.GetFixturePath("init", "infrastructure.json"),
                     "-c", TestUtilities.GetFixturePath("init", "config_no_AD.json"),
-                    "--MESVersion", "8.2.0",
-                    "--DevTasksVersion", "8.1.0",
-                    "--HTMLStarterVersion", "8.0.0",
-                    "--yoGeneratorVersion", "8.1.0",
-                    "--nugetVersion", "8.2.0",
-                    "--testScenariosNugetVersion", "8.2.0",
+                    "--MESVersion", "10.2.0",
+                    "--DevTasksVersion", "10.2.0",
+                    "--HTMLStarterVersion", "10.0.0",
+                    "--yoGeneratorVersion", "10.1.0",
+                    "--nugetVersion", "10.2.0",
+                    "--testScenariosNugetVersion", "10.2.0",
                     "--deploymentDir", deploymentDir,
                     "--ISOLocation", isoLocation,
                     "--version", pkgVersion,
+                    "--ngxSchematicsVersion", "10.2.0",
                     "Cmf.Custom.Package",
                     tmp
                 }, console);
