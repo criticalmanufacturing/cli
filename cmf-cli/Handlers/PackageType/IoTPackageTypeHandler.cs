@@ -13,7 +13,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace Cmf.CLI.Handlers
 {
@@ -21,7 +20,7 @@ namespace Cmf.CLI.Handlers
     ///
     /// </summary>
     /// <seealso cref="PresentationPackageTypeHandler" />
-    public class IoTPackageTypeHandler : PresentationPackageTypeHandler
+    public class IoTPackageTypeHandler : PackageTypeHandler
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="IoTPackageTypeHandler" /> class.
@@ -29,150 +28,94 @@ namespace Cmf.CLI.Handlers
         /// <param name="cmfPackage">The CMF package.</param>
         public IoTPackageTypeHandler(CmfPackage cmfPackage) : base(cmfPackage)
         {
-            var minimumVersion = new Version("8.3.5");
             var targetVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
             IBuildCommand[] buildCommands = Array.Empty<IBuildCommand>();
             var defaultSteps = new List<Step>();
 
-            if (targetVersion.CompareTo(minimumVersion) < 0)
+            var packageLocation = "projects";
+
+            if (!this.IsAngularProject(cmfPackage.GetFileInfo().Directory.FullName))
             {
-                Log.Debug(
-                    $"MES version lower than {minimumVersion}, skipping DeployRepositoryFiles and GenerateRepositoryIndex steps. Make sure you have alternative steps in your manifest.");
+                defaultSteps = this.AddAutomationTaskLibrariesStep(targetVersion, CmfPackage, defaultSteps);
+                defaultSteps = this.AddAutomationBusinessScenarioStep(targetVersion, CmfPackage, defaultSteps);
             }
-            if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 10)
+
+            buildCommands = new IBuildCommand[]
             {
-                buildCommands = new IBuildCommand[]
+                new ExecuteCommand<RestoreCommand>()
                 {
-                    new ExecuteCommand<RestoreCommand>()
+                    Command = new RestoreCommand(),
+                    DisplayName = "cmf restore",
+                    Execute = command =>
                     {
-                        Command = new RestoreCommand(),
-                        DisplayName = "cmf restore",
-                        Execute = command =>
-                        {
-                            command.Execute(cmfPackage.GetFileInfo().Directory, null);
-                        }
-                    },
-                    new NPMCommand()
-                    {
-                       DisplayName = "NPM Install",
-                       Command = "install",
-                       Args = new[] {"--force"},
-                       WorkingDirectory = cmfPackage.GetFileInfo().Directory
-                    },
-                    new GulpCommand()
-                    {
-                       GulpFile = "gulpfile.js",
-                       Task = "install",
-                       DisplayName = "Gulp Install",
-                       GulpJS = "node_modules/gulp/bin/gulp.js",
-                       WorkingDirectory = cmfPackage.GetFileInfo().Directory
-                    },
-                    new GulpCommand()
-                    {
-                       GulpFile = "gulpfile.js",
-                       Task = "build",
-                       DisplayName = "Gulp Build",
-                       GulpJS = "node_modules/gulp/bin/gulp.js",
-                       WorkingDirectory = cmfPackage.GetFileInfo().Directory
-                    },
-                    new GulpCommand()
-                    {
-                        GulpFile = "gulpfile.js",
-                        Task = "cliTest",
-                        DisplayName = "Gulp Test",
-                        GulpJS = "node_modules/gulp/bin/gulp.js",
-                        WorkingDirectory = cmfPackage.GetFileInfo().Directory,
-                        Test = true
+                        command.Execute(cmfPackage.GetFileInfo().Directory, null);
                     }
-                };
-            }
-            else
-            {
-                var packageLocation = "projects";
-
-                if (!this.IsAngularProject(cmfPackage.GetFileInfo().Directory.FullName))
+                },
+                new NPMCommand()
                 {
-                    defaultSteps = this.AddAutomationTaskLibrariesStep(targetVersion, CmfPackage, defaultSteps);
-                    defaultSteps = this.AddAutomationBusinessScenarioStep(targetVersion, CmfPackage, defaultSteps);
-                }
-
-                buildCommands = new IBuildCommand[]
+                    DisplayName = "NPM Install",
+                    Command = "install",
+                    Args = new[] {"--force"},
+                    WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                },
+                new NPMCommand()
                 {
-                    new ExecuteCommand<RestoreCommand>()
+                    DisplayName = "NPM Lint",
+                    Command = "run lint",
+                    WorkingDirectory = cmfPackage.GetFileInfo().Directory,
+                    ConditionForExecute = () =>
                     {
-                        Command = new RestoreCommand(),
-                        DisplayName = "cmf restore",
-                        Execute = command =>
-                        {
-                            command.Execute(cmfPackage.GetFileInfo().Directory, null);
-                        }
-                    },
-                    new NPMCommand()
-                    {
-                       DisplayName = "NPM Install",
-                       Command = "install",
-                       Args = new[] {"--force"},
-                       WorkingDirectory = cmfPackage.GetFileInfo().Directory
-                    },
-                    new NPMCommand()
-                    {
-                       DisplayName = "NPM Lint",
-                       Command = "run lint",
-                       WorkingDirectory = cmfPackage.GetFileInfo().Directory,
-                       ConditionForExecute = () =>
-                       {
-                           var packageJsons = this.GetPackageJsons(cmfPackage, packageLocation);
+                        var packageJsons = this.GetPackageJsons(cmfPackage, packageLocation);
 
-                           if(packageJsons == null && !packageJsons.Any())
-                           {
-                               return false;
-                           }
-                           foreach (var packageJson in packageJsons )
-                           {
-                                var json = fileSystem.File.ReadAllText(packageJson.FullName);
-                                dynamic packageJsonContent = JsonConvert.DeserializeObject(json);
-
-                                if(packageJsonContent?["scripts"] == null || packageJsonContent?["scripts"]?["lint"] == null)
-                                {
-                                    return false;
-                                }
-                           }
-                           return true;
-                       }
-                    },
-                    new NPMCommand()
-                    {
-                       DisplayName = "NPM Build",
-                       Command = "run build -ws",
-                       Args = new[] {"--force"},
-                       WorkingDirectory = cmfPackage.GetFileInfo().Directory
-                    },
-                    new NPMCommand()
-                    {
-                       DisplayName = "NPM Test",
-                       Command = "run test -ws",
-                       Args = new[] {"--force"},
-                       WorkingDirectory = cmfPackage.GetFileInfo().Directory
-                    },
-                   new ExecuteCommand<IoTLibCommand>()
-                   {
-                        Command = new IoTLibCommand(),
-                        DisplayName = "cmf iot lib command",
-                        ConditionForExecute = () =>
+                        if(packageJsons == null && !packageJsons.Any())
                         {
-                            if(cmfPackage.GetFileInfo().Directory.EnumerateDirectories().Any(dir => dir.Name == "dist"))
-                            {
-                                return true;
-                            }
                             return false;
-                        },
-                        Execute = command =>
-                        {
-                            command.Execute(cmfPackage.GetFileInfo().Directory);
                         }
+                        foreach (var packageJson in packageJsons )
+                        {
+                            var json = fileSystem.File.ReadAllText(packageJson.FullName);
+                            dynamic packageJsonContent = JsonConvert.DeserializeObject(json);
+
+                            if(packageJsonContent?["scripts"] == null || packageJsonContent?["scripts"]?["lint"] == null)
+                            {
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+                },
+                new NPMCommand()
+                {
+                    DisplayName = "NPM Build",
+                    Command = "run build -ws",
+                    Args = new[] {"--force"},
+                    WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                },
+                new NPMCommand()
+                {
+                    DisplayName = "NPM Test",
+                    Command = "run test -ws",
+                    Args = new[] {"--force"},
+                    WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                },
+                new ExecuteCommand<IoTLibCommand>()
+                {
+                    Command = new IoTLibCommand(),
+                    DisplayName = "cmf iot lib command",
+                    ConditionForExecute = () =>
+                    {
+                        if(cmfPackage.GetFileInfo().Directory.EnumerateDirectories().Any(dir => dir.Name == "dist"))
+                        {
+                            return true;
+                        }
+                        return false;
                     },
-                };
-            }
+                    Execute = command =>
+                    {
+                        command.Execute(cmfPackage.GetFileInfo().Directory);
+                    }
+                },
+            };
 
             // Add Steps
             defaultSteps.AddRange(new List<Step>()
@@ -210,8 +153,7 @@ namespace Cmf.CLI.Handlers
 
             // Validate Steps
             defaultSteps = defaultSteps.Where(step =>
-            // if MES version is inferior to 8.3.5, the DeployRepositoryFiles and GenerateRepositoryIndex steps are not supported
-            targetVersion.CompareTo(minimumVersion) >= 0 || step.Type != StepType.DeployRepositoryFiles && step.Type != StepType.GenerateRepositoryIndex
+                step.Type != StepType.DeployRepositoryFiles && step.Type != StepType.GenerateRepositoryIndex
             ).ToList();
 
             cmfPackage.SetDefaultValues
@@ -248,34 +190,31 @@ namespace Cmf.CLI.Handlers
         {
             base.Bump(version, buildNr, bumpInformation);
 
-            if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 10)
+            #region GetCustomPackages
+
+            // Get Dev Tasks
+            string parentDirectory = CmfPackage.GetFileInfo().DirectoryName;
+            string devTasksFile = this.fileSystem.Directory.GetFiles(parentDirectory, ".dev-tasks.json")[0];
+
+            string devTasksJson = this.fileSystem.File.ReadAllText(devTasksFile);
+            dynamic devTasksJsonObject = JsonConvert.DeserializeObject(devTasksJson);
+
+            string packageNames = devTasksJsonObject["packagesBuildBump"]?.ToString();
+
+            if (string.IsNullOrEmpty(packageNames))
             {
-                #region GetCustomPackages
-
-                // Get Dev Tasks
-                string parentDirectory = CmfPackage.GetFileInfo().DirectoryName;
-                string devTasksFile = this.fileSystem.Directory.GetFiles(parentDirectory, ".dev-tasks.json")[0];
-
-                string devTasksJson = this.fileSystem.File.ReadAllText(devTasksFile);
-                dynamic devTasksJsonObject = JsonConvert.DeserializeObject(devTasksJson);
-
-                string packageNames = devTasksJsonObject["packagesBuildBump"]?.ToString();
-
-                if (string.IsNullOrEmpty(packageNames))
-                {
-                    packageNames = devTasksJsonObject["packages"]?.ToString();
-                }
-
-                if (string.IsNullOrEmpty(packageNames))
-                {
-                    throw new CliException(string.Format(CliMessages.MissingMandatoryProperty, packageNames));
-                }
-
-                #endregion GetCustomPackages
-
-                // IoT -> src -> Package XPTO
-                IoTUtilities.BumpIoTCustomPackages(CmfPackage.GetFileInfo().DirectoryName, version, buildNr, packageNames, this.fileSystem);
+                packageNames = devTasksJsonObject["packages"]?.ToString();
             }
+
+            if (string.IsNullOrEmpty(packageNames))
+            {
+                throw new CliException(string.Format(CliMessages.MissingMandatoryProperty, packageNames));
+            }
+
+            #endregion GetCustomPackages
+
+            // IoT -> src -> Package XPTO
+            IoTUtilities.BumpIoTCustomPackages(CmfPackage.GetFileInfo().DirectoryName, version, buildNr, packageNames, this.fileSystem);
         }
 
         /// <summary>
@@ -315,19 +254,15 @@ namespace Cmf.CLI.Handlers
 
                         string outputDirPath = $"{packageOutputDir}/runtimePackages";
 
-                        // Is not Supported in workspaces
-                        if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 10)
+                        NPMCommand npmCommand = new NPMCommand()
                         {
-                            NPMCommand npmCommand = new NPMCommand()
-                            {
-                                DisplayName = "npm shrinkwrap",
-                                Args = new string[] { "shrinkwrap" },
-                                WorkingDirectory = packDirectory
-                            };
+                            DisplayName = "npm shrinkwrap",
+                            Args = new string[] { "shrinkwrap" },
+                            WorkingDirectory = packDirectory
+                        };
 
-                            npmCommand.Exec();
-                        }
-
+                        npmCommand.Exec();
+                        
                         if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 11)
                         {
                             IFileInfo yo = this.fileSystem.FileInfo.New($"{AppContext.BaseDirectory}resources/vendors/yo/node_modules/.bin/yo");

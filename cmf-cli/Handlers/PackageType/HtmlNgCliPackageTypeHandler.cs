@@ -4,13 +4,11 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Cmf.CLI.Builders;
 using Cmf.CLI.Commands.html;
 using Cmf.CLI.Commands.restore;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
-using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
@@ -245,7 +243,7 @@ namespace Cmf.CLI.Handlers
         /// Generates the presentation configuration file.
         /// </summary>
         /// <param name="packageOutputDir">The package output dir.</param>
-        private void GeneratePresentationConfigFile(IDirectoryInfo packageOutputDir)
+        public override void GeneratePresentationConfigFile(IDirectoryInfo packageOutputDir)
         {
             Log.Debug("Generating Presentation config.json");
             string path = $"{packageOutputDir.FullName}/assets/{CliConstants.CmfPackagePresentationConfig}";

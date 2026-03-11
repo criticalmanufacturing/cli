@@ -117,7 +117,7 @@ namespace tests.Specs
             RunNew(new BusinessCommand(), 
                 "Cmf.Custom.Business", 
                 repositoryType: repositoryType, 
-                mesVersion: "9.1.0", 
+                mesVersion: "10.2.5", 
                 baseLayer: layer,  
                 extraArguments: appContext ? new[] { "--addApplicationVersionAssembly" } : null,
                 extraAsserts: args =>
@@ -304,24 +304,14 @@ namespace tests.Specs
         }
 
         [Theory, Trait("TestCategory", "Integration")]
-        [InlineData("9.0.0", true)]
-        [InlineData("10.0.0", false), Trait("TestCategory", "LongRunning")]
-        public void UI_FailNoPackage(string mesVersion, bool shouldDisplayError)
+        [InlineData("10.0.0"), Trait("TestCategory", "LongRunning")]
+        public void UI_NotFailWithoutPackage(string mesVersion)
         {
             var console = RunNew(new HTMLCommand(), "Cmf.Custom.HTML", defaultAsserts: false, mesVersion: mesVersion);
             var stderr = console.Error.ToString();
-            if (shouldDisplayError)
-            {
-                (stderr ?? "").Trim()
-                    .Should().Contain("--htmlPkg option is required for MES versions up to 9.x",
-                        "Should exit with missing package error");
-            }
-            else
-            {
-                (stderr ?? "").Trim()
-                    .Should().NotContain("--htmlPkg option is required for MES versions up to 9.x",
-                        "Should exit with missing package error");
-            }
+            (stderr ?? "").Trim()
+                .Should().NotContain("--htmlPkg option is required for MES versions up to 9.x",
+                    "Should exit with missing package error");
         }
 
         [Fact, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node12"), Trait("TestCategory", "Integration")]
@@ -347,28 +337,17 @@ namespace tests.Specs
         }
 
         [Theory, Trait("TestCategory", "Integration")]
-        [InlineData("9.0.0", true)]
-        [InlineData("10.0.0", false), Trait("TestCategory", "LongRunning")]
-        public void Help_FailNoPackage(string mesVersion, bool shouldDisplayError)
+        [InlineData("10.0.0"), Trait("TestCategory", "LongRunning")]
+        public void Help_FailNoPackage(string mesVersion)
         {
             var console = RunNew(new Cmf.CLI.Commands.New.HelpCommand(), "Cmf.Custom.Help", defaultAsserts: false, mesVersion: mesVersion);
             var stderr = console.Error.ToString();
-            if (shouldDisplayError)
-            {
-                (stderr ?? "").Trim()
-                    .Should().Contain("--docPkg option is required for MES versions up to 9.x",
-                        "Should exit with missing package error");
-            }
-            else
-            {
-                (stderr ?? "").Trim()
-                    .Should().NotContain("--docPkg option is required for MES versions up to 9.x",
-                        "Should exit with missing package error");
-            }
+            (stderr ?? "").Trim()
+                .Should().NotContain("--docPkg option is required for MES versions up to 9.x",
+                    "Should exit with missing package error");
         }
 
         [Theory, Trait("TestCategory", "Integration")]
-        [InlineData("9.0.0")]
         [InlineData("10.2.5", true), Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node18")]
         [InlineData("10.2.5", true, true), Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node18")]
         [InlineData("10.2.7", true, true), Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node18")]
@@ -379,20 +358,16 @@ namespace tests.Specs
             string packageId = "Cmf.Custom.IoT";
 
             string packageIdPackages = "Cmf.Custom.IoT.Packages";
-            string packageFolderPackages = mesVersion == "9.0.0" ? "IoTPackages" : packageIdPackages;
+            string packageFolderPackages = packageIdPackages;
 
             string packageIdData = "Cmf.Custom.IoT.Data";
-            string packageFolderData = mesVersion == "9.0.0" ? "IoTData" : packageIdData;
+            string packageFolderData = packageIdData;
 
             // Before v10.2.7, all packages were Angular packages, even if the flag was not passed explicitly
             bool isAngularPackage = isAngularPackageFlag || Version.Parse(mesVersion) < new Version(10, 2, 7);
 
             CopyNewFixture(dir, mesVersion: mesVersion);
-            if (mesVersion == "9.0.0")
-            {
-                RunNew(new IoTCommand(), packageId, scaffoldingDir: dir);
-            }
-            else if (isAngularPackage)
+            if (isAngularPackage)
             {
                 var htmlPackageName = "Cmf.Custom.HTML";
                 var targetDir = new DirectoryInfo(dir);
@@ -898,7 +873,7 @@ namespace tests.Specs
 
                 var pkgDir = Path.Join(dir, "Features", "TestFeature");
                 const string packageId = "Cmf.Custom.TestFeature.HTML";
-                var console = RunNew(new Cmf.CLI.Commands.New.HTMLCommand(), packageId, extraArguments: new string[] {
+                RunNew(new HTMLCommand(), packageId, extraArguments: new string[] {
                     "--htmlPkg", TestUtilities.GetFixturePath("prodPkg", "Cmf.Presentation.HTML.9.9.9.zip"),
                 }, scaffoldingDir: pkgDir);
             }
@@ -994,6 +969,8 @@ namespace tests.Specs
                     CopyNewFixture(dir, mesVersion, ngxSchematicsVersion, baseLayer, repositoryType);
                 }
 
+                Console.WriteLine(File.ReadAllText(Path.Join(dir, ".project-config.json")));
+
                 ExecutionContext.Initialize(new FileSystem());
 
                 var cmd = new Command("x");
@@ -1061,7 +1038,7 @@ namespace tests.Specs
             if (File.Exists(projCfg))
             {
                 File.WriteAllText(projCfg, File.ReadAllText(projCfg)
-                    .Replace(@"""MESVersion"": ""8.2.0""", $@"""MESVersion"": ""{mesVersion}""")
+                    .Replace(@"""MESVersion"": ""11.2.2""", $@"""MESVersion"": ""{mesVersion}""")
                     .Replace(@"""BaseLayer"": ""MES""", $@"""BaseLayer"": ""{baseLayer}""")
                     .Replace(@"""RepositoryType"": ""Customization""", $@"""RepositoryType"": ""{repositoryType}""")
                     .Replace(@"""NGXSchematicsVersion"": ""10.0.0""", $@"""NGXSchematicsVersion"": ""{ngxSchematicsVersion}""")

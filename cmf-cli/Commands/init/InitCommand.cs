@@ -562,33 +562,10 @@ namespace Cmf.CLI.Commands
             var version = Version.Parse(x.BaseVersion);
             args.AddRange(new []{ "--dotnetSDKVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().DotNetSdk(version) });
 
-            if (version.Major > 9)
+            if (string.IsNullOrWhiteSpace(x.ngxSchematicsVersion))
             {
-                if (string.IsNullOrWhiteSpace(x.ngxSchematicsVersion))
-                {
-                    throw new CliException(
-                        "--ngxSchematicsVersion is required when targeting a base version of 10 or above.");
-                }
-            }
-            else
-            {
-                var errors = new List<string>();
-                if (string.IsNullOrWhiteSpace(x.DevTasksVersion))
-                {
-                    errors.Add("--DevTasksVersion is required when targeting a base version lower than 10.");
-                }
-                if (string.IsNullOrWhiteSpace(x.HTMLStarterVersion))
-                {
-                    errors.Add("--HTMLStarterVersion is required when targeting a base version lower than 10.");
-                }
-                if (string.IsNullOrWhiteSpace(x.yoGeneratorVersion))
-                {
-                    errors.Add("--yoGeneratorVersion is required when targeting a base version lower than 10.");
-                }
-                if (errors.Count > 0)
-                {
-                    throw new CliException(string.Join(Environment.NewLine, errors));
-                }
+                throw new CliException(
+                    "--ngxSchematicsVersion is required when targeting a base version of 10 or above.");
             }
             #endregion
 
