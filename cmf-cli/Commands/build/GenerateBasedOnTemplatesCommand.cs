@@ -64,7 +64,7 @@ namespace Cmf.CLI.Commands
 
             var helpRoot = FileSystemUtilities.GetPackageRootByType(packagePath.FullName, PackageType.Help, this.fileSystem).FullName;
             var project = ExecutionContext.Instance.ProjectConfig.Tenant;
-            var helpPackagesRoot = (mesVersion.Major > 9) ? this.fileSystem.Path.Join(helpRoot, "projects") : this.fileSystem.Path.Join(helpRoot, "src", "packages");
+            var helpPackagesRoot = this.fileSystem.Path.Join(helpRoot, "projects");
             var helpPackages = this.fileSystem.Directory.GetDirectories(helpPackagesRoot);
             var pkgName = CmfPackage.Load(this.fileSystem.FileInfo.New(this.fileSystem.Path.Join(helpRoot, CliConstants.CmfPackageFileName))).PackageId.ToLowerInvariant();
             foreach (var helpPackagePath in helpPackages)
@@ -84,7 +84,7 @@ namespace Cmf.CLI.Commands
                     }
                 }
 
-                Generate(helpPackagePath, useLegacyFormat ? project : ( (mesVersion.Major > 9) ? pkgName.Replace(".", "-").ToLowerInvariant() : pkgName));
+                Generate(helpPackagePath, useLegacyFormat ? project : pkgName.Replace(".", "-").ToLowerInvariant());
             }
         }
 

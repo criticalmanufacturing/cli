@@ -21,7 +21,6 @@ using System.Xml.Serialization;
 using Cmf.CLI.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
-using SharpCompress.Common;
 
 [assembly: InternalsVisibleTo("tests")]
 

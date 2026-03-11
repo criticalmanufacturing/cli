@@ -63,37 +63,30 @@ namespace Cmf.CLI.Commands.New
         /// <param name="version">package version</param>
         public void Execute(IDirectoryInfo workingDir)
         {
-            if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major > 9)
+            IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{workingDir}/{CliConstants.CmfPackageFileName}");
+            var cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true, this.fileSystem);
+
+            if (cmfPackage.PackageType != PackageType.IoT)
             {
-                IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{workingDir}/{CliConstants.CmfPackageFileName}");
-                var cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true, this.fileSystem);
+                throw new CliException(CliMessages.CommandIsOnlyValidForPackageOfTypeIoT);
+            }
 
-                if (cmfPackage.PackageType != PackageType.IoT)
+            var listOfLibs = workingDir.EnumerateDirectories().FirstOrDefault(dir => dir.Name == "dist").EnumerateDirectories();
+            cmfPackage.RelatedPackages?.ForEach(relatedPackage =>
+            {
+                if (relatedPackage.CmfPackage.GetFileInfo().Directory.GetFile(CliConstants.AngularJson) != null)
                 {
-                    throw new CliException(CliMessages.CommandIsOnlyValidForPackageOfTypeIoT);
-                }
-
-                var listOfLibs = workingDir.EnumerateDirectories().FirstOrDefault(dir => dir.Name == "dist").EnumerateDirectories();
-                cmfPackage.RelatedPackages?.ForEach(relatedPackage =>
-                {
-                    if (relatedPackage.CmfPackage.GetFileInfo().Directory.GetFile(CliConstants.AngularJson) != null)
+                    foreach (var lib in listOfLibs)
                     {
-                        foreach (var lib in listOfLibs)
+                        new NPMCommand()
                         {
-                            new NPMCommand()
-                            {
-                                DisplayName = "npm link dist",
-                                Args = new string[] { "link", lib.FullName },
-                                WorkingDirectory = relatedPackage.CmfPackage.GetFileInfo().Directory
-                            }.Exec();
-                        }
+                            DisplayName = "npm link dist",
+                            Args = new string[] { "link", lib.FullName },
+                            WorkingDirectory = relatedPackage.CmfPackage.GetFileInfo().Directory
+                        }.Exec();
                     }
-                });
-            }
-            else
-            {
-                throw new CliException(string.Format(CliMessages.InvalidVersionForCommand, "10"));
-            }
+                }
+            });
         }
     }
 }
