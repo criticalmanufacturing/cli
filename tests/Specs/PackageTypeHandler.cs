@@ -39,7 +39,7 @@ namespace tests.Specs
             try
             {
                 var cmfPackage = fileSystem.FileInfo.New(CliConstants.CmfPackageFileName);
-                var packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfPackage) as PresentationPackageTypeHandler;
+                Cmf.CLI.Handlers.PackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfPackage) as Cmf.CLI.Handlers.PackageTypeHandler;
 
                 packageTypeHandler.GetContentToPack(fileSystem.DirectoryInfo.New("output"));
             }
