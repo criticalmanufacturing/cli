@@ -1,0 +1,103 @@
+name: PR Scaffolding Validation
+
+on:
+  pull_request:
+    branches:
+      - main
+
+env:
+  NG_CLI_ANALYTICS: false
+  CRITICALMANUFACTURING_IO_USER: ${{ vars.CRITICALMANUFACTURING_IO_USER }}
+  CRITICALMANUFACTURING_IO_TOKEN: ${{ secrets.CRITICALMANUFACTURING_IO_TOKEN }}
+  CRITICALMANUFACTURING_NPM_REGISTRY: ${{ vars.CRITICALMANUFACTURING_NPM_REGISTRY }}
+  CRITICALMANUFACTURING_NUGET_REGISTRY: ${{ vars.CRITICALMANUFACTURING_NUGET_REGISTRY }}
+  VALIDATION_DIR: /tmp/scaffolding-validation
+
+jobs:
+  scaffolding-validation:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build CLI
+        run: npm run build:bundle:linux
+
+      - name: Pack CLI
+        working-directory: npm
+        run: npm pack
+
+      - name: Install CLI globally
+        working-directory: npm
+        run: npm install -g ./
+
+      - name: Get latest MES version
+        id: mes-version
+        run: |
+          REGISTRY_HOST=${CRITICALMANUFACTURING_NPM_REGISTRY#*//}
+          npm config set //${REGISTRY_HOST}:username $CRITICALMANUFACTURING_IO_USER
+          npm config set //${REGISTRY_HOST}:_password $(echo -n "$CRITICALMANUFACTURING_IO_TOKEN" | base64)
+          npm config set //${REGISTRY_HOST}:email ci@criticalmanufacturing.com
+          npm config set //${REGISTRY_HOST}:always-auth true
+          MES_VERSION=$(npm view @criticalmanufacturing/mes version --registry $CRITICALMANUFACTURING_NPM_REGISTRY 2>/dev/null)
+          if [ -z "$MES_VERSION" ]; then
+            echo "::error::Failed to retrieve the latest MES version from the registry. Check that CRITICALMANUFACTURING_NPM_REGISTRY, CRITICALMANUFACTURING_IO_USER, and CRITICALMANUFACTURING_IO_TOKEN are configured correctly."
+            exit 1
+          fi
+          echo "version=$MES_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create environment config
+        run: |
+          mkdir -p $VALIDATION_DIR
+          cat > $VALIDATION_DIR/env-config.json << EOF
+          {
+            "Product.SystemName": "ValidationProject",
+            "Product.Tenant.Name": "ValidationTenant",
+            "Product.Database.IsAlwaysOn": false,
+            "Product.ApplicationServer.Address": "localhost",
+            "Product.ApplicationServer.Port": "5000",
+            "Packages.Root.TargetDirectory": "$VALIDATION_DIR/deployments"
+          }
+          EOF
+
+      - name: Run cmf init
+        working-directory: ${{ env.VALIDATION_DIR }}
+        run: |
+          cmf init ValidationProject \
+            --version 1.0.0 \
+            --config $VALIDATION_DIR/env-config.json \
+            --MESVersion ${{ steps.mes-version.outputs.version }} \
+            --nugetVersion ${{ steps.mes-version.outputs.version }} \
+            --testScenariosNugetVersion ${{ steps.mes-version.outputs.version }} \
+            --npmRegistry $CRITICALMANUFACTURING_NPM_REGISTRY \
+            --nugetRegistry $CRITICALMANUFACTURING_NUGET_REGISTRY \
+            --nugetRegistryUsername $CRITICALMANUFACTURING_IO_USER \
+            --nugetRegistryPassword $CRITICALMANUFACTURING_IO_TOKEN \
+            --deploymentDir $VALIDATION_DIR/deployments
+
+      - name: Run cmf new business
+        working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
+        run: cmf new business
+
+      - name: Run cmf build
+        working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
+        run: cmf build
+
+      - name: Run cmf pack
+        working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
+        run: cmf pack
