@@ -1,0 +1,205 @@
+name: CLI Scaffolding Validation
+
+on:
+  workflow_call: {}
+  workflow_dispatch: {}
+  pull_request_target:
+    branches:
+      - main
+    types: [opened, edited, synchronize]
+    paths-ignore:
+      - 'features/**'
+
+env:
+  NG_CLI_ANALYTICS: false
+  CRITICALMANUFACTURING_IO_USER: ${{ vars.CRITICALMANUFACTURING_IO_USER }}
+  CRITICALMANUFACTURING_IO_TOKEN: ${{ secrets.CRITICALMANUFACTURING_IO_TOKEN }}
+  CRITICALMANUFACTURING_NPM_REGISTRY: ${{ vars.CRITICALMANUFACTURING_NPM_REGISTRY }}
+  CRITICALMANUFACTURING_NUGET_REGISTRY: ${{ vars.CRITICALMANUFACTURING_NUGET_REGISTRY }}
+  VALIDATION_DIR: scaffolding-validation
+  PACKAGES_TO_CREATE: "business data html help test database reporting grafana iot securityPortal"
+
+jobs:
+  build-cli:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build CLI
+        run: npm run build:bundle:linux
+
+      - name: Upload CLI package
+        uses: actions/upload-artifact@v4
+        with:
+          name: cli-linux-x64-${{ github.sha }}
+          path: npm/dist/linux-x64
+          retention-days: 1
+          overwrite: true
+          include-hidden-files: true
+
+  scaffolding-validation:
+    needs: build-cli
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    if: >
+      github.event_name != 'pull_request_target' ||
+      contains(fromJson('["OWNER","MEMBER","COLLABORATOR"]'), github.event.pull_request.author_association)
+    strategy:
+      matrix:
+        include:
+          - mes-major: 10
+            node-version: '18.x'
+            dotnet-version: '6.0.x'
+            packages-to-build: "Cmf.Custom.Business Cmf.Custom.Data Cmf.Custom.HTML"
+            packages-to-pack: "Cmf.Custom.Business Cmf.Custom.Data Cmf.Custom.HTML Cmf.Custom.Grafana Cmf.Custom.IoT Cmf.Custom.SecurityPortal"
+          - mes-major: 11
+            node-version: '20.x'
+            dotnet-version: '8.0.x'
+            packages-to-build: "Cmf.Custom.Business Cmf.Custom.Data Cmf.Custom.HTML Cmf.Custom.Help"
+            packages-to-pack: "Cmf.Custom.Business Cmf.Custom.Data Cmf.Custom.HTML Cmf.Custom.Help Cmf.Custom.Grafana Cmf.Custom.IoT Cmf.Custom.SecurityPortal"
+
+    steps:
+      - name: Setup Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+
+      - name: Download CLI package
+        uses: actions/download-artifact@v4
+        with:
+          name: cli-linux-x64-${{ github.sha }}
+          path: npm/dist/linux-x64
+
+      - name: Set CLI_PATH env var and execute permission
+        working-directory: npm
+        run: |
+          chmod +x ./dist/linux-x64/cmf
+          echo "CLI_PATH=$GITHUB_WORKSPACE/npm/dist/linux-x64" >> $GITHUB_ENV
+
+      - name: Login to NPM registry
+        run: |
+          $CLI_PATH/cmf -l debug login NPM $CRITICALMANUFACTURING_NPM_REGISTRY --auth-type Basic --username $CRITICALMANUFACTURING_IO_USER --password $CRITICALMANUFACTURING_IO_TOKEN
+
+      - name: Login to NuGet registry
+        run: |
+          $CLI_PATH/cmf -l debug login NuGet $CRITICALMANUFACTURING_NUGET_REGISTRY --auth-type Basic --username $CRITICALMANUFACTURING_IO_USER --password $CRITICALMANUFACTURING_IO_TOKEN --key CMF
+
+      - name: Resolve full MES version for major ${{ matrix.mes-major }}
+        id: mes-version
+        run: |
+          MES_VERSION=$(node - <<'NODE'
+          const major = "${{ matrix.mes-major }}";
+          const registry = process.env.CRITICALMANUFACTURING_NPM_REGISTRY;
+          const pkg = 'cmf-mes-ui';
+          const versionsJson = require('child_process').execSync(`npm view ${pkg} versions --json --registry ${registry}`, { encoding: 'utf8' });
+          const versions = JSON.parse(versionsJson || '[]');
+          const filtered = versions.filter(v => v.startsWith(`${major}.`) && !v.includes("-alpha") && !v.includes("-beta"));
+          if (filtered.length === 0) { console.error(`No versions found for ${major}.x`); process.exit(1); }
+          filtered.sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
+          const withoutPreRelease = filtered.map((v) => v.split("-")[0]);
+          process.stdout.write(withoutPreRelease[withoutPreRelease.length - 1]);
+          NODE
+          )
+          echo "MES_VERSION=$MES_VERSION"
+          echo "version=$MES_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Resolve ngx-schematics version for MES ${{ steps.mes-version.outputs.version }}
+        id: ngx-schematics-version
+        run: |
+          MES_VERSION=${{ steps.mes-version.outputs.version }}
+          MES_DIST_TAG="release-${MES_VERSION//./}"
+          echo "mes-dist-tag=$MES_DIST_TAG" >> $GITHUB_OUTPUT
+          NGX_VERSION=$(npm view @criticalmanufacturing/ngx-schematics@$MES_DIST_TAG version --registry $CRITICALMANUFACTURING_NPM_REGISTRY 2>/dev/null)
+          if [ -z "$NGX_VERSION" ]; then
+            echo "::error::Failed to resolve ngx-schematics version for tag $MES_DIST_TAG"
+            exit 1
+          fi
+          echo "version=$NGX_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create parameters.json file
+        run: |
+          mkdir -p $VALIDATION_DIR
+          cat <<EOF > $VALIDATION_DIR/parameters.json
+          {
+            "SYSTEM_NAME": "cmftraining",
+            "TENANT_NAME": "cmftraining",
+            "APPLICATION_PUBLIC_HTTP_ADDRESS": "cmftraining.local",
+            "APPLICATION_PUBLIC_HTTP_PORT": "80",
+            "APPLICATION_PUBLIC_HTTP_TLS_ENABLED": "false",
+            "DATABASE_ONLINE_MSSQL_ADDRESS": "db",
+            "DATABASE_ONLINE_MSSQL_ADDRESS": "db",
+            "SECURITY_PORTAL_STRATEGY_LOCAL_AD_DEFAULT_DOMAIN": "",
+            "DATABASE_MSSQL_ALWAYS_ON_ENABLED": "false"
+          }
+          EOF
+
+      - name: Run 'cmf init' (MES ${{ steps.mes-version.outputs.version }})
+        working-directory: ${{ env.VALIDATION_DIR }}
+        run: |
+          $CLI_PATH/cmf -l debug init ValidationProject \
+            --version 1.0.0 \
+            --config ./parameters.json \
+            --MESVersion ${{ steps.mes-version.outputs.version }} \
+            --nugetVersion ${{ steps.mes-version.outputs.version }} \
+            --testScenariosNugetVersion ${{ steps.mes-version.outputs.version }} \
+            --npmRegistry $CRITICALMANUFACTURING_NPM_REGISTRY \
+            --nugetRegistry $CRITICALMANUFACTURING_NUGET_REGISTRY \
+            --deploymentDir ./deployments \
+            --ngxSchematicsVersion ${{ steps.ngx-schematics-version.outputs.version }}
+
+      - name: Run 'cmf new' for each package type
+        working-directory: ${{ env.VALIDATION_DIR }}
+        run: |
+          for pkg in $PACKAGES_TO_CREATE; do
+            if [ "$pkg" = "data" ]; then
+              cmd="$CLI_PATH/cmf -l debug new $pkg --businessPackage ./Cmf.Custom.Business/"
+            elif [ "$pkg" = "iot" ]; then
+              cmd="$CLI_PATH/cmf -l debug new $pkg --htmlPackageLocation ./Cmf.Custom.Html/"
+            else
+              cmd="$CLI_PATH/cmf -l debug new $pkg"
+            fi
+            echo -e "\nRunning: $cmd"
+            $cmd
+          done
+
+      - name: Run 'cmf build' for each package
+        working-directory: ${{ env.VALIDATION_DIR }}
+        run: |
+          for pkg in ${{ matrix.packages-to-build }}; do
+            cmd="$CLI_PATH/cmf -l debug build $pkg"
+            echo -e "\nRunning: $cmd"
+            $cmd
+          done
+
+      - name: Run 'cmf pack' for each package
+        working-directory: ${{ env.VALIDATION_DIR }}
+        run: |
+          for pkg in ${{ matrix.packages-to-pack }}; do
+            cmd="$CLI_PATH/cmf -l debug pack $pkg"
+            echo -e "\nRunning: $cmd"
+            $cmd
+          done
