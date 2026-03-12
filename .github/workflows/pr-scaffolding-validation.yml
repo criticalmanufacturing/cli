@@ -50,8 +50,10 @@ jobs:
         id: mes-version
         run: |
           REGISTRY_HOST=${CRITICALMANUFACTURING_NPM_REGISTRY#*//}
+          ENCODED_TOKEN=$(echo -n "$CRITICALMANUFACTURING_IO_TOKEN" | base64)
+          echo "::add-mask::$ENCODED_TOKEN"
           npm config set //${REGISTRY_HOST}:username $CRITICALMANUFACTURING_IO_USER
-          npm config set //${REGISTRY_HOST}:_password $(echo -n "$CRITICALMANUFACTURING_IO_TOKEN" | base64)
+          npm config set //${REGISTRY_HOST}:_password $ENCODED_TOKEN
           npm config set //${REGISTRY_HOST}:email ci@criticalmanufacturing.com
           npm config set //${REGISTRY_HOST}:always-auth true
           MES_VERSION=$(npm view @criticalmanufacturing/mes version --registry $CRITICALMANUFACTURING_NPM_REGISTRY 2>/dev/null)
@@ -93,6 +95,42 @@ jobs:
       - name: Run cmf new business
         working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
         run: cmf new business
+
+      - name: Run cmf new data
+        working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
+        run: cmf new data --businessPackage ./Cmf.Custom.Business/
+
+      - name: Run cmf new html
+        working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
+        run: cmf new html
+
+      - name: Run cmf new help
+        working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
+        run: cmf new help
+
+      - name: Run cmf new test
+        working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
+        run: cmf new test
+
+      - name: Run cmf new database
+        working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
+        run: cmf new database
+
+      - name: Run cmf new reporting
+        working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
+        run: cmf new reporting
+
+      - name: Run cmf new grafana
+        working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
+        run: cmf new grafana
+
+      - name: Run cmf new iot
+        working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
+        run: cmf new iot
+
+      - name: Run cmf new securityPortal
+        working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
+        run: cmf new securityPortal
 
       - name: Run cmf build
         working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
