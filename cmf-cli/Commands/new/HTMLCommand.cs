@@ -41,21 +41,12 @@ namespace Cmf.CLI.Commands.New
         {
             var (workingDirArg, versionOpt) = base.GetBaseCommandConfig(cmd);
 
-            var htmlPkgOption = new Option<IFileInfo>("--htmlPackage", "--htmlPkg")
-            {
-                Description = "Path to the MES Presentation HTML package (required for MES versions up to 9.x)",
-                Required = false,
-                CustomParser = argResult => Parse<IFileInfo>(argResult)
-            };
-            cmd.Add(htmlPkgOption);
-
             cmd.SetAction((parseResult, cancellationToken) =>
             {
                 var workingDir = parseResult.GetValue(workingDirArg);
                 var version = parseResult.GetValue(versionOpt);
-                var htmlPackage = parseResult.GetValue(htmlPkgOption);
 
-                Execute(workingDir, version, htmlPackage);
+                Execute(workingDir, version);
                 return Task.FromResult(0);
             });
         }
@@ -86,8 +77,7 @@ namespace Cmf.CLI.Commands.New
         /// </summary>
         /// <param name="workingDir">nearest root package</param>
         /// <param name="version">package version</param>
-        /// <param name="htmlPackage">The MES Presentation HTML package path</param>
-        public void Execute(IDirectoryInfo workingDir, string version, IFileInfo htmlPackage)
+        public void Execute(IDirectoryInfo workingDir, string version)
         {
             CommandUtilities.ThrowIfNoProjectConfig(ExecutionContext.Instance);
             this.ExecuteV10(workingDir, version);

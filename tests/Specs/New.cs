@@ -25,7 +25,6 @@ using Cmf.CLI.Utilities;
 using Cmf.CLI.Core.Repository.Credentials;
 using Cmf.CLI.Core.Services;
 using Spectre.Console;
-using Cmf.CLI.Core;
 
 namespace tests.Specs
 {
@@ -33,7 +32,7 @@ namespace tests.Specs
     {
         internal const string NPM_USER_ENV_VAR = "CRITICALMANUFACTURING_IO_USER";
         internal const string NPM_TOKEN_ENV_VAR = "CRITICALMANUFACTURING_IO_TOKEN";
-        internal static string NPM_REGISTRY => System.Environment.GetEnvironmentVariable("CRITICALMANUFACTURING_NPM_REGISTRY") ?? "https://dev.criticalmanufacturing.io/repository/npm-public/";
+        internal static string NPM_REGISTRY => Environment.GetEnvironmentVariable("CRITICALMANUFACTURING_NPM_REGISTRY") ?? "https://dev.criticalmanufacturing.io/repository/npm-public/";
 
         public Task InitializeAsync()
         {
@@ -65,23 +64,23 @@ namespace tests.Specs
                 .AddSingleton<IRepositoryAuthStore>(RepositoryAuthStore.FromEnvironmentConfig(fs))
                 .BuildServiceProvider();
 
-            Spectre.Console.AnsiConsole.Console.MarkupLine("Finished building tests' service provider.");
+            AnsiConsole.Console.MarkupLine("Finished building tests' service provider.");
 
-            var npmUser = System.Environment.GetEnvironmentVariable(NPM_USER_ENV_VAR);
-            var npmToken = System.Environment.GetEnvironmentVariable(NPM_TOKEN_ENV_VAR);
+            var npmUser = Environment.GetEnvironmentVariable(NPM_USER_ENV_VAR);
+            var npmToken = Environment.GetEnvironmentVariable(NPM_TOKEN_ENV_VAR);
 
             if (!NPM_REGISTRY.IsNullOrEmpty() && !npmUser.IsNullOrEmpty() && !npmToken.IsNullOrEmpty()) {
-                Spectre.Console.AnsiConsole.Console.MarkupLine($"Running cmf login command for '{NPM_REGISTRY}'...");
+                AnsiConsole.Console.MarkupLine($"Running cmf login command for '{NPM_REGISTRY}'...");
 
                 // We just want to login into NPM
                 // If we log onto Portal then the command will attempt to login into all the derived credentials as well
                 var loginCmd = new LoginCommand();
                 loginCmd.Execute(
-                    Cmf.CLI.Core.Repository.Credentials.RepositoryCredentialsType.NPM, NPM_REGISTRY,
-                    Cmf.CLI.Core.Repository.Credentials.AuthType.Basic, null,
+                    RepositoryCredentialsType.NPM, NPM_REGISTRY,
+                    AuthType.Basic, null,
                     npmUser, npmToken, null, null, false, true);
                     
-                Spectre.Console.AnsiConsole.Console.MarkupLine($"Successfully logged in on '{NPM_REGISTRY}'.");
+                AnsiConsole.Console.MarkupLine($"Successfully logged in on '{NPM_REGISTRY}'.");
             }
         }
     }
@@ -92,7 +91,8 @@ namespace tests.Specs
 
         public New(NpmLoginFixture npmLoginFixture)
         {
-            System.Environment.SetEnvironmentVariable("cmf_cli_internal_disable_projectconfig_cache", "1");
+            Environment.SetEnvironmentVariable("cmf_cli_internal_disable_projectconfig_cache", "1");
+            Environment.SetEnvironmentVariable("NPM_CONFIG_YES", "true");
 
             var newCommand = new NewCommand();
             var cmd = new Command("x");
@@ -227,22 +227,19 @@ namespace tests.Specs
                 });
         }
 
-        [Theory, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node12"), Trait("TestCategory", "Integration")]
-        [InlineData(BaseLayer.MES)]
-        [InlineData(BaseLayer.Core)]
-        public void UI(BaseLayer layer)
+        [Theory, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node18"), Trait("TestCategory", "Integration")]
+        [InlineData(BaseLayer.MES, "10.2.10")]
+        [InlineData(BaseLayer.Core, "10.2.10")]
+        public void UI(BaseLayer layer, string mesVersion)
         {
-            UI_internal(null, layer);
+            UI_internal(null, layer, mesVersion);
         }
 
-        private void UI_internal(string scaffoldingDir, BaseLayer layer)
+        private void UI_internal(string scaffoldingDir, BaseLayer layer, string mesVersion)
         {
-            RunNew(new HTMLCommand(), "Cmf.Custom.HTML", scaffoldingDir: scaffoldingDir, baseLayer: layer, extraArguments: new string[]
+            RunNew(new HTMLCommand(), "Cmf.Custom.HTML", scaffoldingDir: scaffoldingDir, mesVersion: mesVersion, baseLayer: layer, extraAsserts: args =>
             {
-                "--htmlPkg", TestUtilities.GetFixturePath("prodPkg", "Cmf.Presentation.HTML.9.9.9.zip"),
-            }, extraAsserts: args =>
-            {
-                var configJson = File.ReadAllText("Cmf.Custom.HTML/apps/customization.web/config.json");
+                var configJson = File.ReadAllText("Cmf.Custom.HTML/src/assets/config.json");
                 try
                 {
                     JsonConvert.DeserializeObject(configJson);
@@ -251,70 +248,26 @@ namespace tests.Specs
                 {
                     Assert.Fail($"config.json is malformed: {e.Message}");
                 }
-                Assert.True(File.Exists($"Cmf.Custom.HTML/.dev-tasks.json"), "dev-tasks file is missing or has wrong name. Was cloning HTML-starter unsuccessful?");
-                Assert.True(File.ReadAllText("Cmf.Custom.HTML/.dev-tasks.json").Contains("\"isWebAppCompilable\": true"), "Web app is not compilable");
-                Assert.True(Directory.Exists($"Cmf.Custom.HTML/apps/customization.web"), "WebApp dir is missing or has wrong name. Was running the application generator unsuccessful?");
-                Assert.True(File.Exists($"Cmf.Custom.HTML/apps/customization.web/config.json"), "Config file is missing or has wrong name");
-                Assert.True(configJson.Contains("test.package"), "Product package is not in config.json");
-                Assert.True(File.Exists($"Cmf.Custom.HTML/apps/customization.web/index.html"), "Index file is missing or has wrong name");
+                Assert.True(Directory.Exists($"Cmf.Custom.HTML/src/app"), "WebApp dir is missing or has wrong name. Was running the application generator unsuccessful?");
+                Assert.True(File.Exists($"Cmf.Custom.HTML/src/assets/config.json"), "Config file is missing or has wrong name");
+                Assert.True(File.ReadAllText("Cmf.Custom.HTML/src/assets/config.json").Contains("""10.2.10"""), $"Version 10.2.10 is not in config.json");
+                Assert.True(File.Exists($"Cmf.Custom.HTML/src/index.html"), "Index file is missing or has wrong name");
+                Assert.True(File.ReadAllText("Cmf.Custom.HTML/src/index.html").Contains("MES"), "Index content is not expected");
+                Assert.True(File.ReadAllText("Cmf.Custom.HTML/src/index.html").Contains("<base href=\"/\">"), "Index base path was not changed correctly");
                 if (layer == BaseLayer.Core)
                 {
-                    configJson
-                        .Should().Contain("core-ui-web", "wrong base package in config.json");
-                    File.ReadAllText($"Cmf.Custom.HTML/apps/customization.web/package.json").Should()
-                        .Contain("@criticalmanufacturing/core-ui-web");
-                    File.ReadAllText($"Cmf.Custom.HTML/cmfpackage.json").Should()
-                        .Contain("node_modules/@criticalmanufacturing/core-ui-web/bundles");
-                    configJson
-                        .Should().NotContain("cmf.mes", "config.json should not have any MES packages");
+                    File.ReadAllText($"Cmf.Custom.HTML/src/app/app.module.ts").Should()
+                        .Contain("import { CoreUIModule } from 'cmf-core-ui';");
                 }
                 else
                 {
-                    configJson
-                        .Should().Contain("mes-ui-web", "wrong base package in config.json");
-                    File.ReadAllText($"Cmf.Custom.HTML/apps/customization.web/package.json").Should()
-                        .Contain("@criticalmanufacturing/mes-ui-web");
-                    File.ReadAllText($"Cmf.Custom.HTML/cmfpackage.json").Should()
-                        .Contain("node_modules/@criticalmanufacturing/mes-ui-web/bundles");
-                    configJson
-                        .Should().Contain("cmf.mes", "config.json should not have a MES packages");
+                    File.ReadAllText($"Cmf.Custom.HTML/src/app/app.module.ts").Should()
+                        .Contain("import { MesUIModule } from 'cmf-mes-ui';");
                 }
             });
         }
 
-        [Theory, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node12"), Trait("TestCategory", "Integration")]
-        [InlineData("8.2.0", false)]
-        [InlineData("9.1.0", true)]
-        public void UI_WithAppsPackage(string mesVersion, bool isCoreAppPresent)
-        {
-            RunNew(new HTMLCommand(), "Cmf.Custom.HTML", mesVersion: mesVersion, extraArguments: new string[]
-            {
-                "--htmlPkg", TestUtilities.GetFixturePath("prodPkg", "Cmf.Presentation.HTML.9.9.9.zip"),
-            }, extraAsserts: args =>
-            {
-                Assert.True(File.Exists($"Cmf.Custom.HTML/.dev-tasks.json"), "dev-tasks file is missing or has wrong name. Was cloning HTML-starter unsuccessful?");
-                Assert.True(File.ReadAllText("Cmf.Custom.HTML/.dev-tasks.json").Contains("\"isWebAppCompilable\": true"), "Web app is not compilable");
-                Assert.True(Directory.Exists($"Cmf.Custom.HTML/apps/customization.web"), "WebApp dir is missing or has wrong name. Was running the application generator unsuccessful?");
-                Assert.True(File.Exists($"Cmf.Custom.HTML/apps/customization.web/config.json"), "Config file is missing or has wrong name");
-                Assert.True(File.ReadAllText("Cmf.Custom.HTML/apps/customization.web/config.json").Contains("test.package"), "Product package is not in config.json");
-                File.ReadAllText("Cmf.Custom.HTML/apps/customization.web/config.json").Contains("cmf.core.app").Should()
-                    .Be(isCoreAppPresent, $"Apps package {(isCoreAppPresent ? "is not" : "is")} in config.json even though we are targeting {mesVersion}");
-                Assert.True(File.Exists($"Cmf.Custom.HTML/apps/customization.web/index.html"), "Index file is missing or has wrong name");
-            });
-        }
-
-        [Theory, Trait("TestCategory", "Integration")]
-        [InlineData("10.0.0"), Trait("TestCategory", "LongRunning")]
-        public void UI_NotFailWithoutPackage(string mesVersion)
-        {
-            var console = RunNew(new HTMLCommand(), "Cmf.Custom.HTML", defaultAsserts: false, mesVersion: mesVersion);
-            var stderr = console.Error.ToString();
-            (stderr ?? "").Trim()
-                .Should().NotContain("--htmlPkg option is required for MES versions up to 9.x",
-                    "Should exit with missing package error");
-        }
-
-        [Fact, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node12"), Trait("TestCategory", "Integration")]
+        [Fact, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node18"), Trait("TestCategory", "Integration")]
         public void Help()
         {
             Help_internal();
@@ -322,29 +275,25 @@ namespace tests.Specs
 
         private void Help_internal(string scaffoldingDir = null)
         {
-            RunNew(new Cmf.CLI.Commands.New.HelpCommand(), "Cmf.Custom.Help", scaffoldingDir: scaffoldingDir, extraArguments: new string[] {
-                "--docPkg", TestUtilities.GetFixturePath("prodPkg", "Cmf.Documentation.9.9.9.zip"),
-            }, extraAsserts: args =>
+            RunNew(new Cmf.CLI.Commands.New.HelpCommand(), "Cmf.Custom.Help", mesVersion: "10.2.10", scaffoldingDir: scaffoldingDir, extraAsserts: args =>
             {
-                Assert.True(File.Exists($"Cmf.Custom.Help/.dev-tasks.json"), "dev-tasks file is missing or has wrong name. Was cloning HTML-starter unsuccessful?");
-                Assert.True(Directory.Exists($"Cmf.Custom.Help/apps/cmf.docs.area.web"), "WebApp dir is missing or has wrong name. Was running the application generator unsuccessful?");
-                Assert.True(File.Exists($"Cmf.Custom.Help/apps/cmf.docs.area.web/config.json"), "Config file is missing or has wrong name");
-                Assert.True(File.ReadAllText("Cmf.Custom.Help/apps/cmf.docs.area.web/config.json").Contains("test.package"), "Product package is not in config.json");
-                Assert.True(File.Exists($"Cmf.Custom.Help/apps/cmf.docs.area.web/index.html"), "Index file is missing or has wrong name");
-                Assert.True(File.ReadAllText("Cmf.Custom.Help/apps/cmf.docs.area.web/index.html").Contains("Documentation website"), "Index content is not expected");
-                Assert.True(File.ReadAllText("Cmf.Custom.Help/apps/cmf.docs.area.web/index.html").Contains("<base href=\"/\">"), "Index base path was not changed correctly");
+                Assert.True(Directory.Exists($"Cmf.Custom.Help/src/app"), "WebApp dir is missing or has wrong name. Was running the application generator unsuccessful?");
+                Assert.True(File.Exists($"Cmf.Custom.Help/src/assets/config.json"), "Config file is missing or has wrong name");
+                Assert.True(File.ReadAllText("Cmf.Custom.Help/src/assets/config.json").Contains("""version": "10.2.10"""), "Product package is not in config.json");
+                Assert.True(File.Exists($"Cmf.Custom.Help/src/index.html"), "Index file is missing or has wrong name");
+                Assert.True(File.ReadAllText("Cmf.Custom.Help/src/index.html").Contains("DocumentationPortal"), "Index content is not expected");
+                Assert.True(File.ReadAllText("Cmf.Custom.Help/src/index.html").Contains("<base href=\"/\">"), "Index base path was not changed correctly");
             });
         }
 
         [Theory, Trait("TestCategory", "Integration")]
-        [InlineData("10.0.0"), Trait("TestCategory", "LongRunning")]
+        [InlineData("10.2.10"), Trait("TestCategory", "LongRunning")]
         public void Help_FailNoPackage(string mesVersion)
         {
             var console = RunNew(new Cmf.CLI.Commands.New.HelpCommand(), "Cmf.Custom.Help", defaultAsserts: false, mesVersion: mesVersion);
             var stderr = console.Error.ToString();
             (stderr ?? "").Trim()
-                .Should().NotContain("--docPkg option is required for MES versions up to 9.x",
-                    "Should exit with missing package error");
+                .Should().BeEmpty();
         }
 
         [Theory, Trait("TestCategory", "Integration")]
@@ -404,36 +353,28 @@ namespace tests.Specs
             Directory.Exists($"{packageId}/{packageFolderData}/MasterData").Should().BeTrue();
             Directory.Exists($"{packageId}/{packageFolderData}/AutomationWorkFlows").Should().BeTrue();
 
-            if (mesVersion == "9.0.0")
+            Directory.Exists($"{packageId}/{packageFolderPackages}/.vscode").Should().BeTrue();
+            File.Exists($"{packageId}/{packageFolderPackages}/.vscode/extensions.json").Should().BeTrue();
+            File.Exists($"{packageId}/{packageFolderPackages}/.vscode/launch.json").Should().BeTrue();
+            File.Exists($"{packageId}/{packageFolderPackages}/.vscode/settings.json").Should().BeTrue();
+            File.Exists($"{packageId}/{packageFolderPackages}/.vscode/tasks.json").Should().BeTrue();
+
+            if (isAngularPackage)
             {
-                File.Exists($"{packageId}/{packageFolderPackages}/.dev-tasks.json").Should().BeTrue();
-                Directory.Exists($"{packageId}/{packageFolderPackages}/src").Should().BeTrue();
+                var relatedPackages = TestUtilities.GetPackage($"{packageId}/{packageFolderPackages}/cmfpackage.json").GetProperty("relatedPackages")[0];
+                relatedPackages.GetProperty("path").GetString().Should().Be(MockUnixSupport.Path("..\\..\\Cmf.Custom.HTML"));
+                relatedPackages.GetProperty("preBuild").GetBoolean().Should().BeFalse();
+                relatedPackages.GetProperty("postBuild").GetBoolean().Should().BeTrue();
+                relatedPackages.GetProperty("prePack").GetBoolean().Should().BeFalse();
+                relatedPackages.GetProperty("postPack").GetBoolean().Should().BeTrue();
+
+                File.Exists($"{packageId}/{packageFolderPackages}/angular.json").Should().BeTrue();
             }
-            else {
-                Directory.Exists($"{packageId}/{packageFolderPackages}/.vscode").Should().BeTrue();
-                File.Exists($"{packageId}/{packageFolderPackages}/.vscode/extensions.json").Should().BeTrue();
-                File.Exists($"{packageId}/{packageFolderPackages}/.vscode/launch.json").Should().BeTrue();
-                File.Exists($"{packageId}/{packageFolderPackages}/.vscode/settings.json").Should().BeTrue();
-                File.Exists($"{packageId}/{packageFolderPackages}/.vscode/tasks.json").Should().BeTrue();
-                File.Exists($"{packageId}/{packageFolderPackages}/.gitattributes").Should().BeTrue();
-
-                if (isAngularPackage)
-                {
-                    var relatedPackages = TestUtilities.GetPackage($"{packageId}/{packageFolderPackages}/cmfpackage.json").GetProperty("relatedPackages")[0];
-                    relatedPackages.GetProperty("path").GetString().Should().Be(MockUnixSupport.Path("..\\..\\Cmf.Custom.HTML"));
-                    relatedPackages.GetProperty("preBuild").GetBoolean().Should().BeFalse();
-                    relatedPackages.GetProperty("postBuild").GetBoolean().Should().BeTrue();
-                    relatedPackages.GetProperty("prePack").GetBoolean().Should().BeFalse();
-                    relatedPackages.GetProperty("postPack").GetBoolean().Should().BeTrue();
-
-                    File.Exists($"{packageId}/{packageFolderPackages}/angular.json").Should().BeTrue();
-                }
-                else
-                {
-                    File.Exists($"{packageId}/{packageFolderPackages}/angular.json").Should().BeFalse();
-                    File.Exists($"{packageId}/{packageFolderPackages}/.eslintrc.json").Should().BeTrue();
-                    File.Exists($"{packageId}/{packageFolderPackages}/ui.xml").Should().BeTrue();
-                }
+            else
+            {
+                File.Exists($"{packageId}/{packageFolderPackages}/angular.json").Should().BeFalse();
+                File.Exists($"{packageId}/{packageFolderPackages}/.eslintrc.json").Should().BeTrue();
+                File.Exists($"{packageId}/{packageFolderPackages}/ui.xml").Should().BeTrue();
             }
         }
 
@@ -731,7 +672,7 @@ namespace tests.Specs
                 }
 
                 RunFeature_WithoutPrefix(scaffoldingDir: dir);
-                var console = RunNew(new BusinessCommand(), "Cmf.Custom.Business", scaffoldingDir: dir, defaultAsserts: false);
+                RunNew(new BusinessCommand(), "Cmf.Custom.Business", scaffoldingDir: dir, defaultAsserts: false);
                 // TODO: logger isn't using IConsole. This means we can only catch errors coming from Exception, which is not the case here
                 //string errors = console.Error.ToString().Trim();
                 //Assert.True(errors.Contains("Cannot create a root-level layer package when features already exist."), "Expected to find specific error in console but instead found: {0}", errors);
@@ -773,7 +714,7 @@ namespace tests.Specs
 
                 var pkgDir = Path.Join(dir, "Features", "TestFeature");
                 const string packageId = "Cmf.Custom.TestFeature.Business";
-                var console = RunNew(new BusinessCommand(), packageId, scaffoldingDir: pkgDir, extraAsserts: args =>
+                var console = RunNew(new BusinessCommand(), packageId, scaffoldingDir: pkgDir, mesVersion: "10.2.10", extraAsserts: args =>
                 {
                     var (pkgVersion, _) = args;
                     Assert.True(File.Exists(Path.Join(dir, "Features/TestFeature", $"{packageId}/Cmf.Custom.Common/tenantConstants.cs")), "Constants file is missing or has wrong name");
@@ -791,7 +732,7 @@ namespace tests.Specs
             }
         }
 
-        [Fact, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node12"), Trait("TestCategory", "Integration")]
+        [Fact, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node18"), Trait("TestCategory", "Integration")]
         public void Features_Help()
         {
             var dir = TestUtilities.GetTmpDirectory();
@@ -807,6 +748,7 @@ namespace tests.Specs
                 TestUtilities.CopyFixture("new", new DirectoryInfo(dir));
                 TestUtilities.CopyFixture("featureBase", new DirectoryInfo(dir));
 
+                ReplaceConfigForFeaturesTest(dir, mesVersion: "10.2.10");
                 var projCfg = Path.Join(dir, ".project-config.json");
                 if (File.Exists(projCfg))
                 {
@@ -819,12 +761,10 @@ namespace tests.Specs
 
                 var pkgDir = Path.Join(dir, "Features", "TestFeature");
                 const string packageId = "Cmf.Custom.TestFeature.Help";
-                var console = RunNew(new Cmf.CLI.Commands.New.HelpCommand(), packageId, extraArguments: new string[] {
-                    "--docPkg", TestUtilities.GetFixturePath("prodPkg", "Cmf.Documentation.9.9.9.zip"),
-                }, scaffoldingDir: pkgDir, extraAsserts: args =>
+                var console = RunNew(new Cmf.CLI.Commands.New.HelpCommand(), packageId, scaffoldingDir: pkgDir, mesVersion: "10.2.10", extraAsserts: args =>
                 {
                     var (pkgVersion, _) = args;
-                    Assert.True(Directory.Exists(Path.Join(dir, "Features/TestFeature", $"{packageId}/src/packages/cmf.docs.area.{packageId.ToLowerInvariant()}")), "Help package is missing or has wrong name");
+                    Assert.True(Directory.Exists(Path.Join(dir, "Features/TestFeature", $"{packageId}/projects/cmf-docs-area-cmf-custom-testfeature-help")), "Help package is missing or has wrong name");
                 });
             }
             finally
@@ -846,7 +786,7 @@ namespace tests.Specs
             }
         }
 
-        [Fact, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node12"), Trait("TestCategory", "Integration")]
+        [Fact, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node18"), Trait("TestCategory", "Integration")]
         public void Features_UI()
         {
             var dir = TestUtilities.GetTmpDirectory();
@@ -861,6 +801,8 @@ namespace tests.Specs
                 Directory.SetCurrentDirectory(dir);
                 TestUtilities.CopyFixture("new", new DirectoryInfo(dir));
                 TestUtilities.CopyFixture("featureBase", new DirectoryInfo(dir));
+
+                ReplaceConfigForFeaturesTest(dir, mesVersion: "10.2.10");
                 var projCfg = Path.Join(dir, ".project-config.json");
                 if (File.Exists(projCfg))
                 {
@@ -873,9 +815,7 @@ namespace tests.Specs
 
                 var pkgDir = Path.Join(dir, "Features", "TestFeature");
                 const string packageId = "Cmf.Custom.TestFeature.HTML";
-                RunNew(new HTMLCommand(), packageId, extraArguments: new string[] {
-                    "--htmlPkg", TestUtilities.GetFixturePath("prodPkg", "Cmf.Presentation.HTML.9.9.9.zip"),
-                }, scaffoldingDir: pkgDir);
+                RunNew(new HTMLCommand(), packageId, scaffoldingDir: pkgDir, mesVersion: "10.2.10");
             }
             finally
             {
@@ -923,31 +863,9 @@ namespace tests.Specs
             Assert.True(File.Exists($"{dir}/Cmf.Custom.SecurityPortal/config.json"), "Package config.json is missing");
         }
 
-        [Fact, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Integration"), Trait("TestCategory", "Node18")]
-        public void UI_v10()
-        {
-            UI_internal_v10();
-        }
-
-        private void UI_internal_v10()
-        {
-            RunNew(new HTMLCommand(), "Cmf.Custom.HTML", mesVersion: "10.1.2", extraAsserts: args =>
-            {
-                var configJson = File.ReadAllText("Cmf.Custom.HTML/src/assets/config.json");
-                try
-                {
-                    JsonConvert.DeserializeObject(configJson);
-                }
-                catch (Exception e)
-                {
-                    Assert.Fail($"config.json is malformed: {e.Message}");
-                }
-            });
-        }
-
         private TestConsole RunNew<T>(T newCommand, string packageId, string scaffoldingDir = null,
             string[] extraArguments = null, bool defaultAsserts = true, Action<(string, string)> extraAsserts = null,
-            string mesVersion = "8.2.0",
+            string mesVersion = "11.2.2",
             string ngxSchematicsVersion = NGX_SCHEMATICS_VERSION,
             BaseLayer baseLayer = BaseLayer.MES,
             RepositoryType repositoryType = RepositoryType.Customization) where T : TemplateCommand
@@ -969,7 +887,10 @@ namespace tests.Specs
                     CopyNewFixture(dir, mesVersion, ngxSchematicsVersion, baseLayer, repositoryType);
                 }
 
-                Console.WriteLine(File.ReadAllText(Path.Join(dir, ".project-config.json")));
+                if (File.Exists(Path.Join(dir, ".project-config.json")))
+                {
+                    Console.WriteLine(File.ReadAllText(Path.Join(dir, ".project-config.json")));
+                }
 
                 ExecutionContext.Initialize(new FileSystem());
 
@@ -1028,7 +949,7 @@ namespace tests.Specs
         }
 
         private void CopyNewFixture(string dir,
-            string mesVersion = "8.2.0",
+            string mesVersion = "11.2.2",
             string ngxSchematicsVersion = NGX_SCHEMATICS_VERSION,
             BaseLayer baseLayer = BaseLayer.MES,
             RepositoryType repositoryType = RepositoryType.Customization)
@@ -1052,6 +973,19 @@ namespace tests.Specs
             if (repositoryType == RepositoryType.App)
             {
                 TestUtilities.CopyFixture("app", new DirectoryInfo(dir));
+            }
+        }
+
+        private void ReplaceConfigForFeaturesTest(string dir, string mesVersion, string ngxSchematicsVersion = NGX_SCHEMATICS_VERSION)
+        {
+            var projCfg = Path.Join(dir, ".project-config.json");
+            if (File.Exists(projCfg))
+            {
+                File.WriteAllText(projCfg, File.ReadAllText(projCfg)
+                    .Replace(@"""MESVersion"": ""11.2.2""", $@"""MESVersion"": ""{mesVersion}""")
+                    .Replace(@"""NPMRegistry"": ""http://npm_registry/""", $@"""NPMRegistry"": ""{NpmLoginFixture.NPM_REGISTRY}""")
+                    .Replace(@"""NGXSchematicsVersion"": ""10.0.0""", $@"""NGXSchematicsVersion"": ""{ngxSchematicsVersion}""")
+                );
             }
         }
     }
