@@ -198,7 +198,7 @@ namespace Cmf.CLI.Utilities
             if (fi != null)
             {
                 //open for read operation
-                FileStream fsToRead = (FileStream)fi.Open(FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+                Stream fsToRead = fi.Open(FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
 
                 //get the StreamReader
                 StreamReader sr = new(fsToRead);

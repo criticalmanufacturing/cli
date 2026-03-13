@@ -86,7 +86,7 @@ namespace Cmf.CLI.Commands
                 if (parent != null)
                 {
                     Log.Verbose($"Searching folder: {current.FullName}");
-                    var files = current.GetFiles("*.md", SearchOption.TopDirectoryOnly);
+                    var files = current.GetFiles("*.md", SearchOption.TopDirectoryOnly).OrderBy(f => f.FullName);
 
                     foreach (var file in files)
                     {
@@ -106,7 +106,8 @@ namespace Cmf.CLI.Commands
                 }
 
                 var folders = current.GetDirectories("*", SearchOption.TopDirectoryOnly)
-                    .Where(d => d.Name != "images");
+                    .Where(d => d.Name != "images")
+                    .OrderBy(d => d.FullName);
                 foreach (var folder in folders)
                 {
                     Log.Verbose($"Getting metadata from folder: {folder.FullName}");
