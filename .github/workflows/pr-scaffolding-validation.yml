@@ -2,8 +2,7 @@ name: PR Scaffolding Validation
 
 on:
   pull_request:
-    branches:
-      - main
+    types: [opened, edited, synchronize]
 
 env:
   NG_CLI_ANALYTICS: false
@@ -35,8 +34,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build CLI
-        run: npm run build:bundle:linux
+      - name: Build and pack CLI
+        run: bash .github/scripts/build-and-pack.sh bundle
 
       - name: Pack CLI
         working-directory: npm
