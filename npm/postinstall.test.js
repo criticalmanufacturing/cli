@@ -172,7 +172,7 @@ describe('postinstall.js', () => {
         test('should fallback to criticalmanufacturing.io on primary failure', async () => {
             // First call (GitHub) fails
             axios.mockRejectedValueOnce(new Error('GitHub unavailable'));
-            // Second call (criticalmanufacturing.io) succeeds
+            // Second call (criticalmanufacturing.io versioned) succeeds
             axios.mockResolvedValueOnce({ data: Buffer.from('mock-data') });
 
             AdmZip.mockImplementation(() => ({
@@ -191,14 +191,19 @@ describe('postinstall.js', () => {
             expect(axios).toHaveBeenNthCalledWith(2, expect.objectContaining({
                 url: expect.stringContaining('criticalmanufacturing.io')
             }));
+            expect(axios).toHaveBeenNthCalledWith(2, expect.objectContaining({
+                url: expect.stringContaining('5.7.0')
+            }));
         });
 
         test('should fallback to criticalmanufacturing.com.cn on secondary failure', async () => {
             // First call (GitHub) fails
             axios.mockRejectedValueOnce(new Error('GitHub unavailable'));
-            // Second call (criticalmanufacturing.io) fails
+            // Second call (criticalmanufacturing.io versioned) fails
             axios.mockRejectedValueOnce(new Error('IO unavailable'));
-            // Third call (criticalmanufacturing.com.cn) succeeds
+            // Third call (criticalmanufacturing.io legacy) fails
+            axios.mockRejectedValueOnce(new Error('IO legacy unavailable'));
+            // Fourth call (criticalmanufacturing.com.cn versioned) succeeds
             axios.mockResolvedValueOnce({ data: Buffer.from('mock-data') });
 
             AdmZip.mockImplementation(() => ({
@@ -210,9 +215,12 @@ describe('postinstall.js', () => {
 
             await mockInstall(callback);
 
-            expect(axios).toHaveBeenCalledTimes(3);
-            expect(axios).toHaveBeenNthCalledWith(3, expect.objectContaining({
+            expect(axios).toHaveBeenCalledTimes(4);
+            expect(axios).toHaveBeenNthCalledWith(4, expect.objectContaining({
                 url: expect.stringContaining('criticalmanufacturing.com.cn')
+            }));
+            expect(axios).toHaveBeenNthCalledWith(4, expect.objectContaining({
+                url: expect.stringContaining('5.7.0')
             }));
         });
 
@@ -229,7 +237,7 @@ describe('postinstall.js', () => {
 
             await mockInstall(callback);
 
-            expect(axios).toHaveBeenCalledTimes(3);
+            expect(axios).toHaveBeenCalledTimes(5);
             expect(callback).toHaveBeenCalledWith(
                 expect.stringContaining('Could not install version')
             );
@@ -330,7 +338,9 @@ function createMockInstallFunction() {
                 .replace("{{arch}}", ARCH_MAPPING[process.arch]);
 
             const fallbackUrls = [
+                `https://criticalmanufacturing.io/repository/tools/cmf-cli.${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}-${opts.version}.zip`,
                 `https://criticalmanufacturing.io/repository/tools/cmf-cli.${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}.zip`,
+                `https://repository.criticalmanufacturing.com.cn/repository/tools/cmf-cli.${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}-${opts.version}.zip`,
                 `https://repository.criticalmanufacturing.com.cn/repository/tools/cmf-cli.${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}.zip`
             ];
 
