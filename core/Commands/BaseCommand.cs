@@ -97,7 +97,7 @@ namespace Cmf.CLI.Core.Commands
             cmdHandler?.Configure(cmdInstance);
             
             // Validate MES version requirement if specified
-            if (!string.IsNullOrWhiteSpace(dec.MinimumMESVersion))
+            if (!string.IsNullOrWhiteSpace(dec?.MinimumMESVersion))
             {
                 // Add a middleware to validate the version before command execution
                 cmdInstance.Validators.Add(commandResult =>

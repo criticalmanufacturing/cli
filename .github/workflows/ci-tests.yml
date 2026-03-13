@@ -40,13 +40,8 @@ jobs:
         run: |
           dotnet build --configuration Release
 
-      - name: Test (Node 12)
-        if: matrix.node-version == 12
-        run: dotnet test --configuration Release --no-build --no-restore --verbosity normal --filter "TestCategory!=Node18" --collect:"XPlat Code Coverage" --logger trx --results-directory TestResults
-
-      - name: Test (Node 18)
-        if: matrix.node-version == 18
-        run: dotnet test --configuration Release --no-build --no-restore --verbosity normal --filter "TestCategory!=Node12" --collect:"XPlat Code Coverage" --logger trx --results-directory TestResults
+      - name: Test
+        run: dotnet test --configuration Release --no-build --no-restore --verbosity normal --collect:"XPlat Code Coverage" --logger trx --results-directory TestResults
       
       - name: Merge Coverage Reports
         run: |

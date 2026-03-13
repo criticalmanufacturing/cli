@@ -44,21 +44,12 @@ namespace Cmf.CLI.Commands.New
         {
             var (workingDirArg, versionOpt) = base.GetBaseCommandConfig(cmd);
 
-            var docPkgOption = new Option<IFileInfo>("--documentationPackage", "--docPkg")
-            {
-                Description = "Path to the MES documentation package (required for MES versions up to 9.x)",
-                Required = false,
-                CustomParser = argResult => Parse<IFileInfo>(argResult)
-            };
-            cmd.Add(docPkgOption);
-
             cmd.SetAction((parseResult, cancellationToken) =>
             {
                 var workingDir = parseResult.GetValue(workingDirArg);
                 var version = parseResult.GetValue(versionOpt);
-                var documentationPackage = parseResult.GetValue(docPkgOption);
 
-                Execute(workingDir, version, documentationPackage);
+                Execute(workingDir, version);
                 return Task.FromResult(0);
             });
         }
@@ -104,8 +95,7 @@ namespace Cmf.CLI.Commands.New
         /// </summary>
         /// <param name="workingDir">nearest root package</param>
         /// <param name="version">package version</param>
-        /// <param name="documentationPackage">The MES documentation package path</param>
-        public void Execute(IDirectoryInfo workingDir, string version, IFileInfo documentationPackage)
+        public void Execute(IDirectoryInfo workingDir, string version)
         {
             Log.Debug("Running v>=10 template");
             this.ExecuteV10(workingDir, version, ExecutionContext.Instance.ProjectConfig.MESVersion.Major);

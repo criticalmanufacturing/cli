@@ -55,7 +55,7 @@ namespace Cmf.CLI
                 using var activity = ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!.StartActivity("Main");
 
                 var result = -1;
-                
+
                 if (rootCommand != null)
                 {
                     var nonPluginCommands = rootCommand.Subcommands.ToList();

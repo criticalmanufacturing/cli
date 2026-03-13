@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.Parsing;
 using System.IO.Abstractions.TestingHelpers;
-using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Commands;
 using Cmf.CLI.Core.Objects;
@@ -55,6 +53,7 @@ public class MESVersionCommandValidation
         if (!string.IsNullOrWhiteSpace(attr?.MinimumMESVersion))
         {
             testCmd.Validators.Add(commandResult =>
+            testCmd.Validators.Add(commandResult =>
             {
                 try
                 {
@@ -64,9 +63,11 @@ public class MESVersionCommandValidation
                 catch (MESVersionValidationException ex)
                 {
                     commandResult.AddError(ex.Message);
+                    commandResult.AddError(ex.Message);
                 }
                 catch (Exception ex)
                 {
+                    commandResult.AddError($"Version validation error: {ex.Message}");
                     commandResult.AddError($"Version validation error: {ex.Message}");
                 }
             });
