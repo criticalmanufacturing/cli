@@ -26,6 +26,9 @@ jobs:
   build:
     needs: commitlint
     runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      pull-requests: write
     env:
       LOW_THRESHOLD: 17
       HIGH_THRESHOLD: 70
@@ -47,6 +50,38 @@ jobs:
         run: dotnet build --configuration Release --no-restore
       - name: Test
         run: dotnet test --configuration Release --no-build --no-restore --verbosity normal --filter "TestCategory!=Integration" --collect:"XPlat Code Coverage" --logger trx --results-directory TestResults
+      - name: Publish Test Results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: .NET Tests
+          path: TestResults/**/*.trx
+          reporter: dotnet-trx
+          fail-on-error: false
+      - name: Get Test Results URL
+        id: test-url
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          URL=$(gh api "repos/${{ github.repository }}/commits/${{ github.event.pull_request.head.sha }}/check-runs" \
+            --jq '[.check_runs[] | select(.name == ".NET Tests")] | last | .html_url')
+          echo "url=${URL}" >> $GITHUB_OUTPUT
+      - name: Add Test Results PR Comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        if: always() && github.event_name == 'pull_request'
+        continue-on-error: true
+        with:
+          header: test-results
+          recreate: true
+          message: |
+            ## .NET Test Results
+            [View full test report](${{ steps.test-url.outputs.url }})
+      - name: Write Test Results to Job Summary
+        if: always()
+        run: |
+          echo "## .NET Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "[View full test report](${{ steps.test-url.outputs.url }})" >> $GITHUB_STEP_SUMMARY
       - name: Run npm package tests
         run: cd npm && npm install --ignore-scripts && npm test
       - name: Merge Coverage Reports
