@@ -40,3 +40,9 @@ Per example, to active debug messages for the `cmf build` command, use:
 ```powershell
 cmf -l Debug build
 ```
+
+## Version Check
+
+The CLI checks for a newer version at startup. This can be skipped via an environment variable:
+
+`cmf_cli_skip_version_check` - skip the version check at startup. Useful in CI/CD pipelines to avoid network calls. Set to `true` to skip, do not set or set to `false` to keep the default behavior.

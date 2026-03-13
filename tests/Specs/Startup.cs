@@ -56,6 +56,27 @@ namespace tests.Specs
         #endregion
 
         [Fact]
+        public async Task SkipVersionCheck_EnvVarTrue()
+        {
+            ExecutionContext.ServiceProvider = (new ServiceCollection())
+                .AddSingleton<INPMClient, MockNPMClientThrows>()
+                .AddSingleton<IVersionService, MockVersionService>()
+                .AddSingleton<ITelemetryService, MockTelemetryService>()
+                .BuildServiceProvider();
+
+            Environment.SetEnvironmentVariable("cmf_cli_skip_version_check", "true");
+            try
+            {
+                // Should return immediately without calling INPMClient — MockNPMClientThrows would throw if called
+                await StartupModule.VersionChecks();
+            }
+            finally
+            {
+                Environment.SetEnvironmentVariable("cmf_cli_skip_version_check", null);
+            }
+        }
+
+        [Fact]
         public async Task NotAtLatestVersion()
         {
             ExecutionContext.ServiceProvider = (new ServiceCollection())
