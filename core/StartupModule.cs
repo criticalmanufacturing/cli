@@ -113,25 +113,38 @@ namespace Cmf.CLI.Core
         /// </summary>
         internal static async Task VersionChecks()
         {
-            using var activity = ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!
-                .StartActivity("version");
-
-            var npmClient = ExecutionContext.ServiceProvider.GetService<INPMClient>();
-
-            if (ExecutionContext.IsDevVersion)
+            // Can be skipped via the "cmf_cli_skip_version_check" environment variable for CI/CD environments.
+            if (string.Equals(Environment.GetEnvironmentVariable("cmf_cli_skip_version_check"), "true", StringComparison.OrdinalIgnoreCase))
             {
-                Log.Warning(
-                    $"You are using {ExecutionContext.PackageId} development version {ExecutionContext.CurrentVersion}. This in unsupported in production and should only be used for testing.");
+                return;
             }
 
-            ExecutionContext.LatestVersion = await npmClient!.GetLatestVersion(ExecutionContext.IsDevVersion);
-            if (ExecutionContext.LatestVersion != null && ExecutionContext.LatestVersion != ExecutionContext.CurrentVersion)
+            try
             {
-                Log.Warning(
-                    $"Using {ExecutionContext.PackageId} version {ExecutionContext.CurrentVersion} while {ExecutionContext.LatestVersion} is available. Please update.");
-                // after this run, every activity will have these tags (check TelemetryService)
-                activity?.SetTag("isOutdated", true);
-                activity?.SetTag("latestVersion", ExecutionContext.LatestVersion);
+                using var activity = ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!
+                    .StartActivity("version");
+
+                var npmClient = ExecutionContext.ServiceProvider.GetService<INPMClient>();
+
+                if (ExecutionContext.IsDevVersion)
+                {
+                    Log.Warning(
+                        $"You are using {ExecutionContext.PackageId} development version {ExecutionContext.CurrentVersion}. This in unsupported in production and should only be used for testing.");
+                }
+
+                ExecutionContext.LatestVersion = await npmClient!.GetLatestVersion(ExecutionContext.IsDevVersion);
+                if (ExecutionContext.LatestVersion != null && ExecutionContext.LatestVersion != ExecutionContext.CurrentVersion)
+                {
+                    Log.Warning(
+                        $"Using {ExecutionContext.PackageId} version {ExecutionContext.CurrentVersion} while {ExecutionContext.LatestVersion} is available. Please update.");
+                    // after this run, every activity will have these tags (check TelemetryService)
+                    activity?.SetTag("isOutdated", true);
+                    activity?.SetTag("latestVersion", ExecutionContext.LatestVersion);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Debug($"Version check failed: {ex.Message}");
             }
         }
     }

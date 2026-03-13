@@ -275,30 +275,41 @@ namespace Cmf.CLI.Core.Repository.Credentials
             return JsonConvert.DeserializeObject<JWTPayload>(payloadString);
         }
 
+        protected virtual HttpClient CreateHttpClient()
+        {
+            return new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
+        }
+
         protected string GetPortalBearerToken(string pat)
         {
             string portalBearerToken = string.Empty;
 
-            using (var client = new HttpClient())
+            try
             {
-            var content = new FormUrlEncodedContent(new Dictionary<string, string>
-            {
-                { "client_id", "Applications" },
-                { "grant_type", "refresh_token" },
-                { "refresh_token", pat }
-            });
+                using var client = CreateHttpClient();
 
-            var response = client.PostAsync(
-                CmfAuthConstants.PortalOAuthEndpointUrl,
-                content
-            ).GetAwaiter().GetResult();
+                var content = new FormUrlEncodedContent(new Dictionary<string, string>
+                {
+                    { "client_id", "Applications" },
+                    { "grant_type", "refresh_token" },
+                    { "refresh_token", pat }
+                });
 
-            if (response.IsSuccessStatusCode)
-            {
-                var result = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-                var tokenResponse = JsonConvert.DeserializeObject<dynamic>(result);
-                portalBearerToken = tokenResponse.access_token;
+                var response = client.PostAsync(
+                    CmfAuthConstants.PortalOAuthEndpointUrl,
+                    content
+                ).GetAwaiter().GetResult();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var result = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                    var tokenResponse = JsonConvert.DeserializeObject<dynamic>(result);
+                    portalBearerToken = tokenResponse.access_token;
+                }
             }
+            catch (Exception ex)
+            {
+                Log.Debug($"Failed to retrieve CM Portal bearer token: {ex.Message}");
             }
 
             return portalBearerToken;
