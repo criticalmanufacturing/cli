@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-### [5.8.1-0](https://github.com/criticalmanufacturing/cli/compare/5.8.0...5.8.1-0) (2026-03-13)
+## [5.9.0-0](https://github.com/criticalmanufacturing/cli/compare/5.8.0...5.9.0-0) (2026-03-13)
 
 
 ### Features
@@ -17,7 +17,7 @@ All notable changes to this project will be documented in this file. See [standa
 ### Bug Fixes
 
 * add null checks for ExecutionContext in HTML handlers ([5af4cbe](https://github.com/criticalmanufacturing/cli/commits/5af4cbecdb13940bf043b8f42ca66daecf852570))
-* change wrong message type and add missing deeBasePath and import xml object path ([6a4382d](https://github.com/criticalmanufacturing/cli/commits/6a4382dc5ca4639e8b1856527d47e37b66c3fb81))
+* change wrong message type and add missing deeBasePath and import xml object path ([6727d7c](https://github.com/criticalmanufacturing/cli/commits/6727d7cd28a96e89dc7c5c7943e712cef9209aa3))
 * merge .vscode conflict when scaffolding an IoT angular tasks package ([903d94d](https://github.com/criticalmanufacturing/cli/commits/903d94d2eb6838c79b2d53b5daddf06d145cbadb))
 * performance tests template variables ([be5d681](https://github.com/criticalmanufacturing/cli/commits/be5d68174f2949c1e382b061ac686ce88bc4b032))
 
