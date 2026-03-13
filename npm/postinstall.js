@@ -86,11 +86,15 @@ async function install(callback) {
     if (!fs.existsSync("./dist")) {
         // download respective release zip from github or fallback repositories
         const primaryUrl = opts.binUrl.replace("{{version}}", opts.version).replace("{{platform}}", PLATFORM_MAPPING[process.platform]).replace("{{arch}}", ARCH_MAPPING[process.arch]);
+        const versionedFallbackName = `cmf-cli.${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}-${opts.version}.zip`;
+        const legacyFallbackName = `cmf-cli.${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}.zip`;
         
         // Fallback URLs for alternative repositories
         const fallbackUrls = [
-            `https://criticalmanufacturing.io/repository/tools/cmf-cli.${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}.zip`,
-            `https://repository.criticalmanufacturing.com.cn/repository/tools/cmf-cli.${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}.zip`
+            `https://criticalmanufacturing.io/repository/tools/${versionedFallbackName}`,
+            `https://criticalmanufacturing.io/repository/tools/${legacyFallbackName}`,
+            `https://repository.criticalmanufacturing.com.cn/repository/tools/${versionedFallbackName}`,
+            `https://repository.criticalmanufacturing.com.cn/repository/tools/${legacyFallbackName}`
         ];
         
         // Try downloading from primary URL and fallbacks

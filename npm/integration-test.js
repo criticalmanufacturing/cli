@@ -85,12 +85,20 @@ async function runIntegrationTests() {
             description: 'GitHub Releases (Primary)'
         },
         {
+            url: `https://criticalmanufacturing.io/repository/tools/cmf-cli.${mappedPlatform}-${mappedArch}-${version}.zip`,
+            description: 'Critical Manufacturing IO (Fallback 1 - versioned)'
+        },
+        {
             url: `https://criticalmanufacturing.io/repository/tools/cmf-cli.${mappedPlatform}-${mappedArch}.zip`,
-            description: 'Critical Manufacturing IO (Fallback 1)'
+            description: 'Critical Manufacturing IO (Fallback 1 - legacy)'
+        },
+        {
+            url: `https://repository.criticalmanufacturing.com.cn/repository/tools/cmf-cli.${mappedPlatform}-${mappedArch}-${version}.zip`,
+            description: 'Critical Manufacturing CN (Fallback 2 - versioned)'
         },
         {
             url: `https://repository.criticalmanufacturing.com.cn/repository/tools/cmf-cli.${mappedPlatform}-${mappedArch}.zip`,
-            description: 'Critical Manufacturing CN (Fallback 2)'
+            description: 'Critical Manufacturing CN (Fallback 2 - legacy)'
         }
     ];
     
