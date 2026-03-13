@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.8.1-0](https://github.com/criticalmanufacturing/cli/compare/5.8.0...5.8.1-0) (2026-03-13)
+
+
+### Features
+
+* add Node.js version validation for HTML package builds ([a3150e6](https://github.com/criticalmanufacturing/cli/commits/a3150e695a365f87a46fc91d74d56832e46db429))
+* add support for downloading from fallback repositories in postinstall script ([0d6d626](https://github.com/criticalmanufacturing/cli/commits/0d6d6263d06440433ba542d3f4425188230a47bf))
+* **new:** update new help and new html to work with version 12.0 ([6d09cbe](https://github.com/criticalmanufacturing/cli/commits/6d09cbe3ed16f3599c8776fc7e4a5e4af1c391dd))
+* **pack:** add dry-run in PackCommand ([33bc253](https://github.com/criticalmanufacturing/cli/commits/33bc25319510bce936f19cdb3a3b553e073d5d46))
+* speed up extract-i18n command ([79b29ff](https://github.com/criticalmanufacturing/cli/commits/79b29ff4ae3f9663f4d589a3b122ad2d76ed51c8))
+
+
+### Bug Fixes
+
+* add null checks for ExecutionContext in HTML handlers ([5af4cbe](https://github.com/criticalmanufacturing/cli/commits/5af4cbecdb13940bf043b8f42ca66daecf852570))
+* change wrong message type and add missing deeBasePath and import xml object path ([6a4382d](https://github.com/criticalmanufacturing/cli/commits/6a4382dc5ca4639e8b1856527d47e37b66c3fb81))
+* merge .vscode conflict when scaffolding an IoT angular tasks package ([903d94d](https://github.com/criticalmanufacturing/cli/commits/903d94d2eb6838c79b2d53b5daddf06d145cbadb))
+* performance tests template variables ([be5d681](https://github.com/criticalmanufacturing/cli/commits/be5d68174f2949c1e382b061ac686ce88bc4b032))
+
 ## [5.8.0](https://github.com/criticalmanufacturing/cli/compare/5.8.0-3...5.8.0) (2026-02-05)
 
 ## [5.8.0-3](https://github.com/criticalmanufacturing/cli/compare/5.8.0-2...5.8.0-3) (2026-01-27)
