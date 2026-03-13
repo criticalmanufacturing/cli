@@ -113,7 +113,7 @@ namespace Cmf.CLI
 
             if (majorVersion < 10)
             {
-                throw new CliException("MES Versions under 10 are no longer supported with the newest version of the CLI.");
+                throw new CliException("MES Versions under 10 are no longer supported with the newest version of the CLI. Please use cmf-cli 5.8.0 or lower.");
             }
         }
     }
