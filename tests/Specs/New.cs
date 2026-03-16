@@ -624,7 +624,7 @@ namespace tests.Specs
                 Assert.True(Directory.Exists(packageId), "Package folder is missing");
 
                 // Check if Performance directory exists based on MES version
-                var performanceDir = Path.Combine(packageId, "Cmf.Custom.Tests.Performance");
+                var performanceDir = Path.Combine(packageId, $"{CliConstants.DefaultOrganization}.{CliConstants.DefaultProduct}.Tests.Performance");
                 if (shouldIncludePerformance)
                 {
                     Assert.True(Directory.Exists(performanceDir), $"Performance Tests directory should exist for MES version {mesVersion}");
