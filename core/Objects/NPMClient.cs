@@ -33,7 +33,7 @@ namespace Cmf.CLI.Core.Objects
         /// </summary>
         /// <param name="preRelease">get the pre-release latest version</param>
         /// <returns>a version identifier</returns>
-        Task<string?> GetLatestVersion(bool preRelease = false);
+        Task<string> GetLatestVersion(bool preRelease = false);
 
         /// <summary>
         /// Find plugins in the optionally provided registries
@@ -125,7 +125,7 @@ namespace Cmf.CLI.Core.Objects
         /// </summary>
         /// <param name="preRelease">get the pre-release latest version</param>
         /// <returns>a version identifier</returns>
-        public async Task<string?> GetLatestVersion(bool preRelease = false)
+        public async Task<string> GetLatestVersion(bool preRelease = false)
         {
             var client = this.client;
             client.Timeout = TimeSpan.FromSeconds(10);
@@ -133,7 +133,7 @@ namespace Cmf.CLI.Core.Objects
             {
                 var res = await client.GetAsync($"{this.baseUrl}/{ExecutionContext.PackageId}");
                 var body = await res.Content.ReadFromJsonAsync<JsonElement>();
-                return (body).GetProperty("dist-tags").GetProperty(preRelease ? "next" : "latest").GetString();
+                return (body).GetProperty("dist-tags").GetProperty(preRelease ? "next" : "latest").GetString()!;
             }
             catch (Exception e)
             {
@@ -141,7 +141,7 @@ namespace Cmf.CLI.Core.Objects
                 Log.Warning($"Could not retrieve {ExecutionContext.PackageId} latest version information. Try again later.");
             }
 
-            return null;
+            return null!;
         }
 
         public IPackage[] FindPlugins(Uri[] registries)

@@ -39,7 +39,7 @@ public class BaseCommandTests
             var root = new Command("test");
             Configure(root);
             var parseResult = root.Parse(value != null ? new[] { "--uri", value } : Array.Empty<string>());
-            return parseResult.GetValue(UriOption);
+            return parseResult.GetValue(UriOption)!;
         }
 
         /// <summary>Parse one or more --uris values and return the result.</summary>
@@ -50,7 +50,7 @@ public class BaseCommandTests
             var args = new System.Collections.Generic.List<string> { "--uris" };
             args.AddRange(values);
             var parseResult = root.Parse(args.ToArray());
-            return parseResult.GetValue(UriArrayOption);
+            return parseResult.GetValue(UriArrayOption)!;
         }
     }
 
@@ -62,7 +62,7 @@ public class BaseCommandTests
     public void ParseUri_NoToken_ReturnsNull()
     {
         var sut = new TestableBaseCommand();
-        var result = sut.InvokeParseUri(null);
+        var result = sut.InvokeParseUri(null!);
         result.Should().BeNull();
     }
 

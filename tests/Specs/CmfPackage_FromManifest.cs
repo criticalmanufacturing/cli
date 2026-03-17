@@ -6,7 +6,6 @@ using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using Cmf.CLI.Core.Objects;
 using Xunit;
-using Cmf.CLI.Utilities;
 
 namespace tests.Specs
 {
@@ -43,7 +42,7 @@ namespace tests.Specs
             IFileInfo manifestFile = fileSystem.FileInfo.New($"repo/{CliConstants.DeploymentFrameworkManifestFileName}");
 
             string message = string.Empty;
-            CmfPackage cmfPackage = null;
+            CmfPackage? cmfPackage = null;
             try
             {
                 // Reading cmfPackage

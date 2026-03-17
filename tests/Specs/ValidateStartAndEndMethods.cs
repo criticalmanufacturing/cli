@@ -207,7 +207,7 @@ public class ValidateStartAndEndMethods
 		logger.Verify(x => x.Warning(string.Format(ErrorMessages.InputOutputMethodDoNotCoincide, _baseClassName, _baseMethodName)), Times.Once);
 	}
 
-	private void PrepareScenario(out List<ParameterSyntax> parameters, out InvocationExpressionSyntax statement, List<ArgumentSyntax> aditionalArguments = null, List<ParameterSyntax> aditionalParameters = null)
+	private void PrepareScenario(out List<ParameterSyntax> parameters, out InvocationExpressionSyntax statement, List<ArgumentSyntax>? aditionalArguments = null, List<ParameterSyntax>? aditionalParameters = null)
 	{
 		var statementArguments = SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(new[] {
 																								SyntaxFactory.Argument(SyntaxFactory.IdentifierName("objectTypeName")),

@@ -15,15 +15,15 @@ namespace Cmf.CLI.Core.Objects;
 public interface ITelemetryService
 {
     public TracerProvider? Provider { get; }
-    public string Name { get; }
+    public string? Name { get; }
 
     TracerProvider? InitializeTracerProvider(string version);
 
     TracerProvider? InitializeTracerProvider(string serviceName, string version);
 
-    Task<TracerProvider?> InitializeTracerProviderAsync(string serviceName, string version);
+    Task<TracerProvider?>? InitializeTracerProviderAsync(string serviceName, string version);
 
-    ActivitySource InitializeActivitySource();
+    ActivitySource? InitializeActivitySource();
 
     ActivitySource InitializeActivitySource(string name);
 

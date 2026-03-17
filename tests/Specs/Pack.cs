@@ -48,8 +48,8 @@ namespace tests.Specs
         [Fact]
         public void Args_Paths_BothSpecified()
         {
-            string _workingDir = null;
-            string _outputDir = null;
+            string? _workingDir = null;
+            string? _outputDir = null;
             bool? _force = null;
 
             var packCommand = new PackCommand();
@@ -69,9 +69,9 @@ namespace tests.Specs
 
             cmd.SetAction((parseResult, cancellationToken) =>
             {
-                _workingDir = parseResult.GetValue(workingDirArg)?.Name;
-                _outputDir = parseResult.GetValue(outputDirOpt)?.Name;
-                _force = parseResult.GetValue(forceOpt);
+                _workingDir = parseResult.GetValue(workingDirArg!)?.Name;
+                _outputDir = parseResult.GetValue(outputDirOpt!)?.Name;
+                _force = parseResult.GetValue(forceOpt!);
                 return Task.FromResult(0);
                 _workingDir = parseResult.GetValue(workingDirArg)?.Name;
                 _outputDir = parseResult.GetValue(outputDirOpt)?.Name;
@@ -94,8 +94,8 @@ namespace tests.Specs
         [Fact]
         public void Args_Paths_WorkDirSpecified()
         {
-            string _workingDir = null;
-            string _outputDir = null;
+            string? _workingDir = null;
+            string? _outputDir = null;
             bool? _force = null;
 
             var packCommand = new PackCommand();
@@ -108,9 +108,9 @@ namespace tests.Specs
 
             cmd.SetAction((parseResult, cancellationToken) =>
             {
-                _workingDir = parseResult.GetValue(workingDirArg)?.Name;
-                _outputDir = parseResult.GetValue(outputDirOpt)?.Name;
-                _force = parseResult.GetValue(forceOpt);
+                _workingDir = parseResult.GetValue(workingDirArg!)?.Name;
+                _outputDir = parseResult.GetValue(outputDirOpt!)?.Name;
+                _force = parseResult.GetValue(forceOpt!);
                 return Task.FromResult(0);
             });
 
@@ -129,8 +129,8 @@ namespace tests.Specs
         [Fact]
         public void Args_Paths_OutDirSpecified()
         {
-            string _workingDir = null;
-            string _outputDir = null;
+            string? _workingDir = null;
+            string? _outputDir = null;
             bool? _force = null;
 
             var packCommand = new PackCommand();
@@ -143,9 +143,9 @@ namespace tests.Specs
 
             cmd.SetAction((parseResult, cancellationToken) =>
             {
-                _workingDir = parseResult.GetValue(workingDirArg)?.Name;
-                _outputDir = parseResult.GetValue(outputDirOpt)?.Name;
-                _force = parseResult.GetValue(forceOpt);
+                _workingDir = parseResult.GetValue(workingDirArg!)?.Name;
+                _outputDir = parseResult.GetValue(outputDirOpt!)?.Name;
+                _force = parseResult.GetValue(forceOpt!);
                 return Task.FromResult(0);
             });
 
@@ -165,8 +165,8 @@ namespace tests.Specs
         [Fact]
         public void Args_Paths_NoneSpecified()
         {
-            string _workingDir = null;
-            string _outputDir = null;
+            string? _workingDir = null;
+            string? _outputDir = null;
             bool? _force = null;
 
             var packCommand = new PackCommand();
@@ -179,9 +179,9 @@ namespace tests.Specs
 
             cmd.SetAction((parseResult, cancellationToken) =>
             {
-                _workingDir = parseResult.GetValue(workingDirArg)?.Name;
-                _outputDir = parseResult.GetValue(outputDirOpt)?.Name;
-                _force = parseResult.GetValue(forceOpt);
+                _workingDir = parseResult.GetValue(workingDirArg!)?.Name;
+                _outputDir = parseResult.GetValue(outputDirOpt!)?.Name;
+                _force = parseResult.GetValue(forceOpt!);
                 return Task.FromResult(0);
             });
 
@@ -189,7 +189,7 @@ namespace tests.Specs
             var console = new TestConsole();
             var parseResult = cmd.Parse(new string[]{});
             parseResult.Invoke(console);
-            var curDir = new DirectoryInfo(System.IO.Directory.GetCurrentDirectory());
+            var curDir = new DirectoryInfo(Directory.GetCurrentDirectory());
 
             Assert.Equal(curDir.Name, _workingDir);
             Assert.Equal("Package", _outputDir);
@@ -435,9 +435,9 @@ namespace tests.Specs
             Assert.True(entries.HasAny(entry => entry == "manifest.xml"), "Manifest file does not exist");
             Assert.True(entries.HasAny(entry => entry == "config.json"), "Config file does not exist");
 
-            string configJsonContent = FileSystemUtilities.GetFileContentFromPackage($"{dir}/Package/Cmf.Custom.SecurityPortal.1.0.0.zip", "config.json");
+            string? configJsonContent = FileSystemUtilities.GetFileContentFromPackage($"{dir}/Package/Cmf.Custom.SecurityPortal.1.0.0.zip", "config.json");
 
-            Assert.True(configJsonContent.Contains("$.tenants.config.tenant.strategies"), "Config file does not have correct tenant");
+            Assert.True(configJsonContent?.Contains("$.tenants.config.tenant.strategies"), "Config file does not have correct tenant");
         }
 
         [Fact]
@@ -493,13 +493,15 @@ namespace tests.Specs
 
                 using FileStream zipToOpen = new(packageZipPath, FileMode.Open);
                 using ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read);
-                using Stream appStream = zip.GetEntry(appManifest).Open();
+                var appManifestEntry = zip.GetEntry(appManifest);
+                Assert.NotNull(appManifestEntry);
+                using Stream appStream = appManifestEntry.Open();
                 using StreamReader appStreamReader = new(appStream, Encoding.UTF8);
 
                 // Verify xml document
                 var doc = XDocument.Load(appStreamReader);
 
-                XElement rootNode = doc.Element("App", true);
+                XElement? rootNode = doc.Element("App", true);
                 Assert.False(rootNode == null);
 
                 if (rootNode == null)
@@ -622,12 +624,12 @@ namespace tests.Specs
             Assert.True(entries.HasAny(entry => entry == "manifest.xml"), "Manifest file does not exist");
             Assert.True(entries.HasAny(entry => entry == "config.json"), "Config file does not exist");
 
-            string configJsonContent = FileSystemUtilities.GetFileContentFromPackage($"{dir}/Package/Cmf.Custom.SecurityPortal.1.0.0.zip", "config.json");
+            string configJsonContent = FileSystemUtilities.GetFileContentFromPackage($"{dir}/Package/Cmf.Custom.SecurityPortal.1.0.0.zip", "config.json")!;
 
             Assert.True(configJsonContent.Contains("$.tenants.config.tenant.strategies"), "Config file does not have correct tenant");
 
             // validate transform file
-            string manifestXMLContent = FileSystemUtilities.GetFileContentFromPackage($"{dir}/Package/Cmf.Custom.SecurityPortal.1.0.0.zip", "manifest.xml");
+            string manifestXMLContent = FileSystemUtilities.GetFileContentFromPackage($"{dir}/Package/Cmf.Custom.SecurityPortal.1.0.0.zip", "manifest.xml")!;
             Assert.Contains("<step type=\"TransformFile\" file=\"config.json\" tagFile=\"true\" relativePath=\"./src/\" />", manifestXMLContent);
         }
 
@@ -656,7 +658,7 @@ namespace tests.Specs
                 mockFS);
             var _ = new IoTPackageTypeHandler(pkg);
 
-            pkg.Steps.Any(step => forbiddenStepTypes.ToList().Contains(step.Type ?? StepType.Generic)).Should()
+            pkg.Steps!.Any(step => forbiddenStepTypes.ToList().Contains(step.Type ?? StepType.Generic)).Should()
                 .BeFalse();
         }
 
@@ -708,7 +710,7 @@ namespace tests.Specs
                 mockFS);
             var _ = new IoTPackageTypeHandler(pkg);
 
-            pkg.Steps.Any(step => step.Type == mustNotHave).Should().BeFalse();
+            pkg.Steps?.Any(step => step.Type == mustNotHave).Should().BeFalse();
         }
 
         [Theory]
@@ -759,11 +761,12 @@ namespace tests.Specs
                 mockFS);
             var _ = new IoTPackageTypeHandler(pkg);
 
-            pkg.Steps.Any(step => step.Type == mustHave).Should()
+            pkg.Steps?.Any(step => step.Type == mustHave).Should()
                 .BeTrue();
-            var packageStep = pkg.Steps.FirstOrDefault(step => step.Type == mustHave);
+            var packageStep = pkg.Steps?.FirstOrDefault(step => step.Type == mustHave);
+            Assert.NotNull(packageStep);
             packageStep.Content.Should().NotBeNull();
-            packageStep.Content.Equals("@awesome/package@1.0.0,lessawesome@2.0.0");
+            packageStep.Content!.Equals("@awesome/package@1.0.0,lessawesome@2.0.0");
         }
 
         [Theory]
@@ -814,11 +817,12 @@ namespace tests.Specs
                 mockFS);
             var _ = new IoTPackageTypeHandler(pkg);
 
-            pkg.Steps.Any(step => step.Type == mustHave).Should()
+            pkg.Steps?.Any(step => step.Type == mustHave).Should()
                 .BeTrue();
-            var packageStep = pkg.Steps.FirstOrDefault(step => step.Type == mustHave);
+            var packageStep = pkg.Steps?.FirstOrDefault(step => step.Type == mustHave);
+            Assert.NotNull(packageStep);
             packageStep.Content.Should().NotBeNull();
-            packageStep.Content.Equals("@awesome/package@1.0.0,lessawesome@2.0.0");
+            packageStep.Content!.Equals("@awesome/package@1.0.0,lessawesome@2.0.0");
         }
 
         [Theory]
@@ -869,23 +873,25 @@ namespace tests.Specs
                 mockFS);
             var _ = new IoTPackageTypeHandler(pkg);
 
-            pkg.Steps.Any(step => step.Type == StepType.IoTAutomationTaskLibrariesSync).Should()
+            pkg.Steps?.Any(step => step.Type == StepType.IoTAutomationTaskLibrariesSync).Should()
                 .BeTrue();
-            var packageStep = pkg.Steps.FirstOrDefault(step => step.Type == StepType.IoTAutomationTaskLibrariesSync);
+            var packageStep = pkg.Steps?.FirstOrDefault(step => step.Type == StepType.IoTAutomationTaskLibrariesSync);
+            Assert.NotNull(packageStep);
             packageStep.Content.Should().NotBeNull();
-            packageStep.Content.Equals("@awesome/package@1.0.0");
+            packageStep.Content!.Equals("@awesome/package@1.0.0");
 
-            pkg.Steps.Any(step => step.Type == StepType.AutomationBusinessScenariosSync).Should()
+            pkg.Steps?.Any(step => step.Type == StepType.AutomationBusinessScenariosSync).Should()
                 .BeTrue();
-            packageStep = pkg.Steps.FirstOrDefault(step => step.Type == StepType.AutomationBusinessScenariosSync);
+            packageStep = pkg.Steps?.FirstOrDefault(step => step.Type == StepType.AutomationBusinessScenariosSync);
+            Assert.NotNull(packageStep);
             packageStep.Content.Should().NotBeNull();
-            packageStep.Content.Equals("lessawesome@2.0.0");
+            packageStep.Content!.Equals("lessawesome@2.0.0");
         }
 
         [Theory]
         [InlineData("Html", "1.1.0")]
         [InlineData("IoT", null)]
-        public void GeneratePresentationConfigFile(string packageType, string version)
+        public void GeneratePresentationConfigFile(string packageType, string? version)
         {
             KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.1.0");
 
@@ -943,14 +949,15 @@ namespace tests.Specs
             ExecutionContext.Initialize(fileSystem);
 
             IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"Cmf.Custom.{packageType}/cmfpackage.json");
-            PresentationPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile, true) as PresentationPackageTypeHandler;
+            PresentationPackageTypeHandler? packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile, true) as PresentationPackageTypeHandler;
 
+            Assert.NotNull(packageTypeHandler);
             packageTypeHandler.GeneratePresentationConfigFile(fileSystem.DirectoryInfo.New("output"));
 
             IFileInfo configJsonFile = fileSystem.FileInfo.New(MockUnixSupport.Path(@"output\\config.json").Replace("\\", "\\\\"));
-            dynamic configJsonFileContent = JsonConvert.DeserializeObject(fileSystem.File.ReadAllText(configJsonFile.FullName));
-
-            string customizationVersion = configJsonFileContent.customizationVersion?.ToString();
+            dynamic? configJsonFileContent = JsonConvert.DeserializeObject(fileSystem.File.ReadAllText(configJsonFile.FullName));
+            Assert.NotNull(configJsonFileContent);
+            string? customizationVersion = configJsonFileContent?.customizationVersion?.ToString();
 
             customizationVersion.Should().Be(version);
         }
@@ -1102,8 +1109,8 @@ namespace tests.Specs
             var depFile1 = packedFiles.FirstOrDefault(x => x.Name.Equals($"{packageDep1.Key}.{packageDep1.Value}.zip"));
             var depFile2 = packedFiles.FirstOrDefault(x => x.Name.Equals($"{packageDep2.Key}.{packageDep2.Value}.zip"));
 
-            depFile1.Should().NotBeNull();
-            depFile2.Should().NotBeNull();
+            Assert.NotNull(depFile1);
+            Assert.NotNull(depFile2);
 
             TestUtilities.ValidateZipContent(fileSystem, depFile1, new() { "Cmf.Foundation.Services.HostService.dll.config", "manifest.xml", "file1.txt" });
             TestUtilities.ValidateZipContent(fileSystem, depFile2, new() { "Cmf.Foundation.Services.HostService.dll.config", "manifest.xml", "file2.txt" });
@@ -1164,16 +1171,16 @@ namespace tests.Specs
 
             var depFile1 = packedFiles.FirstOrDefault(x => x.Name.Equals($"{packageDep1.Key}.{packageDep1.Value}.zip"));
 
-            depFile1.Should().NotBeNull();
+            Assert.NotNull(depFile1);
 
             TestUtilities.ValidateZipContent(fileSystem, depFile1, new() { "Cmf.Foundation.Services.HostService.dll.config", "manifest.xml", "file1.txt", "file2.txt" });
 
             using ZipArchive zip = new(depFile1.Open(FileMode.Open, FileAccess.Read, FileShare.Read), ZipArchiveMode.Read);
-            using Stream manifestStream = zip.GetEntry("manifest.xml").Open();
+            using Stream manifestStream = zip.GetEntry("manifest.xml")!.Open();
             using StreamReader manifestStreamReader = new(manifestStream, Encoding.UTF8);
 
             XDocument manifestDoc = XDocument.Load(manifestStreamReader);
-            var steps = manifestDoc.Descendants("steps")
+            var steps = manifestDoc!.Descendants("steps")
                         .Elements("step")
                         .Select(s => new
                         {
@@ -1272,16 +1279,16 @@ namespace tests.Specs
             IEnumerable<IFileInfo> packedFiles = outputFolder.EnumerateFiles().ToList();
 
             var depFile2 = packedFiles.FirstOrDefault(x => x.Name.Equals($"{packageDep2.Key}.{packageDep2.Value}.zip"));
-            depFile2.Should().NotBeNull();
+            Assert.NotNull(depFile2);
 
             var manifest = FileSystemUtilities.GetManifestFromPackage(depFile2.FullName, fileSystem);
-            XElement rootNode = manifest.Element("deploymentPackage", true);
+            XElement? rootNode = manifest!.Element("deploymentPackage", true);
             if (rootNode == null)
             {
                 throw new CliException(string.Format(CoreMessages.InvalidManifestFile));
             }
 
-            var steps = rootNode.Elements().FirstOrDefault(e => e.Name.LocalName == "steps");
+            var steps = rootNode!.Elements().FirstOrDefault(e => e.Name.LocalName == "steps");
             Assert.NotNull(steps);
             steps.Elements().Count().Should().Be(4, "HTML package should have 4 installation steps");
         }
@@ -1345,20 +1352,20 @@ namespace tests.Specs
             var manifest = zip.GetEntry("package.json");
             Assert.NotNull(manifest);
 
-            using var stream = manifest.Open();
+            using var stream = manifest!.Open();
             using var reader = new StreamReader(stream);
             var contents = reader.ReadToEnd();
             var json = JsonConvert.DeserializeObject<JObject>(contents);
 
-            Assert.True(json.ContainsKey("name"));
-            Assert.Equal("Cmf.Custom.Tests", json["name"].Value<string>());
+            Assert.True(json!.ContainsKey("name"));
+            Assert.Equal("Cmf.Custom.Tests", json!["name"]!.Value<string>());
 
             Assert.True(json.ContainsKey("version"));
-            Assert.Equal("1.1.0", json["version"].Value<string>());
+            Assert.Equal("1.1.0", json!["version"]!.Value<string>());
 
             Assert.True(json.ContainsKey("keywords"));    
-            Assert.Equal(JTokenType.Array, json.Property("keywords").Value.Type);
-            Assert.Equal("cmf-tests-package", json.Property("keywords").Value.Values<string>().First());
+            Assert.Equal(JTokenType.Array, json!.Property("keywords")!.Value.Type);
+            Assert.Equal("cmf-tests-package", json!.Property("keywords")!.Value.Values<string>().First());
         }
 
         [Fact]
@@ -1385,11 +1392,11 @@ namespace tests.Specs
             
             // Verify deserialization works
             var deserializedConditional = JsonConvert.DeserializeObject<Dependency>(conditionalJson);
-            Assert.True(deserializedConditional.Conditional);
+            Assert.True(deserializedConditional!.Conditional);
             Assert.Equal("Cmf.FEC.Database.Analytics.Pre", deserializedConditional.Id);
             
             var deserializedNormal = JsonConvert.DeserializeObject<Dependency>(normalJson);
-            Assert.False(deserializedNormal.Conditional);
+            Assert.False(deserializedNormal!.Conditional);
             Assert.Equal("Cmf.Foundation.Common", deserializedNormal.Id);
         }
 

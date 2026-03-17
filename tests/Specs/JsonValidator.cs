@@ -75,7 +75,7 @@ namespace tests.Specs
                 "test/Data/"
             });
             parseResult.Invoke(console);
-            Assert.True(console.Error == null || string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator failed {console.Error.ToString()}");
+            Assert.True(console.Error == null || string.IsNullOrEmpty(console.Error?.ToString()), $"Json Validator failed {console.Error?.ToString()}");
 
         }
 
@@ -441,7 +441,7 @@ namespace tests.Specs
             });
             parseResult.Invoke(console);
 
-            Assert.True(console.Error == null || string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator failed {console.Error.ToString()}");
+            Assert.True(console.Error == null || string.IsNullOrEmpty(console.Error?.ToString()), $"Json Validator failed {console.Error?.ToString()}");
         }
 
         [Fact]
@@ -521,8 +521,10 @@ namespace tests.Specs
             });
             parseResult.Invoke(console);
 
-            Assert.True(!string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator did not fail for IoT Data Workflow Package: {console.Error.ToString()}");
-            Assert.True(console.Error.ToString().Contains("Please normalize all slashes to be forward slashes"), $"Json Validator did not fail for IoT Data Workflow Package: {console.Error.ToString()}");
+            var err = console.Error;
+            var errStr = err?.ToString();
+            Assert.True(err != null && !string.IsNullOrEmpty(errStr), $"Json Validator did not fail for IoT Data Workflow Package: {errStr}");
+            Assert.True(err != null && errStr != null && errStr.Contains("Please normalize all slashes to be forward slashes"), $"Json Validator did not fail for IoT Data Workflow Package: {errStr}");
         }
 
         [Fact]
@@ -1030,7 +1032,7 @@ namespace tests.Specs
             });
             parseResult.Invoke(console);
 
-            Assert.True(console.Error == null || string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator failed {console.Error.ToString()}");
+            Assert.True(console.Error == null || string.IsNullOrEmpty(console.Error?.ToString()), $"Json Validator failed {console.Error?.ToString()}");
         }
 
         [Fact]
@@ -1538,8 +1540,10 @@ namespace tests.Specs
             });
             parseResult.Invoke(console);
 
-            Assert.True(!string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator did not fail for IoT Data Workflow Package: {console.Error.ToString()}");
-            Assert.True(console.Error.ToString().Contains("Could not find the path Error for the Workflow"), $"Json Validator did not fail for IoT Data Workflow Package: {console.Error.ToString()}");
+            var err = console.Error;
+            var errStr = err?.ToString();
+            Assert.True(err != null && !string.IsNullOrEmpty(errStr), $"Json Validator did not fail for IoT Data Workflow Package: {errStr}");
+            Assert.True(err != null && errStr != null && errStr.Contains("Could not find the path Error for the Workflow"), $"Json Validator did not fail for IoT Data Workflow Package: {errStr}");
         }
 
         [Fact]
@@ -2047,8 +2051,10 @@ namespace tests.Specs
             });
             parseResult.Invoke(console);
 
-            Assert.True(!string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator did not fail for IoT Data Workflow Package: {console.Error.ToString()}");
-            Assert.True(console.Error.ToString().Contains("The subworkflow Error is mentioned but there is no workflow declared with that name"), $"Json Validator did not fail for IoT Data Workflow Package: {console.Error.ToString()}");
+            var err = console.Error;
+            var errStr = err?.ToString();
+            Assert.True(err != null && !string.IsNullOrEmpty(errStr), $"Json Validator did not fail for IoT Data Workflow Package: {errStr}");
+            Assert.True(err != null && errStr != null && errStr.Contains("The subworkflow Error is mentioned but there is no workflow declared with that name"), $"Json Validator did not fail for IoT Data Workflow Package: {errStr}");
         }
 
         [Fact]

@@ -45,7 +45,7 @@ namespace tests.Specs
             IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"repo/{CliConstants.CmfPackageFileName}");
 
             string message = string.Empty;
-            CmfPackage cmfPackage = null;
+            CmfPackage? cmfPackage = null;
             try
             {
                 // Reading cmfPackage

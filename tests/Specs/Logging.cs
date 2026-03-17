@@ -1,8 +1,6 @@
-﻿using Cmf.CLI;
-using Spectre.Console;
+﻿using Spectre.Console;
 using System;
 using System.CommandLine;
-using System.Diagnostics;
 using System.IO;
 using Cmf.CLI.Core;
 using Xunit;
@@ -12,7 +10,7 @@ namespace tests.Specs
 {
     public class Logging
     {
-        private StringWriter _writer = null;
+        private StringWriter _writer = null!;
         
         public Logging()
         {

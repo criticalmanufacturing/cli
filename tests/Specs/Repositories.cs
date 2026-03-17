@@ -145,16 +145,17 @@ public class Repositories
 
         ExecutionContext.Initialize(fileSystem);
         var client = new LocalRepositoryClient(MockUnixSupport.Path("c:/test"), fileSystem);
-        var cmfPackage = await client.Find("Cmf.Custom.Package", "1.1.0");
-        cmfPackage.PackageId.Should().Be("Cmf.Custom.Package");
+        CmfPackageV1? cmfPackage = await client.Find("Cmf.Custom.Package", "1.1.0");
+        cmfPackage.Should().NotBeNull();
+        cmfPackage!.PackageId.Should().Be("Cmf.Custom.Package");
 
         var busPackage = await client.Find("Cmf.Custom.Business", "1.1.0");
         busPackage.Should().NotBeNull();
-        busPackage.PackageId.Should().Be("Cmf.Custom.Business");
+        busPackage!.PackageId.Should().Be("Cmf.Custom.Business");
 
         var htmlPackage = await client.Find("Cmf.Custom.HTML", "1.1.0");
         htmlPackage.Should().NotBeNull();
-        htmlPackage.PackageId.Should().Be("Cmf.Custom.HTML");
+        htmlPackage!.PackageId.Should().Be("Cmf.Custom.HTML");
     }
 
     [Fact]
@@ -253,7 +254,7 @@ public class Repositories
         var client = new ArchiveRepositoryClient(repo, fileSystem);
         var pkg = await client.Find(packageId, version);
         pkg.Should().NotBeNull();
-        pkg.Version.Should().Be(version);
+        pkg!.Version.Should().Be(version);
         pkg.PackageId.Should().Be(packageId);
     }
 
@@ -377,8 +378,8 @@ public class Repositories
         });
 
         var localRepoClient = new ArchiveRepositoryClient(MockUnixSupport.Path("c:/pkgs"), fileSystem);
-        var pkg = await localRepoClient.Find("Cmf.Custom.Data", "1.0.0");
-        var ctlr = new CmfPackageController(pkg, fileSystem);
+        CmfPackageV1? pkg = await localRepoClient.Find("Cmf.Custom.Data", "1.0.0");
+        var ctlr = new CmfPackageController(pkg!, fileSystem);
         var feed = "https://example.repo/";
         // Mock HttpMessageHandler to intercept the HttpClient request
         var mockHandler = new Mock<HttpMessageHandler>(MockBehavior.Strict);
@@ -387,7 +388,7 @@ public class Repositories
         mockHandler.Protected()
             .Setup<Task<HttpResponseMessage>>(
                 "SendAsync",
-                ItExpr.Is<HttpRequestMessage>(req => req.RequestUri.AbsoluteUri == $"{feed}Cmf.Custom.Data".ToLowerInvariant() && req.Content.Headers.GetValues("content-type").FirstOrDefault() == "application/json"),
+                ItExpr.Is<HttpRequestMessage>(req => req.RequestUri != null && req.RequestUri.AbsoluteUri == $"{feed}Cmf.Custom.Data".ToLowerInvariant() && req.Content != null && req.Content.Headers.GetValues("content-type").FirstOrDefault() == "application/json"),
                 ItExpr.IsAny<CancellationToken>()
             )
             .ReturnsAsync(new HttpResponseMessage(System.Net.HttpStatusCode.OK)
@@ -426,7 +427,7 @@ public class Repositories
         mockHandler.Protected()
             .Setup<Task<HttpResponseMessage>>(
                 "SendAsync",
-                ItExpr.Is<HttpRequestMessage>(req => req.RequestUri.AbsoluteUri == $"{feed}Cmf.Custom.Data".ToLowerInvariant()),
+                ItExpr.Is<HttpRequestMessage>(req => req.RequestUri != null && req.RequestUri.AbsoluteUri == $"{feed}Cmf.Custom.Data".ToLowerInvariant()),
                 ItExpr.IsAny<CancellationToken>()
             )
             .ReturnsAsync(new HttpResponseMessage(System.Net.HttpStatusCode.OK)
@@ -499,7 +500,7 @@ public class Repositories
         var client = new NPMRepositoryClient(feed, new MockFileSystem(), npmClient);
         var pkg = await client.Find(packageId, version);
         pkg.Should().NotBeNull();
-        pkg.Version.Should().Be(version);
+        pkg!.Version.Should().Be(version);
         pkg.PackageId.Should().Be(packageId.ToLowerInvariant()); // NPM package names are always lowercase
     }
 
@@ -521,7 +522,7 @@ public class Repositories
         mockHandler.Protected()
             .Setup<Task<HttpResponseMessage>>(
                 "SendAsync",
-                ItExpr.Is<HttpRequestMessage>(req => req.RequestUri.AbsoluteUri == $"{feed}-/v1/search?text=keywords:cmf-deployment-package".ToLowerInvariant()),
+                ItExpr.Is<HttpRequestMessage>(req => req.RequestUri != null && req.RequestUri.AbsoluteUri == $"{feed}-/v1/search?text=keywords:cmf-deployment-package".ToLowerInvariant()),
                 ItExpr.IsAny<CancellationToken>()
             )
             .ReturnsAsync(new HttpResponseMessage(System.Net.HttpStatusCode.OK)
@@ -629,7 +630,7 @@ public class Repositories
         CmfPackageController.ConvertZipToTarGz(fileSystem.FileInfo.New($"{repo}/{packageId}.{version}.zip"), fileSystem.FileInfo.New($"{repo}/{packageId}.{version}.tgz"));
         CmfPackageController.ConvertTarGzToZip(fileSystem.FileInfo.New($"{repo}/{packageId}.{version}.tgz"), fileSystem.FileInfo.New($"{repo}/{packageId}.{version}.zip"));
         // var ctrlr = new CmfPackageController(fileSystem.FileInfo.New($"{repo}/{packageId}.{version}.zip"));
-        string newManifestContent = FileSystemUtilities.GetFileContentFromPackage($"{repo}/{packageId}.{version}.zip", "manifest.xml", fileSystem);
+        string newManifestContent = FileSystemUtilities.GetFileContentFromPackage($"{repo}/{packageId}.{version}.zip", "manifest.xml", fileSystem)!;
         newManifestContent.Should().Be(manifestContent);
     }
 
@@ -673,14 +674,14 @@ public class Repositories
       // get tgz info for assertion
       using GZipStream gzipStream = new GZipStream(tgzPackageFile.OpenRead(), CompressionMode.Decompress);
       using TarReader tarReader = new(gzipStream);
-      dynamic packageJson = null;
+      dynamic? packageJson = null;
       int tgzEntriesTotal = 0;
       while (tarReader.GetNextEntry() is { } entry)
       {
         if (entry.Name == "package/package.json")
         {
           using MemoryStream ms = new();
-          entry.DataStream.CopyTo(ms);
+          entry.DataStream!.CopyTo(ms);
           packageJson = JsonConvert.DeserializeObject(Encoding.UTF8.GetString(ms.ToArray()));
         }
         tgzEntriesTotal++;
@@ -688,9 +689,9 @@ public class Repositories
 
       tgzEntriesTotal.Should().Be(2, "The tgz should contain only 2 entries, the package.json and the manifest.xml.");
       Assert.NotNull(packageJson);
-      Assert.NotNull(packageJson.deployment);
-      Assert.NotNull(packageJson.deployment.steps);
-      Assert.Equal(2, (int)packageJson.deployment.steps.Count);
+      Assert.NotNull(packageJson!.deployment);
+      Assert.NotNull(packageJson!.deployment.steps);
+      Assert.Equal(2, (int)packageJson!.deployment.steps.Count);
     }
     
     [Fact]
@@ -752,14 +753,14 @@ public class Repositories
       // get tgz info for assertion
       using GZipStream gzipStream = new GZipStream(tgzPackageFile.OpenRead(), CompressionMode.Decompress);
       using TarReader tarReader = new(gzipStream);
-      dynamic packageJson = null;
+      dynamic? packageJson = null;
       int tgzEntriesTotal = 0;
       while (tarReader.GetNextEntry() is { } entry)
       {
         if (entry.Name == "package/package.json")
         {
           using MemoryStream ms = new();
-          entry.DataStream.CopyTo(ms);
+          entry.DataStream!.CopyTo(ms);
           packageJson = JsonConvert.DeserializeObject(Encoding.UTF8.GetString(ms.ToArray()));
         }
         tgzEntriesTotal++;
@@ -767,12 +768,12 @@ public class Repositories
 
       tgzEntriesTotal.Should().Be(1, "The tgz should contain only 1 entry, the package.json.");
       Assert.NotNull(packageJson);
-      Assert.NotNull(packageJson.deployment);
-      Assert.NotNull(packageJson._originalPackageId);
-      Assert.NotNull(packageJson.deployment.steps);
-      Assert.Equal(1, (int)packageJson.deployment.steps.Count);
-      Assert.Equal(packageRoot.Key.ToLowerInvariant(), packageJson.name.ToString());
-      Assert.Equal(packageRoot.Key, packageJson._originalPackageId.ToString());
+      Assert.NotNull(packageJson!.deployment);
+      Assert.NotNull(packageJson!._originalPackageId);
+      Assert.NotNull(packageJson!.deployment.steps);
+      Assert.Equal(1, (int)packageJson!.deployment.steps.Count);
+      Assert.Equal(packageRoot.Key.ToLowerInvariant(), packageJson!.name.ToString());
+      Assert.Equal(packageRoot.Key, packageJson!._originalPackageId.ToString());
     }
 
     [Fact]
@@ -796,21 +797,21 @@ public class Repositories
         """;
 
         // This should not throw an exception
-        var config = JsonConvert.DeserializeObject<RepositoriesConfig>(json);
+        var config = JsonConvert.DeserializeObject<RepositoriesConfig>(json)!;
         
         // Verify the deserialization worked correctly
         config.Should().NotBeNull();
         config.CIRepository.Should().NotBeNull();
         config.Repositories.Should().NotBeNull();
-        config.Repositories.Should().HaveCount(6);
+        config.Repositories!.Should().HaveCount(6);
         
         // Verify all URIs are properly parsed (they should all be absolute URIs now)
-        config.CIRepository.IsAbsoluteUri.Should().BeTrue();
-        config.Repositories.All(uri => uri.IsAbsoluteUri).Should().BeTrue();
+        config.CIRepository!.IsAbsoluteUri.Should().BeTrue();
+        config.Repositories.All(uri => uri!.IsAbsoluteUri).Should().BeTrue();
         
         // Verify specific URI formats are handled correctly
-        config.Repositories[1].AbsoluteUri.Should().Be("http://example.com/npm");
-        config.Repositories[2].AbsoluteUri.Should().Be("https://feed.example/");
+        config.Repositories![1]!.AbsoluteUri.Should().Be("http://example.com/npm");
+        config.Repositories![2]!.AbsoluteUri.Should().Be("https://feed.example/");
     }
 
     [Fact]
@@ -832,21 +833,21 @@ public class Repositories
         """;
 
         // This should not throw an exception and should handle all path types
-        var config = JsonConvert.DeserializeObject<RepositoriesConfig>(json);
+        var config = JsonConvert.DeserializeObject<RepositoriesConfig>(json)!;
         
         config.Should().NotBeNull();
         config.CIRepository.Should().NotBeNull();
         config.Repositories.Should().NotBeNull();
-        config.Repositories.Should().HaveCount(4);
+        config.Repositories!.Should().HaveCount(4);
         
         // All paths should be converted to valid URIs
-        config.CIRepository.IsAbsoluteUri.Should().BeTrue();
-        config.Repositories.All(uri => uri.IsAbsoluteUri).Should().BeTrue();
+        config.CIRepository!.IsAbsoluteUri.Should().BeTrue();
+        config.Repositories.All(uri => uri!.IsAbsoluteUri).Should().BeTrue();
         
         // Verify that UNC paths are preserved properly
         // Note: The exact URI format may vary, but it should be a valid URI
         config.CIRepository.Should().NotBeNull("UNC CI repository path should be converted to valid URI");
-        config.Repositories[0].Should().NotBeNull("UNC repository path should be converted to valid URI");
+        config.Repositories![0].Should().NotBeNull("UNC repository path should be converted to valid URI");
     }
 
     [Theory]
@@ -857,7 +858,7 @@ public class Repositories
     [InlineData("https://example.com", true)]        // HTTP URL
     [InlineData("", false)]                          // Empty string
     [InlineData(null, false)]                        // Null value
-    public void RepositoriesConfig_UriConverter_VariousPathFormats(string inputPath, bool shouldSucceed)
+    public void RepositoriesConfig_UriConverter_VariousPathFormats(string? inputPath, bool shouldSucceed)
     {
         string json;
         
@@ -892,23 +893,23 @@ public class Repositories
         if (shouldSucceed)
         {
             // Should not throw an exception
-            var config = JsonConvert.DeserializeObject<RepositoriesConfig>(json);
+            var config = JsonConvert.DeserializeObject<RepositoriesConfig>(json)!;
             config.Should().NotBeNull();
             
             if (!string.IsNullOrEmpty(inputPath))
             {
                 config.CIRepository.Should().NotBeNull($"Path '{inputPath}' should be converted to valid URI");
-                config.CIRepository.IsAbsoluteUri.Should().BeTrue($"Path '{inputPath}' should result in absolute URI");
+                config.CIRepository!.IsAbsoluteUri.Should().BeTrue($"Path '{inputPath}' should result in absolute URI");
                 
                 config.Repositories.Should().HaveCount(1);
-                config.Repositories[0].Should().NotBeNull($"Path '{inputPath}' should be converted to valid URI");
-                config.Repositories[0].IsAbsoluteUri.Should().BeTrue($"Path '{inputPath}' should result in absolute URI");
+                config.Repositories![0].Should().NotBeNull($"Path '{inputPath}' should be converted to valid URI");
+                config.Repositories[0]!.IsAbsoluteUri.Should().BeTrue($"Path '{inputPath}' should result in absolute URI");
             }
         }
         else
         {
             // For null/empty inputs, should handle gracefully
-            var config = JsonConvert.DeserializeObject<RepositoriesConfig>(json);
+            var config = JsonConvert.DeserializeObject<RepositoriesConfig>(json)!;
             config.Should().NotBeNull();
             // Null/empty paths should result in null URIs
             config.CIRepository.Should().BeNull("Empty/null paths should result in null URI");

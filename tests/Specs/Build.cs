@@ -234,7 +234,7 @@ public class Build
         fileSystem.Directory.SetCurrentDirectory(url);
 
         string message = string.Empty;
-        CmfPackage cmfPackage = null;
+        CmfPackage? cmfPackage = null;
         try
         {
             // Reading cmfPackage
@@ -332,7 +332,7 @@ public class Build
         fileSystem.Directory.SetCurrentDirectory(url);
 
         string message = string.Empty;
-        CmfPackage cmfPackage = null;
+        CmfPackage? cmfPackage = null;
         try
         {
             // Reading cmfPackage
@@ -430,7 +430,7 @@ public class Build
         fileSystem.Directory.SetCurrentDirectory(url);
 
         string message = string.Empty;
-        CmfPackage cmfPackage = null;
+        CmfPackage? cmfPackage = null;
         try
         {
             // Reading cmfPackage
@@ -634,18 +634,18 @@ public class Build
         ExecutionContext.Initialize(fileSystem);
 
         IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"Cmf.Custom.Data/{CliConstants.CmfPackageFileName}");
-        DataPackageTypeHandlerV2 packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile) as DataPackageTypeHandlerV2;
+        DataPackageTypeHandlerV2? packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile) as DataPackageTypeHandlerV2;
 
-        packageTypeHandler.RelatedPackagesHandlers
+        packageTypeHandler?.RelatedPackagesHandlers
             .HasAny()
             .Should().Be(withRelatedSteps);
 
-        packageTypeHandler.RelatedPackagesHandlers.HasAny().Should().Be(withRelatedSteps);
+        packageTypeHandler?.RelatedPackagesHandlers.HasAny().Should().Be(withRelatedSteps);
 
-        packageTypeHandler.RelatedPackagesHandlers
+        packageTypeHandler?.RelatedPackagesHandlers
             .Any(RelatedPackagesHandler =>
             {
-                RelatedPackagesHandler.Key.CmfPackage.PackageName.Should().Be("Cmf.Custom.Business.1.1.0");
+                RelatedPackagesHandler.Key.CmfPackage?.PackageName.Should().Be("Cmf.Custom.Business.1.1.0");
 
                 return true;
             })
@@ -677,7 +677,7 @@ public class Build
         fileSystem.Directory.SetCurrentDirectory(url);
 
         string message = string.Empty;
-        CmfPackage cmfPackage = null;
+        CmfPackage? cmfPackage = null;
         try
         {
             // Reading cmfPackage
@@ -734,7 +734,7 @@ public class Build
         fileSystem.Directory.SetCurrentDirectory(url);
 
         string message = string.Empty;
-        CmfPackage cmfPackage = null;
+        CmfPackage? cmfPackage = null;
         try
         {
             // Reading cmfPackage

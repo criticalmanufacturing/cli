@@ -41,7 +41,7 @@ namespace tests.Specs
                 var cmfPackage = fileSystem.FileInfo.New(CliConstants.CmfPackageFileName);
                 var packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfPackage) as PresentationPackageTypeHandler;
 
-                packageTypeHandler.GetContentToPack(fileSystem.DirectoryInfo.New("output"));
+                packageTypeHandler?.GetContentToPack(fileSystem.DirectoryInfo.New("output"));
             }
             catch (Exception ex)
             {
@@ -49,7 +49,7 @@ namespace tests.Specs
             }
 
             Assert.Equal(string.Empty, exceptionMessage);
-            Assert.Contains($"{MockUnixSupport.Path(@"c:\ui\src\packages\customization.common\")}.npmignore not found!", standardOutput.ToString().Trim());
+            Assert.Contains($"{MockUnixSupport.Path(@"c:\ui\src\packages\customization.common\")}.npmignore not found!", standardOutput?.ToString().Trim());
         }
 
         /// <summary>
@@ -129,12 +129,12 @@ namespace tests.Specs
             var cmfPackage = fileSystem.FileInfo.New("/repo/Cmf.Custom.Data/cmfpackage.json");
             var packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfPackage) as DataPackageTypeHandlerV2;
 
-            var contentToPack = packageTypeHandler.GetContentToPack(fileSystem.DirectoryInfo.New("output"));
+            var contentToPack = packageTypeHandler?.GetContentToPack(fileSystem.DirectoryInfo.New("output"));
 
 
             for(int i = 0;i< numberOfFiles; i++)
             {
-                contentToPack[i].Source.FullName.Should().EndWith($"file_{i:000}.txt");
+                (contentToPack![i].Source?.FullName).Should().EndWith($"file_{i:000}.txt");
             }
 
         }
@@ -171,7 +171,7 @@ namespace tests.Specs
             // Assert
             cmfPackage.Steps.Should().NotBeNull();
             cmfPackage.Steps.Should().HaveCount(1);
-            cmfPackage.Steps[0].ContentPath.Should().Be("Online/*.sql");
+            cmfPackage.Steps![0].ContentPath.Should().Be("Online/*.sql");
             cmfPackage.Steps[0].TargetDatabase.Should().Be("$(Product.Database.Online)");
             cmfPackage.Steps[0].Type.Should().Be(StepType.RunSql);
         }
@@ -208,7 +208,7 @@ namespace tests.Specs
             // Assert
             cmfPackage.Steps.Should().NotBeNull();
             cmfPackage.Steps.Should().HaveCount(1);
-            cmfPackage.Steps[0].ContentPath.Should().Be("ODS/*.sql");
+            cmfPackage.Steps![0].ContentPath.Should().Be("ODS/*.sql");
             cmfPackage.Steps[0].TargetDatabase.Should().Be("$(Product.Database.Ods)");
             cmfPackage.Steps[0].Type.Should().Be(StepType.EnqueueSql);
         }
@@ -237,7 +237,7 @@ namespace tests.Specs
             });
 
             ExecutionContext.Initialize(fileSystem);
-            var cmfPackage = CmfPackage.Load(fileSystem.FileInfo.New("/repo/cmfpackage.json"), setDefaultValues: true);
+            CmfPackage? cmfPackage = CmfPackage.Load(fileSystem.FileInfo.New("/repo/cmfpackage.json"), setDefaultValues: true);
             
             // Act
             var handler = new DatabasePackageTypeHandler(cmfPackage);
@@ -245,7 +245,7 @@ namespace tests.Specs
             // Assert
             cmfPackage.Steps.Should().NotBeNull();
             cmfPackage.Steps.Should().HaveCount(1);
-            cmfPackage.Steps[0].ContentPath.Should().Be("DWH/*.sql");
+            cmfPackage.Steps![0].ContentPath.Should().Be("DWH/*.sql");
             cmfPackage.Steps[0].TargetDatabase.Should().Be("$(Product.Database.Dwh)");
             cmfPackage.Steps[0].Type.Should().Be(StepType.EnqueueSql);
         }
@@ -371,7 +371,7 @@ namespace tests.Specs
             // Assert
             cmfPackage.Steps.Should().NotBeNull();
             cmfPackage.Steps.Should().HaveCount(1);
-            cmfPackage.Steps[0].ContentPath.Should().Be("Online/*.sql");
+            cmfPackage.Steps![0].ContentPath.Should().Be("Online/*.sql");
         }
 
         [Fact]
@@ -498,7 +498,7 @@ namespace tests.Specs
             // Assert
             cmfPackage.Steps.Should().NotBeNull();
             cmfPackage.Steps.Should().HaveCount(1);
-            cmfPackage.Steps[0].ContentPath.Should().Be("Online/*.sql");
+            cmfPackage.Steps![0].ContentPath.Should().Be("Online/*.sql");
         }
     }
 }

@@ -93,19 +93,19 @@ namespace tests.Specs
 
             var busPackage = cmfPackage.Dependencies[0];
             Assert.False(busPackage.IsMissing, "Business package is missing");
-            Assert.NotNull(busPackage.CmfPackage, "Business package couldn't be loaded");
-            Assert.Equal("Cmf.Custom.Business", busPackage.CmfPackage.PackageId, "Business package name doesn't match expected");
+            Assert.NotNull(busPackage.CmfPackage!, "Business package couldn't be loaded");
+            Assert.Equal("Cmf.Custom.Business", busPackage.CmfPackage!.PackageId, "Business package name doesn't match expected");
             Assert.Null(busPackage.CmfPackage.Dependencies, "Business package has unexpected dependencies");
 
             var htmlPackage = cmfPackage.Dependencies[1];
             Assert.False(htmlPackage.IsMissing, "HTML package is missing");
-            Assert.NotNull(htmlPackage.CmfPackage, "HTML package couldn't be loaded");
-            Assert.Equal("Cmf.Custom.HTML", htmlPackage.CmfPackage.PackageId, "HTML package name doesn't match expected");
+            Assert.NotNull(htmlPackage.CmfPackage!, "HTML package couldn't be loaded");
+            Assert.Equal("Cmf.Custom.HTML", htmlPackage.CmfPackage!.PackageId, "HTML package name doesn't match expected");
             Assert.Null(htmlPackage.CmfPackage.Dependencies, "HTML package has unexpected dependencies");
 
             var productPackage = cmfPackage.Dependencies[2];
             Assert.True(productPackage.IsMissing, "Product package isn't missing");
-            Assert.Null(productPackage.CmfPackage, "Product package could be loaded");
+            Assert.Null(productPackage.CmfPackage!, "Product package could be loaded");
         }
         
         [Fact]
@@ -190,35 +190,35 @@ namespace tests.Specs
 
             var busPackage = cmfPackage.Dependencies[0];
             Assert.False(busPackage.IsMissing, "Business package is missing");
-            Assert.NotNull(busPackage.CmfPackage, "Business package couldn't be loaded");
-            Assert.Equal("Cmf.Custom.Business", busPackage.CmfPackage.PackageId, "Business package name doesn't match expected");
+            Assert.NotNull(busPackage.CmfPackage!, "Business package couldn't be loaded");
+            Assert.Equal("Cmf.Custom.Business", busPackage.CmfPackage!.PackageId, "Business package name doesn't match expected");
             Assert.Null(busPackage.CmfPackage.Dependencies, "Business package has unexpected dependencies");
 
             var htmlPackage = cmfPackage.Dependencies[1];
             Assert.False(htmlPackage.IsMissing, "HTML package is missing");
-            Assert.NotNull(htmlPackage.CmfPackage, "HTML package couldn't be loaded");
-            Assert.Equal("Cmf.Custom.HTML", htmlPackage.CmfPackage.PackageId, "HTML package name doesn't match expected");
+            Assert.NotNull(htmlPackage.CmfPackage!, "HTML package couldn't be loaded");
+            Assert.Equal("Cmf.Custom.HTML", htmlPackage.CmfPackage!.PackageId, "HTML package name doesn't match expected");
             Assert.Null(htmlPackage.CmfPackage.Dependencies, "HTML package has unexpected dependencies");
 
             var productPackage = cmfPackage.Dependencies[2];
             Assert.False(productPackage.IsMissing, "Product package is missing");
-            Assert.NotNull(productPackage.CmfPackage, "Product package couldn't be loaded");
-            Assert.Equal(productPackage.CmfPackage.Location, PackageLocation.Repository,
+            Assert.NotNull(productPackage.CmfPackage!, "Product package couldn't be loaded");
+            Assert.Equal(productPackage.CmfPackage!.Location, PackageLocation.Repository,
               "Product package is not located in Repository");
             Assert.Equal("CriticalManufacturing", productPackage.CmfPackage.PackageId, "Product package name doesn't match expected");
             Assert.Equal(1, productPackage.CmfPackage.Dependencies.Count, "Product package doesn't have expected dependencies");
             
             var productInnerPackage = productPackage.CmfPackage.Dependencies[0];
             Assert.True(productInnerPackage.IsMissing, "Product Inner package isn't missing");
-            Assert.Null(productInnerPackage.CmfPackage, "Product Inner package could be loaded");
+            Assert.Null(productInnerPackage.CmfPackage!, "Product Inner package could be loaded");
             
         }
         
         [Fact]
         public void Args_MultiRepo()
         {
-          string _workingDir = null;
-          string[] _repos = null;
+          string? _workingDir = null;
+          string[]? _repos = null;
           
           var listDependenciesCommand = new ListDependenciesCommand();
           var cmd = new Command("ls");
@@ -229,8 +229,8 @@ namespace tests.Specs
 
           cmd.SetAction((parseResult, cancellationToken) =>
           {
-              _workingDir = parseResult.GetValue(workingDirArg)?.Name;
-              _repos = parseResult.GetValue(reposOpt)?.Select(uri => uri.OriginalString).ToArray();
+              _workingDir = parseResult.GetValue(workingDirArg!)?.Name;
+              _repos = parseResult.GetValue(reposOpt!)?.Select(uri => uri.OriginalString).ToArray();
               return Task.FromResult(0);
           });
 
@@ -242,7 +242,7 @@ namespace tests.Specs
           
           var curDir = new DirectoryInfo(System.IO.Directory.GetCurrentDirectory());
           Assert.Equal(curDir.Name, _workingDir, "working dir does not match expected");
-          Assert.Equal(2, _repos.Length, "Expecting 2 repositories");
+          Assert.Equal(2, _repos!.Length, "Expecting 2 repositories");
           Assert.Equal("d:\\xpto", _repos[0], "Wrong repository location");
           Assert.Equal("e:\\packages", _repos[1], "Wrong repository location");
         }
@@ -250,8 +250,8 @@ namespace tests.Specs
         [Fact]
         public void Args_MultiRepo_UrlLocalMix()
         {
-          string _workingDir = null;
-          Uri[] _repos = null;
+          string? _workingDir = null;
+          Uri[]? _repos = null;
           
           var listDependenciesCommand = new ListDependenciesCommand();
           var cmd = new Command("ls");
@@ -262,8 +262,8 @@ namespace tests.Specs
 
           cmd.SetAction((parseResult, cancellationToken) =>
           {
-              _workingDir = parseResult.GetValue(workingDirArg)?.Name;
-              _repos = parseResult.GetValue(reposOpt);
+              _workingDir = parseResult.GetValue(workingDirArg!)?.Name;
+              _repos = parseResult.GetValue(reposOpt!);
               return Task.FromResult(0);
           });
 
@@ -276,7 +276,7 @@ namespace tests.Specs
           
           var curDir = new DirectoryInfo(System.IO.Directory.GetCurrentDirectory());
           Assert.Equal(curDir.Name, _workingDir, "working dir does not match expected");
-          Assert.Equal(2, _repos.Length, "Expecting 2 repositories");
+          Assert.Equal(2, _repos!.Length, "Expecting 2 repositories");
           Assert.Equal("file:///d:/xpto", _repos[0].AbsoluteUri, "Wrong repository location");
           Assert.Equal("http://repository.example/", _repos[1].AbsoluteUri, "Wrong repository location");
           Assert.True(_repos[0].IsDirectory(), "First repo should be a directory");
@@ -286,8 +286,8 @@ namespace tests.Specs
         [Fact]
         public void Args_MultiRepo_RelativeDirectory()
         {
-          string _workingDir = null;
-          Uri[] _repos = null;
+          string? _workingDir = null;
+          Uri[]? _repos = null;
           
           var listDependenciesCommand = new ListDependenciesCommand();
           var cmd = new Command("ls");
@@ -298,8 +298,8 @@ namespace tests.Specs
 
           cmd.SetAction((parseResult, cancellationToken) =>
           {
-              _workingDir = parseResult.GetValue(workingDirArg)?.Name;
-              _repos = parseResult.GetValue(reposOpt);
+              _workingDir = parseResult.GetValue(workingDirArg!)?.Name;
+              _repos = parseResult.GetValue(reposOpt!);
               return Task.FromResult(0);
           });
 
@@ -308,9 +308,9 @@ namespace tests.Specs
             "-r", "..\\xpto", "-r", "\\root_dir"
           });
             parseResult.Invoke(console);
-          var curDir = new DirectoryInfo(System.IO.Directory.GetCurrentDirectory());
+          var curDir = new DirectoryInfo(Directory.GetCurrentDirectory());
           Assert.Equal(curDir.Name, _workingDir, "working dir does not match expected");
-          Assert.Equal(2, _repos.Length, "Expecting 2 repositories");
+          Assert.Equal(2, _repos!.Length, "Expecting 2 repositories");
           Assert.Equal("..\\xpto", _repos[0].OriginalString, "Wrong repository location");
           Assert.Equal("\\root_dir", _repos[1].OriginalString, "Wrong repository location");
           // TODO: use mock filesystem to resolve relative urls
@@ -319,8 +319,8 @@ namespace tests.Specs
         [Fact]
         public void Args_SingleRepo()
         {
-          string _workingDir = null;
-          string[] _repos = null;
+          string? _workingDir = null;
+          string[]? _repos = null;
           
           var listDependenciesCommand = new ListDependenciesCommand();
           var cmd = new Command("ls");
@@ -331,8 +331,8 @@ namespace tests.Specs
 
           cmd.SetAction((parseResult, cancellationToken) =>
           {
-              _workingDir = parseResult.GetValue(workingDirArg)?.Name;
-              _repos = parseResult.GetValue(reposOpt)?.Select(uri => uri.OriginalString).ToArray();
+              _workingDir = parseResult.GetValue(workingDirArg!)?.Name;
+              _repos = parseResult.GetValue(reposOpt!)?.Select(uri => uri.OriginalString).ToArray();
               return Task.FromResult(0);
           });
 
@@ -341,9 +341,9 @@ namespace tests.Specs
             "-r", "d:\\xpto"
           });
             parseResult.Invoke(console);
-          var curDir = new DirectoryInfo(System.IO.Directory.GetCurrentDirectory());
+          var curDir = new DirectoryInfo(Directory.GetCurrentDirectory());
           Assert.Equal(curDir.Name, _workingDir, "working dir does not match expected");
-          Assert.Equal(1, _repos.Length, "Expecting 2 repositories");
+          Assert.Equal(1, _repos!.Length, "Expecting 2 repositories");
           Assert.Equal("d:\\xpto", _repos[0], "Wrong repository location");
         }
     }

@@ -10,7 +10,6 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Moq.Protected;
-using tests.Mocks;
 using Xunit;
 using ExecutionContext = Cmf.CLI.Core.Objects.ExecutionContext;
 
@@ -36,7 +35,7 @@ public class Plugins
         httpMessageHandler.Protected()
             .Setup<Task<HttpResponseMessage>>(
                 "SendAsync",
-                ItExpr.Is<HttpRequestMessage>(message => message.RequestUri.AbsoluteUri == search),
+                ItExpr.Is<HttpRequestMessage>(message => message.RequestUri != null && message.RequestUri.AbsoluteUri == search),
                 ItExpr.IsAny<CancellationToken>()
             )
             .ReturnsAsync((HttpRequestMessage request, CancellationToken token) =>
@@ -52,13 +51,13 @@ public class Plugins
 
         var npmClient = new NPMClient(httpClient);
 
-        var plugins = npmClient.FindPlugins(null);
+        var plugins = npmClient.FindPlugins(null!);
 
         plugins.Should().ContainSingle();
         plugins[0].IsOfficial.Should().BeTrue();
         plugins[0].Name = "@criticalmanufacturing/portal";
         plugins[0].Registry = "https://registry.npmjs.com/";
-        plugins[0].Link.AbsoluteUri.Should().Be("https://www.npmjs.com/package/%40criticalmanufacturing%2Fportal");
+        plugins[0].Link!.AbsoluteUri.Should().Be("https://www.npmjs.com/package/%40criticalmanufacturing%2Fportal");
     }
 
     [Fact]
@@ -78,7 +77,7 @@ public class Plugins
         httpMessageHandler.Protected()
             .Setup<Task<HttpResponseMessage>>(
                 "SendAsync",
-                ItExpr.Is<HttpRequestMessage>(message => message.RequestUri.AbsoluteUri == search),
+                ItExpr.Is<HttpRequestMessage>(message => message.RequestUri != null && message.RequestUri.AbsoluteUri == search),
                 ItExpr.IsAny<CancellationToken>()
             )
             .ReturnsAsync((HttpRequestMessage request, CancellationToken token) =>
@@ -95,7 +94,7 @@ public class Plugins
 
         var logWriter = (new Logging()).GetLogStringWriter();
         
-        var plugins = npmClient.FindPlugins(null);
+        var plugins = npmClient.FindPlugins(null!);
 
         plugins.Should().BeEmpty();
         logWriter.ToString().Should().Contain($"Search request to {new Uri(CoreConstants.NpmJsUrl).AbsoluteUri} failed: {HttpStatusCode.InternalServerError}");

@@ -153,7 +153,7 @@ namespace tests.Specs
 
             var portalRepositoryMock = new Mock<IPortalRepositoryCredentials>();
             portalRepositoryMock.Setup(x => x.RepositoryType).Returns(RepositoryCredentialsType.Portal);
-            portalRepositoryMock.Setup(x => x.TryRenewToken(It.IsAny<CmfAuthFile>())).ReturnsAsync((ICredential)null);
+            portalRepositoryMock.Setup(x => x.TryRenewToken(It.IsAny<CmfAuthFile>())).ReturnsAsync((ICredential?)null);
 
             var nugetRepositoryMock = new Mock<IRepositoryCredentials>();
             nugetRepositoryMock.Setup(x => x.RepositoryType).Returns(RepositoryCredentialsType.NuGet);
@@ -205,7 +205,7 @@ namespace tests.Specs
 
             var portalRepositoryMock = new Mock<IPortalRepositoryCredentials>();
             portalRepositoryMock.Setup(x => x.RepositoryType).Returns(RepositoryCredentialsType.Portal);
-            portalRepositoryMock.Setup(x => x.TryRenewToken(It.IsAny<CmfAuthFile>())).ReturnsAsync((ICredential)null);
+            portalRepositoryMock.Setup(x => x.TryRenewToken(It.IsAny<CmfAuthFile>())).ReturnsAsync((ICredential?)null);
 
             var nugetRepositoryMock = new Mock<IRepositoryCredentials>();
             nugetRepositoryMock.Setup(x => x.RepositoryType).Returns(RepositoryCredentialsType.NuGet);
@@ -253,7 +253,7 @@ namespace tests.Specs
 
             var portalRepositoryMock = new Mock<IPortalRepositoryCredentials>();
             portalRepositoryMock.Setup(x => x.RepositoryType).Returns(RepositoryCredentialsType.Portal);
-            portalRepositoryMock.Setup(x => x.TryRenewToken(It.IsAny<CmfAuthFile>())).ReturnsAsync((ICredential)null);
+            portalRepositoryMock.Setup(x => x.TryRenewToken(It.IsAny<CmfAuthFile>())).ReturnsAsync((ICredential?)null);
 
             var nugetRepositoryMock = new Mock<IRepositoryCredentials>();
             nugetRepositoryMock.Setup(x => x.RepositoryType).Returns(RepositoryCredentialsType.NuGet);

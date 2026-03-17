@@ -173,7 +173,7 @@ namespace tests.Specs
             {
                 var (pkgVersion, dir) = args;
 
-                var tenant = ExecutionContext.Instance.ProjectConfig.Tenant;
+                var tenant = ExecutionContext.Instance?.ProjectConfig?.Tenant;
 
                 Assert.True(Directory.Exists("Cmf.Custom.Grafana"), "Grafana package folder is missing");
                 Assert.True(File.Exists($"Cmf.Custom.Grafana/README.md"), "README file is missing or has wrong name");
@@ -235,7 +235,7 @@ namespace tests.Specs
             UI_internal(null, layer);
         }
 
-        private void UI_internal(string scaffoldingDir, BaseLayer layer)
+        private void UI_internal(string? scaffoldingDir, BaseLayer layer)
         {
             RunNew(new HTMLCommand(), "Cmf.Custom.HTML", scaffoldingDir: scaffoldingDir, baseLayer: layer, extraArguments: new string[]
             {
@@ -309,7 +309,7 @@ namespace tests.Specs
         public void UI_FailNoPackage(string mesVersion, bool shouldDisplayError)
         {
             var console = RunNew(new HTMLCommand(), "Cmf.Custom.HTML", defaultAsserts: false, mesVersion: mesVersion);
-            var stderr = console.Error.ToString();
+            var stderr = console.Error?.ToString();
             if (shouldDisplayError)
             {
                 (stderr ?? "").Trim()
@@ -330,7 +330,7 @@ namespace tests.Specs
             Help_internal();
         }
 
-        private void Help_internal(string scaffoldingDir = null)
+        private void Help_internal(string? scaffoldingDir = null)
         {
             RunNew(new Cmf.CLI.Commands.New.HelpCommand(), "Cmf.Custom.Help", scaffoldingDir: scaffoldingDir, extraArguments: new string[] {
                 "--docPkg", TestUtilities.GetFixturePath("prodPkg", "Cmf.Documentation.9.9.9.zip"),
@@ -352,7 +352,7 @@ namespace tests.Specs
         public void Help_FailNoPackage(string mesVersion, bool shouldDisplayError)
         {
             var console = RunNew(new Cmf.CLI.Commands.New.HelpCommand(), "Cmf.Custom.Help", defaultAsserts: false, mesVersion: mesVersion);
-            var stderr = console.Error.ToString();
+            var stderr = console.Error?.ToString();
             if (shouldDisplayError)
             {
                 (stderr ?? "").Trim()
@@ -467,7 +467,7 @@ namespace tests.Specs
             RunDatabase(null);
         }
 
-        private void RunDatabase(string scaffoldingDir)
+        private void RunDatabase(string? scaffoldingDir)
         {
             RunNew(new DatabaseCommand(), "Cmf.Custom.Database", scaffoldingDir: scaffoldingDir, defaultAsserts: false, extraAsserts: args =>
             {
@@ -491,7 +491,7 @@ namespace tests.Specs
             RunReporting(null);
         }
 
-        private void RunReporting(string scaffoldingDir)
+        private void RunReporting(string? scaffoldingDir)
         {
             RunNew(new ReportingCommand(), "Cmf.Custom.Reporting", scaffoldingDir: scaffoldingDir, defaultAsserts: false, extraAsserts: args =>
             {
@@ -512,7 +512,7 @@ namespace tests.Specs
             Tests_internal(null);
         }
 
-        private void Tests_internal(string scaffoldingDir = null)
+        private void Tests_internal(string? scaffoldingDir = null)
         {
             var packageId = "Cmf.Custom.Tests";
             var dir = scaffoldingDir ?? TestUtilities.GetTmpDirectory();
@@ -548,7 +548,7 @@ namespace tests.Specs
                 };
                 TestUtilities.GetParser(cmd).Invoke(args.ToArray(), console);
 
-                string errors = console.Error.ToString().Trim();
+                string errors = (console.Error?.ToString())!.Trim();
                 Assert.True(errors.Length == 0, $"Errors found in console: {errors}");
                 Assert.True(Directory.Exists(packageId), "Package folder is missing");
                 Assert.True(File.Exists($"{packageId}/cmfpackage.json"), "Package cmfpackage.json is missing");
@@ -619,7 +619,7 @@ namespace tests.Specs
                 };
                 TestUtilities.GetParser(cmd).Invoke(args.ToArray(), console);
 
-                string errors = console.Error.ToString().Trim();
+                string errors = (console.Error?.ToString())!.Trim();
                 Assert.True(errors.Length == 0, $"Errors found in console: {errors}");
                 Assert.True(Directory.Exists(packageId), "Package folder is missing");
 
@@ -704,7 +704,7 @@ namespace tests.Specs
                 Assert.Equal(packageId, TestUtilities.GetPackageProperty("packageId", $"Features/{packageId}/cmfpackage.json"), "Package Id does not match expected");
                 Assert.Equal(packageVersion, TestUtilities.GetPackageProperty("version", $"Features/{packageId}/cmfpackage.json"), "Package version does not match expected");
             });
-            string errors = console.Error.ToString().Trim();
+            string errors = (console.Error?.ToString())!.Trim();
             Assert.True(errors.Length == 0, $"Errors found in console: {errors}");
         }
 
@@ -714,7 +714,7 @@ namespace tests.Specs
             RunFeature_WithoutPrefix(null);
         }
 
-        private void RunFeature_WithoutPrefix(string scaffoldingDir)
+        private void RunFeature_WithoutPrefix(string? scaffoldingDir)
         {
             const string packageId = "TestFeature";
             var console = RunNew(new FeatureCommand(), packageId, scaffoldingDir: scaffoldingDir, extraArguments: new[] { packageId }, defaultAsserts: false, extraAsserts: args =>
@@ -725,7 +725,7 @@ namespace tests.Specs
                 Assert.Equal(packageId, TestUtilities.GetPackageProperty("packageId", $"Features/{packageId}/cmfpackage.json"), "Package Id does not match expected");
                 Assert.Equal(packageVersion, TestUtilities.GetPackageProperty("version", $"Features/{packageId}/cmfpackage.json"), "Package version does not match expected");
             });
-            string errors = console.Error.ToString().Trim();
+            string errors = (console.Error?.ToString())!.Trim();
             Assert.True(errors.Length == 0, $"Errors found in console: {errors}");
         }
 
@@ -969,8 +969,8 @@ namespace tests.Specs
             });
         }
 
-        private TestConsole RunNew<T>(T newCommand, string packageId, string scaffoldingDir = null,
-            string[] extraArguments = null, bool defaultAsserts = true, Action<(string, string)> extraAsserts = null,
+        private TestConsole RunNew<T>(T newCommand, string packageId, string? scaffoldingDir = null,
+            string[]? extraArguments = null, bool defaultAsserts = true, Action<(string, string)>? extraAsserts = null,
             string mesVersion = "8.2.0",
             string ngxSchematicsVersion = NGX_SCHEMATICS_VERSION,
             BaseLayer baseLayer = BaseLayer.MES,
@@ -1010,7 +1010,7 @@ namespace tests.Specs
 
                 if (defaultAsserts)
                 {
-                    string errors = console.Error.ToString().Trim();
+                    string errors = (console.Error?.ToString())!.Trim();
                     errors.Length.Should().Be(0, $"Errors found in console: {errors}");
                     Directory.Exists(packageId).Should().BeTrue();
                     File.Exists($"{packageId}/cmfpackage.json").Should().BeTrue();

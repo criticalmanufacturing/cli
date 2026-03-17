@@ -22,7 +22,7 @@ public class Telemetry
     [InlineData("FALSE")]
     [InlineData("0")]
     [InlineData("unrecognizedValue")]
-    public void NoTelemetryByDefaultOrWhenOff(string telemetrySetting)
+    public void NoTelemetryByDefaultOrWhenOff(string? telemetrySetting)
     {
         Environment.SetEnvironmentVariable("cmf_cli_enable_telemetry", telemetrySetting);
         
@@ -109,8 +109,8 @@ public class Telemetry
         var activity = telemetryService.StartActivity("test_Extended");
 
         activity.Should().NotBeNull();
-        var tagNames = activity.Tags.Select(kv => kv.Key);
-        tagNames.All(tagName => allowedTags.Contains(tagName)).Should().BeTrue();
+        var tagNames = activity?.Tags.Select(kv => kv.Key);
+        tagNames!.All(tagName => allowedTags.Contains(tagName)).Should().BeTrue();
     }
 
     [Theory]
@@ -148,9 +148,9 @@ public class Telemetry
         var activitySource = telemetryService.InitializeActivitySource("test_Bare");
         var activity = telemetryService.StartActivity("test_Bare");
         
-        var tagNames = activity.TagObjects.Select(kv => kv.Key).ToList();
-        tagNames.Distinct().Count().Should().Be(expectedTags.Length);
-        tagNames.All(expectedTags.Contains).Should().BeTrue();
+        var tagNames = activity?.TagObjects.Select(kv => kv.Key).ToList();
+        tagNames!.Distinct().Count().Should().Be(expectedTags.Length);
+        tagNames!.All(expectedTags.Contains).Should().BeTrue();
     }
 
     /// <summary>
@@ -190,7 +190,7 @@ public class Telemetry
         );
 
         // Simulate the plugin start activity call and ensure it's not null.
-        var telemetryService = ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!;
+        var telemetryService = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()!;
         using var activity = telemetryService.StartActivity("Main");
         Assert.NotNull(activity);
 
@@ -198,7 +198,10 @@ public class Telemetry
         using var sw = new StringWriter();
         Console.SetOut(sw);
         activity?.Dispose();
-        telemetryService.Provider.ForceFlush();
+        if (telemetryService.Provider != null)
+        {
+            telemetryService.Provider.ForceFlush();
+        }
         var consoleOutput = sw.ToString();
         Assert.Contains("telemetry.sdk.version", consoleOutput);
     }

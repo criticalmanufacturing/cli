@@ -52,7 +52,7 @@ namespace tests.Objects
         /// <param name="version"></param>
         /// <param name="dependencies"></param>
         /// <returns></returns>
-        public DFPackageBuilder CreateManifest(string id, string version, Dictionary<string, string> dependencies = null, Dictionary<string, string> testPackages = null)
+        public DFPackageBuilder CreateManifest(string id, string version, Dictionary<string, string>? dependencies = null, Dictionary<string, string>? testPackages = null)
         {
             return CreateEntry("manifest.xml",
                     @$"<?xml version=""1.0"" encoding=""utf-8""?>

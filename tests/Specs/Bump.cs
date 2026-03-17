@@ -95,8 +95,8 @@ public class Bump
         IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile);
         packageTypeHandler.Bump(bumpVersion, "");
 
-        string cmfPackageVersion = (packageTypeHandler as HelpGulpPackageTypeHandler).CmfPackage.Version;
-        dynamic packageFile = JsonConvert.DeserializeObject(fileSystem.File.ReadAllText(npmPackageJson));
+        string cmfPackageVersion = (packageTypeHandler as HelpGulpPackageTypeHandler)!.CmfPackage.Version;
+        dynamic packageFile = JsonConvert.DeserializeObject(fileSystem.File.ReadAllText(npmPackageJson))!;
         string packageFileVersion = packageFile.version;
         string metadataFile = fileSystem.File.ReadAllText(metadataTS);
 
@@ -333,21 +333,21 @@ public class Bump
         IFileInfo cmfPackageFile = fileSystem.FileInfo.New($"Cmf.Custom.Business/{CliConstants.CmfPackageFileName}");
 
         BusinessPackageTypeHandler packageTypeHandler =
-            PackageTypeFactory.GetPackageTypeHandler(cmfPackageFile) as BusinessPackageTypeHandler;
+            (PackageTypeFactory.GetPackageTypeHandler(cmfPackageFile) as BusinessPackageTypeHandler)!;
 
         fileSystem.Directory.SetCurrentDirectory(runPath);
         
-        packageTypeHandler!.Bump(version, "");
+        packageTypeHandler.Bump(version, "");
 
         fileSystem.Directory.SetCurrentDirectory("..");
         string businessPackageVersion = packageTypeHandler.CmfPackage.Version;
-        dynamic testPackageFile = JsonConvert.DeserializeObject(fileSystem.File.ReadAllText(testsCmfPackageJson));
-        string testPackageVersion = testPackageFile!.version;
+        dynamic testPackageFile = JsonConvert.DeserializeObject(fileSystem.File.ReadAllText(testsCmfPackageJson))!;
+        string testPackageVersion = testPackageFile.version;
         string businessAssemblyInfoFile = fileSystem.File.ReadAllText(businessAssemblyInfo);
         string testAssemblyInfoFile = fileSystem.File.ReadAllText(testAssemblyInfo);
         
         businessPackageVersion.Should().Be(version);
-        testPackageVersion!.Should().Be(packageTest.Value);
+        testPackageVersion.Should().Be(packageTest.Value);
         businessAssemblyInfoFile.Should().ContainAll($"[assembly: AssemblyVersion(\"{version}.0\")]", $"[assembly: AssemblyFileVersion(\"{version}.0\")]");
         testAssemblyInfoFile.Should().ContainAll($"[assembly: AssemblyVersion(\"1.0.0.0\")]", $"[assembly: AssemblyFileVersion(\"1.0.0.0\")]");
     }
@@ -580,20 +580,20 @@ public class Bump
         IFileInfo cmfPackageFile = fileSystem.FileInfo.New($"Cmf.Custom.Tests/{CliConstants.CmfPackageFileName}");
 
         TestPackageTypeHandler packageTypeHandler =
-            PackageTypeFactory.GetPackageTypeHandler(cmfPackageFile) as TestPackageTypeHandler;
+            (PackageTypeFactory.GetPackageTypeHandler(cmfPackageFile) as TestPackageTypeHandler)!;
 
         fileSystem.Directory.SetCurrentDirectory(runPath);
         
-        packageTypeHandler!.Bump(version, "");
+        packageTypeHandler.Bump(version, "");
 
         fileSystem.Directory.SetCurrentDirectory("..");
         string testPackageVersion = packageTypeHandler.CmfPackage.Version;
-        dynamic businessPackageFile = JsonConvert.DeserializeObject(fileSystem.File.ReadAllText(businessCmfPackageJson));
-        string businessPackageVersion = businessPackageFile!.version;
+        dynamic businessPackageFile = JsonConvert.DeserializeObject(fileSystem.File.ReadAllText(businessCmfPackageJson))!;
+        string businessPackageVersion = businessPackageFile.version;
         string testAssemblyInfoFile = fileSystem.File.ReadAllText(testAssemblyInfo);
         string businessAssemblyInfoFile = fileSystem.File.ReadAllText(businessAssemblyInfo);
         
-        testPackageVersion!.Should().Be(version);
+        testPackageVersion.Should().Be(version);
         businessPackageVersion.Should().Be(packageBusiness.Value);
         testAssemblyInfoFile.Should().ContainAll($"[assembly: AssemblyVersion(\"{version}.0\")]", $"[assembly: AssemblyFileVersion(\"{version}.0\")]");
         businessAssemblyInfoFile.Should().ContainAll($"[assembly: AssemblyVersion(\"1.0.0.0\")]", $"[assembly: AssemblyFileVersion(\"1.0.0.0\")]");

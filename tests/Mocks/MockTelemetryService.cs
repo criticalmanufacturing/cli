@@ -8,12 +8,12 @@ namespace tests.Mocks;
 
 public class MockTelemetryService : ITelemetryService
 {
-    public TracerProvider Provider => null;
+    public TracerProvider? Provider => null;
 
-    public string Name => null;
+    public string? Name => null;
 
-    private ActivitySource activitySource = null;
-    public TracerProvider InitializeTracerProvider(string serviceName, string version) => null;
+    private ActivitySource? activitySource = null;
+    public TracerProvider? InitializeTracerProvider(string serviceName, string version) => null;
 
     public ActivitySource InitializeActivitySource(string name)
     {
@@ -21,14 +21,14 @@ public class MockTelemetryService : ITelemetryService
         return activitySource;
     }
 
-    public Activity StartActivity(string name, ActivityKind kind = ActivityKind.Internal) => null;
-    public Activity StartBareActivity(string name, ActivityKind kind = ActivityKind.Internal) => null;
-    public Activity StartExtendedActivity(string name, ActivityKind kind = ActivityKind.Internal) => null;
+    public Activity? StartActivity(string name, ActivityKind kind = ActivityKind.Internal) => null;
+    public Activity? StartBareActivity(string name, ActivityKind kind = ActivityKind.Internal) => null;
+    public Activity? StartExtendedActivity(string name, ActivityKind kind = ActivityKind.Internal) => null;
 
-    public TracerProvider InitializeTracerProvider(string version) => null;
-    public ActivitySource InitializeActivitySource() => null;
+    public TracerProvider? InitializeTracerProvider(string version) => null;
+    public ActivitySource? InitializeActivitySource() => null;
 
     public void LogException(Exception exception) { }
 
-    public Task<TracerProvider> InitializeTracerProviderAsync(string serviceName, string version) => null;
+    public Task<TracerProvider?>? InitializeTracerProviderAsync(string serviceName, string version) => null;
 }

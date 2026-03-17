@@ -183,13 +183,14 @@ public class UpgradeBase
 
         string rootCmfpackageContents = fileSystem.File.ReadAllText("/cmfpackage.json");
 
-        JObject rootCmfpackageObject = (JObject)JsonConvert.DeserializeObject(rootCmfpackageContents);
+        JObject? rootCmfpackageObject = JsonConvert.DeserializeObject(rootCmfpackageContents) as JObject;
+        rootCmfpackageObject.Should().NotBeNull();
 
-        rootCmfpackageObject["dependencies"][0]["version"].ToString().Should().Be("1.2.0");
-        rootCmfpackageObject["dependencies"][1]["version"].ToString().Should().Be(version); // Cmf.Environment
-        rootCmfpackageObject["dependencies"][2]["version"].ToString().Should().Be(version); // criticalmanufacturing.deploymentmetadata
-        rootCmfpackageObject["dependencies"][3]["version"].ToString().Should().Be(version); // CriticalManufacturing.DeploymentMetadata
-        rootCmfpackageObject["dependencies"][4]["version"].ToString().Should().Be("3.2.0");
+        rootCmfpackageObject!["dependencies"]![0]!["version"]!.ToString().Should().Be("1.2.0");
+        rootCmfpackageObject!["dependencies"]![1]!["version"]!.ToString().Should().Be(version); // Cmf.Environment
+        rootCmfpackageObject!["dependencies"]![2]!["version"]!.ToString().Should().Be(version); // criticalmanufacturing.deploymentmetadata
+        rootCmfpackageObject!["dependencies"]![3]!["version"]!.ToString().Should().Be(version); // CriticalManufacturing.DeploymentMetadata
+        rootCmfpackageObject!["dependencies"]![4]!["version"]!.ToString().Should().Be("3.2.0");
 
         Assert.Equal(3, Regex.Matches(rootCmfpackageContents, version.Replace(".", "\\.")).Count);
 
@@ -536,16 +537,17 @@ public class UpgradeBase
 
             #region Workflow validations
             string wflContents = fileSystem.File.ReadAllText(@"/AutomationWorkFlows/workflow.json");
-            JObject workflowJsonObject = (JObject)JsonConvert.DeserializeObject(wflContents);
+            JObject? workflowJsonObject = JsonConvert.DeserializeObject(wflContents) as JObject;
+            workflowJsonObject.Should().NotBeNull();
 
             // Tasks
-            workflowJsonObject["tasks"][0]["reference"]["package"]["version"].ToString().Should().Be(iotVersion);
-            workflowJsonObject["tasks"][1]["reference"]["package"]["version"].ToString().Should().Be("11.1.5");
-            workflowJsonObject["tasks"][2]["reference"]["package"]["version"].ToString().Should().Be(iotVersion);
+            workflowJsonObject!["tasks"]![0]!["reference"]!["package"]!["version"]!.ToString().Should().Be(iotVersion);
+            workflowJsonObject!["tasks"]![1]!["reference"]!["package"]!["version"]!.ToString().Should().Be("11.1.5");
+            workflowJsonObject!["tasks"]![2]!["reference"]!["package"]!["version"]!.ToString().Should().Be(iotVersion);
 
             // Converters
-            workflowJsonObject["converters"][0]["reference"]["package"]["version"].ToString().Should().Be(iotVersion);
-            workflowJsonObject["converters"][1]["reference"]["package"]["version"].ToString().Should().Be("1.2.3");
+            workflowJsonObject!["converters"]![0]!["reference"]!["package"]!["version"]!.ToString().Should().Be(iotVersion);
+            workflowJsonObject!["converters"]![1]!["reference"]!["package"]!["version"]!.ToString().Should().Be("1.2.3");
 
             Assert.Equal(3, Regex.Matches(wflContents, iotVersion.Replace(".", "\\.")).Count);
             Assert.Single(Regex.Matches(wflContents, "11.1.5".Replace(".", "\\."))); // Ignored task
@@ -590,7 +592,7 @@ public class UpgradeBase
         UpgradeBaseUtilities.SerializeWithOriginalIndentation(
             jsonPath,
             jsonFileVariations[jsonVariation],
-            (JObject)JsonConvert.DeserializeObject(jsonFileVariations[jsonVariation]),
+            (JObject)JsonConvert.DeserializeObject(jsonFileVariations[jsonVariation])!,
             fileSystem
         );
 

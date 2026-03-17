@@ -58,9 +58,9 @@ public class NPM
 
         var pkgInfo = await npmClient.FetchPackageInfo("@criticalmanufacturing/cli", "5.1.0");
 
-        pkgInfo.Name.Should().Be("@criticalmanufacturing/cli");
-        pkgInfo.Version.Should().Be("5.1.0");
-        pkgInfo.Dist.Tarball.Should().NotBeEmpty();
+        pkgInfo?.Name.Should().Be("@criticalmanufacturing/cli");
+        pkgInfo?.Version.Should().Be("5.1.0");
+        pkgInfo?.Dist?.Tarball.Should().NotBeEmpty();
     }
 
     [Fact]
@@ -79,7 +79,7 @@ public class NPM
         var outputFile = await npmClient.DownloadPackage("@criticalmanufacturing/cli", "5.1.0", output);
         
         outputFile.Should().NotBeNull();
-        outputFile.Exists.Should().BeTrue();
+        outputFile!.Exists.Should().BeTrue();
         outputFile.Length.Should().BeGreaterThan(0);
     }
 
@@ -105,7 +105,7 @@ public class NPM
         mockHandler.Protected()
             .Setup<Task<HttpResponseMessage>>(
                 "SendAsync",
-                ItExpr.Is<HttpRequestMessage>(req => req.RequestUri.AbsoluteUri == $"{feed}{packageId}".ToLowerInvariant() && req.Content.Headers.GetValues("content-type").FirstOrDefault() == "application/json"),
+                ItExpr.Is<HttpRequestMessage>(req => req.RequestUri != null && req.RequestUri.AbsoluteUri == $"{feed}{packageId}".ToLowerInvariant() && req.Content != null && req.Content.Headers.GetValues("content-type").FirstOrDefault() == "application/json"),
                 ItExpr.IsAny<CancellationToken>()
             )
             .ReturnsAsync(new HttpResponseMessage(System.Net.HttpStatusCode.OK)
@@ -150,19 +150,19 @@ public class NPM
         mockHandler.Protected().Verify(
             "SendAsync",
             Times.Once(), // Ensure it was called once
-            ItExpr.Is<HttpRequestMessage>(req => req.RequestUri.ToString() == $"{feed}{packageId}".ToLowerInvariant()),
+            ItExpr.Is<HttpRequestMessage>(req => req.RequestUri != null && req.RequestUri.ToString() == $"{feed}{packageId}".ToLowerInvariant()),
             ItExpr.IsAny<CancellationToken>()
         );
     }
 
-    protected void SetupCredentials(ICredential credentials, out NPMClient npmClient, out Mock<HttpMessageHandler> mockHandler)
+    protected void SetupCredentials(ICredential? credentials, out NPMClient npmClient, out Mock<HttpMessageHandler> mockHandler)
     {
         string baseUrl = "https://example.repo/";
 
         var repositoryAuthStoreMock = new Mock<IRepositoryAuthStore>();
         repositoryAuthStoreMock.Setup(x => x.GetOrLoad()).Returns(Task.FromResult(new CmfAuthFile()));
-        repositoryAuthStoreMock.Setup(x => x.GetCredentialsFor<NPMRepositoryCredentials>(It.IsAny<CmfAuthFile>(), It.IsAny<string>(), It.IsAny<bool>()))
-            .Returns(credentials);
+            repositoryAuthStoreMock.Setup(x => x.GetCredentialsFor<NPMRepositoryCredentials>(It.IsAny<CmfAuthFile>(), It.IsAny<string>(), It.IsAny<bool>()))
+            .Returns(credentials!);
 
         ExecutionContext.ServiceProvider = (new ServiceCollection())
             .AddSingleton<IVersionService, MockVersionService>()

@@ -59,7 +59,7 @@ public class ProjectConfig
         var pc = (new ProjectConfigService()).Load(fileSystem);
 
         pc.Should().NotBeNull("project config was not loaded");
-        pc.HTMLPort.Should().Be(443, "could not load HTML port");
+        pc!.HTMLPort.Should().Be(443, "could not load HTML port");
         pc.AlwaysOn.Should().BeFalse("AlwaysOn should be false");
         pc.IsSslEnabled.Should().BeTrue("IsSslEnabled should be true");
     }

@@ -83,7 +83,7 @@ namespace tests.Specs
             Assert.Contains($"{packageDep1.Key}.{packageDep1.Value}.zip", assembledFiles);
             Assert.Contains($"{packageDep2.Key}.{packageDep2.Value}.zip", assembledFiles);
 
-            IFileInfo dependenciesJsonFile = fileSystem.DirectoryInfo.New(assembleOutputDir.Key)
+            IFileInfo? dependenciesJsonFile = fileSystem.DirectoryInfo.New(assembleOutputDir.Key)
                 .EnumerateFiles(CliConstants.FileDependencies).FirstOrDefault();
             Assert.NotNull(dependenciesJsonFile);
             Assert.True(dependenciesJsonFile?.Exists ?? false, "Dependencies file does not exist");
@@ -154,7 +154,7 @@ namespace tests.Specs
 
             var originalFile = assembledFiles.FirstOrDefault(q =>
                 q.Name.IgnoreCaseEquals($"{packageRoot.Key}.{packageRoot.Value}.zip"));
-            originalFile.Name.Should().NotBeNull();
+            originalFile!.Name.Should().NotBeNull();
             
             assembleCommand.Execute(fileSystem.DirectoryInfo.New("test"),
                 fileSystem.DirectoryInfo.New(assembleOutputDir.Key),
@@ -415,7 +415,7 @@ namespace tests.Specs
             Assert.DoesNotContain($"{packageDep1.Key}.{packageDep1.Value}.zip", assembledFiles);
             Assert.DoesNotContain($"{packageDep2.Key}.{packageDep2.Value}.zip", assembledFiles);
 
-            IFileInfo dependenciesJsonFile = fileSystem.DirectoryInfo.New(assembleOutputDir.Key)
+            IFileInfo? dependenciesJsonFile = fileSystem.DirectoryInfo.New(assembleOutputDir.Key)
                 .EnumerateFiles(CliConstants.FileDependencies).FirstOrDefault();
             Assert.NotNull(dependenciesJsonFile);
             Assert.True(dependenciesJsonFile.Exists);
@@ -636,7 +636,7 @@ namespace tests.Specs
             Assert.Contains($"{packageRoot.Key}.{packageRoot.Value}.zip", assembledFiles);
             Assert.DoesNotContain($"{packageDep1.Key}.{packageDep1.Value}.zip", assembledFiles);
 
-            IFileInfo dependenciesJsonFile = fileSystem.DirectoryInfo.New(assembleOutputDir.Key)
+            IFileInfo? dependenciesJsonFile = fileSystem.DirectoryInfo.New(assembleOutputDir.Key)
                 .EnumerateFiles(CliConstants.FileDependencies).FirstOrDefault();
             Assert.NotNull(dependenciesJsonFile);
             Assert.True(dependenciesJsonFile!.Exists);
@@ -787,8 +787,8 @@ namespace tests.Specs
             // In beta5, GetValueForArgument/GetValueForOption signatures changed - use GetValue<T>() with explicit type
             var workingDirArg = cmd.Arguments.ElementAt(0) as Argument<IDirectoryInfo>;
             var outputDirOption = cmd.Options.First(o=> o.Name == "--outputDir" || o.Aliases.Any(a => a == "--outputDir")) as Option<IDirectoryInfo>;
-            parseResult.GetValue(workingDirArg)?.Name.Should().Be("dir");
-            parseResult.GetValue(outputDirOption)?.Name.Should().Be("output");
+            parseResult.GetValue(workingDirArg!)?.Name.Should().Be("dir");
+            parseResult.GetValue(outputDirOption!)?.Name.Should().Be("output");
         }
 
         [Fact]

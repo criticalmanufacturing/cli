@@ -42,13 +42,13 @@ public class Publish
         var fileArg = cmd.Arguments.FirstOrDefault(a => a.Name == "file") as Argument<IFileInfo>;
         var repositoryOpt = cmd.Options.OfType<Option<Uri>>().FirstOrDefault();
 
-        IFileInfo _file = null;
-        Uri _repository = null;
+        IFileInfo? _file = null;
+        Uri? _repository = null;
 
         cmd.SetAction((parseResult, cancellationToken) =>
         {
-            _file = parseResult.GetValue(fileArg);
-            _repository = parseResult.GetValue(repositoryOpt);
+            _file = parseResult.GetValue(fileArg!);
+            _repository = parseResult.GetValue(repositoryOpt!);
             return Task.FromResult(0);
         });
 
@@ -58,8 +58,8 @@ public class Publish
         });
         parseResult.Invoke(console);
 
-        Assert.Equal(inputFile, _file.FullName);
-        Assert.Equal(inputRepository, _repository.OriginalString);
+        Assert.Equal(inputFile, _file!.FullName);
+        Assert.Equal(inputRepository, _repository!.OriginalString);
         Assert.Equal(expectedHost, _repository.Host);
     }
 
@@ -95,7 +95,7 @@ public class Publish
             { archivePath, new MockFileData(archiveData) },
         }, MockUnixSupport.Path(@"C:\repo\Cmf.Custom.Test"));
 
-        IFileInfo publishedFileInfo = null;
+        IFileInfo? publishedFileInfo = null;
         
         // Set up a Mock NPM Client that saves the last file info that was published to it
         // Later we can validate that it was only called once, and that means this is the only file that was uploaded
@@ -125,13 +125,13 @@ public class Publish
         // Assert
         npmClient.Verify(x => x.PublishPackage(It.IsAny<IFileInfo>()), Times.Once);
         publishedFileInfo.Should().NotBeNull();
-        publishedFileInfo.Exists.Should().BeTrue();
+        publishedFileInfo!.Exists.Should().BeTrue();
         publishedFileInfo.Extension.Should().Be(".tgz");
         
         // Extract the "package.json" file from the .tgz that was "uploaded" to the mock NPM client
-        using GZipStream gzipStream = new GZipStream(publishedFileInfo.OpenRead(), CompressionMode.Decompress);
+        using GZipStream gzipStream = new GZipStream(publishedFileInfo!.OpenRead(), CompressionMode.Decompress);
         using TarReader tarReader = new(gzipStream);
-        JObject json = null;
+        JObject? json = null;
         while (tarReader.GetNextEntry() is { } entry)
         {
             // Check if this is the file you're looking for
@@ -255,7 +255,7 @@ public class Publish
             { archivePath, new MockFileData(archiveData) },
         }, MockUnixSupport.Path(@"C:\repo\Cmf.Custom.Test"));
 
-        IFileInfo publishedFileInfo = null;
+        IFileInfo? publishedFileInfo = null;
         
         // Set up a Mock NPM Client that saves the last file info that was published to it
         // Later we can validate that it was only called once, and that means this is the only file that was uploaded

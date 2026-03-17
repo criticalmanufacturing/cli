@@ -80,7 +80,7 @@ namespace tests.Specs
                     tmp
                 }, console);
 
-                var extractFileName = new Func<string, string>(s => s.Split(Path.DirectorySeparatorChar).LastOrDefault());
+                var extractFileName = new Func<string, string?>(s => s.Split(Path.DirectorySeparatorChar).LastOrDefault());
 
                 // For v10 and above, the devcontainer should be created
                 var baseVersion = new Version(baseVersionStr);
@@ -375,7 +375,7 @@ namespace tests.Specs
                     tmp
                 }, console);
 
-                var extractFileName = new Func<string, string>(s => s.Split(Path.DirectorySeparatorChar).LastOrDefault());
+                var extractFileName = new Func<string, string>(s => s.Split(Path.DirectorySeparatorChar).LastOrDefault()!);
 
                 Assert.True(Directory.Exists(Path.Join(tmp, "Libs")), "Libs are missing");
                 Assert.True(Directory.Exists(Path.Join(tmp, "assets")), "Assets are missing");
@@ -1032,13 +1032,13 @@ namespace tests.Specs
                 var repositoriesJsonContent = File.ReadAllText(Path.Join(tmp, "repositories.json"));
                 
                 // This is the critical test - parsing repositories.json should not throw URI format exceptions
-                var repositoriesConfig = JsonConvert.DeserializeObject<RepositoriesConfig>(repositoriesJsonContent);
+                RepositoriesConfig? repositoriesConfig = JsonConvert.DeserializeObject<RepositoriesConfig>(repositoriesJsonContent);
                 repositoriesConfig.Should().NotBeNull("Repositories config should be parseable");
-                repositoriesConfig.CIRepository.Should().NotBeNull("CI Repository should be set");
+                repositoriesConfig!.CIRepository.Should().NotBeNull("CI Repository should be set");
                 repositoriesConfig.Repositories.Should().NotBeNull("Repositories should be set");
                 
                 // Verify all URIs are valid absolute URIs
-                repositoriesConfig.CIRepository.IsAbsoluteUri.Should().BeTrue("CI Repository should be absolute URI");
+                repositoriesConfig.CIRepository!.IsAbsoluteUri.Should().BeTrue("CI Repository should be absolute URI");
                 repositoriesConfig.Repositories.All(uri => uri.IsAbsoluteUri).Should().BeTrue("All repositories should be absolute URIs");
             }
             finally

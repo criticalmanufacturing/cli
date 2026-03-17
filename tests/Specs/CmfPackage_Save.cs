@@ -1,17 +1,10 @@
-using Cmf.CLI.Commands;
 using Cmf.CLI.Constants;
 
 using FluentAssertions;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
 using Cmf.CLI.Core.Objects;
 using Xunit;
 
@@ -59,12 +52,18 @@ namespace tests.Specs
 
             cmfPackageObj.SaveCmfPackage();
 
-            dynamic cmfpackageFileContent = JsonConvert.DeserializeObject(fileSystem.File.ReadAllText(cmfpackageFile.FullName));
-            Assert.Equal("Data", cmfpackageFileContent.packageType.ToString());
-            Assert.Equal("CreateIntegrationEntries", cmfpackageFileContent.steps[0].type.ToString());
-            Assert.Equal("ImportObject", cmfpackageFileContent.steps[0].messageType.ToString());
-            Assert.Equal("Generic", cmfpackageFileContent.contentToPack[0].contentType.ToString());
-            Assert.Equal("Pack", cmfpackageFileContent.contentToPack[0].action.ToString());
+            dynamic? cmfpackageFileContent = JsonConvert.DeserializeObject(fileSystem.File.ReadAllText(cmfpackageFile.FullName));
+            string? packageType = cmfpackageFileContent?.packageType?.ToString();
+            string? stepType = cmfpackageFileContent?.steps?[0]?.type?.ToString();
+            string? messageType = cmfpackageFileContent?.steps?[0]?.messageType?.ToString();
+            string? contentType = cmfpackageFileContent?.contentToPack?[0]?.contentType?.ToString();
+            string? actionType = cmfpackageFileContent?.contentToPack?[0]?.action?.ToString();
+
+            Assert.Equal("Data", packageType);
+            Assert.Equal("CreateIntegrationEntries", stepType);
+            Assert.Equal("ImportObject", messageType);
+            Assert.Equal("Generic", contentType);
+            Assert.Equal("Pack", actionType);
         }
 
         /// <summary>
@@ -449,9 +448,9 @@ namespace tests.Specs
             IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"Cmf.Custom.Generic/{CliConstants.CmfPackageFileName}");
             CmfPackage cmfPackageObj = CmfPackage.Load(cmfpackageFile);
             cmfPackageObj.SaveCmfPackage();
-            dynamic cmfpackageFileContent = JsonConvert.DeserializeObject(fileSystem.File.ReadAllText(cmfpackageFile.FullName));
+            dynamic? cmfpackageFileContent = JsonConvert.DeserializeObject(fileSystem.File.ReadAllText(cmfpackageFile.FullName));
 
-            string workingDirectory = cmfpackageFileContent.buildSteps[0].workingDirectory.ToString();
+            string workingDirectory = cmfpackageFileContent?.buildSteps?[0]?.workingDirectory?.ToString()!;
 
             workingDirectory.Should().Be("./directory1");
         }

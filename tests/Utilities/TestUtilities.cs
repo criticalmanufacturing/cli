@@ -112,7 +112,7 @@ namespace Cmf.Common.Cli.TestUtilities
         public static string GetPackageProperty(string property, string cmfpackageJsonPath)
         {
             var pkg = GetPackage(cmfpackageJsonPath);
-            return pkg.GetProperty(property).GetString();
+            return pkg.GetProperty(property).GetString()!;
         }
 
         /// <summary>
@@ -186,7 +186,7 @@ namespace Cmf.Common.Cli.TestUtilities
             var console = new TestConsole();
 
             var attr = cmd.GetType().GetCustomAttributes<CmfCommandAttribute>(false).First();
-            var root= new Command(attr.Name) { Description = attr.Description };
+            var root= new Command(attr.Name!) { Description = attr.Description };
             // Note: IsHidden property was removed in System.CommandLine beta5
             cmd.Configure(root);
 
@@ -194,27 +194,27 @@ namespace Cmf.Common.Cli.TestUtilities
             {
                 // Get all types that are marked with CmfCommand attribute
                 var commandTypes = typeof(T).Assembly.GetTypes()
-                    .Select(type => (type: type, attribute: type.GetCustomAttributes<CmfCommandAttribute>(false).FirstOrDefault()))
-                    .Where(cmd => cmd.attribute != null && cmd.attribute.Id != null)
-                    .ToDictionary(cmd => cmd.attribute.Id);
+                    .Select(type => (type, attribute: type.GetCustomAttributes<CmfCommandAttribute>(false).FirstOrDefault()))
+                    .Where(cmd => cmd.attribute?.Id is not null)
+                    .ToDictionary(cmd => cmd.attribute!.Id!, cmd => cmd);
 
                 // Commands that depend on root (have no defined parent)
-                var currentCmd = commandTypes[attr.Id];
-                while (!string.IsNullOrWhiteSpace(currentCmd.attribute.Parent) ||
-                       !string.IsNullOrWhiteSpace(currentCmd.attribute.ParentId))
+                var currentCmd = commandTypes[attr.Id!];
+                while (!string.IsNullOrWhiteSpace(currentCmd.attribute!.Parent) ||
+                       !string.IsNullOrWhiteSpace(currentCmd.attribute!.ParentId))
                 {
-                    var parentCmd = commandTypes[currentCmd.attribute.ParentId];
+                    var parentCmd = commandTypes[currentCmd.attribute!.ParentId!];
                     currentCmd = parentCmd;
 
                     // Create command
-                    var cmdInstance = new Command(parentCmd.attribute.Name) { Description = parentCmd.attribute.Description };
+                    var cmdInstance = new Command(parentCmd!.attribute!.Name!) { Description = parentCmd.attribute.Description };
                     // Note: IsHidden property was removed in System.CommandLine beta5
                     cmdInstance.Add(root);
                     root = cmdInstance;
 
                     // Call "Configure" method
-                    BaseCommand cmdHandler = Activator.CreateInstance(parentCmd.type) as BaseCommand;
-                    cmdHandler.Configure(cmdInstance);
+                    BaseCommand? cmdHandler = Activator.CreateInstance(parentCmd.type) as BaseCommand;
+                    cmdHandler?.Configure(cmdInstance);
                     currentCmd = parentCmd;
                 }
             }

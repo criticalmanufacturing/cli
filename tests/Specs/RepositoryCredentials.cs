@@ -201,8 +201,8 @@ public class RepositoryCredentials
 
         fileSystem.FileExists(MockCmfAuthFilePath).Should().BeTrue();
 
-        JToken contents = JsonConvert.DeserializeObject<JToken>(fileSystem.File.ReadAllText(MockCmfAuthFilePath));
-        contents.SelectToken("$.repositories.nuget.credentials")?.As<JArray>()?.Count.Should().Be(1);
+        JToken? contents = JsonConvert.DeserializeObject<JToken>(fileSystem.File.ReadAllText(MockCmfAuthFilePath));
+        contents!.SelectToken("$.repositories.nuget.credentials")?.As<JArray>()?.Count.Should().Be(1);
         contents.SelectToken("$.repositories.npm.credentials")?.As<JArray>()?.Count.Should().Be(1);
 
         contents.SelectToken("$.repositories.nuget.0.authType")?.Value<string>().Should().Be(AuthType.Basic.ToString());
@@ -255,8 +255,8 @@ public class RepositoryCredentials
         fileSystem.FileExists(MockCmfAuthFilePath).Should().BeTrue();
 
         // Credentials must have been merged
-        JToken contents = JsonConvert.DeserializeObject<JToken>(fileSystem.File.ReadAllText(MockCmfAuthFilePath));
-        contents.SelectToken("$.repositories.nuget.credentials")?.As<JArray>()?.Count.Should().Be(2);
+        JToken? contents = JsonConvert.DeserializeObject<JToken>(fileSystem.File.ReadAllText(MockCmfAuthFilePath));
+        contents!.SelectToken("$.repositories.nuget.credentials")?.As<JArray>()?.Count.Should().Be(2);
         contents.SelectToken("$.repositories.npm.credentials")?.As<JArray>()?.Count.Should().Be(1);
 
         contents.SelectToken("$.repositories.nuget.0.repository")?.Value<string>().Should().Be("https://criticalmanufacturing.io/repository/nuget/index.json");
@@ -337,14 +337,14 @@ public class RepositoryCredentials
         {
             // Validate we returned the expected credential
             credential.Should().NotBeNull();
-            credentialsList.IndexOf(credential).Should().Be(expectedCredIndex);
+            credentialsList.IndexOf(credential!).Should().Be(expectedCredIndex);
         }
     }
 
     [Fact]
     public void RepositoryAuthStore_GetBearerEnvVarCredentials()
     {
-        MockEnvironment environment = null;
+        MockEnvironment? environment = null;
 
         try
         {
@@ -374,14 +374,14 @@ public class RepositoryCredentials
         }
         finally
         {
-            environment.Restore();
+            environment?.Restore();
         }
     }
 
     [Fact]
     public void RepositoryAuthStore_GetBasicEnvVarCredentials()
     {
-        MockEnvironment environment = null;
+        MockEnvironment? environment = null;
 
         try
         {
@@ -415,14 +415,14 @@ public class RepositoryCredentials
         }
         finally
         {
-            environment.Restore();
+            environment?.Restore();
         }
     }
 
     [Fact]
     public void RepositoryAuthStore_GetEnvVarCredentials_WrongAuthType()
     {
-        MockEnvironment environment = null;
+        MockEnvironment? environment = null;
 
         try
         {
@@ -447,7 +447,7 @@ public class RepositoryCredentials
         }
         finally
         {
-            environment.Restore();
+            environment?.Restore();
         }
     }
 
@@ -456,12 +456,12 @@ public class RepositoryCredentials
     {
         // Arrange            
         // - The manual Single Sign-On Credential
-        var portalCred = new BearerCredential(RepositoryCredentialsType.Portal, CmfAuthConstants.PortalRepository, key: null, token: "a.b.c");
+        var portalCred = new BearerCredential(RepositoryCredentialsType.Portal, CmfAuthConstants.PortalRepository, key: null!, token: "a.b.c");
         // - The 2 derived Credentials
-        var npmCred = new BasicCredential(RepositoryCredentialsType.NPM, CmfAuthConstants.NPMRepository, key: null, domain: null, username: "npm-user", password: "qwerty");
-        var nugetCred = new BasicCredential(RepositoryCredentialsType.NuGet, CmfAuthConstants.NuGetRepository, key: CmfAuthConstants.NuGetKey, domain: null, username: "nuget-user", password: "qwerty");
+        var npmCred = new BasicCredential(RepositoryCredentialsType.NPM, CmfAuthConstants.NPMRepository, key: null!, domain: null!, username: "npm-user", password: "qwerty");
+        var nugetCred = new BasicCredential(RepositoryCredentialsType.NuGet, CmfAuthConstants.NuGetRepository, key: CmfAuthConstants.NuGetKey, domain: null!, username: "nuget-user", password: "qwerty");
         // - A third party manual credential
-        var npmThirdPartyCred = new BasicCredential(RepositoryCredentialsType.NPM, "https://registry.npmjs.org/", key: null, domain: null, username: "npm-external-user", password: "qwerty");
+        var npmThirdPartyCred = new BasicCredential(RepositoryCredentialsType.NPM, "https://registry.npmjs.org/", key: null!, domain: null!, username: "npm-external-user", password: "qwerty");
 
         PortalSSORepositoryMock.Setup(x => x.GetDerivedCredentials(It.IsAny<IList<ICredential>>())).Returns([npmCred, nugetCred]);
 
@@ -500,8 +500,8 @@ public class RepositoryCredentials
     {
         // Arrange            
         // - The 2 derived Credentials
-        var npmCred = new BasicCredential(RepositoryCredentialsType.NPM, CmfAuthConstants.NPMRepository, key: null, domain: null, username: "npm-user", password: "qwerty");
-        var nugetCred = new BasicCredential(RepositoryCredentialsType.NuGet, CmfAuthConstants.NuGetRepository, key: CmfAuthConstants.NuGetKey, domain: null, username: "nuget-user", password: "qwerty");
+        var npmCred = new BasicCredential(RepositoryCredentialsType.NPM, CmfAuthConstants.NPMRepository, key: null!, domain: null!, username: "npm-user", password: "qwerty");
+        var nugetCred = new BasicCredential(RepositoryCredentialsType.NuGet, CmfAuthConstants.NuGetRepository, key: CmfAuthConstants.NuGetKey, domain: null!, username: "nuget-user", password: "qwerty");
 
         PortalSSORepositoryMock.Setup(x => x.GetDerivedCredentials(It.IsAny<IList<ICredential>>())).Returns([npmCred, nugetCred]);
 
@@ -651,7 +651,7 @@ public class RepositoryCredentials
         
         ExecutionContext.ServiceProvider = ServiceCollection.BuildServiceProvider();
         ExecutionContext.Initialize(mockFileSystem);
-        ExecutionContext.Instance.RepositoriesConfig = repositoriesConfig;
+        ExecutionContext.Instance!.RepositoriesConfig = repositoriesConfig;
 
         // Act
         var credentials = portal.GetDerivedCredentials([
@@ -846,9 +846,9 @@ public class RepositoryCredentials
 
         var xml = XDocument.Load(fileSystem.File.OpenRead(MockNuGetConfigFilePath));
 
-        string repository = xml.XPathSelectElement($"//configuration/packageSources/add[@key=\"{CmfAuthConstants.NuGetKey}\"]")?.Attribute("value")?.Value;
-        string username = xml.XPathSelectElement($"//configuration/packageSourceCredentials/{CmfAuthConstants.NuGetKey}/add[@key=\"Username\"]")?.Attribute("value")?.Value;
-        string password = xml.XPathSelectElement($"//configuration/packageSourceCredentials/{CmfAuthConstants.NuGetKey}/add[@key=\"ClearTextPassword\"]")?.Attribute("value")?.Value;
+        string? repository = xml.XPathSelectElement($"//configuration/packageSources/add[@key=\"{CmfAuthConstants.NuGetKey}\"]")?.Attribute("value")?.Value;
+        string? username = xml.XPathSelectElement($"//configuration/packageSourceCredentials/{CmfAuthConstants.NuGetKey}/add[@key=\"Username\"]")?.Attribute("value")?.Value;
+        string? password = xml.XPathSelectElement($"//configuration/packageSourceCredentials/{CmfAuthConstants.NuGetKey}/add[@key=\"ClearTextPassword\"]")?.Attribute("value")?.Value;
 
         repository.Should().Be(CmfAuthConstants.NuGetRepository);
         username.Should().Be("CMF\\UNAME");
@@ -1039,7 +1039,7 @@ public class RepositoryCredentials
         var portalLoginCommand = new Mock<IPortalLoginCommand>();
         portalLoginCommand.Setup(x => x.Execute()).Callback(() =>
         {
-            fileSystem.Directory.CreateDirectory(fileSystem.Path.GetDirectoryName(MockPortalTokenFilePath));
+            fileSystem.Directory.CreateDirectory(fileSystem.Path.GetDirectoryName(MockPortalTokenFilePath)!);
             fileSystem.File.WriteAllText(MockPortalTokenFilePath, newToken);
         });
 
@@ -1056,7 +1056,7 @@ public class RepositoryCredentials
             credential.Should().NotBeNull();
             credential.Should().BeOfType<BearerCredential>();
 
-            var bearerCredential = (BearerCredential)credential;
+            var bearerCredential = (BearerCredential)credential!;
             bearerCredential.Token.Should().Be(expired ? newToken : token);
         }
         else
@@ -1077,7 +1077,7 @@ public class RepositoryCredentials
         var portalLoginCommand = new Mock<IPortalLoginCommand>();
         portalLoginCommand.Setup(x => x.Execute()).Callback(() =>
         {
-            fileSystem.Directory.CreateDirectory(fileSystem.Path.GetDirectoryName(MockPortalTokenFilePath));
+            fileSystem.Directory.CreateDirectory(fileSystem.Path.GetDirectoryName(MockPortalTokenFilePath)!);
             fileSystem.File.WriteAllText(MockPortalTokenFilePath, CreateJwtToken());
         });
 
