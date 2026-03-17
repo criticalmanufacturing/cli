@@ -25,7 +25,7 @@ namespace Cmf.CLI.Builders
         /// <value>
         /// The working directory.
         /// </value>
-        public IDirectoryInfo WorkingDirectory { get; set; }
+        public IDirectoryInfo? WorkingDirectory { get; set; }
 
         public virtual bool Condition()
         {
@@ -48,8 +48,7 @@ namespace Cmf.CLI.Builders
 
                     var paths = enviromentPath.Split(';');
                     var exePath = paths.Select(x => this.fileSystem.Path.Combine(x, command))
-                        .Where(this.fileSystem.File.Exists)
-                        .FirstOrDefault();
+                        .FirstOrDefault(this.fileSystem.File.Exists);
 
                     command = exePath ?? command;
                 }
@@ -59,7 +58,9 @@ namespace Cmf.CLI.Builders
                     Log.Debug($"Executing '{command} {String.Join(' ', step.Args ?? Array.Empty<string>())}'");
                     using var ps = ExecutionContext.ServiceProvider.GetService<IProcessStartInfoCLI>();
                     ps.FileName = command;
-                    ps.WorkingDirectory = step.WorkingDirectory != null ? step.WorkingDirectory.FullName : this.WorkingDirectory.FullName;
+                    ps.WorkingDirectory = step.WorkingDirectory != null ?
+                        step.WorkingDirectory.FullName :
+                        this.WorkingDirectory?.FullName ?? throw new CliException($"Could not resolve or missed specifying working directory for command '{command} {String.Join(' ', step.Args ?? Array.Empty<string>())}'");
                     ps.Arguments = String.Join(' ', step.Args);
                     ps.UseShellExecute = false;
                     ps.RedirectStandardOutput = true;
@@ -98,7 +99,7 @@ namespace Cmf.CLI.Builders
                 }
             }
 
-            return null;
+            return Task.CompletedTask;
         }
 
         /// <summary>

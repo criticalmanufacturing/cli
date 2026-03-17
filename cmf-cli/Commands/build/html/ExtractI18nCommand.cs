@@ -87,7 +87,7 @@ public class ExtractI18nCommand : BaseCommand
         var cmfPackage = CmfPackage.Load(cmfPackageFile, true, this.fileSystem);
 
         var projectRoot = FileSystemUtilities.GetProjectRoot(this.fileSystem);
-        var packageDirectory = cmfPackage.GetFileInfo().Directory;
+        var packageDirectory = cmfPackage.GetDirectoryInfo();
         Debug.Assert(projectRoot != null, "Invalid repository! Run this command inside a project repository.");
 
         var angularJsonPath = this.fileSystem.Path.Join(packageDirectory.FullName, "angular.json");

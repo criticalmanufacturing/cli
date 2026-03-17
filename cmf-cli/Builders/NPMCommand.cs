@@ -27,7 +27,7 @@ namespace Cmf.CLI.Builders
         /// <value>
         /// The command.
         /// </value>
-        public string Command { get; set; }
+        public required string Command { get; set; }
 
         /// <summary>
         /// Gets or sets the display name.
@@ -35,7 +35,7 @@ namespace Cmf.CLI.Builders
         /// <value>
         /// The display name.
         /// </value>
-        public string DisplayName { get; set; }
+        public required string DisplayName { get; set; }
 
         /// <summary>
         /// Only Executes on Test (--test)
@@ -51,7 +51,7 @@ namespace Cmf.CLI.Builders
         /// <value>
         /// The arguments.
         /// </value>
-        public string[] Args { get; set; }
+        public string[] Args { get; set; } = [];
 
         /// <summary>
         /// Gets or sets the condition. 
@@ -81,7 +81,7 @@ namespace Cmf.CLI.Builders
         /// <returns></returns>
         public override ProcessBuildStep[] GetSteps()
         {
-            var args = this.Args?.ToList() ?? new List<string>();
+            var args = this.Args.ToList();
             args.Insert(0, this.Command);
             args.AddRange(new[] { "--color", "always" });
             return new[]

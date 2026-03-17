@@ -118,6 +118,7 @@ namespace Cmf.CLI.Commands.New
                     // dotnet sln <sln> add <dataPkg>/DEEs/Cmf.Custom.<tenant>.Actions.csproj
                     var slnAddCmd = new DotnetCommand()
                     {
+                        DisplayName = "AddProjectToSolution",
                         Command = "sln",
                         Solution = this.fileSystem.FileInfo.New(businessSlnPath),
                         Args = new[]
@@ -138,7 +139,7 @@ namespace Cmf.CLI.Commands.New
 
                     dataPackage.RelatedPackages = new()
                     {
-                        new RelatedPackage() { Path = fileSystem.Path.GetRelativePath(dataPackage.GetFileInfo().Directory.FullName, businessPackage.FullName).Replace("\\", "/"), PreBuild = true, PrePack = false }
+                        new RelatedPackage() { Path = fileSystem.Path.GetRelativePath(dataPackage.GetDirectoryInfo().FullName, businessPackage.FullName).Replace("\\", "/"), PreBuild = true, PrePack = false }
                     };
 
                     dataPackage.SaveCmfPackage();

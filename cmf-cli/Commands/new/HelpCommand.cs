@@ -183,7 +183,7 @@ namespace Cmf.CLI.Commands.New
 
             // install dev dependencies/tooling
             Log.Verbose("Executing npm install, this will take a while...");
-            (new NPMCommand() { Command = "install", WorkingDirectory = pkgFolder }).Exec();
+            (new NPMCommand() { Command = "install", DisplayName = "NPM install", WorkingDirectory = pkgFolder }).Exec();
 
             var helpDevTasksConfigPath = this.fileSystem.Path.GetTempFileName();
             var helpDevTasksConfigJson =
@@ -275,7 +275,8 @@ $@"{{
 
             // generate doc package
             Log.Verbose("Generating documentation package. This will take a while...");
-            var tenant = ExecutionContext.Instance.ProjectConfig.Tenant;
+            var tenant = ExecutionContext.Instance.ProjectConfig.Tenant ??
+                throw new CliException("Could not resolve project's Tenant. Make sure you are running this command inside a project.");
             var assetsPkgName = $"cmf.docs.area.{pkgName.ToLowerInvariant()}";
             var helpPkgConfigPath = this.fileSystem.Path.GetTempFileName();
             var helpPkgConfigJson =
@@ -301,7 +302,7 @@ $@"{{
             Log.Verbose("Generated documentation package");
 
             Log.Verbose("Generating assets...");
-            base.ExecuteTemplate("helpSrcPkg", new[]
+            base.ExecuteTemplate("helpSrcPkg", new String[]
             {
                 "--output", this.fileSystem.Path.Join(pkgFolder.FullName, "src", "packages"),
                 "--name", assetsPkgName,
@@ -363,7 +364,7 @@ $@"{{
             }
 
             Log.Verbose("Executing npm install, this will take a while...");
-            (new NPMCommand() { Command = "install", WorkingDirectory = pkgFolder }).Exec();
+            new NPMCommand() { Command = "install", DisplayName = "NPM install", WorkingDirectory = pkgFolder }.Exec();
 
             new NPXCommand()
             {

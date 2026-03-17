@@ -93,11 +93,11 @@ namespace Cmf.CLI.Commands.New
                         ?? throw new CliException("Could not retrieve repository AppData.");
                     args.AddRange(new string[]
                     {
-                "--app", "true",
-                "--licensedAppName", appData.licensedApplication,
-                "--fileVersion", $"{mesVersion}.0",
-                "--assemblyVersion", $"{mesVersion.Major}.{mesVersion.Minor}.0.0",
-                "--addApplicationVersionAssembly", AddApplicationVersionAssembly.ToString()
+                        "--app", "true",
+                        "--licensedAppName", appData.licensedApplication,
+                        "--fileVersion", $"{mesVersion}.0",
+                        "--assemblyVersion", $"{mesVersion.Major}.{mesVersion.Minor}.0.0",
+                        "--addApplicationVersionAssembly", AddApplicationVersionAssembly.ToString()
                     });
                 }
             }

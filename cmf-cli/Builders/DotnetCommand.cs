@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
@@ -27,7 +28,7 @@ namespace Cmf.CLI.Builders
         /// <value>
         /// The command.
         /// </value>
-        public required string Command { get; set; }
+        public string Command { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the display name.
@@ -35,7 +36,7 @@ namespace Cmf.CLI.Builders
         /// <value>
         /// The display name.
         /// </value>
-        public required string DisplayName { get; set; }
+        public string DisplayName { get; set; } = string.Empty;
 
         /// <summary>
         /// Only Executes on Test (--test)
@@ -51,7 +52,7 @@ namespace Cmf.CLI.Builders
         /// <value>
         /// The arguments.
         /// </value>
-        public string[] Args { get; set; }
+        public string[] Args { get; set; } = Array.Empty<string>();
 
         /// <summary>
         /// Gets or sets the nu get configuration.
@@ -59,7 +60,7 @@ namespace Cmf.CLI.Builders
         /// <value>
         /// The nu get configuration.
         /// </value>
-        public IFileInfo NuGetConfig { get; set; }
+        public IFileInfo? NuGetConfig { get; set; }
 
         /// <summary>
         /// Gets or sets the solution.
@@ -67,7 +68,7 @@ namespace Cmf.CLI.Builders
         /// <value>
         /// The solution.
         /// </value>
-        public IFileInfo Solution { get; set; }
+        public IFileInfo? Solution { get; set; }
 
         /// <summary>
         /// Gets or sets the output directory.
@@ -75,7 +76,7 @@ namespace Cmf.CLI.Builders
         /// <value>
         /// The output directory.
         /// </value>
-        public IDirectoryInfo OutputDirectory { get; set; }
+        public IDirectoryInfo? OutputDirectory { get; set; }
 
         /// <summary>
         /// Gets or sets the configuration.
@@ -83,7 +84,7 @@ namespace Cmf.CLI.Builders
         /// <value>
         /// The configuration.
         /// </value>
-        public string Configuration { get; set; }
+        public string Configuration { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets the steps.
@@ -93,11 +94,11 @@ namespace Cmf.CLI.Builders
         {
             // /usr/bin/dotnet restore /home/vsts/work/1/s/Business/Cmf.Custom.Actions/Cmf.Custom.DevOps.Actions.csproj --configfile /home/vsts/work/1/Nuget/tempNuGet_101.config --verbosity Detailed
             // /usr/bin/dotnet build /home/vsts/work/1/s/Business/Cmf.Custom.Actions/Cmf.Custom.DevOps.Actions.csproj -dl:CentralLogger,"/home/vsts/work/_tasks/DotNetCoreCLI_5541a522-603c-47ad-91fc-a4b1d163081b/2.181.0/dotnet-build-helpers/Microsoft.TeamFoundation.DistributedTask.MSBuild.Logger.dll"*ForwardingLogger,"/home/vsts/work/_tasks/DotNetCoreCLI_5541a522-603c-47ad-91fc-a4b1d163081b/2.181.0/dotnet-build-helpers/Microsoft.TeamFoundation.DistributedTask.MSBuild.Logger.dll" --configuration release --output /home/vsts/work/1/b/Business
-            var args = new List<string>
+            var args = new List<string> { this.Command };
+            if (this.Solution?.FullName is string solutionFullName)
             {
-                this.Command,
-                this.Solution?.FullName
-            };
+                args.Add(solutionFullName);
+            }
             if (this.NuGetConfig is not null)
             {
                 args.AddRange(new[] { "--configfile", this.NuGetConfig.FullName });

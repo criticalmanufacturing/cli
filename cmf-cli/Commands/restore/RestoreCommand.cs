@@ -56,7 +56,7 @@ namespace Cmf.CLI.Commands.restore
             {
                 Description = "Package path",
                 CustomParser = argResult => Parse<IDirectoryInfo>(argResult, packagePath),
-                DefaultValueFactory = _ => Parse<IDirectoryInfo>(null, packagePath)
+                DefaultValueFactory = argResult => Parse<IDirectoryInfo>(argResult, packagePath)!
             };
             cmd.Add(packagePathArgument);
 
@@ -75,8 +75,13 @@ namespace Cmf.CLI.Commands.restore
         /// </summary>
         /// <param name="packagePath">The path of the current package folder</param>
         /// <param name="repos">The package repositories URI/path</param>
-        public void Execute(IDirectoryInfo packagePath, Uri[] repos)
+        public void Execute(IDirectoryInfo? packagePath, Uri[]? repos)
         {
+            if (packagePath == null)
+            {
+                throw new CliException("This command requires a specific Package's path to run");
+            }
+            
             using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
             IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{packagePath}/{CliConstants.CmfPackageFileName}");
             IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile, setDefaultValues: false);

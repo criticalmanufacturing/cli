@@ -39,10 +39,19 @@ namespace Cmf.CLI.Handlers
         {
             base.Bump(version, buildNr, bumpInformation);
             // Get All AutomationWorkflowFiles Folders
-            List<string> automationWorkflowDirectory = this.fileSystem.Directory.GetDirectories(CmfPackage.GetFileInfo().DirectoryName, "AutomationWorkflowFiles", SearchOption.AllDirectories).ToList();
+            var directoryName = CmfPackage.GetDirectoryInfo().Name;
+            if (directoryName == null)
+            {
+                throw new CliException("Package directory name is null.");
+            }
+            List<string> automationWorkflowDirectory = this.fileSystem.Directory.GetDirectories(directoryName, "AutomationWorkflowFiles", SearchOption.AllDirectories).ToList();
 
             // Get Parent Root
-            IDirectoryInfo parentRootDirectory = FileSystemUtilities.GetPackageRootByType(CmfPackage.GetFileInfo().DirectoryName, PackageType.Root, this.fileSystem);
+            IDirectoryInfo parentRootDirectory = FileSystemUtilities.GetPackageRootByType(directoryName, PackageType.Root, this.fileSystem);
+            if (parentRootDirectory == null)
+            {
+                throw new CliException("Parent root directory not found.");
+            }
             CmfPackageCollection cmfPackageIoT = parentRootDirectory.LoadCmfPackagesFromSubDirectories(packageType: PackageType.IoT);
 
             #region GetCustomPackages
@@ -123,7 +132,7 @@ namespace Cmf.CLI.Handlers
                 targetProperties = "workspaces";
             }
 
-            string packagesFile = this.fileSystem.Directory.GetFiles(iotPackage.GetFileInfo().DirectoryName, targetDirectory).FirstOrDefault();
+            string packagesFile = this.fileSystem.Directory.GetFiles(iotPackage.GetDirectoryInfo().Name, targetDirectory).FirstOrDefault();
 
             string contentJson = this.fileSystem.File.ReadAllText(packagesFile);
             dynamic contentObject = JsonConvert.DeserializeObject(contentJson);

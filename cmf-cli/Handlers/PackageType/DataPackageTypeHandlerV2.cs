@@ -148,7 +148,7 @@ namespace Cmf.CLI.Handlers
                         ContentType.ProcessRulesPost => new Step(StepType.ProcessRules) { Order = 40, ContentPath = target, Title = "Process Rules - After" },
                         _ => null,
                     };
-                }).Where(step => step != null).OrderBy(step => step.Order);
+                }).Where(step => step != null).Select(step => step!).OrderBy(step => step.Order);
 
                 if (this.CmfPackage.Steps != null)
                 {

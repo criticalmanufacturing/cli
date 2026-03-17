@@ -73,7 +73,7 @@ namespace Cmf.CLI.Handlers
                     DisplayName = "cmf restore",
                     Execute = command =>
                     {
-                        command.Execute(cmfPackage.GetFileInfo().Directory, null);
+                        command.Execute(cmfPackage.GetDirectoryInfo(), null);
                     }
                 },
                 new NPMCommand()
@@ -81,7 +81,7 @@ namespace Cmf.CLI.Handlers
                     DisplayName = "NPM Install",
                     Command  = "install",
                     Args = new []{ "--force" },
-                    WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                    WorkingDirectory = cmfPackage.GetDirectoryInfo()
                 },
                 // generate based on templates
                 new ExecuteCommand<GenerateBasedOnTemplatesCommand>()
@@ -90,7 +90,7 @@ namespace Cmf.CLI.Handlers
                     Command = new GenerateBasedOnTemplatesCommand(),
                     Execute = command =>
                     {
-                        command.Execute(cmfPackage.GetFileInfo().Directory);
+                        command.Execute(cmfPackage.GetDirectoryInfo());
                     }
                 },
                 // generate menu items
@@ -100,7 +100,7 @@ namespace Cmf.CLI.Handlers
                     Command = new GenerateMenuItemsCommand(),
                     Execute = command =>
                     {
-                        command.Execute(cmfPackage.GetFileInfo().Directory);
+                        command.Execute(cmfPackage.GetDirectoryInfo());
                     }
                 },
                 // generate documents database
@@ -109,7 +109,7 @@ namespace Cmf.CLI.Handlers
                     DisplayName = "Generate documents database",
                     Command = "run",
                     Args = new[] { "build-db" },
-                    WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                    WorkingDirectory = cmfPackage.GetDirectoryInfo()
                 },
                 // generate markdown links
                 new NPMCommand()
@@ -117,14 +117,14 @@ namespace Cmf.CLI.Handlers
                     DisplayName = "Generate markdown links",
                     Command = "run",
                     Args = new[] { "check-md-links" },
-                    WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                    WorkingDirectory = cmfPackage.GetDirectoryInfo()
                 }
             };
 
             cmfPackage.DFPackageType = PackageType.Presentation;
 
             // Projects BuildSteps
-            Workspace = new AngularWorkspace(cmfPackage.GetFileInfo().Directory);
+            Workspace = new AngularWorkspace(cmfPackage.GetDirectoryInfo());
             var apps = Workspace.Projects.Where(lib => lib.Type == "application").Select(p => (p.PackageJson.Content.name as JValue)?.Value as string ?? p.Name).ToList();
             foreach (var package in Workspace.PackagesToBuild)
             {
@@ -201,7 +201,7 @@ namespace Cmf.CLI.Handlers
             UpgradeBaseUtilities.UpdateNPMProject(this.fileSystem, this.CmfPackage, version);
 
             // Update the version in the config.json file
-            IFileInfo config = this.fileSystem.FileInfo.New(Path.Join(this.CmfPackage.GetFileInfo().DirectoryName, "src", "assets", "config.json"));
+            IFileInfo config = this.fileSystem.FileInfo.New(Path.Join(this.CmfPackage.GetDirectoryInfo().Name, "src", "assets", "config.json"));
 
             if (config.Exists)
             {

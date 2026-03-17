@@ -28,7 +28,7 @@ public class PluginsCommand : BaseCommand
         });
     }
 
-    public void Execute(Uri[] registry)
+    public void Execute(Uri[]? registry)
     {
         var npmClient = ExecutionContext.ServiceProvider.GetService<INPMClient>();
         var packages = npmClient.FindPlugins(registry?.Length > 0 ? registry : null); // null implies using the default registry

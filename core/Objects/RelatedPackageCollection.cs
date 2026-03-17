@@ -13,7 +13,7 @@ namespace Cmf.CLI.Core.Objects
             ForEach(relatedPackage =>
             {
                 var fileSystem = (ExecutionContext.Instance ?? throw new InvalidOperationException("ExecutionContext not initialized")).FileSystem;
-                var cmfpackageJsonFile = fileSystem.FileInfo.New(Path.Join(anchorPackage.GetFileInfo().Directory?.FullName, relatedPackage.Path, Constants.CoreConstants.CmfPackageFileName));
+                var cmfpackageJsonFile = fileSystem.FileInfo.New(Path.Join(anchorPackage.GetDirectoryInfo()?.FullName, relatedPackage.Path, Constants.CoreConstants.CmfPackageFileName));
                 relatedPackage.CmfPackage = new(cmfpackageJsonFile);
                 relatedPackage.CmfPackage.Peek();
                 if (!ExecutionContext.RelatedPackagesCache.Contains(relatedPackage))

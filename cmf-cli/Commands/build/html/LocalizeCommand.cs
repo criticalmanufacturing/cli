@@ -67,7 +67,7 @@ public class LocalizeCommand : BaseCommand
         var cmfPackage = CmfPackage.Load(cmfPackageFile, true, this.fileSystem);
 
         var projectRoot = FileSystemUtilities.GetProjectRoot(this.fileSystem);
-        var packageDirectory = cmfPackage.GetFileInfo().Directory;
+        var packageDirectory = cmfPackage.GetDirectoryInfo();
         Debug.Assert(projectRoot != null, "Invalid repository! Run this command inside a project repository.");
 
         if (cmfPackage.BaseLocalizationFiles?.Any() != true)

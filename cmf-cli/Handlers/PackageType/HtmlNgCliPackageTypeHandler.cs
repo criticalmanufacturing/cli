@@ -91,7 +91,7 @@ namespace Cmf.CLI.Handlers
                     DisplayName = "cmf restore",
                     Execute = command =>
                     {
-                        command.Execute(cmfPackage.GetFileInfo().Directory, null);
+                        command.Execute(cmfPackage.GetDirectoryInfo(), null);
                     }
                 },
                 new NPMCommand()
@@ -99,19 +99,19 @@ namespace Cmf.CLI.Handlers
                     DisplayName = "NPM Install",
                     Command  = "install",
                     Args = new []{ "--force" },
-                    WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                    WorkingDirectory = cmfPackage.GetDirectoryInfo()
                 },
                 new ExecuteCommand<LinkLBOsCommand>()
                 {
                     DisplayName = "Link LBOs",
                     Command = new LinkLBOsCommand(),
-                    Execute = command => command.Execute(cmfPackage.GetFileInfo().Directory)
+                    Execute = command => command.Execute(cmfPackage.GetDirectoryInfo())
                 }
             };
             cmfPackage.DFPackageType = PackageType.Presentation;
 
             // Projects BuildSteps
-            Workspace = new AngularWorkspace(cmfPackage.GetFileInfo().Directory);
+            Workspace = new AngularWorkspace(cmfPackage.GetDirectoryInfo());
             var apps = Workspace.Projects.Where(lib => lib.Type == "application").Select(p => (p.PackageJson.Content.name as Newtonsoft.Json.Linq.JValue)?.Value as string ?? p.Name).ToList();
             foreach (var package in Workspace.PackagesToBuild)
             {
@@ -187,7 +187,7 @@ namespace Cmf.CLI.Handlers
             base.UpgradeBase(version, iotVersion, iotPackagesToIgnore);
             UpgradeBaseUtilities.UpdateNPMProject(this.fileSystem, this.CmfPackage, version);
 
-            IFileInfo projectConfig = this.fileSystem.FileInfo.New(Path.Join(this.CmfPackage.GetFileInfo().DirectoryName, "src", "assets", "config.json"));
+            IFileInfo projectConfig = this.fileSystem.FileInfo.New(Path.Join(this.CmfPackage.GetDirectoryInfo().Name, "src", "assets", "config.json"));
             if (projectConfig.Exists)
             {
                 Log.Information($"Updating src/assets/config.json file");
@@ -252,7 +252,7 @@ namespace Cmf.CLI.Handlers
 
             List<string> transformInjections = new();
 
-            IDirectoryInfo cmfPackageDirectory = CmfPackage.GetFileInfo().Directory;
+            IDirectoryInfo cmfPackageDirectory = CmfPackage.GetDirectoryInfo();
 
             foreach (ContentToPack contentToPack in CmfPackage.ContentToPack)
             {

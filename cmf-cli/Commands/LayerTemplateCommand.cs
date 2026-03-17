@@ -116,7 +116,7 @@ namespace Cmf.CLI.Commands
             return (organization, product);
         }
 
-        protected (string, string)? GeneratePackageName(IDirectoryInfo workingDir)
+        protected (string, string?)? GeneratePackageName(IDirectoryInfo workingDir)
         {
             var (organization, product) = GetOrganizationAndProductFromProjectConfig();
 
@@ -124,7 +124,7 @@ namespace Cmf.CLI.Commands
 
             var projectRoot = FileSystemUtilities.GetProjectRoot(this.fileSystem, throwException: true);
 
-            string featureName = null;
+            string? featureName = null;
             if (string.Equals(projectRoot.FullName, workingDir.FullName))
             {
                 // is a root-level package.
@@ -158,13 +158,18 @@ namespace Cmf.CLI.Commands
         /// </summary>
         /// <param name="workingDir">the nearest root package</param>
         /// <param name="version">the package version</param>
-        public void Execute(IDirectoryInfo workingDir, string version, List<string> args = null)
+        public void Execute(IDirectoryInfo? workingDir, string? version, List<string>? args = null)
         {
-            using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
             if (workingDir == null)
             {
                 throw new CliException("This command needs to run inside a project. Run `cmf init` to create a new project.");
             }
+            if (version == null)
+            {
+                throw new CliException("Version is required.");
+            }
+
+            using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
 
             var names = this.GeneratePackageName(workingDir);
             if (names == null)

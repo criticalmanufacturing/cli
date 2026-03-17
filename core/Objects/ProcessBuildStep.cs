@@ -20,7 +20,7 @@ public class ProcessBuildStep : IEquatable<ProcessBuildStep>
     /// The arguments.
     /// </value>
     [JsonProperty(Order = 1)]
-    public string[]? Args { get; set; }
+    public string[] Args { get; set; } = [];
 
     /// <summary>
     /// Gets or sets the command.
@@ -29,7 +29,7 @@ public class ProcessBuildStep : IEquatable<ProcessBuildStep>
     /// The command.
     /// </value>
     [JsonProperty(Order = 2)]
-    public string? Command { get; set; }
+    public required string Command { get; set; }
 
     /// <summary>
     /// Gets or sets the working directory.
@@ -48,7 +48,7 @@ public class ProcessBuildStep : IEquatable<ProcessBuildStep>
     /// The environment variables to be used on a given ProcessBuildStep
     /// </value>
     [JsonProperty(Order = 4)]
-    public Dictionary<string, string>? EnvironmentVariables { get; set; }
+    public Dictionary<string, string> EnvironmentVariables { get; set; } = [];
 
     #region IEquatable
 

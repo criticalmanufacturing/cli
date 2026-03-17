@@ -165,7 +165,7 @@ namespace Cmf.CLI.Utilities
         /// <returns>
         ///   <c>true</c> if [is null or empty] [the specified object]; otherwise, <c>false</c>.
         /// </returns>
-        public static bool IsNullOrEmpty(this object obj)
+        public static bool IsNullOrEmpty(this object? obj)
         {
             bool result = false;
 
@@ -185,7 +185,7 @@ namespace Cmf.CLI.Utilities
         /// <returns>
         ///   <c>true</c> if the specified object is list; otherwise, <c>false</c>.
         /// </returns>
-        public static bool IsList(this object obj)
+        public static bool IsList(this object? obj)
         {
             return obj != null && (obj is IList);
         }

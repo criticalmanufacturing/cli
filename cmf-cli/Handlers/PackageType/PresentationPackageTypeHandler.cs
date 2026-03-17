@@ -35,11 +35,11 @@ namespace Cmf.CLI.Handlers
             List<string> packageList = new();
             List<string> transformInjections = new();
 
-            IDirectoryInfo cmfPackageDirectory = CmfPackage.GetFileInfo().Directory;
+            IDirectoryInfo cmfPackageDirectory = CmfPackage.GetDirectoryInfo();
 
             foreach (ContentToPack contentToPack in CmfPackage.ContentToPack)
             {
-                if (contentToPack.Action == null || contentToPack.Action == PackAction.Pack)
+                if ((contentToPack.Action == null || contentToPack.Action == PackAction.Pack) && contentToPack.Source != null)
                 {
                     // TODO: Validate if contentToPack.Source exists before
                     IDirectoryInfo[] packDirectories = cmfPackageDirectory.GetDirectories(contentToPack.Source);
@@ -47,7 +47,7 @@ namespace Cmf.CLI.Handlers
                     foreach (IDirectoryInfo packDirectory in packDirectories)
                     {
                         dynamic packageJson = packDirectory.GetFile(CoreConstants.PackageJson);
-                        if (packageJson != null)
+                        if (packageJson != null && packageJson.name != null)
                         {
                             string packageName = packageJson.name;
 
@@ -187,7 +187,7 @@ namespace Cmf.CLI.Handlers
         {
             base.Bump(version, buildNr, bumpInformation);
 
-            string parentDirectory = CmfPackage.GetFileInfo().DirectoryName;
+            string parentDirectory = CmfPackage.GetDirectoryInfo().Name;
             string[] filesToUpdate = this.fileSystem.Directory.GetFiles(parentDirectory, "package.json", SearchOption.AllDirectories);
             foreach (var fileName in filesToUpdate)
             {

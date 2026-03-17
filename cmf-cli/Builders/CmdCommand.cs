@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Cmf.CLI.Core.Objects;
@@ -17,7 +18,7 @@ namespace Cmf.CLI.Builders
         /// <value>
         /// The command.
         /// </value>
-        public string Command { get; set; }
+        public string Command { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the display name.
@@ -25,7 +26,7 @@ namespace Cmf.CLI.Builders
         /// <value>
         /// The display name.
         /// </value>
-        public string DisplayName { get; set; }
+        public string DisplayName { get; set; } = string.Empty;
 
         /// <summary>
         /// Only Executes on Test (--test)
@@ -41,7 +42,7 @@ namespace Cmf.CLI.Builders
         /// <value>
         /// The arguments.
         /// </value>
-        public string[] Args { get; set; }
+        public string[] Args { get; set; } = Array.Empty<string>();
 
         /// <summary>
         /// Gets the steps.

@@ -53,7 +53,7 @@ namespace Cmf.CLI.Utilities
         public static void UpdateNPMProject(IFileSystem fileSystem, CmfPackage cmfPackage, string version)
         {
             // package.json files
-            string[] filesToUpdate = fileSystem.Directory.GetFiles(cmfPackage.GetFileInfo().DirectoryName, "package.json", SearchOption.AllDirectories);
+            string[] filesToUpdate = fileSystem.Directory.GetFiles(cmfPackage.GetDirectoryInfo().Name, "package.json", SearchOption.AllDirectories);
             string pattern = @"release-\d+";
 
             foreach (string filePath in filesToUpdate.Where(path => !path.Contains("node_modules") && !path.Contains("dist")))
@@ -65,7 +65,7 @@ namespace Cmf.CLI.Utilities
             }
 
             // package-lock.json files
-            string[] filesToDelete = fileSystem.Directory.GetFiles(cmfPackage.GetFileInfo().DirectoryName, "package-lock.json", SearchOption.AllDirectories);
+            string[] filesToDelete = fileSystem.Directory.GetFiles(cmfPackage.GetDirectoryInfo().Name, "package-lock.json", SearchOption.AllDirectories);
             foreach (string filePath in filesToDelete.Where(path => !path.Contains("node_modules") && !path.Contains("dist")))
             {
                 Log.Warning($"Package lock {filePath} has been deleted. Please build the {cmfPackage.PackageId} package to regenerate this file");
@@ -85,7 +85,7 @@ namespace Cmf.CLI.Utilities
         /// </param>
         public static void UpdateCSharpProject(IFileSystem fileSystem, CmfPackage cmfPackage, string version, bool strictMatching)
         {
-            string[] filesToUpdate = fileSystem.Directory.GetFiles(cmfPackage.GetFileInfo().DirectoryName, "*.csproj", SearchOption.AllDirectories);
+            string[] filesToUpdate = fileSystem.Directory.GetFiles(cmfPackage.GetDirectoryInfo().Name, "*.csproj", SearchOption.AllDirectories);
             
             string pattern;
             if (strictMatching)
@@ -155,7 +155,7 @@ namespace Cmf.CLI.Utilities
                 if (contentToPack.ContentType == ContentType.MasterData)
                 {
                     mdlFiles.AddRange(fileSystem.Directory.GetFiles(
-                        cmfPackage.GetFileInfo().DirectoryName,
+                        cmfPackage.GetDirectoryInfo().Name,
                         contentToPack.Source,
                         SearchOption.AllDirectories
                     ));
@@ -163,7 +163,7 @@ namespace Cmf.CLI.Utilities
                 else if (contentToPack.ContentType == ContentType.AutomationWorkFlows)
                 {
                     workflowFiles.AddRange(fileSystem.Directory.GetFiles(
-                        cmfPackage.GetFileInfo().DirectoryName,
+                        cmfPackage.GetDirectoryInfo().Name,
                         contentToPack.Source,
                         SearchOption.AllDirectories
                     ));
@@ -350,7 +350,7 @@ namespace Cmf.CLI.Utilities
         internal static void SerializeWithOriginalIndentation(string jsonPath, string jsonText, JObject jsonObject, IFileSystem fileSystem)
         {
             // Get the leading whitespace of the second JSON line (it should have exactly one level of indentation)
-            string secondLine = jsonText.Split('\n').ElementAtOrDefault(1);
+            string? secondLine = jsonText.Split('\n').ElementAtOrDefault(1);
 
             int indentationCount = 2;
             char indentationChar = ' ';

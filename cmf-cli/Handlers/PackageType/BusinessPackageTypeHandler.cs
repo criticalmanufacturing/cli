@@ -45,6 +45,8 @@ namespace Cmf.CLI.Handlers
                         }
                  });
 
+            var packageDirectory = cmfPackage.GetDirectoryInfo();
+
             BuildSteps = new IBuildCommand[]
             {
                 new ExecuteCommand<RestoreCommand>()
@@ -53,30 +55,30 @@ namespace Cmf.CLI.Handlers
                     DisplayName = "cmf restore",
                     Execute = command =>
                     {
-                        command.Execute(cmfPackage.GetFileInfo().Directory, null);
+                        command.Execute(packageDirectory, null);
                     }
                 },
                 new DotnetCommand()
                 {
                     Command = "restore",
                     DisplayName = "NuGet restore",
-                    Solution = this.fileSystem.FileInfo.New(Path.Join(cmfPackage.GetFileInfo().Directory.FullName, "Business.sln")),
-                    WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                    Solution = this.fileSystem.FileInfo.New(Path.Join(packageDirectory.FullName, "Business.sln")),
+                    WorkingDirectory = packageDirectory
                 },
                 new DotnetCommand()
                 {
                     Command = "build",
                     DisplayName = "Build Business Solution",
-                    Solution = this.fileSystem.FileInfo.New(Path.Join(cmfPackage.GetFileInfo().Directory.FullName, "Business.sln")),
+                    Solution = this.fileSystem.FileInfo.New(Path.Join(packageDirectory.FullName, "Business.sln")),
                     Configuration = "Release",
-                    WorkingDirectory = cmfPackage.GetFileInfo().Directory,
+                    WorkingDirectory = packageDirectory,
                     Args = new [] { "--no-restore "}
                 },
                 new DotnetCommand()
                 {
                     Command = "test",
                     DisplayName = "Run Business Unit Tests",
-                    WorkingDirectory = cmfPackage.GetFileInfo().Directory,
+                    WorkingDirectory = packageDirectory,
                     Test = true,
                     Args = new [] { "--collect:\"XPlat Code Coverage\"", "--logger", "trx" }
                 }
@@ -89,7 +91,7 @@ namespace Cmf.CLI.Handlers
         /// <param name="version">The version.</param>
         /// <param name="buildNr">The version for build Nr.</param>
         /// <param name="bumpInformation">The bump information.</param>
-        public override void Bump(string version, string buildNr, Dictionary<string, object> bumpInformation = null)
+        public override void Bump(string version, string buildNr, Dictionary<string, object>? bumpInformation = null)
         {
             base.Bump(version, buildNr, bumpInformation);
 
@@ -100,7 +102,7 @@ namespace Cmf.CLI.Handlers
             }
 
             // Assembly Info
-            string[] filesToUpdate = this.fileSystem.Directory.GetFiles(this.CmfPackage.GetFileInfo().DirectoryName, "AssemblyInfo.cs", SearchOption.AllDirectories);
+            string[] filesToUpdate = this.fileSystem.Directory.GetFiles(this.CmfPackage.GetDirectoryInfo().Name, "AssemblyInfo.cs", SearchOption.AllDirectories);
             string pattern = @"Version\(\""[0-9.]*\""\)";
             foreach (var filePath in filesToUpdate)
             {

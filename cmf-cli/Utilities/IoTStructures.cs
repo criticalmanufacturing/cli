@@ -32,16 +32,19 @@ namespace Cmf.CLI.Utilities
                 case DataTypeInputOutput.Long:
                 case DataTypeSetting.Integer:
                 case DataTypeSetting.Long:
+                    var intStr = defaultValue?.ToString();
                     return AnsiConsole.Ask($"{identifier} Default Value:",
-                            defaultValue?.ToString() != null ? int.Parse(defaultValue?.ToString()) : 0);
+                        intStr != null ? int.Parse(intStr) : 0);
                 case DataTypeInputOutput.Decimal:
                 case DataTypeSetting.Decimal:
+                    var decimalStr = defaultValue?.ToString();
                     return AnsiConsole.Ask($"{identifier} Default Value:",
-                        defaultValue?.ToString() != null ? decimal.Parse(defaultValue?.ToString()) : 0);
+                        decimalStr != null ? decimal.Parse(decimalStr) : 0);
                 case DataTypeInputOutput.Boolean:
                 case DataTypeSetting.Boolean:
+                    var boolStr = defaultValue?.ToString();
                     return AnsiConsole.Ask($"{identifier} Default Value:",
-                        defaultValue?.ToString() != null ? bool.Parse(defaultValue.ToString()) : false);
+                        boolStr != null ? bool.Parse(boolStr) : false);
                 case DataTypeInputOutput.Any:
                 case DataTypeInputOutput.Object:
                 case DataTypeSetting.Object:

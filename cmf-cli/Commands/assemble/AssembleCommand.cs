@@ -249,7 +249,7 @@ namespace Cmf.CLI.Commands
         /// <param name="cmfPackage">The CMF package.</param>
         /// <param name="assembledDependencies">The loaded dependencies.</param>
         /// <param name="includeTestPackages"></param>
-        private void AssembleDependencies(IDirectoryInfo outputDir, Uri ciRepo, IDirectoryInfo[] repoDirectories, CmfPackage cmfPackage, DependencyCollection assembledDependencies = null, bool includeTestPackages = false)
+        private void AssembleDependencies(IDirectoryInfo outputDir, Uri ciRepo, IDirectoryInfo[] repoDirectories, CmfPackage cmfPackage, DependencyCollection? assembledDependencies = null, bool includeTestPackages = false)
         {
             if (cmfPackage.Dependencies.HasAny())
             {

@@ -1,4 +1,4 @@
-﻿using Cmf.CLI.Builders;
+using Cmf.CLI.Builders;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Constants;
@@ -137,7 +137,7 @@ namespace Cmf.CLI.Handlers
             }
             else
             {
-                DependenciesFolder = fileSystem.DirectoryInfo.New(this.fileSystem.Path.Join(cmfPackage.GetFileInfo().Directory.FullName, "Dependencies"));
+                DependenciesFolder = fileSystem.DirectoryInfo.New(this.fileSystem.Path.Join(cmfPackage.GetDirectoryInfo().FullName, "Dependencies"));
             }
 
             RelatedPackagesHandlers = new();
@@ -175,7 +175,7 @@ namespace Cmf.CLI.Handlers
             XDocument dFManifestTemplate = XDocument.Load(dFManifestReader);
 
             // NOTE: We don't use an automatic serializer because we want full control on how the file is parsed
-            XElement rootNode = dFManifestTemplate.Element("deploymentPackage", true);
+            XElement? rootNode = dFManifestTemplate.Element("deploymentPackage", true);
             if (rootNode == null)
             {
                 throw new CliException(string.Format(CoreMessages.InvalidManifestFile));
@@ -187,7 +187,7 @@ namespace Cmf.CLI.Handlers
             foreach (XElement element in rootNode.Elements())
             {
                 // Get the Property Value based on the Token name
-                string token = element.Value.Trim();
+                string? token = element?.Value?.Trim();
 
                 if (string.IsNullOrEmpty(token))
                 {
@@ -197,9 +197,9 @@ namespace Cmf.CLI.Handlers
                 // if is xmlInjection means that we need to inject xml content
                 if (token.IgnoreCaseEquals(CliConstants.TokenXmlInjection) && CmfPackage.XmlInjection.HasAny())
                 {
-                    foreach (string xmlInjectionFile in CmfPackage.XmlInjection)
+                    foreach (string xmlInjectionFile in CmfPackage.XmlInjection ?? [])
                     {
-                        IFileInfo xmlFile = this.fileSystem.FileInfo.New($"{CmfPackage.GetFileInfo().Directory}/{xmlInjectionFile}");
+                        IFileInfo xmlFile = this.fileSystem.FileInfo.New($"{CmfPackage.GetDirectoryInfo()}/{xmlInjectionFile}");
                         string xmlFileContent = xmlFile.ReadToString();
 
                         if (!xmlFile.Exists || string.IsNullOrEmpty(xmlFileContent))
@@ -213,53 +213,60 @@ namespace Cmf.CLI.Handlers
                         rootNode.Add(xml.Elements());
                     }
 
-                    elementsToRemove.Add(element);
+                    elementsToRemove.Add(element!);
 
                     continue;
                 }
 
-                object propertyValue = CmfPackage.GetPropertyValueFromTokenName(token);
+                object? propertyValue = CmfPackage.GetPropertyValueFromTokenName(token);
 
                 // If a Property with the same name of the token was not found
                 // We need to remove that element from the final xml file
                 if (propertyValue.IsNullOrEmpty())
                 {
-                    elementsToRemove.Add(element);
+                    elementsToRemove.Add(element!);
                 }
                 else
                 {
                     // If the Property is not a List we just need to set the Element Value with the Property Value
                     if (!propertyValue.IsList())
                     {
-                        element.Value = propertyValue.ToString();
+                        element!.Value = propertyValue!.ToString()!;
                     }
                     else
                     {
-                        IList listProperty = (propertyValue as IList);
-                        string typeName = listProperty[0].GetType().GetTypeInfo().Name.ToCamelCase();
-
-                        // Cleanup the token
-                        element.Value = string.Empty;
-
-                        // Each Property in the list will be handled as an xml element with attributes
-                        foreach (object property in listProperty)
+                        if (propertyValue is IList listProperty && listProperty.Count > 0)
                         {
-                            List<XAttribute> xAttributes = new();
-                            foreach (PropertyInfo propertyinfo in property.GetType().GetProperties())
+                            var firstItem = listProperty[0];
+                            if (firstItem != null)
                             {
-                                if (propertyinfo.CustomAttributes.Any(attr => attr.AttributeType == typeof(XmlIgnoreAttribute)))
-                                {
-                                    continue;
-                                }
+                                string typeName = firstItem.GetType().GetTypeInfo().Name.ToCamelCase();
 
-                                var obj = propertyinfo.GetValue(property);
-                                if (obj != null)
+                                // Cleanup the token
+                                element!.Value = string.Empty;
+
+                                // Each Property in the list will be handled as an xml element with attributes
+                                foreach (object property in listProperty)
                                 {
-                                    xAttributes.Add(new XAttribute(propertyinfo.Name.ToCamelCase(), propertyinfo.GetValue(property)));
+                                    if (property == null) continue;
+                                    List<XAttribute> xAttributes = new();
+                                    foreach (PropertyInfo propertyinfo in property.GetType().GetProperties())
+                                    {
+                                        if (propertyinfo.CustomAttributes.Any(attr => attr.AttributeType == typeof(XmlIgnoreAttribute)))
+                                        {
+                                            continue;
+                                        }
+
+                                        var obj = propertyinfo.GetValue(property);
+                                        if (obj != null)
+                                        {
+                                            xAttributes.Add(new XAttribute(propertyinfo.Name.ToCamelCase(), obj));
+                                        }
+                                    }
+
+                                    element.Add(new XElement(typeName, xAttributes));
                                 }
                             }
-
-                            element.Add(new XElement(typeName, xAttributes));
                         }
                     }
                 }
@@ -346,7 +353,7 @@ namespace Cmf.CLI.Handlers
                 fileToPack.Source.CopyTo(fileToPack.Target.FullName, true);
             }
 
-            string tempzipPath = $"{CmfPackage.GetFileInfo().Directory.FullName}/{CmfPackage.PackageName}.zip";
+            string tempzipPath = $"{CmfPackage.GetDirectoryInfo().FullName}/{CmfPackage.PackageName}.zip";
             if (this.fileSystem.File.Exists(tempzipPath))
             {
                 this.fileSystem.File.Delete(tempzipPath);
@@ -370,7 +377,7 @@ namespace Cmf.CLI.Handlers
 
             if (CmfPackage.ContentToPack.HasAny())
             {
-                IDirectoryInfo packageDirectory = CmfPackage.GetFileInfo().Directory;
+                IDirectoryInfo packageDirectory = CmfPackage.GetDirectoryInfo();
 
                 // TODO: Bulk Copy
                 foreach (ContentToPack contentToPack in CmfPackage.ContentToPack)
@@ -378,7 +385,7 @@ namespace Cmf.CLI.Handlers
                     string _source = contentToPack.Source;
                     string _target = contentToPack.Target;
 
-                    if (contentToPack.Action != null && contentToPack.Action != PackAction.Pack)
+                    if (contentToPack.Action != PackAction.Pack)
                     {
                         continue;
                     }
@@ -582,6 +589,10 @@ namespace Cmf.CLI.Handlers
 
             foreach (var relatedPackageHandler in RelatedPackagesHandlers.Where(rp => !rp.Key.IsSet && rp.Key.PrePack))
             {
+                if (relatedPackageHandler.Key.CmfPackage == null)
+                {
+                    continue;
+                }
                 var relatedPackagPackageOutputDir = FileSystemUtilities.GetPackageOutputDir(relatedPackageHandler.Key.CmfPackage, packageOutputDir, fileSystem);
                 relatedPackageHandler.Value.Pack(relatedPackagPackageOutputDir, outputDir, dryRun);
                 relatedPackageHandler.Key.IsSet = true;
@@ -644,6 +655,10 @@ namespace Cmf.CLI.Handlers
 
             foreach (var relatedPackageHandler in RelatedPackagesHandlers.Where(rp => !rp.Key.IsSet && rp.Key.PostPack))
             {
+                if (relatedPackageHandler.Key.CmfPackage == null)
+                {
+                    continue;
+                }
                 var relatedPackagPackageOutputDir = FileSystemUtilities.GetPackageOutputDir(relatedPackageHandler.Key.CmfPackage, packageOutputDir, fileSystem);
                 relatedPackageHandler.Value.Pack(relatedPackagPackageOutputDir, outputDir, dryRun);
                 relatedPackageHandler.Key.IsSet = true;
@@ -670,6 +685,10 @@ namespace Cmf.CLI.Handlers
         }
         private void RestoreDependenciesUsingRepoClients(Uri[] repoUris)
         {
+            if (this.CmfPackage == null)
+            {
+                throw new CliException("CmfPackage was not provided.");
+            }
             Log.Debug($"Using repos at {string.Join(", ", repoUris.Select(r => r.OriginalString))}");
             Log.Debug($"Targeting dependencies folder at {this.DependenciesFolder.FullName}");
             var rootIdentifier = $"{this.CmfPackage.PackageId}@{this.CmfPackage.Version}";
@@ -678,6 +697,10 @@ namespace Cmf.CLI.Handlers
                 var client = ExecutionContext.ServiceProvider?.GetService<IRepositoryLocator>()
                     .GetRepositoryClient(new Uri(this.CmfPackage.GetFileInfo().FullName), this.fileSystem);
                 var cmfPackage = client.Find(null, null).GetAwaiter().GetResult();
+                if (cmfPackage == null)
+                {
+                    throw new CliException($"CmfPackage {this.CmfPackage.GetFileInfo().FullName} was not found.");
+                }
                 var ctrlr = new CmfPackageController(cmfPackage, this.fileSystem);
                 ctrlr.LoadDependencies(repoUris, ctx, true).GetAwaiter().GetResult();
                 ctx.Status($"Restoring {rootIdentifier} dependency tree...");

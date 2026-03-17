@@ -66,7 +66,7 @@ namespace Cmf.CLI.Handlers
                     DisplayName = "cmf restore",
                     Execute = command =>
                     {
-                        command.Execute(cmfPackage.GetFileInfo().Directory, null);
+                        command.Execute(cmfPackage.GetDirectoryInfo(), null);
                     }
                 },
                 new NPMCommand()
@@ -74,7 +74,7 @@ namespace Cmf.CLI.Handlers
                     DisplayName = "NPM Install",
                     Command  = "install",
                     Args = new []{ "--force" },
-                    WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                    WorkingDirectory = cmfPackage.GetDirectoryInfo()
                 },
                 new GulpCommand()
                 {
@@ -83,7 +83,7 @@ namespace Cmf.CLI.Handlers
                     DisplayName = "Gulp Install",
                     GulpJS = "node_modules/gulp/bin/gulp.js",
                     Args = new [] { "--update" },
-                    WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                    WorkingDirectory = cmfPackage.GetDirectoryInfo()
                 },
                 new GulpCommand()
                 {
@@ -92,7 +92,7 @@ namespace Cmf.CLI.Handlers
                     DisplayName = "Gulp Build",
                     GulpJS = "node_modules/gulp/bin/gulp.js",
                     Args = new [] { "--production" , "--dist", "--brotli"},
-                    WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                    WorkingDirectory = cmfPackage.GetDirectoryInfo()
                 },
             };
 
@@ -108,7 +108,7 @@ namespace Cmf.CLI.Handlers
             base.UpgradeBase(version, iotVersion, iotPackagesToIgnore);
             UpgradeBaseUtilities.UpdateNPMProject(this.fileSystem, this.CmfPackage, version);
 
-            IFileInfo projectConfig = this.fileSystem.FileInfo.New(Path.Join(this.CmfPackage.GetFileInfo().DirectoryName, "apps", "customization.web", "config.json"));
+            IFileInfo projectConfig = this.fileSystem.FileInfo.New(Path.Join(this.CmfPackage.GetDirectoryInfo().Name, "apps", "customization.web", "config.json"));
             if (projectConfig.Exists)
             {
                 Log.Information($"Updating apps/customization.web/config.json file");

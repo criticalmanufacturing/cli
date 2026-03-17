@@ -459,6 +459,11 @@ namespace Cmf.CLI.Core.Objects
         {
             FileInfo = value;
         }
+        
+        public IDirectoryInfo GetDirectoryInfo() {
+            return this.FileInfo.Directory ?? 
+                throw new DirectoryNotFoundException($"Could not resolve package directory of {FileInfo.FullName}");
+        }
 
         /// <summary>
         /// Sets the defaults.

@@ -123,7 +123,7 @@ namespace Cmf.CLI.Commands
             // TODO: Need to review file patterns in contentToPack and contentToIgnore
             IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfPackage);
 
-            IDirectoryInfo packageDirectory = cmfPackage.GetFileInfo().Directory;
+            IDirectoryInfo packageDirectory = cmfPackage.GetDirectoryInfo();
 
             #region Output Directories Handling
 

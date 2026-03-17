@@ -75,9 +75,14 @@ namespace Cmf.CLI.Commands
         /// Executes the specified package path.
         /// </summary>
         /// <param name="packagePath">The package path.</param>
-        public void Execute(IDirectoryInfo packagePath, bool test = false)
+        public void Execute(IDirectoryInfo? packagePath, bool test = false)
         {
             using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
+            if (packagePath == null)
+            {
+                throw new CliException("Package path is required.");
+            }
+
             IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{packagePath}/{CliConstants.CmfPackageFileName}");
 
             IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile, setDefaultValues: false);

@@ -16,7 +16,7 @@ namespace Cmf.CLI.Builders
         /// <value>
         /// The command.
         /// </value>
-        public string Command { get; set; }
+        public string Command { get; set; } = string.Empty;
         
         /// <summary>
         /// Gets or sets the arguments.

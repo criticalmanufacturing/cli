@@ -159,7 +159,11 @@ namespace Cmf.CLI.Commands.New
             IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{workingDir}/{packageName}/{CliConstants.CmfPackageFileName}");
             var cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true, this.fileSystem);
 
-            var iotRoot = cmfPackage.GetFileInfo().Directory;
+            var iotRoot = cmfPackage.GetDirectoryInfo();
+            if (iotRoot == null)
+            {
+                throw new CliException("IoT package root directory is null.");
+            }
             var iotCustomPackage = iotRoot.LoadCmfPackagesFromSubDirectories(packageType: PackageType.IoT).FirstOrDefault();
 
             if (iotCustomPackage == null)
@@ -167,7 +171,11 @@ namespace Cmf.CLI.Commands.New
                 throw new CliException($"Failed to find a CMF Package with type '${PackageType.IoT}' inside folder '{iotRoot.FullName}'");
             }
 
-            var iotCustomPackageWorkDir = iotCustomPackage.GetFileInfo().Directory;
+            var iotCustomPackageWorkDir = iotCustomPackage.GetDirectoryInfo();
+            if (iotCustomPackageWorkDir == null)
+            {
+                throw new CliException("IoT custom package work directory is null.");
+            }
             var iotCustomPackageName = base.GeneratePackageName(iotCustomPackageWorkDir)!.Value.Item1;
 
             var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
@@ -205,14 +213,23 @@ namespace Cmf.CLI.Commands.New
             base.Execute(workingDir, version); // create package base - generate cmfpackage.json
 
             // this won't return null because it has to success on the base.Execute call
-            var ngCliVersion = ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().AngularCLI(ExecutionContext.Instance.ProjectConfig.MESVersion);
+            var dependencyService = ExecutionContext.ServiceProvider?.GetService<IDependencyVersionService>();
+            if (dependencyService == null)
+            {
+                throw new CliException("Dependency version service is not available.");
+            }
+            var ngCliVersion = dependencyService.AngularCLI(ExecutionContext.Instance.ProjectConfig.MESVersion);
 
             var packageName = base.GeneratePackageName(workingDir)!.Value.Item1;
 
             IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{workingDir}/{packageName}/{CliConstants.CmfPackageFileName}");
             var cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true, this.fileSystem);
 
-            var iotRoot = cmfPackage.GetFileInfo().Directory;
+            var iotRoot = cmfPackage.GetDirectoryInfo();
+            if (iotRoot == null)
+            {
+                throw new CliException("IoT package root directory is null.");
+            }
             var iotCustomPackage = iotRoot.LoadCmfPackagesFromSubDirectories(packageType: PackageType.IoT).FirstOrDefault();
 
             if (iotCustomPackage == null)
@@ -220,7 +237,11 @@ namespace Cmf.CLI.Commands.New
                 throw new CliException($"Failed to find a CMF Package with type '${PackageType.IoT}' inside folder '{iotRoot.FullName}'");
             }
 
-            var iotCustomPackageWorkDir = iotCustomPackage.GetFileInfo().Directory;
+            var iotCustomPackageWorkDir = iotCustomPackage.GetDirectoryInfo();
+            if (iotCustomPackageWorkDir == null)
+            {
+                throw new CliException("IoT custom package work directory is null.");
+            }
             var iotCustomPackageName = base.GeneratePackageName(iotCustomPackageWorkDir)!.Value.Item1;
 
             var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
@@ -292,14 +313,16 @@ namespace Cmf.CLI.Commands.New
             new NPMCommand()
             {
                 DisplayName = "npm inquirer (version 8.2.7 of the inquirer breaks for <Node18)",
-                Args = new string[] { "install", "inquirer@8.2.6", "--save-dev" },
+                Command = "install",
+                Args = new string[] { "inquirer@8.2.6", "--save-dev" },
                 WorkingDirectory = iotCustomPackageWorkDir
             }.Exec();
 
             new NPMCommand()
             {
                 DisplayName = "npm yeoman",
-                Args = new string[] { "install", "yo@4.3.1", "--save-dev" },
+                Command = "install",
+                Args = new string[] { "yo@4.3.1", "--save-dev" },
                 WorkingDirectory = iotCustomPackageWorkDir
             }.Exec();
 
@@ -308,7 +331,8 @@ namespace Cmf.CLI.Commands.New
             new NPMCommand()
             {
                 DisplayName = "npm yeoman generator-iot",
-                Args = new string[] { "install", $"@criticalmanufacturing/generator-iot@{mesVersion.Major}{mesVersion.Minor}x", "--save-dev" },
+                Command = "install",
+                Args = new string[] { $"@criticalmanufacturing/generator-iot@{mesVersion.Major}{mesVersion.Minor}x", "--save-dev" },
                 WorkingDirectory = iotCustomPackageWorkDir
             }.Exec();
 

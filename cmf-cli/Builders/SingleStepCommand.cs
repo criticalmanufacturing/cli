@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Cmf.CLI.Core.Objects;
 
@@ -12,7 +13,7 @@ internal class SingleStepCommand : ProcessCommand, IBuildCommand
     /// <summary>
     /// The build step executed by this command
     /// </summary>
-    public ProcessBuildStep BuildStep { get; init; }
+    public required ProcessBuildStep BuildStep { get; set; }
     
     /// <inheritdoc />
     public override ProcessBuildStep[] GetSteps()
@@ -23,7 +24,7 @@ internal class SingleStepCommand : ProcessCommand, IBuildCommand
     /// <inheritdoc />
     public string DisplayName
     {
-        get => $"{BuildStep.Command} {string.Join(' ', BuildStep.Args)}";
+        get => $"{BuildStep.Command} {string.Join(' ', BuildStep.Args ?? Array.Empty<string>())}";
         set { }
     }
     

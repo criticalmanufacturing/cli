@@ -39,8 +39,14 @@ namespace Cmf.CLI.Factories
         /// </exception>
         public static IPackageTypeHandler GetPackageTypeHandler(CmfPackage cmfPackage, bool setDefaultValues = false)
         {
-            IPackageTypeHandler packageTypeHandler;
-            packageTypeHandler = cmfPackage.PackageType switch
+            if (cmfPackage is null)
+            {
+                throw new CliException("cmfPackage is required");
+            }
+
+            var cmfPkg = cmfPackage ?? throw new CliException("cmfPackage is required");
+
+            IPackageTypeHandler packageTypeHandler = cmfPkg.PackageType switch
             {
                 PackageType.Root => new RootPackageTypeHandler(cmfPackage),
                 PackageType.Generic => new GenericPackageTypeHandler(cmfPackage),

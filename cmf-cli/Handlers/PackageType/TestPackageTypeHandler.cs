@@ -41,7 +41,7 @@ namespace Cmf.CLI.Handlers
             // Get Template
             string fileContent = ResourceUtilities.GetEmbeddedResourceContent($"{CliConstants.FolderTemplates}/{CmfPackage.PackageType}/{CoreConstants.PackageJson}");
 
-            JObject json = JsonConvert.DeserializeObject<JObject>(fileContent);
+            JObject json = JsonConvert.DeserializeObject<JObject>(fileContent) ?? throw new CliException("Failed to parse package.json template.");
 
             // Replace the placeholder values from the template
             json["name"] = CmfPackage.PackageId;
@@ -73,23 +73,23 @@ namespace Cmf.CLI.Handlers
                     DisplayName = "cmf restore",
                     Execute = command =>
                     {
-                        command.Execute(cmfPackage.GetFileInfo().Directory, null);
+                        command.Execute(cmfPackage.GetDirectoryInfo(), null);
                     }
                 },
                 new DotnetCommand()
                 {
                     Command = "restore",
                     DisplayName = "NuGet restore",
-                    Solution = this.fileSystem.FileInfo.New(this.fileSystem.Path.Join(cmfPackage.GetFileInfo().Directory.FullName, "Tests.sln")),
-                    WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                    Solution = this.fileSystem.FileInfo.New(this.fileSystem.Path.Join(cmfPackage.GetDirectoryInfo().FullName, "Tests.sln")),
+                    WorkingDirectory = cmfPackage.GetDirectoryInfo()
                 },
                 new DotnetCommand()
                 {
                     Command = "build",
                     DisplayName = "Build Tests Solution",
-                    Solution = this.fileSystem.FileInfo.New(this.fileSystem.Path.Join(cmfPackage.GetFileInfo().Directory.FullName, "Tests.sln")),
+                    Solution = this.fileSystem.FileInfo.New(this.fileSystem.Path.Join(cmfPackage.GetDirectoryInfo().FullName, "Tests.sln")),
                     Configuration = "Release",
-                    WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                    WorkingDirectory = cmfPackage.GetDirectoryInfo()
                 }
             };
         }
@@ -111,7 +111,7 @@ namespace Cmf.CLI.Handlers
             }
 
             // Assembly Info
-            string[] filesToUpdate = this.fileSystem.Directory.GetFiles(this.CmfPackage.GetFileInfo().DirectoryName, "AssemblyInfo.cs", SearchOption.AllDirectories);
+            string[] filesToUpdate = this.fileSystem.Directory.GetFiles(this.CmfPackage.GetDirectoryInfo().Name, "AssemblyInfo.cs", SearchOption.AllDirectories);
             string pattern = @"Version\(\""[0-9.]*\""\)";
             foreach (var filePath in filesToUpdate)
             {

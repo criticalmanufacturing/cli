@@ -74,8 +74,8 @@ namespace Cmf.CLI.Commands
                 throw new Exception("Could not spawn child command");
             }
             
-            process.ErrorDataReceived += (sender, args) => errorHandler(args.Data);
-            process.OutputDataReceived += (sender, args) => outputHandler(args.Data);
+            process.ErrorDataReceived += (sender, args) => { if (args.Data != null) errorHandler(args.Data); };
+            process.OutputDataReceived += (sender, args) => { if (args.Data != null) outputHandler(args.Data); };
             
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();

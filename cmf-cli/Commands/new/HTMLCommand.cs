@@ -181,7 +181,7 @@ namespace Cmf.CLI.Commands.New
 
             // install dev dependencies/tooling
             Log.Verbose("Executing npm install, this will take a while...");
-            (new NPMCommand() { Command = "install", WorkingDirectory = pkgFolder }).Exec();
+            new NPMCommand() { Command = "install", DisplayName = "NPM install", WorkingDirectory = pkgFolder }.Exec();
 
             var htmlDevTasksConfigPath = this.fileSystem.Path.GetTempFileName();
             var htmlDevTasksConfigJson =

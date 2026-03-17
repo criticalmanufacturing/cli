@@ -32,6 +32,16 @@ namespace Cmf.CLI
         {
             try
             {
+                // Console.WriteLine("Debug y/n ?");
+                // if (Console.ReadLine()!.ToLower() == "y") {
+                //     Console.WriteLine("Waiting for debugger to attach");
+                //     while (!System.Diagnostics.Debugger.IsAttached)
+                //     {
+                //         System.Threading.Thread.Sleep(100);
+                //     }
+                //     Console.WriteLine("Debugger attached");
+                // }
+
                 var fileSystem = new FileSystem();
 
                 var rootCommand = await StartupModule.Configure(

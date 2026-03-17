@@ -49,7 +49,7 @@ namespace Cmf.CLI.Handlers
                         DisplayName = "cmf restore",
                         Execute = command =>
                         {
-                            command.Execute(cmfPackage.GetFileInfo().Directory, null);
+                            command.Execute(cmfPackage.GetDirectoryInfo(), null);
                         }
                     },
                     new NPMCommand()
@@ -57,7 +57,7 @@ namespace Cmf.CLI.Handlers
                        DisplayName = "NPM Install",
                        Command = "install",
                        Args = new[] {"--force"},
-                       WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                       WorkingDirectory = cmfPackage.GetDirectoryInfo()
                     },
                     new GulpCommand()
                     {
@@ -65,7 +65,8 @@ namespace Cmf.CLI.Handlers
                        Task = "install",
                        DisplayName = "Gulp Install",
                        GulpJS = "node_modules/gulp/bin/gulp.js",
-                       WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                       Args = Array.Empty<string>(),
+                       WorkingDirectory = cmfPackage.GetDirectoryInfo()
                     },
                     new GulpCommand()
                     {
@@ -73,7 +74,8 @@ namespace Cmf.CLI.Handlers
                        Task = "build",
                        DisplayName = "Gulp Build",
                        GulpJS = "node_modules/gulp/bin/gulp.js",
-                       WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                       Args = Array.Empty<string>(),
+                       WorkingDirectory = cmfPackage.GetDirectoryInfo()
                     },
                     new GulpCommand()
                     {
@@ -81,7 +83,8 @@ namespace Cmf.CLI.Handlers
                         Task = "cliTest",
                         DisplayName = "Gulp Test",
                         GulpJS = "node_modules/gulp/bin/gulp.js",
-                        WorkingDirectory = cmfPackage.GetFileInfo().Directory,
+                        Args = Array.Empty<string>(),
+                        WorkingDirectory = cmfPackage.GetDirectoryInfo(),
                         Test = true
                     }
                 };
@@ -90,7 +93,7 @@ namespace Cmf.CLI.Handlers
             {
                 var packageLocation = "projects";
 
-                if (!this.IsAngularProject(cmfPackage.GetFileInfo().Directory.FullName))
+                if (!this.IsAngularProject(cmfPackage.GetDirectoryInfo().FullName))
                 {
                     defaultSteps = this.AddAutomationTaskLibrariesStep(targetVersion, CmfPackage, defaultSteps);
                     defaultSteps = this.AddAutomationBusinessScenarioStep(targetVersion, CmfPackage, defaultSteps);
@@ -104,7 +107,7 @@ namespace Cmf.CLI.Handlers
                         DisplayName = "cmf restore",
                         Execute = command =>
                         {
-                            command.Execute(cmfPackage.GetFileInfo().Directory, null);
+                            command.Execute(cmfPackage.GetDirectoryInfo(), null);
                         }
                     },
                     new NPMCommand()
@@ -112,13 +115,13 @@ namespace Cmf.CLI.Handlers
                        DisplayName = "NPM Install",
                        Command = "install",
                        Args = new[] {"--force"},
-                       WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                       WorkingDirectory = cmfPackage.GetDirectoryInfo()
                     },
                     new NPMCommand()
                     {
                        DisplayName = "NPM Lint",
                        Command = "run lint",
-                       WorkingDirectory = cmfPackage.GetFileInfo().Directory,
+                       WorkingDirectory = cmfPackage.GetDirectoryInfo()!,
                        ConditionForExecute = () =>
                        {
                            var packageJsons = this.GetPackageJsons(cmfPackage, packageLocation);
@@ -145,14 +148,14 @@ namespace Cmf.CLI.Handlers
                        DisplayName = "NPM Build",
                        Command = "run build -ws",
                        Args = new[] {"--force"},
-                       WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                       WorkingDirectory = cmfPackage.GetDirectoryInfo()
                     },
                     new NPMCommand()
                     {
                        DisplayName = "NPM Test",
                        Command = "run test -ws",
                        Args = new[] {"--force"},
-                       WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                       WorkingDirectory = cmfPackage.GetDirectoryInfo()
                     },
                    new ExecuteCommand<IoTLibCommand>()
                    {
@@ -160,7 +163,7 @@ namespace Cmf.CLI.Handlers
                         DisplayName = "cmf iot lib command",
                         ConditionForExecute = () =>
                         {
-                            if(cmfPackage.GetFileInfo().Directory.EnumerateDirectories().Any(dir => dir.Name == "dist"))
+                            if(cmfPackage.GetDirectoryInfo().EnumerateDirectories().Any(dir => dir.Name == "dist"))
                             {
                                 return true;
                             }
@@ -168,7 +171,7 @@ namespace Cmf.CLI.Handlers
                         },
                         Execute = command =>
                         {
-                            command.Execute(cmfPackage.GetFileInfo().Directory);
+                            command.Execute(cmfPackage.GetDirectoryInfo());
                         }
                     },
                 };
@@ -253,7 +256,7 @@ namespace Cmf.CLI.Handlers
                 #region GetCustomPackages
 
                 // Get Dev Tasks
-                string parentDirectory = CmfPackage.GetFileInfo().DirectoryName;
+                string parentDirectory = CmfPackage.GetDirectoryInfo().Name;
                 string devTasksFile = this.fileSystem.Directory.GetFiles(parentDirectory, ".dev-tasks.json")[0];
 
                 string devTasksJson = this.fileSystem.File.ReadAllText(devTasksFile);
@@ -274,7 +277,7 @@ namespace Cmf.CLI.Handlers
                 #endregion GetCustomPackages
 
                 // IoT -> src -> Package XPTO
-                IoTUtilities.BumpIoTCustomPackages(CmfPackage.GetFileInfo().DirectoryName, version, buildNr, packageNames, this.fileSystem);
+                IoTUtilities.BumpIoTCustomPackages(CmfPackage.GetDirectoryInfo().Name, version, buildNr, packageNames, this.fileSystem);
             }
         }
 
@@ -298,9 +301,9 @@ namespace Cmf.CLI.Handlers
         {
             foreach (ContentToPack contentToPack in CmfPackage.ContentToPack)
             {
-                if (contentToPack.Action == null || contentToPack.Action == PackAction.Pack)
+                if ((contentToPack.Action == null || contentToPack.Action == PackAction.Pack) && contentToPack.Source != null)
                 {
-                    IDirectoryInfo[] packDirectories = CmfPackage.GetFileInfo().Directory.GetDirectories(contentToPack.Source);
+                    IDirectoryInfo[] packDirectories = CmfPackage.GetDirectoryInfo().GetDirectories(contentToPack.Source);
 
                     foreach (IDirectoryInfo packDirectory in packDirectories)
                     {
@@ -320,8 +323,8 @@ namespace Cmf.CLI.Handlers
                         {
                             NPMCommand npmCommand = new NPMCommand()
                             {
-                                DisplayName = "npm shrinkwrap",
-                                Args = new string[] { "shrinkwrap" },
+                                DisplayName = "NPM shrinkwrap",
+                                Command = "shrinkwrap",
                                 WorkingDirectory = packDirectory
                             };
 
@@ -362,7 +365,7 @@ namespace Cmf.CLI.Handlers
                 }
                 else if (contentToPack.Action == PackAction.Untar)
                 {
-                    IFileInfo tgzFile = this.fileSystem.FileInfo.New($"{CmfPackage.GetFileInfo().Directory.FullName}/{contentToPack.Source}");
+                    IFileInfo tgzFile = this.fileSystem.FileInfo.New($"{CmfPackage.GetDirectoryInfo().FullName}/{contentToPack.Source}");
                     CmdCommand cmdCommand = new CmdCommand()
                     {
                         DisplayName = "tar -xzvf",
@@ -373,6 +376,10 @@ namespace Cmf.CLI.Handlers
 
                     cmdCommand.Exec();
 
+                    if (tgzFile.Directory == null)
+                    {
+                        throw new CliException("TGZ file directory is null.");
+                    }
                     dynamic packageJson = tgzFile.Directory.GetFile(CoreConstants.PackageJson);
 
                     string packDirectoryName = packageJson == null ? tgzFile.Directory.Name : packageJson.name;
@@ -469,8 +476,8 @@ namespace Cmf.CLI.Handlers
 
         private List<IFileInfo> GetPackageJsons(CmfPackage cmfPackage, string projectDir = "projects")
         {
-            var dirLoc = this.fileSystem.Path.Join(cmfPackage.GetFileInfo().Directory.FullName, projectDir);
-            dirLoc = this.fileSystem.Directory.Exists(dirLoc) ? dirLoc : this.fileSystem.Path.Join(cmfPackage.GetFileInfo().Directory.FullName, "src");
+            var dirLoc = this.fileSystem.Path.Join(cmfPackage.GetDirectoryInfo().FullName, projectDir);
+            dirLoc = this.fileSystem.Directory.Exists(dirLoc) ? dirLoc : this.fileSystem.Path.Join(cmfPackage.GetDirectoryInfo().FullName, "src");
             var directory = this.fileSystem.DirectoryInfo.New(dirLoc);
             var srcCodeDirs = directory.GetDirectories("", SearchOption.TopDirectoryOnly);
 
@@ -500,7 +507,7 @@ namespace Cmf.CLI.Handlers
             // Introduced in version 10.2.x
             if ((targetVersion.Major > 10 || (targetVersion.Major == 10 &&
                     targetVersion.Minor >= 2 &&
-                    targetVersion.Build >= 7)) && !this.IsAngularProject(cmfPackage.GetFileInfo().Directory.FullName))
+                    targetVersion.Build >= 7)) && !this.IsAngularProject(cmfPackage.GetDirectoryInfo().FullName))
             {
                 var packages = string.Join(",", this.GetPackagesWithTaskLibraries(this.GetPackageJsons(cmfPackage, packageLocation)));
 

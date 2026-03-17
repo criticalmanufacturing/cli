@@ -91,9 +91,14 @@ namespace Cmf.CLI.Commands
         /// <param name="iotVersion">New MES version for the IoT workflows & masterdata</param>
         /// <param name="iotPackagesToIgnore">IoT packages to ignore when updating the MES version of the tasks in IoT workflows</param>
         /// <exception cref="CliException"></exception>
-        public void Execute(IDirectoryInfo packagePath, string baseVersion, string iotVersion, List<string> iotPackagesToIgnore)
+        public void Execute(IDirectoryInfo? packagePath, string? baseVersion, string? iotVersion, List<string>? iotPackagesToIgnore)
         {
             using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
+
+            if (packagePath == null)
+            {
+                throw new CliException("Package path is required.");
+            }
 
             var cmfPackagePaths = packagePath.GetFiles("cmfpackage.json", SearchOption.AllDirectories);
 
@@ -101,6 +106,11 @@ namespace Cmf.CLI.Commands
             {
                 Log.Debug($"Processing {path.FullName}");
                 Execute(CmfPackage.Load(path), baseVersion, iotVersion, iotPackagesToIgnore);
+            }
+
+            if (string.IsNullOrWhiteSpace(baseVersion))
+            {
+                throw new CliException("Base version is required.");
             }
 
             UpdateProjectConfig(packagePath, baseVersion);
@@ -115,12 +125,12 @@ namespace Cmf.CLI.Commands
         /// <param name="iotVersion">New MES version for the IoT workflows & masterdata</param>
         /// <param name="iotPackagesToIgnore">IoT packages to ignore when updating the MES version of the tasks in IoT workflows</param>
         /// <exception cref="CliException"></exception>
-        public void Execute(CmfPackage cmfPackage, string version, string iotVersion, List<string> iotPackagesToIgnore)
+        public void Execute(CmfPackage cmfPackage, string? version, string? iotVersion, List<string>? iotPackagesToIgnore)
         {
-            IDirectoryInfo packageDirectory = cmfPackage.GetFileInfo().Directory;
+            IDirectoryInfo packageDirectory = cmfPackage.GetDirectoryInfo();
             IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfPackage);
 
-            packageTypeHandler.UpgradeBase(version, iotVersion, iotPackagesToIgnore);
+            packageTypeHandler.UpgradeBase(version ?? string.Empty, iotVersion ?? string.Empty, iotPackagesToIgnore ?? new List<string>());
         }
 
         #region Utilities

@@ -20,7 +20,11 @@ namespace Cmf.CLI.Utilities
 
             var assembly = Assembly.GetExecutingAssembly();
 
-            using Stream stream = assembly.GetManifestResourceStream(resourceId);
+            using Stream? stream = assembly.GetManifestResourceStream(resourceId);
+            if (stream == null)
+            {
+                throw new CliException($"Resource '{resourceId}' not found.");
+            }
             using StreamReader reader = new(stream);
             string result = reader.ReadToEnd();
             return result;

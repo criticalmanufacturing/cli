@@ -79,8 +79,25 @@ namespace Cmf.CLI.Commands
         /// <param name="isToTag">if set to <c>true</c> [is to tag].</param>
         /// <exception cref="CliException"></exception>
         /// <exception cref="CliException"></exception>
-        public void Execute(IDirectoryInfo packagePath, string version, string buildNr, string packageNames, bool isToTag)
+        public void Execute(IDirectoryInfo? packagePath, string? version, string? buildNr, string? packageNames, bool isToTag)
         {
+            if (packagePath == null)
+            {
+                throw new CliException("Package path is required.");
+            }
+            if (version == null)
+            {
+                throw new CliException("Version is required.");
+            }
+            if (buildNr == null)
+            {
+                throw new CliException("Build number is required.");
+            }
+            if (packageNames == null)
+            {
+                throw new CliException("Package names are required.");
+            }
+
             using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
             IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{packagePath}/{CliConstants.CmfPackageFileName}");
 
@@ -108,17 +125,27 @@ namespace Cmf.CLI.Commands
         {
             if (cmfPackage.PackageType != PackageType.IoT)
             {
-                IDirectoryInfo packageDirectory = cmfPackage.GetFileInfo().Directory;
+                IDirectoryInfo packageDirectory = cmfPackage.GetDirectoryInfo();
                 CmfPackageCollection iotPackages = packageDirectory.LoadCmfPackagesFromSubDirectories(packageType: PackageType.IoT);
                 foreach (var iotPackage in iotPackages)
                 {
                     // IoT -> src -> Package XPTO
-                    IoTUtilities.BumpIoTCustomPackages(iotPackage.GetFileInfo().DirectoryName, version, buildNr, packageNames, this.fileSystem);
+                    var directoryName = iotPackage.GetDirectoryInfo().Name;
+                    if (directoryName == null)
+                    {
+                        throw new CliException("IoT package directory name is null.");
+                    }
+                    IoTUtilities.BumpIoTCustomPackages(directoryName, version, buildNr, packageNames, this.fileSystem);
                 }
             }
             else
             {
-                IoTUtilities.BumpIoTCustomPackages(cmfPackage.GetFileInfo().DirectoryName, version, buildNr, packageNames, this.fileSystem);
+                var directoryName = cmfPackage.GetDirectoryInfo().Name;
+                if (directoryName == null)
+                {
+                    throw new CliException("Package directory name is null.");
+                }
+                IoTUtilities.BumpIoTCustomPackages(directoryName, version, buildNr, packageNames, this.fileSystem);
             }
         }
     }

@@ -682,9 +682,9 @@ namespace Cmf.CLI.Commands
         {
             var argValue = @default;
 
-            if (!isToIgnoreOptionToken && argResult != null && argResult.Tokens.Any())
+            if (!isToIgnoreOptionToken && argResult != null && argResult.Tokens != null && argResult.Tokens.Any())
             {
-                var firstTokenValue = argResult.Tokens?.FirstOrDefault()?.Value;
+                var firstTokenValue = argResult.Tokens.FirstOrDefault()?.Value;
                 var isOptionAndShouldBeIgnored = firstTokenValue?.StartsWith("-") ?? false;
                 if (isOptionAndShouldBeIgnored)
                 {
@@ -703,7 +703,8 @@ namespace Cmf.CLI.Commands
 
             if (string.IsNullOrEmpty(argValue))
             {
-                return default;
+                // Intentionally return null for optional arguments; callers must handle null values.
+                return default!;
             }
 
             return typeof(T) switch

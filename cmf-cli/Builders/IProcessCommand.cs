@@ -15,7 +15,7 @@ namespace Cmf.CLI.Builders
         /// <value>
         /// The working directory.
         /// </value>
-        public IDirectoryInfo WorkingDirectory { get; set; }
+        public IDirectoryInfo? WorkingDirectory { get; set; }
 
         /// <summary>
         /// This method will be used to do a run check before the Exec() is able to run.

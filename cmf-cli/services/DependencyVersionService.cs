@@ -4,11 +4,11 @@ namespace Cmf.CLI.Services;
 
 public record AngularDeps
 {
-    public Version CLI { get; init; }
-    public string Zone { get; init; }
-    public string Typescript { get; init; }
-    public string ESLint { get; init; }
-    public string TSESLint { get; init; }
+    public required Version CLI { get; init; }
+    public required string Zone { get; init; }
+    public required string Typescript { get; init; }
+    public required string ESLint { get; init; }
+    public required string TSESLint { get; init; }
 }
 
 /// <summary>

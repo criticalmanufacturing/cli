@@ -50,7 +50,7 @@ namespace Cmf.CLI.Handlers
             Log.Debug("Generating SecurityPortal config.json");
             string path = $"{packageOutputDir.FullName}{Path.DirectorySeparatorChar}{CliConstants.CmfPackageSecurityPortalConfig}";
 
-            IDirectoryInfo cmfPackageDirectory = CmfPackage.GetFileInfo().Directory;
+            IDirectoryInfo cmfPackageDirectory = CmfPackage.GetDirectoryInfo();
 
             dynamic configJson = cmfPackageDirectory.GetFile(CliConstants.CmfPackageSecurityPortalConfig);
             if (configJson != null)

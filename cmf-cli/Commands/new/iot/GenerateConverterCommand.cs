@@ -10,6 +10,7 @@ using Spectre.Console;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
+using System.CommandLine.Parsing;
 using System.IO.Abstractions;
 using System.Threading.Tasks;
 
@@ -44,12 +45,13 @@ namespace Cmf.CLI.Commands.New.IoT
                 this.fileSystem
             );
 
-            var workingDirArgument = new Argument<IDirectoryInfo>("workingDir")
+            var workingDirArgument = new Argument<IDirectoryInfo?>("workingDir")
             {
                 Description = "Working Directory",
                 CustomParser = argResult => Parse<IDirectoryInfo>(argResult, nearestIoTPackage?.FullName),
-                DefaultValueFactory = _ => Parse<IDirectoryInfo>(null, nearestIoTPackage?.FullName)
+                DefaultValueFactory = argResult => Parse<IDirectoryInfo>(argResult, nearestIoTPackage?.FullName)
             };
+            
             cmd.Add(workingDirArgument);
 
             cmd.SetAction((parseResult, cancellationToken) =>
@@ -66,7 +68,7 @@ namespace Cmf.CLI.Commands.New.IoT
         /// <param name="workingDir">nearest root package</param>
         /// <param name="version">package version</param>
         /// <param name="htmlPackageLocation">location of html package</param>
-        public void Execute(IDirectoryInfo workingDir)
+        public void Execute(IDirectoryInfo? workingDir)
         {
             if (workingDir == null)
             {

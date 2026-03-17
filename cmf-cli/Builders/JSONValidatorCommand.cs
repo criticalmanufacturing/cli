@@ -131,7 +131,7 @@ namespace Cmf.CLI.Builders
             return null;
         }
 
-        private static bool AllSubWorkflowsExist(List<string> isContainedList, List<WorkflowsToValidate> containsList, List<string> filesToValidate = null)
+        private static bool AllSubWorkflowsExist(List<string> isContainedList, List<WorkflowsToValidate> containsList, List<string>? filesToValidate = null)
         {
             // Use a HashSet for fast lookups
             var set = new HashSet<string>(containsList.Select(item => item.Name));

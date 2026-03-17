@@ -43,7 +43,7 @@ namespace Cmf.CLI.Handlers
                     DisplayName = "cmf restore",
                     Execute = command =>
                     {
-                        command.Execute(cmfPackage.GetFileInfo().Directory, null);
+                        command.Execute(cmfPackage.GetDirectoryInfo(), null);
                     }
                 },
                 new NPMCommand()
@@ -51,7 +51,7 @@ namespace Cmf.CLI.Handlers
                     DisplayName = "NPM Install",
                     Command  = "install",
                     Args = new []{ "--force" },
-                    WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                    WorkingDirectory = cmfPackage.GetDirectoryInfo()
                 },
                 new GulpCommand()
                 {
@@ -60,7 +60,7 @@ namespace Cmf.CLI.Handlers
                     DisplayName = "Gulp Install",
                     GulpJS = "node_modules/gulp/bin/gulp.js",
                     Args = new [] { "--update" },
-                    WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                    WorkingDirectory = cmfPackage.GetDirectoryInfo()
                 },
                 // generate based on templates
                 new ExecuteCommand<GenerateBasedOnTemplatesCommand>()
@@ -69,7 +69,7 @@ namespace Cmf.CLI.Handlers
                     Command = new GenerateBasedOnTemplatesCommand(),
                     Execute = command =>
                     {
-                        command.Execute(cmfPackage.GetFileInfo().Directory);
+                        command.Execute(cmfPackage.GetDirectoryInfo());
                     }
                 },
                 // generate menu items
@@ -79,7 +79,7 @@ namespace Cmf.CLI.Handlers
                     Command = new GenerateMenuItemsCommand(),
                     Execute = command =>
                     {
-                        command.Execute(cmfPackage.GetFileInfo().Directory);
+                        command.Execute(cmfPackage.GetDirectoryInfo());
                     }
                 },
                 new GulpCommand()
@@ -89,7 +89,7 @@ namespace Cmf.CLI.Handlers
                     DisplayName = "Gulp Build",
                     GulpJS = "node_modules/gulp/bin/gulp.js",
                     Args = new [] { "--production" },
-                    WorkingDirectory = cmfPackage.GetFileInfo().Directory
+                    WorkingDirectory = cmfPackage.GetDirectoryInfo()
                 },
             };
 
@@ -106,7 +106,7 @@ namespace Cmf.CLI.Handlers
             UpgradeBaseUtilities.UpdateNPMProject(this.fileSystem, this.CmfPackage, version);
 
             // Update the version in the config.json file
-            IFileInfo config = this.fileSystem.FileInfo.New(Path.Join(this.CmfPackage.GetFileInfo().DirectoryName, "apps", "cmf.docs.area.web", "config.json"));
+            IFileInfo config = this.fileSystem.FileInfo.New(Path.Join(this.CmfPackage.GetDirectoryInfo().Name, "apps", "cmf.docs.area.web", "config.json"));
 
             if (config.Exists)
             {

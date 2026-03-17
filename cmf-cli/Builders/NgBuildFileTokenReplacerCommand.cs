@@ -67,7 +67,7 @@ internal class NgBuildFileTokenReplacerCommand : IBuildCommand
     {
         if (Condition())
         {
-            var workingDir = cmfPackage.GetFileInfo().Directory;
+            var workingDir = cmfPackage.GetDirectoryInfo();
 
             foreach (var app in apps)
             {
@@ -82,7 +82,7 @@ internal class NgBuildFileTokenReplacerCommand : IBuildCommand
 
                     if (configJson.ContainsKey("lboGenerator"))
                     {
-                        configJson["lboGenerator"]["urlSuffix"] = "$(APPLICATION_BASE_HREF)lbogenerator";
+                        configJson["lboGenerator"]!["urlSuffix"] = "$(APPLICATION_BASE_HREF)lbogenerator";
                     }
 
                     string configJsonContent = configJson.ToString(Formatting.Indented);
