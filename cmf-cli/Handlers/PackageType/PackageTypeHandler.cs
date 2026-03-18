@@ -7,6 +7,7 @@ using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Factories;
 using Cmf.CLI.Utilities;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -303,26 +304,28 @@ namespace Cmf.CLI.Handlers
                 {
                     contentToIgnore.Add($"{ignoreFileName}");
 
-                    IFileInfo ignoreFile = packDirectory.GetFiles(ignoreFileName).FirstOrDefault();
+                    IFileInfo? ignoreFile = packDirectory.GetFiles(ignoreFileName).FirstOrDefault();
                     if (ignoreFile == null)
                     {
                         string filePath = this.fileSystem.Path.Join(packDirectory.FullName, ignoreFileName);
                         Log.Warning(string.Format(CoreMessages.NotFound, filePath));
                     }
-
-                    foreach (string ignore in ignoreFile.ReadToStringList())
+                    else
                     {
-                        string _ignore = ignore;
-
-                        if (!string.IsNullOrEmpty(_ignore) &&
-                            !_ignore.StartsWith("!"))
+                        foreach (string ignore in ignoreFile.ReadToStringList())
                         {
-                            if (_ignore.StartsWith("/"))
-                            {
-                                _ignore = _ignore.Remove(0);
-                            }
+                            string _ignore = ignore;
 
-                            contentToIgnore.Add(_ignore);
+                            if (!string.IsNullOrEmpty(_ignore) &&
+                                !_ignore.StartsWith("!"))
+                            {
+                                if (_ignore.StartsWith("/"))
+                                {
+                                    _ignore = _ignore.Remove(0);
+                                }
+
+                                contentToIgnore.Add(_ignore);
+                            }
                         }
                     }
                 }
@@ -345,9 +348,9 @@ namespace Cmf.CLI.Handlers
             foreach (FileToPack fileToPack in FilesToPack)
             {
                 // If the destination directory doesn't exist, create it.
-                if (!fileToPack.Target.Directory.Exists)
+                if (!fileToPack.Target.Directory?.Exists ?? false)
                 {
-                    fileToPack.Target.Directory.Create();
+                    fileToPack.Target.Directory!.Create();
                 }
 
                 fileToPack.Source.CopyTo(fileToPack.Target.FullName, true);
@@ -380,7 +383,7 @@ namespace Cmf.CLI.Handlers
                 IDirectoryInfo packageDirectory = CmfPackage.GetDirectoryInfo();
 
                 // TODO: Bulk Copy
-                foreach (ContentToPack contentToPack in CmfPackage.ContentToPack)
+                foreach (ContentToPack contentToPack in CmfPackage.ContentToPack ?? [])
                 {
                     string _source = contentToPack.Source;
                     string _target = contentToPack.Target;
@@ -396,19 +399,19 @@ namespace Cmf.CLI.Handlers
 
                     if (_source.Contains(CliConstants.TokenVersion))
                     {
-                        object _value = CmfPackage.GetPropertyValueFromTokenName(CliConstants.TokenVersion);
-                        _source = _source.Replace(CliConstants.TokenVersion, _value.ToString());
+                        object _value = CmfPackage.GetPropertyValueFromTokenName(CliConstants.TokenVersion)!;
+                        _source = _source.Replace(CliConstants.TokenVersion, _value?.ToString());
                     }
 
                     if (_target.Contains(CliConstants.TokenVersion))
                     {
-                        object _value = CmfPackage.GetPropertyValueFromTokenName(CliConstants.TokenVersion);
-                        _target = _target.Replace(CliConstants.TokenVersion, _value.ToString());
+                        object _value = CmfPackage.GetPropertyValueFromTokenName(CliConstants.TokenVersion)!;
+                        _target = _target.Replace(CliConstants.TokenVersion, _value?.ToString());
                     }
 
                     #endregion Token Replacement
 
-                    IDirectoryInfo[] _directoriesToPack = null;
+                    IDirectoryInfo[] _directoriesToPack = [];
 
                     try
                     {
@@ -422,14 +425,14 @@ namespace Cmf.CLI.Handlers
                         Log.Debug(ex.Message);
                     }
 
-                    if (_directoriesToPack.HasAny())
+                    if (_directoriesToPack.Any())
                     {
                         #region Directory Packing
 
                         foreach (IDirectoryInfo packDirectory in _directoriesToPack)
                         {
                             // If a package.json exists the packDirectoryName needs to change to the name in the package.json
-                            dynamic _packageJson = packDirectory.GetFile(CoreConstants.PackageJson);
+                            dynamic? _packageJson = packDirectory.GetFile(CoreConstants.PackageJson);
 
                             string _packDirectoryName = _packageJson == null ? packDirectory.Name : _packageJson.name;
 
@@ -441,7 +444,7 @@ namespace Cmf.CLI.Handlers
                         #endregion Directory Packing
                     }
 
-                    IFileInfo[] _filesToPack = null;
+                    IFileInfo[] _filesToPack = [];
 
                     try
                     {
@@ -454,7 +457,7 @@ namespace Cmf.CLI.Handlers
                         Log.Debug(ex.Message);
                     }
 
-                    if (_filesToPack.HasAny())
+                    if (_filesToPack.Any())
                     {
                         #region Files Packing
 
@@ -469,12 +472,7 @@ namespace Cmf.CLI.Handlers
                             }
 
                             string destPackFile = this.fileSystem.Path.Join(packageOutputDir.FullName, _target, packFile.Name);
-                            filesToPack.Add(new()
-                            {
-                                ContentToPack = contentToPack,
-                                Source = packFile,
-                                Target = this.fileSystem.FileInfo.New(destPackFile)
-                            });
+                            filesToPack.Add(new(packFile, this.fileSystem.FileInfo.New(destPackFile), contentToPack));
                         }
 
                         #endregion Files Packing
@@ -526,10 +524,10 @@ namespace Cmf.CLI.Handlers
             JObject jsonObject = JObject.Parse(text);
 
             // Get dependencies array
-            if (jsonObject.ContainsKey("dependencies"))
+            if (jsonObject["dependencies"] is JArray dependencies)
             {
                 // Find the dependency and update version
-                foreach (JObject dep in (JArray)jsonObject["dependencies"])
+                foreach (JObject dep in dependencies)
                 {
                     if (dep["id"]?.ToString() == "Cmf.Environment" || dep["id"]?.ToString().ToLower() == "criticalmanufacturing.deploymentmetadata")
                     {
@@ -626,11 +624,17 @@ namespace Cmf.CLI.Handlers
                 {
                     FilesToPack.ForEach(fileToPack =>
                     {
-                        Log.Debug($"Packing '{fileToPack.Source.FullName} to {fileToPack.Target.FullName} by contentToPack rule (Action: {fileToPack.ContentToPack.Action.ToString()}, Source: {fileToPack.ContentToPack.Source}, Target: {fileToPack.ContentToPack.Target})");
-                        IDirectoryInfo _targetFolder = this.fileSystem.DirectoryInfo.New(fileToPack.Target.Directory.FullName);
-                        if (!_targetFolder.Exists)
+                        if (fileToPack.Target.Directory is not null)
                         {
-                            _targetFolder.Create();
+                            string action = fileToPack.ContentToPack.Action.ToString();
+                            string source = fileToPack.ContentToPack.Source;
+                            string target = fileToPack.ContentToPack.Target;
+                            Log.Debug($"Packing '{fileToPack.Source.FullName} to {fileToPack.Target.FullName} by contentToPack rule (Action: {action}, Source: {source}, Target: {target})");
+                            IDirectoryInfo _targetFolder = this.fileSystem.DirectoryInfo.New(fileToPack.Target.Directory.FullName);
+                            if (!_targetFolder.Exists)
+                            {
+                                _targetFolder.Create();
+                            }
                         }
                     });
                 }
@@ -694,9 +698,13 @@ namespace Cmf.CLI.Handlers
             var rootIdentifier = $"{this.CmfPackage.PackageId}@{this.CmfPackage.Version}";
             Log.Status($"Loading {rootIdentifier} dependency tree...", ctx =>
             {
-                var client = ExecutionContext.ServiceProvider?.GetService<IRepositoryLocator>()
-                    .GetRepositoryClient(new Uri(this.CmfPackage.GetFileInfo().FullName), this.fileSystem);
-                var cmfPackage = client.Find(null, null).GetAwaiter().GetResult();
+                var locator = ExecutionContext.ServiceProvider?.GetRequiredService<IRepositoryLocator>();
+                if (locator is null)
+                {
+                    throw new CliException("Repository locator not available.");
+                }
+                var client = locator.GetRepositoryClient(new Uri(this.CmfPackage.GetFileInfo().FullName), this.fileSystem);
+                var cmfPackage = client.Find(null!, null!).GetAwaiter().GetResult();
                 if (cmfPackage == null)
                 {
                     throw new CliException($"CmfPackage {this.CmfPackage.GetFileInfo().FullName} was not found.");
@@ -714,7 +722,7 @@ namespace Cmf.CLI.Handlers
                 var allDependencies = ctrlr.CmfPackage.Dependencies.Flatten(
                     dependency => dependency.IsMissing || dependency.IsIgnorable ?
                         new DependencyCollection() :
-                        dependency.CmfPackageV1.Dependencies).ToArray();
+                        dependency.CmfPackageV1?.Dependencies ?? new DependencyCollection()).ToArray();
 
                 var missingDependencies = allDependencies.Where(d => d.IsMissing).ToArray();
                 if (missingDependencies.Any())
@@ -722,7 +730,7 @@ namespace Cmf.CLI.Handlers
                     Log.Warning($"Dependencies missing:{Environment.NewLine}{string.Join(Environment.NewLine, missingDependencies.Select(d => $"{d.Id}@{d.Version}"))}");
                 }
 
-                var foundDependencies = allDependencies.Where(d => !d.IsMissing && d.CmfPackageV1.SourceManifestFile == null).ToArray();
+                var foundDependencies = allDependencies.Where(d => !d.IsMissing && d.CmfPackageV1?.SourceManifestFile == null).ToArray();
                 if (!foundDependencies.Any())
                 {
                     Log.Information("No present remote dependencies to restore. Exiting...");
@@ -753,7 +761,7 @@ namespace Cmf.CLI.Handlers
                         continue;
                     }
                     Log.Debug($"Processing dependency {identifier}...");
-                    Log.Debug($"Found package {identifier} at {dependency.CmfPackageV1.Client.RepositoryRoot}");
+                    Log.Debug($"Found package {identifier} at {dependency.CmfPackageV1!.Client!.RepositoryRoot}");
                     var scopedDepDir = this.fileSystem.Path.Join(this.DependenciesFolder.FullName,
                         omitIdentifier ? null : identifier);
                     var depPkgDir = dependency.CmfPackageV1.Client.Extract(dependency.CmfPackageV1, this.fileSystem.DirectoryInfo.New(scopedDepDir)).GetAwaiter().GetResult();
@@ -780,7 +788,7 @@ namespace Cmf.CLI.Handlers
                 var allDependencies = this.CmfPackage.Dependencies.Flatten(
                     dependency => dependency.IsMissing || dependency.IsIgnorable ?
                         new DependencyCollection() :
-                        dependency.CmfPackage.Dependencies).ToArray();
+                        dependency.CmfPackage?.Dependencies ?? new DependencyCollection()).ToArray();
 
                 var missingDependencies = allDependencies.Where(d => d.IsMissing).ToArray();
                 if (missingDependencies.Any())
@@ -788,7 +796,7 @@ namespace Cmf.CLI.Handlers
                     Log.Warning($"Dependencies missing:{Environment.NewLine}{string.Join(Environment.NewLine, missingDependencies.Select(d => $"{d.Id}@{d.Version}"))}");
                 }
 
-                var foundDependencies = allDependencies.Where(d => !d.IsMissing && d.CmfPackage.Location == PackageLocation.Repository).ToArray();
+                var foundDependencies = allDependencies.Where(d => !d.IsMissing && d.CmfPackage?.Location == PackageLocation.Repository).ToArray();
                 if (!foundDependencies.Any())
                 {
                     Log.Information("No present remote dependencies to restore. Exiting...");
@@ -819,15 +827,20 @@ namespace Cmf.CLI.Handlers
                         continue;
                     }
                     Log.Debug($"Processing dependency {identifier}...");
-                    Log.Debug($"Found package {identifier} at {dependency.CmfPackage.Uri.AbsoluteUri}");
-                    if (dependency.CmfPackage.SharedFolder != null)
+                    Log.Debug($"Found package {identifier} at {package!.Uri!.AbsoluteUri}");
+                    if (package.SharedFolder != null)
                     {
-                        var file = dependency.CmfPackage.SharedFolder.GetFile(dependency.CmfPackage.ZipPackageName);
+                        var file = package.SharedFolder.GetFile(package.ZipPackageName);
+                        if (file?.Item2 is null)
+                        {
+                            throw new CliException($"Could not retrieve \"{package.ZipPackageName}\"!");
+                        }
+
                         ExtractZip(file.Item2, identifier);
                     }
-                    else if (dependency.CmfPackage.Uri.IsDirectory())
+                    else if (package.Uri.IsDirectory())
                     {
-                        using (Stream zipToOpen = this.fileSystem.FileInfo.New(dependency.CmfPackage.Uri.LocalPath).OpenRead())
+                        using (Stream zipToOpen = this.fileSystem.FileInfo.New(package.Uri.LocalPath).OpenRead())
                         {
                             ExtractZip(zipToOpen, identifier);
                         }

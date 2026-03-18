@@ -126,7 +126,7 @@ namespace Cmf.CLI.Commands
         /// <summary>
         /// Synchronous wrapper for the command
         /// </summary>
-        internal void Execute(RepositoryCredentialsType? repositoryType, string repository, AuthType? authType, string token, string username, string password, string domain, string key, bool storeOnly, bool noPrompt)
+        internal void Execute(RepositoryCredentialsType? repositoryType, string? repository, AuthType? authType, string? token, string? username, string? password, string? domain, string? key, bool storeOnly, bool noPrompt)
         {
             ExecuteAsync(repositoryType, repository, authType, token, username, password, domain, key, storeOnly, noPrompt).GetAwaiter().GetResult();
         }
@@ -134,13 +134,13 @@ namespace Cmf.CLI.Commands
         /// <summary>
         /// Execute the command
         /// </summary>
-        internal async Task ExecuteAsync(RepositoryCredentialsType? repositoryType, string repository, AuthType? authType, string token, string username, string password, string domain, string key, bool storeOnly, bool noPrompt)
+        internal async Task ExecuteAsync(RepositoryCredentialsType? repositoryType, string? repository, AuthType? authType, string? token, string? username, string? password, string? domain, string? key, bool storeOnly, bool noPrompt)
         {
-            using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
+            using var activity = ExecutionContext.ServiceProvider!.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
 
             ICredential credentials;
 
-            var authStore = ExecutionContext.ServiceProvider.GetService<IRepositoryAuthStore>();
+            var authStore = ExecutionContext.ServiceProvider!.GetRequiredService<IRepositoryAuthStore>();
 
             if (repositoryType == null)
             {
@@ -158,7 +158,7 @@ namespace Cmf.CLI.Commands
             }
 
             // We find the repository type implementation for the repo type
-            var repositoryCredentials = authStore.GetRepositoryType(repositoryType.Value);
+            var repositoryCredentials = authStore.GetRepositoryType(repositoryType ?? RepositoryCredentialsType.Portal);
 
             if (repositoryCredentials is IRepositoryAutomaticLogin automaticLoginRepo
                 && authType == null && username == null && password == null && token == null)
@@ -243,7 +243,7 @@ namespace Cmf.CLI.Commands
 
             Console.Write(label + ": ");
 
-            return Console.ReadLine();
+            return Console.ReadLine() ?? throw new CliException($"No value was provided for \"{label}\" input!");
         }
     }
 }

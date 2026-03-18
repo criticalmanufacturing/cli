@@ -77,12 +77,7 @@ namespace Cmf.CLI.Utilities
 
                 string tempPath = fileSystem.Path.Combine(destDirName, file.Name);
 
-                filesToPack.Add(new()
-                {
-                    ContentToPack = contentToPack,
-                    Source = file,
-                    Target = fileSystem.FileInfo.New(tempPath)
-                });
+                filesToPack.Add(new(file, fileSystem.FileInfo.New(tempPath), contentToPack));
             }
 
             // If copying subdirectories, copy them and their contents to new location.

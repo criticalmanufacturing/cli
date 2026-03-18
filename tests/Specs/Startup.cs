@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Cmf.CLI;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Core.Objects;
@@ -198,5 +199,38 @@ namespace tests.Specs
             version.Should().Be(expectedVersion);
         }
         
+        [Fact]
+        public async Task Configure_SetsServiceProvider_NonNull()
+        {
+            // Arrange
+            ExecutionContext.ServiceProvider = null;
+
+            // Act
+            await StartupModule.Configure(
+                packageName: "test",
+                envVarPrefix: "test",
+                description: "test",
+                args: Array.Empty<string>(),
+                npmClient: new MockNPMClientCurrent());
+
+            // Assert
+            ExecutionContext.ServiceProvider.Should().NotBeNull();
+            ExecutionContext.ServiceProvider.GetService<ITelemetryService>().Should().NotBeNull();
+        }
+
+        [Fact]
+        public async Task Program_Main_Initializes_ServiceProvider()
+        {
+            // Arrange
+            ExecutionContext.ServiceProvider = null;
+
+            // Act
+            var result = await Program.Main(new[] { "--help" });
+
+            // Assert
+            result.Should().Be(0);
+            ExecutionContext.ServiceProvider.Should().NotBeNull();
+            ExecutionContext.ServiceProvider.GetService<ITelemetryService>().Should().NotBeNull();
+        }
     }
 }

@@ -13,7 +13,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace Cmf.CLI.Handlers
 {
@@ -29,17 +28,22 @@ namespace Cmf.CLI.Handlers
         /// <param name="cmfPackage">The CMF package.</param>
         public IoTPackageTypeHandler(CmfPackage cmfPackage) : base(cmfPackage)
         {
+            Version? targetVersion = ExecutionContext.Instance?.ProjectConfig?.MESVersion;
+
+            if (targetVersion is null)
+            {
+                throw new CliException("Could not resolve project's MES version. Make sure you are running this command inside a project.");
+            }
             var minimumVersion = new Version("8.3.5");
-            var targetVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
             IBuildCommand[] buildCommands = Array.Empty<IBuildCommand>();
             var defaultSteps = new List<Step>();
 
             if (targetVersion.CompareTo(minimumVersion) < 0)
             {
                 Log.Debug(
-                    $"MES version lower than {minimumVersion}, skipping DeployRepositoryFiles and GenerateRepositoryIndex steps. Make sure you have alternative steps in your manifest.");
+                $"MES version lower than {minimumVersion}, skipping DeployRepositoryFiles and GenerateRepositoryIndex steps. Make sure you have alternative steps in your manifest.");
             }
-            if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 10)
+            if (targetVersion.Major < 10)
             {
                 buildCommands = new IBuildCommand[]
                 {
@@ -126,14 +130,14 @@ namespace Cmf.CLI.Handlers
                        {
                            var packageJsons = this.GetPackageJsons(cmfPackage, packageLocation);
 
-                           if(packageJsons == null && !packageJsons.Any())
+                           if (!packageJsons.Any())
                            {
                                return false;
                            }
                            foreach (var packageJson in packageJsons )
                            {
                                 var json = fileSystem.File.ReadAllText(packageJson.FullName);
-                                dynamic packageJsonContent = JsonConvert.DeserializeObject(json);
+                                dynamic? packageJsonContent = JsonConvert.DeserializeObject(json);
 
                                 if(packageJsonContent?["scripts"] == null || packageJsonContent?["scripts"]?["lint"] == null)
                                 {
@@ -251,7 +255,14 @@ namespace Cmf.CLI.Handlers
         {
             base.Bump(version, buildNr, bumpInformation);
 
-            if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 10)
+            Version? targetVersion = ExecutionContext.Instance?.ProjectConfig?.MESVersion;
+
+            if (targetVersion is null)
+            {
+                throw new CliException("Could not resolve project's MES version. Make sure you are running this command inside a project.");
+            }
+
+            if (targetVersion.Major < 10)
             {
                 #region GetCustomPackages
 
@@ -260,18 +271,18 @@ namespace Cmf.CLI.Handlers
                 string devTasksFile = this.fileSystem.Directory.GetFiles(parentDirectory, ".dev-tasks.json")[0];
 
                 string devTasksJson = this.fileSystem.File.ReadAllText(devTasksFile);
-                dynamic devTasksJsonObject = JsonConvert.DeserializeObject(devTasksJson);
+                dynamic? devTasksJsonObject = JsonConvert.DeserializeObject(devTasksJson);
 
-                string packageNames = devTasksJsonObject["packagesBuildBump"]?.ToString();
+                string? packageNames = devTasksJsonObject?["packagesBuildBump"]?.ToString();
 
                 if (string.IsNullOrEmpty(packageNames))
                 {
-                    packageNames = devTasksJsonObject["packages"]?.ToString();
+                    packageNames = devTasksJsonObject?["packages"]?.ToString();
                 }
 
                 if (string.IsNullOrEmpty(packageNames))
                 {
-                    throw new CliException(string.Format(CliMessages.MissingMandatoryProperty, packageNames));
+                    throw new CliException(string.Format(CliMessages.MissingMandatoryProperty, "packages"));
                 }
 
                 #endregion GetCustomPackages
@@ -299,7 +310,7 @@ namespace Cmf.CLI.Handlers
         /// <param name="dryRun">if set to <c>true</c> list the package structure without creating files.</param>
         public override void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir, bool dryRun = false)
         {
-            foreach (ContentToPack contentToPack in CmfPackage.ContentToPack)
+            foreach (ContentToPack contentToPack in CmfPackage.ContentToPack ?? [])
             {
                 if ((contentToPack.Action == null || contentToPack.Action == PackAction.Pack) && contentToPack.Source != null)
                 {
@@ -380,13 +391,13 @@ namespace Cmf.CLI.Handlers
                     {
                         throw new CliException("TGZ file directory is null.");
                     }
-                    dynamic packageJson = tgzFile.Directory.GetFile(CoreConstants.PackageJson);
+                    dynamic? packageJson = tgzFile.Directory.GetFile(CoreConstants.PackageJson);
 
                     string packDirectoryName = packageJson == null ? tgzFile.Directory.Name : packageJson.name;
 
                     IDirectoryInfo packageDirectory = this.fileSystem.DirectoryInfo.New($"{packageOutputDir}/package");
                     IDirectoryInfo destinationDirectory = this.fileSystem.DirectoryInfo.New($"{packageOutputDir}/{contentToPack.Target}/{packDirectoryName}");
-                    destinationDirectory.Parent.Create();
+                    destinationDirectory.Parent?.Create();
                     packageDirectory.MoveTo(destinationDirectory.FullName);
                 }
             }
@@ -400,7 +411,7 @@ namespace Cmf.CLI.Handlers
             foreach (var packageJson in packageJsons)
             {
                 var json = fileSystem.File.ReadAllText(packageJson.FullName);
-                dynamic packageJsonContent = JsonConvert.DeserializeObject(json);
+                dynamic? packageJsonContent = JsonConvert.DeserializeObject(json);
 
                 if (packageJsonContent?["criticalManufacturing"] == null || packageJsonContent?["criticalManufacturing"]?["businessScenarios"] == null)
                 {
@@ -413,7 +424,7 @@ namespace Cmf.CLI.Handlers
                         throw new CliException($"Invalid package '{packageJson.FullName}' has an invalid name or version");
                     }
 
-                    string packageName = packageJsonContent["name"].ToString();
+                    string packageName = packageJsonContent!["name"].ToString();
 
                     var package = $"{packageJsonContent["name"].ToString()}@{packageJsonContent["version"].ToString()}";
                     packagesWVersion.Add(package);
@@ -429,7 +440,7 @@ namespace Cmf.CLI.Handlers
             foreach (var packageJson in packageJsons)
             {
                 var json = fileSystem.File.ReadAllText(packageJson.FullName);
-                dynamic packageJsonContent = JsonConvert.DeserializeObject(json);
+                dynamic packageJsonContent = JsonConvert.DeserializeObject(json)!;
 
                 if (packageJsonContent?["criticalManufacturing"] == null || packageJsonContent?["criticalManufacturing"]?["tasksLibrary"] == null)
                 {
@@ -442,9 +453,7 @@ namespace Cmf.CLI.Handlers
                         throw new CliException($"Invalid package '{packageJson.FullName}' has an invalid name or version");
                     }
 
-                    string packageName = packageJsonContent["name"].ToString();
-
-                    var package = $"{packageJsonContent["name"].ToString()}@{packageJsonContent["version"].ToString()}";
+                    var package = $"{packageJsonContent!["name"].ToString()}@{packageJsonContent!["version"].ToString()}";
                     packagesWVersion.Add(package);
                 }
             }
@@ -458,17 +467,14 @@ namespace Cmf.CLI.Handlers
             foreach (var packageJson in packageJsons)
             {
                 var json = fileSystem.File.ReadAllText(packageJson.FullName);
-                dynamic packageJsonContent = JsonConvert.DeserializeObject(json);
+                dynamic? packageJsonContent = JsonConvert.DeserializeObject(json);
 
                 if (packageJsonContent?["name"] == null || packageJsonContent?["version"] == null)
                 {
                     throw new CliException($"Invalid package '{packageJson.FullName}' has an invalid name or version");
                 }
 
-                string packageName = packageJsonContent["name"].ToString();
-
-                var package = $"{packageJsonContent["name"].ToString()}@{packageJsonContent["version"].ToString()}";
-                packagesWVersion.Add(package);
+                var package = $"{packageJsonContent!["name"].ToString()}@{packageJsonContent!["version"].ToString()}";
             }
 
             return packagesWVersion;

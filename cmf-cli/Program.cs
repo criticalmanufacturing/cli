@@ -98,14 +98,14 @@ namespace Cmf.CLI
             catch (CliException e)
             {
                 Log.Error(e.Message);
-                Log.Debug(e.StackTrace);
+                Log.Debug(e.StackTrace ?? "");
                 return (int)e.ErrorCode;
             }
             catch (Exception e)
             {
                 Log.Debug("Caught exception at program.");
                 Log.Exception(WrappedException.Unwrap(e));
-                ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!.LogException(e);
+                ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.LogException(e);
                 return (int)ErrorCode.Default;
             }
         }
