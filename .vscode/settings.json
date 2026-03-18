@@ -2,5 +2,8 @@
     "chat.tools.terminal.autoApprove": {
         "dotnet restore": true,
         "dotnet build": true
+    },
+    "[csharp]": {
+        "editor.defaultFormatter": "ms-dotnettools.csharp"
     }
 }

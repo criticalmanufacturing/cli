@@ -1,0 +1,55 @@
+{
+    "servers": {
+        "io.github.upstash/context7": {
+            "type": "stdio",
+            "command": "npx",
+            "args": [
+                "@upstash/context7-mcp@1.0.31"
+            ],
+            "env": {
+                "CONTEXT7_API_KEY": "${input:CONTEXT7_API_KEY}"
+            }
+        },
+        "microsoftdocs/mcp": {
+            "type": "http",
+            "url": "https://learn.microsoft.com/api/mcp"
+        },
+        "code-analysis": {
+            "type":"stdio",
+            "command": "/tmp/uv/uv",
+            "args": [
+                "--directory",
+                "/workspaces/cli/mcps/code-analysis",
+                "run",
+                "code_analysis.py"
+            ]
+        },
+        "SharpTools": {
+            "type": "stdio",
+            "command": "/workspaces/cli/mcps/sharptoolsmcp/SharpTools.StdioServer/bin/Debug/net8.0/SharpTools.StdioServer",
+            "args": [
+                "--log-directory",
+                "/tmp/log/sharptools/",
+                "--log-level",
+                "Debug",
+                "--disable-git"
+            ]
+        },
+        "sharplens": {
+            "type": "stdio",
+            "command": "sharplens",
+            "args": [],
+            "env": {
+                "DOTNET_SOLUTION_PATH": "/workspaces/cli/cmf-cli.slnx"
+            }
+        }
+    },
+	"inputs": [
+		{
+			"id": "CONTEXT7_API_KEY",
+			"type": "promptString",
+			"description": "API key for authentication",
+			"password": true
+		}
+	]
+}

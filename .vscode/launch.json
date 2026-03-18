@@ -27,6 +27,12 @@
             "type": "coreclr",
             "request": "attach",
             "processId": "${command:pickProcess}"
+        },
+        {
+            "name": "CLI .NET Core Attach",
+            "type": "coreclr",
+            "request": "attach",
+            "processName": "cmf",
         }
     ]
 }
