@@ -15,18 +15,15 @@ namespace Cmf.CLI.Core.Objects
     /// </summary>
     public class ExecutionContext
     {
-        private static ExecutionContext? instance;
-        private IFileSystem fileSystem;
-
         /// <summary>
         /// The current ExecutionContext object
         /// </summary>
-        public static ExecutionContext? Instance => instance;
+        public static ExecutionContext? Instance { get; private set; }
 
         /// <summary>
         /// The current FileSystem object
         /// </summary>
-        public IFileSystem FileSystem => fileSystem;
+        public IFileSystem FileSystem { get; private set; }
 
         /// <summary>
         /// The current execution RepositoriesConfig object
@@ -37,11 +34,11 @@ namespace Cmf.CLI.Core.Objects
         /// the current repository's project config
         /// </summary>
         public ProjectConfig? ProjectConfig { get; private set; }
-        
+
         /// <summary>
         /// The current repository app data (only applicable for repositories of type App)
         /// </summary>
-        public AppData? AppData { get; } 
+        public AppData? AppData { get; }
 
         /// <summary>
         /// Get the current (executing) version of the CLI
@@ -67,7 +64,21 @@ namespace Cmf.CLI.Core.Objects
         /// IoC container for services
         /// NOTE: As we already have this ExecutionContext object, we're not enabling Hosting, but instead we are hosting the container in the execution context
         /// </summary>
-        public static ServiceProvider? ServiceProvider { get; set; }
+        public static ServiceProvider ServiceProvider
+        {
+            get
+            {
+                if (field is not null)
+                {
+                    return field;
+                }
+                else
+                {
+                    throw new CliException("ServiceProvider not initialized, please report this issue.");
+                }
+            }
+            set;
+        }
 
         /// <summary>
         /// Is the current CLI outdated.
@@ -94,7 +105,7 @@ namespace Cmf.CLI.Core.Objects
         {
             RunningOnWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
             // private constructor, can only obtain instance via the Instance property
-            this.fileSystem = fileSystem;
+            this.FileSystem = fileSystem;
             this.RepositoriesConfig = FileSystemUtilities.ReadRepositoriesConfig(fileSystem);
 
             // Make sure the cached credentials are reset, to recalculate the derived credentials
@@ -126,6 +137,6 @@ namespace Cmf.CLI.Core.Objects
         /// <summary>
         /// Initialize the current ExecutionContext instance
         /// </summary>
-        public static ExecutionContext Initialize(IFileSystem fileSystem) => instance = new ExecutionContext(fileSystem);
+        public static ExecutionContext Initialize(IFileSystem fileSystem) => Instance = new ExecutionContext(fileSystem);
     }
 }

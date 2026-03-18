@@ -84,7 +84,7 @@ namespace Cmf.CLI
                     {
                         ExecutionContext.Initialize(fileSystem);
                         ExecutionContext.ServiceProvider.GetService<IRepositoryLocator>()!
-                            .InitializeClientsForRepositories(ExecutionContext.Instance.FileSystem);
+                            .InitializeClientsForRepositories(ExecutionContext.Instance!.FileSystem);
                         
                         // Parse and invoke using beta5 pattern
                         ParseResult parseResult = rootCommand.Parse(args);
