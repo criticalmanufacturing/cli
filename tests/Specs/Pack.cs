@@ -357,10 +357,10 @@ namespace tests.Specs
             var outputDir = fileSystem.DirectoryInfo.New("output");
 
             var firstPackCommand = new PackCommand(fileSystem);
-            firstPackCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), outputDir,  false, false);
+            firstPackCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), outputDir, false, false);
             IEnumerable<IFileInfo> assembledFiles = fileSystem.DirectoryInfo.New("output").EnumerateFiles("Cmf.Custom.HTML.1.1.0.zip").ToList();
             var secondPackCommand = new PackCommand(fileSystem);
-            secondPackCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), outputDir,  false, false);
+            secondPackCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), outputDir, false, false);
 
             IEnumerable<IFileInfo> assembledFilesOnSecondRun = fileSystem.DirectoryInfo.New("output").EnumerateFiles("Cmf.Custom.HTML.1.1.0.zip").ToList();
             assembledFilesOnSecondRun.Should().HaveCount(1);
@@ -1404,7 +1404,6 @@ namespace tests.Specs
         [Fact]
         public void DryRun_Html_DoesNotCreatePackage()
         {
-            // Arrange: Html package (MES 9.x → HtmlGulpPackageTypeHandler) with a JS sub-package
             // Use a fresh MockFileSystem (not the shared static) to avoid state pollution from other tests
             var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
             {
@@ -1428,6 +1427,25 @@ namespace tests.Specs
                     }}
                   ]
                 }}") },
+                 { MockUnixSupport.Path(@"c:\ui\angular.json"), new MockFileData(
+                  $@"{{
+                      ""$schema"": ""./node_modules/@angular/cli/lib/config/schema.json"",
+                      ""version"": 1,
+                      ""newProjectRoot"": ""projects"",
+                      ""projects"": {{
+                          ""Cmf.Custom.HTML"": {{
+                              ""projectType"": ""application"",
+                              ""schematics"": {{
+                                  ""@schematics/angular:component"": {{
+                                      ""style"": ""less""
+                                  }}
+                              }},
+                              ""root"": """",
+                              ""sourceRoot"": ""src"",
+                          }}
+                      }}
+                  }}")
+                },
             });
             var packCommand = new PackCommand(fileSystem);
             var outputDir = fileSystem.DirectoryInfo.New("output");

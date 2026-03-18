@@ -25,6 +25,7 @@ using Cmf.CLI.Utilities;
 using Cmf.CLI.Core.Repository.Credentials;
 using Cmf.CLI.Core.Services;
 using Spectre.Console;
+using Cmf.CLI.Core;
 
 namespace tests.Specs
 {
