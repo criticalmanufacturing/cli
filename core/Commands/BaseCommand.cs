@@ -55,7 +55,7 @@ namespace Cmf.CLI.Core.Commands
             {
                 return;
             }
-            
+
             // Get all types that are marked with CmfCommand attribute
             var commandTypes = new List<Type>();
             foreach (Type type in entryAssembly.GetTypes())
@@ -76,7 +76,6 @@ namespace Cmf.CLI.Core.Commands
             foreach (var cmd in topmostCommands)
             {
                 var childCmd = FindChildCommands(cmd, commandTypes);
-                command.Add(childCmd);
                 command.Add(childCmd);
             }
         }
@@ -136,7 +135,6 @@ namespace Cmf.CLI.Core.Commands
             {
                 var childCmd = FindChildCommands(child, commandTypes);
                 cmdInstance.Add(childCmd);
-                cmdInstance.Add(childCmd);
             }
             return cmdInstance;
         }
@@ -152,7 +150,6 @@ namespace Cmf.CLI.Core.Commands
         protected T? Parse<T>(ArgumentResult argResult, string? @default = null)
         {
             var argValue = @default;
-            if (argResult?.Tokens?.Any() == true)
             if (argResult?.Tokens?.Any() == true)
             {
                 argValue = argResult.Tokens.First().Value;
