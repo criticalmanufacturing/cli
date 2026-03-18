@@ -1,0 +1,71 @@
+name: CI Tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - development
+    paths-ignore:
+      - 'features/**'
+
+env:
+  NG_CLI_ANALYTICS: false
+  CRITICALMANUFACTURING_IO_USER: ${{ vars.CRITICALMANUFACTURING_IO_USER }}
+  CRITICALMANUFACTURING_IO_TOKEN: ${{ secrets.CRITICALMANUFACTURING_IO_TOKEN }}
+  CRITICALMANUFACTURING_NPM_REGISTRY: ${{ vars.CRITICALMANUFACTURING_NPM_REGISTRY }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [12, 18]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            6.0.x
+            8.0.x
+
+      - name: Setup Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Build
+        run: |
+          dotnet build --configuration Release
+
+      - name: Test (Node 12)
+        if: matrix.node-version == 12
+        run: dotnet test --configuration Release --no-build --no-restore --verbosity normal --filter "TestCategory!=Node18" --collect:"XPlat Code Coverage" --logger trx --results-directory TestResults
+
+      - name: Test (Node 18)
+        if: matrix.node-version == 18
+        run: dotnet test --configuration Release --no-build --no-restore --verbosity normal --filter "TestCategory!=Node12" --collect:"XPlat Code Coverage" --logger trx --results-directory TestResults
+      
+      - name: Merge Coverage Reports
+        run: |
+          dotnet tool install --global dotnet-reportgenerator-globaltool
+          reportgenerator -reports:TestResults/**/coverage.cobertura.xml -targetdir:TestResults/MergedCoverage -reporttypes:Cobertura
+
+      - name: Code Coverage Report
+        uses: irongut/CodeCoverageSummary@v1.3.0
+        with:
+          filename: TestResults/MergedCoverage/Cobertura.xml
+          badge: true
+          fail_below_min: false
+          format: markdown
+          hide_branch_rate: false
+          hide_complexity: true
+          indicators: true
+          output: both
+
+      - name: Write to Job Summary
+        run: |
+          echo -e "\n> NODE ${{ matrix.node-version }}" >> $GITHUB_STEP_SUMMARY
+          cat code-coverage-results.md >> $GITHUB_STEP_SUMMARY

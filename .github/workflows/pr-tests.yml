@@ -1,7 +1,7 @@
 name: PR tests
 
 on:
- pull_request:
+  pull_request:
     types: [opened, edited, synchronize]
     paths-ignore:
       - 'features/**'
@@ -26,6 +26,12 @@ jobs:
   build:
     needs: commitlint
     runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      pull-requests: write
+    env:
+      LOW_THRESHOLD: 17
+      HIGH_THRESHOLD: 70
     steps:
       - uses: actions/checkout@v4
       - name: Setup .NET Core SDKs
@@ -35,7 +41,7 @@ jobs:
             6.0.x
             8.0.x
       - name: Setup node versions
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
           node-version: '12'
       - name: Install dependencies
@@ -43,4 +49,72 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release --no-restore
       - name: Test
-        run: dotnet test --no-restore --verbosity normal --filter "TestCategory!=Internal"
+        run: dotnet test --configuration Release --no-build --no-restore --verbosity normal --filter "TestCategory!=Integration" --collect:"XPlat Code Coverage" --logger trx --results-directory TestResults
+      - name: Publish Test Results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: .NET Tests
+          path: TestResults/**/*.trx
+          reporter: dotnet-trx
+          fail-on-error: false
+      - name: Get Test Results URL
+        id: test-url
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          URL=$(gh api "repos/${{ github.repository }}/commits/${{ github.event.pull_request.head.sha }}/check-runs" \
+            --jq '[.check_runs[] | select(.name == ".NET Tests")] | last | .html_url')
+          echo "url=${URL}" >> $GITHUB_OUTPUT
+      - name: Add Test Results PR Comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        if: always() && github.event_name == 'pull_request'
+        continue-on-error: true
+        with:
+          header: test-results
+          recreate: true
+          message: |
+            ## .NET Test Results
+            [View full test report](${{ steps.test-url.outputs.url }})
+      - name: Write Test Results to Job Summary
+        if: always()
+        run: |
+          echo "## .NET Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "[View full test report](${{ steps.test-url.outputs.url }})" >> $GITHUB_STEP_SUMMARY
+      - name: Run npm package tests
+        run: cd npm && npm install --ignore-scripts && npm test
+      - name: Merge Coverage Reports
+        run: |
+          dotnet tool install --global dotnet-reportgenerator-globaltool
+          reportgenerator -reports:TestResults/**/coverage.cobertura.xml -targetdir:TestResults/MergedCoverage -reporttypes:Cobertura
+      - name: Code Coverage Report
+        uses: irongut/CodeCoverageSummary@v1.3.0
+        with:
+          filename: TestResults/MergedCoverage/Cobertura.xml
+          badge: true
+          fail_below_min: false
+          format: markdown
+          hide_branch_rate: false
+          hide_complexity: true
+          indicators: true
+          output: both
+          thresholds: '${{ env.LOW_THRESHOLD }} ${{ env.HIGH_THRESHOLD }}'
+      - name: Add Coverage PR Comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        with:
+          recreate: true
+          path: code-coverage-results.md
+      - name: Write to Job Summary
+        run: cat code-coverage-results.md >> $GITHUB_STEP_SUMMARY
+      - name: Validate if line coverage is above ${{ env.LOW_THRESHOLD }}%
+        run: |
+          # Get only the first occurrence of line-rate attribute
+          LINE_RATE=$(grep -m 1 -oP 'line-rate="\K[^"]+' TestResults/MergedCoverage/Cobertura.xml)
+          echo "Top-level line coverage rate: $(echo "$LINE_RATE * 100" | bc)%"
+          if (( $(echo "$LINE_RATE * 100 < ${{ env.LOW_THRESHOLD }}" | bc -l) )); then
+            echo "Coverage threshold not met. Top-level line coverage is $(echo "$LINE_RATE * 100" | bc)% which is below the required ${{ env.LOW_THRESHOLD }}%"
+            exit 1
+          fi

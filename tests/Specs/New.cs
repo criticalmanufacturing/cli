@@ -18,30 +18,83 @@ using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Cmf.CLI.Services;
 using Xunit;
 using Assert = tests.AssertWithMessage;
-using Moq;
 using Cmf.CLI.Core.Interfaces;
+using Cmf.CLI.Utilities;
+using Cmf.CLI.Core.Repository.Credentials;
+using Cmf.CLI.Core.Services;
+using Spectre.Console;
+using Cmf.CLI.Core;
 
 namespace tests.Specs
 {
-    public class New
+    public class NpmLoginFixture : IAsyncLifetime
     {
-        public New()
+        internal const string NPM_USER_ENV_VAR = "CRITICALMANUFACTURING_IO_USER";
+        internal const string NPM_TOKEN_ENV_VAR = "CRITICALMANUFACTURING_IO_TOKEN";
+        internal static string NPM_REGISTRY => System.Environment.GetEnvironmentVariable("CRITICALMANUFACTURING_NPM_REGISTRY") ?? "https://dev.criticalmanufacturing.io/repository/npm-public/";
+
+        public Task InitializeAsync()
         {
-            System.Environment.SetEnvironmentVariable("cmf_cli_internal_disable_projectconfig_cache", "1");
- 
-            var repositoryAuthStoreMock = new Mock<IRepositoryAuthStore>();
-            repositoryAuthStoreMock.Setup(x => x.Load()).ReturnsAsync(new CmfAuthFile());
+            NpmLogin();
+            return Task.CompletedTask;
+        }
+
+        public Task DisposeAsync()
+        {
+            return Task.CompletedTask;
+        }
+
+        private void NpmLogin()
+        {
+            // Set log level to default to print any npm command logs
+            LoggerHelpers.LogLevelOption.Parse("");
+
+            Spectre.Console.AnsiConsole.Console.MarkupLine("Building service provider...");
+
+            var fs = new FileSystem();
 
             ExecutionContext.ServiceProvider = (new ServiceCollection())
                 .AddSingleton<IProjectConfigService>(new ProjectConfigService())
                 .AddSingleton<IVersionService>(new VersionService(CliConstants.PackageName))
                 .AddSingleton<IProcessStartInfoCLI, ProcessStartInfoCLI>()
                 .AddSingleton<IDependencyVersionService, DependencyVersionService>()
-                .AddSingleton(repositoryAuthStoreMock.Object)
+                .AddSingleton<IRepositoryCredentials>(new CIFSRepositoryCredentials())
+                .AddSingleton<IRepositoryCredentials>(new NPMRepositoryCredentials(fs))
+                .AddSingleton<IRepositoryAuthStore>(RepositoryAuthStore.FromEnvironmentConfig(fs))
                 .BuildServiceProvider();
+
+            Spectre.Console.AnsiConsole.Console.MarkupLine("Finished building tests' service provider.");
+
+            var npmUser = System.Environment.GetEnvironmentVariable(NPM_USER_ENV_VAR);
+            var npmToken = System.Environment.GetEnvironmentVariable(NPM_TOKEN_ENV_VAR);
+
+            if (!NPM_REGISTRY.IsNullOrEmpty() && !npmUser.IsNullOrEmpty() && !npmToken.IsNullOrEmpty()) {
+                Spectre.Console.AnsiConsole.Console.MarkupLine($"Running cmf login command for '{NPM_REGISTRY}'...");
+
+                // We just want to login into NPM
+                // If we log onto Portal then the command will attempt to login into all the derived credentials as well
+                var loginCmd = new LoginCommand();
+                loginCmd.Execute(
+                    Cmf.CLI.Core.Repository.Credentials.RepositoryCredentialsType.NPM, NPM_REGISTRY,
+                    Cmf.CLI.Core.Repository.Credentials.AuthType.Basic, null,
+                    npmUser, npmToken, null, null, false, true);
+                    
+                Spectre.Console.AnsiConsole.Console.MarkupLine($"Successfully logged in on '{NPM_REGISTRY}'.");
+            }
+        }
+    }
+
+    public class New : IClassFixture<NpmLoginFixture>
+    {
+        const string NGX_SCHEMATICS_VERSION = "1.3.7";
+
+        public New(NpmLoginFixture npmLoginFixture)
+        {
+            System.Environment.SetEnvironmentVariable("cmf_cli_internal_disable_projectconfig_cache", "1");
 
             var newCommand = new NewCommand();
             var cmd = new Command("x");
@@ -53,7 +106,7 @@ namespace tests.Specs
             }, console);
         }
 
-        [Theory]
+        [Theory, Trait("TestCategory", "Integration")]
         [InlineData(BaseLayer.Core)]
         [InlineData(BaseLayer.MES)]
         [InlineData(BaseLayer.Core, RepositoryType.App)]
@@ -104,7 +157,7 @@ namespace tests.Specs
                 });
         }
 
-        [Theory]
+        [Theory, Trait("TestCategory", "Integration")]
         [InlineData(BaseLayer.Core, RepositoryType.App)]
         [InlineData(BaseLayer.MES, RepositoryType.Customization)]
         public void Grafana(BaseLayer baseLayer, RepositoryType repositoryType)
@@ -138,13 +191,13 @@ namespace tests.Specs
             });
         }
 
-        [Fact]
+        [Fact, Trait("TestCategory", "Integration")]
         public void Data()
         {
             RunNew(new DataCommand(), "Cmf.Custom.Data");
         }
 
-        [Fact, Trait("TestCategory", "LongRunning")]
+        [Fact, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Integration")]
         public void Data_WithBusiness()
         {
             var dir = TestUtilities.GetTmpDirectory();
@@ -174,7 +227,7 @@ namespace tests.Specs
                 });
         }
 
-        [Theory, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node12")]
+        [Theory, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node12"), Trait("TestCategory", "Integration")]
         [InlineData(BaseLayer.MES)]
         [InlineData(BaseLayer.Core)]
         public void UI(BaseLayer layer)
@@ -229,7 +282,7 @@ namespace tests.Specs
             });
         }
 
-        [Theory, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node12")]
+        [Theory, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node12"), Trait("TestCategory", "Integration")]
         [InlineData("8.2.0", false)]
         [InlineData("9.1.0", true)]
         public void UI_WithAppsPackage(string mesVersion, bool isCoreAppPresent)
@@ -250,7 +303,7 @@ namespace tests.Specs
             });
         }
 
-        [Theory]
+        [Theory, Trait("TestCategory", "Integration")]
         [InlineData("9.0.0", true)]
         [InlineData("10.0.0", false), Trait("TestCategory", "LongRunning")]
         public void UI_FailNoPackage(string mesVersion, bool shouldDisplayError)
@@ -271,7 +324,7 @@ namespace tests.Specs
             }
         }
 
-        [Fact, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node12")]
+        [Fact, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node12"), Trait("TestCategory", "Integration")]
         public void Help()
         {
             Help_internal();
@@ -293,7 +346,7 @@ namespace tests.Specs
             });
         }
 
-        [Theory]
+        [Theory, Trait("TestCategory", "Integration")]
         [InlineData("9.0.0", true)]
         [InlineData("10.0.0", false), Trait("TestCategory", "LongRunning")]
         public void Help_FailNoPackage(string mesVersion, bool shouldDisplayError)
@@ -314,12 +367,12 @@ namespace tests.Specs
             }
         }
 
-        [Theory]
+        [Theory, Trait("TestCategory", "Integration")]
         [InlineData("9.0.0")]
-        [InlineData("10.2.5", true), Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Internal")]
-        [InlineData("10.2.5", true, true), Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Internal")]
-        [InlineData("10.2.7", true, true), Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Internal")]
-        [InlineData("10.2.7"), Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Internal")]
+        [InlineData("10.2.5", true), Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node18")]
+        [InlineData("10.2.5", true, true), Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node18")]
+        [InlineData("10.2.7", true, true), Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node18")]
+        [InlineData("10.2.7"), Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node18")]
         public void IoT(string mesVersion, bool htmlPackageLocationFullPath = false, bool isAngularPackageFlag = false)
         {
             string dir = TestUtilities.GetTmpDirectory();
@@ -381,26 +434,34 @@ namespace tests.Specs
                 File.Exists($"{packageId}/{packageFolderPackages}/.dev-tasks.json").Should().BeTrue();
                 Directory.Exists($"{packageId}/{packageFolderPackages}/src").Should().BeTrue();
             }
-            else if (isAngularPackage)
-            {
-                var relatedPackages = TestUtilities.GetPackage($"{packageId}/{packageFolderPackages}/cmfpackage.json").GetProperty("relatedPackages")[0];
-                relatedPackages.GetProperty("path").GetString().Should().Be(MockUnixSupport.Path("..\\..\\Cmf.Custom.HTML"));
-                relatedPackages.GetProperty("preBuild").GetBoolean().Should().BeFalse();
-                relatedPackages.GetProperty("postBuild").GetBoolean().Should().BeTrue();
-                relatedPackages.GetProperty("prePack").GetBoolean().Should().BeFalse();
-                relatedPackages.GetProperty("postPack").GetBoolean().Should().BeTrue();
+            else {
+                Directory.Exists($"{packageId}/{packageFolderPackages}/.vscode").Should().BeTrue();
+                File.Exists($"{packageId}/{packageFolderPackages}/.vscode/extensions.json").Should().BeTrue();
+                File.Exists($"{packageId}/{packageFolderPackages}/.vscode/launch.json").Should().BeTrue();
+                File.Exists($"{packageId}/{packageFolderPackages}/.vscode/settings.json").Should().BeTrue();
+                File.Exists($"{packageId}/{packageFolderPackages}/.vscode/tasks.json").Should().BeTrue();
 
-                File.Exists($"{packageId}/{packageFolderPackages}/angular.json").Should().BeTrue();
-            }
-            else
-            {
-                File.Exists($"{packageId}/{packageFolderPackages}/angular.json").Should().BeFalse();
-                File.Exists($"{packageId}/{packageFolderPackages}/.eslintrc.json").Should().BeTrue();
-                File.Exists($"{packageId}/{packageFolderPackages}/ui.xml").Should().BeTrue();
+                if (isAngularPackage)
+                {
+                    var relatedPackages = TestUtilities.GetPackage($"{packageId}/{packageFolderPackages}/cmfpackage.json").GetProperty("relatedPackages")[0];
+                    relatedPackages.GetProperty("path").GetString().Should().Be(MockUnixSupport.Path("..\\..\\Cmf.Custom.HTML"));
+                    relatedPackages.GetProperty("preBuild").GetBoolean().Should().BeFalse();
+                    relatedPackages.GetProperty("postBuild").GetBoolean().Should().BeTrue();
+                    relatedPackages.GetProperty("prePack").GetBoolean().Should().BeFalse();
+                    relatedPackages.GetProperty("postPack").GetBoolean().Should().BeTrue();
+
+                    File.Exists($"{packageId}/{packageFolderPackages}/angular.json").Should().BeTrue();
+                }
+                else
+                {
+                    File.Exists($"{packageId}/{packageFolderPackages}/angular.json").Should().BeFalse();
+                    File.Exists($"{packageId}/{packageFolderPackages}/.eslintrc.json").Should().BeTrue();
+                    File.Exists($"{packageId}/{packageFolderPackages}/ui.xml").Should().BeTrue();
+                }
             }
         }
 
-        [Fact]
+        [Fact, Trait("TestCategory", "Integration")]
         public void Database()
         {
             RunDatabase(null);
@@ -424,7 +485,7 @@ namespace tests.Specs
             });
         }
 
-        [Fact]
+        [Fact, Trait("TestCategory", "Integration")]
         public void Reporting()
         {
             RunReporting(null);
@@ -445,7 +506,7 @@ namespace tests.Specs
         }
 
         // Tests doesn't work with RunNew (Execute is invoked on LayerTemplateCommand)
-        [Fact]
+        [Fact, Trait("TestCategory", "Integration")]
         public void Tests()
         {
             Tests_internal(null);
@@ -517,7 +578,7 @@ namespace tests.Specs
             }
         }
 
-        [Theory]
+        [Theory, Trait("TestCategory", "Integration")]
         [InlineData("11.2.2", false)]
         [InlineData("11.2.3", true)]
         [InlineData("11.2.4", true)]
@@ -592,7 +653,7 @@ namespace tests.Specs
             }
         }
 
-        [Fact, Trait("TestCategory", "LongRunning")]
+        [Fact, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Integration")]
         public void Traditional()
         {
             var dir = TestUtilities.GetTmpDirectory();
@@ -631,7 +692,7 @@ namespace tests.Specs
             }
         }
 
-        [Fact]
+        [Fact, Trait("TestCategory", "Integration")]
         public void Feature_WithPrefix()
         {
             const string packageId = "Cmf.Custom.Feature";
@@ -647,7 +708,7 @@ namespace tests.Specs
             Assert.True(errors.Length == 0, $"Errors found in console: {errors}");
         }
 
-        [Fact]
+        [Fact, Trait("TestCategory", "Integration")]
         public void Feature_WithoutPrefix()
         {
             RunFeature_WithoutPrefix(null);
@@ -668,7 +729,7 @@ namespace tests.Specs
             Assert.True(errors.Length == 0, $"Errors found in console: {errors}");
         }
 
-        [Fact]
+        [Fact, Trait("TestCategory", "Integration")]
         public void Features_RootPackageWithFeature()
         {
             var dir = TestUtilities.GetTmpDirectory();
@@ -708,7 +769,7 @@ namespace tests.Specs
             }
         }
 
-        [Fact]
+        [Fact, Trait("TestCategory", "Integration")]
         public void Features_Business()
         {
             var dir = TestUtilities.GetTmpDirectory();
@@ -754,7 +815,7 @@ namespace tests.Specs
             }
         }
 
-        [Fact, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node12")]
+        [Fact, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node12"), Trait("TestCategory", "Integration")]
         public void Features_Help()
         {
             var dir = TestUtilities.GetTmpDirectory();
@@ -809,7 +870,7 @@ namespace tests.Specs
             }
         }
 
-        [Fact, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node12")]
+        [Fact, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node12"), Trait("TestCategory", "Integration")]
         public void Features_UI()
         {
             var dir = TestUtilities.GetTmpDirectory();
@@ -859,7 +920,7 @@ namespace tests.Specs
             }
         }
 
-        [Fact]
+        [Fact, Trait("TestCategory", "Integration")]
         public void SecurityPortal()
         {
             string dir = TestUtilities.GetTmpDirectory();
@@ -886,7 +947,7 @@ namespace tests.Specs
             Assert.True(File.Exists($"{dir}/Cmf.Custom.SecurityPortal/config.json"), "Package config.json is missing");
         }
 
-        [Fact, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Internal")]
+        [Fact, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Integration"), Trait("TestCategory", "Node18")]
         public void UI_v10()
         {
             UI_internal_v10();
@@ -894,7 +955,7 @@ namespace tests.Specs
 
         private void UI_internal_v10()
         {
-            RunNew(new HTMLCommand(), "Cmf.Custom.HTML", mesVersion: "10.0.2", extraAsserts: args =>
+            RunNew(new HTMLCommand(), "Cmf.Custom.HTML", mesVersion: "10.1.2", extraAsserts: args =>
             {
                 var configJson = File.ReadAllText("Cmf.Custom.HTML/src/assets/config.json");
                 try
@@ -911,7 +972,7 @@ namespace tests.Specs
         private TestConsole RunNew<T>(T newCommand, string packageId, string scaffoldingDir = null,
             string[] extraArguments = null, bool defaultAsserts = true, Action<(string, string)> extraAsserts = null,
             string mesVersion = "8.2.0",
-            string ngxSchematicsVersion = "1.1.0",
+            string ngxSchematicsVersion = NGX_SCHEMATICS_VERSION,
             BaseLayer baseLayer = BaseLayer.MES,
             RepositoryType repositoryType = RepositoryType.Customization) where T : TemplateCommand
         {
@@ -990,7 +1051,7 @@ namespace tests.Specs
 
         private void CopyNewFixture(string dir,
             string mesVersion = "8.2.0",
-            string ngxSchematicsVersion = "1.1.0",
+            string ngxSchematicsVersion = NGX_SCHEMATICS_VERSION,
             BaseLayer baseLayer = BaseLayer.MES,
             RepositoryType repositoryType = RepositoryType.Customization)
         {
@@ -1003,7 +1064,7 @@ namespace tests.Specs
                     .Replace(@"""BaseLayer"": ""MES""", $@"""BaseLayer"": ""{baseLayer}""")
                     .Replace(@"""RepositoryType"": ""Customization""", $@"""RepositoryType"": ""{repositoryType}""")
                     .Replace(@"""NGXSchematicsVersion"": ""10.0.0""", $@"""NGXSchematicsVersion"": ""{ngxSchematicsVersion}""")
-                    .Replace(@"""NPMRegistry"": ""http://npm_registry/""", $@"""NPMRegistry"": ""http://cmf-nuget:4873/""")
+                    .Replace(@"""NPMRegistry"": ""http://npm_registry/""", $@"""NPMRegistry"": ""{NpmLoginFixture.NPM_REGISTRY}""")
                     .Replace("install_path", MockUnixSupport.Path(@"x:\install_path").Replace(@"\", @"\\"))
                     .Replace("backup_share", MockUnixSupport.Path(@"y:\backup_share").Replace(@"\", @"\\"))
                     .Replace("temp_folder", MockUnixSupport.Path(@"z:\temp_folder").Replace(@"\", @"\\"))

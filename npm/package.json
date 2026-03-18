@@ -1,13 +1,17 @@
 {
   "name": "@criticalmanufacturing/cli",
-  "version": "5.8.0",
+  "version": "5.9.0",
   "description": "Critical Manufacturing command line client",
   "bin": {
     "cmf": "./run.js"
   },
   "scripts": {
     "postinstall": "node postinstall.js install",
-    "preuninstall": "node postinstall.js uninstall"
+    "preuninstall": "node postinstall.js uninstall",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:integration": "node integration-test.js"
   },
   "author": "Critical Manufacturing, SA",
   "license": "BSD-3-Clause",
@@ -37,5 +41,11 @@
     "node_modules-path": "^2.0.7",
     "rimraf": "^3.0.2",
     "tmp": "0.2.1"
+  },
+  "devDependencies": {
+    "jest": "^27.5.1",
+    "http-proxy-agent": "^5.0.0",
+    "https-proxy-agent": "^5.0.1",
+    "proxy-from-env": "^1.1.0"
   }
 }

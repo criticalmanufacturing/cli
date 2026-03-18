@@ -9,7 +9,10 @@
         "ghcr.io/devcontainers/features/node": {
             "version": "12"
         },
-        "ghcr.io/devcontainers/features/github-cli": {}
+        "ghcr.io/devcontainers/features/github-cli": {},
+        "ghcr.io/nils-geistmann/devcontainers-features/zsh": {
+            "plugins": "git dotnet node npm"
+        }
     },
     "customizations": {
         "vscode": {
@@ -17,9 +20,13 @@
                 "ms-dotnettools.csdevkit",
                 "mhutchie.git-graph",
                 "actboy168.tasks",
-                "esbenp.prettier-vscode"
+                "esbenp.prettier-vscode",
+                "EditorConfig.EditorConfig",
+                "redhat.vscode-yaml",
+                "davidanson.vscode-markdownlint",
+                "github.vscode-github-actions"
             ]
         }
     },
-    "postCreateCommand": "npm ci && echo \"alias 'cmf=/workspaces/cli/cmf-cli/bin/Debug/cmf'\" >> /home/vscode/.bashrc"
+    "postCreateCommand": "npm ci && echo \"alias 'cmf=/workspaces/cli/cmf-cli/bin/Debug/cmf'\" >> /home/$USER/.bashrc"
 }

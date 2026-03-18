@@ -26,7 +26,8 @@ namespace Cmf.CLI.Handlers
         /// Generates the presentation configuration file.
         /// </summary>
         /// <param name="packageOutputDir">The package output dir.</param>
-        public void GeneratePresentationConfigFile(IDirectoryInfo packageOutputDir)
+        /// <param name="dryRun">If set to <c>true</c>, the method will simulate the generation without writing files.</param>
+        public void GeneratePresentationConfigFile(IDirectoryInfo packageOutputDir, bool dryRun = false)
         {
             Log.Debug("Generating Presentation config.json");
             string path = $"{packageOutputDir.FullName}/{CliConstants.CmfPackagePresentationConfig}";
@@ -114,7 +115,17 @@ namespace Cmf.CLI.Handlers
                 fileContent = fileContent.Replace(CliConstants.TokenJDTInjection, injection);
                 fileContent = fileContent.Replace(CliConstants.CacheId, DateTime.Now.ToString("yyyyMMddHHmmss"));
 
-                this.fileSystem.File.WriteAllText(path, fileContent);
+                Log.Debug($"The package contains the following UI packages: {string.Join(", ", packageList)}");
+                Log.Debug($"The following config.json transformations would be applied: {string.Join(", ", transformInjections)}");
+
+                if (!dryRun)
+                {
+                    this.fileSystem.File.WriteAllText(path, fileContent);
+                }
+                else
+                {
+                    Log.Information($"The following config.json would be generated at {path}");
+                }
             }
             else
             {
@@ -228,11 +239,12 @@ namespace Cmf.CLI.Handlers
         /// </summary>
         /// <param name="packageOutputDir">The package output dir.</param>
         /// <param name="outputDir">The output dir.</param>
-        public override void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir)
+        /// <param name="dryRun">if set to <c>true</c> list the package structure without creating files.</param>
+        public override void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir, bool dryRun = false)
         {
-            GeneratePresentationConfigFile(packageOutputDir);
+            GeneratePresentationConfigFile(packageOutputDir, dryRun);
 
-            base.Pack(packageOutputDir, outputDir);
+            base.Pack(packageOutputDir, outputDir, dryRun);
         }
 
         #endregion Public Methods
