@@ -35,7 +35,7 @@ public class MESVersionCommandValidation
 
         public override void Configure(Command cmd)
         {
-            cmd.SetHandler(() => { Executed = true; });
+            cmd.SetAction(_ => { Executed = true; });
         }
     }
 
@@ -51,31 +51,29 @@ public class MESVersionCommandValidation
         
         // Simulate what BaseCommand.FindChildCommands does with version validation
         var attr = typeof(TestCommand).GetCustomAttributes(typeof(CmfCommandAttribute), false)[0] as CmfCommandAttribute;
-        if (!string.IsNullOrWhiteSpace(attr.MinimumMESVersion))
+        if (!string.IsNullOrWhiteSpace(attr?.MinimumMESVersion))
         {
-            testCmd.AddValidator(commandResult =>
+            testCmd.Validators.Add(commandResult =>
             {
                 try
                 {
                     var validationService = ExecutionContext.ServiceProvider?.GetService<IMESVersionValidationService>();
-                    validationService?.ValidateMinimumVersion(attr.MinimumMESVersion);
+                    validationService?.ValidateMinimumVersion(attr.MinimumMESVersion!);
                 }
                 catch (MESVersionValidationException ex)
                 {
-                    commandResult.ErrorMessage = ex.Message;
+                    commandResult.AddError(ex.Message);
                 }
                 catch (Exception ex)
                 {
-                    commandResult.ErrorMessage = $"Version validation error: {ex.Message}";
+                    commandResult.AddError($"Version validation error: {ex.Message}");
                 }
             });
         }
         
-        rootCmd.AddCommand(testCmd);
-        var parser = new Parser(rootCmd);
-
         // Act
-        var result = parser.Parse("test-command");
+        rootCmd.Add(testCmd);
+        var result = rootCmd.Parse("test-command");
 
         // Assert
         result.Errors.Should().BeEmpty();
@@ -93,31 +91,29 @@ public class MESVersionCommandValidation
         
         // Simulate what BaseCommand.FindChildCommands does with version validation
         var attr = typeof(TestCommand).GetCustomAttributes(typeof(CmfCommandAttribute), false)[0] as CmfCommandAttribute;
-        if (!string.IsNullOrWhiteSpace(attr.MinimumMESVersion))
+        if (!string.IsNullOrWhiteSpace(attr?.MinimumMESVersion))
         {
-            testCmd.AddValidator(commandResult =>
+            testCmd.Validators.Add(commandResult =>
             {
                 try
                 {
                     var validationService = ExecutionContext.ServiceProvider?.GetService<IMESVersionValidationService>();
-                    validationService?.ValidateMinimumVersion(attr.MinimumMESVersion);
+                    validationService?.ValidateMinimumVersion(attr.MinimumMESVersion!);
                 }
                 catch (MESVersionValidationException ex)
                 {
-                    commandResult.ErrorMessage = ex.Message;
+                    commandResult.AddError(ex.Message);
                 }
                 catch (Exception ex)
                 {
-                    commandResult.ErrorMessage = $"Version validation error: {ex.Message}";
+                    commandResult.AddError($"Version validation error: {ex.Message}");
                 }
             });
         }
         
-        rootCmd.AddCommand(testCmd);
-        var parser = new Parser(rootCmd);
-
         // Act
-        var result = parser.Parse("test-command");
+        rootCmd.Add(testCmd);
+        var result = rootCmd.Parse("test-command");
 
         // Assert
         result.Errors.Should().HaveCount(1);

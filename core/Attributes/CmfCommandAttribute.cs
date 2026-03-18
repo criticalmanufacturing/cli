@@ -48,7 +48,7 @@ namespace Cmf.CLI.Core.Attributes
         /// <summary>
         /// Minimum MES version required for this command (e.g., "11.0.0")
         /// </summary>
-        public string MinimumMESVersion { get; set; }
+        public string MinimumMESVersion { get; set; } = string.Empty;
 
         #endregion
 

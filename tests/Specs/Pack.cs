@@ -16,6 +16,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
+using System.CommandLine.Parsing;
 using System.Threading.Tasks;
 using System.IO;
 using System.IO.Abstractions;
@@ -1393,14 +1394,11 @@ namespace tests.Specs
             var cmd = new Command("pack");
             packCommand.Configure(cmd);
 
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, IDirectoryInfo, bool, bool>(
-            (workingDir, outputDir, force, dryRun) =>
-            {
-                _dryRun = dryRun;
-            });
-
-            var console = new TestConsole();
-            cmd.Invoke(new[] { "--dry-run" }, console);
+            var dryRunOption = cmd.Options
+                .OfType<Option<bool>>()
+                .Single(o => !o.Aliases.Contains("--force") && !o.Aliases.Contains("-f"));
+            var parseResult = cmd.Parse(new[] { "--dry-run" });
+            _dryRun = parseResult.GetValue(dryRunOption);
 
             Assert.NotNull(_dryRun);
             Assert.True(_dryRun ?? false);
