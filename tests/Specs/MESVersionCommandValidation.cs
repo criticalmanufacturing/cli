@@ -53,7 +53,6 @@ public class MESVersionCommandValidation
         if (!string.IsNullOrWhiteSpace(attr?.MinimumMESVersion))
         {
             testCmd.Validators.Add(commandResult =>
-            testCmd.Validators.Add(commandResult =>
             {
                 try
                 {
