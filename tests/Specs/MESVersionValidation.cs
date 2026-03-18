@@ -31,7 +31,7 @@ public class MESVersionValidation
         var service = new MESVersionValidationService();
 
         // Act & Assert
-        service.Invoking(s => s.ValidateMinimumVersion(null))
+        service.Invoking(s => s.ValidateMinimumVersion(null!))
             .Should().NotThrow();
         service.Invoking(s => s.ValidateMinimumVersion(""))
             .Should().NotThrow();
@@ -127,7 +127,7 @@ public class MESVersionValidation
         var service = new MESVersionValidationService();
 
         // Act & Assert
-        service.IsVersionCompatible(null).Should().BeTrue();
+        service.IsVersionCompatible(null!).Should().BeTrue();
         service.IsVersionCompatible("").Should().BeTrue();
         service.IsVersionCompatible("   ").Should().BeTrue();
     }

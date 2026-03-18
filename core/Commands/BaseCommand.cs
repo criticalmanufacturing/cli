@@ -55,12 +55,7 @@ namespace Cmf.CLI.Core.Commands
             {
                 return;
             }
-
-            var entryAssembly = Assembly.GetEntryAssembly();
-            if (entryAssembly == null)
-            {
-                return;
-            }
+            
             // Get all types that are marked with CmfCommand attribute
             var commandTypes = new List<Type>();
             foreach (Type type in entryAssembly.GetTypes())
@@ -104,7 +99,7 @@ namespace Cmf.CLI.Core.Commands
             cmdHandler?.Configure(cmdInstance);
             
             // Validate MES version requirement if specified
-            if (!string.IsNullOrWhiteSpace(dec.MinimumMESVersion))
+            if (!string.IsNullOrWhiteSpace(dec?.MinimumMESVersion))
             {
                 // Add a middleware to validate the version before command execution
                 cmdInstance.Validators.Add(commandResult =>

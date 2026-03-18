@@ -26,7 +26,7 @@ public class CmfPackageController_FromXml
         var pkg = CmfPackageController.FromXml(xml);
 
         pkg.Steps.Should().ContainSingle();
-        pkg.Steps.Single().MessageType.Should().Be(MessageType.ImportObject);
+        pkg.Steps!.Single().MessageType.Should().Be(MessageType.ImportObject);
     }
 
     [Fact]
@@ -46,7 +46,7 @@ public class CmfPackageController_FromXml
         var pkg = CmfPackageController.FromXml(xml);
 
         pkg.Steps.Should().ContainSingle();
-        pkg.Steps.Single().MessageType.Should().BeNull();
+        pkg.Steps!.Single().MessageType.Should().BeNull();
     }
 
     [Fact]
@@ -66,7 +66,7 @@ public class CmfPackageController_FromXml
         var pkg = CmfPackageController.FromXml(xml);
 
         pkg.Steps.Should().ContainSingle();
-        pkg.Steps.Single().DeeBasePath.Should().Be("./dees");
-        pkg.Steps.Single().ImportXMLObjectPath.Should().Be("./xml");
+        pkg.Steps!.Single().DeeBasePath.Should().Be("./dees");
+        pkg.Steps!.Single().ImportXMLObjectPath.Should().Be("./xml");
     }
 }

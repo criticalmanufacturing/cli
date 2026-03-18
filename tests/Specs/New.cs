@@ -33,7 +33,7 @@ namespace tests.Specs
     {
         internal const string NPM_USER_ENV_VAR = "CRITICALMANUFACTURING_IO_USER";
         internal const string NPM_TOKEN_ENV_VAR = "CRITICALMANUFACTURING_IO_TOKEN";
-        internal static string NPM_REGISTRY => System.Environment.GetEnvironmentVariable("CRITICALMANUFACTURING_NPM_REGISTRY") ?? "https://dev.criticalmanufacturing.io/repository/npm-public/";
+        internal static string NPM_REGISTRY => Environment.GetEnvironmentVariable("CRITICALMANUFACTURING_NPM_REGISTRY") ?? "https://dev.criticalmanufacturing.io/repository/npm-public/";
 
         public Task InitializeAsync()
         {
@@ -51,7 +51,7 @@ namespace tests.Specs
             // Set log level to default to print any npm command logs
             Log.Level = LogLevel.Verbose;
 
-            Spectre.Console.AnsiConsole.Console.MarkupLine("Building service provider...");
+            AnsiConsole.Console.MarkupLine("Building service provider...");
 
             var fs = new FileSystem();
 
@@ -65,23 +65,23 @@ namespace tests.Specs
                 .AddSingleton<IRepositoryAuthStore>(RepositoryAuthStore.FromEnvironmentConfig(fs))
                 .BuildServiceProvider();
 
-            Spectre.Console.AnsiConsole.Console.MarkupLine("Finished building tests' service provider.");
+            AnsiConsole.Console.MarkupLine("Finished building tests' service provider.");
 
-            var npmUser = System.Environment.GetEnvironmentVariable(NPM_USER_ENV_VAR);
-            var npmToken = System.Environment.GetEnvironmentVariable(NPM_TOKEN_ENV_VAR);
+            var npmUser = Environment.GetEnvironmentVariable(NPM_USER_ENV_VAR);
+            var npmToken = Environment.GetEnvironmentVariable(NPM_TOKEN_ENV_VAR);
 
-            if (!NPM_REGISTRY.IsNullOrEmpty() && !npmUser.IsNullOrEmpty() && !npmToken.IsNullOrEmpty()) {
-                Spectre.Console.AnsiConsole.Console.MarkupLine($"Running cmf login command for '{NPM_REGISTRY}'...");
+            if (!NPM_REGISTRY.IsNullOrEmpty() && npmUser != null && !npmUser.IsNullOrEmpty() && npmToken != null && !npmToken.IsNullOrEmpty()) {
+                AnsiConsole.Console.MarkupLine($"Running cmf login command for '{NPM_REGISTRY}'...");
 
                 // We just want to login into NPM
                 // If we log onto Portal then the command will attempt to login into all the derived credentials as well
                 var loginCmd = new LoginCommand();
                 loginCmd.Execute(
-                    Cmf.CLI.Core.Repository.Credentials.RepositoryCredentialsType.NPM, NPM_REGISTRY,
-                    Cmf.CLI.Core.Repository.Credentials.AuthType.Basic, null,
+                    RepositoryCredentialsType.NPM, NPM_REGISTRY,
+                    AuthType.Basic, null,
                     npmUser, npmToken, null, null, false, true);
                     
-                Spectre.Console.AnsiConsole.Console.MarkupLine($"Successfully logged in on '{NPM_REGISTRY}'.");
+                AnsiConsole.Console.MarkupLine($"Successfully logged in on '{NPM_REGISTRY}'.");
             }
         }
     }
