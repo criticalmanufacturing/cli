@@ -36,6 +36,7 @@ public class MESVersionCommandValidation
         public override void Configure(Command cmd)
         {
             cmd.SetAction(_ => { Executed = true; });
+            cmd.SetAction(_ => { Executed = true; });
         }
     }
 
@@ -51,14 +52,14 @@ public class MESVersionCommandValidation
         
         // Simulate what BaseCommand.FindChildCommands does with version validation
         var attr = typeof(TestCommand).GetCustomAttributes(typeof(CmfCommandAttribute), false)[0] as CmfCommandAttribute;
-        if (!string.IsNullOrWhiteSpace(attr.MinimumMESVersion))
+        if (!string.IsNullOrWhiteSpace(attr?.MinimumMESVersion))
         {
             testCmd.Validators.Add(commandResult =>
             {
                 try
                 {
                     var validationService = ExecutionContext.ServiceProvider?.GetService<IMESVersionValidationService>();
-                    validationService?.ValidateMinimumVersion(attr.MinimumMESVersion);
+                    validationService?.ValidateMinimumVersion(attr.MinimumMESVersion!);
                 }
                 catch (MESVersionValidationException ex)
                 {
@@ -71,9 +72,8 @@ public class MESVersionCommandValidation
             });
         }
         
-        rootCmd.Add(testCmd);
-
         // Act
+        rootCmd.Add(testCmd);
         var result = rootCmd.Parse("test-command");
 
         // Assert
@@ -92,14 +92,14 @@ public class MESVersionCommandValidation
         
         // Simulate what BaseCommand.FindChildCommands does with version validation
         var attr = typeof(TestCommand).GetCustomAttributes(typeof(CmfCommandAttribute), false)[0] as CmfCommandAttribute;
-        if (!string.IsNullOrWhiteSpace(attr.MinimumMESVersion))
+        if (!string.IsNullOrWhiteSpace(attr?.MinimumMESVersion))
         {
             testCmd.Validators.Add(commandResult =>
             {
                 try
                 {
                     var validationService = ExecutionContext.ServiceProvider?.GetService<IMESVersionValidationService>();
-                    validationService?.ValidateMinimumVersion(attr.MinimumMESVersion);
+                    validationService?.ValidateMinimumVersion(attr.MinimumMESVersion!);
                 }
                 catch (MESVersionValidationException ex)
                 {
@@ -112,9 +112,8 @@ public class MESVersionCommandValidation
             });
         }
         
-        rootCmd.Add(testCmd);
-
         // Act
+        rootCmd.Add(testCmd);
         var result = rootCmd.Parse("test-command");
 
         // Assert

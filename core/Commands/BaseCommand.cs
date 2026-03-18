@@ -87,10 +87,10 @@ namespace Cmf.CLI.Core.Commands
         /// <returns></returns>
         private static Command FindChildCommands(Type cmd, List<Type> commandTypes)
         {
-            var dec = cmd.GetCustomAttribute<CmfCommandAttribute>();
-            var cmdName = string.IsNullOrWhiteSpace(dec?.Name) ? throw new Exception("Could not retrieve command name.") : dec.Name;
+            var dec = cmd.GetCustomAttribute<CmfCommandAttribute>() ?? throw new Exception("Could not retrieve command metadata.");
+            var cmdName = string.IsNullOrWhiteSpace(dec.Name) ? throw new Exception("Could not retrieve command name.") : dec.Name;
             // Create command
-            var cmdInstance = new Command(cmdName) { Hidden = dec?.IsHidden ?? false, Description = dec?.Description };
+            var cmdInstance = new Command(cmdName) { Hidden = dec.IsHidden, Description = dec.Description };
 
             // Call "Configure" method
             BaseCommand? cmdHandler = Activator.CreateInstance(cmd) as BaseCommand;
@@ -105,7 +105,7 @@ namespace Cmf.CLI.Core.Commands
                     try
                     {
                         var validationService = ExecutionContext.ServiceProvider?.GetService<IMESVersionValidationService>();
-                        validationService?.ValidateMinimumVersion(dec.MinimumMESVersion);
+                        validationService?.ValidateMinimumVersion(dec.MinimumMESVersion!);
                     }
                     catch (MESVersionValidationException ex)
                     {

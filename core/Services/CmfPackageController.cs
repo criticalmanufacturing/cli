@@ -371,6 +371,7 @@ public class CmfPackageController
                     
                     var typeAttr = element.Attribute("type")?.Value;
                     var tagFileAttr = element.Attribute("tagFile")?.Value;
+                    var messageTypeAttr = element.Attribute("messageType")?.Value;
                     Step step = new Step(
                         type: typeAttr != null && Enum.TryParse<StepType>(typeAttr, out var stepType)
                             ? stepType
@@ -381,7 +382,7 @@ public class CmfPackageController
                         file: null,
                         tagFile: tagFileAttr != null ? bool.Parse(tagFileAttr) : null,
                         targetDatabase: element.Attribute("targetDatabase")?.Value,
-                        messageType: element.Attribute("messageType") != null && Enum.TryParse(element.Attribute("messageType").Value, out MessageType messageType) ? messageType : null,
+                        messageType: messageTypeAttr != null && Enum.TryParse(messageTypeAttr, out MessageType messageType) ? messageType : null,
                         relativePath: null,
                         filePath: element.Attribute("filePath")?.Value,
                         oldSystemName: element.Attribute("oldSystemName")?.Value
