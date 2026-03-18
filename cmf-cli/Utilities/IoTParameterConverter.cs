@@ -6,8 +6,14 @@ namespace Cmf.CLI.Utilities
 {
     public class IoTParametersConverter : JsonConverter<Dictionary<string, IoTValueType>>
     {
-        public override void WriteJson(JsonWriter writer, Dictionary<string, IoTValueType> value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, Dictionary<string, IoTValueType>? value, JsonSerializer serializer)
         {
+            if (value == null)
+            {
+                writer.WriteNull();
+                return;
+            }
+
             writer.WriteStartObject();
             foreach (var kvp in value)
             {
@@ -32,33 +38,47 @@ namespace Cmf.CLI.Utilities
             }
             writer.WriteEndObject();
         }
-
-        public override Dictionary<string, IoTValueType> ReadJson(JsonReader reader, Type objectType, Dictionary<string, IoTValueType> existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override Dictionary<string, IoTValueType> ReadJson(JsonReader reader, Type objectType, Dictionary<string, IoTValueType>? existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
-            var result = new Dictionary<string, IoTValueType>();
+            var result = existingValue ?? new Dictionary<string, IoTValueType>();
+
+            if (reader.TokenType == JsonToken.Null)
+            {
+                return result;
+            }
+
             if (reader.TokenType == JsonToken.StartObject)
             {
                 reader.Read();
                 while (reader.TokenType == JsonToken.PropertyName)
                 {
-                    var key = reader.Value.ToString();
+                    var key = reader.Value?.ToString();
                     reader.Read();
+                    if (string.IsNullOrEmpty(key))
+                    {
+                        continue;
+                    }
+
                     if (reader.TokenType == JsonToken.String)
                     {
-                        result[key] = Enum.Parse<IoTValueType>(reader.Value.ToString());
+                        var stringValue = reader.Value?.ToString();
+                        if (!string.IsNullOrEmpty(stringValue))
+                        {
+                            result[key] = Enum.Parse<IoTValueType>(stringValue);
+                        }
                     }
                     else if (reader.TokenType == JsonToken.StartObject)
                     {
-                        string dataType = null;
+                        string? dataType = null;
                         while (reader.Read() && reader.TokenType != JsonToken.EndObject)
                         {
                             if (reader.TokenType == JsonToken.PropertyName)
                             {
-                                var propertyName = reader.Value.ToString();
+                                var propertyName = reader.Value?.ToString();
                                 reader.Read();
                                 if (propertyName == "dataType")
                                 {
-                                    dataType = reader.Value.ToString();
+                                    dataType = reader.Value?.ToString();
                                 }
                                 else if (propertyName == "enumValues")
                                 {
@@ -69,6 +89,7 @@ namespace Cmf.CLI.Utilities
                                 }
                             }
                         }
+
                         if (dataType == IoTValueType.Enum.ToString())
                         {
                             result[key] = IoTValueType.Enum;
@@ -77,6 +98,7 @@ namespace Cmf.CLI.Utilities
                     reader.Read();
                 }
             }
+
             return result;
         }
     }

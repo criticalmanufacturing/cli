@@ -137,7 +137,7 @@ namespace Cmf.CLI.Handlers
         /// <param name="version">The version.</param>
         /// <param name="buildNr">The version for build Nr.</param>
         /// <param name="bumpInformation">The bump information.</param>
-        public override void Bump(string version, string buildNr, Dictionary<string, object> bumpInformation = null)
+        public override void Bump(string version, string buildNr, Dictionary<string, object>? bumpInformation = null)
         {
             base.Bump(version, buildNr, bumpInformation);
 
@@ -164,7 +164,7 @@ namespace Cmf.CLI.Handlers
 
                     // if package-lock also refer the package in the packages list
                     Dictionary<string, dynamic> packages = project.PackageLock.Content.packages.ToObject<Dictionary<string, dynamic>>();
-                    if(packages.ContainsKey("") && packages[""].name == project.Name)
+                    if (packages.ContainsKey("") && packages[""].name == project.Name)
                     {
                         packages[""].version = project.PackageJson.Content.version;
                         project.PackageLock.Content.packages = JObject.FromObject(packages);
@@ -240,7 +240,7 @@ namespace Cmf.CLI.Handlers
         //     Log.Information($"{outputDir.FullName}/{CmfPackage.ZipPackageName} created");
         //     
         // }
-        
+
         /// <summary>
         /// Generates the presentation configuration file.
         /// </summary>
@@ -249,7 +249,7 @@ namespace Cmf.CLI.Handlers
         {
             Log.Debug("Generating Presentation config.json");
             string path = $"{packageOutputDir.FullName}/assets/{CliConstants.CmfPackagePresentationConfig}";
-            
+
             List<string> transformInjections = new();
 
             IDirectoryInfo cmfPackageDirectory = CmfPackage.GetFileInfo().Directory;

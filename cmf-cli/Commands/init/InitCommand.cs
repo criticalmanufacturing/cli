@@ -19,48 +19,44 @@ using Newtonsoft.Json;
 
 namespace Cmf.CLI.Commands
 {
-    // this is public because Execute is public by convention but never invoked externally
-    // so this class mirrors the command internal structure and is never used outside
-    // ReSharper disable once ClassNeverInstantiated.Global
     internal class InitArguments
     {
         // ReSharper disable InconsistentNaming
         // ReSharper disable UnusedAutoPropertyAccessor.Global
-        public IDirectoryInfo workingDir { get; set; }
-        public string projectName { get; set; }
-        public string rootPackageName { get; set; }
-        public string version { get; set; }
-        public IFileInfo config { get; set; }
-        public IFileInfo appConfig { get; set; }
-        public Uri deploymentDir { get; set; }
-        public Uri ciRepo { get; set; }
-        public List<Uri> releaseRepos { get; set; }
-        public string BaseVersion { get; set; }
-        public string DevTasksVersion { get; set; }
-        public string HTMLStarterVersion { get; set; }
-        public string yoGeneratorVersion { get; set; }
-        public string ngxSchematicsVersion { get; set; }
-        public string nugetVersion { get; set; }
-        public string testScenariosNugetVersion { get; set; }
-        public IFileInfo infrastructure { get; set; }
-        public Uri nugetRegistry { get; set; }
-        public Uri npmRegistry { get; set; }
-        public IFileInfo ISOLocation { get; set; }
-        public string nugetRegistryUsername { get; set; }
-        public string nugetRegistryPassword { get; set; }
-        public string Tenant { get; set; }
+        public IDirectoryInfo? workingDir { get; set; }
+        public required string projectName { get; set; }
+        public string? rootPackageName { get; set; }
+        public string? version { get; set; }
+        public IFileInfo? config { get; set; }
+        public IFileInfo? appConfig { get; set; }
+        public Uri? deploymentDir { get; set; }
+        public Uri? ciRepo { get; set; }
+        public List<Uri>? releaseRepos { get; set; }
+        public required string BaseVersion { get; set; }
+        public string? DevTasksVersion { get; set; }
+        public string? HTMLStarterVersion { get; set; }
+        public string? yoGeneratorVersion { get; set; }
+        public string? ngxSchematicsVersion { get; set; }
+        public required string nugetVersion { get; set; }
+        public required string testScenariosNugetVersion { get; set; }
+        public IFileInfo? infrastructure { get; set; }
+        public Uri? nugetRegistry { get; set; }
+        public Uri? npmRegistry { get; set; }
+        public IFileInfo? ISOLocation { get; set; }
+        public string? nugetRegistryUsername { get; set; }
+        public string? nugetRegistryPassword { get; set; }
+        public string? Tenant { get; set; }
         public RepositoryType repositoryType { get; set; }
-        public string appId { get; set; }
-        public string appName { get; set; }
-        public string appDescription { get; set; }
-        public string appAuthor { get; set; }
-        public string appLicensedApplication { get; set; }
-        public IFileInfo appIcon { get; set; }
+        public string? appId { get; set; }
+        public string? appName { get; set; }
+        public string? appDescription { get; set; }
+        public string? appAuthor { get; set; }
+        public string? appLicensedApplication { get; set; }
+        public IFileInfo? appIcon { get; set; }
 
         // ReSharper restore UnusedAutoPropertyAccessor.Global
         // ReSharper restore InconsistentNaming
     }
-
     /// <summary>
     /// Init command
     /// </summary>
@@ -350,36 +346,52 @@ namespace Cmf.CLI.Commands
                 return Task.FromResult(0);
             });
         }
-
-        /// <summary>
-        /// Execute the command
-        /// </summary>
         internal void Execute(InitArguments x)
         {
-            using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
-            var args = new List<string>()
+            if (x == null) throw new ArgumentNullException(nameof(x));
+            if (x.workingDir == null)
             {
-                // engine options
-                "--output", x.workingDir.FullName,
+                throw new CliException("Missing working directory.");
+            }
 
-                // template symbols
-                "--customPackageName", x.rootPackageName,
-                "--projectName", x.projectName,
-                "--repositoryType", x.repositoryType.ToString(),
-                "--baseLayer", x.repositoryType == RepositoryType.App ? BaseLayer.Core.ToString() : BaseLayer.MES.ToString(),
-                "--CLIVersion", ExecutionContext.CurrentVersion
-            };
+            var workingDir = x.workingDir;
+            var projectName = x.projectName;
+            var rootPackageName = x.rootPackageName ?? "Cmf.Custom.Package";
+            var baseVersion = x.BaseVersion ?? throw new CliException("Missing base version.");
+            var nugetVersion = x.nugetVersion ?? throw new CliException("Missing NuGet version.");
+            var testScenariosNugetVersion = x.testScenariosNugetVersion ?? throw new CliException("Missing test scenarios NuGet version.");
+
+            using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
+
+            var args = new List<string>()
+    {
+        // engine options
+        "--output", workingDir.FullName,
+
+        // template symbols
+        "--customPackageName", rootPackageName,
+        "--projectName", projectName,
+        "--repositoryType", x.repositoryType.ToString(),
+        "--baseLayer", x.repositoryType == RepositoryType.App ? BaseLayer.Core.ToString() : BaseLayer.MES.ToString(),
+        "--CLIVersion", ExecutionContext.CurrentVersion
+    };
 
             if (x.repositoryType == RepositoryType.App)
             {
+                var appId = x.appId;
+                var appName = x.appName;
+                var appAuthor = x.appAuthor;
+                var appDescription = x.appDescription;
+                var appLicensedApplication = x.appLicensedApplication;
+
                 var requiredParameters = new[]
                 {
-                    new { Parameter = "appId", Value = x.appId },
-                    new { Parameter = "appName", Value = x.appName },
-                    new { Parameter = "appAuthor", Value = x.appAuthor },
-                    new { Parameter = "appDescription", Value = x.appDescription },
-                    new { Parameter = "appLicensedApplication", Value = x.appLicensedApplication },
-                };
+            new { Parameter = "appId", Value = appId },
+            new { Parameter = "appName", Value = appName },
+            new { Parameter = "appAuthor", Value = appAuthor },
+            new { Parameter = "appDescription", Value = appDescription },
+            new { Parameter = "appLicensedApplication", Value = appLicensedApplication },
+        };
 
                 var errors = new List<string>();
                 const string AppParameterMissingError = "--{0} is required when repository type is App.";
@@ -403,20 +415,20 @@ namespace Cmf.CLI.Commands
 
                 args.AddRange(new[]
                 {
-                    "--appName", x.appName,
-                    "--appNameLowerNoSpaces", x.appName.ToLower().Replace(" ", ""),
-                    "--appId", x.appId,
-                    "--appIcon", appIconPath,
-                    "--appDescription", x.appDescription,
-                    "--appTargetFramework", x.BaseVersion,
-                    "--appAuthor", x.appAuthor,
-                    "--appLicensedApplication", x.appLicensedApplication
-                });
+            "--appName", appName!,
+            "--appNameLowerNoSpaces", appName!.ToLower().Replace(" ", ""),
+            "--appId", appId!,
+            "--appIcon", appIconPath,
+            "--appDescription", appDescription!,
+            "--appTargetFramework", baseVersion,
+            "--appAuthor", appAuthor!,
+            "--appLicensedApplication", appLicensedApplication!
+        });
             }
 
             if (x.version != null)
             {
-                args.AddRange(new [] {"--packageVersion", x.version});
+                args.AddRange(new[] { "--packageVersion", x.version });
             }
 
             if (x.deploymentDir != null)
@@ -430,9 +442,9 @@ namespace Cmf.CLI.Commands
                     throw new CliException("Invalid option `--releaseRepos` when also using `--deploymentDir`. Use one or the other, but not both.");
                 }
 
-                string deploymentDirPath = null;
-                bool isUncPath = false;
-                
+                string deploymentDirPath;
+                bool isUncPath;
+
                 try
                 {
                     // Check if it's an absolute URI first
@@ -446,9 +458,10 @@ namespace Cmf.CLI.Commands
                         catch
                         {
                             // If IsUnc fails, fall back to LocalPath for file URIs
-                            deploymentDirPath = x.deploymentDir.IsFile ? 
-                                this.fileSystem.DirectoryInfo.New(x.deploymentDir.LocalPath).FullName : 
+                            deploymentDirPath = x.deploymentDir.IsFile ?
+                                this.fileSystem.DirectoryInfo.New(x.deploymentDir.LocalPath).FullName :
                                 x.deploymentDir.OriginalString;
+                            isUncPath = false;
                         }
                     }
                     else
@@ -488,23 +501,23 @@ namespace Cmf.CLI.Commands
                 args.AddRange(new[] { "--CIRepo", x.ciRepo.AbsoluteUri });
             }
 
-            if (x.BaseVersion != null)
+            if (!string.IsNullOrEmpty(baseVersion))
             {
-                args.AddRange(new[] { "--MESVersion", x.BaseVersion });
+                args.AddRange(new[] { "--MESVersion", baseVersion });
             }
 
-            args.AddRange(new [] {"--DevTasksVersion", x.DevTasksVersion ?? ""});
-            args.AddRange(new [] {"--HTMLStarterVersion", x.HTMLStarterVersion ?? ""});
-            args.AddRange(new [] {"--yoGeneratorVersion", x.yoGeneratorVersion ?? ""});
-            args.AddRange(new [] {"--ngxSchematicsVersion", x.ngxSchematicsVersion ?? ""});
+            args.AddRange(new[] { "--DevTasksVersion", x.DevTasksVersion ?? "" });
+            args.AddRange(new[] { "--HTMLStarterVersion", x.HTMLStarterVersion ?? "" });
+            args.AddRange(new[] { "--yoGeneratorVersion", x.yoGeneratorVersion ?? "" });
+            args.AddRange(new[] { "--ngxSchematicsVersion", x.ngxSchematicsVersion ?? "" });
 
-            if (x.nugetVersion != null)
+            if (!string.IsNullOrEmpty(nugetVersion))
             {
-                args.AddRange(new [] {"--nugetVersion", x.nugetVersion});
+                args.AddRange(new[] { "--nugetVersion", nugetVersion });
             }
-            if (x.testScenariosNugetVersion != null)
+            if (!string.IsNullOrEmpty(testScenariosNugetVersion))
             {
-                args.AddRange(new [] {"--testScenariosNugetVersion", x.testScenariosNugetVersion});
+                args.AddRange(new[] { "--testScenariosNugetVersion", testScenariosNugetVersion });
             }
 
             #region infrastructure
@@ -534,33 +547,30 @@ namespace Cmf.CLI.Commands
                 throw new CliException("Missing infrastructure options. Either specify an infrastructure file with [--infrastructure] or specify each infrastructure option separately.");
             }
 
-            if (x.nugetRegistry != null)
-            {
-                args.AddRange(new [] {"--nugetRegistry", x.nugetRegistry.AbsoluteUri});
-            }
-            if (x.npmRegistry != null)
-            {
-                args.AddRange(new [] {"--npmRegistry", x.npmRegistry.AbsoluteUri});
-            }
+            args.AddRange(new[] { "--nugetRegistry", x.nugetRegistry.AbsoluteUri });
+            args.AddRange(new[] { "--npmRegistry", x.npmRegistry.AbsoluteUri });
             if (x.ISOLocation != null)
             {
-                args.AddRange(new [] {"--ISOLocation", x.ISOLocation.FullName});
+                args.AddRange(new[] { "--ISOLocation", x.ISOLocation.FullName });
             }
-            if (x.nugetRegistryUsername != null)
+            if (!string.IsNullOrEmpty(x.nugetRegistryUsername))
             {
                 args.AddRange(new[] { "--nugetRegistryUsername", x.nugetRegistryUsername });
             }
-            if (x.nugetRegistryPassword != null)
+            if (!string.IsNullOrEmpty(x.nugetRegistryPassword))
             {
                 args.AddRange(new[] { "--nugetRegistryPassword", x.nugetRegistryPassword });
-            }          
+            }
 
-            #endregion           
+            #endregion
 
             #region version-specific bits
 
-            var version = Version.Parse(x.BaseVersion);
-            args.AddRange(new []{ "--dotnetSDKVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().DotNetSdk(version) });
+            var dependencyVersionService = ExecutionContext.ServiceProvider?.GetService<IDependencyVersionService>()
+                ?? throw new CliException("Dependency version service is not available.");
+
+            var version = Version.Parse(baseVersion);
+            args.AddRange(new[] { "--dotnetSDKVersion", dependencyVersionService.DotNetSdk(version) });
 
             if (version.Major > 9)
             {
@@ -596,12 +606,12 @@ namespace Cmf.CLI.Commands
             {
                 args.AddRange(ParseConfigFile(x.config));
             }
-            
+
             if (!string.IsNullOrEmpty(x.Tenant))
             {
-                args.AddRange(new string[] { "--Tenant", x.Tenant });
+                args.AddRange(new[] { "--Tenant", x.Tenant });
             }
-            
+
             if (!args.Contains("--Tenant"))
             {
                 throw new CliException("Tenant information is missing. Please provide it either in the config file or through the --tenant option.");
@@ -609,7 +619,7 @@ namespace Cmf.CLI.Commands
 
             if (x.appConfig != null)
             {
-                args.AddRange(new string[] {"--AppEnvironmentConfig", x.appConfig.Name});
+                args.AddRange(new[] { "--AppEnvironmentConfig", x.appConfig.Name });
             }
 
             this.RunCommand(args);
@@ -668,7 +678,7 @@ namespace Cmf.CLI.Commands
         /// <param name="default">the default value if no value is passed for the argument</param>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         /// <returns></returns>
-        private T ParseArgument<T>(ArgumentResult argResult, string @default = null)
+        private T ParseArgument<T>(ArgumentResult argResult, string? @default = null)
         {
             var argValue = @default;
 

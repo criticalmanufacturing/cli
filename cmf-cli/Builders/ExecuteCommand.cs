@@ -17,7 +17,7 @@ namespace Cmf.CLI.Builders
         /// <value>
         /// The command.
         /// </value>
-        public T Command { get; set; }
+        public required T Command { get; set; }
 
         /// <summary>
         /// Gets or sets the display name.
@@ -25,7 +25,7 @@ namespace Cmf.CLI.Builders
         /// <value>
         /// The display name.
         /// </value>
-        public string DisplayName { get; set; }
+        public required string DisplayName { get; set; }
 
         /// <summary>
         /// Only Executes on Test (--test)
@@ -52,7 +52,7 @@ namespace Cmf.CLI.Builders
         /// <value>
         /// The execute.
         /// </value>
-        public Action<T> Execute { get; set; }
+        public required Action<T> Execute { get; set; }
 
         /// <summary>
         /// This method will be used to do a run check before the Exec() is able to run.
@@ -87,7 +87,7 @@ namespace Cmf.CLI.Builders
             {
                 Log.Debug($"Command: {this.DisplayName} will not be executed as its condition was not met");
             }
-            return null;
+            return Task.CompletedTask;
         }
     }
 }

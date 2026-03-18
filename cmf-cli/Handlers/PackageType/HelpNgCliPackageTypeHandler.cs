@@ -139,7 +139,7 @@ namespace Cmf.CLI.Handlers
                     }
                 }).ToArray();
             }
-            
+
             BuildSteps = BuildSteps.Append(new NgBuildFileTokenReplacerCommand(this.fileSystem, apps, cmfPackage)).ToArray();
         }
 
@@ -150,7 +150,7 @@ namespace Cmf.CLI.Handlers
         /// <param name="version">The version.</param>
         /// <param name="buildNr">The version for build Nr.</param>
         /// <param name="bumpInformation">The bump information.</param>
-        public override void Bump(string version, string buildNr, Dictionary<string, object> bumpInformation = null)
+        public override void Bump(string version, string buildNr, Dictionary<string, object>? bumpInformation = null)
         {
             base.Bump(version, buildNr, bumpInformation);
 

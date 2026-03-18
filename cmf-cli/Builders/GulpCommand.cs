@@ -27,7 +27,7 @@ namespace Cmf.CLI.Builders
         /// <value>
         /// The gulp file.
         /// </value>
-        public string GulpFile { get; set; }
+        public required string GulpFile { get; set; }
 
         /// <summary>
         /// Gets or sets the task.
@@ -35,7 +35,7 @@ namespace Cmf.CLI.Builders
         /// <value>
         /// The task.
         /// </value>
-        public string Task { get; set; }
+        public required string Task { get; set; }
 
         /// <summary>
         /// Gets or sets the gulp js.
@@ -43,7 +43,7 @@ namespace Cmf.CLI.Builders
         /// <value>
         /// The gulp js.
         /// </value>
-        public string GulpJS { get; set; }
+        public required string GulpJS { get; set; }
 
         /// <summary>
         /// Gets or sets the arguments.
@@ -51,7 +51,7 @@ namespace Cmf.CLI.Builders
         /// <value>
         /// The arguments.
         /// </value>
-        public string[] Args { get; set; }
+        public required string[] Args { get; set; }
 
         /// <summary>
         /// Gets or sets the display name.
@@ -59,7 +59,7 @@ namespace Cmf.CLI.Builders
         /// <value>
         /// The display name.
         /// </value>
-        public string DisplayName { get; set; }
+        public required string DisplayName { get; set; }
 
         /// <summary>
         /// Only Executes on Test (--test)

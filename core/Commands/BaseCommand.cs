@@ -68,7 +68,7 @@ namespace Cmf.CLI.Core.Commands
             // Commands that depend on root (have no defined parent)
             var topmostCommands = commandTypes.Where(
                 t => string.IsNullOrWhiteSpace(t.GetCustomAttributes<CmfCommandAttribute>(false)
-                    .First().Parent) && 
+                    .First().Parent) &&
                      string.IsNullOrWhiteSpace(t.GetCustomAttributes<CmfCommandAttribute>(false)
                          .First().ParentId));
 
@@ -137,16 +137,7 @@ namespace Cmf.CLI.Core.Commands
             }
             return cmdInstance;
         }
-
-        /// <summary>
-        /// parse argument/option
-        /// </summary>
-        /// <typeparam name="T">the (target) type of the argument/parameter</typeparam>
-        /// <param name="argResult">the arguments to parse</param>
-        /// <param name="default">the default value if no value is passed for the argument</param>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
-        /// <returns></returns>
-        protected T? Parse<T>(ArgumentResult argResult, string? @default = null)
+        protected T Parse<T>(ArgumentResult? argResult, string? @default = null)
         {
             var argValue = @default;
             if (argResult?.Tokens?.Any() == true)
@@ -156,14 +147,15 @@ namespace Cmf.CLI.Core.Commands
 
             if (string.IsNullOrEmpty(argValue))
             {
-                return default;
+                // Intentionally return null when no value is provided; callers should validate.
+                return default!;
             }
 
             return typeof(T) switch
             {
-                {} dirType when dirType == typeof(IDirectoryInfo) => (T)this.fileSystem.DirectoryInfo.New(argValue),
-                {} fileType when fileType == typeof(IFileInfo) => (T)this.fileSystem.FileInfo.New(argValue),
-                {} stringType when stringType == typeof(string) => (T)(object)argValue,
+                { } dirType when dirType == typeof(IDirectoryInfo) => (T)this.fileSystem.DirectoryInfo.New(argValue),
+                { } fileType when fileType == typeof(IFileInfo) => (T)this.fileSystem.FileInfo.New(argValue),
+                { } stringType when stringType == typeof(string) => (T)(object)argValue,
                 _ => throw new ArgumentOutOfRangeException("This method only parses directories, file paths or strings")
             };
         }

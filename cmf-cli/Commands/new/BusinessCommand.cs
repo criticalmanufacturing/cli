@@ -33,11 +33,6 @@ namespace Cmf.CLI.Commands.New
         public BusinessCommand(IFileSystem fileSystem) : base("business", PackageType.Business, fileSystem)
         {
         }
-
-        /// <summary>
-        /// Configure the business command
-        /// </summary>
-        /// <param name="cmd"></param>
         public override void Configure(Command cmd)
         {
             var addApplicationVersionAssemblyOption = new Option<bool>("--addApplicationVersionAssembly", "-av")
@@ -50,15 +45,14 @@ namespace Cmf.CLI.Commands.New
 
             cmd.SetAction((parseResult, cancellationToken) =>
             {
-                var workingDir = parseResult.GetValue(workingDirArg);
-                var version = parseResult.GetValue(versionOpt);
+                var workingDir = parseResult.GetValue(workingDirArg)!;
+                var version = parseResult.GetValue(versionOpt)!;
                 var addApplicationVersionAssembly = parseResult.GetValue(addApplicationVersionAssemblyOption);
 
                 Execute(workingDir, version, addApplicationVersionAssembly);
                 return Task.FromResult(0);
             });
         }
-
         /// <summary>
         /// Executes business command
         /// </summary>
@@ -76,33 +70,34 @@ namespace Cmf.CLI.Commands.New
             AddApplicationVersionAssembly = addApplicationVersionAssembly;
             base.Execute(workingDir, version);
         }
-
-        /// <inheritdoc />
         protected override List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args)
         {
-            var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            var projectConfig = ExecutionContext.Instance?.ProjectConfig
+                ?? throw new CliException("Project configuration is not available.");
+
+            var mesVersion = projectConfig.MESVersion;
             var includeMESNugets = true;
-            
+
             if (mesVersion.Major > 8)
             {
                 this.CommandName = "business9";
-                var baseLayer = ExecutionContext.Instance.ProjectConfig.BaseLayer ?? CliConstants.DefaultBaseLayer;
+                var baseLayer = projectConfig.BaseLayer ?? CliConstants.DefaultBaseLayer;
                 includeMESNugets = baseLayer == BaseLayer.MES;
                 Log.Debug($"Project is targeting base layer {baseLayer}, so scaffolding {(includeMESNugets ? "with" : "without")} MES nugets.");
 
-                args.AddRange(new []{ "--targetFramework",  mesVersion.Major >= 11 ? "net8.0" : "net6.0" });
+                args.AddRange(new string[] { "--targetFramework", mesVersion.Major >= 11 ? "net8.0" : "net6.0" });
 
-                if (ExecutionContext.Instance.ProjectConfig.RepositoryType == RepositoryType.App)
+                if (projectConfig.RepositoryType == RepositoryType.App)
                 {
-                    var appData = ExecutionContext.Instance.AppData ??
-                        throw new CliException("Could not retrieve repository AppData.");
-                    args.AddRange(new[]
+                    var appData = ExecutionContext.Instance?.AppData
+                        ?? throw new CliException("Could not retrieve repository AppData.");
+                    args.AddRange(new string[]
                     {
-                        "--app", "true",
-                        "--licensedAppName", appData.licensedApplication,
-                        "--fileVersion", $"{mesVersion}.0",
-                        "--assemblyVersion", $"{mesVersion.Major}.{mesVersion.Minor}.0.0",
-                        "--addApplicationVersionAssembly", AddApplicationVersionAssembly.ToString()
+                "--app", "true",
+                "--licensedAppName", appData.licensedApplication,
+                "--fileVersion", $"{mesVersion}.0",
+                "--assemblyVersion", $"{mesVersion.Major}.{mesVersion.Minor}.0.0",
+                "--addApplicationVersionAssembly", AddApplicationVersionAssembly.ToString()
                     });
                 }
             }
@@ -121,12 +116,12 @@ namespace Cmf.CLI.Commands.New
                         this.fileSystem.Path.Join(projectRoot.FullName, "DeploymentMetadata"))
                 ).Replace("\\", "/");
 
-            args.AddRange(new []
+            args.AddRange(new string[]
             {
-                "--MESVersion", mesVersion.ToString(),
-                "--localEnvRelativePath", relativePathToLocalEnv,
-                "--deploymentMetadataRelativePath", relativePathToDeploymentMetadata,
-                "--includeMESNugets", includeMESNugets.ToString()
+        "--MESVersion", mesVersion.ToString(),
+        "--localEnvRelativePath", relativePathToLocalEnv,
+        "--deploymentMetadataRelativePath", relativePathToDeploymentMetadata,
+        "--includeMESNugets", includeMESNugets.ToString()
             });
             return args;
         }

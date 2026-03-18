@@ -144,6 +144,12 @@ namespace Cmf.CLI.Handlers
 
             foreach (var relatedPackage in CmfPackage.RelatedPackages ?? new())
             {
+                if (relatedPackage.CmfPackage is null)
+                {
+                    Log.Warning($"Skipping related package {relatedPackage.Path ?? "<unknown>"} because CmfPackage is null");
+                    continue;
+                }
+
                 RelatedPackagesHandlers.Add(relatedPackage, PackageTypeFactory.GetPackageTypeHandler(relatedPackage.CmfPackage));
             }
         }
@@ -432,7 +438,7 @@ namespace Cmf.CLI.Handlers
 
                     try
                     {
-                       _filesToPack = packageDirectory.GetFiles(_source).OrderBy(file => file.Name).ToArray();
+                        _filesToPack = packageDirectory.GetFiles(_source).OrderBy(file => file.Name).ToArray();
                     }
                     // Because the method GetFiles throws an exception if the folder is not found
                     // we need to catch the error and don't throw an exception
@@ -482,7 +488,7 @@ namespace Cmf.CLI.Handlers
         /// <param name="version">The version.</param>
         /// <param name="buildNr">The version for build Nr.</param>
         /// <param name="bumpInformation">The bump information.</param>
-        public virtual void Bump(string version, string buildNr, Dictionary<string, object> bumpInformation = null)
+        public virtual void Bump(string version, string buildNr, Dictionary<string, object>? bumpInformation = null)
         {
             // TODO: create "transaction" to rollback if anything fails
             // NOTE: Check pack strategy. Collect all packages to bump before bump.
@@ -504,7 +510,8 @@ namespace Cmf.CLI.Handlers
         /// Bumps the Base version of the package
         /// </summary>
         /// <param name="version">The new Base version.</param>
-        public virtual void UpgradeBase(string version, string iotVersion, List<string> iotPackagesToIgnore) {
+        public virtual void UpgradeBase(string version, string iotVersion, List<string> iotPackagesToIgnore)
+        {
             Log.Information($"Will bump {CmfPackage.PackageId}");
 
             // Read and parse the JSON
@@ -716,6 +723,12 @@ namespace Cmf.CLI.Handlers
                 foreach (var dependency in foundDependencies)
                 {
                     var identifier = $"{dependency.Id}@{dependency.Version}";
+                    var package = dependency.CmfPackage;
+                    if (package?.Uri == null)
+                    {
+                        Log.Warning($"Skipping dependency {identifier} because package URI is null");
+                        continue;
+                    }
                     Log.Debug($"Processing dependency {identifier}...");
                     Log.Debug($"Found package {identifier} at {dependency.CmfPackageV1.Client.RepositoryRoot}");
                     var scopedDepDir = this.fileSystem.Path.Join(this.DependenciesFolder.FullName,
@@ -776,9 +789,15 @@ namespace Cmf.CLI.Handlers
                 foreach (var dependency in foundDependencies)
                 {
                     var identifier = $"{dependency.Id}@{dependency.Version}";
+                    var package = dependency.CmfPackage;
+                    if (package?.Uri == null)
+                    {
+                        Log.Warning($"Skipping dependency {identifier} because package URI is null");
+                        continue;
+                    }
                     Log.Debug($"Processing dependency {identifier}...");
                     Log.Debug($"Found package {identifier} at {dependency.CmfPackage.Uri.AbsoluteUri}");
-                    if(dependency.CmfPackage.SharedFolder != null)
+                    if (dependency.CmfPackage.SharedFolder != null)
                     {
                         var file = dependency.CmfPackage.SharedFolder.GetFile(dependency.CmfPackage.ZipPackageName);
                         ExtractZip(file.Item2, identifier);

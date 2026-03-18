@@ -244,7 +244,7 @@ namespace Cmf.CLI.Handlers
         /// <param name="buildNr">The version for build Nr.</param>
         /// <param name="bumpInformation">The bump information.</param>
         /// <exception cref="CliException"></exception>
-        public override void Bump(string version, string buildNr, Dictionary<string, object> bumpInformation = null)
+        public override void Bump(string version, string buildNr, Dictionary<string, object>? bumpInformation = null)
         {
             base.Bump(version, buildNr, bumpInformation);
 
@@ -337,7 +337,7 @@ namespace Cmf.CLI.Handlers
                                 yo.UnixFileMode = UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute | UnixFileMode.GroupRead | UnixFileMode.GroupExecute | UnixFileMode.OtherRead | UnixFileMode.OtherExecute;
                                 fileSystem.File.SetUnixFileMode(yo.FullName, yo.UnixFileMode);
                             }
-                            
+
                             CmdCommand cmdCommand = new CmdCommand()
                             {
                                 DisplayName = "yo @criticalmanufacturing/iot:packagePacker",

@@ -27,7 +27,7 @@ namespace Cmf.CLI.Builders
         /// <value>
         /// The command.
         /// </value>
-        public string Command { get; set; }
+        public required string Command { get; set; }
 
         /// <summary>
         /// Gets or sets the display name.
@@ -35,7 +35,7 @@ namespace Cmf.CLI.Builders
         /// <value>
         /// The display name.
         /// </value>
-        public string DisplayName { get; set; }
+        public required string DisplayName { get; set; }
 
         /// <summary>
         /// Only Executes on Test (--test)
@@ -98,22 +98,22 @@ namespace Cmf.CLI.Builders
                 this.Command,
                 this.Solution?.FullName
             };
-            if (this.NuGetConfig != null)
+            if (this.NuGetConfig is not null)
             {
                 args.AddRange(new[] { "--configfile", this.NuGetConfig.FullName });
             }
 
-            if (this.Configuration != null)
+            if (!string.IsNullOrEmpty(this.Configuration))
             {
                 args.AddRange(new[] { "--configuration", this.Configuration });
             }
 
-            if (this.OutputDirectory != null)
+            if (this.OutputDirectory is not null)
             {
                 args.AddRange(new[] { "--output", this.OutputDirectory.FullName });
             }
 
-            if (this.Args != null)
+            if (this.Args is not null)
             {
                 args.AddRange(this.Args);
             }

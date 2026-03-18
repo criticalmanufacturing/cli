@@ -35,7 +35,7 @@ namespace Cmf.CLI.Handlers
         /// <param name="version">The version.</param>
         /// <param name="buildNr">The version for build Nr.</param>
         /// <param name="bumpInformation">The bump information.</param>
-        public override void Bump(string version, string buildNr, Dictionary<string, object> bumpInformation = null)
+        public override void Bump(string version, string buildNr, Dictionary<string, object>? bumpInformation = null)
         {
             base.Bump(version, buildNr, bumpInformation);
             // Get All AutomationWorkflowFiles Folders

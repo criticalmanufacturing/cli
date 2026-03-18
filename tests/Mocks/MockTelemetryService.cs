@@ -9,9 +9,7 @@ namespace tests.Mocks;
 public class MockTelemetryService : ITelemetryService
 {
     public TracerProvider Provider => null;
-
-    public string Name => null;
-
+    public string? Name => null;
     private ActivitySource activitySource = null;
     public TracerProvider InitializeTracerProvider(string serviceName, string version) => null;
 
