@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
+using System.Text;
 
 namespace Cmf.CLI.Commands.New.IoT
 {
@@ -73,7 +74,16 @@ namespace Cmf.CLI.Commands.New.IoT
 
             var converter = HandleConverter(new ConverterValues());
 
-            var args = this.GenerateArgs(workingDir, this.fileSystem.Directory.GetCurrentDirectory(), converter.Name, converter.ClassName, converter.Title, converter.InputAsJS, converter.OutputAsJS);
+            var args = this.GenerateArgs(
+                workingDir, 
+                this.fileSystem.Directory.GetCurrentDirectory(), 
+                converter.Name,
+                converter.ClassName,
+                converter.Title,
+                converter.InputAsJS,
+                converter.OutputAsJS,
+                converter.ParametersAsJS
+            );
             this.CommandName = "iot-converter";
             base.RunCommand(args);
 
@@ -125,6 +135,7 @@ namespace Cmf.CLI.Commands.New.IoT
         private ConverterValues HandleParameters(ConverterValues converter)
         {
             var addParameter = true;
+            var sb = new StringBuilder();
 
             while (addParameter)
             {
@@ -134,20 +145,16 @@ namespace Cmf.CLI.Commands.New.IoT
                                         .Title("Parameter Type:")
                                         .AddChoices(Enum.GetNames(typeof(IoTValueType))));
                 var typeEnum = (IoTValueType)Enum.Parse(typeof(IoTValueType), type, true);
-                var value = IoTStructures.ConvertIoTValueTypeToTaskValueType(typeEnum);
 
                 if (typeEnum == IoTValueType.Any || typeEnum == IoTValueType.Enum)
                 {
-                    value = """
-                        [{
-                            friendlyName: "First",
-                            value: "1"
-                          }, {
-                            friendlyName: "Second",
-                            value: "2"
-                        }]
-                        """;
-                    converter.ParametersAsJS += $"\t{name}:{value}\r\n";
+                    var value = IoTStructures.ConverterEnumParameter;
+                    sb.AppendLine($"\t\t{name}: {value},");
+                }
+                else
+                {
+                    var jsType = IoTStructures.ConvertIoTTypesToJSTypes<DataTypeInputOutput>(type);
+                    sb.AppendLine($"\t\t{name}: \"{jsType}\",");
                 }
 
                 if (!converter.Parameters.TryAdd(name, typeEnum))
@@ -155,10 +162,10 @@ namespace Cmf.CLI.Commands.New.IoT
                     converter.Parameters[name] = typeEnum;
                 }
 
-                converter.ParametersAsJS = converter.ParametersAsJS.TrimEnd();
-
                 addParameter = AnsiConsole.Prompt(new ConfirmationPrompt("Do you require more parameters?") { DefaultValue = false });
             }
+            
+            converter.ParametersAsJS = sb.ToString().TrimEnd();
 
             return converter;
         }
@@ -171,7 +178,8 @@ namespace Cmf.CLI.Commands.New.IoT
             string className,
             string title,
             string inputAsJS,
-            string outputAsJS)
+            string outputAsJS,
+            string parametersAsJS)
         {
             Log.Debug($"Creating IoT Converter at {packageLocation}");
 
@@ -182,7 +190,8 @@ namespace Cmf.CLI.Commands.New.IoT
                 "--className", className,
                 "--title", title,
                 "--inputAsJS", inputAsJS,
-                "--outputAsJS", outputAsJS
+                "--outputAsJS", outputAsJS,
+                "--parametersAsJS", parametersAsJS
             });
 
             return args;
