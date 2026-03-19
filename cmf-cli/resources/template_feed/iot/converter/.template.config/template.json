@@ -1,5 +1,5 @@
 {
-  "$schema": "http://json.schemastore.org/template",
+  "$schema": "https://json.schemastore.org/template",
   "author": "Critical Manufacturing",
   "classifications": [
     "cli"
@@ -52,6 +52,19 @@
       "description": "Output JS",
       "displayName": "Output JS",
       "replaces": "<%= $CLI_PARAM_OutputAsJS %>"
+    },
+    "parametersAsJS": {
+      "type": "parameter",
+      "datatype": "text",
+      "description": "Parameters JS",
+      "displayName": "Parameters JS",
+      "replaces": "<%= $CLI_PARAM_ParametersAsJS %>",
+      "defaultValue": ""
+    },
+    "hasParameters": {
+      "type": "computed",
+      "datatype": "bool",
+      "value": "parametersAsJS != \"\""
     }
   }
 }
