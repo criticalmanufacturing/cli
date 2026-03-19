@@ -440,6 +440,7 @@ namespace tests.Specs
                 File.Exists($"{packageId}/{packageFolderPackages}/.vscode/launch.json").Should().BeTrue();
                 File.Exists($"{packageId}/{packageFolderPackages}/.vscode/settings.json").Should().BeTrue();
                 File.Exists($"{packageId}/{packageFolderPackages}/.vscode/tasks.json").Should().BeTrue();
+                File.Exists($"{packageId}/{packageFolderPackages}/.gitattributes").Should().BeTrue();
 
                 if (isAngularPackage)
                 {
