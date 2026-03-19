@@ -62,7 +62,7 @@ namespace Cmf.CLI.Commands.New
             var packageName = $"{organization}.{product}.Tests";
 
             var projectRoot = FileSystemUtilities.GetProjectRoot(this.fileSystem);
-            var repoType = ExecutionContext.Instance.ProjectConfig.RepositoryType ?? CliConstants.DefaultRepositoryType;
+            var repoType = ExecutionContext.Instance.ProjectConfig.RepositoryType;
             var projectConfig = ExecutionContext.Instance.ProjectConfig;
             var tenant = projectConfig.Tenant;
             var args = new List<string>()

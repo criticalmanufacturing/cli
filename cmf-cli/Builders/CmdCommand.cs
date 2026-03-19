@@ -18,7 +18,7 @@ namespace Cmf.CLI.Builders
         /// <value>
         /// The command.
         /// </value>
-        public string Command { get; set; } = string.Empty;
+        public required string Command { get; set; }
 
         /// <summary>
         /// Gets or sets the display name.
@@ -26,7 +26,7 @@ namespace Cmf.CLI.Builders
         /// <value>
         /// The display name.
         /// </value>
-        public string DisplayName { get; set; } = string.Empty;
+        public required string DisplayName { get; set; }
 
         /// <summary>
         /// Only Executes on Test (--test)
@@ -42,7 +42,7 @@ namespace Cmf.CLI.Builders
         /// <value>
         /// The arguments.
         /// </value>
-        public string[] Args { get; set; } = Array.Empty<string>();
+        public string[] Args { get; set; } = [];
 
         /// <summary>
         /// Gets the steps.

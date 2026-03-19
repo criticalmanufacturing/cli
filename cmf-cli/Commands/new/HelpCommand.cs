@@ -212,6 +212,7 @@ $@"{{
             Log.Verbose("Generate web app, this will take a while...");
             (new NPXCommand()
             {
+                DisplayName = "npx yeoman-gen-run",
                 Command = "yeoman-gen-run",
                 WorkingDirectory = pkgFolder,
                 Args = new[]
@@ -222,6 +223,7 @@ $@"{{
             // npx yeoman-gen-run --name @criticalmanufacturing/html:application cmf.docs.area.web --config "$path"
             (new NPXCommand()
             {
+                DisplayName = "npx yeoman-gen-run",
                 Command = "yeoman-gen-run",
                 WorkingDirectory = pkgFolder,
                 Args = new[]
@@ -289,6 +291,7 @@ $@"{{
             this.fileSystem.File.WriteAllText(helpPkgConfigPath, helpPkgConfigJson);
             (new NPXCommand()
             {
+                DisplayName = "npx yeoman-gen-run",
                 Command = "yeoman-gen-run",
                 WorkingDirectory = pkgFolder,
                 Args = new[]
@@ -366,10 +369,12 @@ $@"{{
             Log.Verbose("Executing npm install, this will take a while...");
             new NPMCommand() { Command = "install", DisplayName = "NPM install", WorkingDirectory = pkgFolder }.Exec();
 
+            var args = new[] { "generate", "library", assetsPkgName };
             new NPXCommand()
             {
+                DisplayName = $"npx @angular/cli@{ngCliVersion} {String.Join(" ", args)}",
                 Command = $"@angular/cli@{ngCliVersion}",
-                Args = new[] { "generate", "library", assetsPkgName },
+                Args = args,
                 WorkingDirectory = pkgFolder,
                 ForceColorOutput = false
             }.Exec();

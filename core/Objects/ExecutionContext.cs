@@ -40,6 +40,10 @@ namespace Cmf.CLI.Core.Objects
         /// </summary>
         public AppData? AppData { get; }
 
+        public bool RunningOnWindows { get; set; }
+
+        public List<ICIFSClient> CIFSClients { get; set; } = [];
+
         /// <summary>
         /// Get the current (executing) version of the CLI
         /// </summary>
@@ -97,9 +101,25 @@ namespace Cmf.CLI.Core.Objects
         /// </summary>
         public static RelatedPackageCollection RelatedPackagesCache { get; set; } = new();
 
-        public bool RunningOnWindows { get; set; }
+        /// <summary>
+        /// Verifies that current command is executing inside a project.
+        /// </summary>
+        /// <returns>The current project's config object.</returns>
+        /// <exception cref="CliException">If the current ExecutionContext is not yet initialized</exception>
+        /// <exception cref="CliException">If no project config is found</exception>
+        public static ProjectConfig VerifyIsInsideProject()
+        {
+            if (Instance is null)
+            {
+                throw new CliException("ExecutionContext instance not initialized, please report this issue.");
+            }
+            if (Instance.ProjectConfig is null)
+            {
+                throw new CliException("Could not resolve project's config file. Make sure you are running this command inside a project.");
+            }
 
-        public List<ICIFSClient> CIFSClients { get; set; } = [];
+            return Instance.ProjectConfig;
+        }
 
         private ExecutionContext(IFileSystem fileSystem)
         {
@@ -109,18 +129,11 @@ namespace Cmf.CLI.Core.Objects
             this.RepositoriesConfig = FileSystemUtilities.ReadRepositoriesConfig(fileSystem);
 
             // Make sure the cached credentials are reset, to recalculate the derived credentials
-            var authStore = ServiceProvider?.GetService<IRepositoryAuthStore>();
-            authStore?.Unload();
+            ServiceProvider?.GetService<IRepositoryAuthStore>()?.Unload();
 
             this.AppData = FileSystemUtilities.ReadAppData(fileSystem);
-            if (ServiceProvider != null)
-            {
-                IProjectConfigService? pcs = ServiceProvider.GetService<IProjectConfigService>();
-                if (pcs != null)
-                {
-                    this.ProjectConfig = pcs.Load(fileSystem);
-                }
-            }
+
+            this.ProjectConfig = ServiceProvider?.GetService<IProjectConfigService>()?.Load(fileSystem);
 
             // connect and load shares for all UNC repositories
             if (!RunningOnWindows && RepositoriesConfig.Repositories.HasAny())

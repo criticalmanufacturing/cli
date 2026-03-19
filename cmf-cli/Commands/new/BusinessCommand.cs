@@ -81,7 +81,7 @@ namespace Cmf.CLI.Commands.New
             if (mesVersion.Major > 8)
             {
                 this.CommandName = "business9";
-                var baseLayer = projectConfig.BaseLayer ?? CliConstants.DefaultBaseLayer;
+                var baseLayer = projectConfig.BaseLayer;
                 includeMESNugets = baseLayer == BaseLayer.MES;
                 Log.Debug($"Project is targeting base layer {baseLayer}, so scaffolding {(includeMESNugets ? "with" : "without")} MES nugets.");
 

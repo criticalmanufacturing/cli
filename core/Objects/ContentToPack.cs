@@ -21,7 +21,7 @@ namespace Cmf.CLI.Core.Objects
         /// <value>
         /// The source.
         /// </value>
-        public string? Source { get; set; }
+        public required string Source { get; set; }
 
         /// <summary>
         /// Gets or sets the target.
@@ -29,7 +29,7 @@ namespace Cmf.CLI.Core.Objects
         /// <value>
         /// The target.
         /// </value>
-        public string? Target { get; set; }
+        public required string Target { get; set; }
 
         /// <summary>
         /// Gets or sets the ignore file.
@@ -44,7 +44,7 @@ namespace Cmf.CLI.Core.Objects
         /// Default is "pack"
         /// </summary>
         [JsonConverter(typeof(StringEnumConverter))]
-        public PackAction? Action { get; set; }
+        public PackAction Action { get; set; } = PackAction.Pack;
 
         /// <summary>
         /// Gets or sets the type of the content.
@@ -54,7 +54,7 @@ namespace Cmf.CLI.Core.Objects
         /// The type of the content.
         /// </value>
         [JsonConverter(typeof(StringEnumConverter))]
-        public ContentType? ContentType { get; set; }
+        public ContentType ContentType { get; set; } = ContentType.Generic;
 
         /// <summary>
         /// Gets or sets the target platform for master data content.

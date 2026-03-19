@@ -24,7 +24,7 @@ internal class SingleStepCommand : ProcessCommand, IBuildCommand
     /// <inheritdoc />
     public string DisplayName
     {
-        get => $"{BuildStep.Command} {string.Join(' ', BuildStep.Args ?? Array.Empty<string>())}";
+        get => $"{BuildStep.Command} {string.Join(' ', BuildStep.Args)}";
         set { }
     }
     

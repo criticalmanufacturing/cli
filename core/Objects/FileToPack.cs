@@ -15,7 +15,7 @@ namespace Cmf.CLI.Core.Objects
         /// <value>
         /// The source.
         /// </value>
-        public IFileInfo Source { get; set; }
+        public required IFileInfo Source { get; set; }
 
         /// <summary>
         /// Gets or sets the target.
@@ -23,7 +23,7 @@ namespace Cmf.CLI.Core.Objects
         /// <value>
         /// The target.
         /// </value>
-        public IFileInfo Target { get; set; }
+        public required IFileInfo Target { get; set; }
 
         /// <summary>
         /// Gets or sets the content to pack.
@@ -31,7 +31,7 @@ namespace Cmf.CLI.Core.Objects
         /// <value>
         /// The content to pack.
         /// </value>
-        public ContentToPack ContentToPack { get; set; }
+        public required ContentToPack ContentToPack { get; set; }
 
         #endregion
 
@@ -52,6 +52,13 @@ namespace Cmf.CLI.Core.Objects
             Source = source;
             Target = target;
             ContentToPack = contentToPack;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FileToPack"/> class.
+        /// </summary>
+        public FileToPack()
+        {
         }
 
         #endregion

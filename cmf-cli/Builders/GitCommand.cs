@@ -16,7 +16,7 @@ namespace Cmf.CLI.Builders
         /// <value>
         /// The command.
         /// </value>
-        public string Command { get; set; } = string.Empty;
+        public required string Command { get; set; }
         
         /// <summary>
         /// Gets or sets the arguments.
@@ -24,7 +24,7 @@ namespace Cmf.CLI.Builders
         /// <value>
         /// The arguments.
         /// </value>
-        public string[] Args { get; set; } = Array.Empty<string>();
+        public string[] Args { get; set; } = [];
 
         /// <inheritdoc />
         public override ProcessBuildStep[] GetSteps()

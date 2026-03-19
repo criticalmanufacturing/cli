@@ -207,7 +207,7 @@ namespace tests.Specs
 
             // Act
             await StartupModule.Configure(
-                packageName: "test",
+                packageId: "test",
                 envVarPrefix: "test",
                 description: "test",
                 args: Array.Empty<string>(),

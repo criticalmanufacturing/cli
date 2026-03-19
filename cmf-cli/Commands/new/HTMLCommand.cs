@@ -112,7 +112,7 @@ namespace Cmf.CLI.Commands.New
             {
                 throw new CliException($"Cannot find HTML package {htmlPackage.FullName}");
             }
-            var baseLayer = ExecutionContext.Instance.ProjectConfig.BaseLayer ?? CliConstants.DefaultBaseLayer;
+            var baseLayer = ExecutionContext.Instance.ProjectConfig.BaseLayer;
             this.baseWebPackage = baseLayer == BaseLayer.MES
                 ? "@criticalmanufacturing/mes-ui-web"
                 : "@criticalmanufacturing/core-ui-web";
@@ -209,6 +209,7 @@ $@"{{
             Log.Verbose("Generate web app, this will take a while...");
             (new NPXCommand()
             {
+                DisplayName = "npx yeoman-gen-run",
                 Command = "yeoman-gen-run",
                 WorkingDirectory = pkgFolder,
                 Args = new[]
@@ -219,6 +220,7 @@ $@"{{
             // npx yeoman-gen-run --name @criticalmanufacturing/html:application --config "$path"
             (new NPXCommand()
             {
+                DisplayName = "npx yeoman-gen-run",
                 Command = "yeoman-gen-run",
                 WorkingDirectory = pkgFolder,
                 Args = new[]
@@ -334,7 +336,7 @@ $@"{{
                 throw new CliException("Seems like the repository scaffolding was run on a previous version of MES. Please re-init for versions 10+.");
             }
 
-            var baseLayer = ExecutionContext.Instance.ProjectConfig.BaseLayer ?? CliConstants.DefaultBaseLayer;
+            var baseLayer = ExecutionContext.Instance.ProjectConfig.BaseLayer;
             this.baseWebPackage = baseLayer == BaseLayer.MES
                 ? "@criticalmanufacturing/mes-ui-web"
                 : "@criticalmanufacturing/core-ui-web";
@@ -371,6 +373,7 @@ $@"{{
             // ng new <packageName> --routing false --style less
             new NPXCommand()
             {
+                DisplayName = $"npx {ngCliCommand} new {packageName}",
                 Command = ngCliCommand,
                 Args = [
                         "new", packageName,
@@ -385,12 +388,13 @@ $@"{{
             // ng add --skip-confirmation @criticalmanufacturing/ngx-schematics [--npmRegistry http://npm.example/] --eslint --application <Core|MES>
             new NPXCommand()
             {
+                DisplayName = $"npx {ngCliCommand} add @criticalmanufacturing/ngx-schematics@{schematicsVersion}",
                 Command = ngCliCommand,
                 Args = [
                     "add", "--registry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.OriginalString,
-                                      "--skip-confirmation", $"@criticalmanufacturing/ngx-schematics@{schematicsVersion}",
-                                      "--eslint", "--application", baseLayer.ToString(),
-                                      "--version", $"release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}"
+                    "--skip-confirmation", $"@criticalmanufacturing/ngx-schematics@{schematicsVersion}",
+                    "--eslint", "--application", baseLayer.ToString(),
+                    "--version", $"release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}"
                 ],
                 WorkingDirectory = packageDir,
                 ForceColorOutput = false

@@ -354,8 +354,9 @@ namespace Cmf.CLI.Handlers
 
                             CmdCommand cmdCommand = new CmdCommand()
                             {
+                                Command = $"\"{yo}",
                                 DisplayName = "yo @criticalmanufacturing/iot:packagePacker",
-                                Args = new string[] { "\"", $"{yo} @criticalmanufacturing/iot:packagePacker", $"-i \"{inputDirPath}\"", $"-o \"{outputDirPath}\"", "\"" },
+                                Args = new string[] { "@criticalmanufacturing/iot:packagePacker", $"-i \"{inputDirPath}\"", $"-o \"{outputDirPath}\"", "\"" },
                                 WorkingDirectory = packDirectory
                             };
 
@@ -366,7 +367,8 @@ namespace Cmf.CLI.Handlers
                             NPXCommand cmdCommand = new NPXCommand()
                             {
                                 DisplayName = "npx @criticalmanufacturing/node-package-bundler",
-                                Args = new string[] { "@criticalmanufacturing/node-package-bundler", $"-i \"{inputDirPath}\"", $"-o \"{outputDirPath}\"" },
+                                Command = "@criticalmanufacturing/node-package-bundler",
+                                Args = new string[] { $"-i \"{inputDirPath}\"", $"-o \"{outputDirPath}\"" },
                                 WorkingDirectory = packDirectory
                             };
 

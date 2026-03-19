@@ -158,18 +158,14 @@ namespace Cmf.CLI.Commands
         /// </summary>
         /// <param name="workingDir">the nearest root package</param>
         /// <param name="version">the package version</param>
-        public void Execute(IDirectoryInfo? workingDir, string? version, List<string>? args = null)
+        public void Execute(IDirectoryInfo? workingDir, string version, List<string>? args = null)
         {
+            using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
+            
             if (workingDir == null)
             {
                 throw new CliException("This command needs to run inside a project. Run `cmf init` to create a new project.");
             }
-            if (version == null)
-            {
-                throw new CliException("Version is required.");
-            }
-
-            using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
 
             var names = this.GeneratePackageName(workingDir);
             if (names == null)

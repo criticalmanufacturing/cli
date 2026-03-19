@@ -8,54 +8,54 @@ namespace Cmf.CLI.Core.Objects;
 
 public class ProjectConfigV1
 {
-    public string? ProjectName { get; set; }
-    public RepositoryType? RepositoryType { get; set; }
-    public BaseLayer? BaseLayer { get; set; }
+    public required string ProjectName { get; set; }
+    public required RepositoryType RepositoryType { get; set; }
+    public required BaseLayer BaseLayer { get; set; }
     [Newtonsoft.Json.JsonConverter(typeof(UriConverter))]
-    public Uri? NPMRegistry { get; set; }
+    public required Uri NPMRegistry { get; set; }
     [Newtonsoft.Json.JsonConverter(typeof(UriConverter))]
-    public Uri? NuGetRegistry { get; set; }
+    public required Uri NuGetRegistry { get; set; }
     [Newtonsoft.Json.JsonConverter(typeof(UriConverter))]
     public Uri? AzureDevopsCollectionURL { get; set; }
     public string? AgentPool { get; set; }
     public AgentType AgentType { get; set; }
     [Newtonsoft.Json.JsonConverter(typeof(UriConverter))]
     public Uri? RepositoryURL { get; set; }
-    public string? EnvironmentName { get; set; }
+    public required string EnvironmentName { get; set; }
     public string? DefaultDomain { get; set; }
     [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
-    public int? RESTPort { get; set; }
-    public string? Tenant { get; set; }
-    public Version? MESVersion { get; set; }
-    public SemanticVersion? DevTasksVersion { get; set; }
-    public Version? HTMLStarterVersion { get; set; }
-    public SemanticVersion? YoGeneratorVersion { get; set; }
-    public SemanticVersion? NGXSchematicsVersion { get; set; }
-    public Version? NugetVersion { get; set; }
-    public Version? TestScenariosNugetVersion { get; set; }
+    public required int RESTPort { get; set; }
+    public required string Tenant { get; set; }
+    public required Version MESVersion { get; set; }
+    public required SemanticVersion DevTasksVersion { get; set; }
+    public required Version HTMLStarterVersion { get; set; }
+    public required SemanticVersion YoGeneratorVersion { get; set; }
+    public required SemanticVersion NGXSchematicsVersion { get; set; }
+    public required Version NugetVersion { get; set; }
+    public required Version TestScenariosNugetVersion { get; set; }
     [Newtonsoft.Json.JsonConverter(typeof(BooleanJsonConverter))]
-    public bool IsSslEnabled { get; set; }
-    public string? vmHostname { get; set; }
-    public string? DBReplica1 { get; set; }
-    public string? DBReplica2 { get; set; }
-    public string? DBServerOnline { get; set; }
-    public string? DBServerODS { get; set; }
-    public string? DBServerDWH { get; set; }
+    public required bool IsSslEnabled { get; set; }
+    public required string vmHostname { get; set; }
+    public required string DBReplica1 { get; set; }
+    public required string DBReplica2 { get; set; }
+    public required string DBServerOnline { get; set; }
+    public required string DBServerODS { get; set; }
+    public required string DBServerDWH { get; set; }
     [Newtonsoft.Json.JsonConverter(typeof(UriConverter))]
-    public Uri? ReportServerURI { get; set; }
+    public required Uri ReportServerURI { get; set; }
     [Newtonsoft.Json.JsonConverter(typeof(BooleanJsonConverter))]
-    public bool AlwaysOn { get; set; }
+    public required bool AlwaysOn { get; set; }
     [Newtonsoft.Json.JsonConverter(typeof(UriConverter))]
-    public Uri? InstallationPath { get; set; }
+    public required Uri InstallationPath { get; set; }
     [Newtonsoft.Json.JsonConverter(typeof(UriConverter))]
-    public Uri? DBBackupPath { get; set; }
+    public required Uri DBBackupPath { get; set; }
     [Newtonsoft.Json.JsonConverter(typeof(UriConverter))]
-    public Uri? TemporaryPath { get; set; }
+    public required Uri TemporaryPath { get; set; }
     [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
-    public int? HTMLPort { get; set; }
+    public required int HTMLPort { get; set; }
     [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
-    public int? GatewayPort { get; set; }
-    public string? ReleaseEnvironmentConfig { get; set; }
+    public required int GatewayPort { get; set; }
+    public required string ReleaseEnvironmentConfig { get; set; }
     public string? AppEnvironmentConfig { get; set; }
     public Uri? ISOLocation { get; set; }
     [Newtonsoft.Json.JsonConverter(typeof(UriConverter))]
@@ -63,7 +63,7 @@ public class ProjectConfigV1
     [Newtonsoft.Json.JsonConverter(typeof(UriConverter))]
     public Uri? DeliveredRepo { get; set; }
     [Newtonsoft.Json.JsonConverter(typeof(UriConverter))]
-    public Uri? CIRepo { get; set; }
+    public required Uri CIRepo { get; set; }
 
     public string? Organization { get; set; }
     public string? Product { get; set; }

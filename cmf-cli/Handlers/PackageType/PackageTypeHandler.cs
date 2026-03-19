@@ -472,7 +472,11 @@ namespace Cmf.CLI.Handlers
                             }
 
                             string destPackFile = this.fileSystem.Path.Join(packageOutputDir.FullName, _target, packFile.Name);
-                            filesToPack.Add(new(packFile, this.fileSystem.FileInfo.New(destPackFile), contentToPack));
+                            filesToPack.Add(new() {
+                                Source = packFile,
+                                Target = this.fileSystem.FileInfo.New(destPackFile),
+                                ContentToPack = contentToPack
+                            });
                         }
 
                         #endregion Files Packing

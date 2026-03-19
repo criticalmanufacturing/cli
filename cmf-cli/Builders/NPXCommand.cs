@@ -17,7 +17,7 @@ namespace Cmf.CLI.Builders
         /// <value>
         /// The arguments.
         /// </value>
-        public string[] Args { get; set; }
+        public string[] Args { get; set; } = [];
         
         /// <summary>
         /// Gets or sets the command.
@@ -25,7 +25,7 @@ namespace Cmf.CLI.Builders
         /// <value>
         /// The command.
         /// </value>
-        public string Command { get; set; }
+        public required string Command { get; set; }
 
         /// <summary>
         /// Should for npx output to always be colorized
@@ -74,7 +74,7 @@ namespace Cmf.CLI.Builders
         }
 
         /// <inheritdoc />
-        public string DisplayName { get; set; }
+        public required string DisplayName { get; set; }
 
         /// <summary>
         /// Only Executes on Test (--test)

@@ -3,6 +3,7 @@ using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Diagnostics;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Threading.Tasks;
@@ -38,7 +39,7 @@ namespace Cmf.CLI.Builders
         /// <returns></returns>
         public Task Exec()
         {
-            foreach (var step in this.GetSteps())
+            foreach (ProcessBuildStep step in this.GetSteps())
             {
                 var command = step.Command;
                 if (step.Command.IndexOf(this.fileSystem.Path.PathSeparator) < 0)

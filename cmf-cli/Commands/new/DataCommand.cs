@@ -55,7 +55,7 @@ namespace Cmf.CLI.Commands.New
         /// <inheritdoc />
         protected override List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args)
         {
-            var repoType = ExecutionContext.Instance.ProjectConfig.RepositoryType ?? CliConstants.DefaultRepositoryType;
+            var repoType = ExecutionContext.Instance.ProjectConfig.RepositoryType;
 
             var relativePathToRoot =
                 this.fileSystem.Path.Join("..", //always one level deeper

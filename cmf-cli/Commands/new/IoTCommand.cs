@@ -72,7 +72,7 @@ namespace Cmf.CLI.Commands.New
         {
             var npmRegistry = ExecutionContext.Instance.ProjectConfig.NPMRegistry;
             var devTasksVersion = ExecutionContext.Instance.ProjectConfig.DevTasksVersion;
-            var repoType = ExecutionContext.Instance.ProjectConfig.RepositoryType ?? CliConstants.DefaultRepositoryType;
+            var repoType = ExecutionContext.Instance.ProjectConfig.RepositoryType;
             Log.Debug($"Creating IoT Package at {workingDir} for repo type {repoType} using registry {npmRegistry}");
 
             // calculate relative path to local environment and create a new symbol for it
@@ -203,7 +203,7 @@ namespace Cmf.CLI.Commands.New
 
             if (!htmlPackageDir.Exists) throw new CliException(string.Format(CliMessages.SomePackagesNotFound, string.Join(", ", htmlPackageLocation)));
 
-            var baseLayer = ExecutionContext.Instance.ProjectConfig.BaseLayer ?? CliConstants.DefaultBaseLayer;
+            var baseLayer = ExecutionContext.Instance.ProjectConfig.BaseLayer;
             this.baseWebPackage = baseLayer == BaseLayer.MES
                 ? "@criticalmanufacturing/mes-ui-web"
                 : "@criticalmanufacturing/core-ui-web";
@@ -265,6 +265,7 @@ namespace Cmf.CLI.Commands.New
             // ng new <packageName> --create-application false
             new NPXCommand()
             {
+                DisplayName = $"npx @angular/cli@{ngCliVersion} new",
                 Command = $"@angular/cli@{ngCliVersion}",
                 Args = new[] { "new", iotCustomPackage.PackageId, "--create-application", "false" },
                 WorkingDirectory = iotRoot,
@@ -285,6 +286,7 @@ namespace Cmf.CLI.Commands.New
             // ng add --skip-confirmation @criticalmanufacturing/ngx-schematics [--npmRegistry http://npm.example/] --lint --base-app <Core|MES>
             new NPXCommand()
             {
+                DisplayName = $"npx @angular/cli@{ngCliVersion}",
                 Command = $"@angular/cli@{ngCliVersion}",
                 Args = new[] { "add", "--registry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.OriginalString, "--skip-confirmation", $"@criticalmanufacturing/ngx-iot-schematics@{schematicsVersion}", "--lint", "--base-app", baseLayer.ToString(), "--version", $"release-{mesVersion.Major}{mesVersion.Minor}" },
                 WorkingDirectory = iotCustomPackageWorkDir,
