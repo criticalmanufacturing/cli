@@ -106,6 +106,20 @@
       "description": "Driver Has Templates",
       "displayName": "Driver Has Templates",
       "defaultValue": "false"
+    },
+    "v1120OrGreater": {
+      "type": "generated",
+      "generator": "regexMatch",
+      "datatype": "bool",
+      "parameters": {
+        "source": "targetSystemVersionProcessed",
+        "pattern": "(112[0-9]+)"
+      }
+    },
+    "isMESv1120OrGreater": {
+      "type": "computed",
+      "datatype": "bool",
+      "value": "v1120OrGreater == \"true\""
     }
   },
   "sources": [
