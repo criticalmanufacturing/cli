@@ -7,6 +7,14 @@
   "isUniqueInstall": false,
   "contentToPack": [
     {
+      "source": "Cmf.Custom.Tests.Performance/**",
+      "target": "Cmf.Custom.Tests.Performance"
+    },
+    {
+      "source": "../Libs/LBOs/cmf-k6",
+      "target": "Cmf.Custom.Tests.Performance/node_modules"
+    },
+    {
       "source": "Release/**",
       "target": ""
     }
