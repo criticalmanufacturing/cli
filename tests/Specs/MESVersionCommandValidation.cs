@@ -35,7 +35,7 @@ public class MESVersionCommandValidation
 
         public override void Configure(Command cmd)
         {
-            cmd.SetHandler(() => { Executed = true; });
+            cmd.SetAction(_ => { Executed = true; });
         }
     }
 
@@ -53,7 +53,7 @@ public class MESVersionCommandValidation
         var attr = typeof(TestCommand).GetCustomAttributes(typeof(CmfCommandAttribute), false)[0] as CmfCommandAttribute;
         if (!string.IsNullOrWhiteSpace(attr.MinimumMESVersion))
         {
-            testCmd.AddValidator(commandResult =>
+            testCmd.Validators.Add(commandResult =>
             {
                 try
                 {
@@ -62,20 +62,19 @@ public class MESVersionCommandValidation
                 }
                 catch (MESVersionValidationException ex)
                 {
-                    commandResult.ErrorMessage = ex.Message;
+                    commandResult.AddError(ex.Message);
                 }
                 catch (Exception ex)
                 {
-                    commandResult.ErrorMessage = $"Version validation error: {ex.Message}";
+                    commandResult.AddError($"Version validation error: {ex.Message}");
                 }
             });
         }
         
-        rootCmd.AddCommand(testCmd);
-        var parser = new Parser(rootCmd);
+        rootCmd.Add(testCmd);
 
         // Act
-        var result = parser.Parse("test-command");
+        var result = rootCmd.Parse("test-command");
 
         // Assert
         result.Errors.Should().BeEmpty();
@@ -95,7 +94,7 @@ public class MESVersionCommandValidation
         var attr = typeof(TestCommand).GetCustomAttributes(typeof(CmfCommandAttribute), false)[0] as CmfCommandAttribute;
         if (!string.IsNullOrWhiteSpace(attr.MinimumMESVersion))
         {
-            testCmd.AddValidator(commandResult =>
+            testCmd.Validators.Add(commandResult =>
             {
                 try
                 {
@@ -104,20 +103,19 @@ public class MESVersionCommandValidation
                 }
                 catch (MESVersionValidationException ex)
                 {
-                    commandResult.ErrorMessage = ex.Message;
+                    commandResult.AddError(ex.Message);
                 }
                 catch (Exception ex)
                 {
-                    commandResult.ErrorMessage = $"Version validation error: {ex.Message}";
+                    commandResult.AddError($"Version validation error: {ex.Message}");
                 }
             });
         }
         
-        rootCmd.AddCommand(testCmd);
-        var parser = new Parser(rootCmd);
+        rootCmd.Add(testCmd);
 
         // Act
-        var result = parser.Parse("test-command");
+        var result = rootCmd.Parse("test-command");
 
         // Assert
         result.Errors.Should().HaveCount(1);
