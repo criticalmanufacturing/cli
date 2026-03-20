@@ -86,7 +86,7 @@ namespace Cmf.CLI.Commands.New.IoT
                 throw new CliException("This command is only valid for versions above 11.0.0");
             }
 
-            using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
+            using var activity = ExecutionContext.ServiceProvider.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
 
             var task = HandleTask(new TaskValues());
 

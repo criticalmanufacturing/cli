@@ -160,7 +160,7 @@ namespace Cmf.CLI.Commands
         /// <param name="version">the package version</param>
         public void Execute(IDirectoryInfo? workingDir, string version, List<string>? args = null)
         {
-            using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
+            using var activity = ExecutionContext.ServiceProvider.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
             
             if (workingDir == null)
             {

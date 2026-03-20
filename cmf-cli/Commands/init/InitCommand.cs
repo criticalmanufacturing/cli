@@ -361,7 +361,7 @@ namespace Cmf.CLI.Commands
             var nugetVersion = x.nugetVersion ?? throw new CliException("Missing NuGet version.");
             var testScenariosNugetVersion = x.testScenariosNugetVersion ?? throw new CliException("Missing test scenarios NuGet version.");
 
-            using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
+            using var activity = ExecutionContext.ServiceProvider.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
 
             var args = new List<string>()
     {
@@ -566,7 +566,7 @@ namespace Cmf.CLI.Commands
 
             #region version-specific bits
 
-            var dependencyVersionService = ExecutionContext.ServiceProvider?.GetService<IDependencyVersionService>()
+            var dependencyVersionService = ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>()
                 ?? throw new CliException("Dependency version service is not available.");
 
             var version = Version.Parse(baseVersion);

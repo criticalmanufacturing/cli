@@ -79,7 +79,8 @@ namespace Cmf.CLI.Commands.New
                 projectConfig.MESVersion >= new Version(11, 0, 0) &&
                 projectConfig.MESVersion < new Version(11, 2, 0);
 
-            var angularDeps = ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(projectConfig.MESVersion);
+            var versionService = ExecutionContext.ServiceProvider.GetRequiredService<IDependencyVersionService>();
+            var angularDeps = versionService.Angular(projectConfig.MESVersion);
 
             args.AddRange(new[]
             {
@@ -87,7 +88,7 @@ namespace Cmf.CLI.Commands.New
                 "--ngxSchematicsVersion", this.schematicsVersion,
                 "--npmRegistry", projectConfig.NPMRegistry.OriginalString,
                 "--MESVersion", projectConfig.MESVersion.ToString(),
-                "--nodeVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Node(projectConfig.MESVersion),
+                "--nodeVersion", versionService.Node(projectConfig.MESVersion),
                 "--ngVersion", angularDeps.CLI.Major.ToString(),
                 "--zoneVersion", angularDeps.Zone,
                 "--tsVersion", angularDeps.Typescript,
@@ -356,7 +357,7 @@ $@"{{
                     break;
             }
 
-            var ngCliVersion = ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().AngularCLI(projectConfig.MESVersion);
+            var ngCliVersion = ExecutionContext.ServiceProvider.GetRequiredService<IDependencyVersionService>().AngularCLI(projectConfig.MESVersion);
             var packageName = base.GeneratePackageName(workingDir)!.Value.Item1;
             var projectName = packageName.Replace(".", "-").ToLowerInvariant();
             this.assetsPkgName = $"cmf-docs-area-{projectName.ToLowerInvariant()}";

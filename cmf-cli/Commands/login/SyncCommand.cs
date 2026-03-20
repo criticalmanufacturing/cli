@@ -79,9 +79,9 @@ namespace Cmf.CLI.Commands
         /// </summary>
         internal async Task ExecuteAsync(RepositoryCredentialsType? repositoryType, string repository)
         {
-            using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
+            using var activity = ExecutionContext.ServiceProvider.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
 
-            var authStore = ExecutionContext.ServiceProvider.GetService<IRepositoryAuthStore>();
+            var authStore = ExecutionContext.ServiceProvider.GetRequiredService<IRepositoryAuthStore>();
 
             var authFile = await authStore.Load();
 

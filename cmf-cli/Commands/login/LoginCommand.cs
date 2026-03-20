@@ -136,11 +136,11 @@ namespace Cmf.CLI.Commands
         /// </summary>
         internal async Task ExecuteAsync(RepositoryCredentialsType? repositoryType, string? repository, AuthType? authType, string? token, string? username, string? password, string? domain, string? key, bool storeOnly, bool noPrompt)
         {
-            using var activity = ExecutionContext.ServiceProvider!.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
+            using var activity = ExecutionContext.ServiceProvider.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
 
             ICredential credentials;
 
-            var authStore = ExecutionContext.ServiceProvider!.GetRequiredService<IRepositoryAuthStore>();
+            var authStore = ExecutionContext.ServiceProvider.GetRequiredService<IRepositoryAuthStore>();
 
             if (repositoryType == null)
             {

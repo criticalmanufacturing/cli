@@ -75,11 +75,11 @@ namespace Cmf.CLI.Commands
         /// <param name="repos">a set of repositories for remote packages</param>
         public void Execute(IDirectoryInfo workingDir, Uri[] repos)
         {
-            using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
-            if (ExecutionContext.ServiceProvider?.GetService<IFeaturesService>()?.UseRepositoryClients ?? false)
+            using var activity = ExecutionContext.ServiceProvider.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
+            if (ExecutionContext.ServiceProvider.GetService<IFeaturesService>()?.UseRepositoryClients ?? false)
             {
                 // var ctrlr = new CmfPackageController(cmfpackageFile, this.fileSystem, setDefaultValues: true);
-                var client = ExecutionContext.ServiceProvider?.GetService<IRepositoryLocator>()
+                var client = ExecutionContext.ServiceProvider.GetService<IRepositoryLocator>()
                     .GetRepositoryClient(new Uri(workingDir.FullName), workingDir.FileSystem);
                 var cmfPackage = client.Find(null, null).GetAwaiter().GetResult();
                 var ctrlr = new CmfPackageController(cmfPackage, this.fileSystem);

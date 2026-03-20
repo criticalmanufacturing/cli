@@ -98,7 +98,7 @@ namespace Cmf.CLI.Commands.New
                 "--iotpackages", $"{packageName}.Packages",
                 "--rootInnerRelativePath", relativePathToRoot,
                 "--npmRegistry", npmRegistry.OriginalString,
-                "--nodeVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Node(projectConfig.MESVersion),
+                "--nodeVersion", ExecutionContext.ServiceProvider.GetRequiredService<IDependencyVersionService>().Node(projectConfig.MESVersion),
                 "--repositoryType", repoType.ToString()
             });
 
@@ -215,7 +215,7 @@ namespace Cmf.CLI.Commands.New
             base.Execute(workingDir, version); // create package base - generate cmfpackage.json
 
             // this won't return null because it has to success on the base.Execute call
-            var dependencyService = ExecutionContext.ServiceProvider?.GetService<IDependencyVersionService>();
+            var dependencyService = ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>();
             if (dependencyService == null)
             {
                 throw new CliException("Dependency version service is not available.");

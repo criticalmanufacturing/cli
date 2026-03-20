@@ -682,7 +682,7 @@ namespace Cmf.CLI.Handlers
         /// <exception cref="CliException">thrown when a repo uri is not available or in an incorrect format</exception>
         public virtual void RestoreDependencies(Uri[] repoUris)
         {
-            if (ExecutionContext.ServiceProvider?.GetService<IFeaturesService>()?.UseRepositoryClients ?? false)
+            if (ExecutionContext.ServiceProvider.GetService<IFeaturesService>()?.UseRepositoryClients ?? false)
             {
                 RestoreDependenciesUsingRepoClients(repoUris);
             }
@@ -702,7 +702,7 @@ namespace Cmf.CLI.Handlers
             var rootIdentifier = $"{this.CmfPackage.PackageId}@{this.CmfPackage.Version}";
             Log.Status($"Loading {rootIdentifier} dependency tree...", ctx =>
             {
-                var locator = ExecutionContext.ServiceProvider?.GetRequiredService<IRepositoryLocator>();
+                var locator = ExecutionContext.ServiceProvider.GetRequiredService<IRepositoryLocator>();
                 if (locator is null)
                 {
                     throw new CliException("Repository locator not available.");

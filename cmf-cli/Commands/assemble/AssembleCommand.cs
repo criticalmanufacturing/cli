@@ -113,7 +113,7 @@ namespace Cmf.CLI.Commands
         /// <returns></returns>
         public void Execute(IDirectoryInfo workingDir, IDirectoryInfo outputDir, Uri ciRepo, Uri[] repos, bool includeTestPackages)
         {
-            using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
+            using var activity = ExecutionContext.ServiceProvider.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
             if (ciRepo == null)
             {
                 ciRepo = ExecutionContext.Instance.RepositoriesConfig.CIRepository;

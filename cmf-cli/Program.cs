@@ -62,10 +62,10 @@ namespace Cmf.CLI
                         collection.AddSingleton<IRepositoryAuthStore>(RepositoryAuthStore.FromEnvironmentConfig(fileSystem));
                     });
 
-                using var activity = ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!.StartActivity("Main");
+                using var activity = ExecutionContext.ServiceProvider.GetRequiredService<ITelemetryService>().StartActivity("Main");
 
                 var result = -1;
-                
+
                 if (rootCommand != null)
                 {
                     var nonPluginCommands = rootCommand.Subcommands.ToList();
@@ -83,15 +83,15 @@ namespace Cmf.CLI
                     else
                     {
                         ExecutionContext.Initialize(fileSystem);
-                        ExecutionContext.ServiceProvider.GetService<IRepositoryLocator>()!
+                        ExecutionContext.ServiceProvider.GetRequiredService<IRepositoryLocator>()
                             .InitializeClientsForRepositories(ExecutionContext.Instance!.FileSystem);
-                        
+
                         // Parse and invoke using beta5 pattern
                         ParseResult parseResult = rootCommand.Parse(args);
                         result = await parseResult.InvokeAsync();
                     }
                 }
-                 
+
                 activity?.SetTag("execution.success", true);
                 return result;
             }
@@ -105,7 +105,7 @@ namespace Cmf.CLI
             {
                 Log.Debug("Caught exception at program.");
                 Log.Exception(WrappedException.Unwrap(e));
-                ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.LogException(e);
+                ExecutionContext.ServiceProvider.GetService<ITelemetryService>()?.LogException(e);
                 return (int)ErrorCode.Default;
             }
         }

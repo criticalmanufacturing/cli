@@ -71,7 +71,7 @@ public class ValidateStartAndEndMethodsCommand : BaseCommand
 		services.AddProcessors();
 		var serviceProvider = services.BuildServiceProvider();
 
-		var solutionValidator = new SolutionValidator(serviceProvider.GetService<IProcessorFactory>(), solutionPath, files);
+		var solutionValidator = new SolutionValidator(serviceProvider.GetRequiredService<IProcessorFactory>(), solutionPath, files);
 		solutionValidator.ValidateSolution().Wait();
 	}
 }

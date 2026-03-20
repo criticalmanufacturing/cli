@@ -57,7 +57,7 @@ namespace Cmf.CLI.Builders
                 if (Condition())
                 {
                     Log.Debug($"Executing '{command} {String.Join(' ', step.Args ?? Array.Empty<string>())}'");
-                    using var ps = ExecutionContext.ServiceProvider.GetService<IProcessStartInfoCLI>();
+                    using var ps = ExecutionContext.ServiceProvider.GetRequiredService<IProcessStartInfoCLI>();
                     ps.FileName = command;
                     ps.WorkingDirectory = step.WorkingDirectory != null ?
                         step.WorkingDirectory.FullName :

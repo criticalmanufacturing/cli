@@ -22,21 +22,21 @@ public class PluginsCommand : BaseCommand
 
         cmd.SetAction((parseResult, cancellationToken) =>
         {
-            var registry = parseResult.GetValue(registryOption);
+            var registry = parseResult.GetRequiredValue(registryOption);
             Execute(registry);
             return Task.FromResult(0);
         });
     }
 
-    public void Execute(Uri[]? registry)
+    public void Execute(Uri[] registry)
     {
-        var npmClient = ExecutionContext.ServiceProvider.GetService<INPMClient>();
-        var packages = npmClient.FindPlugins(registry?.Length > 0 ? registry : null); // null implies using the default registry
-        foreach (var package in packages)
+        var npmClient = ExecutionContext.ServiceProvider.GetRequiredService<INPMClient>();
+        var packages = npmClient.FindPlugins(registry); // empty implies using the default registry
+        foreach (IPackage package in packages)
         {
             Log.Render(new Markup($"[bold deepskyblue1] {package.Name}[/]   {(package.IsOfficial ? "[default on green3] :check_mark:  Official Plugin [/]" : "")}"));
             Log.AnsiConsole.WriteLine();
-            Log.Render(new Markup($"\t[grey]Package info:[/] {package.Link.AbsoluteUri}"));
+            Log.Render(new Markup($"\t[grey]Package info:[/] {package.Link?.AbsoluteUri}"));
             Log.AnsiConsole.WriteLine();
             Log.Render(new Markup($"\t[grey]Install with:[/] npm install --global {package.Name}{(registry?.Length > 0 ? $" --registry {package.Registry}" : "")}"));
             Log.AnsiConsole.WriteLine();

@@ -93,7 +93,7 @@ namespace Cmf.CLI.Commands
         /// <exception cref="CliException"></exception>
         public void Execute(IDirectoryInfo? packagePath, string? baseVersion, string? iotVersion, List<string>? iotPackagesToIgnore)
         {
-            using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
+            using var activity = ExecutionContext.ServiceProvider.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
 
             if (packagePath == null)
             {

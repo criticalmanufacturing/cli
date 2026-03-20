@@ -78,7 +78,7 @@ namespace Cmf.CLI.Commands.New
                 "--rootRelativePath", relativePathToRoot,
                 "--baseWebPackage", this.baseWebPackage,
                 "--npmRegistry", projectConfig.NPMRegistry.OriginalString,
-                "--nodeVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Node(projectConfig.MESVersion)
+                "--nodeVersion", ExecutionContext.ServiceProvider.GetRequiredService<IDependencyVersionService>().Node(projectConfig.MESVersion)
             });
 
             return args;
@@ -349,7 +349,7 @@ $@"{{
 
             // this won't return null because it has to success on the base.Execute call
             var mesVersion = projectConfig.MESVersion;
-            var angularDeps = ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(mesVersion);
+            var angularDeps = ExecutionContext.ServiceProvider.GetRequiredService<IDependencyVersionService>().Angular(mesVersion);
             var ngCliVersion = angularDeps.CLI;
             string ngCliCommand = $"@angular/cli@{ngCliVersion.Major}";
             var packageName = base.GeneratePackageName(workingDir)!.Value.Item1;

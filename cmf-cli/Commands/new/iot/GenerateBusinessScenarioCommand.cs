@@ -72,7 +72,7 @@ namespace Cmf.CLI.Commands.New.IoT
                 throw new CliException("This command needs to run inside an iot project. Run `cmf new iot` to create a new project.");
             }
 
-            using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
+            using var activity = ExecutionContext.ServiceProvider.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
 
             var dirName = AnsiConsole.Ask("What is the directory name?", "connect-iot-business-scenarios-custom");
             var packageScope = AnsiConsole.Ask("What is the package scope?", "@criticalmanufacturing");

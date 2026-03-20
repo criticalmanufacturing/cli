@@ -77,7 +77,7 @@ namespace Cmf.CLI.Commands
         /// <param name="packagePath">The package path.</param>
         public void Execute(IDirectoryInfo? packagePath, bool test = false)
         {
-            using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
+            using var activity = ExecutionContext.ServiceProvider.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
             if (packagePath == null)
             {
                 throw new CliException("Package path is required.");

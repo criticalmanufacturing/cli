@@ -61,7 +61,7 @@ public class PublishCommand : BaseCommand
         cmd.Add(repositoryOption);
 
         cmd.Hidden =
-            !(ExecutionContext.ServiceProvider?.GetService<IFeaturesService>()?.UseRepositoryClients ?? false);
+            !(ExecutionContext.ServiceProvider.GetService<IFeaturesService>()?.UseRepositoryClients ?? false);
 
         // Add the handler
         cmd.SetAction((parseResult, cancellationToken) =>
@@ -78,7 +78,7 @@ public class PublishCommand : BaseCommand
 
     public void Execute(IFileInfo file, Uri repository, bool ci, bool release)
     {
-        using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
+        using var activity = ExecutionContext.ServiceProvider.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
 
         if (!file.Exists || file.Directory == null)
         {
@@ -134,14 +134,14 @@ public class PublishCommand : BaseCommand
 
         // If it passes the above checks the only possible client for the requested file 
         // is a ArchiveRepositoryClient with only a single Package
-        var client = ExecutionContext.ServiceProvider?.GetService<IRepositoryLocator>()
+        var client = ExecutionContext.ServiceProvider.GetService<IRepositoryLocator>()
             .GetRepositoryClient(new Uri(file.FullName), file.FileSystem) as ArchiveRepositoryClient;
         if (client == null)
         {
             throw new CliException($"Could not determine repository type for {file.FullName}!");
         }
         Log.Debug($"Got client {client.GetType().Name} for package file {file.FullName}");
-        var repoClient = ExecutionContext.ServiceProvider?.GetService<IRepositoryLocator>()
+        var repoClient = ExecutionContext.ServiceProvider.GetService<IRepositoryLocator>()
             .GetRepositoryClient(repository, file.FileSystem);
         if (repoClient == null)
         {

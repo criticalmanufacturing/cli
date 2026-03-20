@@ -63,7 +63,7 @@ public class NewPluginCommand : TemplateCommand
 
     public void Execute(string name, string binary, string description, IDirectoryInfo workingDir)
     {
-        using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
+        using var activity = ExecutionContext.ServiceProvider.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
 
         if (name.StartsWith("\\@"))
         {
