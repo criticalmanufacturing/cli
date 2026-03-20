@@ -1330,6 +1330,112 @@ namespace tests.Specs
         }
 
         [Fact]
+        public void Pack_ScaffoldedTestPackage_WithPerformance()
+        {
+            // Arrange
+            KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Tests", "1.1.0");
+
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { MockUnixSupport.Path(@"C:\repo\.project-config.json"), new MockFileData(
+                    @"{
+                        ""MESVersion"": ""11.2.4""
+                    }") 
+                },
+                { MockUnixSupport.Path(@"C:\repo\cmfpackage.json"), new MockFileData(
+                $$"""
+                {
+                  "packageId": "Cmf.Custom.Package",
+                  "version": "1.1.0",
+                  "description": "This package deploys Critical Manufacturing Customization",
+                  "packageType": "Root",
+                  "isInstallable": false,
+                  "isUniqueInstall": false,
+                  "dependencies": [
+                    {
+                      "id": "Cmf.Environment",
+                      "version": "11.1.0",
+                      "mandatory": false
+                    }
+                  ]
+                }
+                """)},
+                { MockUnixSupport.Path(@"C:\repo\Cmf.Custom.Tests\cmfpackage.json"), new MockFileData(
+                $$"""
+                {
+                  "packageId": "{{packageRoot.Key}}",
+                  "version": "{{packageRoot.Value}}",
+                  "description": "This package deploys Critical Manufacturing Customization",
+                  "packageType": "Tests",
+                  "isInstallable": false,
+                  "isUniqueInstall": false,
+                  "contentToPack": [
+                    {
+                        "source": "Cmf.Custom.Tests.Performance/**",
+                        "target": "Cmf.Custom.Tests.Performance"
+                    },
+                    {
+                        "source": "Libs/LBOs/cmf-k6/**",
+                        "target": "Cmf.Custom.Tests.Performance/node_modules"
+                    },
+                    {
+                        "source": "Release/*.*",
+                        "target": ""
+                    }
+                  ]
+                }
+                """)},
+                { MockUnixSupport.Path(@"C:\repo\Cmf.Custom.Tests\Release\Cmf.Custom.Tests.dll"), new MockFileData("test data")},
+                { MockUnixSupport.Path(@"C:\repo\Cmf.Custom.Tests\Cmf.Custom.Tests.Performance\Cmf.Custom.Tests.Performance.dll"), new MockFileData("performance test data")}, // this dll won't exist in a real scenario
+                { MockUnixSupport.Path(@"C:\repo\Cmf.Custom.Tests\Libs\LBOs\cmf-k6\index.js"), new MockFileData("module.exports = {};")} // this js won't exist in a real scenario
+            }, MockUnixSupport.Path(@"C:\repo\Cmf.Custom.Tests"));
+            ExecutionContext.Initialize(fileSystem);
+
+            IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"./{CliConstants.CmfPackageFileName}");
+
+            // Act
+            var packCommand = new PackCommand(fileSystem);
+            packCommand.Execute(cmfpackageFile.Directory, fileSystem.DirectoryInfo.New("./output"), false);
+
+            // Assert
+            var archive = fileSystem.FileInfo.New($"./output/{packageRoot.Key}.{packageRoot.Value}.zip");
+            Assert.True(archive.Exists, "Zip archive was not generated");
+
+            using Stream zipToOpen = archive.OpenRead();
+            using ZipArchive zip = new(zipToOpen, ZipArchiveMode.Read);
+            
+            var manifest = zip.GetEntry("package.json");
+            Assert.NotNull(manifest);
+
+            using var stream = manifest.Open();
+            using var reader = new StreamReader(stream);
+            var contents = reader.ReadToEnd();
+            var json = JsonConvert.DeserializeObject<JObject>(contents);
+
+            Assert.True(json.ContainsKey("name"));
+            Assert.Equal("Cmf.Custom.Tests", json["name"].Value<string>());
+
+            Assert.True(json.ContainsKey("version"));
+            Assert.Equal("1.1.0", json["version"].Value<string>());
+
+            Assert.True(json.ContainsKey("keywords"));    
+            Assert.Equal(JTokenType.Array, json.Property("keywords").Value.Type);
+            Assert.Equal("cmf-tests-package", json.Property("keywords").Value.Values<string>().First());
+
+            // Verify that the Performance folder and its content exist inside the packed zip
+            var performanceDll = zip.GetEntry("Cmf.Custom.Tests.Performance/Cmf.Custom.Tests.Performance.dll");
+            Assert.NotNull(performanceDll);
+            
+            // Verify that the cmf-k6 LBOs are copied to the node_modules folder
+            var cmfK6Index = zip.GetEntry("Cmf.Custom.Tests.Performance/node_modules/index.js");
+            Assert.NotNull(cmfK6Index);
+            
+            // Verify that the standard Test dll also exists
+            var testsDll = zip.GetEntry("Cmf.Custom.Tests.dll");
+            Assert.NotNull(testsDll);
+        }
+
+        [Fact]
         public void Dependency_ConditionalProperty()
         {
             // Create a dependency with conditional=true
