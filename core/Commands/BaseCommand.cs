@@ -99,7 +99,7 @@ namespace Cmf.CLI.Core.Commands
             if (!string.IsNullOrWhiteSpace(dec.MinimumMESVersion))
             {
                 // Add a middleware to validate the version before command execution
-                cmdInstance.AddValidator(commandResult =>
+                cmdInstance.Validators.Add(commandResult =>
                 {
                     try
                     {
@@ -108,11 +108,11 @@ namespace Cmf.CLI.Core.Commands
                     }
                     catch (MESVersionValidationException ex)
                     {
-                        commandResult.ErrorMessage = ex.Message;
+                        commandResult.AddError(ex.Message);
                     }
                     catch (Exception ex)
                     {
-                        commandResult.ErrorMessage = $"Version validation error: {ex.Message}";
+                        commandResult.AddError($"Version validation error: {ex.Message}");
                     }
                 });
             }
