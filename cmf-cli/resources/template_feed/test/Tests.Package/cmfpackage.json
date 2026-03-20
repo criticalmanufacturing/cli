@@ -7,12 +7,12 @@
   "isUniqueInstall": false,
   "contentToPack": [
     {
-      "source": "Cmf.Custom.Tests.Performance/**",
-      "target": "Cmf.Custom.Tests.Performance"
+      "source": "<%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.Performance/**",
+      "target": "<%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.Performance"
     },
     {
-      "source": "../Libs/LBOs/cmf-k6",
-      "target": "Cmf.Custom.Tests.Performance/node_modules"
+      "source": "../Libs/LBOs/cmf-k6/**",
+      "target": "<%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.Performance/node_modules"
     },
     {
       "source": "Release/**",
