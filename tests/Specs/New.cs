@@ -49,7 +49,7 @@ namespace tests.Specs
         private void NpmLogin()
         {
             // Set log level to default to print any npm command logs
-            LoggerHelpers.LogLevelOption.Parse("");
+            Log.Level = LogLevel.Verbose;
 
             Spectre.Console.AnsiConsole.Console.MarkupLine("Building service provider...");
 
