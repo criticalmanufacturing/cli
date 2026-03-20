@@ -27,6 +27,8 @@ jobs:
     needs: commitlint
     runs-on: ubuntu-latest
     permissions:
+      id-token: write
+      contents: read
       checks: write
       pull-requests: write
     env:
