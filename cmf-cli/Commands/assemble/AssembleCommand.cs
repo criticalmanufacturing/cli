@@ -298,6 +298,8 @@ namespace Cmf.CLI.Commands
         /// <exception cref="CliException"></exception>
         private void AssemblePackage(IDirectoryInfo outputDir, IDirectoryInfo[] repoDirectories, CmfPackage cmfPackage, bool includeTestPackages)
         {
+            var projectConfig = ExecutionContext.VerifyIsInsideProject();
+
             // Load package from repo if is not loaded yet
             if (cmfPackage == null || (cmfPackage != null && cmfPackage.Uri == null))
             {
@@ -330,7 +332,7 @@ namespace Cmf.CLI.Commands
                 fileStream.CopyTo(fileStreamOutput);
             }
 
-            if (cmfPackage.PackageType == PackageType.Root && ExecutionContext.Instance.ProjectConfig?.RepositoryType == RepositoryType.App)
+            if (cmfPackage.PackageType == PackageType.Root && projectConfig.RepositoryType == RepositoryType.App)
             {
                 HandleAppPkg(outputDir, cmfPackage);
             }

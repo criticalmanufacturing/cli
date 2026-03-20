@@ -66,6 +66,8 @@ namespace Cmf.CLI.Commands.New
         /// <inheritdoc />
         protected override List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args)
         {
+            var projectConfig = ExecutionContext.VerifyIsInsideProject();
+
             var relativePathToRoot =
                 this.fileSystem.Path.Join("..", //always one level deeper
                     this.fileSystem.Path.GetRelativePath(
@@ -74,18 +76,18 @@ namespace Cmf.CLI.Commands.New
                 ).Replace("\\", "/");
 
             var requireModuleSES =
-                ExecutionContext.Instance.ProjectConfig.MESVersion >= new Version(11, 0, 0) &&
-                ExecutionContext.Instance.ProjectConfig.MESVersion < new Version(11, 2, 0);
+                projectConfig.MESVersion >= new Version(11, 0, 0) &&
+                projectConfig.MESVersion < new Version(11, 2, 0);
 
-            var angularDeps = ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(ExecutionContext.Instance.ProjectConfig.MESVersion);
+            var angularDeps = ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(projectConfig.MESVersion);
 
             args.AddRange(new[]
             {
                 "--rootRelativePath", relativePathToRoot,
                 "--ngxSchematicsVersion", this.schematicsVersion,
-                "--npmRegistry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.OriginalString,
-                "--MESVersion", ExecutionContext.Instance.ProjectConfig.MESVersion.ToString(),
-                "--nodeVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Node(ExecutionContext.Instance.ProjectConfig.MESVersion),
+                "--npmRegistry", projectConfig.NPMRegistry.OriginalString,
+                "--MESVersion", projectConfig.MESVersion.ToString(),
+                "--nodeVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Node(projectConfig.MESVersion),
                 "--ngVersion", angularDeps.CLI.Major.ToString(),
                 "--zoneVersion", angularDeps.Zone,
                 "--tsVersion", angularDeps.Typescript,
@@ -107,10 +109,11 @@ namespace Cmf.CLI.Commands.New
         /// <param name="documentationPackage">The MES documentation package path</param>
         public void Execute(IDirectoryInfo workingDir, string version, IFileInfo documentationPackage)
         {
-            if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major > 9)
+            var projectConfig = ExecutionContext.VerifyIsInsideProject();
+            if (projectConfig.MESVersion.Major > 9)
             {
                 Log.Debug("Running v>=10 template");
-                this.ExecuteV10(workingDir, version, ExecutionContext.Instance.ProjectConfig.MESVersion.Major);
+                this.ExecuteV10(workingDir, version, projectConfig.MESVersion.Major);
             }
             else
             {
@@ -129,10 +132,11 @@ namespace Cmf.CLI.Commands.New
             {
                 throw new CliException($"Cannot find Documentation package {documentationPackage.FullName}");
             }
+            var projectConfig = ExecutionContext.VerifyIsInsideProject();
             base.Execute(workingDir, version); // create package base - generate cmfpackage.json
             var nameIdx = Array.FindIndex(base.executedArgs, item => string.Equals(item, "--name"));
             var pkgName = base.executedArgs[nameIdx + 1];
-            var htmlStarterVersion = ExecutionContext.Instance.ProjectConfig.HTMLStarterVersion;
+            var htmlStarterVersion = projectConfig.HTMLStarterVersion;
             // clone HTMLStarter content in the folder
             var pkgFolder = workingDir.GetDirectories(pkgName).FirstOrDefault();
             if (!pkgFolder?.Exists ?? false)
@@ -149,10 +153,10 @@ namespace Cmf.CLI.Commands.New
             {
                 throw new CliException("Could not load package.json");
             }
-            var devTasksVersion = ExecutionContext.Instance.ProjectConfig.DevTasksVersion;
-            var yoGeneratorVersion = ExecutionContext.Instance.ProjectConfig.YoGeneratorVersion;
-            var projectName = ExecutionContext.Instance.ProjectConfig.ProjectName;
-            var repositoryURL = ExecutionContext.Instance.ProjectConfig.RepositoryURL;
+            var devTasksVersion = projectConfig.DevTasksVersion;
+            var yoGeneratorVersion = projectConfig.YoGeneratorVersion;
+            var projectName = projectConfig.ProjectName;
+            var repositoryURL = projectConfig.RepositoryURL;
             rootPkgJson.devDependencies["@criticalmanufacturing/dev-tasks"] = devTasksVersion.ToString();
             rootPkgJson.devDependencies["@criticalmanufacturing/generator-html"] = yoGeneratorVersion.ToString();
             rootPkgJson.devDependencies["@types/node"] = "^12.0.0";
@@ -171,8 +175,8 @@ namespace Cmf.CLI.Commands.New
             {
                 throw new CliException("Could not load .dev-tasks.json");
             }
-            var npmRegistry = ExecutionContext.Instance.ProjectConfig.NPMRegistry;
-            var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            var npmRegistry = projectConfig.NPMRegistry;
+            var mesVersion = projectConfig.MESVersion;
             devTasksJson.packagePrefix = "cmf.docs.area";
             devTasksJson.webAppPrefix = "cmf.docs.area";
             devTasksJson.registry = npmRegistry;
@@ -251,13 +255,13 @@ $@"{{
             {
                 throw new CliException("Could not load config.json");
             }
-            var restPort = ExecutionContext.Instance.ProjectConfig.RESTPort;
+            var restPort = projectConfig.RESTPort;
             configJsonJson.host.rest.enableSsl = false;
             configJsonJson.host.rest.address = "localhost";
             configJsonJson.host.rest.port = restPort;
             configJsonJson.host.isLoadBalancerEnabled = false;
-            configJsonJson.host.tenant.name = ExecutionContext.Instance.ProjectConfig.Tenant;
-            configJsonJson.general.defaultDomain = ExecutionContext.Instance.ProjectConfig.DefaultDomain;
+            configJsonJson.host.tenant.name = projectConfig.Tenant;
+            configJsonJson.general.defaultDomain = projectConfig.DefaultDomain;
             configJsonJson.version = $"{projectName} $(Build.BuildNumber) - {mesVersion}";
             configJsonJson.packages.available = docPkgConfigJson.packages.available;
             configJsonJson.packages.Remove("bundlePath");
@@ -277,7 +281,7 @@ $@"{{
 
             // generate doc package
             Log.Verbose("Generating documentation package. This will take a while...");
-            var tenant = ExecutionContext.Instance.ProjectConfig.Tenant ??
+            var tenant = projectConfig.Tenant ??
                 throw new CliException("Could not resolve project's Tenant. Make sure you are running this command inside a project.");
             var assetsPkgName = $"cmf.docs.area.{pkgName.ToLowerInvariant()}";
             var helpPkgConfigPath = this.fileSystem.Path.GetTempFileName();
@@ -329,13 +333,15 @@ $@"{{
 
         public void ExecuteV10(IDirectoryInfo workingDir, string version, int majorVersion)
         {
-            var ngxSchematicsVersion = ExecutionContext.Instance.ProjectConfig.NGXSchematicsVersion;
+            var projectConfig = ExecutionContext.VerifyIsInsideProject();
+
+            var ngxSchematicsVersion = projectConfig.NGXSchematicsVersion;
             if (ngxSchematicsVersion == null)
             {
                 throw new CliException("Seems like the repository scaffolding was run on a previous version of MES. Please re-init for versions 10+.");
             }
 
-            var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            var mesVersion = projectConfig.MESVersion;
 
             this.schematicsVersion = ngxSchematicsVersion.ToString() ?? $"@release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}";
 
@@ -350,7 +356,7 @@ $@"{{
                     break;
             }
 
-            var ngCliVersion = ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().AngularCLI(ExecutionContext.Instance.ProjectConfig.MESVersion);
+            var ngCliVersion = ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().AngularCLI(projectConfig.MESVersion);
             var packageName = base.GeneratePackageName(workingDir)!.Value.Item1;
             var projectName = packageName.Replace(".", "-").ToLowerInvariant();
             this.assetsPkgName = $"cmf-docs-area-{projectName.ToLowerInvariant()}";
@@ -380,7 +386,7 @@ $@"{{
             }.Exec();
 
             // generate the assets structure in projects/<docPackage>/assets
-            var tenant = ExecutionContext.Instance.ProjectConfig.Tenant;
+            var tenant = projectConfig.Tenant;
             Log.Verbose("Generating assets...");
             base.ExecuteTemplate("helpSrcPkg", new[]
             {

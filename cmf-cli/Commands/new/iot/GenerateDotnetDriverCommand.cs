@@ -6,6 +6,7 @@ using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
+using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.IO.Abstractions;
@@ -71,7 +72,9 @@ namespace Cmf.CLI.Commands.New.IoT
                 throw new CliException("This command needs to run inside an iot project. Run `cmf new iot` to create a new project.");
             }
 
-            if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 11)
+            var projectConfig = ExecutionContext.VerifyIsInsideProject();
+
+            if (projectConfig.MESVersion.Major < 11)
             {
                 throw new CliException("This command is only valid for versions above 11.0.0");
             }
@@ -88,6 +91,8 @@ namespace Cmf.CLI.Commands.New.IoT
                 driver.IdentifierCamel,
                 driver.PackageFullName,
                 driver.PackageVersion,
+                projectConfig.MESVersion,
+                projectConfig.NPMRegistry.ToString(),
                 driver.HasCommands,
                 driver.HasTemplates);
             base.RunCommand(args);
@@ -119,10 +124,11 @@ namespace Cmf.CLI.Commands.New.IoT
             string identifierCamel,
             string packageName,
             string packageVersion,
+            Version mesVersion,
+            string npmRegistry,
             bool hasCommands,
             bool hasTemplates)
         {
-            var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
             Log.Debug($"Creating IoT Driver at {packageLocation}");
 
             var args = new List<string>();
@@ -134,7 +140,7 @@ namespace Cmf.CLI.Commands.New.IoT
                 "--identifierCamel", identifierCamel,
                 "--packageName", packageName,
                 "--packageVersion", packageVersion,
-                "--npmRegistry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.ToString(),
+                "--npmRegistry", npmRegistry,
                 "--hasCommands", hasCommands.ToString(),
                 "--hasTemplates", hasTemplates.ToString()
             });

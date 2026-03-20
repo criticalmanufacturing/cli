@@ -62,7 +62,9 @@ namespace Cmf.CLI.Commands.New
         /// <exception cref="CliException"></exception>
         public void Execute(IDirectoryInfo workingDir, string version, bool addApplicationVersionAssembly)
         {
-            if (ExecutionContext.Instance.ProjectConfig.RepositoryType != RepositoryType.App && addApplicationVersionAssembly)
+            var projectConfig = ExecutionContext.VerifyIsInsideProject();
+
+            if (projectConfig.RepositoryType != RepositoryType.App && addApplicationVersionAssembly)
             {
                 throw new CliException("Application version assembly should only be included in app projects.");
             }
@@ -72,8 +74,7 @@ namespace Cmf.CLI.Commands.New
         }
         protected override List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args)
         {
-            var projectConfig = ExecutionContext.Instance?.ProjectConfig
-                ?? throw new CliException("Project configuration is not available.");
+            var projectConfig = ExecutionContext.VerifyIsInsideProject();
 
             var mesVersion = projectConfig.MESVersion;
             var includeMESNugets = true;

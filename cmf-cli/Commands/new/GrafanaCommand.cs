@@ -31,12 +31,14 @@ namespace Cmf.CLI.Commands.New
         /// <inheritdoc />
         protected override List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args)
         {
-            if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 10)
+            var projectConfig = ExecutionContext.VerifyIsInsideProject();
+
+            if (projectConfig.MESVersion.Major < 10)
             {
                 throw new CliException("Version unsupported, available in MES >= 10");
             }
 
-            var isRepositoryType = ExecutionContext.Instance.ProjectConfig.RepositoryType == RepositoryType.App;
+            var isRepositoryType = projectConfig.RepositoryType == RepositoryType.App;
 
             args.AddRange(new[]
             {

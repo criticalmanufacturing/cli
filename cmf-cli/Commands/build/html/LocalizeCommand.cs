@@ -53,7 +53,9 @@ public class LocalizeCommand : BaseCommand
     /// </summary>
     public void Execute(IDirectoryInfo packagePath)
     {
-        if (ExecutionContext.Instance.ProjectConfig.MESVersion < MIN_MES_VERSION)
+        var projectConfig = ExecutionContext.VerifyIsInsideProject();
+
+        if (projectConfig.MESVersion < MIN_MES_VERSION)
         {
             throw new CliException(string.Format(CliMessages.InvalidVersionForCommand, MIN_MES_VERSION.ToString()));
         }

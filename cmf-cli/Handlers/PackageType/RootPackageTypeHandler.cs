@@ -45,7 +45,9 @@ namespace Cmf.CLI.Handlers
         /// <param name="dryRun">if set to <c>true</c> list the package structure without creating files.</param>
         public override void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir, bool dryRun = false)
         {
-            if (ExecutionContext.Instance.ProjectConfig?.RepositoryType == RepositoryType.App)
+            var projectConfig = ExecutionContext.VerifyIsInsideProject();
+
+            if (projectConfig.RepositoryType == RepositoryType.App)
             {
                 GenerateAppFiles(packageOutputDir, outputDir);
             }
@@ -124,6 +126,8 @@ namespace Cmf.CLI.Handlers
         /// <param name="appData">AppData object</param>
         private void AppManifestSetAttributes(XElement element, AppData appData)
         {
+            var projectConfig = ExecutionContext.VerifyIsInsideProject();
+
             for (int i = 0; i < element.Attributes().Count(); i++)
             {
                 XAttribute attribute = element.Attributes().ElementAt(i);
@@ -142,7 +146,7 @@ namespace Cmf.CLI.Handlers
 
                 if (propertyValue == null && token == "$(frameworkVersion)")
                 {
-                    propertyValue = $"^{ExecutionContext.Instance.ProjectConfig.MESVersion}";
+                    propertyValue = $"^{projectConfig.MESVersion}";
                 }
 
                 if (propertyValue.IsNullOrEmpty())

@@ -83,6 +83,8 @@ namespace Cmf.CLI.Commands.New
             {
                 throw new CliException("This command needs to run inside a project. Run `cmf init` to create a new project.");
             }
+            var projectConfig = ExecutionContext.VerifyIsInsideProject();
+
             var featurePath = this.fileSystem.Path.Join(workingDir.FullName, "Features");
             var args = new List<string>()
             {
@@ -92,7 +94,7 @@ namespace Cmf.CLI.Commands.New
                 // template symbols
                 "--name", packageName,
                 "--packageVersion", version,
-                "--MESVersion", ExecutionContext.Instance.ProjectConfig.MESVersion.ToString()
+                "--MESVersion", projectConfig.MESVersion.ToString()
             };
             
             base.RunCommand(args);

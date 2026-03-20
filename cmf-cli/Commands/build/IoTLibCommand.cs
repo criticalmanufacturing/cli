@@ -63,7 +63,9 @@ namespace Cmf.CLI.Commands.New
         /// <param name="version">package version</param>
         public void Execute(IDirectoryInfo workingDir)
         {
-            if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major > 9)
+            var projectConfig = ExecutionContext.VerifyIsInsideProject();
+
+            if (projectConfig.MESVersion.Major > 9)
             {
                 IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{workingDir}/{CliConstants.CmfPackageFileName}");
                 var cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true, this.fileSystem);

@@ -55,7 +55,9 @@ namespace Cmf.CLI.Commands.New
         /// <inheritdoc />
         protected override List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args)
         {
-            var repoType = ExecutionContext.Instance.ProjectConfig.RepositoryType;
+            var projectConfig = ExecutionContext.VerifyIsInsideProject();
+
+            var repoType = projectConfig.RepositoryType;
 
             var relativePathToRoot =
                 this.fileSystem.Path.Join("..", //always one level deeper
@@ -72,7 +74,7 @@ namespace Cmf.CLI.Commands.New
             
             #region version-specific bits
 
-            var version = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            var version = projectConfig.MESVersion;
             args.AddRange(new []{ "--targetFramework", version.Major > 8 ? "net6.0" : "netstandard2.0" });
             #endregion
 

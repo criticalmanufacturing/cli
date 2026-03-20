@@ -66,10 +66,12 @@ namespace Cmf.CLI.Commands
         /// <param name="packagePath">The path of the current package folder</param>
         public void Execute(IDirectoryInfo packagePath)
         {
+            var projectConfig = ExecutionContext.VerifyIsInsideProject();
+
             var helpRoot = FileSystemUtilities.GetPackageRootByType(packagePath.FullName, PackageType.Help, this.fileSystem).FullName;
-            var project = ExecutionContext.Instance.ProjectConfig.Tenant;
+            var project = projectConfig.Tenant;
             
-            var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            var mesVersion = projectConfig.MESVersion;
             Log.Debug($"Generating menu items database for a help package for base version {mesVersion}");
 
             if (project == null)

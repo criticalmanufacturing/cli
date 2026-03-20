@@ -145,7 +145,9 @@ namespace Cmf.CLI.Handlers
         /// <param name="cmfPackage">The CMF package.</param>
         public PresentationPackageTypeHandler(CmfPackage cmfPackage) : base(cmfPackage)
         {
-            if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 10)
+            var projectConfig = ExecutionContext.VerifyIsInsideProject();
+
+            if (projectConfig.MESVersion.Major < 10)
             {
                 cmfPackage.SetDefaultValues
                 (

@@ -115,7 +115,7 @@ namespace Cmf.CLI.Core.Objects
             }
             if (Instance.ProjectConfig is null)
             {
-                throw new CliException("Could not resolve project's config file. Make sure you are running this command inside a project.");
+                throw new CliException("Could not resolve project's config file. Make sure you are running this command inside a project. You can init a repository with 'cmf init'");
             }
 
             return Instance.ProjectConfig;

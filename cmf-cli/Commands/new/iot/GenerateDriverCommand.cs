@@ -118,7 +118,9 @@ namespace Cmf.CLI.Commands.New.IoT
             bool hasCommands,
             bool hasTemplates)
         {
-            var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            var projectConfig = ExecutionContext.VerifyIsInsideProject();
+
+            var mesVersion = projectConfig.MESVersion;
             Log.Debug($"Creating IoT Driver at {packageLocation}");
 
             var args = new List<string>();
@@ -130,7 +132,7 @@ namespace Cmf.CLI.Commands.New.IoT
                 "--identifierCamel", identifierCamel,
                 "--packageName", packageName,
                 "--packageVersion", packageVersion,
-                "--npmRegistry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.ToString(),
+                "--npmRegistry", projectConfig.NPMRegistry.ToString(),
                 "--hasCommands", hasCommands.ToString(),
                 "--hasTemplates", hasTemplates.ToString()
             });

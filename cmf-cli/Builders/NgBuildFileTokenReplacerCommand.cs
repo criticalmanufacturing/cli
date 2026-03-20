@@ -67,6 +67,8 @@ internal class NgBuildFileTokenReplacerCommand : IBuildCommand
     {
         if (Condition())
         {
+            var projectConfig = ExecutionContext.VerifyIsInsideProject();
+
             var workingDir = cmfPackage.GetDirectoryInfo();
 
             foreach (var app in apps)
@@ -95,7 +97,7 @@ internal class NgBuildFileTokenReplacerCommand : IBuildCommand
                     configJsonContent = Regex.Replace(configJsonContent, @"""port"":\s*[^,]*,", "\"port\": $(APPLICATION_PUBLIC_HTTP_PORT),");
                     configJsonContent = Regex.Replace(configJsonContent, @"""environmentName"":\s*""[^""]*""", "\"environmentName\": \"$(SYSTEM_NAME)\"");
                     configJsonContent = Regex.Replace(configJsonContent, @"""defaultDomain"":\s*""[^""]*""", "\"defaultDomain\": \"$(SECURITY_PORTAL_STRATEGY_LOCAL_AD_DEFAULT_DOMAIN)\"");
-                    configJsonContent = Regex.Replace(configJsonContent, @"""version"":\s*""[^""]*""", $"\"version\": \"{ExecutionContext.Instance.ProjectConfig.MESVersion}\"");
+                    configJsonContent = Regex.Replace(configJsonContent, @"""version"":\s*""[^""]*""", $"\"version\": \"{projectConfig.MESVersion}\"");
 
                     this.fileSystem.File.WriteAllText(configJsonPath.FullName, configJsonContent);
                 }
@@ -104,11 +106,11 @@ internal class NgBuildFileTokenReplacerCommand : IBuildCommand
                     Log.Warning($"Couldn't find config.json at {configJsonPath.FullName}!");
                 }
 
-                if (ExecutionContext.Instance.ProjectConfig.RepositoryType == RepositoryType.App)
+                if (projectConfig.RepositoryType == RepositoryType.App)
                 {
                     // place app name in index.html
                     // TODO get app name from cmfapp.json
-                    var appName = ExecutionContext.Instance.ProjectConfig.ProjectName;
+                    var appName = projectConfig.ProjectName;
                     var indexPath = this.fileSystem.FileInfo.New($"{workingDir}/dist/{app}/index.html");
                     if (indexPath.Exists)
                     {

@@ -78,7 +78,8 @@ namespace Cmf.CLI.Factories
 
         private static IPackageTypeHandler HelpHandler(CmfPackage cmfPackage)
         {
-            var targetVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            var projectConfig = ExecutionContext.VerifyIsInsideProject();
+            var targetVersion = projectConfig.MESVersion;
             var minimumVersion = new Version("10.0.0");
             if (targetVersion.CompareTo(minimumVersion) < 0)
             {
@@ -90,7 +91,8 @@ namespace Cmf.CLI.Factories
 
         private static IPackageTypeHandler HtmlHandler(CmfPackage cmfPackage)
         {
-            var targetVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            var projectConfig = ExecutionContext.VerifyIsInsideProject();
+            var targetVersion = projectConfig.MESVersion;
             var minimumVersion = new Version("10.0.0");
             if (targetVersion.CompareTo(minimumVersion) < 0)
             {
@@ -110,7 +112,8 @@ namespace Cmf.CLI.Factories
         /// <returns></returns>
         private static IPackageTypeHandler SecurityPortalHandler(CmfPackage cmfPackage)
         {
-            var targetVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            var projectConfig = ExecutionContext.VerifyIsInsideProject();
+            var targetVersion = projectConfig.MESVersion;
             var minimumVersion = new Version("10.0.0");
             if (targetVersion.CompareTo(minimumVersion) < 0)
             {

@@ -101,14 +101,14 @@ namespace Cmf.CLI.Commands
         protected (string, string) GetOrganizationAndProductFromProjectConfig()
         {
             //load .project-config
-            var projectConfig = ExecutionContext.Instance.ProjectConfig;
+            var projectConfig = ExecutionContext.Instance?.ProjectConfig;
             var organization = Constants.CliConstants.DefaultOrganization;
             var product = Constants.CliConstants.DefaultProduct;
-            if (!string.IsNullOrWhiteSpace(projectConfig.Organization))
+            if (!string.IsNullOrWhiteSpace(projectConfig?.Organization))
             {
                 organization = projectConfig.Organization;
             }
-            if (!string.IsNullOrWhiteSpace(projectConfig.Product))
+            if (!string.IsNullOrWhiteSpace(projectConfig?.Product))
             {
                 product = projectConfig.Product;
             }
@@ -174,8 +174,7 @@ namespace Cmf.CLI.Commands
             }
             var (packageName, featureName) = names.Value;
 
-            //load .project-config
-            var projectConfig = ExecutionContext.Instance.ProjectConfig;
+            var projectConfig = ExecutionContext.VerifyIsInsideProject();
             var tenant = projectConfig.Tenant;
 
             var (organization, product) = this.GetOrganizationAndProductFromProjectConfig();

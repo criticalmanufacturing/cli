@@ -57,13 +57,14 @@ namespace Cmf.CLI.Commands.New
         /// <param name="version">the package version</param>
         public void Execute(string version)
         {
+            var projectConfig = ExecutionContext.VerifyIsInsideProject();
+
             var (organization, product) = GetOrganizationAndProductFromProjectConfig();
 
             var packageName = $"{organization}.{product}.Tests";
 
             var projectRoot = FileSystemUtilities.GetProjectRoot(this.fileSystem);
-            var repoType = ExecutionContext.Instance.ProjectConfig.RepositoryType;
-            var projectConfig = ExecutionContext.Instance.ProjectConfig;
+            var repoType = projectConfig.RepositoryType;
             var tenant = projectConfig.Tenant;
             var args = new List<string>()
             {

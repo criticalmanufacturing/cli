@@ -310,6 +310,8 @@ namespace Cmf.CLI.Handlers
         /// <param name="dryRun">if set to <c>true</c> list the package structure without creating files.</param>
         public override void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir, bool dryRun = false)
         {
+            var projectConfig = ExecutionContext.VerifyIsInsideProject();
+
             foreach (ContentToPack contentToPack in CmfPackage.ContentToPack ?? [])
             {
                 if ((contentToPack.Action == null || contentToPack.Action == PackAction.Pack) && contentToPack.Source != null)
@@ -330,7 +332,7 @@ namespace Cmf.CLI.Handlers
                         string outputDirPath = $"{packageOutputDir}/runtimePackages";
 
                         // Is not Supported in workspaces
-                        if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 10)
+                        if (projectConfig.MESVersion.Major < 10)
                         {
                             NPMCommand npmCommand = new NPMCommand()
                             {
@@ -342,7 +344,7 @@ namespace Cmf.CLI.Handlers
                             npmCommand.Exec();
                         }
 
-                        if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 11)
+                        if (projectConfig.MESVersion.Major < 11)
                         {
                             IFileInfo yo = this.fileSystem.FileInfo.New($"{AppContext.BaseDirectory}resources/vendors/yo/node_modules/.bin/yo");
                             if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())

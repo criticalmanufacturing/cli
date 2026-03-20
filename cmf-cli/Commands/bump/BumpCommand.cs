@@ -98,7 +98,6 @@ namespace Cmf.CLI.Commands
         /// <exception cref="CliException"></exception>
         public void Execute(CmfPackage cmfPackage, string version, string buildNr, string root)
         {
-            IDirectoryInfo packageDirectory = cmfPackage.GetDirectoryInfo();
             IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfPackage);
 
             // Will execute specific bump code per Package Type

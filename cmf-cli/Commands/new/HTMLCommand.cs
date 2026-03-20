@@ -64,6 +64,8 @@ namespace Cmf.CLI.Commands.New
         /// <inheritdoc />
         protected override List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args)
         {
+            var projectConfig = ExecutionContext.VerifyIsInsideProject();
+
             var relativePathToRoot =
                 this.fileSystem.Path.Join("..", //always one level deeper
                     this.fileSystem.Path.GetRelativePath(
@@ -75,8 +77,8 @@ namespace Cmf.CLI.Commands.New
             {
                 "--rootRelativePath", relativePathToRoot,
                 "--baseWebPackage", this.baseWebPackage,
-                "--npmRegistry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.OriginalString,
-                "--nodeVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Node(ExecutionContext.Instance.ProjectConfig.MESVersion)
+                "--npmRegistry", projectConfig.NPMRegistry.OriginalString,
+                "--nodeVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Node(projectConfig.MESVersion)
             });
 
             return args;
@@ -90,19 +92,19 @@ namespace Cmf.CLI.Commands.New
         /// <param name="htmlPackage">The MES Presentation HTML package path</param>
         public void Execute(IDirectoryInfo workingDir, string version, IFileInfo htmlPackage)
         {
-            CommandUtilities.ThrowIfNoProjectConfig(ExecutionContext.Instance);
+            var projectConfig = ExecutionContext.VerifyIsInsideProject();
 
-            if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major > 9)
+            if (projectConfig.MESVersion.Major > 9)
             {
-                this.ExecuteV10(workingDir, version);
+                this.ExecuteV10(workingDir, version, projectConfig);
             }
             else
             {
-                this.ExecuteV9(workingDir, version, htmlPackage);
+                this.ExecuteV9(workingDir, version, htmlPackage, projectConfig);
             }
         }
 
-        public void ExecuteV9(IDirectoryInfo workingDir, string version, IFileInfo htmlPackage)
+        public void ExecuteV9(IDirectoryInfo workingDir, string version, IFileInfo htmlPackage, ProjectConfig projectConfig)
         {
             if (htmlPackage == null)
             {
@@ -112,7 +114,7 @@ namespace Cmf.CLI.Commands.New
             {
                 throw new CliException($"Cannot find HTML package {htmlPackage.FullName}");
             }
-            var baseLayer = ExecutionContext.Instance.ProjectConfig.BaseLayer;
+            var baseLayer = projectConfig.BaseLayer;
             this.baseWebPackage = baseLayer == BaseLayer.MES
                 ? "@criticalmanufacturing/mes-ui-web"
                 : "@criticalmanufacturing/core-ui-web";
@@ -122,7 +124,7 @@ namespace Cmf.CLI.Commands.New
 
             var nameIdx = Array.FindIndex(base.executedArgs, item => string.Equals(item, "--name"));
             var pkgName = base.executedArgs[nameIdx + 1];
-            var htmlStarterVersion = ExecutionContext.Instance.ProjectConfig.HTMLStarterVersion;
+            var htmlStarterVersion = projectConfig.HTMLStarterVersion;
             // clone HTMLStarter content in the folder
             var pkgFolder = workingDir.GetDirectories(pkgName).FirstOrDefault();
             if (!pkgFolder?.Exists ?? false)
@@ -139,11 +141,11 @@ namespace Cmf.CLI.Commands.New
             {
                 throw new CliException("Could not load package.json");
             }
-            var devTasksVersion = ExecutionContext.Instance.ProjectConfig.DevTasksVersion;
-            var yoGeneratorVersion = ExecutionContext.Instance.ProjectConfig.YoGeneratorVersion;
-            var projectName = ExecutionContext.Instance.ProjectConfig.ProjectName;
-            var repositoryURL = ExecutionContext.Instance.ProjectConfig.RepositoryURL;
-            var tenant = ExecutionContext.Instance.ProjectConfig.Tenant;
+            var devTasksVersion = projectConfig.DevTasksVersion;
+            var yoGeneratorVersion = projectConfig.YoGeneratorVersion;
+            var projectName = projectConfig.ProjectName;
+            var repositoryURL = projectConfig.RepositoryURL;
+            var tenant = projectConfig.Tenant;
             rootPkgJson.devDependencies["@criticalmanufacturing/dev-tasks"] = devTasksVersion.ToString();
             rootPkgJson.devDependencies["@criticalmanufacturing/generator-html"] = yoGeneratorVersion.ToString();
             rootPkgJson.devDependencies["@types/node"] = "^12.0.0";
@@ -162,8 +164,8 @@ namespace Cmf.CLI.Commands.New
             {
                 throw new CliException("Could not load .dev-tasks.json");
             }
-            var npmRegistry = ExecutionContext.Instance.ProjectConfig.NPMRegistry;
-            var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            var npmRegistry = projectConfig.NPMRegistry;
+            var mesVersion = projectConfig.MESVersion;
             var targetVersion = mesVersion;
             var injectAppsPackage = targetVersion.CompareTo(new Version("8.3.0")) >= 0;
             if (injectAppsPackage)
@@ -275,13 +277,13 @@ $@"{{
             {
                 throw new CliException("Could not load webapp config.json");
             }
-            var restPort = ExecutionContext.Instance.ProjectConfig.RESTPort;
+            var restPort = projectConfig.RESTPort;
             configJsonJson.host.rest.enableSsl = false;
             configJsonJson.host.rest.address = "localhost";
             configJsonJson.host.rest.port = restPort;
             configJsonJson.host.isLoadBalancerEnabled = false;
             configJsonJson.host.tenant.name = tenant;
-            configJsonJson.general.defaultDomain = ExecutionContext.Instance.ProjectConfig.DefaultDomain;
+            configJsonJson.general.defaultDomain = projectConfig.DefaultDomain;
             configJsonJson.general.environmentName = $"{projectName}Local";
             configJsonJson.version = $"{projectName} $(Build.BuildNumber) - {mesVersion}";
             configJsonJson.packages.available = JArray.FromObject(htmlPkgPackages.Concat(injectAppsPackage ? new[] { new JValue("cmf.core.app") } : Array.Empty<JToken>()));
@@ -328,15 +330,15 @@ $@"{{
             Log.Information("HTML package generated");
         }
 
-        public void ExecuteV10(IDirectoryInfo workingDir, string version)
+        public void ExecuteV10(IDirectoryInfo workingDir, string version, ProjectConfig projectConfig)
         {
-            var ngxSchematicsVersion = ExecutionContext.Instance.ProjectConfig.NGXSchematicsVersion;
+            var ngxSchematicsVersion = projectConfig.NGXSchematicsVersion;
             if (ngxSchematicsVersion == null)
             {
                 throw new CliException("Seems like the repository scaffolding was run on a previous version of MES. Please re-init for versions 10+.");
             }
 
-            var baseLayer = ExecutionContext.Instance.ProjectConfig.BaseLayer;
+            var baseLayer = projectConfig.BaseLayer;
             this.baseWebPackage = baseLayer == BaseLayer.MES
                 ? "@criticalmanufacturing/mes-ui-web"
                 : "@criticalmanufacturing/core-ui-web";
@@ -346,7 +348,7 @@ $@"{{
             base.Execute(workingDir, version); // create package base - generate cmfpackage.json
 
             // this won't return null because it has to success on the base.Execute call
-            var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            var mesVersion = projectConfig.MESVersion;
             var angularDeps = ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(mesVersion);
             var ngCliVersion = angularDeps.CLI;
             string ngCliCommand = $"@angular/cli@{ngCliVersion.Major}";
@@ -391,7 +393,7 @@ $@"{{
                 DisplayName = $"npx {ngCliCommand} add @criticalmanufacturing/ngx-schematics@{schematicsVersion}",
                 Command = ngCliCommand,
                 Args = [
-                    "add", "--registry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.OriginalString,
+                    "add", "--registry", projectConfig.NPMRegistry.OriginalString,
                     "--skip-confirmation", $"@criticalmanufacturing/ngx-schematics@{schematicsVersion}",
                     "--eslint", "--application", baseLayer.ToString(),
                     "--version", $"release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}"
@@ -423,7 +425,7 @@ $@"{{
 
             rootPkgJson.scripts["serve"] = "cross-env NODE_OPTIONS=--max-old-space-size=8192 npm run start -- --host 0.0.0.0 --disable-host-check --port 7000";
 
-            if (ExecutionContext.Instance.ProjectConfig.RepositoryType == RepositoryType.App)
+            if (projectConfig.RepositoryType == RepositoryType.App)
             {
                 var appData = ExecutionContext.Instance.AppData ??
                     throw new CliException("Could not retrieve repository AppData.");
@@ -490,10 +492,10 @@ $@"{{
             // using port 80, because is our localenv default port and the api is served on that port
             configJsonJson.host.rest.port = 80;
             configJsonJson.host.isLoadBalancerEnabled = false;
-            configJsonJson.host.tenant.name = ExecutionContext.Instance.ProjectConfig.Tenant;
-            configJsonJson.general.defaultDomain = ExecutionContext.Instance.ProjectConfig.DefaultDomain;
-            configJsonJson.general.environmentName = ExecutionContext.Instance.ProjectConfig.EnvironmentName;
-            configJsonJson.version = $"{ExecutionContext.Instance.ProjectConfig.ProjectName} $(Build.BuildNumber) - {mesVersion}";
+            configJsonJson.host.tenant.name = projectConfig.Tenant;
+            configJsonJson.general.defaultDomain = projectConfig.DefaultDomain;
+            configJsonJson.general.environmentName = projectConfig.EnvironmentName;
+            configJsonJson.version = $"{projectConfig.ProjectName} $(Build.BuildNumber) - {mesVersion}";
             configJsonStr = JsonConvert.SerializeObject(configJsonJson, Formatting.Indented);
             this.fileSystem.File.WriteAllText(configJsonPath, configJsonStr);
             Log.Verbose("Updated config.json");

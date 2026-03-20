@@ -95,13 +95,15 @@ namespace Cmf.CLI.Commands.New.IoT
             string packageVersion,
             string identifier)
         {
+            var projectConfig = ExecutionContext.VerifyIsInsideProject();
+
             Log.Debug($"Creating IoT Task Library Package at {workingDir}");
 
             var args = new List<string>();
             args.AddRange(new[]
             {
                 "--directoryName", dirName,
-                "--npmRegistry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.ToString(),
+                "--npmRegistry", projectConfig.NPMRegistry.ToString(),
                 "--identifier", identifier,
                 "--identifierLower", identifier.Replace(" ", "").ToLower().Trim(),
                 "--packageName", fullPackageName,

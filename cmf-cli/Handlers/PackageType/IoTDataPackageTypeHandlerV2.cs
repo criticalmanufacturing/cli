@@ -47,7 +47,7 @@ namespace Cmf.CLI.Handlers
             List<string> automationWorkflowDirectory = this.fileSystem.Directory.GetDirectories(directoryName, "AutomationWorkflowFiles", SearchOption.AllDirectories).ToList();
 
             // Get Parent Root
-            IDirectoryInfo parentRootDirectory = FileSystemUtilities.GetPackageRootByType(directoryName, PackageType.Root, this.fileSystem);
+            IDirectoryInfo? parentRootDirectory = FileSystemUtilities.GetPackageRootByType(directoryName, PackageType.Root, this.fileSystem);
             if (parentRootDirectory == null)
             {
                 throw new CliException("Parent root directory not found.");
@@ -57,7 +57,7 @@ namespace Cmf.CLI.Handlers
             #region GetCustomPackages
 
             // Get Dev Tasks
-            string packageNames = null;
+            string packageNames = string.Empty;
             foreach (CmfPackage iotPackage in cmfPackageIoT)
             {
                 packageNames += GetCustomPackages(iotPackage);
@@ -67,9 +67,8 @@ namespace Cmf.CLI.Handlers
 
             #region Filter by Root
 
-            if (bumpInformation.ContainsKey("root") && !String.IsNullOrEmpty(bumpInformation["root"] as string))
+            if (bumpInformation?["root"] is string root && !String.IsNullOrEmpty(root))
             {
-                string root = bumpInformation["root"] as string;
                 if (!automationWorkflowDirectory.Any())
                 {
                     Log.Warning($"No AutomationWorkflowFiles found in root {root}");
@@ -123,10 +122,12 @@ namespace Cmf.CLI.Handlers
         /// <returns></returns>
         private string GetCustomPackages(CmfPackage iotPackage)
         {
+            var projectConfig = ExecutionContext.VerifyIsInsideProject();
+
             string targetDirectory = ".dev-tasks.json";
             string targetProperties = "packages";
 
-            if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major > 10)
+            if (projectConfig.MESVersion.Major > 10)
             {
                 targetDirectory = "package.json";
                 targetProperties = "workspaces";

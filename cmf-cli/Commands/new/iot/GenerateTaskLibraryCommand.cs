@@ -117,15 +117,17 @@ namespace Cmf.CLI.Commands.New.IoT
             string identifier,
             List<string> dependsOnScope, List<string> mandatoryForScope, List<string> dependsOnProtocol, List<string> mandatoryForProtocol)
         {
-            var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            var projectConfig = ExecutionContext.VerifyIsInsideProject();
+
+            var mesVersion = projectConfig.MESVersion;
             Log.Debug($"Creating IoT Task Library Package at {workingDir}");
 
             var args = new List<string>();
             args.AddRange(new[]
             {
                 "--directoryName", dirName,
-                "--npmRegistry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.ToString(),
-                "--nodeVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Node(ExecutionContext.Instance.ProjectConfig.MESVersion),
+                "--npmRegistry", projectConfig.NPMRegistry.ToString(),
+                "--nodeVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Node(projectConfig.MESVersion),
                 "--identifier", identifier,
                 "--identifierLower", identifier.Replace(" ", "").ToLower().Trim(),
                 "--packageName", fullPackageName,

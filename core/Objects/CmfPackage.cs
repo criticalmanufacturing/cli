@@ -452,7 +452,7 @@ namespace Cmf.CLI.Core.Objects
         }
 
         /// <summary>
-        /// Gets or sets the file information.
+        /// Sets the file information.
         /// </summary>
         /// <param name="value">The file information.</param>
         public void SetFileInfo(IFileInfo value)
@@ -460,6 +460,11 @@ namespace Cmf.CLI.Core.Objects
             FileInfo = value;
         }
         
+        /// <summary>
+        /// Gets the CmfPackage's FileInfo Directory
+        /// </summary>
+        /// <returns>CmfPackage's FileInfo Directory</returns>
+        /// <exception cref="DirectoryNotFoundException">If the parent directory is null</exception>
         public IDirectoryInfo GetDirectoryInfo() {
             return this.FileInfo.Directory ?? 
                 throw new DirectoryNotFoundException($"Could not resolve package directory of {FileInfo.FullName}");
