@@ -104,7 +104,7 @@ namespace Cmf.CLI.Core.Commands
                 {
                     try
                     {
-                        var validationService = ExecutionContext.ServiceProvider?.GetService<IMESVersionValidationService>();
+                        var validationService = ExecutionContext.ServiceProvider.GetService<IMESVersionValidationService>();
                         validationService?.ValidateMinimumVersion(dec.MinimumMESVersion!);
                     }
                     catch (MESVersionValidationException ex)

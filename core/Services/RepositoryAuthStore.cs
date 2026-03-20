@@ -83,7 +83,7 @@ namespace Cmf.CLI.Core.Services
 
         protected IDictionary<IRepositoryCredentials, IList<ICredential>> GroupWithRepository(IList<ICredential> credentials)
         {
-            var allRepositoryCredentials = (ExecutionContext.ServiceProvider?.GetServices<IRepositoryCredentials>() ?? [])
+            var allRepositoryCredentials = (ExecutionContext.ServiceProvider.GetServices<IRepositoryCredentials>() ?? [])
                 .ToDictionary(repo => repo.RepositoryType);
 
             return credentials
@@ -200,7 +200,7 @@ namespace Cmf.CLI.Core.Services
 
         public IRepositoryCredentials GetRepositoryType(RepositoryCredentialsType repositoryType)
         {
-            var allRepositoryCredentials = ExecutionContext.ServiceProvider?.GetServices<IRepositoryCredentials>() ?? [];
+            var allRepositoryCredentials = ExecutionContext.ServiceProvider.GetServices<IRepositoryCredentials>() ?? [];
 
             var repositoryCredentials = allRepositoryCredentials
                 .FirstOrDefault(repo => repo.RepositoryType == repositoryType);
@@ -218,7 +218,7 @@ namespace Cmf.CLI.Core.Services
         public T GetRepositoryType<T>()
             where T : IRepositoryCredentials
         {
-            var allRepositoryCredentials = ExecutionContext.ServiceProvider?.GetServices<IRepositoryCredentials>() ?? [];
+            var allRepositoryCredentials = ExecutionContext.ServiceProvider.GetServices<IRepositoryCredentials>() ?? [];
 
             var repositoryCredentials = allRepositoryCredentials
                 .OfType<T>()

@@ -74,7 +74,7 @@ namespace Cmf.CLI.Core
                 if (eventArgs.ExceptionObject is Exception ex)
                 {
                     Log.Exception(ex);
-                    ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.LogException(ex);
+                    ExecutionContext.ServiceProvider.GetService<ITelemetryService>()?.LogException(ex);
                 }
             };
 
@@ -103,10 +103,10 @@ namespace Cmf.CLI.Core
         /// </summary>
         internal static async Task VersionChecks()
         {
-            using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?
+            using var activity = ExecutionContext.ServiceProvider.GetService<ITelemetryService>()?
                 .StartActivity("version");
 
-            var npmClient = ExecutionContext.ServiceProvider?.GetService<INPMClient>();
+            var npmClient = ExecutionContext.ServiceProvider.GetService<INPMClient>();
 
             if (ExecutionContext.IsDevVersion)
             {

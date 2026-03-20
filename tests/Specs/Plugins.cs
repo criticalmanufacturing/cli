@@ -95,7 +95,7 @@ public class Plugins
 
         var logWriter = (new Logging()).GetLogStringWriter();
         
-        var plugins = npmClient.FindPlugins(null);
+        var plugins = npmClient.FindPlugins([]);
 
         plugins.Should().BeEmpty();
         logWriter.ToString().Should().Contain($"Search request to {new Uri(CoreConstants.NpmJsUrl).AbsoluteUri} failed: {HttpStatusCode.InternalServerError}");

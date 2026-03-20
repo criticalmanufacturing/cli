@@ -76,7 +76,7 @@ public class CmfPackageController
             Log.Debug("File is a source package");
             // source package
             var cmfPackage = CmfPackageController.FromSourceManifest(file);
-            cmfPackage.Client = ExecutionContext.ServiceProvider!.GetService<IRepositoryLocator>()!
+            cmfPackage.Client = ExecutionContext.ServiceProvider.GetService<IRepositoryLocator>()!
                 .GetRepositoryClient(new Uri(file.FullName), file.FileSystem); // this is a hack to avoid awaiting for the LocalRepositoryClient as it is async
             // string fileContent = file.ReadToString();
             // CmfPackage cmfPackage = JsonConvert.DeserializeObject<CmfPackage>(fileContent);
@@ -186,7 +186,7 @@ public class CmfPackageController
     
     public async Task LoadDependencies(IEnumerable<Uri> repoUris, StatusContext? ctx, bool recurse = false)
     {
-        using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity("CmfPackageController LoadDependencies");
+        using var activity = ExecutionContext.ServiceProvider.GetService<ITelemetryService>()?.StartExtendedActivity("CmfPackageController LoadDependencies");
         activity?.SetTag("cmfPackage", $"{package.PackageId}.{package.Version}");
         loadedPackages.Add(package);
         ctx?.Status($"Working on {package.Name ?? (package.PackageId + "@" + package.Version)}");
@@ -210,7 +210,7 @@ public class CmfPackageController
                 var dependencyPackage = loadedPackages.FirstOrDefault(x => x.PackageId.IgnoreCaseEquals(dependency.Id) && x.Version.IgnoreCaseEquals(dependency.Version));
 
                 // 2) check if package is in repository
-                var service = ExecutionContext.ServiceProvider!.GetService<IRepositoryLocator>();
+                var service = ExecutionContext.ServiceProvider.GetService<IRepositoryLocator>();
                 if(service != null)
                 {
                     dependencyPackage = await service.FindPackage(dependency.Id!, dependency.Version!);
@@ -224,7 +224,7 @@ public class CmfPackageController
                     // {
                     //     dependencyPackage.Uri = new Uri(dependencyPackage.FileInfo.FullName);
                     // }
-                    dependencyPackage = await ExecutionContext.ServiceProvider!.GetRequiredService<IRepositoryLocator>()
+                    dependencyPackage = await ExecutionContext.ServiceProvider.GetRequiredService<IRepositoryLocator>()
                         .GetSourceClient(this.fileSystem)
                         .Find(dependency.Id!, dependency.Version!);
                 }

@@ -37,7 +37,7 @@ namespace Cmf.CLI.Core.Objects
 
         /// <summary>
         /// Find plugins in the optionally provided registries
-        /// Uses the NPMJS registry by default
+        /// Uses the NPMJS registry by default if no registries are provided
         /// </summary>
         /// <param name="registries">The registries in which to search for plugins</param>
         /// <returns>A set of plugin packages from the registries</returns>
@@ -89,13 +89,13 @@ namespace Cmf.CLI.Core.Objects
                     {
                         public string? Npm { get; set; }
                     }
-                    public string? Name { get; set; }
+                    public required string Name { get; set; }
                     public string? Scope { get; set; }
-                    public string? Version { get; set; }
+                    public required string Version { get; set; }
                     public PackageLinks? Links { get; set; }
                 }
 
-                public SearchPackage? Package { get; set; }
+                public required SearchPackage Package { get; set; }
             }
             public List<PackageResult>? Objects { get; set; }
         }
@@ -106,7 +106,7 @@ namespace Cmf.CLI.Core.Objects
             this.client = client ?? new HttpClient();
 
             var authStore =
-                ExecutionContext.ServiceProvider?.GetService<IRepositoryAuthStore>()
+                ExecutionContext.ServiceProvider.GetService<IRepositoryAuthStore>()
                 ?? throw new InvalidOperationException(
                     "IRepositoryAuthStore is not registered");
             var credentials = authStore.GetCredentialsFor<NPMRepositoryCredentials>(authStore.GetOrLoad().GetAwaiter().GetResult(), baseUrl);
@@ -149,7 +149,7 @@ namespace Cmf.CLI.Core.Objects
             var client = this.client;
             try
             {
-                IEnumerable<IPackage>[] results = (registries ?? new[] { new Uri(this.baseUrl) }).Select(async registry =>
+                IEnumerable<IPackage>[] results = (registries.Any() ? registries : new[] { new Uri(this.baseUrl) }).Select(async registry =>
                 {
                     var queryUri = $"{registry.AbsoluteUri.TrimEnd('/')}/-/v1/search?text=+keywords:cmf-cli-plugin";
                     Log.Debug($"Querying {queryUri} for packages with keyword 'cmf-cli-plugin'...");
@@ -165,10 +165,10 @@ namespace Cmf.CLI.Core.Objects
                     var body = await res.Content.ReadFromJsonAsync<SearchResults>();
                     return body?.Objects?.Select(obj => new Package()
                     {
-                        Name = obj.Package?.Name,
-                        IsOfficial = string.Equals(obj.Package?.Scope, "criticalmanufacturing"),
+                        Name = obj.Package.Name,
+                        IsOfficial = string.Equals(obj.Package.Scope, "criticalmanufacturing"),
                         Registry = registry.AbsoluteUri,
-                        Link = obj.Package?.Links?.Npm is string npm ? new Uri(npm) : null
+                        Link = obj.Package.Links?.Npm is string npm ? new Uri(npm) : null
                     } as IPackage) ?? Enumerable.Empty<IPackage>();
 
                 }).Select(t => t.Result).ToArray();
@@ -196,7 +196,7 @@ namespace Cmf.CLI.Core.Objects
             }
             var searchResult = await res.Content.ReadFromJsonAsync<SearchResults>();
 
-            return searchResult?.Objects?.Select(package => package.Package?.Name).OfType<string>().ToList() ?? [];
+            return searchResult?.Objects?.Select(package => package.Package.Name).OfType<string>().ToList() ?? [];
         }
         
         public async Task<NpmPackageVersion?> FetchPackageInfo(string packageName, string version)
@@ -308,7 +308,7 @@ namespace Cmf.CLI.Core.Objects
 
             try
             {
-                bool useStreamingPublish = ExecutionContext.ServiceProvider?.GetService<IFeaturesService>()?.UseStreamingPublish ?? false;
+                bool useStreamingPublish = ExecutionContext.ServiceProvider.GetService<IFeaturesService>()?.UseStreamingPublish ?? false;
 
                 Log.Debug($"Load package content (streaming mode {(useStreamingPublish ? "enabled" : "disabled")})...");
 

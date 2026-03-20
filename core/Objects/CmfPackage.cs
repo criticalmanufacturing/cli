@@ -550,7 +550,7 @@ namespace Cmf.CLI.Core.Objects
         /// <returns>this CmfPackage for chaining, but the method itself is mutable</returns>
         public void LoadDependencies(IEnumerable<Uri>? repoUris, StatusContext? ctx, bool recurse = false)
         {
-            using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity("CmfPackage LoadDependencies");
+            using var activity = ExecutionContext.ServiceProvider.GetService<ITelemetryService>()?.StartExtendedActivity("CmfPackage LoadDependencies");
             activity?.SetTag("cmfPackage", $"{this.PackageId}.{this.Version}");
             List<CmfPackage> loadedPackages = new();
             loadedPackages.Add(this);

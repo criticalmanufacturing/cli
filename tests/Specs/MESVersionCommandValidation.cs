@@ -57,7 +57,7 @@ public class MESVersionCommandValidation
             {
                 try
                 {
-                    var validationService = ExecutionContext.ServiceProvider?.GetService<IMESVersionValidationService>();
+                    var validationService = ExecutionContext.ServiceProvider.GetService<IMESVersionValidationService>();
                     validationService?.ValidateMinimumVersion(attr.MinimumMESVersion!);
                 }
                 catch (MESVersionValidationException ex)
@@ -97,7 +97,7 @@ public class MESVersionCommandValidation
             {
                 try
                 {
-                    var validationService = ExecutionContext.ServiceProvider?.GetService<IMESVersionValidationService>();
+                    var validationService = ExecutionContext.ServiceProvider.GetService<IMESVersionValidationService>();
                     validationService?.ValidateMinimumVersion(attr.MinimumMESVersion!);
                 }
                 catch (MESVersionValidationException ex)
