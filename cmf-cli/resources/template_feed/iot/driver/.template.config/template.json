@@ -1,5 +1,5 @@
 {
-  "$schema": "http://json.schemastore.org/template",
+  "$schema": "https://json.schemastore.org/template",
   "author": "Critical Manufacturing",
   "classifications": [
     "cli"
@@ -113,7 +113,7 @@
       "datatype": "bool",
       "parameters": {
         "source": "targetSystemVersionProcessed",
-        "pattern": "(112[0-9]+)"
+        "pattern": "(112\\d+|11[3-9]\\d+|1[2-9]\\d{2,}|[2-9]\\d{3,})"
       }
     },
     "isMESv1120OrGreater": {
