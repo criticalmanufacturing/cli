@@ -222,7 +222,7 @@ namespace Cmf.CLI.Commands.New
             // so we temporarily move it before placing it back
             var vscodeSourcePath = fileSystem.Path.Combine(iotCustomPackageWorkDir.FullName, ".vscode");
             var tempVscodePath = fileSystem.Path.Combine(iotCustomPackageWorkDir.FullName, $".vscode_backup");
-            
+
             if (fileSystem.Directory.Exists(vscodeSourcePath))
             {
                 fileSystem.Directory.Move(vscodeSourcePath, tempVscodePath);
@@ -253,7 +253,11 @@ namespace Cmf.CLI.Commands.New
             new NPXCommand()
             {
                 Command = $"@angular/cli@{ngCliVersion}",
-                Args = new[] { "add", "--registry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.OriginalString, "--skip-confirmation", $"@criticalmanufacturing/ngx-iot-schematics@{schematicsVersion}", "--lint", "--base-app", baseLayer.ToString(), "--version", $"release-{mesVersion.Major}{mesVersion.Minor}" },
+                Args = new[] { "add", "--registry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.OriginalString,
+                                                 "--skip-confirmation", $"@criticalmanufacturing/ngx-iot-schematics@{schematicsVersion}",
+                                                 "--lint",
+                                                 "--base-app", baseLayer.ToString(),
+                                                 "--version", $"release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}" },
                 WorkingDirectory = iotCustomPackageWorkDir,
                 ForceColorOutput = false
             }.Exec();
