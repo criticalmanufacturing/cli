@@ -8,6 +8,16 @@ namespace Cmf.CLI.Utilities
 {
     public class IoTStructures
     {
+        public const string ConverterEnumParameter = @"[
+            {
+                friendlyName: ""First"",
+                value: ""1""
+            },
+            {
+                friendlyName: ""Second"",
+                value: ""2""
+            }
+        ]";
         public static Choices AskChoice()
         {
             var choice = AnsiConsole.Prompt(
