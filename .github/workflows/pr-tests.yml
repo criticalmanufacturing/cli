@@ -26,10 +26,14 @@ jobs:
   build:
     needs: commitlint
     runs-on: ubuntu-latest
-    permissions: write-all
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
     env:
       LOW_THRESHOLD: 17
       HIGH_THRESHOLD: 70
+      REPORTING_ALLOWED: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
     steps:
       - uses: actions/checkout@v4
       - name: Setup .NET Core SDKs
@@ -50,7 +54,7 @@ jobs:
         run: dotnet test --configuration Release --no-build --no-restore --verbosity normal --filter "TestCategory!=Integration" --collect:"XPlat Code Coverage" --logger trx --results-directory TestResults
       - name: Publish Test Results
         uses: dorny/test-reporter@v1
-        if: always()
+        if: always() && env.REPORTING_ALLOWED == 'true'
         with:
           name: .NET Tests
           path: TestResults/**/*.trx
@@ -58,7 +62,7 @@ jobs:
           fail-on-error: false
       - name: Get Test Results URL
         id: test-url
-        if: always()
+        if: always() && env.REPORTING_ALLOWED == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -67,7 +71,7 @@ jobs:
           echo "url=${URL}" >> $GITHUB_OUTPUT
       - name: Add Test Results PR Comment
         uses: marocchino/sticky-pull-request-comment@v2
-        if: always() && github.event_name == 'pull_request'
+        if: always() && github.event_name == 'pull_request' && env.REPORTING_ALLOWED == 'true'
         continue-on-error: true
         with:
           header: test-results
@@ -79,7 +83,11 @@ jobs:
         if: always()
         run: |
           echo "## .NET Test Results" >> $GITHUB_STEP_SUMMARY
-          echo "[View full test report](${{ steps.test-url.outputs.url }})" >> $GITHUB_STEP_SUMMARY
+          if [[ "${{ env.REPORTING_ALLOWED }}" == "true" && -n "${{ steps.test-url.outputs.url }}" ]]; then
+            echo "[View full test report](${{ steps.test-url.outputs.url }})" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Detailed test report publication is skipped for forked pull requests because the workflow token cannot create check runs." >> $GITHUB_STEP_SUMMARY
+          fi
       - name: Run npm package tests
         run: cd npm && npm install --ignore-scripts && npm test
       - name: Merge Coverage Reports
@@ -100,7 +108,7 @@ jobs:
           thresholds: '${{ env.LOW_THRESHOLD }} ${{ env.HIGH_THRESHOLD }}'
       - name: Add Coverage PR Comment
         uses: marocchino/sticky-pull-request-comment@v2
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && env.REPORTING_ALLOWED == 'true'
         continue-on-error: true
         with:
           recreate: true
