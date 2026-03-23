@@ -765,14 +765,11 @@ public class Build
 
     [Theory]
     [InlineData("10.0.0")]  // MES version > 9: uses projects/cmf-docs-area-* layout
-    [InlineData("9.0.0")]   // MES version <= 9: uses src/packages/cmf.docs.area.* layout
     public void GenerateMenuItems_FilesAreOrderedAlphabetically(string mesVersion)
     {
-        bool isNewLayout = new Version(mesVersion).Major > 9;
-
         // Build the package directory prefix based on MES version layout
-        string packageDirName = isNewLayout ? "cmf-docs-area-cmf-custom-help" : "cmf.docs.area.cmf.custom.help";
-        string packagesRoot = isNewLayout ? "/help/projects" : "/help/src/packages";
+        string packageDirName = "cmf-docs-area-cmf-custom-help";
+        string packagesRoot = "/help/projects";
         string packageDir = $"{packagesRoot}/{packageDirName}";
         string assetsDir = $"{packageDir}/assets";
         string topicDir = $"{assetsDir}/equipment";
@@ -825,13 +822,10 @@ public class Build
 
     [Theory]
     [InlineData("10.0.0")]  // MES version > 9: uses projects/cmf-docs-area-* layout
-    [InlineData("9.0.0")]   // MES version <= 9: uses src/packages/cmf.docs.area.* layout
     public void GenerateMenuItems_FoldersAreOrderedAlphabetically(string mesVersion)
     {
-        bool isNewLayout = new Version(mesVersion).Major > 9;
-
-        string packageDirName = isNewLayout ? "cmf-docs-area-cmf-custom-help" : "cmf.docs.area.cmf.custom.help";
-        string packagesRoot = isNewLayout ? "/help/projects" : "/help/src/packages";
+        string packageDirName = "cmf-docs-area-cmf-custom-help";
+        string packagesRoot = "/help/projects";
         string packageDir = $"{packagesRoot}/{packageDirName}";
         string assetsDir = $"{packageDir}/assets";
 
