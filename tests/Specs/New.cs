@@ -28,6 +28,8 @@ using Cmf.CLI.Core.Repository.Credentials;
 using Cmf.CLI.Core.Services;
 using Spectre.Console;
 using Cmf.CLI.Core;
+using Cmf.CLI.Commands.New.IoT;
+using TestingConsole = Spectre.Console.Testing;
 
 namespace tests.Specs
 {
@@ -458,6 +460,90 @@ namespace tests.Specs
                     File.Exists($"{packageId}/{packageFolderPackages}/angular.json").Should().BeFalse();
                     File.Exists($"{packageId}/{packageFolderPackages}/.eslintrc.json").Should().BeTrue();
                     File.Exists($"{packageId}/{packageFolderPackages}/ui.xml").Should().BeTrue();
+                }
+            }
+        }
+
+        [Theory, Trait("TestCategory", "Integration")]
+        [InlineData("11.2.0", "testName", false)]
+        [InlineData("11.3.0", "", false)]
+        [InlineData("12.0.0", "", false)]
+        [InlineData("12.0.0", "testWithParameters", true)]
+        public void IoTConverter(string mesVersion, string converterName, bool requireParameters)
+        {
+            string dir = TestUtilities.GetTmpDirectory();
+            string packageId = "Cmf.Custom.IoT";
+
+            string packageFolderPackages = "Cmf.Custom.IoT.Packages";
+
+            var cur = Directory.GetCurrentDirectory();
+
+            try
+            {
+                string effectiveConverterName = string.IsNullOrWhiteSpace(converterName) ? "somethingToSomething" : converterName;
+                CopyNewFixture(dir, mesVersion: mesVersion);
+                RunNew(new IoTCommand(), packageId, dir);
+
+                Directory.SetCurrentDirectory($"{dir}/{packageId}/{packageFolderPackages}");
+                TestingConsole.TestConsole console = new();
+                console.Profile.Capabilities.Interactive = true;
+                console.Input.PushTextWithEnter(converterName); // ConverterName
+                console.Input.PushTextWithEnter(""); // ConverterTitle
+                console.Input.PushTextWithEnter(""); // InputType
+                console.Input.PushTextWithEnter(""); // OutputType
+
+                if (requireParameters)
+                {
+                    console.Input.PushTextWithEnter("y"); // RequireParameters
+                    console.Input.PushTextWithEnter(""); // ParameterName
+                    console.Input.PushTextWithEnter(""); // ParameterType
+                    console.Input.PushTextWithEnter(""); // MoreParameters
+
+                }
+                else
+                {
+                    console.Input.PushTextWithEnter("n"); // RequireParameters
+                }
+
+                AnsiConsole.Console = console; // so that the prompts asked by the command use this console instance
+
+                var cmd = new Command("x");
+                var newCommand = new GenerateConverterCommand();
+                newCommand.Configure(cmd);
+
+                TestUtilities.GetParser(cmd).Invoke("");
+
+                Directory.Exists(Path.GetFullPath("src/converters")).Should().BeTrue();
+                File.Exists(Path.GetFullPath($"src/converters/{effectiveConverterName}/{effectiveConverterName}.converter.ts")).Should().BeTrue();
+                File.ReadAllText(Path.GetFullPath($"src/converters/{effectiveConverterName}/{effectiveConverterName}.converter.ts")).Should().Contain("@Converter.Converter");
+
+                if (requireParameters)
+                {
+                    var parameters = File.ReadAllText(Path.GetFullPath($"src/converters/{effectiveConverterName}/{effectiveConverterName}.converter.ts"));
+                    parameters.Should().Contain("parameters: {");
+                    parameters.Should().Contain("newParameter");
+
+                }
+                else
+                {
+                    File.ReadAllText(Path.GetFullPath($"src/converters/{effectiveConverterName}/{effectiveConverterName}.converter.ts")).Should().Contain("parameters: {}");
+                }
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                int tries = 3;
+                while (tries > 0)
+                {
+                    try
+                    {
+                        Directory.Delete(dir, true);
+                        break;
+                    }
+                    catch
+                    {
+                        tries--;
+                    }
                 }
             }
         }
