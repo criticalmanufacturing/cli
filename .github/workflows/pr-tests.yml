@@ -26,12 +26,7 @@ jobs:
   build:
     needs: commitlint
     runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      id-token: write
-      contents: read
-      checks: write
-      pull-requests: write
+    permissions: write-all
     env:
       LOW_THRESHOLD: 17
       HIGH_THRESHOLD: 70
