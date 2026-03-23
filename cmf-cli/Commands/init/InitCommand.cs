@@ -562,6 +562,11 @@ namespace Cmf.CLI.Commands
             var version = Version.Parse(x.BaseVersion);
             args.AddRange(new []{ "--dotnetSDKVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().DotNetSdk(version) });
 
+            if(version < new Version(10,0))
+            {
+                throw new CliException("MES Versions under 10 are no longer supported with the newest version of the CLI. Please use cmf-cli 5.8.0 or lower.");
+            }
+
             if (string.IsNullOrWhiteSpace(x.ngxSchematicsVersion))
             {
                 throw new CliException(

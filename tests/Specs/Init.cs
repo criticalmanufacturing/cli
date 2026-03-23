@@ -155,6 +155,47 @@ namespace tests.Specs
         }
 
         [Fact]
+        public void Init_Fail_ForLTv10()
+        {
+            var console = new TestConsole();
+            var tmp = TestUtilities.GetTmpDirectory();
+
+            var projectName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
+            var deploymentDir = "\\\\share\\deployment_dir";
+
+            var cur = Directory.GetCurrentDirectory();
+            try
+            {
+                Directory.SetCurrentDirectory(tmp);
+
+                var initCommand = new InitCommand();
+                var cmd = new Command("x"); // this is the command name used in help text
+                initCommand.Configure(cmd);
+
+                TestUtilities.GetParser(cmd).Invoke(new[]
+                {
+                    projectName,
+                    "-c", TestUtilities.GetFixturePath("init", "config.json"),
+                    "--MESVersion", "8.2.0",
+                    "--nugetVersion", "8.2.0",
+                    "--testScenariosNugetVersion", "8.2.0",
+                    "--nugetRegistry", "http://nuget.example/feed",
+                    "--npmRegistry", "http://npm.example/feed",
+                    "--ISOLocation", "dummy",
+                    "--ngxSchematicsVersion", "1.3.7",
+                    "--deploymentDir", deploymentDir,
+                }, console);
+
+                console.Error.ToString().Should().Contain("MES Versions under 10 are no longer supported with the newest version of the CLI. Please use cmf-cli 5.8.0 or lower.");
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                Directory.Delete(tmp, true);
+            }
+        }
+
+        [Fact]
         public void Init_Fail_MissingOptionsForGTv10()
         {
             var console = new TestConsole();
