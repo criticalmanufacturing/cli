@@ -382,7 +382,9 @@ public class CmfPackageController
                         messageType: element.Attribute("messageType") != null && Enum.TryParse(element.Attribute("messageType").Value, out MessageType messageType) ? messageType : null,
                         relativePath: null,
                         filePath: element.Attribute("filePath")?.Value,
-                        oldSystemName: element.Attribute("oldSystemName")?.Value
+                        oldSystemName: element.Attribute("oldSystemName")?.Value,
+                        targetDirectory: element.Attribute("targetDirectory")?.Value,
+                        targetFile: element.Attribute("targetFile")?.Value
                     );
 
                     step.DeeBasePath = element.Attribute("deeBasePath")?.Value;
