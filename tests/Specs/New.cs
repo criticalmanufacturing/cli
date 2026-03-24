@@ -229,16 +229,24 @@ namespace tests.Specs
         }
 
         [Theory, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node18"), Trait("TestCategory", "Integration")]
-        [InlineData(BaseLayer.MES, "10.2.10")]
-        [InlineData(BaseLayer.Core, "10.2.10")]
-        public void UI(BaseLayer layer, string mesVersion)
+        [InlineData(BaseLayer.MES, "10.2.10", "1.3.7")]
+        [InlineData(BaseLayer.Core, "10.2.10", "1.3.7")]
+        public void UI_v10(BaseLayer layer, string mesVersion, string ngxSchematicsVersion)
         {
-            UI_internal(null, layer, mesVersion);
+            UI_internal(null, layer, mesVersion, ngxSchematicsVersion);
         }
 
-        private void UI_internal(string scaffoldingDir, BaseLayer layer, string mesVersion)
+        [Theory, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node20"), Trait("TestCategory", "Integration")]
+        [InlineData(BaseLayer.MES, "11.2.5", "11.0.14")]
+        [InlineData(BaseLayer.Core, "11.2.5", "11.0.14")]
+        public void UI_v11(BaseLayer layer, string mesVersion, string ngxSchematicsVersion)
         {
-            RunNew(new HTMLCommand(), "Cmf.Custom.HTML", scaffoldingDir: scaffoldingDir, mesVersion: mesVersion, baseLayer: layer, extraAsserts: args =>
+            UI_internal(null, layer, mesVersion, ngxSchematicsVersion);
+        }
+
+        private void UI_internal(string scaffoldingDir, BaseLayer layer, string mesVersion, string ngxSchematicsVersion)
+        {
+            RunNew(new HTMLCommand(), "Cmf.Custom.HTML", scaffoldingDir: scaffoldingDir, mesVersion: mesVersion, ngxSchematicsVersion: ngxSchematicsVersion, baseLayer: layer, extraAsserts: args =>
             {
                 var configJson = File.ReadAllText("Cmf.Custom.HTML/src/assets/config.json");
                 try
@@ -251,36 +259,47 @@ namespace tests.Specs
                 }
                 Assert.True(Directory.Exists($"Cmf.Custom.HTML/src/app"), "WebApp dir is missing or has wrong name. Was running the application generator unsuccessful?");
                 Assert.True(File.Exists($"Cmf.Custom.HTML/src/assets/config.json"), "Config file is missing or has wrong name");
-                Assert.True(File.ReadAllText("Cmf.Custom.HTML/src/assets/config.json").Contains("""10.2.10"""), $"Version 10.2.10 is not in config.json");
+                Assert.True(File.ReadAllText("Cmf.Custom.HTML/src/assets/config.json").Contains(mesVersion), $"Version {mesVersion} is not in config.json");
                 Assert.True(File.Exists($"Cmf.Custom.HTML/src/index.html"), "Index file is missing or has wrong name");
                 Assert.True(File.ReadAllText("Cmf.Custom.HTML/src/index.html").Contains("MES"), "Index content is not expected");
                 Assert.True(File.ReadAllText("Cmf.Custom.HTML/src/index.html").Contains("<base href=\"/\">"), "Index base path was not changed correctly");
+                if(new Version(mesVersion) < new Version(11,0,0)) 
+                {
                 if (layer == BaseLayer.Core)
-                {
-                    File.ReadAllText($"Cmf.Custom.HTML/src/app/app.module.ts").Should()
-                        .Contain("import { CoreUIModule } from 'cmf-core-ui';");
-                }
-                else
-                {
-                    File.ReadAllText($"Cmf.Custom.HTML/src/app/app.module.ts").Should()
-                        .Contain("import { MesUIModule } from 'cmf-mes-ui';");
+                    {
+                        File.ReadAllText($"Cmf.Custom.HTML/src/app/app.module.ts").Should()
+                            .Contain("import { CoreUIModule } from 'cmf-core-ui';");
+                    }
+                    else
+                    {
+                        File.ReadAllText($"Cmf.Custom.HTML/src/app/app.module.ts").Should()
+                            .Contain("import { MesUIModule } from 'cmf-mes-ui';");
+                    }
                 }
             });
         }
 
-        [Fact, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node18"), Trait("TestCategory", "Integration")]
-        public void Help()
+        [Theory, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node18"), Trait("TestCategory", "Integration")]
+        [InlineData("10.2.10", "1.3.7")]
+        public void Help_v10(string mesVersion, string ngxSchematicsVersion)
         {
-            Help_internal();
+            Help_internal(mesVersion: mesVersion, ngxSchematicsVersion: ngxSchematicsVersion);
         }
 
-        private void Help_internal(string scaffoldingDir = null)
+        [Theory, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node20"), Trait("TestCategory", "Integration")]
+        [InlineData("11.2.5", "11.0.14")]
+        public void Help_v11(string mesVersion, string ngxSchematicsVersion)
         {
-            RunNew(new Cmf.CLI.Commands.New.HelpCommand(), "Cmf.Custom.Help", mesVersion: "10.2.10", scaffoldingDir: scaffoldingDir, extraAsserts: args =>
+            Help_internal(mesVersion: mesVersion, ngxSchematicsVersion: ngxSchematicsVersion);
+        }
+
+        private void Help_internal(string mesVersion, string ngxSchematicsVersion, string scaffoldingDir = null)
+        {
+            RunNew(new Cmf.CLI.Commands.New.HelpCommand(), "Cmf.Custom.Help", scaffoldingDir: scaffoldingDir, mesVersion: mesVersion, ngxSchematicsVersion: ngxSchematicsVersion, extraAsserts: args =>
             {
                 Assert.True(Directory.Exists($"Cmf.Custom.Help/src/app"), "WebApp dir is missing or has wrong name. Was running the application generator unsuccessful?");
                 Assert.True(File.Exists($"Cmf.Custom.Help/src/assets/config.json"), "Config file is missing or has wrong name");
-                Assert.True(File.ReadAllText("Cmf.Custom.Help/src/assets/config.json").Contains("""version": "10.2.10"""), "Product package is not in config.json");
+                Assert.True(File.ReadAllText("Cmf.Custom.Help/src/assets/config.json").Contains(mesVersion), $"Version {mesVersion} is not in config.json");
                 Assert.True(File.Exists($"Cmf.Custom.Help/src/index.html"), "Index file is missing or has wrong name");
                 Assert.True(File.ReadAllText("Cmf.Custom.Help/src/index.html").Contains("DocumentationPortal"), "Index content is not expected");
                 Assert.True(File.ReadAllText("Cmf.Custom.Help/src/index.html").Contains("<base href=\"/\">"), "Index base path was not changed correctly");

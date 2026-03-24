@@ -7,7 +7,9 @@ using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Services;
 using Cmf.CLI.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Cmf.CLI.Commands.New
 {
@@ -83,12 +85,12 @@ namespace Cmf.CLI.Commands.New
             var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
             var includeMESNugets = true;
             
-            this.CommandName = "business9";
+            this.CommandName = "business10"; // template name
             var baseLayer = ExecutionContext.Instance.ProjectConfig.BaseLayer ?? CliConstants.DefaultBaseLayer;
             includeMESNugets = baseLayer == BaseLayer.MES;
             Log.Debug($"Project is targeting base layer {baseLayer}, so scaffolding {(includeMESNugets ? "with" : "without")} MES nugets.");
 
-            args.AddRange(new []{ "--targetFramework",  mesVersion.Major >= 11 ? "net8.0" : "net6.0" });
+            args.AddRange(new []{ "--targetFramework",  ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().DotNetTargetFramework(mesVersion) });
 
             if (ExecutionContext.Instance.ProjectConfig.RepositoryType == RepositoryType.App)
             {

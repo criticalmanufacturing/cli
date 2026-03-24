@@ -483,7 +483,7 @@ namespace Cmf.CLI.Core.Objects
                     $"{ExecutionContext.PackageId.Replace("@", "")} v{ExecutionContext.CurrentVersion}");
             }
 
-            client.Timeout = TimeSpan.FromSeconds(15);
+            client.Timeout = TimeSpan.FromSeconds(5);
 
             return client;
         }

@@ -843,7 +843,6 @@ namespace tests.Specs
         }
 
         [Theory]
-        [InlineData("Html", "1.1.0")]
         [InlineData("IoT", null)]
         public void GeneratePresentationConfigFile(string packageType, string version)
         {
@@ -925,7 +924,7 @@ namespace tests.Specs
             ExecutionContext.Initialize(fileSystem);
 
             IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"Cmf.Custom.{packageType}/cmfpackage.json");
-            Cmf.CLI.Handlers.PackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile, true) as Cmf.CLI.Handlers.PackageTypeHandler;
+            Cmf.CLI.Handlers.IoTPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile, true) as Cmf.CLI.Handlers.IoTPackageTypeHandler;
 
             packageTypeHandler.GeneratePresentationConfigFile(fileSystem.DirectoryInfo.New("output"));
 

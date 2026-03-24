@@ -150,28 +150,28 @@ namespace Cmf.CLI.Commands
 
             var devTasksVersionOption = new Option<string>("--DevTasksVersion")
             {
-                Description = "Critical Manufacturing dev-tasks version. Only required if you are targeting a version lower than v10.",
+                Description = "Critical Manufacturing dev-tasks version.",
                 Required = false
             };
             cmd.Add(devTasksVersionOption);
 
             var htmlStarterVersionOption = new Option<string>("--HTMLStarterVersion")
             {
-                Description = "HTML Starter version. Only required if you are targeting a version lower than v10.",
+                Description = "HTML Starter version.",
                 Required = false
             };
             cmd.Add(htmlStarterVersionOption);
 
             var yoGeneratorVersionOption = new Option<string>("--yoGeneratorVersion")
             {
-                Description = "@criticalmanufacturing/html Yeoman generator version. Only required if you are targeting a version lower than v10.",
+                Description = "@criticalmanufacturing/html Yeoman generator version.",
                 Required = false
             };
             cmd.Add(yoGeneratorVersionOption);
 
             var ngxSchematicsVersionOption = new Option<string>("--ngxSchematicsVersion")
             {
-                Description = "@criticalmanufacturing/ngx-schematics version. Only required if you are targeting a version equal or higher than v10.",
+                Description = "@criticalmanufacturing/ngx-schematics version.",
                 Required = false
             };
             cmd.Add(ngxSchematicsVersionOption);
@@ -569,8 +569,7 @@ namespace Cmf.CLI.Commands
 
             if (string.IsNullOrWhiteSpace(x.ngxSchematicsVersion))
             {
-                throw new CliException(
-                    "--ngxSchematicsVersion is required when targeting a base version of 10 or above.");
+                throw new CliException("--ngxSchematicsVersion is missing, please specify it.");
             }
             #endregion
 

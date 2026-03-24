@@ -9,7 +9,9 @@ using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Services;
 using Cmf.CLI.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Cmf.CLI.Commands.New
 {
@@ -56,6 +58,7 @@ namespace Cmf.CLI.Commands.New
         protected override List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args)
         {
             var repoType = ExecutionContext.Instance.ProjectConfig.RepositoryType ?? CliConstants.DefaultRepositoryType;
+            Version version = ExecutionContext.Instance.ProjectConfig.MESVersion;
 
             var relativePathToRoot =
                 this.fileSystem.Path.Join("..", //always one level deeper
@@ -69,8 +72,7 @@ namespace Cmf.CLI.Commands.New
                 "--rootRelativePath", relativePathToRoot,
                 "--repositoryType", repoType.ToString()
             });
-            
-            args.AddRange(new []{ "--targetFramework", "net6.0"});
+            args.AddRange(new []{ "--targetFramework", DependencyVersionService.NET6TARGETFRAMEWORK });
 
             return args;
         }

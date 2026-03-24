@@ -97,12 +97,7 @@ namespace Cmf.CLI.Commands.New
         /// <param name="version">package version</param>
         public void Execute(IDirectoryInfo workingDir, string version)
         {
-            Log.Debug("Running v>=10 template");
-            this.ExecuteV10(workingDir, version, ExecutionContext.Instance.ProjectConfig.MESVersion.Major);
-        }
-
-        public void ExecuteV10(IDirectoryInfo workingDir, string version, int majorVersion)
-        {
+            int majorVersion = ExecutionContext.Instance.ProjectConfig.MESVersion.Major;
             var ngxSchematicsVersion = ExecutionContext.Instance.ProjectConfig.NGXSchematicsVersion;
             if (ngxSchematicsVersion == null)
             {

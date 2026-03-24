@@ -8,6 +8,8 @@ using System.CommandLine;
 using System.IO.Abstractions;
 using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Cmf.CLI.Services;
 
 namespace Cmf.CLI.Commands.New
 {
@@ -104,7 +106,7 @@ namespace Cmf.CLI.Commands.New
             }
             
             #region version-specific bits
-            args.AddRange(new []{ "--targetFramework", mesVersion.Major >= 11 ? "net8.0" : "net6.0"});
+            args.AddRange(new []{ "--targetFramework", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().DotNetTargetFramework(mesVersion) });
 
             if (mesVersion >= new Version(11, 2, 3))
             {

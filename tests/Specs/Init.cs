@@ -226,7 +226,7 @@ namespace tests.Specs
                     "--deploymentDir", deploymentDir,
                 }, console);
 
-                Assert.Contains("ngxSchematicsVersion is required", console.Error.ToString());
+                Assert.Contains("--ngxSchematicsVersion is missing, please specify it.", console.Error.ToString());
                 console.Error.ToString().Should().NotContain("DevTasksVersion is required");
                 console.Error.ToString().Should().NotContain("HTMLStarterVersion is required");
                 console.Error.ToString().Should().NotContain("yoGeneratorVersion is required");

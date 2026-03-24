@@ -45,8 +45,8 @@ namespace Cmf.CLI.Factories
                 PackageType.Root => new RootPackageTypeHandler(cmfPackage),
                 PackageType.Generic => new GenericPackageTypeHandler(cmfPackage),
                 PackageType.Business => new BusinessPackageTypeHandler(cmfPackage),
-                PackageType.HTML => HtmlHandler(cmfPackage),
-                PackageType.Help => HelpHandler(cmfPackage),
+                PackageType.HTML => new HtmlNgCliPackageTypeHandler(cmfPackage),
+                PackageType.Help => new HelpNgCliPackageTypeHandler(cmfPackage),
                 PackageType.IoT => new IoTPackageTypeHandler(cmfPackage),
                 PackageType.IoTData => cmfPackage.HandlerVersion switch
                 {
@@ -62,33 +62,12 @@ namespace Cmf.CLI.Factories
                 PackageType.ExportedObjects => new ExportedObjectsPackageTypeHandler(cmfPackage),
                 PackageType.Database => new DatabasePackageTypeHandler(cmfPackage),
                 PackageType.Tests => new TestPackageTypeHandler(cmfPackage),
-                PackageType.SecurityPortal => SecurityPortalHandler(cmfPackage),
+                PackageType.SecurityPortal => new SecurityPortalPackageTypeHandlerV2(cmfPackage),
                 PackageType.Grafana => new GrafanaPackageTypeHandler(cmfPackage),
                 _ => throw new CliException(string.Format(CoreMessages.PackageTypeHandlerNotImplemented, cmfPackage.PackageType.ToString()))
             };
 
             return packageTypeHandler;
-        }
-
-        private static IPackageTypeHandler HelpHandler(CmfPackage cmfPackage)
-        {
-            return new HelpNgCliPackageTypeHandler(cmfPackage);
-        }
-
-        private static IPackageTypeHandler HtmlHandler(CmfPackage cmfPackage)
-        {
-            return new HtmlNgCliPackageTypeHandler(cmfPackage);
-        }
-
-        /// <summary>
-        /// Creates the specific Security Portal package handler.
-        /// Otherwise, a <seealso cref="SecurityPortalPackageTypeHandlerV2"/> is created and returned.
-        /// </summary>
-        /// <param name="cmfPackage"></param>
-        /// <returns></returns>
-        private static IPackageTypeHandler SecurityPortalHandler(CmfPackage cmfPackage)
-        {
-            return new SecurityPortalPackageTypeHandlerV2(cmfPackage);
         }
     }
 }
