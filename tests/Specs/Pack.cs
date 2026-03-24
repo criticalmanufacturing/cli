@@ -1794,6 +1794,77 @@ namespace tests.Specs
             Assert.Single(assembledFiles);
         }
 
+                [Theory]
+                [InlineData(true)]
+                [InlineData(false)]
+                public void Pack_ShouldIncludeIsToForceInstall_InManifest_WhenDefined(bool isToForceInstall)
+                {
+                        var isToForceInstallJson = isToForceInstall ? "true" : "false";
+                        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+                        {
+                                { MockUnixSupport.Path(@"c:\pkg\cmfpackage.json"), new MockFileData(
+                                $@"{{
+                                    ""packageId"": ""Cmf.Custom.Data"",
+                                    ""version"": ""1.0.0"",
+                                    ""description"": ""Cmf Custom Data Package"",
+                                    ""packageType"": ""Data"",
+                                    ""isInstallable"": true,
+                                    ""isUniqueInstall"": true,
+                                    ""isToForceInstall"": {isToForceInstallJson},
+                                    ""contentToPack"": [
+                                        {{ ""source"": ""MasterData"", ""target"": """" }}
+                                    ]
+                                }}")},
+                                { MockUnixSupport.Path(@"c:\pkg\MasterData\ImportObjects.xml"), new MockFileData("<data/>") }
+                        });
+
+                        var packCommand = new PackCommand(fileSystem);
+                        var outputDir = fileSystem.DirectoryInfo.New("output");
+
+                        packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path(@"c:\pkg")), outputDir, false, false);
+
+                        var packageFile = outputDir.EnumerateFiles("Cmf.Custom.Data.1.0.0.zip").Single();
+                        var manifest = FileSystemUtilities.GetManifestFromPackage(packageFile.FullName, fileSystem);
+                        var rootNode = manifest.Element("deploymentPackage", true);
+                        var isToForceInstallElement = rootNode?.Element("IsToForceInstall", true);
+
+                        Assert.NotNull(isToForceInstallElement);
+                        Assert.Equal(isToForceInstall, bool.Parse(isToForceInstallElement!.Value));
+                }
+
+                [Fact]
+                public void Pack_ShouldOmitIsToForceInstall_InManifest_WhenNotDefined()
+                {
+                        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+                        {
+                                { MockUnixSupport.Path(@"c:\pkg\cmfpackage.json"), new MockFileData(
+                                @"{
+                                    ""packageId"": ""Cmf.Custom.Data"",
+                                    ""version"": ""1.0.0"",
+                                    ""description"": ""Cmf Custom Data Package"",
+                                    ""packageType"": ""Data"",
+                                    ""isInstallable"": true,
+                                    ""isUniqueInstall"": true,
+                                    ""contentToPack"": [
+                                        { ""source"": ""MasterData"", ""target"": """" }
+                                    ]
+                                }")},
+                                { MockUnixSupport.Path(@"c:\pkg\MasterData\ImportObjects.xml"), new MockFileData("<data/>") }
+                        });
+
+                        var packCommand = new PackCommand(fileSystem);
+                        var outputDir = fileSystem.DirectoryInfo.New("output");
+
+                        packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path(@"c:\pkg")), outputDir, false, false);
+
+                        var packageFile = outputDir.EnumerateFiles("Cmf.Custom.Data.1.0.0.zip").Single();
+                        var manifest = FileSystemUtilities.GetManifestFromPackage(packageFile.FullName, fileSystem);
+                        var rootNode = manifest.Element("deploymentPackage", true);
+                        var isToForceInstallElement = rootNode?.Element("IsToForceInstall", true);
+
+                        Assert.Null(isToForceInstallElement);
+                }
+
         #endregion
     }
 }

@@ -10,6 +10,7 @@
   <version>$(version)</version>
   <isInstallable>$(isInstallable)</isInstallable>
   <isUniqueInstall>$(isUniqueInstall)</isUniqueInstall>
+  <IsToForceInstall>$(isToForceInstall)</IsToForceInstall>
   <waitForIntegrationEntries>$(waitForIntegrationEntries)</waitForIntegrationEntries>
   <keywords>$(keywords)</keywords>
   <dependencies>

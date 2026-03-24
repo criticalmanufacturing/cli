@@ -69,4 +69,23 @@ public class CmfPackageController_FromXml
         pkg.Steps.Single().DeeBasePath.Should().Be("./dees");
         pkg.Steps.Single().ImportXMLObjectPath.Should().Be("./xml");
     }
+
+      [Fact]
+      public void FromXml_ShouldParseIsToForceInstall_FromManifestElement()
+      {
+        var xml = XDocument.Parse(
+          """
+          <deploymentPackage>
+            <packageId>Cmf.Custom.Data</packageId>
+            <version>1.0.0</version>
+            <isInstallable>true</isInstallable>
+            <isUniqueInstall>false</isUniqueInstall>
+            <IsToForceInstall>true</IsToForceInstall>
+          </deploymentPackage>
+          """);
+
+        var pkg = CmfPackageController.FromXml(xml);
+
+        pkg.IsToForceInstall.Should().BeTrue();
+      }
 }
