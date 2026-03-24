@@ -32,6 +32,10 @@ Boolean value *(default true)*. A value of true indicates that the package is pr
 
 Boolean value *(default false)*. A value of true indicates that the package is only installed once per environment, a second run of this package doesn't re-install it. This value is usually only true for packages of type Data, IoTData and Database.
 
+### isToForceInstall
+
+Boolean value *(default false)*. A value of true indicates that package installation should be forced by Deployment Framework.
+
 ### isToSetDefaultSteps
 
 Boolean value *(default true)*. A value of true indicates that a set of predefined steps (each packageType has a set of steps) will be used.
@@ -51,6 +55,7 @@ Example:
     "description": "Cmf Custom Data Package",
     "packageType": "Data",
     "isInstallable": true,
+    "isToForceInstall": false,
     "isUniqueInstall": true,
     "steps": [
     {
