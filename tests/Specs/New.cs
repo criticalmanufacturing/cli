@@ -465,6 +465,64 @@ namespace tests.Specs
         }
 
         [Theory, Trait("TestCategory", "Integration")]
+        [InlineData("11.1.6"), Trait("TestCategory", "Integration")]
+        [InlineData("11.2.0"), Trait("TestCategory", "Integration")]
+        [InlineData("11.3.1"), Trait("TestCategory", "Integration")]
+        [InlineData("12.0.0"), Trait("TestCategory", "Integration")]
+        public void IoTDriverDefaultValues(string mesVersion)
+        {
+            string dir = TestUtilities.GetTmpDirectory();
+            string packageId = "Cmf.Custom.IoT";
+
+            string packageFolderPackages = "Cmf.Custom.IoT.Packages";
+
+            bool isGreaterOrEqualThan1120 = Version.Parse(mesVersion) >= new Version(11, 2, 0);
+            var cur = Directory.GetCurrentDirectory();
+
+            try
+            {
+                CopyNewFixture(dir, mesVersion: mesVersion);
+                RunNew(new IoTCommand(), packageId, dir);
+
+                Directory.SetCurrentDirectory($"{dir}/{packageId}/{packageFolderPackages}");
+                TestingConsole.TestConsole console = new();
+                console.Profile.Capabilities.Interactive = true;
+                console.Input.PushTextWithEnter(""); // Identifier
+                console.Input.PushTextWithEnter(""); // PackageScope
+                console.Input.PushTextWithEnter(""); // PackageName
+                console.Input.PushTextWithEnter(""); // PackageVersion
+                console.Input.PushTextWithEnter(""); // Identifier
+                console.Input.PushTextWithEnter(""); // HasCommands
+                console.Input.PushTextWithEnter(""); // HasTemplates
+
+                AnsiConsole.Console = console; // so that the prompts asked by the command use this console instance
+
+                var cmd = new Command("x");
+                var newCommand = new GenerateDriverCommand();
+                newCommand.Configure(cmd);
+
+                TestUtilities.GetParser(cmd).Invoke("");
+
+                Directory.Exists(Path.GetFullPath("src/driver-sample")).Should().BeTrue();
+                File.Exists(Path.GetFullPath("src/driver-sample/src/index.ts")).Should().BeTrue();
+
+                if (isGreaterOrEqualThan1120)
+                {
+                    File.ReadAllText(Path.GetFullPath("src/driver-sample/src/index.ts")).Should().Contain("const bootstrap = new DriverBootstrap(container);");
+                }
+                else
+                {
+                    File.ReadAllText(Path.GetFullPath("src/driver-sample/src/index.ts")).Should().Contain("import * as yargs");
+                }
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                Directory.Delete(dir, true);
+            }
+        }
+
+        [Theory, Trait("TestCategory", "Integration")]
         [InlineData("11.2.0", "testName", false)]
         [InlineData("11.3.0", "", false)]
         [InlineData("12.0.0", "", false)]
@@ -532,19 +590,7 @@ namespace tests.Specs
             finally
             {
                 Directory.SetCurrentDirectory(cur);
-                int tries = 3;
-                while (tries > 0)
-                {
-                    try
-                    {
-                        Directory.Delete(dir, true);
-                        break;
-                    }
-                    catch
-                    {
-                        tries--;
-                    }
-                }
+                Directory.Delete(dir, true);
             }
         }
 

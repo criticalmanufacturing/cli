@@ -1,3 +1,22 @@
+//#if isMESv1120OrGreater
+import { container } from "./inversify.config";
+import { DriverBootstrap } from "@criticalmanufacturing/connect-iot-driver";
+
+const bootstrap = new DriverBootstrap(container);
+
+bootstrap.setup({
+    name: "<%= $CLI_PARAM_Identifier %>",
+    driverName: "Driver<%= $CLI_PARAM_Identifier %>",
+    /**
+    addons: [
+        { name: "Nsfw", specific: true, destination: [ "build", "release" ] }
+    ]
+    */
+});
+
+bootstrap.start();
+
+//#else
 import * as yargs from "yargs";
 import * as path from "path";
 import { container } from "./inversify.config";
@@ -117,3 +136,4 @@ process.on("unhandledRejection", (reason: any, promise: Promise<any>) => {
     }
 });
 
+//#endif
