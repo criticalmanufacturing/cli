@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.9.1-1](https://github.com/criticalmanufacturing/cli/compare/5.9.1-0...5.9.1-1) (2026-03-24)
+
+
+### Features
+
+* add IsToForceInstall property to CmfPackage and update related files ([adc5d3e](https://github.com/criticalmanufacturing/cli/commits/adc5d3ee1f559a5b40228183275d57a7d1b74ef6))
+
+
+### Bug Fixes
+
+* **iot:** update driver scaffolding for versions >=11.2.0 ([#688](https://github.com/criticalmanufacturing/cli/issues/688)) ([5528b25](https://github.com/criticalmanufacturing/cli/commits/5528b2515a50cd13610a5b07f23921479b18dc90))
+
 ### [5.9.1-0](https://github.com/criticalmanufacturing/cli/compare/5.9.0...5.9.1-0) (2026-03-23)
 
 
