@@ -1,7 +1,9 @@
-name: PR Scaffolding Validation
+name: CLI Scaffolding Validation (MES matrix)
 
 on:
-  pull_request:
+  workflow_call: {}
+  workflow_dispatch: {}
+  pull_request_target:
     types: [opened, edited, synchronize]
 
 env:
@@ -17,19 +19,37 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      actions: read
+      packages: read
+    if: >
+      github.event_name != 'pull_request_target' ||
+      contains(fromJson('["OWNER","MEMBER","COLLABORATOR"]'), github.event.pull_request.author_association)
+    strategy:
+      matrix:
+        include:
+          - mes-major: 10
+            node-version: '18.x'
+          - mes-major: 11
+            node-version: '20.x'
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Setup Node ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: ${{ matrix.node-version }}
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
+
+      - name: Install zip
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zip
 
       - name: Install dependencies
         run: npm ci
@@ -45,8 +65,7 @@ jobs:
         working-directory: npm
         run: npm install -g ./
 
-      - name: Get latest MES version
-        id: mes-version
+      - name: Configure npm auth for registry
         run: |
           REGISTRY_HOST=${CRITICALMANUFACTURING_NPM_REGISTRY#*//}
           ENCODED_TOKEN=$(echo -n "$CRITICALMANUFACTURING_IO_TOKEN" | base64)
@@ -55,33 +74,50 @@ jobs:
           npm config set //${REGISTRY_HOST}:_password $ENCODED_TOKEN
           npm config set //${REGISTRY_HOST}:email ci@criticalmanufacturing.com
           npm config set //${REGISTRY_HOST}:always-auth true
-          MES_VERSION=$(npm view @criticalmanufacturing/mes version --registry $CRITICALMANUFACTURING_NPM_REGISTRY 2>/dev/null)
-          if [ -z "$MES_VERSION" ]; then
-            echo "::error::Failed to retrieve the latest MES version from the registry. Check that CRITICALMANUFACTURING_NPM_REGISTRY, CRITICALMANUFACTURING_IO_USER, and CRITICALMANUFACTURING_IO_TOKEN are configured correctly."
-            exit 1
-          fi
+
+      - name: Resolve full MES version for major ${{ matrix.mes-major }}
+        id: mes-version
+        run: |
+          MES_MAJOR=${{ matrix.mes-major }}
+          MES_VERSION=$(node - <<'NODE'
+const major = process.env.MES_MAJOR;
+const registry = process.env.CRITICALMANUFACTURING_NPM_REGISTRY;
+const pkg = '@criticalmanufacturing/cmf-mes-ui';
+const versionsJson = require('child_process').execSync(`npm view ${pkg} versions --json --registry ${registry}`, { encoding: 'utf8' });
+const versions = JSON.parse(versionsJson || '[]');
+const filtered = versions.filter(v => v.startsWith(`${major}.`));
+if (filtered.length === 0) { console.error(`No versions found for ${major}.x`); process.exit(1); }
+filtered.sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
+process.stdout.write(filtered[filtered.length - 1]);
+NODE
+)
+          echo "MES_VERSION=$MES_VERSION"
           echo "version=$MES_VERSION" >> $GITHUB_OUTPUT
 
-      - name: Create environment config
+      - name: Resolve ngx-schematics version for MES ${{ steps.mes-version.outputs.version }}
+        id: ngx-schematics-version
+        run: |
+          MES_VERSION=${{ steps.mes-version.outputs.version }}
+          MES_DIST_TAG="release-${MES_VERSION//./}"
+          echo "mes-dist-tag=$MES_DIST_TAG" >> $GITHUB_OUTPUT
+          NGX_VERSION=$(npm view @criticalmanufacturing/ngx-schematics@$MES_DIST_TAG version --registry $CRITICALMANUFACTURING_NPM_REGISTRY 2>/dev/null)
+          if [ -z "$NGX_VERSION" ]; then
+            echo "::error::Failed to resolve ngx-schematics version for tag $MES_DIST_TAG"
+            exit 1
+          fi
+          echo "version=$NGX_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Clone training-bootstrap for scaffolding config
         run: |
           mkdir -p $VALIDATION_DIR
-          cat > $VALIDATION_DIR/env-config.json << EOF
-          {
-            "Product.SystemName": "ValidationProject",
-            "Product.Tenant.Name": "ValidationTenant",
-            "Product.Database.IsAlwaysOn": false,
-            "Product.ApplicationServer.Address": "localhost",
-            "Product.ApplicationServer.Port": "5000",
-            "Packages.Root.TargetDirectory": "$VALIDATION_DIR/deployments"
-          }
-          EOF
+          git clone https://github.com/criticalmanufacturing/training-bootstrap.git $VALIDATION_DIR/training-bootstrap
 
-      - name: Run cmf init
+      - name: Run cmf -l debug init (MES ${{ steps.mes-version.outputs.version }})
         working-directory: ${{ env.VALIDATION_DIR }}
         run: |
-          cmf init ValidationProject \
+          cmf -l debug init ValidationProject \
             --version 1.0.0 \
-            --config $VALIDATION_DIR/env-config.json \
+            --config $VALIDATION_DIR/training-bootstrap/parameters.json \
             --MESVersion ${{ steps.mes-version.outputs.version }} \
             --nugetVersion ${{ steps.mes-version.outputs.version }} \
             --testScenariosNugetVersion ${{ steps.mes-version.outputs.version }} \
@@ -89,52 +125,53 @@ jobs:
             --nugetRegistry $CRITICALMANUFACTURING_NUGET_REGISTRY \
             --nugetRegistryUsername $CRITICALMANUFACTURING_IO_USER \
             --nugetRegistryPassword $CRITICALMANUFACTURING_IO_TOKEN \
-            --deploymentDir $VALIDATION_DIR/deployments
+            --deploymentDir $VALIDATION_DIR/deployments \
+            --ngxSchematicsVersion ${{ steps.ngx-schematics-version.outputs.version }}
 
-      - name: Run cmf new business
+      - name: Run cmf -l debug new business
         working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
-        run: cmf new business
+        run: cmf -l debug new business
 
-      - name: Run cmf new data
+      - name: Run cmf -l debug new data
         working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
-        run: cmf new data --businessPackage ./Cmf.Custom.Business/
+        run: cmf -l debug new data --businessPackage ./Cmf.Custom.Business/
 
-      - name: Run cmf new html
+      - name: Run cmf -l debug new html
         working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
-        run: cmf new html
+        run: cmf -l debug new html
 
-      - name: Run cmf new help
+      - name: Run cmf -l debug new help
         working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
-        run: cmf new help
+        run: cmf -l debug new help
 
-      - name: Run cmf new test
+      - name: Run cmf -l debug new test
         working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
-        run: cmf new test
+        run: cmf -l debug new test
 
-      - name: Run cmf new database
+      - name: Run cmf -l debug new database
         working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
-        run: cmf new database
+        run: cmf -l debug new database
 
-      - name: Run cmf new reporting
+      - name: Run cmf -l debug new reporting
         working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
-        run: cmf new reporting
+        run: cmf -l debug new reporting
 
-      - name: Run cmf new grafana
+      - name: Run cmf -l debug new grafana
         working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
-        run: cmf new grafana
+        run: cmf -l debug new grafana
 
-      - name: Run cmf new iot
+      - name: Run cmf -l debug new iot
         working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
-        run: cmf new iot
+        run: cmf -l debug new iot
 
-      - name: Run cmf new securityPortal
+      - name: Run cmf -l debug new securityPortal
         working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
-        run: cmf new securityPortal
+        run: cmf -l debug new securityPortal
 
-      - name: Run cmf build
+      - name: Run cmf -l debug build
         working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
-        run: cmf build
+        run: cmf -l debug build
 
-      - name: Run cmf pack
+      - name: Run cmf -l debug pack
         working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
-        run: cmf pack
+        run: cmf -l debug pack
