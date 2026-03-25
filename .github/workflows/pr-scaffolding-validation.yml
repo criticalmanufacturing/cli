@@ -60,15 +60,13 @@ jobs:
         working-directory: npm
         run: npm install -g ./
 
-      - name: Configure npm auth for registry
+      - name: Login to NPM registry
         run: |
-          REGISTRY_HOST=${CRITICALMANUFACTURING_NPM_REGISTRY#*//}
-          ENCODED_TOKEN=$(echo -n "$CRITICALMANUFACTURING_IO_USER:$CRITICALMANUFACTURING_IO_TOKEN" | base64)
-          echo "::add-mask::$ENCODED_TOKEN"
-          npm config set //${REGISTRY_HOST}:username $CRITICALMANUFACTURING_IO_USER
-          npm config set //${REGISTRY_HOST}:_password $ENCODED_TOKEN
-          npm config set //${REGISTRY_HOST}:email ci@criticalmanufacturing.com
-          npm config set //${REGISTRY_HOST}:always-auth true
+          cmf -l debug login NPM $CRITICALMANUFACTURING_NPM_REGISTRY --auth-type Basic --username $CRITICALMANUFACTURING_IO_USER --password $CRITICALMANUFACTURING_IO_TOKEN
+
+      - name: Login to NuGet registry
+        run: |
+          cmf -l debug login NuGet $CRITICALMANUFACTURING_NUGET_REGISTRY --auth-type Basic --username $CRITICALMANUFACTURING_IO_USER --password $CRITICALMANUFACTURING_IO_TOKEN
 
       - name: Resolve full MES version for major ${{ matrix.mes-major }}
         id: mes-version
