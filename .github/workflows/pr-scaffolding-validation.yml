@@ -46,11 +46,6 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Install zip
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y zip
-
       - name: Install dependencies
         run: npm ci
 
@@ -68,7 +63,7 @@ jobs:
       - name: Configure npm auth for registry
         run: |
           REGISTRY_HOST=${CRITICALMANUFACTURING_NPM_REGISTRY#*//}
-          ENCODED_TOKEN=$(echo -n "$CRITICALMANUFACTURING_IO_TOKEN" | base64)
+          ENCODED_TOKEN=$(echo -n "$CRITICALMANUFACTURING_IO_USER:$CRITICALMANUFACTURING_IO_TOKEN" | base64)
           echo "::add-mask::$ENCODED_TOKEN"
           npm config set //${REGISTRY_HOST}:username $CRITICALMANUFACTURING_IO_USER
           npm config set //${REGISTRY_HOST}:_password $ENCODED_TOKEN
@@ -82,7 +77,7 @@ jobs:
           MES_VERSION=$(node - <<'NODE'
 const major = process.env.MES_MAJOR;
 const registry = process.env.CRITICALMANUFACTURING_NPM_REGISTRY;
-const pkg = '@criticalmanufacturing/cmf-mes-ui';
+const pkg = 'cmf-mes-ui';
 const versionsJson = require('child_process').execSync(`npm view ${pkg} versions --json --registry ${registry}`, { encoding: 'utf8' });
 const versions = JSON.parse(versionsJson || '[]');
 const filtered = versions.filter(v => v.startsWith(`${major}.`));
@@ -111,6 +106,7 @@ NODE
         run: |
           mkdir -p $VALIDATION_DIR
           git clone https://github.com/criticalmanufacturing/training-bootstrap.git $VALIDATION_DIR/training-bootstrap
+          rm $VALIDATION_DIR/training-bootstrap/infra.json
 
       - name: Run cmf -l debug init (MES ${{ steps.mes-version.outputs.version }})
         working-directory: ${{ env.VALIDATION_DIR }}
@@ -128,50 +124,50 @@ NODE
             --deploymentDir $VALIDATION_DIR/deployments \
             --ngxSchematicsVersion ${{ steps.ngx-schematics-version.outputs.version }}
 
-      - name: Run cmf -l debug new business
+      - name: Run cmf new business
         working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
         run: cmf -l debug new business
 
-      - name: Run cmf -l debug new data
+      - name: Run cmf new data
         working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
         run: cmf -l debug new data --businessPackage ./Cmf.Custom.Business/
 
-      - name: Run cmf -l debug new html
+      - name: Run cmf new html
         working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
         run: cmf -l debug new html
 
-      - name: Run cmf -l debug new help
+      - name: Run cmf new help
         working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
         run: cmf -l debug new help
 
-      - name: Run cmf -l debug new test
+      - name: Run cmf new test
         working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
         run: cmf -l debug new test
 
-      - name: Run cmf -l debug new database
+      - name: Run cmf new database
         working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
         run: cmf -l debug new database
 
-      - name: Run cmf -l debug new reporting
+      - name: Run cmf new reporting
         working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
         run: cmf -l debug new reporting
 
-      - name: Run cmf -l debug new grafana
+      - name: Run cmf new grafana
         working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
         run: cmf -l debug new grafana
 
-      - name: Run cmf -l debug new iot
+      - name: Run cmf new iot
         working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
         run: cmf -l debug new iot
 
-      - name: Run cmf -l debug new securityPortal
+      - name: Run cmf new securityPortal
         working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
         run: cmf -l debug new securityPortal
 
-      - name: Run cmf -l debug build
+      - name: Run cmf build
         working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
         run: cmf -l debug build
 
-      - name: Run cmf -l debug pack
+      - name: Run cmf pack
         working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
         run: cmf -l debug pack
