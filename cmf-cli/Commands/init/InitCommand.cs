@@ -497,13 +497,23 @@ namespace Cmf.CLI.Commands
             {
                 args.AddRange(ParseConfigFile(x.config));
             }
-            
+
+            int tenantIndex = args.FindIndex(arg => arg != null && arg.StartsWith("--Tenant"));
             if (!string.IsNullOrEmpty(x.Tenant))
             {
+                // If the tenant is already in the args list, remove it
+                if (tenantIndex != -1)
+                {
+                    // Remove both the key and value from the args list
+                    args.RemoveAt(tenantIndex);
+                    args.RemoveAt(tenantIndex);
+                }
                 args.AddRange(new string[] { "--Tenant", x.Tenant });
+                tenantIndex = args.Count - 2; // new index after the new tenant
             }
-            
-            if (!args.Contains("--Tenant"))
+
+            // If the tenant is not in the args list or the value is null or empty, throw an error
+            if (tenantIndex == -1 || string.IsNullOrEmpty(args[tenantIndex + 1]))
             {
                 throw new CliException("Tenant information is missing. Please provide it either in the config file or through the --tenant option.");
             }
