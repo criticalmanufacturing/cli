@@ -32,9 +32,6 @@ jobs:
       - name: Create artifact linux-x64
         run: zip -X -r ../cmf-cli.linux-x64.zip .
         working-directory: dist/linux-x64
-      - name: Create artifact osx-x64
-        run: zip -X -r ../cmf-cli.osx-x64.zip .
-        working-directory: dist/osx-x64
       - name: Publish win-x64 to release
         uses: JasonEtco/upload-to-release@master
         with:
@@ -47,12 +44,6 @@ jobs:
           args: dist/cmf-cli.linux-x64.zip application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Publish osx-x64 to release
-        uses: JasonEtco/upload-to-release@master
-        with:
-          args: dist/cmf-cli.osx-x64.zip application/zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Get version from npm package
         id: package-version
         run: echo "version=$(node -p "require('./npm/package.json').version")" >> $GITHUB_OUTPUT
@@ -60,8 +51,6 @@ jobs:
         run: curl -v --user "${{secrets.CRITICALMANUFACTURING_IO_USER}}:${{secrets.CRITICALMANUFACTURING_IO_TOKEN}}" --upload-file dist/cmf-cli.win-x64.zip https://criticalmanufacturing.io/repository/tools/cmf-cli.win-x64-${{ steps.package-version.outputs.version }}.zip
       - name: Upload linux-x64 to criticalmanufacturing.io
         run: curl -v --user "${{secrets.CRITICALMANUFACTURING_IO_USER}}:${{secrets.CRITICALMANUFACTURING_IO_TOKEN}}" --upload-file dist/cmf-cli.linux-x64.zip https://criticalmanufacturing.io/repository/tools/cmf-cli.linux-x64-${{ steps.package-version.outputs.version }}.zip
-      - name: Upload osx-x64 to criticalmanufacturing.io
-        run: curl -v --user "${{secrets.CRITICALMANUFACTURING_IO_USER}}:${{secrets.CRITICALMANUFACTURING_IO_TOKEN}}" --upload-file dist/cmf-cli.osx-x64.zip https://criticalmanufacturing.io/repository/tools/cmf-cli.osx-x64-${{ steps.package-version.outputs.version }}.zip
       - run: npm run publish
         if: "github.event.release.prerelease"
         env:
