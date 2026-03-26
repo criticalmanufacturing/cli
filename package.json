@@ -13,7 +13,7 @@
     "bump:patch": "npm run bump:npm:patch && npm run bump:dotnet:patch && npm run gen:changelog",
     "bump:feature": "npm run bump:npm:feature && npm run bump:dotnet:feature && npm run gen:changelog",
     "bump:breaking": "npm run bump:npm:breaking && npm run bump:dotnet:breaking && npm run gen:changelog",
-    "build:prod": "npm run build:clean && npm run build:prod:win && npm run build:prod:linux && npm run build:prod:osx",
+    "build:prod": "npm run build:clean && npm run build:prod:win && npm run build:prod:linux",
     "build:prod:singlefile": "npm run build:clean && npm run build:prod:singlefile:win && npm run build:prod:singlefile:linux && npm run build:prod:singlefile:osx",
     "build:prod:win": "dotnet publish ./cmf-cli/cmf.csproj -c Release -r win-x64 -o dist/win-x64 --self-contained /p:IncludeSourceRevisionInInformationalVersion=false",
     "build:prod:linux": "dotnet publish ./cmf-cli/cmf.csproj -c Release -r linux-x64 -o dist/linux-x64 --self-contained /p:IncludeSourceRevisionInInformationalVersion=false",
