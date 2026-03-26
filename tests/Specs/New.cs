@@ -26,6 +26,8 @@ using Cmf.CLI.Core.Repository.Credentials;
 using Cmf.CLI.Core.Services;
 using Spectre.Console;
 using Cmf.CLI.Core;
+using Cmf.CLI.Commands.New.IoT;
+using TestingConsole = Spectre.Console.Testing;
 
 namespace tests.Specs
 {
