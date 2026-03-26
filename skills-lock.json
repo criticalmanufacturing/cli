@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "dotnet-best-practices": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "computedHash": "9ef94db7f06c167d544369817e5a4415eeb7886dcff0d47026837a1aada260e3"
+    }
+  }
+}
