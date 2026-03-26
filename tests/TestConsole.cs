@@ -34,6 +34,11 @@ namespace tests
             _command = command;
         }
 
+        public int Invoke(string args)
+        {
+            return _command.Parse(args).Invoke();
+        }
+
         public int Invoke(string[] args, TestConsole console)
         {
             var parseResult = _command.Parse(args);
