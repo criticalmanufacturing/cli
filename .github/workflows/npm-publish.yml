@@ -12,7 +12,7 @@ on:
     types: [published]
 jobs:
   scaffolding-validation:
-    uses: ./.github/workflows/pr-scaffolding-validation.yml
+    uses: ./.github/workflows/scaffolding-validation.yml
 
   build-and-publish:
     needs: scaffolding-validation
