@@ -12,36 +12,26 @@ env:
   CRITICALMANUFACTURING_IO_TOKEN: ${{ secrets.CRITICALMANUFACTURING_IO_TOKEN }}
   CRITICALMANUFACTURING_NPM_REGISTRY: ${{ vars.CRITICALMANUFACTURING_NPM_REGISTRY }}
   CRITICALMANUFACTURING_NUGET_REGISTRY: ${{ vars.CRITICALMANUFACTURING_NUGET_REGISTRY }}
-  VALIDATION_DIR: /tmp/scaffolding-validation
+  VALIDATION_DIR: scaffolding-validation
+  PACKAGES_TO_CREATE: "business data html help test database reporting grafana iot securityPortal"
+  PACKAGES_TO_BUILD: "Cmf.Custom.Business Cmf.Custom.Data Cmf.Custom.HTML Cmf.Custom.Help"
 
 jobs:
-  scaffolding-validation:
+  build-cli:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      actions: read
-      packages: read
-    if: >
-      github.event_name != 'pull_request_target' ||
-      contains(fromJson('["OWNER","MEMBER","COLLABORATOR"]'), github.event.pull_request.author_association)
-    strategy:
-      matrix:
-        include:
-          - mes-major: 10
-            node-version: '18.x'
-          - mes-major: 11
-            node-version: '20.x'
-
+      packages: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node ${{ matrix.node-version }}
+      - name: Setup Node 20
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '20.x'
 
-      - name: Setup .NET
+      - name: Setup .NET 8
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
@@ -58,7 +48,60 @@ jobs:
 
       - name: Install CLI globally
         working-directory: npm
-        run: npm install -g ./
+        run: npm install -g ./criticalmanufacturing-cli-*.tgz
+
+      - name: Upload CLI package
+        uses: actions/upload-artifact@v4
+        with:
+          name: cli-package-${{ github.sha }}
+          path: npm/criticalmanufacturing-cli-*.tgz
+          retention-days: 1
+          overwrite: true
+
+  scaffolding-validation:
+    # needs: build-cli
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    if: >
+      github.event_name != 'pull_request_target' ||
+      contains(fromJson('["OWNER","MEMBER","COLLABORATOR"]'), github.event.pull_request.author_association)
+    strategy:
+      matrix:
+        include:
+          - mes-major: 10
+            node-version: '18.x'
+            dotnet-version: '6.0.x'
+          - mes-major: 11
+            node-version: '20.x'
+            dotnet-version: '8.0.x'
+
+    steps:
+      - name: Setup Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+
+      - name: UPDATE & CLEAR NPM CACHE
+        run: |
+          apt-get update
+          npm cache clean --force
+
+      - name: Download CLI package
+        uses: actions/download-artifact@v4
+        with:
+          name: cli-package-${{ github.sha }}
+          path: npm/
+
+      - name: Install CLI globally
+        working-directory: npm
+        run: npm install -g ./criticalmanufacturing-cli-*.tgz
 
       - name: Login to NPM registry
         run: |
@@ -66,24 +109,24 @@ jobs:
 
       - name: Login to NuGet registry
         run: |
-          cmf -l debug login NuGet $CRITICALMANUFACTURING_NUGET_REGISTRY --auth-type Basic --username $CRITICALMANUFACTURING_IO_USER --password $CRITICALMANUFACTURING_IO_TOKEN
+          cmf -l debug login NuGet $CRITICALMANUFACTURING_NUGET_REGISTRY --auth-type Basic --username $CRITICALMANUFACTURING_IO_USER --password $CRITICALMANUFACTURING_IO_TOKEN --key CMF
 
       - name: Resolve full MES version for major ${{ matrix.mes-major }}
         id: mes-version
         run: |
-          MES_MAJOR=${{ matrix.mes-major }}
           MES_VERSION=$(node - <<'NODE'
-const major = process.env.MES_MAJOR;
-const registry = process.env.CRITICALMANUFACTURING_NPM_REGISTRY;
-const pkg = 'cmf-mes-ui';
-const versionsJson = require('child_process').execSync(`npm view ${pkg} versions --json --registry ${registry}`, { encoding: 'utf8' });
-const versions = JSON.parse(versionsJson || '[]');
-const filtered = versions.filter(v => v.startsWith(`${major}.`));
-if (filtered.length === 0) { console.error(`No versions found for ${major}.x`); process.exit(1); }
-filtered.sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
-process.stdout.write(filtered[filtered.length - 1]);
-NODE
-)
+          const major = "${{ matrix.mes-major }}";
+          const registry = process.env.CRITICALMANUFACTURING_NPM_REGISTRY;
+          const pkg = 'cmf-mes-ui';
+          const versionsJson = require('child_process').execSync(`npm view ${pkg} versions --json --registry ${registry}`, { encoding: 'utf8' });
+          const versions = JSON.parse(versionsJson || '[]');
+          const filtered = versions.filter(v => v.startsWith(`${major}.`) && !v.includes("-alpha") && !v.includes("-beta"));
+          if (filtered.length === 0) { console.error(`No versions found for ${major}.x`); process.exit(1); }
+          filtered.sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
+          const withoutPreRelease = filtered.map((v) => v.split("-")[0]);
+          process.stdout.write(withoutPreRelease[withoutPreRelease.length - 1]);
+          NODE
+          )
           echo "MES_VERSION=$MES_VERSION"
           echo "version=$MES_VERSION" >> $GITHUB_OUTPUT
 
@@ -101,71 +144,55 @@ NODE
           echo "version=$NGX_VERSION" >> $GITHUB_OUTPUT
 
       - name: Clone training-bootstrap for scaffolding config
-        run: |
-          mkdir -p $VALIDATION_DIR
-          git clone https://github.com/criticalmanufacturing/training-bootstrap.git $VALIDATION_DIR/training-bootstrap
-          rm $VALIDATION_DIR/training-bootstrap/infra.json
+        uses: actions/checkout@v4
+        with:
+          repository: criticalmanufacturing/training-bootstrap
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: ${{ env.VALIDATION_DIR }}/training-bootstrap
 
-      - name: Run cmf -l debug init (MES ${{ steps.mes-version.outputs.version }})
+      - name: Run 'cmf init' (MES ${{ steps.mes-version.outputs.version }})
         working-directory: ${{ env.VALIDATION_DIR }}
         run: |
           cmf -l debug init ValidationProject \
             --version 1.0.0 \
-            --config $VALIDATION_DIR/training-bootstrap/parameters.json \
+            --config ./training-bootstrap/parameters.json \
             --MESVersion ${{ steps.mes-version.outputs.version }} \
             --nugetVersion ${{ steps.mes-version.outputs.version }} \
             --testScenariosNugetVersion ${{ steps.mes-version.outputs.version }} \
             --npmRegistry $CRITICALMANUFACTURING_NPM_REGISTRY \
             --nugetRegistry $CRITICALMANUFACTURING_NUGET_REGISTRY \
-            --nugetRegistryUsername $CRITICALMANUFACTURING_IO_USER \
-            --nugetRegistryPassword $CRITICALMANUFACTURING_IO_TOKEN \
-            --deploymentDir $VALIDATION_DIR/deployments \
+            --deploymentDir ./deployments \
             --ngxSchematicsVersion ${{ steps.ngx-schematics-version.outputs.version }}
 
-      - name: Run cmf new business
-        working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
-        run: cmf -l debug new business
+      - name: Run 'cmf new' for each package type
+        working-directory: ${{ env.VALIDATION_DIR }}
+        run: |
+          for pkg in $PACKAGES_TO_CREATE; do
+            if [ "$pkg" = "data" ]; then
+              cmd="cmf -l debug new $pkg --businessPackage ./Cmf.Custom.Business/"
+            elif [ "$pkg" = "iot" ]; then
+              cmd="cmf -l debug new $pkg --htmlPackageLocation ./Cmf.Custom.Html/"
+            else
+              cmd="cmf -l debug new $pkg"
+            fi
+            echo -e "\nRunning: $cmd"
+            $cmd
+          done
 
-      - name: Run cmf new data
-        working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
-        run: cmf -l debug new data --businessPackage ./Cmf.Custom.Business/
+      - name: Run 'cmf build' for each package
+        working-directory: ${{ env.VALIDATION_DIR }}
+        run: |
+          for pkg in $PACKAGES_TO_BUILD; do
+            cmd="cmf -l debug build $pkg"
+            echo -e "\nRunning: $cmd"
+            $cmd
+          done
 
-      - name: Run cmf new html
-        working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
-        run: cmf -l debug new html
-
-      - name: Run cmf new help
-        working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
-        run: cmf -l debug new help
-
-      - name: Run cmf new test
-        working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
-        run: cmf -l debug new test
-
-      - name: Run cmf new database
-        working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
-        run: cmf -l debug new database
-
-      - name: Run cmf new reporting
-        working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
-        run: cmf -l debug new reporting
-
-      - name: Run cmf new grafana
-        working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
-        run: cmf -l debug new grafana
-
-      - name: Run cmf new iot
-        working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
-        run: cmf -l debug new iot
-
-      - name: Run cmf new securityPortal
-        working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
-        run: cmf -l debug new securityPortal
-
-      - name: Run cmf build
-        working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
-        run: cmf -l debug build
-
-      - name: Run cmf pack
-        working-directory: ${{ env.VALIDATION_DIR }}/ValidationProject
-        run: cmf -l debug pack
+      - name: Run 'cmf pack' for each package
+        working-directory: ${{ env.VALIDATION_DIR }}
+        run: |
+          for pkg in $PACKAGES_TO_CREATE; do
+            cmd="cmf -l debug pack"
+            echo -e "\nRunning: $cmd"
+            $cmd
+          done

@@ -18,14 +18,14 @@ jobs:
     needs: scaffolding-validation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Install zip
-        uses: montudor/action-zip@v0.1.0
-      - uses: actions/setup-node@v1
+        uses: montudor/action-zip@v1.0.0
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org/
-      - uses: actions/setup-dotnet@v1.7.2
+      - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
       - run: npm install
@@ -72,7 +72,7 @@ jobs:
         working-directory: ./core
       - name: Publish Core NuGet
         id: publish_nuget
-        uses: alirezanet/publish-nuget@v3.0.4
+        uses: alirezanet/publish-nuget@v3.1.0
         with:
           PROJECT_FILE_PATH: core/core.csproj
           TAG_COMMIT: false
