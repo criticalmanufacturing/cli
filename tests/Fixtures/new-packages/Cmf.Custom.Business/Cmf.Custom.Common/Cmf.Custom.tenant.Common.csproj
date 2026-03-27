@@ -16,7 +16,6 @@
 	<ItemGroup>
 		<PackageReference Include="Cmf.Foundation.BusinessObjects" Version="<%= $CLI_PARAM_MESVersion %>"/>
 <!--#if (includeMESNugets) { -->
-		<PackageReference Include="cmf.common.customactionutilities" Version="<%= $CLI_PARAM_MESVersion %>" GeneratePathProperty="true" />
 		<PackageReference Include="Cmf.Navigo.BusinessObjects" Version="<%= $CLI_PARAM_MESVersion %>"/>
 <!--//#endif -->
 	</ItemGroup>
