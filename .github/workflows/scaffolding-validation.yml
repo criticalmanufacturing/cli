@@ -1,15 +1,25 @@
-name: CLI Scaffolding Validation (MES matrix)
+name: CLI Scaffolding Validation
 
 on:
   workflow_call: {}
   workflow_dispatch: {}
-  pull_request_target:
+  pull_request:
     types: [opened, edited, synchronize]
+    paths-ignore:
+      - 'features/**'
+  # pull_request_target:
+  #   types: [opened, edited, synchronize]
+  #   paths-ignore:
+  #     - 'features/**'
 
 env:
   NG_CLI_ANALYTICS: false
-  CRITICALMANUFACTURING_IO_USER: ${{ vars.CRITICALMANUFACTURING_IO_USER }}
-  CRITICALMANUFACTURING_IO_TOKEN: ${{ secrets.CRITICALMANUFACTURING_IO_TOKEN }}
+  # CRITICALMANUFACTURING_IO_USER: ${{ vars.CRITICALMANUFACTURING_IO_USER }}
+  # CRITICALMANUFACTURING_IO_TOKEN: ${{ secrets.CRITICALMANUFACTURING_IO_TOKEN }}
+  # CRITICALMANUFACTURING_NPM_REGISTRY: ${{ vars.CRITICALMANUFACTURING_NPM_REGISTRY }}
+  # CRITICALMANUFACTURING_NUGET_REGISTRY: ${{ vars.CRITICALMANUFACTURING_NUGET_REGISTRY }}
+  CRITICALMANUFACTURING_IO_USER: "PEDROPINHO@CRITICALMANUFACTURING.COM"
+  CRITICALMANUFACTURING_IO_TOKEN: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRJZCI6IkFwcGxpY2F0aW9ucyIsInRlbmFudE5hbWUiOiJDdXN0b21lclBvcnRhbCIsInN1YiI6IlBFRFJPUElOSE9AQ1JJVElDQUxNQU5VRkFDVFVSSU5HLkNPTSIsInNjb3BlIjpudWxsLCJleHRyYVZhbHVlcyI6bnVsbCwidHlwZSI6IlBBVCIsImlhdCI6MTc3NDQ3ODQzMiwiZXhwIjoxNzc2OTg1MTk5LCJhdWQiOiJBdXRoUG9ydGFsIiwiaXNzIjoiQXV0aFBvcnRhbCJ9.m9z77Lxo3XTiT5tUhlb5GCMl8dMT_kEuWSTexStTu0kA7LGKwzbfkX22UzMto8LpDaNeHILNELHF97lmrUqHXxtHuoqdIrqgz2bmI-XHS4PFfbekGiO-pOVUhOUmzTsurPOPyLRJIjMabqKTXYq0huBB9mOq4ckuQoje74pGE7bWVrXH0RZRGfkQ5Ivh5gtdGjpF-szLAGJF3PW82eBuKDxRjbb1s9NN9QL1U_d8Xo89j-y5DnznzMTupgXBtvBtyvbOmQfSk2ufkeaj5-RZnsPM3z04ssnvYIqW_VRZQ30xEkiijnNKqH606FWIPPdDa43cpkSZFS9yOJYmkYyqSw"
   CRITICALMANUFACTURING_NPM_REGISTRY: ${{ vars.CRITICALMANUFACTURING_NPM_REGISTRY }}
   CRITICALMANUFACTURING_NUGET_REGISTRY: ${{ vars.CRITICALMANUFACTURING_NUGET_REGISTRY }}
   VALIDATION_DIR: scaffolding-validation
@@ -39,16 +49,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build and pack CLI
-        run: bash .github/scripts/build-and-pack.sh bundle
+      - name: Build CLI
+        run: npm run build:bundle:linux
 
       - name: Pack CLI
         working-directory: npm
         run: npm pack
-
-      - name: Install CLI globally
-        working-directory: npm
-        run: npm install -g ./criticalmanufacturing-cli-*.tgz
 
       - name: Upload CLI package
         uses: actions/upload-artifact@v4
@@ -59,7 +65,7 @@ jobs:
           overwrite: true
 
   scaffolding-validation:
-    # needs: build-cli
+    needs: build-cli
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -87,11 +93,6 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
-
-      - name: UPDATE & CLEAR NPM CACHE
-        run: |
-          apt-get update
-          npm cache clean --force
 
       - name: Download CLI package
         uses: actions/download-artifact@v4
