@@ -187,11 +187,11 @@ jobs:
         run: |
           for pkg in $PACKAGES_TO_CREATE; do
             if [ "$pkg" = "data" ]; then
-              cmd="cmf -l debug new $pkg --businessPackage ./Cmf.Custom.Business/"
+              cmd="cmf -l debug new --reset $pkg --businessPackage ./Cmf.Custom.Business/"
             elif [ "$pkg" = "iot" ]; then
-              cmd="cmf -l debug new $pkg --htmlPackageLocation ./Cmf.Custom.Html/"
+              cmd="cmf -l debug new --reset $pkg --htmlPackageLocation ./Cmf.Custom.Html/"
             else
-              cmd="cmf -l debug new $pkg"
+              cmd="cmf -l debug new --reset $pkg"
             fi
             echo -e "\nRunning: $cmd"
             $cmd
