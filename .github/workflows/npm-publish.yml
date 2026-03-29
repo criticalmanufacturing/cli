@@ -19,16 +19,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install zip
-        uses: montudor/action-zip@v1.0.0
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org/
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'      
-      - name: install zip
+          dotnet-version: '8.0.x'
+      - name: Install zip
         uses: montudor/action-zip@v0.1.0
       - run: npm ci
       - run: npm run build:prod

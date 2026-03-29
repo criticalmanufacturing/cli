@@ -144,19 +144,36 @@ jobs:
           fi
           echo "version=$NGX_VERSION" >> $GITHUB_OUTPUT
 
-      - name: Clone training-bootstrap for scaffolding config
-        uses: actions/checkout@v4
-        with:
-          repository: criticalmanufacturing/training-bootstrap
-          token: ${{ secrets.GITHUB_TOKEN }}
-          path: ${{ env.VALIDATION_DIR }}/training-bootstrap
+      # - name: Clone training-bootstrap for scaffolding config
+      #   uses: actions/checkout@v4
+      #   with:
+      #     repository: criticalmanufacturing/training-bootstrap
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      #     path: ${{ env.VALIDATION_DIR }}/training-bootstrap
+
+      - name: Create parameters.json file
+        run: |
+          mkdir -p $VALIDATION_DIR
+          cat <<EOF > $VALIDATION_DIR/parameters.json
+          {
+            "SYSTEM_NAME": "cmftraining",
+            "TENANT_NAME": "cmftraining",
+            "APPLICATION_PUBLIC_HTTP_ADDRESS": "cmftraining.local",
+            "APPLICATION_PUBLIC_HTTP_PORT": "80",
+            "APPLICATION_PUBLIC_HTTP_TLS_ENABLED": "false",
+            "DATABASE_ONLINE_MSSQL_ADDRESS": "db",
+            "DATABASE_ONLINE_MSSQL_ADDRESS": "db",
+            "SECURITY_PORTAL_STRATEGY_LOCAL_AD_DEFAULT_DOMAIN": "",
+            "DATABASE_MSSQL_ALWAYS_ON_ENABLED": "false"
+          }
+          EOF
 
       - name: Run 'cmf init' (MES ${{ steps.mes-version.outputs.version }})
         working-directory: ${{ env.VALIDATION_DIR }}
         run: |
           cmf -l debug init ValidationProject \
             --version 1.0.0 \
-            --config ./training-bootstrap/parameters.json \
+            --config ./parameters.json \
             --MESVersion ${{ steps.mes-version.outputs.version }} \
             --nugetVersion ${{ steps.mes-version.outputs.version }} \
             --testScenariosNugetVersion ${{ steps.mes-version.outputs.version }} \
