@@ -1,32 +1,45 @@
 {
-    "name": "CLI devcontainer",
-    "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
-    "features": {
-        "ghcr.io/devcontainers/features/dotnet": {
-            "version": "10.0",
-            "additionalVersions": ["8.0"]
-        },
-        "ghcr.io/devcontainers/features/node": {
-            "version": "12"
-        },
-        "ghcr.io/devcontainers/features/github-cli": {},
-        "ghcr.io/nils-geistmann/devcontainers-features/zsh": {
-            "plugins": "git dotnet node npm"
-        }
+  "name": "CLI devcontainer",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
+  "capAdd": ["SYS_PTRACE"],
+  "features": {
+    "ghcr.io/devcontainers/features/dotnet": {
+      "version": "10.0",
+      "additionalVersions": ["6.0", "8.0"]
     },
-    "customizations": {
-        "vscode": {
-            "extensions": [
-                "ms-dotnettools.csdevkit",
-                "mhutchie.git-graph",
-                "actboy168.tasks",
-                "esbenp.prettier-vscode",
-                "EditorConfig.EditorConfig",
-                "redhat.vscode-yaml",
-                "davidanson.vscode-markdownlint",
-                "github.vscode-github-actions"
-            ]
-        }
+    "ghcr.io/devcontainers/features/node": {
+      "version": "18",
+      "additionalVersions": ["20"]
     },
-    "postCreateCommand": "npm ci && echo \"alias 'cmf=/workspaces/cli/cmf-cli/bin/Debug/cmf'\" >> /home/$USER/.bashrc"
+    "ghcr.io/devcontainers/features/github-cli": {},
+    "ghcr.io/nils-geistmann/devcontainers-features/zsh": {
+      "plugins": "git dotnet node npm"
+    },
+    "ghcr.io/stuartleeks/dev-container-features/shell-history": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-dotnettools.csdevkit",
+        "mhutchie.git-graph",
+        "actboy168.tasks",
+        "esbenp.prettier-vscode",
+        "EditorConfig.EditorConfig",
+        "redhat.vscode-yaml",
+        "davidanson.vscode-markdownlint",
+        "github.vscode-github-actions"
+      ]
+    },
+    "settings": {
+      "dotnet.defaultSolution": "src/cmf-cli.slnx",
+      "editor.formatOnSave": true,
+      "editor.rulers": [120],
+      "files.trimTrailingWhitespace": true,
+      "files.insertFinalNewline": true
+    }
+  },
+  "remoteEnv": {
+    "DOTNET_CLI_TELEMETRY_OPTOUT": "1"
+  },
+  "postCreateCommand": "npm ci && echo \"alias 'cmf=/workspaces/cli/cmf-cli/bin/Debug/cmf'\" >> /home/$USER/.bashrc"
 }

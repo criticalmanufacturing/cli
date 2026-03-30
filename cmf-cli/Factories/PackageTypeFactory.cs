@@ -45,75 +45,29 @@ namespace Cmf.CLI.Factories
                 PackageType.Root => new RootPackageTypeHandler(cmfPackage),
                 PackageType.Generic => new GenericPackageTypeHandler(cmfPackage),
                 PackageType.Business => new BusinessPackageTypeHandler(cmfPackage),
-                PackageType.HTML => HtmlHandler(cmfPackage),
-                PackageType.Help => HelpHandler(cmfPackage),
+                PackageType.HTML => new HtmlNgCliPackageTypeHandler(cmfPackage),
+                PackageType.Help => new HelpNgCliPackageTypeHandler(cmfPackage),
                 PackageType.IoT => new IoTPackageTypeHandler(cmfPackage),
                 PackageType.IoTData => cmfPackage.HandlerVersion switch
                 {
-                    2 => new IoTDataPackageTypeHandlerV2(cmfPackage),
-                    1 => new IoTDataPackageTypeHandler(cmfPackage),
+                    1 => throw new CliException("Support for V1 Data packages was removed in CLI 6.0.0"),
                     _ => new IoTDataPackageTypeHandlerV2(cmfPackage)
                 },
                 PackageType.Data => cmfPackage.HandlerVersion switch
                 {
-                    2 => new DataPackageTypeHandlerV2(cmfPackage),
-                    1 => new DataPackageTypeHandler(cmfPackage),
+                    1 => throw new CliException("Support for V1 Data packages was removed in CLI 6.0.0"),
                     _ => new DataPackageTypeHandlerV2(cmfPackage)
                 },
                 PackageType.Reporting => new ReportingPackageTypeHandler(cmfPackage),
                 PackageType.ExportedObjects => new ExportedObjectsPackageTypeHandler(cmfPackage),
                 PackageType.Database => new DatabasePackageTypeHandler(cmfPackage),
                 PackageType.Tests => new TestPackageTypeHandler(cmfPackage),
-                PackageType.SecurityPortal => SecurityPortalHandler(cmfPackage),
+                PackageType.SecurityPortal => new SecurityPortalPackageTypeHandlerV2(cmfPackage),
                 PackageType.Grafana => new GrafanaPackageTypeHandler(cmfPackage),
                 _ => throw new CliException(string.Format(CoreMessages.PackageTypeHandlerNotImplemented, cmfPackage.PackageType.ToString()))
             };
 
             return packageTypeHandler;
-        }
-
-        private static IPackageTypeHandler HelpHandler(CmfPackage cmfPackage)
-        {
-            var targetVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
-            var minimumVersion = new Version("10.0.0");
-            if (targetVersion.CompareTo(minimumVersion) < 0)
-            {
-                return new HelpGulpPackageTypeHandler(cmfPackage);
-            }
-
-            return new HelpNgCliPackageTypeHandler(cmfPackage);
-        }
-
-        private static IPackageTypeHandler HtmlHandler(CmfPackage cmfPackage)
-        {
-            var targetVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
-            var minimumVersion = new Version("10.0.0");
-            if (targetVersion.CompareTo(minimumVersion) < 0)
-            {
-                return new HtmlGulpPackageTypeHandler(cmfPackage);
-            }
-
-            return new HtmlNgCliPackageTypeHandler(cmfPackage);
-        }
-
-        /// <summary>
-        /// Creates the specific Security Portal package handler.
-        /// 
-        /// If the ProjectConfig's MESVersion is less than 10.0.0, a <seealso cref="SecurityPortalPackageTypeHandler"/> is created and returned.
-        /// Otherwise, a <seealso cref="SecurityPortalPackageTypeHandlerV2"/> is created and returned.
-        /// </summary>
-        /// <param name="cmfPackage"></param>
-        /// <returns></returns>
-        private static IPackageTypeHandler SecurityPortalHandler(CmfPackage cmfPackage)
-        {
-            var targetVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
-            var minimumVersion = new Version("10.0.0");
-            if (targetVersion.CompareTo(minimumVersion) < 0)
-            {
-                return new SecurityPortalPackageTypeHandler(cmfPackage);
-            }
-
-            return new SecurityPortalPackageTypeHandlerV2(cmfPackage);
         }
     }
 }
