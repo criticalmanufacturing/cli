@@ -178,6 +178,17 @@ namespace Cmf.CLI.Core.Objects
         /// </summary>
         public MasterDataTargetPlatformType? TargetPlatform { get; set; }
 
+        /// <summary>
+        /// Gets or sets the target directory for the step.
+        /// </summary>
+        public string TargetDirectory { get; set; }
+
+        /// <summary>
+        /// Gets or sets the target file of the directory.
+        /// Currently, Environment Manager only uses this attribute on the GenerateRepositoryIndex step.
+        /// </summary>
+        public string TargetFile { get; set; }
+
         #endregion
 
         #region Constructors
@@ -197,10 +208,10 @@ namespace Cmf.CLI.Core.Objects
         /// <param name="filePath">The file path.</param>
         /// <exception cref="ArgumentNullException">type</exception>
         public Step(StepType? type, string title, string onExecute, string contentPath, string file, bool? tagFile, string targetDatabase, MessageType? messageType, string relativePath, string filePath)
-            : this(type, title, onExecute, contentPath, file, tagFile, targetDatabase, messageType, relativePath, filePath, null)
+            : this(type, title, onExecute, contentPath, file, tagFile, targetDatabase, messageType, relativePath, filePath, null, null, null)
         { }
         
-        public Step(StepType? type, string title, string onExecute, string contentPath, string file, bool? tagFile, string targetDatabase, MessageType? messageType, string relativePath, string filePath, string oldSystemName)
+        public Step(StepType? type, string title, string onExecute, string contentPath, string file, bool? tagFile, string targetDatabase, MessageType? messageType, string relativePath, string filePath, string oldSystemName, string targetDirectory, string targetFile)
         {
             Type = type ?? throw new ArgumentNullException(nameof(type));
             Title = title;
@@ -213,6 +224,8 @@ namespace Cmf.CLI.Core.Objects
             RelativePath = relativePath;
             FilePath = filePath;
             OldSystemName = oldSystemName;
+            TargetDirectory = targetDirectory;
+            TargetFile = targetFile;
         }
 
         /// <summary>
@@ -256,7 +269,9 @@ namespace Cmf.CLI.Core.Objects
                    MessageType == other.MessageType &&
                    RelativePath == other.RelativePath &&
                    FilePath == other.FilePath &&
-                   OldSystemName == other.OldSystemName;
+                   OldSystemName == other.OldSystemName &&
+                   TargetDirectory == other.TargetDirectory &&
+                   TargetFile == other.TargetFile;
         }
 
         #endregion

@@ -8,17 +8,20 @@ using Cmf.CLI.Core.Services;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using Moq.Protected;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PeanutButter.INI;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using tests.Extensions;
@@ -1088,6 +1091,68 @@ public class RepositoryCredentials
 
         // Assert
         portalLoginCommand.Verify(x => x.Execute(), Times.Once);
+    }
+
+    [Fact]
+    public void PortalRepositoryCredentials_GetPortalBearerToken_NetworkFailure_ReturnsEmpty()
+    {
+        // Arrange
+        var handler = new Mock<HttpMessageHandler>();
+        handler.Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<System.Threading.CancellationToken>()
+            )
+            .ThrowsAsync(new HttpRequestException("Network unreachable"));
+
+        var portal = new TestablePortalRepositoryCredentials(new MockFileSystem(), handler.Object);
+
+        // Act
+        var token = portal.PublicGetPortalBearerToken("any-pat");
+
+        // Assert — exception must be swallowed, returning empty instead of throwing
+        token.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void PortalRepositoryCredentials_GetPortalBearerToken_HttpError_ReturnsEmpty()
+    {
+        // Arrange
+        var handler = new Mock<HttpMessageHandler>();
+        handler.Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<System.Threading.CancellationToken>()
+            )
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.Unauthorized));
+
+        var portal = new TestablePortalRepositoryCredentials(new MockFileSystem(), handler.Object);
+
+        // Act
+        var token = portal.PublicGetPortalBearerToken("any-pat");
+
+        // Assert — non-success HTTP response returns empty string
+        token.Should().BeEmpty();
+    }
+
+    /// <summary>
+    /// Test subclass that allows injecting an HttpMessageHandler into GetPortalBearerToken.
+    /// </summary>
+    private class TestablePortalRepositoryCredentials : PortalRepositoryCredentials
+    {
+        private readonly HttpMessageHandler _handler;
+
+        public TestablePortalRepositoryCredentials(System.IO.Abstractions.IFileSystem fileSystem, HttpMessageHandler handler)
+            : base(fileSystem)
+        {
+            _handler = handler;
+        }
+
+        protected override HttpClient CreateHttpClient() => new HttpClient(_handler);
+
+        public string PublicGetPortalBearerToken(string pat) => GetPortalBearerToken(pat);
     }
 
     #region Utility Methods

@@ -28,6 +28,8 @@ using Cmf.CLI.Core.Repository.Credentials;
 using Cmf.CLI.Core.Services;
 using Spectre.Console;
 using Cmf.CLI.Core;
+using Cmf.CLI.Commands.New.IoT;
+using TestingConsole = Spectre.Console.Testing;
 
 namespace tests.Specs
 {
@@ -440,6 +442,7 @@ namespace tests.Specs
                 File.Exists($"{packageId}/{packageFolderPackages}/.vscode/launch.json").Should().BeTrue();
                 File.Exists($"{packageId}/{packageFolderPackages}/.vscode/settings.json").Should().BeTrue();
                 File.Exists($"{packageId}/{packageFolderPackages}/.vscode/tasks.json").Should().BeTrue();
+                File.Exists($"{packageId}/{packageFolderPackages}/.gitattributes").Should().BeTrue();
 
                 if (isAngularPackage)
                 {
@@ -458,6 +461,136 @@ namespace tests.Specs
                     File.Exists($"{packageId}/{packageFolderPackages}/.eslintrc.json").Should().BeTrue();
                     File.Exists($"{packageId}/{packageFolderPackages}/ui.xml").Should().BeTrue();
                 }
+            }
+        }
+
+        [Theory, Trait("TestCategory", "Integration")]
+        [InlineData("11.1.6"), Trait("TestCategory", "Integration")]
+        [InlineData("11.2.0"), Trait("TestCategory", "Integration")]
+        [InlineData("11.3.1"), Trait("TestCategory", "Integration")]
+        [InlineData("12.0.0"), Trait("TestCategory", "Integration")]
+        public void IoTDriverDefaultValues(string mesVersion)
+        {
+            string dir = TestUtilities.GetTmpDirectory();
+            string packageId = "Cmf.Custom.IoT";
+
+            string packageFolderPackages = "Cmf.Custom.IoT.Packages";
+
+            bool isGreaterOrEqualThan1120 = Version.Parse(mesVersion) >= new Version(11, 2, 0);
+            var cur = Directory.GetCurrentDirectory();
+
+            try
+            {
+                CopyNewFixture(dir, mesVersion: mesVersion);
+                RunNew(new IoTCommand(), packageId, dir);
+
+                Directory.SetCurrentDirectory($"{dir}/{packageId}/{packageFolderPackages}");
+                TestingConsole.TestConsole console = new();
+                console.Profile.Capabilities.Interactive = true;
+                console.Input.PushTextWithEnter(""); // Identifier
+                console.Input.PushTextWithEnter(""); // PackageScope
+                console.Input.PushTextWithEnter(""); // PackageName
+                console.Input.PushTextWithEnter(""); // PackageVersion
+                console.Input.PushTextWithEnter(""); // Identifier
+                console.Input.PushTextWithEnter(""); // HasCommands
+                console.Input.PushTextWithEnter(""); // HasTemplates
+
+                AnsiConsole.Console = console; // so that the prompts asked by the command use this console instance
+
+                var cmd = new Command("x");
+                var newCommand = new GenerateDriverCommand();
+                newCommand.Configure(cmd);
+
+                TestUtilities.GetParser(cmd).Invoke("");
+
+                Directory.Exists(Path.GetFullPath("src/driver-sample")).Should().BeTrue();
+                File.Exists(Path.GetFullPath("src/driver-sample/src/index.ts")).Should().BeTrue();
+
+                if (isGreaterOrEqualThan1120)
+                {
+                    File.ReadAllText(Path.GetFullPath("src/driver-sample/src/index.ts")).Should().Contain("const bootstrap = new DriverBootstrap(container);");
+                }
+                else
+                {
+                    File.ReadAllText(Path.GetFullPath("src/driver-sample/src/index.ts")).Should().Contain("import * as yargs");
+                }
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                Directory.Delete(dir, true);
+            }
+        }
+
+        [Theory, Trait("TestCategory", "Integration")]
+        [InlineData("11.2.0", "testName", false)]
+        [InlineData("11.3.0", "", false)]
+        [InlineData("12.0.0", "", false)]
+        [InlineData("12.0.0", "testWithParameters", true)]
+        public void IoTConverter(string mesVersion, string converterName, bool requireParameters)
+        {
+            string dir = TestUtilities.GetTmpDirectory();
+            string packageId = "Cmf.Custom.IoT";
+
+            string packageFolderPackages = "Cmf.Custom.IoT.Packages";
+
+            var cur = Directory.GetCurrentDirectory();
+
+            try
+            {
+                string effectiveConverterName = string.IsNullOrWhiteSpace(converterName) ? "somethingToSomething" : converterName;
+                CopyNewFixture(dir, mesVersion: mesVersion);
+                RunNew(new IoTCommand(), packageId, dir);
+
+                Directory.SetCurrentDirectory($"{dir}/{packageId}/{packageFolderPackages}");
+                TestingConsole.TestConsole console = new();
+                console.Profile.Capabilities.Interactive = true;
+                console.Input.PushTextWithEnter(converterName); // ConverterName
+                console.Input.PushTextWithEnter(""); // ConverterTitle
+                console.Input.PushTextWithEnter(""); // InputType
+                console.Input.PushTextWithEnter(""); // OutputType
+
+                if (requireParameters)
+                {
+                    console.Input.PushTextWithEnter("y"); // RequireParameters
+                    console.Input.PushTextWithEnter(""); // ParameterName
+                    console.Input.PushTextWithEnter(""); // ParameterType
+                    console.Input.PushTextWithEnter(""); // MoreParameters
+
+                }
+                else
+                {
+                    console.Input.PushTextWithEnter("n"); // RequireParameters
+                }
+
+                AnsiConsole.Console = console; // so that the prompts asked by the command use this console instance
+
+                var cmd = new Command("x");
+                var newCommand = new GenerateConverterCommand();
+                newCommand.Configure(cmd);
+
+                TestUtilities.GetParser(cmd).Invoke("");
+
+                Directory.Exists(Path.GetFullPath("src/converters")).Should().BeTrue();
+                File.Exists(Path.GetFullPath($"src/converters/{effectiveConverterName}/{effectiveConverterName}.converter.ts")).Should().BeTrue();
+                File.ReadAllText(Path.GetFullPath($"src/converters/{effectiveConverterName}/{effectiveConverterName}.converter.ts")).Should().Contain("@Converter.Converter");
+
+                if (requireParameters)
+                {
+                    var parameters = File.ReadAllText(Path.GetFullPath($"src/converters/{effectiveConverterName}/{effectiveConverterName}.converter.ts"));
+                    parameters.Should().Contain("parameters: {");
+                    parameters.Should().Contain("newParameter");
+
+                }
+                else
+                {
+                    File.ReadAllText(Path.GetFullPath($"src/converters/{effectiveConverterName}/{effectiveConverterName}.converter.ts")).Should().Contain("parameters: {}");
+                }
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                Directory.Delete(dir, true);
             }
         }
 
@@ -624,7 +757,7 @@ namespace tests.Specs
                 Assert.True(Directory.Exists(packageId), "Package folder is missing");
 
                 // Check if Performance directory exists based on MES version
-                var performanceDir = Path.Combine(packageId, "Cmf.Custom.Tests.Performance");
+                var performanceDir = Path.Combine(packageId, $"{CliConstants.DefaultOrganization}.{CliConstants.DefaultProduct}.Tests.Performance");
                 if (shouldIncludePerformance)
                 {
                     Assert.True(Directory.Exists(performanceDir), $"Performance Tests directory should exist for MES version {mesVersion}");

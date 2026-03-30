@@ -135,7 +135,7 @@
         {
           "condition": "(!hostPerformanceTests)",
           "exclude": [
-            "**/Cmf.Custom.Tests.Performance/**"
+            "**/%Org%.%Product%.Tests.Performance/**"
           ]
         }
       ]

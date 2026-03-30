@@ -250,12 +250,12 @@ namespace Cmf.CLI.Handlers
         /// Bumps the specified CMF package.
         /// </summary>
         /// <param name="version">The version.</param>
-        /// <param name="buildNr">The version for build Nr.</param>
+        /// <param name="versionSuffix">The version suffix.</param>
         /// <param name="bumpInformation">The bump information.</param>
         /// <exception cref="CliException"></exception>
-        public override void Bump(string version, string buildNr, Dictionary<string, object> bumpInformation = null)
+        public override void Bump(string version, string versionSuffix, Dictionary<string, object> bumpInformation = null)
         {
-            base.Bump(version, buildNr, bumpInformation);
+            base.Bump(version, versionSuffix, bumpInformation);
 
             if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 10)
             {
@@ -283,7 +283,7 @@ namespace Cmf.CLI.Handlers
                 #endregion GetCustomPackages
 
                 // IoT -> src -> Package XPTO
-                IoTUtilities.BumpIoTCustomPackages(CmfPackage.GetFileInfo().DirectoryName, version, buildNr, packageNames, this.fileSystem);
+                IoTUtilities.BumpIoTCustomPackages(CmfPackage.GetFileInfo().DirectoryName, version, versionSuffix, packageNames, this.fileSystem);
             }
         }
 

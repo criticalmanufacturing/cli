@@ -87,11 +87,11 @@ namespace Cmf.CLI.Handlers
         /// Bumps the specified CMF package.
         /// </summary>
         /// <param name="version">The version.</param>
-        /// <param name="buildNr">The version for build Nr.</param>
+        /// <param name="versionSuffix">The version for build Nr.</param>
         /// <param name="bumpInformation">The bump information.</param>
-        public override void Bump(string version, string buildNr, Dictionary<string, object> bumpInformation = null)
+        public override void Bump(string version, string versionSuffix, Dictionary<string, object> bumpInformation = null)
         {
-            base.Bump(version, buildNr, bumpInformation);
+            base.Bump(version, versionSuffix, bumpInformation);
 
             string[] versionTags = null;
             if (!string.IsNullOrWhiteSpace(version))
@@ -109,9 +109,9 @@ namespace Cmf.CLI.Handlers
                 string major = versionTags != null && versionTags.Length > 0 ? versionTags[0] : metadataVersionInfo[0];
                 string minor = versionTags != null && versionTags.Length > 1 ? versionTags[1] : metadataVersionInfo[1];
                 string patch = versionTags != null && versionTags.Length > 2 ? versionTags[2] : metadataVersionInfo[2];
-                string build = !string.IsNullOrEmpty(buildNr) ? buildNr : "0";
-                string newVersion = string.Format(@"Version(""{0}.{1}.{2}.{3}"")", major, minor, patch, build);
-                text = Regex.Replace(text, pattern, newVersion, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                string suffix = !string.IsNullOrEmpty(versionSuffix) && int.TryParse(versionSuffix, out _) ? versionSuffix : "0";
+                string newVersion = string.Format(@"Version(""{0}.{1}.{2}.{3}"")", major, minor, patch, suffix);
+                text = Regex.Replace(text, pattern, newVersion, RegexOptions.IgnoreCase);
                 this.fileSystem.File.WriteAllText(filePath, text);
             }
         }

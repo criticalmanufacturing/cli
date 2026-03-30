@@ -2,6 +2,53 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.10.0](https://github.com/criticalmanufacturing/cli/compare/5.9.0...5.10.0) (2026-03-30)
+
+## [5.10.0-0](https://github.com/criticalmanufacturing/cli/compare/5.9.1-1...5.10.0-0) (2026-03-30)
+
+
+### Features
+
+* **bump:** add `pre-release` option to the bump command ([d0eb2e0](https://github.com/criticalmanufacturing/cli/commits/d0eb2e045311f3a31150459657cb2d5ff1ebb4a1))
+
+
+### Bug Fixes
+
+* a non-integer version suffix should not impact the assembly info version ([2310d98](https://github.com/criticalmanufacturing/cli/commits/2310d984c0118b8a37d5f300bb0213022828584b))
+* bring back support to a version suffix on `cmfpackage.json` ([b1f6ebb](https://github.com/criticalmanufacturing/cli/commits/b1f6ebb4f4dc2cbc82fdba7d6a66afeb6faf304f))
+* **init:** handle duplicated, empty or null tenant info properly ([29b56fd](https://github.com/criticalmanufacturing/cli/commits/29b56fda0ddc851863ce7df2bcb1ed434ee6d9cc))
+
+### [5.9.1-1](https://github.com/criticalmanufacturing/cli/compare/5.9.1-0...5.9.1-1) (2026-03-24)
+
+
+### Features
+
+* add IsToForceInstall property to CmfPackage and update related files ([adc5d3e](https://github.com/criticalmanufacturing/cli/commits/adc5d3ee1f559a5b40228183275d57a7d1b74ef6))
+
+
+### Bug Fixes
+
+* **iot:** update driver scaffolding for versions >=11.2.0 ([#688](https://github.com/criticalmanufacturing/cli/issues/688)) ([5528b25](https://github.com/criticalmanufacturing/cli/commits/5528b2515a50cd13610a5b07f23921479b18dc90))
+
+### [5.9.1-0](https://github.com/criticalmanufacturing/cli/compare/5.9.0...5.9.1-0) (2026-03-23)
+
+
+### Features
+
+* **cmf-cli:** including k6 tests in pack ([b478340](https://github.com/criticalmanufacturing/cli/commits/b4783407975243987e88114dcd2d10589d3e9333))
+* **cmf-cli:** k6 tests and cmfpackage improvement ([610dd3e](https://github.com/criticalmanufacturing/cli/commits/610dd3e882c1c413c4f4b5330a3be8153b4cd759))
+* **pack:** allow steps in manifest.xml to specify targetDirectory and targetFile ([b46ccd7](https://github.com/criticalmanufacturing/cli/commits/b46ccd7b41a08ddeb12e00aec554d2919f3c8cf6))
+
+
+### Bug Fixes
+
+* add missing permissions for actions in PR tests workflow ([d73dc61](https://github.com/criticalmanufacturing/cli/commits/d73dc61818db28371bbc9e1b5c0d5cc31fa34d27))
+* fix CLI crash and slow startup on restricted networks ([45eac8e](https://github.com/criticalmanufacturing/cli/commits/45eac8eca5cdfce41ef3db37c0a5d225adf1bed5))
+* **iot:** add MESVersion build to ngx-schematics ([abbff1c](https://github.com/criticalmanufacturing/cli/commits/abbff1cc29353850d6b6ba8fb6f86b5853a4a7a4))
+* **iot:** add missing header in converters ([e293d5a](https://github.com/criticalmanufacturing/cli/commits/e293d5a849114f9d7c8238af2db8eecdf0862682))
+* rename Cmf.Custom.Tests.Performance folder to use %Org%.%Product% scaffolding tokens ([a7ae20c](https://github.com/criticalmanufacturing/cli/commits/a7ae20c335452b9859fa278084fb6c03e1aeec98))
+* sort files and folders by FullName in GenerateMenuItemsCommand ([e1da9a6](https://github.com/criticalmanufacturing/cli/commits/e1da9a640a5ca2880cf21fd31caab151bdcf5778))
+
 ## [5.9.0](https://github.com/criticalmanufacturing/cli/compare/5.9.0-1...5.9.0) (2026-03-18)
 
 ## [5.9.0-1](https://github.com/criticalmanufacturing/cli/compare/5.8.0...5.9.0-1) (2026-03-13)

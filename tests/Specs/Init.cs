@@ -1099,7 +1099,7 @@ namespace tests.Specs
         }
 
         [Fact]
-        public void Init_TenantFromCommandLineOption_WithoutConfigTenant_ExpectsDuplicateKeyError()
+        public void Init_TenantFromCommandLineOption_WithoutConfigTenant()
         {
             var rnd = new Random();
             var tmp = TestUtilities.GetTmpDirectory();
@@ -1130,10 +1130,6 @@ namespace tests.Specs
                     ""Product.Security.Domain"": ""DOMAIN""
                 }");
 
-                // Test with tenant from command line option (config has no tenant)
-                // Current behavior: ParseConfigFile always adds --Tenant (even if null),
-                // so adding it again from x.Tenant causes duplicate key error
-                // TODO: Fix InitCommand to handle this properly
                 TestUtilities.GetParser(cmd).Invoke(new[]
                 {
                     projectName,
@@ -1150,8 +1146,7 @@ namespace tests.Specs
                     tmp
                 }, console);
 
-                // Current behavior: duplicate key error
-                Assert.Contains("An item with the same key has already been added. Key: Tenant", console.Error.ToString());
+                console.Error.ToString().Should().BeEmpty("No errors should occur when tenant is only in command line");
             }
             finally
             {
@@ -1203,14 +1198,7 @@ namespace tests.Specs
                     tmp
                 }, console);
 
-                // Current behavior: the validation check `if (!args.Contains("--Tenant"))` passes
-                // because ParseConfigFile adds --Tenant (with null value), but then template engine
-                // fails trying to process null tenant value
-                // TODO: Fix validation to check for non-null/non-empty tenant value, not just presence of key
-                // The expected message should be: "Tenant information is missing. Please provide it either in the config file or through the --tenant option."
-                // But currently we get a reflection/template engine error instead
-                console.Error.ToString().Should().NotBeEmpty("Should have an error when tenant is missing");
-                // We can't assert the exact error message since it's a technical error, not the user-friendly one
+                console.Error.ToString().Should().Contain("Tenant information is missing. Please provide it either in the config file or through the --tenant option.");
             }
             finally
             {
@@ -1220,7 +1208,7 @@ namespace tests.Specs
         }
 
         [Fact]
-        public void Init_TenantCommandLineOverridesConfigFile_ExpectsDuplicateKeyError()
+        public void Init_TenantCommandLineOverridesConfigFile_NoDuplicateKeyError()
         {
             var rnd = new Random();
             var tmp = TestUtilities.GetTmpDirectory();
@@ -1238,10 +1226,6 @@ namespace tests.Specs
                 var cmd = new Command("x");
                 initCommand.Configure(cmd);
 
-                // Test that when both config file and --tenant are provided, we get an error
-                // config.json has "Product.Tenant.Name": "tenant"
-                // This test documents the current behavior - the implementation should be fixed
-                // to remove the tenant from parsed config args when x.Tenant is provided
                 TestUtilities.GetParser(cmd).Invoke(new[]
                 {
                     projectName,
@@ -1258,9 +1242,7 @@ namespace tests.Specs
                     tmp
                 }, console);
 
-                // Current behavior: duplicate key error
-                // TODO: Fix InitCommand to remove --Tenant from args when x.Tenant is provided
-                Assert.Contains("An item with the same key has already been added. Key: Tenant", console.Error.ToString());
+                console.Error.ToString().Should().BeEmpty("No errors should occur when tenant is both in config file and command line");
             }
             finally
             {

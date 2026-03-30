@@ -492,23 +492,22 @@ namespace Cmf.CLI.Handlers
         /// Bumps the specified version.
         /// </summary>
         /// <param name="version">The version.</param>
-        /// <param name="buildNr">The version for build Nr.</param>
+        /// <param name="versionSuffix">The version suffix.</param>
         /// <param name="bumpInformation">The bump information.</param>
-        public virtual void Bump(string version, string buildNr, Dictionary<string, object> bumpInformation = null)
+        public virtual void Bump(string version, string versionSuffix, Dictionary<string, object> bumpInformation = null)
         {
             // TODO: create "transaction" to rollback if anything fails
             // NOTE: Check pack strategy. Collect all packages to bump before bump.
 
             var currentVersion = CmfPackage.Version.Split("-")[0];
-            var currentBuildNr = CmfPackage.Version.Split("-").Length > 1 ? CmfPackage.Version.Split("-")[1] : null;
-            if (!currentVersion.IgnoreCaseEquals(version))
+            var currentVersionSuffix = CmfPackage.Version.Split("-").Length > 1 ? CmfPackage.Version.Split("-")[1] : null;
+            if (!currentVersion.IgnoreCaseEquals(version) || !currentVersionSuffix.IgnoreCaseEquals(versionSuffix))
             {
-                // TODO :: Uncomment if the cmfpackage.json support build number
-                // cmfPackage.SetVersion(GenericUtilities.RetrieveNewVersion(currentVersion, version, buildNr));
+                CmfPackage.SetVersion(GenericUtilities.RetrieveNewVersion(currentVersion, version, versionSuffix));
 
-                CmfPackage.SetVersion(!string.IsNullOrWhiteSpace(version) ? version : CmfPackage.Version);
+                string oldVersion = $"{currentVersion}{(string.IsNullOrEmpty(currentVersionSuffix) ? string.Empty : $"-{currentVersionSuffix}")}";
 
-                Log.Information($"Will bump {CmfPackage.PackageId} from version {currentVersion} to version {CmfPackage.Version}");
+                Log.Information($"Will bump {CmfPackage.PackageId} from version {oldVersion} to version {CmfPackage.Version}");
             }
         }
 

@@ -6,7 +6,18 @@ import { Converter, DI, Dependencies, TYPES } from "@criticalmanufacturing/conne
  * >>TODO: Add description
  *
  */
-@Converter.Converter()
+@Converter.Converter({
+    name: "<%= $CLI_PARAM_ConverterName %>",
+    input: "<%= $CLI_PARAM_InputAsJS %>",
+    output: "<%= $CLI_PARAM_OutputAsJS %>",
+    //#if (hasParameters)
+    parameters: {
+<%= $CLI_PARAM_ParametersAsJS %>
+    }
+    //#else
+    parameters: {}
+    //#endif
+})
 export class <%= $CLI_PARAM_ClassName %>Converter implements Converter.ConverterInstance <<%= $CLI_PARAM_InputAsJS %>, <%= $CLI_PARAM_OutputAsJS %>> {
 
     @DI.Inject(TYPES.Dependencies.Logger)

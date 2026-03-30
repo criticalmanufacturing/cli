@@ -1,4 +1,5 @@
 using Cmf.CLI.Builders;
+using Cmf.CLI.Commands;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Core.Utilities;
@@ -7,6 +8,7 @@ using Cmf.CLI.Handlers;
 using Cmf.CLI.Utilities;
 using Cmf.Common.Cli.TestUtilities;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -759,5 +761,123 @@ public class Build
         StringWriter standardOutput = (new Logging()).GetLogStringWriter();
         businessPackageTypeHandler.Build(false);
         Assert.Contains("Executing 'Run Build Command'", standardOutput.ToString().Trim());
+    }
+
+    [Theory]
+    [InlineData("10.0.0")]  // MES version > 9: uses projects/cmf-docs-area-* layout
+    [InlineData("9.0.0")]   // MES version <= 9: uses src/packages/cmf.docs.area.* layout
+    public void GenerateMenuItems_FilesAreOrderedAlphabetically(string mesVersion)
+    {
+        bool isNewLayout = new Version(mesVersion).Major > 9;
+
+        // Build the package directory prefix based on MES version layout
+        string packageDirName = isNewLayout ? "cmf-docs-area-cmf-custom-help" : "cmf.docs.area.cmf.custom.help";
+        string packagesRoot = isNewLayout ? "/help/projects" : "/help/src/packages";
+        string packageDir = $"{packagesRoot}/{packageDirName}";
+        string assetsDir = $"{packageDir}/assets";
+        string topicDir = $"{assetsDir}/equipment";
+
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            // Project config
+            { "/.project-config.json", new MockFileData($@"{{
+                ""MESVersion"": ""{mesVersion}"",
+                ""Tenant"": ""tenant""
+            }}") },
+
+            // Help package cmfpackage.json
+            { "/help/cmfpackage.json", new MockFileData(@"{
+                ""packageId"": ""Cmf.Custom.Help"",
+                ""version"": ""1.0.0"",
+                ""description"": ""Help package"",
+                ""packageType"": ""Help"",
+                ""isInstallable"": true,
+                ""isUniqueInstall"": false
+            }") },
+
+            // Markdown files deliberately added in non-alphabetical order
+            { $"{topicDir}/router.md", new MockFileData("# Router\n") },
+            { $"{topicDir}/assembly-stations.md", new MockFileData("# Assembly Stations\n") },
+            { $"{topicDir}/destacker.md", new MockFileData("# Destacker\n") },
+        });
+
+        ExecutionContext.ServiceProvider = new ServiceCollection()
+            .AddSingleton<IProjectConfigService>(new ProjectConfigService())
+            .BuildServiceProvider();
+        ExecutionContext.Initialize(fileSystem);
+        fileSystem.Directory.SetCurrentDirectory("/help");
+
+        var cmd = new GenerateMenuItemsCommand(fileSystem);
+        cmd.Execute(fileSystem.DirectoryInfo.New("/help"));
+
+        // Validate the generated JSON file exists and contains items in alphabetical order
+        var menuItemsJson = $"{assetsDir}/__generatedMenuItems.json";
+        fileSystem.File.Exists(menuItemsJson).Should().BeTrue("__generatedMenuItems.json should be generated");
+
+        var jsonContent = fileSystem.File.ReadAllText(menuItemsJson);
+        var items = System.Text.Json.JsonDocument.Parse(jsonContent).RootElement.EnumerateArray().ToList();
+
+        items.Should().HaveCount(3, "there should be one entry per markdown file");
+
+        var ids = items.Select(i => i.GetProperty("id").GetString()).ToList();
+        ids.Should().BeInAscendingOrder("menu items should be ordered alphabetically by file name");
+    }
+
+    [Theory]
+    [InlineData("10.0.0")]  // MES version > 9: uses projects/cmf-docs-area-* layout
+    [InlineData("9.0.0")]   // MES version <= 9: uses src/packages/cmf.docs.area.* layout
+    public void GenerateMenuItems_FoldersAreOrderedAlphabetically(string mesVersion)
+    {
+        bool isNewLayout = new Version(mesVersion).Major > 9;
+
+        string packageDirName = isNewLayout ? "cmf-docs-area-cmf-custom-help" : "cmf.docs.area.cmf.custom.help";
+        string packagesRoot = isNewLayout ? "/help/projects" : "/help/src/packages";
+        string packageDir = $"{packagesRoot}/{packageDirName}";
+        string assetsDir = $"{packageDir}/assets";
+
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            // Project config
+            { "/.project-config.json", new MockFileData($@"{{
+                ""MESVersion"": ""{mesVersion}"",
+                ""Tenant"": ""tenant""
+            }}") },
+
+            // Help package cmfpackage.json
+            { "/help/cmfpackage.json", new MockFileData(@"{
+                ""packageId"": ""Cmf.Custom.Help"",
+                ""version"": ""1.0.0"",
+                ""description"": ""Help package"",
+                ""packageType"": ""Help"",
+                ""isInstallable"": true,
+                ""isUniqueInstall"": false
+            }") },
+
+            // One .md file in each of three topic folders, in non-alphabetical folder order
+            { $"{assetsDir}/router/overview.md", new MockFileData("# Router Overview\n") },
+            { $"{assetsDir}/assembly-stations/overview.md", new MockFileData("# Assembly Stations Overview\n") },
+            { $"{assetsDir}/destacker/overview.md", new MockFileData("# Destacker Overview\n") },
+        });
+
+        ExecutionContext.ServiceProvider = new ServiceCollection()
+            .AddSingleton<IProjectConfigService>(new ProjectConfigService())
+            .BuildServiceProvider();
+        ExecutionContext.Initialize(fileSystem);
+        fileSystem.Directory.SetCurrentDirectory("/help");
+
+        var cmd = new GenerateMenuItemsCommand(fileSystem);
+        cmd.Execute(fileSystem.DirectoryInfo.New("/help"));
+
+        var menuItemsJson = $"{assetsDir}/__generatedMenuItems.json";
+        fileSystem.File.Exists(menuItemsJson).Should().BeTrue("__generatedMenuItems.json should be generated");
+
+        var jsonContent = fileSystem.File.ReadAllText(menuItemsJson);
+        var items = System.Text.Json.JsonDocument.Parse(jsonContent).RootElement.EnumerateArray().ToList();
+
+        items.Should().HaveCount(3, "there should be one entry per markdown file");
+
+        // menuGroupId reflects the parent folder name; verify they are emitted in alphabetical folder order
+        var groupIds = items.Select(i => i.GetProperty("menuGroupId").GetString()).ToList();
+        groupIds.Should().BeInAscendingOrder("menu items should be ordered by folder name alphabetically");
     }
 }

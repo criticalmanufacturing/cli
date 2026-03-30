@@ -125,6 +125,12 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
         public bool? IsUniqueInstall { get; private set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether this package should be force-installed.
+        /// </summary>
+        [JsonProperty(Order = 16)]
+        public bool? IsToForceInstall { get; private set; }
+
+        /// <summary>
         /// Gets or sets the is root package.
         /// </summary>
         /// <value>
@@ -251,6 +257,7 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
     /// <param name="targetLayer">The target layer.</param>
     /// <param name="isInstallable">The is installable.</param>
     /// <param name="isUniqueInstall">The is unique install.</param>
+    /// <param name="isToForceInstall">The is to force install.</param>
     /// <param name="keywords">The keywords.</param>
     /// <param name="isToSetDefaultSteps">The is to set default steps.</param>
     /// <param name="dependencies">The dependencies.</param>
@@ -261,7 +268,7 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
     /// <param name="testPackages">The test Packages.</param>
     [JsonConstructor]
     public CmfPackageV1(string name, string packageId, string version, string description, PackageType packageType,
-                      string targetDirectory, string targetLayer, bool? isInstallable, bool? isUniqueInstall, string keywords,
+                      string targetDirectory, string targetLayer, bool? isInstallable, bool? isUniqueInstall, bool? isToForceInstall, string keywords,
                       bool? isToSetDefaultSteps, DependencyCollection dependencies, List<Step> steps,
                       List<ContentToPack> contentToPack, List<string> xmlInjection, bool? waitForIntegrationEntries, DependencyCollection testPackages = null)
             : this()
@@ -287,6 +294,7 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
         TargetLayer = targetLayer;
         IsInstallable = isInstallable ?? true;
         IsUniqueInstall = isUniqueInstall ?? false;
+        IsToForceInstall = isToForceInstall ?? false;
         Keywords = keywords;
         IsToSetDefaultSteps = isToSetDefaultSteps ?? true;
         Dependencies = dependencies;

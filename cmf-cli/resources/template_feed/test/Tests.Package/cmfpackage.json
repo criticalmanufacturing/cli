@@ -7,6 +7,14 @@
   "isUniqueInstall": false,
   "contentToPack": [
     {
+      "source": "<%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.Performance/**",
+      "target": "<%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.Performance"
+    },
+    {
+      "source": "../Libs/LBOs/cmf-k6/**",
+      "target": "<%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.Performance/node_modules"
+    },
+    {
       "source": "Release/**",
       "target": ""
     }
