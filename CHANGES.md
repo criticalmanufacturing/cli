@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.10.0-0](https://github.com/criticalmanufacturing/cli/compare/5.9.1-1...5.10.0-0) (2026-03-30)
+
+
+### Features
+
+* **bump:** add `pre-release` option to the bump command ([d0eb2e0](https://github.com/criticalmanufacturing/cli/commits/d0eb2e045311f3a31150459657cb2d5ff1ebb4a1))
+
+
+### Bug Fixes
+
+* a non-integer version suffix should not impact the assembly info version ([2310d98](https://github.com/criticalmanufacturing/cli/commits/2310d984c0118b8a37d5f300bb0213022828584b))
+* bring back support to a version suffix on `cmfpackage.json` ([b1f6ebb](https://github.com/criticalmanufacturing/cli/commits/b1f6ebb4f4dc2cbc82fdba7d6a66afeb6faf304f))
+* **init:** handle duplicated, empty or null tenant info properly ([29b56fd](https://github.com/criticalmanufacturing/cli/commits/29b56fda0ddc851863ce7df2bcb1ed434ee6d9cc))
+
 ### [5.9.1-1](https://github.com/criticalmanufacturing/cli/compare/5.9.1-0...5.9.1-1) (2026-03-24)
 
 
