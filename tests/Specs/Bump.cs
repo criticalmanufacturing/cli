@@ -26,8 +26,7 @@ public class Bump
         // files
         string cmfPackageJson = $"help/{CliConstants.CmfPackageFileName}";
         string npmPackageJson = "/help/package.json";
-        string metadataTS =
-            "/help/src/packages/cmf.docs.area.cmf.custom.help/src/cmf.docs.area.cmf.custom.help.metadata.ts";
+        string angularJson = "/help/angular.json";
 
         string bumpVersion = "1.0.1";
         string expectedVersion = $"{bumpVersion}-{preRelease}";
@@ -37,7 +36,7 @@ public class Bump
             {
                 MockUnixSupport.Path(@"c:\.project-config.json"), new MockFileData(
                     @"{
-              ""MESVersion"": ""9.0.0""
+              ""MESVersion"": ""11.0.0""
             }")
             },
             {
@@ -63,7 +62,7 @@ public class Bump
             {
                 npmPackageJson, new MockFileData(
                     @$"{{
-                      ""name"": ""cmf.docs.area"",
+                      ""name"": ""documentation-portal"",
                       ""version"": ""1.0.0"",
                       ""description"": ""Help customization package"",
                       ""private"": true,
@@ -78,18 +77,20 @@ public class Bump
                 }}")
             },
             {
-                metadataTS, new MockFileData(
-                    @$"
-                (...)
-                function applyConfig (packageName: string) {{
-                  const config: PackageMetadata = {{
-                    version: ""1.0.0"",
-                (...)
-            ")
+                angularJson, new MockFileData(
+                    @$"{{
+                      ""version"": 1,
+                      ""projects"": {{
+                        ""cmf.docs.area.cmf.custom.help"": {{
+                          ""projectType"": ""library"",
+                          ""schematics"": ""./src/schematics/collection.json""
+                        }}
+                      }}
+                }}")
             }
         });
 
-        ExecutionContext.ServiceProvider = (new ServiceCollection())
+        ExecutionContext.ServiceProvider = new ServiceCollection()
             .AddSingleton<IProjectConfigService>(new ProjectConfigService())
             .BuildServiceProvider();
         ExecutionContext.Initialize(fileSystem);
@@ -98,14 +99,12 @@ public class Bump
         IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile);
         packageTypeHandler.Bump(bumpVersion, preRelease);
 
-        string cmfPackageVersion = (packageTypeHandler as HelpGulpPackageTypeHandler).CmfPackage.Version;
+        string cmfPackageVersion = (packageTypeHandler as HelpNgCliPackageTypeHandler).CmfPackage.Version;
         dynamic packageFile = JsonConvert.DeserializeObject(fileSystem.File.ReadAllText(npmPackageJson));
         string packageFileVersion = packageFile.version;
-        string metadataFile = fileSystem.File.ReadAllText(metadataTS);
 
         cmfPackageVersion.Should().Be(expectedVersion);
         packageFileVersion.Should().Be(expectedVersion);
-        metadataFile.Should().Contain($"version: \"{expectedVersion}\"");
     }
 
     [Theory]
