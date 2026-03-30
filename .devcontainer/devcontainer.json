@@ -1,6 +1,7 @@
 {
   "name": "CLI devcontainer",
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
+  "capAdd": ["SYS_PTRACE"],
   "features": {
     "ghcr.io/devcontainers/features/dotnet": {
       "version": "10.0",
