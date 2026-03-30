@@ -155,7 +155,6 @@ namespace Cmf.CLI.Commands.New
                 "--name", assetsPkgName,
                 "--dfPackageName", projectName,
                 "--Tenant", tenant,
-                "--v10metadata", true.ToString(),
                 "--dfPackageNamePascalCase", string.Join("", projectName.Split("-").Select(seg => Regex.Replace(seg, @"\b(\w)", m => m.Value.ToUpper())))
             });
 
