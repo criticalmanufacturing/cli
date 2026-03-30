@@ -935,6 +935,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#version-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Version Check
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2438,6 +2449,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#version-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Version Check
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2489,6 +2511,9 @@
 <p>Per example, to active debug messages for the <code>cmf build</code> command, use:</p>
 <div class="highlight"><pre><span></span><code><span class="n">cmf</span> <span class="n">-l</span> <span class="n">Debug</span> <span class="n">build</span>
 </code></pre></div>
+<h2 id="version-check">Version Check</h2>
+<p>The CLI checks for a newer version at startup. This can be skipped via an environment variable:</p>
+<p><code>cmf_cli_skip_version_check</code> - skip the version check at startup. Useful in CI/CD pipelines to avoid network calls. Set to <code>true</code> to skip, do not set or set to <code>false</code> to keep the default behavior.</p>
 
 
 

@@ -2430,6 +2430,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#istoforceinstall" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        isToForceInstall
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#istosetdefaultsteps" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2598,6 +2609,8 @@
 <p>Boolean value <em>(default true)</em>. A value of true indicates that the package is prepared to be installed. This value is usually only false for packages of type Tests.</p>
 <h3 id="isuniqueinstall">isUniqueInstall</h3>
 <p>Boolean value <em>(default false)</em>. A value of true indicates that the package is only installed once per environment, a second run of this package doesn't re-install it. This value is usually only true for packages of type Data, IoTData and Database.</p>
+<h3 id="istoforceinstall">isToForceInstall</h3>
+<p>Boolean value <em>(default false)</em>. A value of true indicates that package installation should be forced by Deployment Framework.</p>
 <h3 id="istosetdefaultsteps">isToSetDefaultSteps</h3>
 <p>Boolean value <em>(default true)</em>. A value of true indicates that a set of predefined steps (each packageType has a set of steps) will be used.
 This value is usually only false when some debug is needed or for some reason the default steps are not working as expected.</p>
@@ -2611,6 +2624,7 @@ This field is very useful when you want to add steps to be executed after the pr
 <span class="w">    </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Cmf Custom Data Package&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">&quot;packageType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Data&quot;</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">&quot;isInstallable&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;isToForceInstall&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">&quot;isUniqueInstall&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
 <span class="w">    </span><span class="nt">&quot;steps&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span>
