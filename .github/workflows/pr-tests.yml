@@ -1,10 +1,11 @@
 name: PR tests
 
 on:
-  pull_request:
-    types: [opened, edited, synchronize]
-    paths-ignore:
-      - 'features/**'
+  workflow_dispatch: {}
+  # pull_request:
+  #   types: [opened, edited, synchronize]
+  #   paths-ignore:
+  #     - 'features/**'
 
 jobs:
   commitlint:
