@@ -52,17 +52,14 @@ jobs:
       - name: Build CLI
         run: npm run build:bundle:linux
 
-      - name: Pack CLI
-        working-directory: npm
-        run: npm pack
-
       - name: Upload CLI package
         uses: actions/upload-artifact@v4
         with:
-          name: cli-package-${{ github.sha }}
-          path: npm/criticalmanufacturing-cli-*.tgz
+          name: cli-linux-x64-${{ github.sha }}
+          path: npm/dist/linux-x64
           retention-days: 1
           overwrite: true
+          include-hidden-files: true
 
   scaffolding-validation:
     needs: build-cli
@@ -97,20 +94,22 @@ jobs:
       - name: Download CLI package
         uses: actions/download-artifact@v4
         with:
-          name: cli-package-${{ github.sha }}
-          path: npm/
+          name: cli-linux-x64-${{ github.sha }}
+          path: npm/dist/linux-x64
 
-      - name: Install CLI globally
+      - name: Set CLI_PATH env var and execute permission
         working-directory: npm
-        run: npm install -g ./criticalmanufacturing-cli-*.tgz
+        run: |
+          chmod +x ./dist/linux-x64/cmf
+          echo "CLI_PATH=$GITHUB_WORKSPACE/npm/dist/linux-x64" >> $GITHUB_ENV
 
       - name: Login to NPM registry
         run: |
-          cmf -l debug login NPM $CRITICALMANUFACTURING_NPM_REGISTRY --auth-type Basic --username $CRITICALMANUFACTURING_IO_USER --password $CRITICALMANUFACTURING_IO_TOKEN
+          $CLI_PATH/cmf -l debug login NPM $CRITICALMANUFACTURING_NPM_REGISTRY --auth-type Basic --username $CRITICALMANUFACTURING_IO_USER --password $CRITICALMANUFACTURING_IO_TOKEN
 
       - name: Login to NuGet registry
         run: |
-          cmf -l debug login NuGet $CRITICALMANUFACTURING_NUGET_REGISTRY --auth-type Basic --username $CRITICALMANUFACTURING_IO_USER --password $CRITICALMANUFACTURING_IO_TOKEN --key CMF
+          $CLI_PATH/cmf -l debug login NuGet $CRITICALMANUFACTURING_NUGET_REGISTRY --auth-type Basic --username $CRITICALMANUFACTURING_IO_USER --password $CRITICALMANUFACTURING_IO_TOKEN --key CMF
 
       - name: Resolve full MES version for major ${{ matrix.mes-major }}
         id: mes-version
@@ -171,7 +170,7 @@ jobs:
       - name: Run 'cmf init' (MES ${{ steps.mes-version.outputs.version }})
         working-directory: ${{ env.VALIDATION_DIR }}
         run: |
-          cmf -l debug init ValidationProject \
+          $CLI_PATH/cmf -l debug init ValidationProject \
             --version 1.0.0 \
             --config ./parameters.json \
             --MESVersion ${{ steps.mes-version.outputs.version }} \
@@ -187,11 +186,11 @@ jobs:
         run: |
           for pkg in $PACKAGES_TO_CREATE; do
             if [ "$pkg" = "data" ]; then
-              cmd="cmf -l debug new --reset $pkg --businessPackage ./Cmf.Custom.Business/"
+              cmd="$CLI_PATH/cmf -l debug new --reset $pkg --businessPackage ./Cmf.Custom.Business/"
             elif [ "$pkg" = "iot" ]; then
-              cmd="cmf -l debug new --reset $pkg --htmlPackageLocation ./Cmf.Custom.Html/"
+              cmd="$CLI_PATH/cmf -l debug new --reset $pkg --htmlPackageLocation ./Cmf.Custom.Html/"
             else
-              cmd="cmf -l debug new --reset $pkg"
+              cmd="$CLI_PATH/cmf -l debug new --reset $pkg"
             fi
             echo -e "\nRunning: $cmd"
             $cmd
@@ -201,7 +200,7 @@ jobs:
         working-directory: ${{ env.VALIDATION_DIR }}
         run: |
           for pkg in $PACKAGES_TO_BUILD; do
-            cmd="cmf -l debug build $pkg"
+            cmd="$CLI_PATH/cmf -l debug build $pkg"
             echo -e "\nRunning: $cmd"
             $cmd
           done
@@ -210,7 +209,7 @@ jobs:
         working-directory: ${{ env.VALIDATION_DIR }}
         run: |
           for pkg in $PACKAGES_TO_CREATE; do
-            cmd="cmf -l debug pack"
+            cmd="$CLI_PATH/cmf -l debug pack"
             echo -e "\nRunning: $cmd"
             $cmd
           done
