@@ -241,13 +241,13 @@ The @criticalmanufacturing/cli will automatically add an entry to the `cmfpackag
     ]
     ```
 
-2. Add a dependency in the HTML package's `package.json` file, using the command:
+2. Add a dependency in the HTML package's `package.json` file, using the command, for each custom package:
 
     ```powershell
-    npm install ../Cmf.Custom.IoT/Cmf.Custom.IoT.Packages
+    npm install ../Cmf.Custom.IoT/Cmf.Custom.IoT.Packages/dist/<your package>
     ```
 
-    * This command will add an entry like:
+    * This command will add, in the package.json, an entry like:
 
         ```json
         "@criticalmanufacturing/connect-iot-controller-engine-custom-tasks": "file:../Cmf.Custom.Baseline.IoT/Cmf.Custom.Baseline.IoT"
