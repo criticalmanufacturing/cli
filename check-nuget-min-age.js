@@ -38,9 +38,8 @@ function walkCsprojFiles(dir, acc) {
   for (const entry of entries) {
     const fullPath = path.join(dir, entry.name);
     const relativePath = path.relative(repoRoot, fullPath);
-    const normalized = relativePath.split(path.sep).join(path.sep);
 
-    if (ignoredPathSegments.some((segment) => normalized.includes(segment))) {
+    if (ignoredPathSegments.some((segment) => relativePath.includes(segment))) {
       continue;
     }
 
@@ -199,28 +198,34 @@ async function main() {
   const warnings = [];
 
   const items = Array.from(deduped.values());
-  for (const item of items) {
-    try {
-      const publishedAt = await getPublishedDate(item.packageId, item.version);
-      if (!publishedAt) {
-        warnings.push(
-          `${item.packageId}@${item.version}: publish date not available from registration API (skipped)`
-        );
-        continue;
-      }
+  const results = await Promise.allSettled(items.map((item) => getPublishedDate(item.packageId, item.version)));
 
-      const ageDays = toDays(now - publishedAt.getTime());
-      if (ageDays < minAgeDays) {
-        failures.push({
-          packageId: item.packageId,
-          version: item.version,
-          ageDays,
-          publishedAt,
-          sourceFile: item.sourceFile,
-        });
-      }
-    } catch (err) {
-      warnings.push(`${item.packageId}@${item.version}: ${err.message} (skipped)`);
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    const result = results[i];
+
+    if (result.status === "rejected") {
+      warnings.push(`${item.packageId}@${item.version}: ${result.reason.message} (skipped)`);
+      continue;
+    }
+
+    const publishedAt = result.value;
+    if (!publishedAt) {
+      warnings.push(
+        `${item.packageId}@${item.version}: publish date not available from registration API (skipped)`
+      );
+      continue;
+    }
+
+    const ageDays = toDays(now - publishedAt.getTime());
+    if (ageDays < minAgeDays) {
+      failures.push({
+        packageId: item.packageId,
+        version: item.version,
+        ageDays,
+        publishedAt,
+        sourceFile: item.sourceFile,
+      });
     }
   }
 
