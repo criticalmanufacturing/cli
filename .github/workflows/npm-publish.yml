@@ -62,6 +62,8 @@ jobs:
         run: curl -v --user "${{secrets.CRITICALMANUFACTURING_IO_USER}}:${{secrets.CRITICALMANUFACTURING_IO_TOKEN}}" --upload-file dist/cmf-cli.linux-x64.zip https://criticalmanufacturing.io/repository/tools/cmf-cli.linux-x64-${{ steps.package-version.outputs.version }}.zip
       - name: Upload osx-x64 to criticalmanufacturing.io
         run: curl -v --user "${{secrets.CRITICALMANUFACTURING_IO_USER}}:${{secrets.CRITICALMANUFACTURING_IO_TOKEN}}" --upload-file dist/cmf-cli.osx-x64.zip https://criticalmanufacturing.io/repository/tools/cmf-cli.osx-x64-${{ steps.package-version.outputs.version }}.zip
+      - name: Generate npm-shrinkwrap.json
+        run: cd npm && npm shrinkwrap
       - run: npm run publish
         if: "github.event.release.prerelease"
         env:
