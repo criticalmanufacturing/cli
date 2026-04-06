@@ -46,6 +46,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '12'
+      - name: Check NuGet minimum package age
+        run: npm run check:nuget:min-age
       - name: Install dependencies
         run: dotnet restore
       - name: Build
