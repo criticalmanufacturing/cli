@@ -6,6 +6,7 @@
   "private": true,
   "scripts": {
     "prepare": "husky install",
+    "check:nuget:min-age": "node check-nuget-min-age.js",
     "build:clean": "rimraf dist/** && rimraf npm/dist/**",
     "bump:pre": "npm run bump:npm:pre && npm run bump:dotnet:pre && npm run gen:changelog",
     "bump:pre:breaking": "npm run bump:npm:pre:breaking && npm run bump:dotnet:pre:breaking && npm run gen:changelog",
