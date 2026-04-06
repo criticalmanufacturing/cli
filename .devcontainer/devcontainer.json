@@ -28,5 +28,8 @@
             ]
         }
     },
+    "containerEnv": {
+        "NPM_CONFIG_MIN_RELEASE_AGE": "3"
+    },
     "postCreateCommand": "npm ci && echo \"alias 'cmf=/workspaces/cli/cmf-cli/bin/Debug/cmf'\" >> /home/$USER/.bashrc"
 }
