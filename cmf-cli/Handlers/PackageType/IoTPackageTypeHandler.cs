@@ -337,6 +337,7 @@ namespace Cmf.CLI.Handlers
                             npmCommand.Exec();
                         }
 
+                        string debugFlag = Log.Level <= LogLevel.Debug ? "-d" : "";
                         if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 11)
                         {
                             var environmentVariables = new Dictionary<string, string>()
@@ -371,7 +372,7 @@ namespace Cmf.CLI.Handlers
                             CmdCommand cmdCommand = new CmdCommand()
                             {
                                 DisplayName = "yo @criticalmanufacturing/iot:packagePacker",
-                                Args = new string[] { "\"", $"{yo} @criticalmanufacturing/iot:packagePacker", $"-i \"{inputDirPath}\"", $"-o \"{outputDirPath}\"", "\"" },
+                                Args = new string[] { "\"", $"{yo} @criticalmanufacturing/iot:packagePacker", debugFlag, $"-i \"{inputDirPath}\"", $"-o \"{outputDirPath}\"", "\"" },
                                 WorkingDirectory = packDirectory,
                                 EnvironmentVariables = environmentVariables
                             };
@@ -383,7 +384,7 @@ namespace Cmf.CLI.Handlers
                             NPXCommand cmdCommand = new NPXCommand()
                             {
                                 DisplayName = "npx @criticalmanufacturing/node-package-bundler",
-                                Args = new string[] { "@criticalmanufacturing/node-package-bundler", $"-i \"{inputDirPath}\"", $"-o \"{outputDirPath}\"" },
+                                Args = new string[] { "@criticalmanufacturing/node-package-bundler", debugFlag, $"-i \"{inputDirPath}\"", $"-o \"{outputDirPath}\"" },
                                 WorkingDirectory = packDirectory
                             };
 
