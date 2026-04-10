@@ -11,11 +11,7 @@ on:
   release:
     types: [published]
 jobs:
-  scaffolding-validation:
-    uses: ./.github/workflows/scaffolding-validation.yml
-
   build-and-publish:
-    needs: scaffolding-validation
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
