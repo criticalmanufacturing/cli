@@ -606,6 +606,47 @@ namespace Cmf.CLI.Utilities
             return GetFile(uri).FullName;
         }
 
+        /// <summary>
+        /// Set Unix File Permissions
+        /// </summary>
+        /// <param name="fileSystem"></param>
+        /// <param name="file"></param>
+        /// <param name="permissions"></param>
+        public static void SetUnixFilePermissions(IFileSystem fileSystem, IFileInfo file, UnixFileMode permissions)
+        {
+            if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())
+            {
+                file.UnixFileMode = permissions;
+                fileSystem.File.SetUnixFileMode(file.FullName, file.UnixFileMode);
+            }
+        }
+
+        /// <summary>
+        /// Set Unix Directory Permissions
+        /// </summary>
+        /// <param name="fileSystem"></param>
+        /// <param name="directory"></param>
+        /// <param name="permissions"></param>
+        public static void SetUnixDirectoryPermissions(IFileSystem fileSystem, IDirectoryInfo directory, UnixFileMode permissions, bool recursive = false)
+        {
+            if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())
+            {
+                directory.UnixFileMode = permissions;
+                fileSystem.File.SetUnixFileMode(directory.FullName, directory.UnixFileMode);
+                if (recursive)
+                {
+                    foreach (IDirectoryInfo dir in directory.GetDirectories())
+                    {
+                        SetUnixDirectoryPermissions(fileSystem, dir, permissions, true);
+                    }
+                    foreach (IFileInfo file in directory.GetFiles())
+                    {
+                        SetUnixFilePermissions(fileSystem, file, permissions);
+                    }
+                }
+            }
+        }
+
         #endregion
 
         #region Private Methods
