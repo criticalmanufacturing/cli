@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.10.1-0](https://github.com/criticalmanufacturing/cli/compare/5.10.0...5.10.1-0) (2026-04-10)
+
+
+### Bug Fixes
+
+* **iot:** yeoman doesn't like running as root so we need to ensure it has the right permissions anyway ([441806b](https://github.com/criticalmanufacturing/cli/commits/441806bd15d202967e9c51d72366aeb16db7ab76))
+* **iot:** yeoman may not have access to the npm cache folder when running as root ([ea2b33b](https://github.com/criticalmanufacturing/cli/commits/ea2b33b3f2c33fb85523a06db13a275fe9924978))
+
 ## [5.10.0](https://github.com/criticalmanufacturing/cli/compare/5.9.0...5.10.0) (2026-03-30)
 
 ## [5.10.0-0](https://github.com/criticalmanufacturing/cli/compare/5.9.1-1...5.10.0-0) (2026-03-30)
