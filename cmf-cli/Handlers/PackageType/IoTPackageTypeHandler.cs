@@ -339,6 +339,11 @@ namespace Cmf.CLI.Handlers
 
                         if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 11)
                         {
+                            var environmentVariables = new Dictionary<string, string>()
+                            {
+                                { "NO_UPDATE_NOTIFIER", "1" },
+                            };
+
                             IFileInfo yo = this.fileSystem.FileInfo.New($"{AppContext.BaseDirectory}resources/vendors/yo/node_modules/.bin/yo");
                             if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())
                             {
@@ -363,7 +368,8 @@ namespace Cmf.CLI.Handlers
                             {
                                 DisplayName = "yo @criticalmanufacturing/iot:packagePacker",
                                 Args = new string[] { "\"", $"{yo} @criticalmanufacturing/iot:packagePacker", $"-i \"{inputDirPath}\"", $"-o \"{outputDirPath}\"", "\"" },
-                                WorkingDirectory = packDirectory
+                                WorkingDirectory = packDirectory,
+                                EnvironmentVariables = environmentVariables
                             };
 
                             cmdCommand.Exec();
