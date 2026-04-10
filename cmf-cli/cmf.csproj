@@ -16,6 +16,8 @@
         <DefaultDocumentationNestedTypeVisibility>Namespace</DefaultDocumentationNestedTypeVisibility>
         <DefaultDocumentationGeneratedPages>Namespaces</DefaultDocumentationGeneratedPages>
         <Version>5.10.0</Version>
+        <GeneratePackageJsonSchemas>true</GeneratePackageJsonSchemas>
+        <SchemaOutputDir>$(MSBuildProjectDirectory)/../schemas</SchemaOutputDir>
     </PropertyGroup>
 
     <ItemGroup>
@@ -86,4 +88,11 @@
     <ItemGroup>
         <ProjectReference Include="..\core\core.csproj" />
     </ItemGroup>
+
+    <Target Name="GeneratePackageJsonSchemas"
+            BeforeTargets="CoreCompile"
+            Condition="'$(GeneratePackageJsonSchemas)' == 'true' and '$(DesignTimeBuild)' != 'true'">
+        <Exec Command="dotnet run --project &quot;$(MSBuildProjectDirectory)/../schema-gen/schema-gen.csproj&quot; -- &quot;$(SchemaOutputDir)&quot; &quot;$(MSBuildProjectDirectory)/../core&quot;"
+              WorkingDirectory="$(MSBuildProjectDirectory)" />
+    </Target>
 </Project>

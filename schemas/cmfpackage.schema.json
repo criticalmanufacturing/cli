@@ -1,0 +1,375 @@
+{
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Gets the name."
+    },
+    "packageId": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Gets or sets the package identifier."
+    },
+    "version": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Gets or sets the version."
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Gets or sets the description."
+    },
+    "packageType": {
+      "type": "string",
+      "enum": [
+        "Generic",
+        "Business",
+        "Root",
+        "Data",
+        "Presentation",
+        "HTML",
+        "Help",
+        "IoT",
+        "Reporting",
+        "ExportedObjects",
+        "Database",
+        "None",
+        "IoTData",
+        "Tests",
+        "SecurityPortal",
+        "ProductDatabase",
+        "Grafana"
+      ]
+    },
+    "targetDirectory": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Gets or sets the target directory where the package contents should be installed.\nThis is used when the package is installed using Deployment Framework and ignored when it is installed using Environment Manager."
+    },
+    "targetLayer": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Gets or sets the target layer, which means the container in which the packages contents should be installed.\nThis is used when the package is installed using Environment Manager and ignored when it is installed using Deployment Framework."
+    },
+    "isInstallable": {
+      "type": [
+        "boolean",
+        "null"
+      ],
+      "description": "Gets or sets a value indicating whether this instance is installable."
+    },
+    "isUniqueInstall": {
+      "type": [
+        "boolean",
+        "null"
+      ],
+      "description": "Gets or sets the is unique install."
+    },
+    "dependencies": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Gets or sets the identifier."
+          },
+          "version": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Gets or sets the version."
+          },
+          "mandatory": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this  is mandatory."
+          },
+          "conditional": {
+            "type": "boolean",
+            "description": "Gets or sets a value indicating whether this  is conditional."
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Gets or sets the dependencies."
+    },
+    "steps": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "object",
+        "properties": {
+          "order": {
+            "type": "integer",
+            "description": "the order of the steps"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "Generic",
+              "DeployFiles",
+              "TransformFile",
+              "RunSql",
+              "DeployReports",
+              "ProcessRules",
+              "MasterData",
+              "ExportedObjects",
+              "CreateIntegrationEntries",
+              "EnqueueSql",
+              "DeployRepositoryFiles",
+              "GenerateRepositoryIndex",
+              "GenerateServiceHistoryId",
+              "TaggedFile",
+              "IoTAutomationTaskLibrariesSync",
+              "AutomationBusinessScenariosSync",
+              "RestoreDatabaseFromBackup",
+              "UploadToS3",
+              "RunClickhouseSql",
+              "ReconstructClickhouseKafkaTables",
+              "CleanupS3InstallationFolder",
+              "CreateAppUser",
+              "UpdateConfiguration"
+            ]
+          },
+          "messageType": {
+            "type": "string",
+            "enum": [
+              "ImportObject"
+            ]
+          },
+          "title": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Gets or sets the title."
+          },
+          "contentPath": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Gets or sets the content path."
+          },
+          "onExecute": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Gets or sets the on execute."
+          },
+          "file": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Gets or sets the file."
+          },
+          "tagFile": {
+            "type": [
+              "boolean",
+              "null"
+            ],
+            "description": "Gets or sets a value indicating whether [tag file]."
+          },
+          "targetDatabase": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Gets or sets the target database."
+          },
+          "content": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Gets or sets the content."
+          },
+          "oldSystemName": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Gets or sets the old system name."
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Gets or sets the steps."
+    },
+    "contentToPack": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "Represents the content to be packed into a DF Package"
+      },
+      "description": "Gets or sets the content to pack."
+    },
+    "xmlInjection": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      },
+      "description": "Gets or sets the deployment framework UI file."
+    },
+    "testPackages": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "$ref": "#/properties/dependencies/items"
+      },
+      "description": "Gets or sets the Test Package Id."
+    },
+    "isToForceInstall": {
+      "type": [
+        "boolean",
+        "null"
+      ],
+      "description": "Gets or sets whether package installation should be forced by Deployment Framework."
+    },
+    "handlerVersion": {
+      "type": "integer",
+      "description": "Handler Version"
+    },
+    "waitForIntegrationEntries": {
+      "type": [
+        "boolean",
+        "null"
+      ],
+      "description": "Should the Deployment Framework wait for the Integration Entries created by the package\nThis fails the package installation if any Integration Entry fails"
+    },
+    "dfPackageType": {
+      "type": "string",
+      "enum": [
+        "Generic",
+        "Business",
+        "Root",
+        "Data",
+        "Presentation",
+        "HTML",
+        "Help",
+        "IoT",
+        "Reporting",
+        "ExportedObjects",
+        "Database",
+        "None",
+        "IoTData",
+        "Tests",
+        "SecurityPortal",
+        "ProductDatabase",
+        "Grafana"
+      ]
+    },
+    "buildSteps": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "object",
+        "properties": {
+          "args": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "description": "Gets or sets the arguments."
+          },
+          "command": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Gets or sets the command."
+          },
+          "workingDirectory": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Gets or sets the working directory."
+          },
+          "environmentVariables": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Gets or sets the environment variables."
+          }
+        },
+        "additionalProperties": false,
+        "description": "An atomic (from tool perspective) build step"
+      },
+      "description": "Gets or sets the build steps."
+    },
+    "relatedPackages": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "Represents the content to be packed into a DF Package"
+      },
+      "description": "Gets or sets the Related packages, and sets what are the expected behavior."
+    },
+    "dependenciesDirectory": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Gets or sets the target directory where the dependencies contents should be extracted.\nThis is used when the package dependencies are restored in the restore and build commands."
+    },
+    "baseLocalizationFiles": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "string"
+      },
+      "description": "A list of folders containing .xlf files that include messages used by this project."
+    }
+  },
+  "additionalProperties": false
+}
