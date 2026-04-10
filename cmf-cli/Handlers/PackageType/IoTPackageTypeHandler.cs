@@ -361,6 +361,10 @@ namespace Cmf.CLI.Handlers
                                                                                                               UnixFileMode.GroupRead | UnixFileMode.GroupWrite | UnixFileMode.GroupExecute |
                                                                                                               UnixFileMode.OtherRead | UnixFileMode.OtherWrite, true);
                                     }
+
+                                    string tempPath = this.fileSystem.Path.GetTempPath();
+                                    Log.Debug($"Using {tempPath} for npm cache to avoid permission issues");
+                                    environmentVariables.Add("npm_config_cache", $"{tempPath}/.npm-cache");
                                 }
                             }
 
