@@ -313,8 +313,8 @@ namespace Cmf.CLI.Handlers
 
                     foreach (IDirectoryInfo packDirectory in packDirectories)
                     {
-                        string inputDirPath = packDirectory.FullName;
-                        IFileInfo packConfig = this.fileSystem.FileInfo.New($"{inputDirPath}/packConfig.json");
+                        IDirectoryInfo inputDirPath = this.fileSystem.DirectoryInfo.New(packDirectory.FullName);
+                        IFileInfo packConfig = this.fileSystem.FileInfo.New($"{inputDirPath.FullName}/packConfig.json");
                         if (!packConfig.Exists)
                         {
                             Log.Warning("packConfig.json doesn't exist! packagePacker will not run.");
@@ -322,8 +322,8 @@ namespace Cmf.CLI.Handlers
                         }
                         Log.Debug("Running Package Packer");
 
-                        string outputDirPath = $"{packageOutputDir}/runtimePackages";
-                        this.fileSystem.Directory.CreateDirectory(outputDirPath);
+                        IDirectoryInfo outputDirPath = this.fileSystem.DirectoryInfo.New($"{packageOutputDir}/runtimePackages");
+                        outputDirPath.Create();
 
                         // Is not Supported in workspaces
                         if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 10)
@@ -364,6 +364,11 @@ namespace Cmf.CLI.Handlers
                                                                                                               UnixFileMode.OtherRead | UnixFileMode.OtherWrite, true);
                                     }
 
+                                    Log.Debug("Setting group permissions on the package output folder");
+                                    FileSystemUtilities.SetUnixDirectoryPermissions(this.fileSystem, outputDirPath, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
+                                                                                                                   UnixFileMode.GroupRead | UnixFileMode.GroupWrite | UnixFileMode.GroupExecute |
+                                                                                                                   UnixFileMode.OtherRead | UnixFileMode.OtherWrite, true);
+
                                     string tempPath = this.fileSystem.Path.GetTempPath();
                                     Log.Debug($"Using {tempPath} for npm cache to avoid permission issues");
                                     environmentVariables.Add("npm_config_cache", $"{tempPath}/.npm-cache");
@@ -373,7 +378,7 @@ namespace Cmf.CLI.Handlers
                             CmdCommand cmdCommand = new CmdCommand()
                             {
                                 DisplayName = "yo @criticalmanufacturing/iot:packagePacker",
-                                Args = new string[] { "\"", $"{yo} @criticalmanufacturing/iot:packagePacker", debugFlag, $"-i \"{inputDirPath}\"", $"-o \"{outputDirPath}\"", "\"" },
+                                Args = new string[] { "\"", $"{yo} @criticalmanufacturing/iot:packagePacker", debugFlag, $"-i \"{inputDirPath.FullName}\"", $"-o \"{outputDirPath.FullName}\"", "\"" },
                                 WorkingDirectory = packDirectory,
                                 EnvironmentVariables = environmentVariables
                             };
@@ -385,7 +390,7 @@ namespace Cmf.CLI.Handlers
                             NPXCommand cmdCommand = new NPXCommand()
                             {
                                 DisplayName = "npx @criticalmanufacturing/node-package-bundler",
-                                Args = new string[] { "@criticalmanufacturing/node-package-bundler", debugFlag, $"-i \"{inputDirPath}\"", $"-o \"{outputDirPath}\"" },
+                                Args = new string[] { "@criticalmanufacturing/node-package-bundler", debugFlag, $"-i \"{inputDirPath.FullName}\"", $"-o \"{outputDirPath.FullName}\"" },
                                 WorkingDirectory = packDirectory
                             };
 
