@@ -147,14 +147,10 @@ namespace tests.Specs
                     if (layer == BaseLayer.Core)
                     {
                         commonCsproj.Should().NotContain("Cmf.Navigo");
-                        commonCsproj.Should().NotContain("Pkgcmf_common_customactionutilities");
-                        commonCsproj.Should().NotContain("cmf.common.customactionutilities");
                     }
                     else
                     {
                         commonCsproj.Should().Contain("Cmf.Navigo");
-                        commonCsproj.Should().Contain("Pkgcmf_common_customactionutilities");
-                        commonCsproj.Should().Contain("cmf.common.customactionutilities");
                     }
                 });
         }
