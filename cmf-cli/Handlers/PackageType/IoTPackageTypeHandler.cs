@@ -323,6 +323,7 @@ namespace Cmf.CLI.Handlers
                         Log.Debug("Running Package Packer");
 
                         string outputDirPath = $"{packageOutputDir}/runtimePackages";
+                        this.fileSystem.Directory.CreateDirectory(outputDirPath);
 
                         // Is not Supported in workspaces
                         if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 10)
