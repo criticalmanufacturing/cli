@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.10.1-1](https://github.com/criticalmanufacturing/cli/compare/5.10.1-0...5.10.1-1) (2026-04-13)
+
+
+### Features
+
+* generate npm-shrinkwrap.json ([2f5ed32](https://github.com/criticalmanufacturing/cli/commits/2f5ed321f3abe8b44a594cebfdd1870df9a30968))
+* validate npm package minimum age ([3f1a835](https://github.com/criticalmanufacturing/cli/commits/3f1a8350993477f6830d389a52e12eb2858e8122))
+* validate nuget package minimum age ([79cdb32](https://github.com/criticalmanufacturing/cli/commits/79cdb32c09008bbf1653b7961364a253b9dd2f74))
+
+
+### Bug Fixes
+
+* **doc:** update IoT scaffolding guide for package installation ([74deeb8](https://github.com/criticalmanufacturing/cli/commits/74deeb869e8e8c6afc95b461d50172ca0a1505a5))
+
+
+### Under the hood
+
+* simplify normalized var and parallelize NuGet API calls in check-nuget-min-age.js ([157b4dc](https://github.com/criticalmanufacturing/cli/commits/157b4dc337cea647f507a083749f539b53daf266))
+
 ### [5.10.1-0](https://github.com/criticalmanufacturing/cli/compare/5.10.0...5.10.1-0) (2026-04-10)
 
 
