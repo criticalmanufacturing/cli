@@ -61,11 +61,9 @@ public class MESVersionCommandValidation
                 catch (MESVersionValidationException ex)
                 {
                     commandResult.AddError(ex.Message);
-                    commandResult.AddError(ex.Message);
                 }
                 catch (Exception ex)
                 {
-                    commandResult.AddError($"Version validation error: {ex.Message}");
                     commandResult.AddError($"Version validation error: {ex.Message}");
                 }
             });
