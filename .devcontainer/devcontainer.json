@@ -13,7 +13,7 @@
     },
     "ghcr.io/devcontainers/features/github-cli": {},
     "ghcr.io/nils-geistmann/devcontainers-features/zsh": {
-      "plugins": "git dotnet node npm"
+      "plugins": "git dotnet node npm dotenv"
     },
     "ghcr.io/stuartleeks/dev-container-features/shell-history": {}
   },
@@ -40,7 +40,8 @@
   },
   "containerEnv": {
     "DOTNET_CLI_TELEMETRY_OPTOUT": "1",
-    "NPM_CONFIG_MIN_RELEASE_AGE": "3"
+    "NPM_CONFIG_MIN_RELEASE_AGE": "3",
+    "ZSH_DOTENV_PROMPT": "false"
   },
   "postCreateCommand": "npm ci && echo \"alias 'cmf=/workspaces/cli/cmf-cli/bin/Debug/cmf'\" >> /home/$USER/.bashrc"
 }

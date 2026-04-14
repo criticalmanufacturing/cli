@@ -368,3 +368,5 @@ npm/*.tgz
 !**/vendors/**
 
 .DS_Store
+
+.env
