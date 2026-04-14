@@ -1,7 +1,5 @@
 ﻿{
   "ProjectName": "CF58AABF",
-  "RepositoryType": "Customization",
-  "BaseLayer": "MES",
   "NPMRegistry": "http://npm_registry/",
   "RepositoryType": "App",
   "BaseLayer": "Core",
