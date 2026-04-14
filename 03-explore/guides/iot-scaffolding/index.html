@@ -2801,12 +2801,12 @@
 </code></pre></div>
 </li>
 <li>
-<p>Add a dependency in the HTML package's <code>package.json</code> file, using the command:</p>
-<div class="highlight"><pre><span></span><code><span class="n">npm</span> <span class="n">install</span> <span class="p">../</span><span class="n">Cmf</span><span class="p">.</span><span class="n">Custom</span><span class="p">.</span><span class="n">IoT</span><span class="p">/</span><span class="n">Cmf</span><span class="p">.</span><span class="n">Custom</span><span class="p">.</span><span class="n">IoT</span><span class="p">.</span><span class="n">Packages</span>
+<p>Add a dependency in the HTML package's <code>package.json</code> file, using the command, for each custom package:</p>
+<div class="highlight"><pre><span></span><code><span class="n">npm</span> <span class="n">install</span> <span class="p">../</span><span class="n">Cmf</span><span class="p">.</span><span class="n">Custom</span><span class="p">.</span><span class="n">IoT</span><span class="p">/</span><span class="n">Cmf</span><span class="p">.</span><span class="n">Custom</span><span class="p">.</span><span class="n">IoT</span><span class="p">.</span><span class="n">Packages</span><span class="p">/</span><span class="n">dist</span><span class="p">/&lt;</span><span class="n">your</span> <span class="n">package</span><span class="p">&gt;</span>
 </code></pre></div>
 <ul>
 <li>
-<p>This command will add an entry like:</p>
+<p>This command will add, in the package.json, an entry like:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">&quot;@criticalmanufacturing/connect-iot-controller-engine-custom-tasks&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;file:../Cmf.Custom.Baseline.IoT/Cmf.Custom.Baseline.IoT&quot;</span>
 </code></pre></div>
 </li>
