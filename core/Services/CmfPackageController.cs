@@ -390,6 +390,7 @@ public class CmfPackageController
 
                     step.DeeBasePath = element.Attribute("deeBasePath")?.Value;
                     step.ImportXMLObjectPath = element.Attribute("importXMLObjectPath")?.Value;
+                    step.AutomationWorkflowFileBasePath = element.Attribute("automationWorkflowFileBasePath")?.Value;
 
                 // // Create an XmlSerializer for the Person type
                 // XmlSerializer serializer = new XmlSerializer(typeof(Step));

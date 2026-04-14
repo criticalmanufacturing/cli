@@ -313,8 +313,8 @@ namespace Cmf.CLI.Handlers
 
                     foreach (IDirectoryInfo packDirectory in packDirectories)
                     {
-                        string inputDirPath = packDirectory.FullName;
-                        IFileInfo packConfig = this.fileSystem.FileInfo.New($"{inputDirPath}/packConfig.json");
+                        IDirectoryInfo inputDirPath = this.fileSystem.DirectoryInfo.New(packDirectory.FullName);
+                        IFileInfo packConfig = this.fileSystem.FileInfo.New($"{inputDirPath.FullName}/packConfig.json");
                         if (!packConfig.Exists)
                         {
                             Log.Warning("packConfig.json doesn't exist! packagePacker will not run.");
@@ -322,7 +322,8 @@ namespace Cmf.CLI.Handlers
                         }
                         Log.Debug("Running Package Packer");
 
-                        string outputDirPath = $"{packageOutputDir}/runtimePackages";
+                        IDirectoryInfo outputDirPath = this.fileSystem.DirectoryInfo.New($"{packageOutputDir}/runtimePackages");
+                        outputDirPath.Create();
 
                         // Is not Supported in workspaces
                         if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 10)
@@ -337,21 +338,49 @@ namespace Cmf.CLI.Handlers
                             npmCommand.Exec();
                         }
 
+                        string debugFlag = Log.Level <= LogLevel.Debug ? "-d" : "";
                         if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 11)
                         {
+                            var environmentVariables = new Dictionary<string, string>()
+                            {
+                                { "NO_UPDATE_NOTIFIER", "1" },
+                            };
+
                             IFileInfo yo = this.fileSystem.FileInfo.New($"{AppContext.BaseDirectory}resources/vendors/yo/node_modules/.bin/yo");
                             if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())
                             {
                                 Log.Debug("Setting execute permissions on yo binary");
-                                yo.UnixFileMode = UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute | UnixFileMode.GroupRead | UnixFileMode.GroupExecute | UnixFileMode.OtherRead | UnixFileMode.OtherExecute;
-                                fileSystem.File.SetUnixFileMode(yo.FullName, yo.UnixFileMode);
+                                FileSystemUtilities.SetUnixFilePermissions(this.fileSystem, yo, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
+                                                                                               UnixFileMode.GroupRead | UnixFileMode.GroupExecute |
+                                                                                               UnixFileMode.OtherRead | UnixFileMode.OtherExecute);
+                                if (Environment.IsPrivilegedProcess)
+                                {
+                                    IDirectoryInfo dist = this.fileSystem.DirectoryInfo.New($"{packDirectory.Parent.Parent.FullName}/dist/{packDirectory.Name}");
+                                    if (dist.Exists)
+                                    {
+                                        Log.Debug("Setting group permissions on the package dist folder");
+                                        FileSystemUtilities.SetUnixDirectoryPermissions(this.fileSystem, dist, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
+                                                                                                              UnixFileMode.GroupRead | UnixFileMode.GroupWrite | UnixFileMode.GroupExecute |
+                                                                                                              UnixFileMode.OtherRead | UnixFileMode.OtherWrite, true);
+                                    }
+
+                                    Log.Debug("Setting group permissions on the package output folder");
+                                    FileSystemUtilities.SetUnixDirectoryPermissions(this.fileSystem, outputDirPath, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
+                                                                                                                   UnixFileMode.GroupRead | UnixFileMode.GroupWrite | UnixFileMode.GroupExecute |
+                                                                                                                   UnixFileMode.OtherRead | UnixFileMode.OtherWrite, true);
+
+                                    string tempPath = this.fileSystem.Path.GetTempPath();
+                                    Log.Debug($"Using {tempPath} for npm cache to avoid permission issues");
+                                    environmentVariables.Add("npm_config_cache", $"{tempPath}/.npm-cache");
+                                }
                             }
-                            
+
                             CmdCommand cmdCommand = new CmdCommand()
                             {
                                 DisplayName = "yo @criticalmanufacturing/iot:packagePacker",
-                                Args = new string[] { "\"", $"{yo} @criticalmanufacturing/iot:packagePacker", $"-i \"{inputDirPath}\"", $"-o \"{outputDirPath}\"", "\"" },
-                                WorkingDirectory = packDirectory
+                                Args = new string[] { "\"", $"{yo} @criticalmanufacturing/iot:packagePacker", debugFlag, $"-i \"{inputDirPath.FullName}\"", $"-o \"{outputDirPath.FullName}\"", "\"" },
+                                WorkingDirectory = packDirectory,
+                                EnvironmentVariables = environmentVariables
                             };
 
                             cmdCommand.Exec();
@@ -361,7 +390,7 @@ namespace Cmf.CLI.Handlers
                             NPXCommand cmdCommand = new NPXCommand()
                             {
                                 DisplayName = "npx @criticalmanufacturing/node-package-bundler",
-                                Args = new string[] { "@criticalmanufacturing/node-package-bundler", $"-i \"{inputDirPath}\"", $"-o \"{outputDirPath}\"" },
+                                Args = new string[] { "@criticalmanufacturing/node-package-bundler", debugFlag, $"-i \"{inputDirPath.FullName}\"", $"-o \"{outputDirPath.FullName}\"" },
                                 WorkingDirectory = packDirectory
                             };
 

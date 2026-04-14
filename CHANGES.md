@@ -2,6 +2,56 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.10.1](https://github.com/criticalmanufacturing/cli/compare/5.10.1-2...5.10.1) (2026-04-14)
+
+### [5.10.1-2](https://github.com/criticalmanufacturing/cli/compare/5.10.1-0...5.10.1-2) (2026-04-13)
+
+
+### Features
+
+* generate npm-shrinkwrap.json ([2f5ed32](https://github.com/criticalmanufacturing/cli/commits/2f5ed321f3abe8b44a594cebfdd1870df9a30968))
+* validate npm package minimum age ([3f1a835](https://github.com/criticalmanufacturing/cli/commits/3f1a8350993477f6830d389a52e12eb2858e8122))
+* validate nuget package minimum age ([79cdb32](https://github.com/criticalmanufacturing/cli/commits/79cdb32c09008bbf1653b7961364a253b9dd2f74))
+
+
+### Bug Fixes
+
+* **doc:** update IoT scaffolding guide for package installation ([74deeb8](https://github.com/criticalmanufacturing/cli/commits/74deeb869e8e8c6afc95b461d50172ca0a1505a5))
+* **iot:** ensure group permissions on the output folder ([040611d](https://github.com/criticalmanufacturing/cli/commits/040611d9d9fe03339dc904d7321a31451f90b39f))
+* **iot:** make sure we are the creators of `outputDir` to prevent permissions issues ([7f8cc36](https://github.com/criticalmanufacturing/cli/commits/7f8cc369881d67a8c6888672213bf46f5064373a))
+
+
+### Under the hood
+
+* simplify normalized var and parallelize NuGet API calls in check-nuget-min-age.js ([157b4dc](https://github.com/criticalmanufacturing/cli/commits/157b4dc337cea647f507a083749f539b53daf266))
+
+### [5.10.1-1](https://github.com/criticalmanufacturing/cli/compare/5.10.1-0...5.10.1-1) (2026-04-13)
+
+
+### Features
+
+* generate npm-shrinkwrap.json ([2f5ed32](https://github.com/criticalmanufacturing/cli/commits/2f5ed321f3abe8b44a594cebfdd1870df9a30968))
+* validate npm package minimum age ([3f1a835](https://github.com/criticalmanufacturing/cli/commits/3f1a8350993477f6830d389a52e12eb2858e8122))
+* validate nuget package minimum age ([79cdb32](https://github.com/criticalmanufacturing/cli/commits/79cdb32c09008bbf1653b7961364a253b9dd2f74))
+
+
+### Bug Fixes
+
+* **doc:** update IoT scaffolding guide for package installation ([74deeb8](https://github.com/criticalmanufacturing/cli/commits/74deeb869e8e8c6afc95b461d50172ca0a1505a5))
+
+
+### Under the hood
+
+* simplify normalized var and parallelize NuGet API calls in check-nuget-min-age.js ([157b4dc](https://github.com/criticalmanufacturing/cli/commits/157b4dc337cea647f507a083749f539b53daf266))
+
+### [5.10.1-0](https://github.com/criticalmanufacturing/cli/compare/5.10.0...5.10.1-0) (2026-04-10)
+
+
+### Bug Fixes
+
+* **iot:** yeoman doesn't like running as root so we need to ensure it has the right permissions anyway ([441806b](https://github.com/criticalmanufacturing/cli/commits/441806bd15d202967e9c51d72366aeb16db7ab76))
+* **iot:** yeoman may not have access to the npm cache folder when running as root ([ea2b33b](https://github.com/criticalmanufacturing/cli/commits/ea2b33b3f2c33fb85523a06db13a275fe9924978))
+
 ## [5.10.0](https://github.com/criticalmanufacturing/cli/compare/5.9.0...5.10.0) (2026-03-30)
 
 ## [5.10.0-0](https://github.com/criticalmanufacturing/cli/compare/5.9.1-1...5.10.0-0) (2026-03-30)

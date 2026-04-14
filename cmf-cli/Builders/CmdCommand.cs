@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Cmf.CLI.Core.Objects;
@@ -44,6 +45,14 @@ namespace Cmf.CLI.Builders
         public string[] Args { get; set; }
 
         /// <summary>
+        /// Gets or sets the list of environment variables
+        /// </summary>
+        /// <value>
+        /// The environment variables.
+        /// </value>
+        public Dictionary<string, string> EnvironmentVariables { get; set; }
+
+        /// <summary>
         /// Gets the steps.
         /// </summary>
         /// <returns></returns>
@@ -51,15 +60,16 @@ namespace Cmf.CLI.Builders
         {
             var args = this.Args.ToList();
 
-            args.Insert(0, (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "/c" : "-c"));
+            args.Insert(0, RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "/c" : "-c");
             args.Insert(1, this.Command);
 
             return new[]
             {
                 new ProcessBuildStep()
                 {
-                    Command = (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "cmd" : "sh"),
-                    Args = args.ToArray()
+                    Command = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "cmd" : "sh",
+                    Args = args.ToArray(),
+                    EnvironmentVariables = this.EnvironmentVariables
                 }
             };
         }
