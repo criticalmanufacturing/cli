@@ -17,6 +17,7 @@ jest.mock('rimraf');
 jest.mock('node_modules-path');
 jest.mock('proxy-from-env');
 jest.mock('http-proxy-agent');
+jest.mock('https-proxy-agent');
 jest.mock('fs');
 
 const mockMkdirp = require('mkdirp');
@@ -279,8 +280,10 @@ describe('postinstall.js', () => {
 // Helper function to create a mock downloadAndExtract function
 function createDownloadAndExtractFunction() {
     const proxyFromEnv = require('proxy-from-env');
-    const HttpProxyAgent = require('http-proxy-agent');
-    const HttpsProxyAgent = require('https-proxy-agent');
+    const HttpProxyAgentModule = require('http-proxy-agent');
+    const HttpsProxyAgentModule = require('https-proxy-agent');
+    const HttpProxyAgent = HttpProxyAgentModule.HttpProxyAgent || HttpProxyAgentModule;
+    const HttpsProxyAgent = HttpsProxyAgentModule.HttpsProxyAgent || HttpsProxyAgentModule;
 
     async function downloadAndExtract(pkgUrl, dest) {
         const proxy = proxyFromEnv.getProxyForUrl(pkgUrl);
@@ -331,8 +334,9 @@ function createMockInstallFunction() {
         };
 
         const src = `./dist/${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}`;
+        const sourceBinaryPath = `${src}/${opts.binName}`;
 
-        if (!fs.existsSync("./dist")) {
+        if (!fs.existsSync(sourceBinaryPath)) {
             const primaryUrl = opts.binUrl
                 .replace("{{version}}", opts.version)
                 .replace("{{platform}}", PLATFORM_MAPPING[process.platform])
