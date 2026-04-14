@@ -277,15 +277,7 @@ namespace Cmf.CLI.Handlers
                         IDirectoryInfo outputDirPath = this.fileSystem.DirectoryInfo.New($"{packageOutputDir}/runtimePackages");
                         outputDirPath.Create();
 
-                        NPMCommand npmCommand = new NPMCommand()
-                        {
-                            DisplayName = "npm shrinkwrap",
-                            Args = new string[] { "shrinkwrap" },
-                            WorkingDirectory = packDirectory
-                        };
-
                         string debugFlag = Log.Level <= LogLevel.Debug ? "-d" : "";
-                        npmCommand.Exec();
                         
                         if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 11)
                         {
