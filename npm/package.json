@@ -34,7 +34,7 @@
   "dependencies": {
     "adm-zip": "^0.5.12",
     "axios": "^1.7.9",
-    "proxy-agent": "^5.0.0",
+    "proxy-agent": "^8.0.1",
     "debug": "^4.3.4",
     "global-dirs": "3.0.0",
     "mkdirp": "^2.1.6",
@@ -43,8 +43,8 @@
     "tmp": "0.2.1"
   },
   "devDependencies": {
-    "jest": "^27.5.1",
-    "http-proxy-agent": "^5.0.0",
+    "jest": "^30.3.0",
+    "http-proxy-agent": "^9.0.0",
     "https-proxy-agent": "^5.0.1",
     "proxy-from-env": "^1.1.0"
   }
