@@ -83,7 +83,7 @@ namespace Cmf.CLI.Commands
                 var force = parseResult.GetValue(forceOption);
                 var dryRun = parseResult.GetValue(dryRunOption);
 
-                Execute(workDir, outputDir, force);
+                Execute(workDir, outputDir, force, dryRun);
                 return Task.FromResult(0);
             });
         }
