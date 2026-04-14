@@ -1036,11 +1036,11 @@ public class CmfPackageController
             {
                 mandatoryDependecies.Add(property);
             }
-            //
-            // if (dependency.IsConditional)
-            // {
-            //     conditionalDependencies.Add(property);
-            // }
+
+            if (dependency.Conditional)
+            {
+                conditionalDependencies.Add(property);
+            }
         }
 
         #endregion
