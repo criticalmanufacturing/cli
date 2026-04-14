@@ -15,6 +15,7 @@ jest.mock('tmp');
 jest.mock('mkdirp');
 jest.mock('rimraf');
 jest.mock('proxy-from-env');
+jest.mock('http-proxy-agent');
 jest.mock('fs');
 
 const mockMkdirp = require('mkdirp');
