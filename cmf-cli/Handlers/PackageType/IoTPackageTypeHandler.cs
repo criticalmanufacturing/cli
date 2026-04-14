@@ -396,6 +396,11 @@ namespace Cmf.CLI.Handlers
 
                             cmdCommand.Exec();
                         }
+
+                        if (!outputDirPath.Exists || outputDirPath.GetFiles("*.tgz").Length == 0)
+                        {
+                            throw new CliException($"Package Packer did not create the expected output file at {outputDirPath.FullName}");
+                        }
                     }
                 }
                 else if (contentToPack.Action == PackAction.Untar)
