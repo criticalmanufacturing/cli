@@ -3,7 +3,7 @@
   "version": "5.10.1",
   "description": "Critical Manufacturing command line client",
   "bin": {
-    "cmf": "./run.js"
+    "cmf": "run.js"
   },
   "scripts": {
     "prepare": "npm shrinkwrap",
@@ -24,7 +24,7 @@
   "homepage": "https://github.com/criticalmanufacturing/cli#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/criticalmanufacturing/cli.git"
+    "url": "git+https://github.com/criticalmanufacturing/cli.git"
   },
   "files": [
     "dist",
