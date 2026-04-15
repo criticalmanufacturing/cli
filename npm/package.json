@@ -6,6 +6,7 @@
     "cmf": "./run.js"
   },
   "scripts": {
+    "prepare": "npm shrinkwrap",
     "postinstall": "node postinstall.js install",
     "preuninstall": "node postinstall.js uninstall",
     "test": "jest",
@@ -29,7 +30,8 @@
     "dist",
     "postinstall.js",
     "run.js",
-    "utils.js"
+    "utils.js",
+    "npm-shrinkwrap.json"
   ],
   "dependencies": {
     "adm-zip": "^0.5.12",
