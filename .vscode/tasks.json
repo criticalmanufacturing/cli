@@ -37,6 +37,30 @@
                 "/consoleloggerparameters:NoSummary"
             ],
             "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "use-node",
+            "type": "shell",
+            "hide": true,
+            "command": ". /usr/local/share/nvm/nvm.sh && nvm use ${input:NodeVersion} && if [ \"${input:NodeVersion}\" = \"20\" ]; then echo \"Node18\" > /tmp/TEST_CATEGORY; else echo \"Node20\" > /tmp/TEST_CATEGORY; fi"
+        },
+        {
+            "label": "integration-tests",
+            "type": "shell",
+            "command": "dotnet test --configuration Release -verbosity diagnostic",
+            "dependsOn": "use-node"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "NodeVersion",
+            "type": "pickString",
+            "description": "Select Node.js version",
+            "options": [
+                "18",
+                "20"
+            ],
+            "default": "18"
         }
     ]
 }

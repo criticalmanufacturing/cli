@@ -6,9 +6,9 @@
   ],
   "description": "Generate a new business package",
   "name": "Business Package (> MES 9)",
-  "identity": "cmf-cli.new.business9",
-  "groupIdentity": "cmf-cli.new.business9",
-  "shortName": "business9",
+  "identity": "cmf-cli.new.business10",
+  "groupIdentity": "cmf-cli.new.business10",
+  "shortName": "business10",
   // You can create the project using this short name instead of the one above.
   "tags": {
     "language": "C#",

@@ -4,13 +4,11 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Cmf.CLI.Builders;
 using Cmf.CLI.Commands.html;
 using Cmf.CLI.Commands.restore;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
-using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
@@ -240,44 +238,5 @@ namespace Cmf.CLI.Handlers
         //     Log.Information($"{outputDir.FullName}/{CmfPackage.ZipPackageName} created");
         //     
         // }
-        
-        /// <summary>
-        /// Generates the presentation configuration file.
-        /// </summary>
-        /// <param name="packageOutputDir">The package output dir.</param>
-        private void GeneratePresentationConfigFile(IDirectoryInfo packageOutputDir)
-        {
-            Log.Debug("Generating Presentation config.json");
-            string path = $"{packageOutputDir.FullName}/assets/{CliConstants.CmfPackagePresentationConfig}";
-            
-            List<string> transformInjections = new();
-
-            IDirectoryInfo cmfPackageDirectory = CmfPackage.GetFileInfo().Directory;
-
-            foreach (ContentToPack contentToPack in CmfPackage.ContentToPack)
-            {
-                if (contentToPack.Action == PackAction.Transform)
-                {
-                    transformInjections.Add(contentToPack.Source);
-                }
-            }
-
-            // Get Template
-            string fileContent = ResourceUtilities.GetEmbeddedResourceContent($"{CliConstants.FolderTemplates}/{CmfPackage.PackageType}/config.ng.json");
-
-            fileContent = fileContent.Replace(CliConstants.TokenVersion, CmfPackage.Version);
-
-            string injection = string.Empty;
-            if (transformInjections.HasAny())
-            {
-                // we actually want a trailing comma here, because the inject token is in the middle of the document. If this changes we need to put more logic here.
-                var injections = transformInjections.Select(injection => this.fileSystem.File.ReadAllText($"{cmfPackageDirectory}/{injection}") + ",");
-                injection = string.Join(System.Environment.NewLine, injections);
-            }
-            fileContent = fileContent.Replace(CliConstants.TokenJDTInjection, injection);
-            fileContent = fileContent.Replace(CliConstants.CacheId, DateTime.Now.ToString("yyyyMMddHHmmss"));
-
-            this.fileSystem.File.WriteAllText(path, fileContent);
-        }
     }
 }

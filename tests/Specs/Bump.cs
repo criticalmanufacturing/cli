@@ -15,95 +15,6 @@ namespace tests.Specs;
 
 public class Bump
 {
-    [Theory]
-    [InlineData("'", "1.0.0")]
-    [InlineData("\"", "1.0.0")]
-    [InlineData("'", "")]
-    public void Bump_MetadataWithAnyQuoteType(string quoteType, string version)
-    {
-        // files
-        string cmfPackageJson = $"help/{CliConstants.CmfPackageFileName}";
-        string npmPackageJson = "/help/package.json";
-        string metadataTS =
-            "/help/src/packages/cmf.docs.area.cmf.custom.help/src/cmf.docs.area.cmf.custom.help.metadata.ts";
-
-        string bumpVersion = "1.0.1";
-
-        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
-        {
-            {
-                MockUnixSupport.Path(@"c:\.project-config.json"), new MockFileData(
-                    @"{
-              ""MESVersion"": ""9.0.0""
-            }")
-            },
-            {
-                cmfPackageJson, new MockFileData(
-                    @$"{{
-                      ""packageId"": ""Cmf.Custom.Help"",
-                      ""version"": ""{version}"",
-                      ""description"": ""Cmf Custom Cmf.Custom.Help Package"",
-                      ""packageType"": ""Help"",
-                      ""isInstallable"": true,
-                      ""isUniqueInstall"": false,
-                      ""contentToPack"": [
-                        {{
-                          ""source"": ""src/packages/*"",
-                          ""target"": ""node_modules"",
-                          ""ignoreFiles"": [
-                            "".npmignore""
-                          ]
-                        }}
-                      ]
-                }}")
-            },
-            {
-                npmPackageJson, new MockFileData(
-                    @$"{{
-                      ""name"": ""cmf.docs.area"",
-                      ""version"": ""{version}"",
-                      ""description"": ""Help customization package"",
-                      ""private"": true,
-                      ""scripts"": {{
-                        ""preinstall"": ""node npm.preinstall.js"",
-                        ""postinstall"": ""node npm.postinstall.js""
-                      }},
-                      ""repository"": {{
-                        ""type"": ""git"",
-                        ""url"": ""https://url/git""
-                      }}
-                }}")
-            },
-            {
-                metadataTS, new MockFileData(
-                    @$"
-                (...)
-                function applyConfig (packageName: string) {{
-                  const config: PackageMetadata = {{
-                    version: {quoteType}{version}{quoteType},
-                (...)
-            ")
-            }
-        });
-
-        ExecutionContext.ServiceProvider = (new ServiceCollection())
-            .AddSingleton<IProjectConfigService>(new ProjectConfigService())
-            .BuildServiceProvider();
-        ExecutionContext.Initialize(fileSystem);
-
-        IFileInfo cmfpackageFile = fileSystem.FileInfo.New(cmfPackageJson);
-        IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile);
-        packageTypeHandler.Bump(bumpVersion, "");
-
-        string cmfPackageVersion = (packageTypeHandler as HelpGulpPackageTypeHandler).CmfPackage.Version;
-        dynamic packageFile = JsonConvert.DeserializeObject(fileSystem.File.ReadAllText(npmPackageJson));
-        string packageFileVersion = packageFile.version;
-        string metadataFile = fileSystem.File.ReadAllText(metadataTS);
-
-        cmfPackageVersion.Should().Be(bumpVersion);
-        packageFileVersion.Should().Be(bumpVersion);
-        metadataFile.Should().Contain($"version: \"{bumpVersion}\"");
-    }
 
     [Theory]
     [InlineData("alpha.1")]
@@ -115,8 +26,7 @@ public class Bump
         // files
         string cmfPackageJson = $"help/{CliConstants.CmfPackageFileName}";
         string npmPackageJson = "/help/package.json";
-        string metadataTS =
-            "/help/src/packages/cmf.docs.area.cmf.custom.help/src/cmf.docs.area.cmf.custom.help.metadata.ts";
+        string angularJson = "/help/angular.json";
 
         string bumpVersion = "1.0.1";
         string expectedVersion = $"{bumpVersion}-{preRelease}";
@@ -126,7 +36,7 @@ public class Bump
             {
                 MockUnixSupport.Path(@"c:\.project-config.json"), new MockFileData(
                     @"{
-              ""MESVersion"": ""9.0.0""
+              ""MESVersion"": ""11.0.0""
             }")
             },
             {
@@ -152,7 +62,7 @@ public class Bump
             {
                 npmPackageJson, new MockFileData(
                     @$"{{
-                      ""name"": ""cmf.docs.area"",
+                      ""name"": ""documentation-portal"",
                       ""version"": ""1.0.0"",
                       ""description"": ""Help customization package"",
                       ""private"": true,
@@ -167,18 +77,20 @@ public class Bump
                 }}")
             },
             {
-                metadataTS, new MockFileData(
-                    @$"
-                (...)
-                function applyConfig (packageName: string) {{
-                  const config: PackageMetadata = {{
-                    version: ""1.0.0"",
-                (...)
-            ")
+                angularJson, new MockFileData(
+                    @$"{{
+                      ""version"": 1,
+                      ""projects"": {{
+                        ""cmf.docs.area.cmf.custom.help"": {{
+                          ""projectType"": ""library"",
+                          ""schematics"": ""./src/schematics/collection.json""
+                        }}
+                      }}
+                }}")
             }
         });
 
-        ExecutionContext.ServiceProvider = (new ServiceCollection())
+        ExecutionContext.ServiceProvider = new ServiceCollection()
             .AddSingleton<IProjectConfigService>(new ProjectConfigService())
             .BuildServiceProvider();
         ExecutionContext.Initialize(fileSystem);
@@ -187,14 +99,12 @@ public class Bump
         IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile);
         packageTypeHandler.Bump(bumpVersion, preRelease);
 
-        string cmfPackageVersion = (packageTypeHandler as HelpGulpPackageTypeHandler).CmfPackage.Version;
+        string cmfPackageVersion = (packageTypeHandler as HelpNgCliPackageTypeHandler).CmfPackage.Version;
         dynamic packageFile = JsonConvert.DeserializeObject(fileSystem.File.ReadAllText(npmPackageJson));
         string packageFileVersion = packageFile.version;
-        string metadataFile = fileSystem.File.ReadAllText(metadataTS);
 
         cmfPackageVersion.Should().Be(expectedVersion);
         packageFileVersion.Should().Be(expectedVersion);
-        metadataFile.Should().Contain($"version: \"{expectedVersion}\"");
     }
 
     [Theory]

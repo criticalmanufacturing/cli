@@ -36,18 +36,18 @@
   "dependencies": {
     "adm-zip": "^0.5.12",
     "axios": "^1.7.9",
-    "proxy-agent": "^5.0.0",
     "debug": "^4.3.4",
     "global-dirs": "3.0.0",
+    "http-proxy-agent": "^7.0.2",
+    "https-proxy-agent": "^7.0.6",
     "mkdirp": "^2.1.6",
     "node_modules-path": "^2.0.7",
+    "proxy-agent": "^6.5.0",
+    "proxy-from-env": "^1.1.0",
     "rimraf": "^3.0.2",
-    "tmp": "0.2.1",
-    "http-proxy-agent": "^5.0.0",
-    "https-proxy-agent": "^5.0.1"
+    "tmp": "^0.2.5"
   },
   "devDependencies": {
-    "jest": "^27.5.1",
-    "proxy-from-env": "^1.1.0"
+    "jest": "^30.3.0"
   }
 }

@@ -7,14 +7,17 @@ const path = require('path'),
     rimraf = require('rimraf'),
     fs = require('fs'),
     axios = require('axios'),
-    HttpsProxyAgent = require('https-proxy-agent'),
-    HttpProxyAgent = require('http-proxy-agent'),
+    HttpsProxyAgentModule = require('https-proxy-agent'),
+    HttpProxyAgentModule = require('http-proxy-agent'),
     proxyFromEnv = require('proxy-from-env'),
     AdmZip = require("adm-zip"),
     tmp = require('tmp'),
     dbg = require('debug'),
     node_modules = require('node_modules-path'),
     { parsePackageJson, PLATFORM_MAPPING, ARCH_MAPPING } = require('./utils');
+
+const HttpsProxyAgent = HttpsProxyAgentModule.HttpsProxyAgent || HttpsProxyAgentModule;
+const HttpProxyAgent = HttpProxyAgentModule.HttpProxyAgent || HttpProxyAgentModule;
 
 const debug = dbg("cmf:debug");
 const error = dbg("cmf:debug:error");
@@ -81,9 +84,12 @@ async function install(callback) {
     var opts = parsePackageJson(".");
     if (!opts) return callback(INVALID_INPUT);
     console.info(`Copying the relevant binary for your platform ${process.platform}`);
-    const src= `./dist/${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}`;
+    const src = `./dist/${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}`;
+    const sourceBinaryPath = path.join(src, opts.binName);
 
-    if (!fs.existsSync("./dist")) {
+    // If dist exists but does not contain the expected binary for this platform,
+    // fetch the release archive and hydrate the platform folder.
+    if (!fs.existsSync(sourceBinaryPath)) {
         // download respective release zip from github or fallback repositories
         const primaryUrl = opts.binUrl.replace("{{version}}", opts.version).replace("{{platform}}", PLATFORM_MAPPING[process.platform]).replace("{{arch}}", ARCH_MAPPING[process.arch]);
         const versionedFallbackName = `cmf-cli.${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}-${opts.version}.zip`;
@@ -124,7 +130,7 @@ async function install(callback) {
         await execShellCommand(`robocopy ${src.replace(/\//g, "\\")} "${installPath}" /e /is /it`, [1]);
     } else {
         debug("Installing for *NIX: " + process.platform);
-        await execShellCommand(`cp -r ${src}/** "${installPath}"`);
+        await execShellCommand(`cp -r ${src}/. "${installPath}"`);
         await execShellCommand(`chmod +x "${installPath}/cmf"`);
     }
     await verifyAndPlaceBinary(opts.binName, installPath, callback);

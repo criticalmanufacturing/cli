@@ -638,12 +638,6 @@
             "assets/**",
             "assets/"
           ]
-        },
-        {
-          "condition": "MESVersion-Major < 10",
-          "exclude": [
-            ".devcontainer/*"
-          ]
         }
       ]
     }
