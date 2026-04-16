@@ -3,7 +3,7 @@
   "version": "5.10.4",
   "description": "Critical Manufacturing command line client",
   "bin": {
-    "cmf": "run.js"
+    "cmf": "./run.js"
   },
   "scripts": {
     "postinstall": "node postinstall.js install",
