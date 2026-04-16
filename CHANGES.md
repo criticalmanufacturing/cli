@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.10.3](https://github.com/criticalmanufacturing/cli/compare/5.10.2...5.10.3) (2026-04-16)
+
 ### [5.10.2](https://github.com/criticalmanufacturing/cli/compare/5.10.1...5.10.2) (2026-04-16)
 
 
