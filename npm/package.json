@@ -1,6 +1,6 @@
 {
   "name": "@criticalmanufacturing/cli",
-  "version": "5.10.2",
+  "version": "5.10.3",
   "description": "Critical Manufacturing command line client",
   "bin": {
     "cmf": "run.js"
@@ -42,12 +42,12 @@
     "mkdirp": "^2.1.6",
     "node_modules-path": "^2.0.7",
     "rimraf": "^3.0.2",
-    "tmp": "0.2.1"
+    "tmp": "0.2.1",
+    "http-proxy-agent": "^5.0.0",
+    "https-proxy-agent": "^5.0.1"
   },
   "devDependencies": {
     "jest": "^27.5.1",
-    "http-proxy-agent": "^5.0.0",
-    "https-proxy-agent": "^5.0.1",
     "proxy-from-env": "^1.1.0"
   }
 }
