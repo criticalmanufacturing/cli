@@ -361,13 +361,13 @@ namespace Cmf.CLI.Handlers
                                         Log.Debug("Setting group permissions on the package dist folder");
                                         FileSystemUtilities.SetUnixDirectoryPermissions(this.fileSystem, dist, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
                                                                                                               UnixFileMode.GroupRead | UnixFileMode.GroupWrite | UnixFileMode.GroupExecute |
-                                                                                                              UnixFileMode.OtherRead | UnixFileMode.OtherWrite, true);
+                                                                                                              UnixFileMode.OtherRead | UnixFileMode.OtherWrite | UnixFileMode.OtherExecute, true);
                                     }
 
                                     Log.Debug("Setting group permissions on the package output folder");
                                     FileSystemUtilities.SetUnixDirectoryPermissions(this.fileSystem, outputDirPath, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
                                                                                                                    UnixFileMode.GroupRead | UnixFileMode.GroupWrite | UnixFileMode.GroupExecute |
-                                                                                                                   UnixFileMode.OtherRead | UnixFileMode.OtherWrite, true);
+                                                                                                                   UnixFileMode.OtherRead | UnixFileMode.OtherWrite | UnixFileMode.OtherExecute, true);
 
                                     string tempPath = this.fileSystem.Path.GetTempPath();
                                     Log.Debug($"Using {tempPath} for npm cache to avoid permission issues");
@@ -395,6 +395,11 @@ namespace Cmf.CLI.Handlers
                             };
 
                             cmdCommand.Exec();
+                        }
+
+                        if (!outputDirPath.Exists || outputDirPath.GetFiles("*.tgz").Length == 0)
+                        {
+                            throw new CliException($"Package Packer did not create the expected output file at {outputDirPath.FullName}");
                         }
                     }
                 }
