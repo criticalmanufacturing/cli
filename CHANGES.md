@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.10.2](https://github.com/criticalmanufacturing/cli/compare/5.10.1...5.10.2) (2026-04-16)
+
+
+### Bug Fixes
+
+* correct path format for cmf binary and update repository URL scheme ([ca61b1d](https://github.com/criticalmanufacturing/cli/commits/ca61b1dbde9fd9a5d31009eaa5d2b3dabde2a5d1))
+* **iot:** ensure execute group permissions on the output and dist folder too ([332156f](https://github.com/criticalmanufacturing/cli/commits/332156f73bb909cffcb7b0f7b4f84fa17cab19ac))
+* **iot:** make sure there's an error if a package is not created ([7698058](https://github.com/criticalmanufacturing/cli/commits/76980582c174e0c8fe07e82e3625588d1312cd5e))
+* update function ToJson to include conditionalDependencies ([29a3823](https://github.com/criticalmanufacturing/cli/commits/29a38234dab9f78374b94a7f3ed5db31b2e5835c))
+
 ### [5.10.2-0](https://github.com/criticalmanufacturing/cli/compare/5.10.1-2...5.10.2-0) (2026-04-14)
 
 ### [5.10.1](https://github.com/criticalmanufacturing/cli/compare/5.10.1-2...5.10.1) (2026-04-14)
