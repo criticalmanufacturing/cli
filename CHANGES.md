@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.10.5](https://github.com/criticalmanufacturing/cli/compare/5.10.4...5.10.5) (2026-04-17)
+
+
+### Bug Fixes
+
+* add npm-shrinkwrap and force node 12 on publish ([6303b56](https://github.com/criticalmanufacturing/cli/commits/6303b56d633d8dd395f99bdfc5d6c5b9d81dbf0e))
+
 ### [5.10.4](https://github.com/criticalmanufacturing/cli/compare/5.10.3...5.10.4) (2026-04-16)
 
 

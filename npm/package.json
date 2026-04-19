@@ -1,11 +1,12 @@
 {
   "name": "@criticalmanufacturing/cli",
-  "version": "5.10.4",
+  "version": "5.10.5",
   "description": "Critical Manufacturing command line client",
   "bin": {
-    "cmf": "./run.js"
+    "cmf": "run.js"
   },
   "scripts": {
+    "prepare": "npm shrinkwrap",
     "postinstall": "node postinstall.js install",
     "preuninstall": "node postinstall.js uninstall",
     "test": "jest",
@@ -29,7 +30,8 @@
     "dist",
     "postinstall.js",
     "run.js",
-    "utils.js"
+    "utils.js",
+    "npm-shrinkwrap.json"
   ],
   "dependencies": {
     "adm-zip": "^0.5.12",
