@@ -6,13 +6,13 @@
     "cmf": "run.js"
   },
   "scripts": {
-    "prepare": "npm shrinkwrap",
     "postinstall": "node postinstall.js install",
     "preuninstall": "node postinstall.js uninstall",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "test:integration": "node integration-test.js"
+    "test:integration": "node integration-test.js",
+    "prepublishOnly": "npm shrinkwrap"
   },
   "author": "Critical Manufacturing, SA",
   "license": "BSD-3-Clause",
