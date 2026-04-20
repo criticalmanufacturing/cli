@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.10.7](https://github.com/criticalmanufacturing/cli/compare/5.10.6...5.10.7) (2026-04-20)
+
+
+### Bug Fixes
+
+* remove node_modules-path dependency and update path resolution in postinstall and run scripts ([d3c111a](https://github.com/criticalmanufacturing/cli/commits/d3c111a3d1dca6b8fe272a1090698e144a7d3a6a))
+
 ### [5.10.6](https://github.com/criticalmanufacturing/cli/compare/5.10.5...5.10.6) (2026-04-20)
 
 
