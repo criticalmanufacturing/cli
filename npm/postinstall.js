@@ -13,7 +13,6 @@ const path = require('path'),
     AdmZip = require("adm-zip"),
     tmp = require('tmp'),
     dbg = require('debug'),
-    node_modules = require('node_modules-path'),
     { parsePackageJson, PLATFORM_MAPPING, ARCH_MAPPING } = require('./utils');
 
 const debug = dbg("cmf:debug");
@@ -22,7 +21,10 @@ const error = dbg("cmf:debug:error");
 async function getInstallationPath() {
     debug("Getting installation path...");
     debug("Targeting node_modules/.bin/cmf-cli. Making sure path exists...");
-    const dir = path.join(node_modules(), ".bin", "cmf-cli");
+    // __dirname is always <node_modules>/@criticalmanufacturing/cli, so two
+    // levels up is always the node_modules/ dir that owns .bin/ — whether this
+    // is a local install (with or without shrinkwrap) or a global install.
+    const dir = path.join(path.resolve(__dirname, '..', '..'), ".bin", "cmf-cli");
     await mkdirp(dir);
     debug(`Install path exists!`);
     return dir;
