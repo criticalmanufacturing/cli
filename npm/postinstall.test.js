@@ -14,13 +14,11 @@ jest.mock('adm-zip');
 jest.mock('tmp');
 jest.mock('mkdirp');
 jest.mock('rimraf');
-jest.mock('node_modules-path');
 jest.mock('proxy-from-env');
 jest.mock('fs');
 
 const mockMkdirp = require('mkdirp');
 const mockRimraf = require('rimraf');
-const mockNodeModulesPath = require('node_modules-path');
 const mockProxyFromEnv = require('proxy-from-env');
 
 describe('postinstall.js', () => {
@@ -36,7 +34,6 @@ describe('postinstall.js', () => {
         jest.clearAllMocks();
 
         // Setup default mock implementations
-        mockNodeModulesPath.mockReturnValue('/mock/node_modules');
         mockMkdirp.mockResolvedValue(undefined);
         mockRimraf.sync = jest.fn();
         mockProxyFromEnv.getProxyForUrl = jest.fn().mockReturnValue(null);
