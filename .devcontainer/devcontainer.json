@@ -45,5 +45,5 @@
     "NPM_CONFIG_MIN_RELEASE_AGE": "3",
     "ZSH_DOTENV_PROMPT": "false"
   },
-  "postCreateCommand": "npm ci && echo \"alias 'cmf=/workspaces/cli/cmf-cli/bin/Debug/cmf'\" >> /home/$USER/.bashrc"
+  "postCreateCommand": "npm ci && echo \"alias 'cmf=/workspaces/cli/cmf-cli/bin/Debug/cmf'\" >> /home/$USER/.zshrc"
 }
