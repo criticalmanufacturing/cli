@@ -39,16 +39,39 @@ public class CmfPackageController
         "title",
         "onExecute",
         "contentPath",
+        "content",
         "file",
         "tagFile",
         "targetDatabase",
+        "messageType",
         "filePath",
         "oldSystemName",
+        "targetDirectory",
+        "targetFile",
+        "runInMaster",
+        "targetAll",
         "deeBasePath",
         "importXMLObjectPath",
         "automationWorkflowFileBasePath",
         "createInCollection",
-        "targetPlatform"
+        "targetPlatform",
+        "userKey",
+        "quota",
+        "id",
+        "useMachineName",
+        "account",
+        "onInitialize",
+        "onPrepare",
+        "scriptHandler",
+        "patchId",
+        "replaceTokens",
+        "sourcePackages",
+        "targetDb",
+        "conditionPath",
+        "patchDescription",
+        "databaseType",
+        "configPath",
+        "value"
     ];
     
     public CmfPackageController(CmfPackageV1 package, IFileSystem fileSystem)
@@ -376,29 +399,46 @@ public class CmfPackageController
                 {
                     LogUnknownAttributes(element, KnownStepAttributes);
                     
-                    Step step = new Step(
-                        type: Enum.Parse(typeof(StepType), element.Attribute("type")?.Value) is StepType
-                            ? (StepType)Enum.Parse(typeof(StepType), element.Attribute("type")?.Value)
-                            : StepType.Generic,
-                        title: element.Attribute("title")?.Value,
-                        onExecute: element.Attribute("onExecute")?.Value,
-                        contentPath: element.Attribute("contentPath")?.Value,
-                        file: element.Attribute("file")?.Value,
-                        tagFile: element.Attribute("tagFile")?.Value != null ? bool.Parse(element.Attribute("tagFile")?.Value) : null,
-                        targetDatabase: element.Attribute("targetDatabase")?.Value,
-                        messageType: element.Attribute("messageType") != null && Enum.TryParse(element.Attribute("messageType").Value, out MessageType messageType) ? messageType : null,
-                        relativePath: null,
-                        filePath: element.Attribute("filePath")?.Value,
-                        oldSystemName: element.Attribute("oldSystemName")?.Value,
-                        targetDirectory: element.Attribute("targetDirectory")?.Value,
-                        targetFile: element.Attribute("targetFile")?.Value
-                    );
-
-                    step.DeeBasePath = element.Attribute("deeBasePath")?.Value;
-                    step.ImportXMLObjectPath = element.Attribute("importXMLObjectPath")?.Value;
-                    step.AutomationWorkflowFileBasePath = element.Attribute("automationWorkflowFileBasePath")?.Value;
-                    step.CreateInCollection = element.Attribute("createInCollection")?.Value != null ? bool.Parse(element.Attribute("createInCollection")?.Value) : null;
-                    step.TargetPlatform = element.Attribute("targetPlatform") != null && Enum.TryParse(element.Attribute("targetPlatform").Value, out MasterDataTargetPlatformType targetPlatform) ? targetPlatform : null;
+                    Step step = new Step {
+                        Type = Enum.TryParse<StepType>(element.Attribute("type")?.Value, out var parsedStepType) ? parsedStepType : StepType.Generic,
+                        Title = element.Attribute("title")?.Value,
+                        OnExecute = element.Attribute("onExecute")?.Value,
+                        ContentPath = element.Attribute("contentPath")?.Value,
+                        Content = element.Attribute("content")?.Value,
+                        File = element.Attribute("file")?.Value,
+                        TagFile = bool.TryParse(element.Attribute("tagFile")?.Value, out bool tagFile) ? tagFile : null,
+                        TargetDatabase = element.Attribute("targetDatabase")?.Value,
+                        MessageType = Enum.TryParse(element.Attribute("messageType")?.Value, out MessageType messageType) ? messageType : null,
+                        RelativePath = null,
+                        FilePath = element.Attribute("filePath")?.Value,
+                        OldSystemName = element.Attribute("oldSystemName")?.Value,
+                        TargetDirectory = element.Attribute("targetDirectory")?.Value,
+                        TargetFile = element.Attribute("targetFile")?.Value,
+                        RunInMaster = bool.TryParse(element.Attribute("runInMaster")?.Value, out bool runInMaster) ? runInMaster : null,
+                        TargetAll = bool.TryParse(element.Attribute("targetAll")?.Value, out bool targetAll) ? targetAll : null,
+                        DeeBasePath = element.Attribute("deeBasePath")?.Value,
+                        ImportXMLObjectPath = element.Attribute("importXMLObjectPath")?.Value,
+                        AutomationWorkflowFileBasePath = element.Attribute("automationWorkflowFileBasePath")?.Value,
+                        CreateInCollection = bool.TryParse(element.Attribute("createInCollection")?.Value, out bool createInCollection) ? createInCollection : null,
+                        TargetPlatform = Enum.TryParse(element.Attribute("targetPlatform")?.Value, out MasterDataTargetPlatformType targetPlatform) ? targetPlatform : null,
+                        UserKey = element.Attribute("userKey")?.Value,
+                        Quota = element.Attribute("quota")?.Value,
+                        Id = element.Attribute("id")?.Value,
+                        UseMachineName = bool.TryParse(element.Attribute("useMachineName")?.Value, out bool useMachineName) ? useMachineName : null,
+                        Account = element.Attribute("account")?.Value,
+                        OnInitialize = element.Attribute("onInitialize")?.Value,
+                        OnPrepare = element.Attribute("onPrepare")?.Value,
+                        ScriptHandler = element.Attribute("scriptHandler")?.Value,
+                        PatchId = element.Attribute("patchId")?.Value,
+                        ReplaceTokens = bool.TryParse(element.Attribute("replaceTokens")?.Value, out bool replaceTokens) ? replaceTokens : null,
+                        SourcePackages = element.Attribute("sourcePackages")?.Value,
+                        TargetDb = element.Attribute("targetDb")?.Value,
+                        ConditionPath = element.Attribute("conditionPath")?.Value,
+                        PatchDescription = element.Attribute("patchDescription")?.Value,
+                        DatabaseType = element.Attribute("databaseType")?.Value,
+                        ConfigPath = element.Attribute("configPath")?.Value,
+                        Value = element.Attribute("value")?.Value,
+                    };
 
                     // // Create an XmlSerializer for the Person type
                     // XmlSerializer serializer = new XmlSerializer(typeof(Step));
