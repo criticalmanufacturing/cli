@@ -1,6 +1,7 @@
 using System;
 using System.CommandLine;
 using System.IO.Abstractions;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Cmf.CLI.Core;
@@ -34,12 +35,12 @@ public class PublishCommand : BaseCommand
 
     public override void Configure(Command cmd)
     {
-        var fileArgument = new Argument<IFileInfo>("file")
+        var packagesArgument = new Argument<string[]>("packagePaths")
         {
-            Description = "Package file",
-            CustomParser = argResult => Parse<IFileInfo>(argResult)
+            Description = "Package file(s) (.zip or .tgz) or folder(s) containing package files",
+            Arity = ArgumentArity.OneOrMore
         };
-        cmd.Add(fileArgument);
+        cmd.Add(packagesArgument);
 
         var ciOption = new Option<bool>("--ci")
         {
@@ -52,6 +53,12 @@ public class PublishCommand : BaseCommand
             Description = "Use the first non-CI repository URL from the repositories file"
         };
         cmd.Add(releaseOption);
+
+        var dryRunOption = new Option<bool>("--dry-run")
+        {
+            Description = "Resolve packages and print what would be published without uploading anything"
+        };
+        cmd.Add(dryRunOption);
 
         var repositoryOption = new Option<Uri>("--repository")
         {
@@ -66,36 +73,35 @@ public class PublishCommand : BaseCommand
         // Add the handler
         cmd.SetAction((parseResult, cancellationToken) =>
         {
-            var file = parseResult.GetValue(fileArgument);
+            var packages = parseResult.GetValue(packagesArgument);
             var repository = parseResult.GetValue(repositoryOption);
             var ci = parseResult.GetValue(ciOption);
             var release = parseResult.GetValue(releaseOption);
+            var dryRun = parseResult.GetValue(dryRunOption);
 
-            Execute(file, repository, ci, release);
+            Execute(packages, repository, ci, release, dryRun);
             return Task.FromResult(0);
         });
     }
 
-    public void Execute(IFileInfo file, Uri repository, bool ci, bool release)
+    public void Execute(string packagePath, Uri repository, bool ci, bool release)
+    {
+        Execute([packagePath], repository, ci, release, false);
+    }
+
+    public void Execute(string[] packagePaths, Uri repository, bool ci, bool release)
+    {
+        Execute(packagePaths, repository, ci, release, false);
+    }
+
+    public void Execute(string[] packagePaths, Uri repository, bool ci, bool release, bool dryRun)
     {
         using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
-
-        if (!file.Exists || file.Directory == null)
-        {
-            throw new CliException(
-                $"Could not find package file {file.FullName}, make sure the file exists and is valid");
-        }
-
-        if (file.Extension != ".zip" && file.Extension != ".tgz")
-        {
-            throw new CliException(
-                $"The package needs to be in a zip or gzipped tar file (with .tgz extension). Use the `pack` command to get a valid file to publish.");
-        }
 
         if (ci && release)
         {
             throw new CliException(
-                $"Cannot use both flags `--ci` and `--release` at the same time.");
+                "Cannot use both flags `--ci` and `--release` at the same time.");
         }
 
         if ((ci || release) && repository != null)
@@ -112,7 +118,7 @@ public class PublishCommand : BaseCommand
             if (repository == null)
             {
                 throw new CliException(
-                    $"No CIRepository was defined on the repositories configuration file, cannot use the `--ci` flag.");
+                    "No CIRepository was defined on the repositories configuration file, cannot use the `--ci` flag.");
             }
         }
         else if (release)
@@ -122,34 +128,95 @@ public class PublishCommand : BaseCommand
             if (repository == null)
             {
                 throw new CliException(
-                    $"No Repositories were defined on the repositories configuration file, cannot use the `--release` flag.");
+                    "No Repositories were defined on the repositories configuration file, cannot use the `--release` flag.");
             }
         }
 
         if (repository == null)
         {
             throw new CliException(
-                $"No repository URL to publish to was passed. Try using one of the following options: `--ci`, `--release` or `--repository`.");
+                "No repository URL to publish to was passed. Try using one of the following options: `--ci`, `--release` or `--repository`.");
         }
 
-        // If it passes the above checks the only possible client for the requested file 
-        // is a ArchiveRepositoryClient with only a single Package
-        var client = ExecutionContext.ServiceProvider?.GetService<IRepositoryLocator>()
-            .GetRepositoryClient(new Uri(file.FullName), file.FileSystem) as ArchiveRepositoryClient;
-        if (client == null)
+        var repositoryLocator = ExecutionContext.ServiceProvider?.GetService<IRepositoryLocator>();
+        var packagesToPublish = new List<CmfPackageV1>();
+
+        foreach (var packagePath in packagePaths)
         {
-            throw new CliException($"Could not determine repository type for {file.FullName}!");
+            var directory = fileSystem.DirectoryInfo.New(packagePath);
+            var fileInfo = fileSystem.FileInfo.New(packagePath);
+
+            if (fileInfo.Exists)
+            {
+                if (fileInfo.Extension != ".zip" && fileInfo.Extension != ".tgz")
+                {
+                    throw new CliException(
+                        "The package needs to be in a zip or gzipped tar file (with .tgz extension). Use the `pack` command to get a valid file to publish.");
+                }
+
+                var fileClient = repositoryLocator?.GetRepositoryClient(new Uri(fileInfo.FullName), fileInfo.FileSystem) as ArchiveRepositoryClient;
+                if (fileClient == null)
+                {
+                    throw new CliException($"Could not determine repository type for {fileInfo.FullName}!");
+                }
+
+                Log.Debug($"Got client {fileClient.GetType().Name} for package file {fileInfo.FullName}");
+                packagesToPublish.Add(fileClient.List().GetAwaiter().GetResult().Single());
+                continue;
+            }
+
+            if (!directory.Exists)
+            {
+                throw new CliException(
+                    $"Could not find package file or directory at {packagePath}, make sure the path exists and is valid");
+            }
+
+            var directoryClient = new ArchiveRepositoryClient(directory.FullName, directory.FileSystem);
+            Log.Debug($"Got client {directoryClient.GetType().Name} for package directory {directory.FullName}");
+            var folderPackages = directoryClient.List().GetAwaiter().GetResult();
+
+            if (!folderPackages.Any())
+            {
+                Log.Information($"No packages found in folder {directory.FullName}. Skipping...");
+                continue;
+            }
+
+            Log.Information($"Found {folderPackages.Count} package(s) in folder {directory.FullName}.");
+            packagesToPublish.AddRange(folderPackages);
         }
-        Log.Debug($"Got client {client.GetType().Name} for package file {file.FullName}");
-        var repoClient = ExecutionContext.ServiceProvider?.GetService<IRepositoryLocator>()
-            .GetRepositoryClient(repository, file.FileSystem);
-        if (repoClient == null)
+        
+        if (!packagesToPublish.Any())
         {
-            throw new CliException($"Could not determine repository type for {repository.AbsoluteUri}!");
+            Log.Information($"No packages found to publish.");
         }
-        Log.Debug($"Got client {repoClient.GetType().Name} for repository URL {repository.AbsoluteUri}");
-        Log.Debug($"Publishing package with target repository client...");
-        repoClient.Put(client.List().Result.Single()).GetAwaiter().GetResult();
-        Log.Debug("Publish completed!");
+        else
+        {
+            var repoClient = repositoryLocator?.GetRepositoryClient(repository, fileSystem);
+            if (repoClient == null)
+            {
+                throw new CliException($"Could not determine repository type for {repository.AbsoluteUri}!");
+            }
+            Log.Debug($"Got client {repoClient.GetType().Name} for repository URL {repository.AbsoluteUri}");
+
+            foreach (var package in packagesToPublish)
+            {
+                var action = dryRun ? "Would publish" : "Publishing";
+                Log.Information($"{action} {package.PackageDotRef}...");
+
+                if (!dryRun)
+                {
+                    repoClient.Put(package).GetAwaiter().GetResult();
+                }
+            }
+
+            if (dryRun)
+            {
+                Log.Information($"Dry run completed. {packagesToPublish.Count} package(s) would be published.");
+            }
+            else
+            {
+                Log.Information($"Completed publishing {packagesToPublish.Count} package(s)!");
+            }
+        }
     }
 }
