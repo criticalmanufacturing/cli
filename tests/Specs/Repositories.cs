@@ -619,6 +619,9 @@ public class Repositories
                                                      <dependencies>
                                                        <dependency id="Inner.Package" version="0.0.1" mandatory="true" isMissing="true" />
                                                      </dependencies>
+                                                     <steps>
+                                                       <step type="TransformFile" file="assets/config.json" tagFile="true" />
+                                                     </steps>
                                                    </deploymentPackage>
                                """;
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
@@ -626,11 +629,36 @@ public class Repositories
             { $"{repo}/{packageId}.{version}.zip", new MockFileData(new DFPackageBuilder().CreateEntry("manifest.xml", manifestContent).ToByteArray()) }
         });
 
-        CmfPackageController.ConvertZipToTarGz(fileSystem.FileInfo.New($"{repo}/{packageId}.{version}.zip"), fileSystem.FileInfo.New($"{repo}/{packageId}.{version}.tgz"));
-        CmfPackageController.ConvertTarGzToZip(fileSystem.FileInfo.New($"{repo}/{packageId}.{version}.tgz"), fileSystem.FileInfo.New($"{repo}/{packageId}.{version}.zip"));
+        IFileInfo tgzPackageFile = fileSystem.FileInfo.New($"{repo}/{packageId}.{version}.tgz");
+        IFileInfo zipPackageFile = fileSystem.FileInfo.New($"{repo}/{packageId}.{version}.zip");
+
+        CmfPackageController.ConvertZipToTarGz(fileSystem.FileInfo.New($"{repo}/{packageId}.{version}.zip"), tgzPackageFile);
+        CmfPackageController.ConvertTarGzToZip(fileSystem.FileInfo.New($"{repo}/{packageId}.{version}.tgz"), zipPackageFile);
         // var ctrlr = new CmfPackageController(fileSystem.FileInfo.New($"{repo}/{packageId}.{version}.zip"));
         string newManifestContent = FileSystemUtilities.GetFileContentFromPackage($"{repo}/{packageId}.{version}.zip", "manifest.xml", fileSystem);
         newManifestContent.Should().Be(manifestContent);
+
+        // get tgz info for assertion
+        using GZipStream gzipStream = new GZipStream(tgzPackageFile.OpenRead(), CompressionMode.Decompress);
+        using TarReader tarReader = new(gzipStream);
+        dynamic packageJson = null;
+        while (tarReader.GetNextEntry() is { } entry)
+        {
+          if (entry.Name == "package/package.json")
+          {
+            using MemoryStream ms = new();
+            entry.DataStream.CopyTo(ms);
+            packageJson = JsonConvert.DeserializeObject(Encoding.UTF8.GetString(ms.ToArray()));
+          }
+        }
+
+        Assert.NotNull(packageJson);
+        Assert.NotNull(packageJson.deployment);
+        Assert.NotNull(packageJson.deployment.steps);
+        Assert.Equal(1, (int)packageJson.deployment.steps.Count);
+        Assert.NotNull(packageJson.deployment.steps[0].type);
+        Assert.NotNull(packageJson.deployment.steps[0].file);
+        Assert.NotNull(packageJson.deployment.steps[0].tagFile);
     }
 
     [Fact]
