@@ -317,7 +317,14 @@ namespace Cmf.CLI.Core.Objects
             try
             {
                 var httpClient = this.client;
-                httpClient.Timeout = TimeSpan.FromMinutes(5);
+
+                // Fix for publishng multiple packages using the same NPMClient instance
+                // HTTPClient throws exception if you attempt to change its settings after the first request, hence this check
+                int timeoutMinutes = 5;
+                if (httpClient.Timeout != TimeSpan.FromMinutes(timeoutMinutes))
+                {
+                    httpClient.Timeout = TimeSpan.FromMinutes(timeoutMinutes);
+                }
                 var response = await httpClient.PutAsync($"{this.baseUrl}/{name}", content);
                 if (!response.IsSuccessStatusCode)
                 {
