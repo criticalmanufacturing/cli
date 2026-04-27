@@ -43,7 +43,10 @@ public class CmfPackageController
         "tagFile",
         "targetDatabase",
         "filePath",
-        "oldSystemName"
+        "oldSystemName",
+        "deeBasePath",
+        "importXMLObjectPath",
+        "automationWorkflowFileBasePath"
     ];
     
     public CmfPackageController(CmfPackageV1 package, IFileSystem fileSystem)
@@ -393,14 +396,14 @@ public class CmfPackageController
                     step.ImportXMLObjectPath = element.Attribute("importXMLObjectPath")?.Value;
                     step.AutomationWorkflowFileBasePath = element.Attribute("automationWorkflowFileBasePath")?.Value;
 
-                // // Create an XmlSerializer for the Person type
-                // XmlSerializer serializer = new XmlSerializer(typeof(Step));
-                //
-                // // Use StringReader to read the XML string
-                // using var reader = element.CreateReader();
-                // // Deserialize the XML string into a Person object
-                // Step s = (Step)serializer.Deserialize(reader);
-                steps.Add(step);
+                    // // Create an XmlSerializer for the Person type
+                    // XmlSerializer serializer = new XmlSerializer(typeof(Step));
+                    //
+                    // // Use StringReader to read the XML string
+                    // using var reader = element.CreateReader();
+                    // // Deserialize the XML string into a Person object
+                    // Step s = (Step)serializer.Deserialize(reader);
+                    steps.Add(step);
                 }
             }
 
