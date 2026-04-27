@@ -46,7 +46,9 @@ public class CmfPackageController
         "oldSystemName",
         "deeBasePath",
         "importXMLObjectPath",
-        "automationWorkflowFileBasePath"
+        "automationWorkflowFileBasePath",
+        "createInCollection",
+        "targetPlatform"
     ];
     
     public CmfPackageController(CmfPackageV1 package, IFileSystem fileSystem)
@@ -395,6 +397,8 @@ public class CmfPackageController
                     step.DeeBasePath = element.Attribute("deeBasePath")?.Value;
                     step.ImportXMLObjectPath = element.Attribute("importXMLObjectPath")?.Value;
                     step.AutomationWorkflowFileBasePath = element.Attribute("automationWorkflowFileBasePath")?.Value;
+                    step.CreateInCollection = element.Attribute("createInCollection")?.Value != null ? bool.Parse(element.Attribute("createInCollection")?.Value) : null;
+                    step.TargetPlatform = element.Attribute("targetPlatform") != null && Enum.TryParse(element.Attribute("targetPlatform").Value, out MasterDataTargetPlatformType targetPlatform) ? targetPlatform : null;
 
                     // // Create an XmlSerializer for the Person type
                     // XmlSerializer serializer = new XmlSerializer(typeof(Step));
