@@ -682,8 +682,8 @@ public class Repositories
               <dependency id=""Cmf.Environment"" version=""11.0.0"" mandatory=""false"" isIgnorable=""true"" />
             </dependencies>
             <steps>
-              <step type=""MasterData"" title=""Master Data"" filePath=""MasterData/001-MD01.json"" createInCollection=""false"" importXMLObjectPath=""ExportedObjects"" targetPlatform=""Self"" />
-              <step type=""MasterData"" title=""Master Data"" filePath=""MasterData/002-MD02.json"" createInCollection=""false"" importXMLObjectPath=""ExportedObjects"" targetPlatform=""Self"" />
+              <step type=""MasterData"" title=""Master Data"" filePath=""MasterData/001-MD01.json"" createInCollection=""false"" deeBasePath=""DeeRules"" importXMLObjectPath=""ExportedObjects"" targetPlatform=""Self"" />
+              <step type=""MasterData"" title=""Master Data"" filePath=""MasterData/002-MD02.json"" createInCollection=""false"" deeBasePath=""DeeRules"" importXMLObjectPath=""ExportedObjects"" targetPlatform=""Self"" />
             </steps>
         </deploymentPackage>";
 
@@ -719,6 +719,10 @@ public class Repositories
       Assert.NotNull(packageJson.deployment);
       Assert.NotNull(packageJson.deployment.steps);
       Assert.Equal(2, (int)packageJson.deployment.steps.Count);
+      Assert.NotNull(packageJson.deployment.steps[0].createInCollection);
+      Assert.NotNull(packageJson.deployment.steps[0].deeBasePath);
+      Assert.NotNull(packageJson.deployment.steps[0].importXMLObjectPath);
+      Assert.NotNull(packageJson.deployment.steps[0].targetPlatform);
     }
     
     [Fact]
