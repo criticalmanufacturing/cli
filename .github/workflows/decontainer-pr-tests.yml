@@ -7,7 +7,7 @@ on:
 
 jobs:
   test-scenarios:
-    runs-on: ubuntu-latest
+    runs-on: arc-runner-set
     continue-on-error: true
     strategy:
       matrix:

@@ -21,7 +21,7 @@ env:
 
 jobs:
   build-cli:
-    runs-on: ubuntu-latest
+    runs-on: arc-runner-set
     permissions:
       contents: read
       packages: write
@@ -56,7 +56,7 @@ jobs:
 
   scaffolding-validation:
     needs: build-cli
-    runs-on: ubuntu-latest
+    runs-on: arc-runner-set
     permissions:
       contents: read
       packages: read
