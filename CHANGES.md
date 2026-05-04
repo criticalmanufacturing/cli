@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.10.8-0](https://github.com/criticalmanufacturing/cli/compare/5.10.7...5.10.8-0) (2026-05-04)
+
+
+### Bug Fixes
+
+* **core:** add support to `createInCollection` and `targetPlatform` step attributes ([8fc23b1](https://github.com/criticalmanufacturing/cli/commits/8fc23b126eac10a71c6672b3b3c6f653d613c444))
+* **core:** re-add support to the Step `file` property ([9089347](https://github.com/criticalmanufacturing/cli/commits/908934705927602481d4ca0a9ffafb1c4ffbc6fb))
+
 ### [5.10.7](https://github.com/criticalmanufacturing/cli/compare/5.10.6...5.10.7) (2026-04-20)
 
 
