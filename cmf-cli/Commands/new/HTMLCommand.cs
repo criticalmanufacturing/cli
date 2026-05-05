@@ -86,10 +86,6 @@ namespace Cmf.CLI.Commands.New
         public void ExecuteV10(IDirectoryInfo workingDir, string version)
         {
             var ngxSchematicsVersion = ExecutionContext.Instance.ProjectConfig.NGXSchematicsVersion;
-            if (ngxSchematicsVersion == null)
-            {
-                throw new CliException("Seems like the repository scaffolding was run on a previous version of MES. Please re-init for versions 10+.");
-            }
 
             var baseLayer = ExecutionContext.Instance.ProjectConfig.BaseLayer ?? CliConstants.DefaultBaseLayer;
             this.baseWebPackage = baseLayer == BaseLayer.MES
@@ -108,7 +104,7 @@ namespace Cmf.CLI.Commands.New
             var packageName = base.GeneratePackageName(workingDir)!.Value.Item1;
             var packageDir = workingDir.GetDirectories(packageName).First();
 
-            var schematicsVersion = ngxSchematicsVersion.ToString() ?? $"@release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}";
+            var schematicsVersion = !string.IsNullOrEmpty(ngxSchematicsVersion) ? ngxSchematicsVersion : $"release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}";
 
             //After v11 we use Angular default routing
             var routing = mesVersion.Major >= 11 ? "true" : "false";
@@ -147,7 +143,7 @@ namespace Cmf.CLI.Commands.New
                     "add", "--registry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.OriginalString,
                                       "--skip-confirmation", $"@criticalmanufacturing/ngx-schematics@{schematicsVersion}",
                                       "--eslint", "--application", baseLayer.ToString(),
-                                      "--version", $"release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}"
+                                      "--version", schematicsVersion
                 ],
                 WorkingDirectory = packageDir,
                 ForceColorOutput = false

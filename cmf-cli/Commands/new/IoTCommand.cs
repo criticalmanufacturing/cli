@@ -178,11 +178,6 @@ namespace Cmf.CLI.Commands.New
 
             var ngxSchematicsVersion = ExecutionContext.Instance.ProjectConfig.NGXSchematicsVersion;
 
-            if (ngxSchematicsVersion == null)
-            {
-                throw new CliException("Seems like the repository scaffolding was run on a previous version of MES. Please re-init for versions 10+.");
-            }
-
             IDirectoryInfo htmlPackageDir = fileSystem.DirectoryInfo.New(htmlPackageLocation);
 
             if (!htmlPackageDir.Exists) throw new CliException(string.Format(CliMessages.SomePackagesNotFound, string.Join(", ", htmlPackageLocation)));
@@ -217,7 +212,7 @@ namespace Cmf.CLI.Commands.New
 
             var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
 
-            var schematicsVersion = ngxSchematicsVersion.ToString() ?? $"@release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}";
+            var schematicsVersion = ngxSchematicsVersion ?? $"release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}";
 
             Log.Debug($"Creating new IoT Workspace {packageName}");
 
