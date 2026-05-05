@@ -99,14 +99,10 @@ namespace Cmf.CLI.Commands.New
         {
             int majorVersion = ExecutionContext.Instance.ProjectConfig.MESVersion.Major;
             var ngxSchematicsVersion = ExecutionContext.Instance.ProjectConfig.NGXSchematicsVersion;
-            if (ngxSchematicsVersion == null)
-            {
-                throw new CliException("Seems like the repository scaffolding was run on a previous version of MES. Please re-init for versions 10+.");
-            }
 
             var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
 
-            this.schematicsVersion = ngxSchematicsVersion.ToString() ?? $"@release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}";
+            this.schematicsVersion = ngxSchematicsVersion ?? $"release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}";
 
             //Switch between v10 and v11 template 
             switch (majorVersion)

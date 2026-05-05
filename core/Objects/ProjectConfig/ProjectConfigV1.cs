@@ -30,7 +30,7 @@ public class ProjectConfigV1
     public SemanticVersion DevTasksVersion { get; set; }
     public Version HTMLStarterVersion { get; set; }
     public SemanticVersion YoGeneratorVersion { get; set; }
-    public SemanticVersion NGXSchematicsVersion { get; set; }
+    public string NGXSchematicsVersion { get; set; }
     public Version NugetVersion { get; set; }
     public Version TestScenariosNugetVersion { get; set; }
     [Newtonsoft.Json.JsonConverter(typeof(BooleanJsonConverter))]
