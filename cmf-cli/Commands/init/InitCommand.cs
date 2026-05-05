@@ -178,15 +178,17 @@ namespace Cmf.CLI.Commands
 
             var nugetVersionOption = new Option<string>("--nugetVersion")
             {
-                Description = "NuGet versions to target. This is usually the MES version",
-                Required = true
+                Description = "NuGet versions to target. Defaults to --MESVersion when not specified.",
+                Required = false,
+                DefaultValueFactory = argResult => { try { return argResult.GetValue(baseVersionOption); } catch { return null; } }
             };
             cmd.Add(nugetVersionOption);
 
             var testScenariosNugetVersionOption = new Option<string>("--testScenariosNugetVersion")
             {
-                Description = "Test Scenarios Nuget Version",
-                Required = true
+                Description = "Test Scenarios NuGet version. Defaults to --MESVersion when not specified.",
+                Required = false,
+                DefaultValueFactory = argResult => { try { return argResult.GetValue(baseVersionOption); } catch { return null; } }
             };
             cmd.Add(testScenariosNugetVersionOption);
 
@@ -357,6 +359,9 @@ namespace Cmf.CLI.Commands
         internal void Execute(InitArguments x)
         {
             using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
+
+            Log.Information($"Starting scaffolding for MES Version: {x.BaseVersion}");
+
             var args = new List<string>()
             {
                 // engine options
@@ -496,16 +501,20 @@ namespace Cmf.CLI.Commands
             args.AddRange(new [] {"--DevTasksVersion", x.DevTasksVersion ?? ""});
             args.AddRange(new [] {"--HTMLStarterVersion", x.HTMLStarterVersion ?? ""});
             args.AddRange(new [] {"--yoGeneratorVersion", x.yoGeneratorVersion ?? ""});
-            args.AddRange(new [] {"--ngxSchematicsVersion", x.ngxSchematicsVersion ?? ""});
 
-            if (x.nugetVersion != null)
+            if (string.IsNullOrWhiteSpace(x.ngxSchematicsVersion))
             {
-                args.AddRange(new [] {"--nugetVersion", x.nugetVersion});
+                var mesVer = Version.Parse(x.BaseVersion);
+                x.ngxSchematicsVersion = $"release-{mesVer.Major}{mesVer.Minor}{mesVer.Build}";
             }
-            if (x.testScenariosNugetVersion != null)
-            {
-                args.AddRange(new [] {"--testScenariosNugetVersion", x.testScenariosNugetVersion});
-            }
+
+            Log.Information($"Using ngx-schematics version: {x.ngxSchematicsVersion}");
+
+            args.AddRange(new [] {"--ngxSchematicsVersion", x.ngxSchematicsVersion});
+
+            args.AddRange(new [] {"--nugetVersion", x.nugetVersion});
+            
+            args.AddRange(new [] {"--testScenariosNugetVersion", x.testScenariosNugetVersion});
 
             #region infrastructure
 
@@ -567,10 +576,6 @@ namespace Cmf.CLI.Commands
                 throw new CliException("MES Versions under 10 are no longer supported with the newest version of the CLI. Please use cmf-cli 5.8.0 or lower.");
             }
 
-            if (string.IsNullOrWhiteSpace(x.ngxSchematicsVersion))
-            {
-                throw new CliException("--ngxSchematicsVersion is missing, please specify it.");
-            }
             #endregion
 
             if (x.config != null)
