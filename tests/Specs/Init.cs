@@ -145,12 +145,94 @@ namespace tests.Specs
             TestUtilities.GetParser(cmd).Invoke(Array.Empty<string>(), console);
 
             Assert.Contains("Required argument missing for command: 'x'", console.Error.ToString());
-            foreach (var optionName in new[]
-                 {
-                     "baseVersion", "nugetVersion", "testScenariosNugetVersion"
-                 })
+            Assert.Contains("Option '--baseVersion' is required.", console.Error.ToString());
+            Assert.DoesNotContain("Option '--nugetVersion' is required.", console.Error.ToString());
+            Assert.DoesNotContain("Option '--testScenariosNugetVersion' is required.", console.Error.ToString());
+        }
+
+        [Fact]
+        public void Init_VersionSettingsDefaultToMESVersionWhenNotSpecified()
+        {
+            var tmp = TestUtilities.GetTmpDirectory();
+            var projectName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
+            var deploymentDir = "\\\\share\\deployment_dir";
+            var mesVersion = "11.1.5";
+
+            var cur = Directory.GetCurrentDirectory();
+            try
             {
-                Assert.Contains($"Option '--{optionName}' is required.", console.Error.ToString());
+                var console = new TestConsole();
+                Directory.SetCurrentDirectory(tmp);
+
+                var initCommand = new InitCommand();
+                var cmd = new Command("x");
+                initCommand.Configure(cmd);
+
+                TestUtilities.GetParser(cmd).Invoke(new[]
+                {
+                    projectName,
+                    "--infra", TestUtilities.GetFixturePath("init", "infrastructure.json"),
+                    "-c", TestUtilities.GetFixturePath("init", "config.json"),
+                    "--MESVersion", mesVersion,
+                    // --nugetVersion, --testScenariosNugetVersion and --ngxSchematicsVersion are intentionally omitted
+                    "--deploymentDir", deploymentDir,
+                }, console);
+
+                console.Error.ToString().Should().BeEmpty("command should succeed when version options are omitted");
+                Assert.True(File.Exists("cmfpackage.json"), "root cmfpackage is missing");
+
+                var projectConfig = File.ReadAllText(Path.Join(tmp, ".project-config.json"));
+                projectConfig.Should().Contain(@"""NugetVersion"": ""11.1.5""", "NugetVersion should default to the MES version");
+                projectConfig.Should().Contain(@"""TestScenariosNugetVersion"": ""11.1.5""", "TestScenariosNugetVersion should default to the MES version");
+                projectConfig.Should().Contain(@"""NGXSchematicsVersion"": ""release-1115""", "NGXSchematicsVersion should default to the MES dist-tag");
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                Directory.Delete(tmp, true);
+            }
+        }
+
+        [Fact]
+        public void Init_NgxSchematicsVersionUsesProvidedValueOverDefault()
+        {
+            var tmp = TestUtilities.GetTmpDirectory();
+            var projectName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
+            var deploymentDir = "\\\\share\\deployment_dir";
+            var mesVersion = "11.1.5";
+            var customSchematicsVersion = "my-custom-schematics-tag";
+
+            var cur = Directory.GetCurrentDirectory();
+            try
+            {
+                var console = new TestConsole();
+                Directory.SetCurrentDirectory(tmp);
+
+                var initCommand = new InitCommand();
+                var cmd = new Command("x");
+                initCommand.Configure(cmd);
+
+                TestUtilities.GetParser(cmd).Invoke(new[]
+                {
+                    projectName,
+                    "--infra", TestUtilities.GetFixturePath("init", "infrastructure.json"),
+                    "-c", TestUtilities.GetFixturePath("init", "config.json"),
+                    "--MESVersion", mesVersion,
+                    "--ngxSchematicsVersion", customSchematicsVersion,
+                    "--deploymentDir", deploymentDir,
+                }, console);
+
+                console.Error.ToString().Should().BeEmpty("command should succeed with explicit --ngxSchematicsVersion");
+                Assert.True(File.Exists("cmfpackage.json"), "root cmfpackage is missing");
+
+                File.ReadAllText(Path.Join(tmp, ".project-config.json"))
+                    .Should().Contain($@"""NGXSchematicsVersion"": ""{customSchematicsVersion}""",
+                        "NGXSchematicsVersion should use the provided value, not the MES dist-tag");
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                Directory.Delete(tmp, true);
             }
         }
 
@@ -226,7 +308,7 @@ namespace tests.Specs
                     "--deploymentDir", deploymentDir,
                 }, console);
 
-                Assert.Contains("--ngxSchematicsVersion is missing, please specify it.", console.Error.ToString());
+                // ngxSchematicsVersion is now auto-resolved from npm when omitted
                 console.Error.ToString().Should().NotContain("DevTasksVersion is required");
                 console.Error.ToString().Should().NotContain("HTMLStarterVersion is required");
                 console.Error.ToString().Should().NotContain("yoGeneratorVersion is required");
