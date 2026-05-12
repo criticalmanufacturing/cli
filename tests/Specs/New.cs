@@ -28,6 +28,7 @@ using Spectre.Console;
 using Cmf.CLI.Core;
 using Cmf.CLI.Commands.New.IoT;
 using TestingConsole = Spectre.Console.Testing;
+using Xunit.Sdk;
 
 namespace tests.Specs
 {
@@ -107,6 +108,17 @@ namespace tests.Specs
             });
             parseResult.Invoke(console);
 
+        }
+
+        private static void EnsureNodeMajorOrSkip(int requiredMajor, string testName)
+        {
+            var installedNodeVersion = NodeVersionUtilities.GetInstalledNodeVersion();
+            if (installedNodeVersion == null || installedNodeVersion.Major != requiredMajor)
+            {
+                var reason = $"Skipping {testName}: requires Node.js {requiredMajor}.x, found {(installedNodeVersion == null ? "none" : installedNodeVersion.ToString())}.";
+                Console.WriteLine(reason);
+                throw SkipException.ForSkip(reason);
+            }
         }
 
         [Theory, Trait("TestCategory", "Integration")]
@@ -231,6 +243,7 @@ namespace tests.Specs
         [InlineData(BaseLayer.Core, "10.2.10", "1.3.7")]
         public void UI_v10(BaseLayer layer, string mesVersion, string ngxSchematicsVersion)
         {
+            EnsureNodeMajorOrSkip(18, nameof(UI_v10));
             UI_internal(null, layer, mesVersion, ngxSchematicsVersion);
         }
 
@@ -239,6 +252,7 @@ namespace tests.Specs
         [InlineData(BaseLayer.Core, "11.2.5", "11.0.14")]
         public void UI_v11(BaseLayer layer, string mesVersion, string ngxSchematicsVersion)
         {
+            EnsureNodeMajorOrSkip(20, nameof(UI_v11));
             UI_internal(null, layer, mesVersion, ngxSchematicsVersion);
         }
 
@@ -1037,7 +1051,9 @@ namespace tests.Specs
 
                 if (File.Exists(Path.Join(dir, ".project-config.json")))
                 {
-                    Console.WriteLine(File.ReadAllText(Path.Join(dir, ".project-config.json")));
+                    var projectConfigPath = Path.Join(dir, ".project-config.json");
+                    var projectConfigContent = File.ReadAllText(projectConfigPath);
+                    Console.WriteLine(projectConfigContent);
                 }
 
                 ExecutionContext.Initialize(new FileSystem());

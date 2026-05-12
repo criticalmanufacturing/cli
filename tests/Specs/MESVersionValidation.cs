@@ -167,11 +167,10 @@ public class MESVersionValidation
     private void SetupExecutionContext(string mesVersion)
     {
         var projConfig = projCfgTemplate.Replace("{MES_VERSION}", mesVersion);
-        
-        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
-        {
-            { "/.project-config.json", new MockFileData(projConfig)}
-        });
+
+        var fileSystem = new MockFileSystem();
+        var projectConfigPath = fileSystem.Path.Join(fileSystem.Directory.GetCurrentDirectory(), ".project-config.json");
+        fileSystem.AddFile(projectConfigPath, new MockFileData(projConfig));
 
         // First set up the service provider with ProjectConfigService
         var serviceCollection = new Microsoft.Extensions.DependencyInjection.ServiceCollection()
