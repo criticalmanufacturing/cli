@@ -19,7 +19,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18, 20]
+        include:
+          - node-version: 18
+            test-filter: TestCategory!=Node20
+          - node-version: 20
+            test-filter: TestCategory!=Node18
     steps:
       - uses: actions/checkout@v4
 
@@ -40,12 +44,7 @@ jobs:
           dotnet build --configuration Release
 
       - name: Test ${{ matrix.node-version }}
-        if: matrix.node-version == 18
-        run: dotnet test --configuration Release --no-build --no-restore --verbosity normal --filter "TestCategory!=Node20" --collect:"XPlat Code Coverage" --logger trx --results-directory TestResults
-
-      - name: Test ${{ matrix.node-version }}
-        if: matrix.node-version == 20
-        run: dotnet test --configuration Release --no-build --no-restore --verbosity normal --filter "TestCategory!=Node18" --collect:"XPlat Code Coverage" --logger trx --results-directory TestResults
+        run: dotnet test --configuration Release --no-build --no-restore --verbosity normal --filter "${{ matrix.test-filter }}" --collect:"XPlat Code Coverage" --logger trx --results-directory TestResults
       
       - name: Merge Coverage Reports
         run: |
