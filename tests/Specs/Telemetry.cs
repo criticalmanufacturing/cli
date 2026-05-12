@@ -195,10 +195,19 @@ public class Telemetry
         Assert.NotNull(activity);
 
         // End the activity and check the output to see if telemetry was initiated correctly.
+        var originalOut = Console.Out;
         using var sw = new StringWriter();
-        Console.SetOut(sw);
-        activity?.Dispose();
-        telemetryService.Provider.ForceFlush();
+        try
+        {
+            Console.SetOut(sw);
+            activity?.Dispose();
+            telemetryService.Provider.ForceFlush();
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+        }
+
         var consoleOutput = sw.ToString();
         Assert.Contains("telemetry.sdk.version", consoleOutput);
     }

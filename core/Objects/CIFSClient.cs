@@ -29,10 +29,17 @@ namespace Core.Objects
 
         public CIFSClient(Uri uri, ISMBClient smbClient = null)
         {
-            var authStore = ExecutionContext.ServiceProvider.GetService<IRepositoryAuthStore>();
+            var authStore = ExecutionContext.ServiceProvider?.GetService<IRepositoryAuthStore>();
 
             Server = uri.Host;
             _smbClient = smbClient ?? new SMB2Client();
+
+            if (authStore == null)
+            {
+                Log.Debug("Repository auth store is not available. Skipping CIFS authentication setup.");
+                return;
+            }
+
             _credentials = authStore.GetCredentialsFor<CIFSRepositoryCredentials>(authStore.GetOrLoad().GetAwaiter().GetResult(), uri.AbsoluteUri);
 
             if (_credentials == null)

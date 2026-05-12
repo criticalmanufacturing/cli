@@ -51,11 +51,11 @@ public class MESVersionCommandValidation
         var attr = typeof(TestCommand).GetCustomAttributes(typeof(CmfCommandAttribute), false)[0] as CmfCommandAttribute;
         if (!string.IsNullOrWhiteSpace(attr.MinimumMESVersion))
         {
+            var validationService = ExecutionContext.ServiceProvider?.GetService<IMESVersionValidationService>();
             testCmd.Validators.Add(commandResult =>
             {
                 try
                 {
-                    var validationService = ExecutionContext.ServiceProvider?.GetService<IMESVersionValidationService>();
                     validationService?.ValidateMinimumVersion(attr.MinimumMESVersion);
                 }
                 catch (MESVersionValidationException ex)
@@ -92,11 +92,11 @@ public class MESVersionCommandValidation
         var attr = typeof(TestCommand).GetCustomAttributes(typeof(CmfCommandAttribute), false)[0] as CmfCommandAttribute;
         if (!string.IsNullOrWhiteSpace(attr.MinimumMESVersion))
         {
+            var validationService = ExecutionContext.ServiceProvider?.GetService<IMESVersionValidationService>();
             testCmd.Validators.Add(commandResult =>
             {
                 try
                 {
-                    var validationService = ExecutionContext.ServiceProvider?.GetService<IMESVersionValidationService>();
                     validationService?.ValidateMinimumVersion(attr.MinimumMESVersion);
                 }
                 catch (MESVersionValidationException ex)
@@ -123,11 +123,10 @@ public class MESVersionCommandValidation
     private void SetupExecutionContext(string mesVersion)
     {
         var projConfig = projCfgTemplate.Replace("{MES_VERSION}", mesVersion);
-        
-        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
-        {
-            { "/.project-config.json", new MockFileData(projConfig)}
-        });
+
+        var fileSystem = new MockFileSystem();
+        var projectConfigPath = fileSystem.Path.Join(fileSystem.Directory.GetCurrentDirectory(), ".project-config.json");
+        fileSystem.AddFile(projectConfigPath, new MockFileData(projConfig));
 
         // Set up the service provider with required services
         var serviceCollection = new ServiceCollection()
