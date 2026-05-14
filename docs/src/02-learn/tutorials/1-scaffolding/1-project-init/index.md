@@ -57,6 +57,16 @@ You can initialize a MES Customization or App project workspace using the `cmf i
         --ngxSchematicsVersion 11.0.0
     ```
 
+    If you're using cmf-cli v6 you can:
+    ```powershell
+    cmf init ExampleProject `
+        --version 1.0.0 `
+        --infra ..\config\infra.json `
+        --config ..\config\env.json `
+        --MESVersion 11.0.0 `
+        --deploymentDir \\directory\Deployments `
+    ```
+
 === "MES v9 or below"
 
     ```powershell
