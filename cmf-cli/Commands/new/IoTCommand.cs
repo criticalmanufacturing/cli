@@ -80,6 +80,7 @@ namespace Cmf.CLI.Commands.New
 
             args.AddRange(new[]
             {
+                "--MESVersion", ExecutionContext.Instance.ProjectConfig.MESVersion.ToString(),
                 "--iotdata", $"{packageName}.Data",
                 "--iotpackages", $"{packageName}.Packages",
                 "--rootInnerRelativePath", relativePathToRoot,
