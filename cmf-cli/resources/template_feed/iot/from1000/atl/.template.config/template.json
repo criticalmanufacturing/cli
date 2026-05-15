@@ -23,7 +23,13 @@
       "description": "The custom package name",
       "displayName": "Package Name",
       "replaces": "<%= $CLI_PARAM_CustomPackageName %>"
+     
     },
+     "MESVersion": {
+        "type": "parameter",
+        "datatype": "string",
+        "replaces": "<%= $CLI_PARAM_MESVersion %>"
+      },
     "iotpackages": {
       "type": "parameter",
       "datatype": "string",
