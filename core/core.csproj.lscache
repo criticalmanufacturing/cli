@@ -1,0 +1,170 @@
+version=1
+
+# This file caches language service data to improve the performance of C# Dev Kit.
+# It is not intended for manual editing. It can safely be deleted and will be
+# regenerated automatically. For more information, see https://aka.ms/lscache
+#
+# To control where cache files are stored, use the following VS Code setting:
+#   "dotnet.projectsystem.cacheInProjectFolder": true
+
+[project]
+language=C#
+primary
+lastDtbSucceeded
+
+[properties]
+AssemblyName=core
+CommandLineArgsForDesignTimeEvaluation=-langversion:default -define:TRACE
+CompilerGeneratedFilesOutputPath=
+MaxSupportedLangVersion=12.0
+ProjectAssetsFile=<PATH>obj/project.assets.json
+RootNamespace=Cmf.CLI.Core
+RunAnalyzers=
+RunAnalyzersDuringLiveAnalysis=
+SolutionPath=<PATH>../cmf-cli.sln
+TargetFrameworkIdentifier=.NETCoreApp
+TargetPath=<PATH>bin/Debug/net8.0/core.dll
+TargetRefPath=<PATH>obj/Debug/net8.0/ref/core.dll
+TemporaryDependencyNodeTargetIdentifier=net8.0
+
+[commandLineArguments]
+/noconfig
+/unsafe-
+/checked-
+/nowarn:1701,1702,1701,1702,8002
+/fullpaths
+/nostdlib+
+/errorreport:prompt
+/warn:8
+/define:TRACE;DEBUG;NET;NET8_0;NETCOREAPP;NET5_0_OR_GREATER;NET6_0_OR_GREATER;NET7_0_OR_GREATER;NET8_0_OR_GREATER;NETCOREAPP1_0_OR_GREATER;NETCOREAPP1_1_OR_GREATER;NETCOREAPP2_0_OR_GREATER;NETCOREAPP2_1_OR_GREATER;NETCOREAPP2_2_OR_GREATER;NETCOREAPP3_0_OR_GREATER;NETCOREAPP3_1_OR_GREATER
+/highentropyva+
+/debug+
+/debug:portable
+/filealign:512
+/optimize-
+/out:obj\Debug\net8.0\core.dll
+/refout:obj\Debug\net8.0\refint\core.dll
+/target:library
+/warnaserror-
+/utf8output
+/deterministic+
+/langversion:default
+/warnaserror+:NU1605,SYSLIB0011
+
+[sourceFiles]
+Attributes/CmfCommandAttribute.cs
+Commands/
+ BaseCommand.cs
+ IBaseCommand.cs
+ TemplateCommand.cs
+Constants/
+ CmfAuthConstants.cs
+ CoreConstants.cs
+CoreMessages.Designer.cs
+Enums/
+ AgentType.cs
+ BaseLayer.cs
+ ContentType.cs
+ ErrorCode.cs
+ MasterDataTargetPlatformType.cs
+ MessageType.cs
+ PackAction.cs
+ PackageLocation.cs
+ PackageType.cs
+ PropertyRequirement.cs
+ RelatedPackagesActions.cs
+ RepositoryType.cs
+ StepType.cs
+Interfaces/
+ ICIFSClient.cs
+ IPackageTypeHandler.cs
+ IRepositoryAuthStore.cs
+ IRepositoryClient.cs
+ IRepositoryLocator.cs
+ ISharedFolder.cs
+Logger.cs
+LoggerHelpers.cs
+obj/Debug/net8.0/
+ .NETCoreApp,Version=v8.0.AssemblyAttributes.cs
+ core.AssemblyInfo.cs
+Objects/
+ AngularWorkspace.cs
+ CIFSClient.cs
+ CmfApp.cs
+ CmfAuthFile.cs
+ CmfPackage.cs
+ CmfPackage/CmfPackageV1.cs
+ CmfPackageCollection.cs
+ ConcatStreams.cs
+ ContentToPack.cs
+ Dependency.cs
+ DependencyCollection.cs
+ ExecutionContext.cs
+ FileToPack.cs
+ IProcessStartInfoCLI.cs
+ MESVersionValidationService.cs
+ NPMClient.cs
+ ProcessBuildStep.cs
+ ProcessStartInfoCLI.cs
+ ProjectConfig/
+  ProjectConfig.cs
+  ProjectConfigV1.cs
+ ProjectConfigService.cs
+ RelatedPackage.cs
+ RelatedPackageCollection.cs
+ RepositoriesConfig.cs
+ Step.cs
+ TelemetryService.cs
+ VersionService.cs
+Repository/
+ ArchiveRepositoryClient.cs
+ CIFSRepositoryClient.cs
+ Credentials/
+  AuthType.cs
+  BasicCredential.cs
+  BearerCredential.cs
+  CIFSRepositoryCredentials.cs
+  CredentialConverter.cs
+  CredentialSource.cs
+  DockerRepositoryCredentials.cs
+  ICredential.cs
+  InvalidAuthTypeException.cs
+  IPortalRepositoryCredentials.cs
+  IRepositoryAutomaticLogin.cs
+  IRepositoryCredentials.cs
+  IRepositoryCredentialsSingleSignOn.cs
+  NPMRepositoryCredentials.cs
+  NuGetRepositoryCredentials.cs
+  PortalRepositoryCredentials.cs
+  RepositoryCredentialsType.cs
+ ICIFSRepositoryClient.cs
+ LocalRepositoryClient.cs
+ NPMRepositoryClient.cs
+Services/
+ CmfPackageController.cs
+ FeaturesService.cs
+ RepositoryAuthStore.cs
+ RepositoryLocator.cs
+StartupModule.cs
+Templating/
+ CmfCliTemplateEngineHost.cs
+ IOAbstractionsFileSystem.cs
+Utilities/
+ AppIconUtilities.cs
+ CliException.cs
+ ExtensionMethods.cs
+ FileSystemUtilities.cs
+ GenericUtilities.cs
+ IoTUtilities.cs
+ JsonConverters.cs
+ WrappedException.cs
+
+[analyzerReferences]
+<DOTNET>/sdk/10.0.203/Sdks/Microsoft.NET.Sdk/analyzers/
+ Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll
+ Microsoft.CodeAnalysis.NetAnalyzers.dll
+
+[analyzerConfigFiles]
+../.editorconfig
+<DOTNET>/sdk/10.0.203/Sdks/Microsoft.NET.Sdk/analyzers/build/config/analysislevel_8_default.globalconfig
+obj/Debug/net8.0/core.GeneratedMSBuildEditorConfig.editorconfig
