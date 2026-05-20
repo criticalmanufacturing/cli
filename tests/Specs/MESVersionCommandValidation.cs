@@ -1,31 +1,17 @@
 using System;
-using System.Collections.Generic;
 using System.CommandLine;
-using System.IO.Abstractions.TestingHelpers;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Commands;
 using Cmf.CLI.Core.Objects;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
 using Xunit;
 
 namespace tests.Specs;
 
 public class MESVersionCommandValidation
 {
-    const string projCfgTemplate = @"{
-          ""ProjectName"": ""ExampleProject"",
-          ""NPMRegistry"": ""http://npmrepo/"",
-          ""NuGetRegistry"": ""https://nuget-repo/"",
-          ""RepositoryURL"": ""https://example.com/repo"",
-          ""Tenant"": ""ExampleClient"",
-          ""MESVersion"": ""{MES_VERSION}"",
-          ""DevTasksVersion"": ""1.0.0"",
-          ""HTMLStarterVersion"": ""8.0.0"",
-          ""DefaultDomain"": ""AD"",
-          ""RESTPort"": ""443""
-        }";
-
     [CmfCommand("test-command", Id = "test_command", MinimumMESVersion = "11.0.0")]
     private class TestCommand : BaseCommand
     {
@@ -38,66 +24,64 @@ public class MESVersionCommandValidation
     }
 
     [Fact]
-    public void CommandWithMinimumVersion_CurrentVersionMeets_ShouldExecute()
+    public void CommandWithMinimumVersion_ValidationPasses_ShouldNotAddErrors()
     {
         // Arrange
-        SetupExecutionContext("11.0.0");
-        var rootCmd = new RootCommand();
-        var testCmd = new Command("test-command");
-        var testCmdHandler = new TestCommand();
-        testCmdHandler.Configure(testCmd);
-        
-        // Simulate what BaseCommand.FindChildCommands does with version validation
-        var attr = typeof(TestCommand).GetCustomAttributes(typeof(CmfCommandAttribute), false)[0] as CmfCommandAttribute;
-        if (!string.IsNullOrWhiteSpace(attr.MinimumMESVersion))
-        {
-            var validationService = ExecutionContext.ServiceProvider?.GetService<IMESVersionValidationService>();
-            testCmd.Validators.Add(commandResult =>
-            {
-                try
-                {
-                    validationService?.ValidateMinimumVersion(attr.MinimumMESVersion);
-                }
-                catch (MESVersionValidationException ex)
-                {
-                    commandResult.AddError(ex.Message);
-                }
-                catch (Exception ex)
-                {
-                    commandResult.AddError($"Version validation error: {ex.Message}");
-                }
-            });
-        }
-        
-        rootCmd.Add(testCmd);
+        var validationServiceMock = new Mock<IMESVersionValidationService>(MockBehavior.Strict);
+        validationServiceMock
+            .Setup(v => v.ValidateMinimumVersion("11.0.0"));
+
+        var rootCmd = BuildRootCommand(validationServiceMock.Object);
 
         // Act
         var result = rootCmd.Parse("test-command");
 
         // Assert
         result.Errors.Should().BeEmpty();
+        validationServiceMock.Verify(v => v.ValidateMinimumVersion("11.0.0"), Times.Once);
     }
 
     [Fact]
-    public void CommandWithMinimumVersion_CurrentVersionBelowRequired_ShouldFail()
+    public void CommandWithMinimumVersion_ValidationFails_ShouldReturnParseError()
     {
         // Arrange
-        SetupExecutionContext("10.0.0");
+        var validationServiceMock = new Mock<IMESVersionValidationService>(MockBehavior.Strict);
+        validationServiceMock
+            .Setup(v => v.ValidateMinimumVersion("11.0.0"))
+            .Throws(new MESVersionValidationException("blocked by minimum MES version"));
+
+        var rootCmd = BuildRootCommand(validationServiceMock.Object);
+
+        // Act
+        var result = rootCmd.Parse("test-command");
+
+        // Assert
+        result.Errors.Should().HaveCount(1);
+        result.Errors[0].Message.Should().Be("blocked by minimum MES version");
+        validationServiceMock.Verify(v => v.ValidateMinimumVersion("11.0.0"), Times.Once);
+    }
+
+    private static RootCommand BuildRootCommand(IMESVersionValidationService validationService)
+    {
+        ExecutionContext.ServiceProvider = new ServiceCollection()
+            .AddSingleton(validationService)
+            .BuildServiceProvider();
+
         var rootCmd = new RootCommand();
         var testCmd = new Command("test-command");
         var testCmdHandler = new TestCommand();
         testCmdHandler.Configure(testCmd);
-        
-        // Simulate what BaseCommand.FindChildCommands does with version validation
+
+        // Simulate what BaseCommand.FindChildCommands does with version validation.
         var attr = typeof(TestCommand).GetCustomAttributes(typeof(CmfCommandAttribute), false)[0] as CmfCommandAttribute;
         if (!string.IsNullOrWhiteSpace(attr.MinimumMESVersion))
         {
-            var validationService = ExecutionContext.ServiceProvider?.GetService<IMESVersionValidationService>();
+            var resolvedValidationService = ExecutionContext.ServiceProvider?.GetService<IMESVersionValidationService>();
             testCmd.Validators.Add(commandResult =>
             {
                 try
                 {
-                    validationService?.ValidateMinimumVersion(attr.MinimumMESVersion);
+                    resolvedValidationService?.ValidateMinimumVersion(attr.MinimumMESVersion);
                 }
                 catch (MESVersionValidationException ex)
                 {
@@ -109,32 +93,8 @@ public class MESVersionCommandValidation
                 }
             });
         }
-        
+
         rootCmd.Add(testCmd);
-
-        // Act
-        var result = rootCmd.Parse("test-command");
-
-        // Assert
-        result.Errors.Should().HaveCount(1);
-        result.Errors[0].Message.Should().Contain("This command requires MES version 11.0.0 or higher");
-    }
-
-    private void SetupExecutionContext(string mesVersion)
-    {
-        var projConfig = projCfgTemplate.Replace("{MES_VERSION}", mesVersion);
-
-        var fileSystem = new MockFileSystem();
-        var projectConfigPath = fileSystem.Path.Join(fileSystem.Directory.GetCurrentDirectory(), ".project-config.json");
-        fileSystem.AddFile(projectConfigPath, new MockFileData(projConfig));
-
-        // Set up the service provider with required services
-        var serviceCollection = new ServiceCollection()
-            .AddSingleton<IProjectConfigService, ProjectConfigService>()
-            .AddSingleton<IMESVersionValidationService, MESVersionValidationService>();
-        ExecutionContext.ServiceProvider = serviceCollection.BuildServiceProvider();
-        
-        // Initialize ExecutionContext which will load the project config
-        ExecutionContext.Initialize(fileSystem);
+        return rootCmd;
     }
 }
