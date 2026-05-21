@@ -143,7 +143,7 @@ namespace Cmf.CLI.Commands.New
                     "add", "--registry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.OriginalString,
                                       "--skip-confirmation", $"@criticalmanufacturing/ngx-schematics@{schematicsVersion}",
                                       "--eslint", "--application", baseLayer.ToString(),
-                                      "--version", schematicsVersion
+                                      "--version", $"release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}"
                 ],
                 WorkingDirectory = packageDir,
                 ForceColorOutput = false
