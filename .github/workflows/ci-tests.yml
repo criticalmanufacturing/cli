@@ -44,7 +44,7 @@ jobs:
           dotnet build --configuration Release
 
       - name: Test ${{ matrix.node-version }}
-        run: dotnet test --configuration Release --no-build --no-restore --verbosity normal --filter "${{ matrix.test-filter }}" --collect:"XPlat Code Coverage" --logger trx --results-directory TestResults
+        run: dotnet test --configuration Release --no-build --no-restore --verbosity detailed --filter "${{ matrix.test-filter }}" --collect:"XPlat Code Coverage" --logger trx --logger "console;verbosity=detailed" --results-directory TestResults
       
       - name: Merge Coverage Reports
         run: |
