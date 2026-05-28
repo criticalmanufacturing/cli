@@ -170,6 +170,11 @@ This type doesn't have any predefined BuildStep, Step or ContentToPack, so it wi
 
 Array of terminal commands *(similar to [package.json scripts](https://docs.npmjs.com/cli/v10/configuring-npm/package-json#scripts))* that will be used to build the package during the `cmf build` command execution.
 
+This property is supported by the following package types:
+
+- **Generic** – Generic build mechanism. No predefined steps exist.
+- **Data** *(version 2)* – custom build steps run before the built-in `JSONValidatorCommand` and `DEEValidatorCommand`.
+
 Example:
 
 ```json
@@ -219,6 +224,43 @@ String value that should match a container layer from CM Framework. Valid values
     {
         "type": "DeployFiles",
         "contentPath": "**/**"
+    }]
+}
+```
+
+## Data Type Packages (handler version 2)
+
+### buildSteps
+
+Data packages support custom `buildSteps` that run **before** the built-in JSON and DEE validators during `cmf build`. This is useful to apply some pre-processment to DEE before the startup.
+
+### Example
+
+```json
+{
+    "packageId": "Cmf.Custom.Data",
+    "version": "1.0.0",
+    "description": "Data Package",
+    "packageType": "Data",
+    "isInstallable": true,
+    "isUniqueInstall": true,
+    "buildSteps": [
+        {
+        "command": "bash",
+        "args": [
+            "addCommentsToDee.sh"
+        ],
+        "workingDirectory": "DEEs/MesInjected/scripts/"
+        }
+    ],
+    "contentToPack": [
+    {
+        "source": "DEEs/*",
+        "target": "DeeRules",
+        "ignoreFiles": [
+            "../.cmfpackageignore"
+        ],
+        "contentType": "DEE"
     }]
 }
 ```

@@ -52,8 +52,12 @@ namespace Cmf.CLI.Handlers
                         }
                      });
 
-            BuildSteps = new IBuildCommand[]
-            {
+            IEnumerable<IBuildCommand> buildSteps = cmfPackage.BuildSteps?.Select(pbs => new SingleStepCommand() { BuildStep = pbs } as IBuildCommand)
+                ?? Enumerable.Empty<IBuildCommand>();
+
+            BuildSteps =
+            [
+                .. buildSteps,
                 new JSONValidatorCommand()
                 {
                     DisplayName = "JSON Validator Command",
@@ -64,7 +68,8 @@ namespace Cmf.CLI.Handlers
                     DisplayName = "DEE Validator Command",
                     FilesToValidate = GetContentToPack(this.fileSystem.DirectoryInfo.New("."))
                 }
-            };
+            ];
+
 
             cmfPackage.DFPackageType = PackageType.Business; // necessary because we restart the host during installation
 

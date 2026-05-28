@@ -763,6 +763,137 @@ public class Build
         Assert.Contains("Executing 'Run Build Command'", standardOutput.ToString().Trim());
     }
 
+    [Fact]
+    public void DataV2Build_WithoutBuildSteps_HasOnlyValidatorCommands()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { ".project-config.json", new MockFileData("") },
+            { $"cmfpackage.json", new MockFileData(
+                @"{
+                  ""packageId"": ""Root.Package"",
+                  ""version"": ""1.0.0"",
+                  ""description"": ""Root"",
+                  ""packageType"": ""Root"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": false
+                }") },
+            { $"Cmf.Custom.Data/{CliConstants.CmfPackageFileName}", new MockFileData(
+                @"{
+                  ""packageId"": ""Cmf.Custom.Data"",
+                  ""version"": ""1.0.0"",
+                  ""description"": ""Data package"",
+                  ""packageType"": ""Data"",
+                  ""handlerVersion"": 2,
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": true
+                }") }
+        });
+
+        ExecutionContext.Initialize(fileSystem);
+        IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"Cmf.Custom.Data/{CliConstants.CmfPackageFileName}");
+        DataPackageTypeHandlerV2 handler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile) as DataPackageTypeHandlerV2;
+
+        handler.BuildSteps.Should().HaveCount(2, "only the JSONValidatorCommand and DEEValidatorCommand should be present");
+        handler.BuildSteps[0].DisplayName.Should().Be("JSON Validator Command");
+        handler.BuildSteps[1].DisplayName.Should().Be("DEE Validator Command");
+    }
+
+    [Fact]
+    public void DataV2Build_WithBuildSteps_ExecutesCustomStepsBeforeValidators()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { ".project-config.json", new MockFileData("") },
+            { $"cmfpackage.json", new MockFileData(
+                @"{
+                  ""packageId"": ""Root.Package"",
+                  ""version"": ""1.0.0"",
+                  ""description"": ""Root"",
+                  ""packageType"": ""Root"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": false
+                }") },
+            { $"Cmf.Custom.Data/{CliConstants.CmfPackageFileName}", new MockFileData(
+                @"{
+                  ""packageId"": ""Cmf.Custom.Data"",
+                  ""version"": ""1.0.0"",
+                  ""description"": ""Data package"",
+                  ""packageType"": ""Data"",
+                  ""handlerVersion"": 2,
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": true,
+                  ""buildSteps"": [
+                    {
+                      ""command"": ""dotnet"",
+                      ""args"": [""build"", ""DEEs/DEEs.csproj""],
+                      ""workingDirectory"": "".""
+                    }
+                  ]
+                }") }
+        });
+
+        ExecutionContext.Initialize(fileSystem);
+        IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"Cmf.Custom.Data/{CliConstants.CmfPackageFileName}");
+        DataPackageTypeHandlerV2 handler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile) as DataPackageTypeHandlerV2;
+
+        handler.BuildSteps.Should().HaveCount(3, "one custom buildStep plus JSONValidatorCommand and DEEValidatorCommand");
+        handler.BuildSteps[0].Should().BeOfType<SingleStepCommand>("custom build steps should come first");
+        handler.BuildSteps[1].DisplayName.Should().Be("JSON Validator Command");
+        handler.BuildSteps[2].DisplayName.Should().Be("DEE Validator Command");
+    }
+
+    [Fact]
+    public void DataV2Build_WithBuildSteps_ExecutesCustomStep()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { ".project-config.json", new MockFileData("") },
+            { $"cmfpackage.json", new MockFileData(
+                @"{
+                  ""packageId"": ""Root.Package"",
+                  ""version"": ""1.0.0"",
+                  ""description"": ""Root"",
+                  ""packageType"": ""Root"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": false
+                }") },
+            { $"Cmf.Custom.Data/{CliConstants.CmfPackageFileName}", new MockFileData(
+                @"{
+                  ""packageId"": ""Cmf.Custom.Data"",
+                  ""version"": ""1.0.0"",
+                  ""description"": ""Data package"",
+                  ""packageType"": ""Data"",
+                  ""handlerVersion"": 2,
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": true,
+                  ""buildSteps"": [
+                    {
+                      ""command"": ""dotnet"",
+                      ""args"": [""build"", ""DEEs/DEEs.csproj""],
+                      ""workingDirectory"": "".""
+                    }
+                  ]
+                }") }
+        });
+
+        ExecutionContext.Initialize(fileSystem);
+        IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"Cmf.Custom.Data/{CliConstants.CmfPackageFileName}");
+        DataPackageTypeHandlerV2 handler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile) as DataPackageTypeHandlerV2;
+
+        var mock = new Mock<IBuildCommand>();
+        mock.Setup(m => m.Exec());
+        mock.SetupAllProperties();
+        mock.Object.Test = false;
+        mock.Object.DisplayName = "Custom Data Build Step";
+
+        handler.BuildSteps = [mock.Object, .. handler.BuildSteps.Skip(1)];
+
+        StringWriter standardOutput = (new Logging()).GetLogStringWriter();
+        handler.Build(false);
+        Assert.Contains("Executing 'Custom Data Build Step'", standardOutput.ToString().Trim());
+    }
+
     [Theory]
     [InlineData("10.0.0")]  // MES version > 9: uses projects/cmf-docs-area-* layout
     [InlineData("9.0.0")]   // MES version <= 9: uses src/packages/cmf.docs.area.* layout
