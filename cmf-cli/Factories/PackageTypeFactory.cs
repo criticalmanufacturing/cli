@@ -1,5 +1,4 @@
-﻿
-using Cmf.CLI.Core;
+﻿using Cmf.CLI.Core;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Core.Objects;
@@ -64,7 +63,13 @@ namespace Cmf.CLI.Factories
                 PackageType.ExportedObjects => new ExportedObjectsPackageTypeHandler(cmfPackage),
                 PackageType.Database => new DatabasePackageTypeHandler(cmfPackage),
                 PackageType.Tests => new TestPackageTypeHandler(cmfPackage),
-                PackageType.SecurityPortal => SecurityPortalHandler(cmfPackage),
+                PackageType.SecurityPortal => cmfPackage.HandlerVersion switch
+                {
+                    3 => new SecurityPortalPackageTypeHandlerV3(cmfPackage),
+                    2 => new SecurityPortalPackageTypeHandlerV2(cmfPackage),
+                    1 => new SecurityPortalPackageTypeHandler(cmfPackage),
+                    _ => SecurityPortalHandler(cmfPackage)
+                },
                 PackageType.Grafana => new GrafanaPackageTypeHandler(cmfPackage),
                 _ => throw new CliException(string.Format(CoreMessages.PackageTypeHandlerNotImplemented, cmfPackage.PackageType.ToString()))
             };
@@ -98,7 +103,7 @@ namespace Cmf.CLI.Factories
 
         /// <summary>
         /// Creates the specific Security Portal package handler.
-        /// 
+        ///
         /// If the ProjectConfig's MESVersion is less than 10.0.0, a <seealso cref="SecurityPortalPackageTypeHandler"/> is created and returned.
         /// Otherwise, a <seealso cref="SecurityPortalPackageTypeHandlerV2"/> is created and returned.
         /// </summary>
@@ -108,6 +113,7 @@ namespace Cmf.CLI.Factories
         {
             var targetVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
             var minimumVersion = new Version("10.0.0");
+
             if (targetVersion.CompareTo(minimumVersion) < 0)
             {
                 return new SecurityPortalPackageTypeHandler(cmfPackage);
