@@ -134,6 +134,20 @@ namespace tests.Specs
         }
 
         [Fact]
+        public void Init_Fail_InvalidProjectName_WithDot()
+        {
+            var console = new TestConsole();
+
+            var initCommand = new InitCommand();
+            var cmd = new Command("x");
+            initCommand.Configure(cmd);
+
+            TestUtilities.GetParser(cmd).Invoke(new[] { "My.Project" }, console);
+
+            Assert.Contains("'My.Project' is not a valid project name.", console.Error.ToString());
+        }
+
+        [Fact]
         public void Init_Fail_MissingMandatoryArgumentsAndOptions()
         {
             var console = new TestConsole();
