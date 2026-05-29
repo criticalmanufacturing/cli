@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.CommandLine;
+using System.Threading.Tasks;
 using System.CommandLine.Parsing;
 using System.IO.Abstractions;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
@@ -90,7 +91,16 @@ namespace Cmf.CLI.Commands
         {
             var projectNameArgument = new Argument<string>("projectName")
             {
-                CustomParser = argResult => ParseArgument<string>(argResult)
+                CustomParser = argResult =>
+                {
+                    var value = ParseArgument<string>(argResult);
+                    if (value != null && !Regex.IsMatch(value, @"^[A-Za-z0-9][A-Za-z0-9_-]*$"))
+                    {
+                        argResult.AddError($"'{value}' is not a valid project name. " +
+                            "Project names must contain only lowercase/uppercase letters, digits, hyphens (-), and underscores (_) as well as start with a letter or digit.");
+                    }
+                    return value;
+                }
             };
             cmd.Add(projectNameArgument);
 
