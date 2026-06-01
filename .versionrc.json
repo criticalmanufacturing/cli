@@ -9,7 +9,7 @@
       {"type": "perf", "hidden": true},
       {"type": "test", "hidden": true}
     ],
-    "commitUrlFormat": "https://github.com/criticalmanufacturing/cli/commits/{{hash}}",
+    "commitUrlFormat": "https://github.com/criticalmanufacturing/cli/commit/{{hash}}",
     "compareUrlFormat": "https://github.com/criticalmanufacturing/cli/compare/{{previousTag}}...{{currentTag}}",
     "skip": {
         "tag": true,
