@@ -42,7 +42,7 @@
     "bump:dotnet:patch": "cd cmf-cli && dotnet-bump patch --force --no-commit && cd .. && cd core && dotnet-bump patch --force --no-commit && cd ..",
     "bump:dotnet:feature": "cd cmf-cli && dotnet-bump minor --force --no-commit && cd .. && cd core && dotnet-bump minor --force --no-commit && cd ..",
     "bump:dotnet:breaking": "cd cmf-cli && dotnet-bump major --force --no-commit && cd .. && cd core && dotnet-bump major --force --no-commit && cd ..",
-    "gen:changelog": "cd npm && standard-version && cd ..",
+    "gen:changelog": "cd npm && commit-and-tag-version && cd ..",
     "commit": "git-cz"
   },
   "author": "Marco Silva",
@@ -55,6 +55,6 @@
     "@commitlint/cli": "^20.5.0",
     "@commitlint/config-conventional": "^20.5.0",
     "husky": "^7.0.4",
-    "standard-version": "^9.5.0"
+    "commit-and-tag-version": "latest"
   }
 }
