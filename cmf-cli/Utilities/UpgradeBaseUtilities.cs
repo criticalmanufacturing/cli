@@ -81,7 +81,7 @@ namespace Cmf.CLI.Utilities
         /// <param name="version">The new Base version.</param>
         /// <param name="strictMatching">
         ///     If true, only references to Cmf.Navigo, Cmf.Foundation, Cmf.MessageBus and Cmf.Common.CustomActionUtilities packages will be updated.
-        ///     If false, all packages starting with Cmf. will be updated, (excluding Cmf.Common.TestUtilities and Cmf.Common.TestFramework.ConnectIoT).
+        ///     If false, all packages starting with Cmf. will be updated.
         /// </param>
         public static void UpdateCSharpProject(IFileSystem fileSystem, CmfPackage cmfPackage, string version, bool strictMatching)
         {
@@ -95,8 +95,8 @@ namespace Cmf.CLI.Utilities
             }
             else
             {
-                // Only update Cmf.* references (excluding Cmf.Common.TestUtilities and Cmf.Common.TestFramework.ConnectIoT)
-                pattern = @"(Include=""Cmf\.(?!Common\.TestUtilities|Common\.TestFramework\.ConnectIoT)[^""]*""\s+Version="")(.*?)(""[\s/>])";
+                // Only update Cmf.* references
+                pattern = @"(Include=""Cmf\.[^""]*""\s+Version="")(.*?)(""[\s/>])";
             }
 
             foreach (string filePath in filesToUpdate)

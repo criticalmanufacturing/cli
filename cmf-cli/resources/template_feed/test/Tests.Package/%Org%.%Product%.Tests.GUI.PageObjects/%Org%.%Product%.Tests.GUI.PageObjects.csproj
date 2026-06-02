@@ -64,7 +64,6 @@
     <PackageReference Include="MSTest.TestFramework" Version="2.2.3" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Cmf.Common.TestUtilities" Version="2.3.157590" />
     <PackageReference Include="Cmf.Core.Controls.PageObjects" Version="<%= $CLI_PARAM_MESVersion %>"/>
     <PackageReference Include="Cmf.Core.PageObjects" Version="<%= $CLI_PARAM_MESVersion %>"/>
     <PackageReference Include="Cmf.MES.PageObjects" Version="<%= $CLI_PARAM_MESVersion %>"/>
