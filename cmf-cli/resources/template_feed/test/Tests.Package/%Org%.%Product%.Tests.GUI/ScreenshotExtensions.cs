@@ -15,9 +15,9 @@ namespace <%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.Tests.GUI
         /// </summary>
         /// <param name="testClass"></param>
         /// <param name="step"></param>
-        public static void TakeScreenshot(this BaseTestClass testClass, string step)
+        public static void TakeScreenshot(this AbstractBaseTest testClass, string step)
         {
-            Screenshot screenshot = (BaseTestClass.Driver as ITakesScreenshot).GetScreenshot();
+            Screenshot screenshot = (testClass.Driver as ITakesScreenshot).GetScreenshot();
 
             // Get target file path
             string filePath = GenerateResourceFilePath(testClass, "png", "documentationScreenshotPath", step);
@@ -26,7 +26,7 @@ namespace <%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.Tests.GUI
             screenshot.SaveAsFile(filePath, ScreenshotImageFormat.Png);
         }
 
-        private static string GenerateResourceFilePath(BaseTestClass testClass, string extension, string contextPathProperty = null, string fileName = null)
+        private static string GenerateResourceFilePath(AbstractBaseTest testClass, string extension, string contextPathProperty = null, string fileName = null)
         {
             // Generate the path
             string path = GenerateResourcePath(testClass, contextPathProperty);
@@ -50,7 +50,7 @@ namespace <%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.Tests.GUI
         /// <param name="testClass"></param>
         /// <param name="property">The property from the test context where the path is defined</param>
         /// <returns>The path to store a test resource</returns>
-        private static string GenerateResourcePath(BaseTestClass testClass, string property = null)
+        private static string GenerateResourcePath(AbstractBaseTest testClass, string property = null)
         {
             string path = Path.GetTempPath();
 
@@ -69,7 +69,7 @@ namespace <%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.Tests.GUI
         /// <param name="testClass"></param>
         /// <param name="propertyName"></param>
         /// <returns></returns>
-        private static string GetProperty(BaseTestClass testClass, string propertyName)
+        private static string GetProperty(AbstractBaseTest testClass, string propertyName)
         {
             string value = null;
 
