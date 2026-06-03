@@ -60,6 +60,7 @@
     <ProjectReference Include="..\<%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.Tests.GUI.PageObjects\<%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.Tests.GUI.PageObjects.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Cmf.Dev.Core.TestUtilities" Version="<%= $CLI_PARAM_MESVersion %>"/>
     <PackageReference Include="Cmf.Core.Business.Controls.PageObjects" Version="<%= $CLI_PARAM_MESVersion %>" />
     <PackageReference Include="Cmf.Core.Shell.PageObjects" Version="<%= $CLI_PARAM_MESVersion %>" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
