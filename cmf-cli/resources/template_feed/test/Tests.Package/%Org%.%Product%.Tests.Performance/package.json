@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@types/k6": "^1.4.0",
+    "@types/k6": "^2.0.0",
     "cmf-k6": "file:<%= $CLI_PARAM_output %>/Libs/LBOs/K6/cmf_k6/cmf-k6-0.0.1.tgz"
   },
   "scripts": {
