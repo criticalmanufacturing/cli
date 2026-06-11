@@ -15,6 +15,7 @@ using Cmf.CLI.Core.Services;
 using Cmf.CLI.Services;
 using Cmf.CLI.Core.Repository.Credentials;
 using Cmf.CLI.Core.Utilities;
+using System.CommandLine.Invocation;
 
 namespace Cmf.CLI
 {
@@ -68,7 +69,7 @@ namespace Cmf.CLI
                         // we are executing a plugin: parse and invoke through System.CommandLine
                         // which will trigger the Action set by PluginCommand.Configure()
                         var parseResult = rootCommand.Parse(args);
-                        result = await parseResult.InvokeAsync();
+                        result = await ((AsynchronousCommandLineAction)pluginMatch.Action).InvokeAsync(parseResult);
                     }
                     else
                     {
@@ -80,7 +81,7 @@ namespace Cmf.CLI
                         ValidateMesVersion(ExecutionContext.Instance.ProjectConfig?.MESVersion?.Major);
                         
                         // Parse and invoke using beta5 pattern
-                        ParseResult parseResult = rootCommand.Parse(args);
+                        var parseResult = rootCommand.Parse(args);
                         result = await parseResult.InvokeAsync();
                     }
                 }
