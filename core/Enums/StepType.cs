@@ -123,6 +123,8 @@
 
         SignEntityTypes = 35,
 
-        EnqueueXmla = 36
+        EnqueueXmla = 36,
+
+        GrantPermissions = 37
     }
 }

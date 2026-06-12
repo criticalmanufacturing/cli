@@ -810,6 +810,94 @@ public class Repositories
     }
 
     [Fact]
+    public void ConvertZipToTgz_ShouldIncludeDeploymentMetadata_FromManifest()
+    {
+      KeyValuePair<string, string> package = new("Cmf.Database.Runtime", "12.0.0");
+
+      string manifestContent =
+        @$"<deploymentPackage>
+            <packageId>{package.Key}</packageId>
+            <name>Critical Manufacturing Database Server Runtime</name>
+            <packageType>ProductDatabase</packageType>
+            <description>This package deploys Critical Manufacturing MES Database Server Runtime</description>
+            <manifestVersion>1</manifestVersion>
+            <minSqlCompatibility>150</minSqlCompatibility>
+            <version>{package.Value}</version>
+            <isInstallable>true</isInstallable>
+            <isUniqueInstall>true</isUniqueInstall>
+            <targetLayerDirectory>db/runtime</targetLayerDirectory>
+            <buildDate>25/12/2024</buildDate>
+            <keywords>cmf-root-package</keywords>
+            <forceRerunAfterDatabaseRestore>true</forceRerunAfterDatabaseRestore>
+            <upgradeStrategy>CumulativeByMinor</upgradeStrategy>
+            <systemName>MyApp</systemName>
+            <systemVersion>11.1.0</systemVersion>
+            <metadata>
+              <customKey>customValue</customKey>
+            </metadata>
+            <packageDemands>
+              <packageDemand type=""SQLServer"" version=""14.0.1000.169"" description=""Microsoft SQL Server 2017""/>
+            </packageDemands>
+            <steps>
+              <step type=""RunSql"" contentPath=""*.sql"" />
+            </steps>
+        </deploymentPackage>";
+
+      var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+      {
+          { $"repo/{package.Key}.{package.Value}.zip", new MockFileData(new DFPackageBuilder().CreateEntry("manifest.xml", manifestContent).ToByteArray()) }
+      });
+      ExecutionContext.Initialize(fileSystem);
+
+      IFileInfo tgzPackageFile = fileSystem.FileInfo.New($"repo/{package.Key}.{package.Value}.tgz");
+
+      // test conversion zip->tgz
+      CmfPackageController.ConvertZipToTarGz(fileSystem.FileInfo.New($"repo/{package.Key}.{package.Value}.zip"), tgzPackageFile);
+
+      // get tgz info for assertion
+      using GZipStream gzipStream = new GZipStream(tgzPackageFile.OpenRead(), CompressionMode.Decompress);
+      using TarReader tarReader = new(gzipStream);
+      dynamic packageJson = null;
+      while (tarReader.GetNextEntry() is { } entry)
+      {
+        if (entry.Name == "package/package.json")
+        {
+          using MemoryStream ms = new();
+          entry.DataStream.CopyTo(ms);
+          packageJson = JsonConvert.DeserializeObject(Encoding.UTF8.GetString(ms.ToArray()));
+        }
+      }
+
+      Assert.NotNull(packageJson);
+
+      // top-level deployment metadata
+      Assert.True((bool)packageJson.forceRerunAfterDatabaseRestore);
+      Assert.Equal("CumulativeByMinor", (string)packageJson.upgradeStrategy);
+
+      // deployment object metadata
+      Assert.Equal(1, (int)packageJson.deployment.manifestVersion);
+      Assert.Equal(150, (int)packageJson.deployment.minSqlCompatibility);
+      Assert.Equal("db/runtime", (string)packageJson.deployment.targetLayerDirectory);
+      Assert.False(string.IsNullOrEmpty((string)packageJson.deployment.buildDate));
+
+      // extended metadata
+      Assert.Equal("MyApp", (string)packageJson.deployment.metadata.ApplicationName);
+      Assert.Equal("11.1.0", (string)packageJson.deployment.metadata.ApplicationVersion);
+      Assert.Equal("customValue", (string)packageJson.deployment.metadata.customKey);
+
+      // package demands
+      Assert.Equal(1, (int)packageJson.deployment.packageDemands.Count);
+      Assert.Equal("SQLServer", (string)packageJson.deployment.packageDemands[0].type);
+      Assert.Equal("14.0.1000.169", (string)packageJson.deployment.packageDemands[0].version);
+      Assert.Equal("Microsoft SQL Server 2017", (string)packageJson.deployment.packageDemands[0].description);
+
+      // root package keyword
+      string keywords = packageJson.keywords.ToString();
+      keywords.Should().Contain("cmf-deployment-package");
+      keywords.Should().Contain("cmf-deployment-rootPackage");
+    }
+
+    [Fact]
     public void RepositoriesConfig_JsonDeserialization_VariousUriFormats()
     {
         // Test that RepositoriesConfig can deserialize JSON with various URI formats
