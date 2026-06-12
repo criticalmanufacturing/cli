@@ -60,7 +60,7 @@ namespace Cmf.CLI
                 if (rootCommand != null)
                 {
                     var nonPluginCommands = rootCommand.Subcommands.ToList();
-                    BaseCommand.AddPluginCommands(rootCommand);
+                    BaseCommand.AddPluginCommands(fileSystem, rootCommand);
                     var pluginCommands =
                         rootCommand.Subcommands.Where(cmd => nonPluginCommands.All(np => np.Name != cmd.Name)).ToList();
 
