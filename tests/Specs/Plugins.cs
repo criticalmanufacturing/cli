@@ -1,8 +1,12 @@
 using System;
+using System.Collections.Generic;
+using System.IO.Abstractions.TestingHelpers;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Cmf.CLI.Commands;
+using Cmf.CLI.Core;
 using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Core.Objects;
@@ -99,5 +103,38 @@ public class Plugins
 
         plugins.Should().BeEmpty();
         logWriter.ToString().Should().Contain($"Search request to {new Uri(CoreConstants.NpmJsUrl).AbsoluteUri} failed: {HttpStatusCode.InternalServerError}");
+    }
+
+    [Fact]
+    public async Task InvokePluginsAsync()
+    {
+        Environment.SetEnvironmentVariable("PATH", $"{Environment.CurrentDirectory}/bin:{Environment.GetEnvironmentVariable("PATH")}");
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { MockUnixSupport.Path("bin/cmf-pipeline"), new MockFileData("dummy") }
+        });
+        
+        var args = new string[] { "pipeline", "--help" };
+            
+        var rootCommand = await StartupModule.Configure(
+            packageId: "root-command-test",
+            envVarPrefix: "root_command_test",
+            description: "Root Command Test",
+            args: args
+        );
+        
+        BaseCommand.AddPluginCommands(fileSystem, rootCommand);
+        
+        var console = new TestConsole();
+        var parseResult = rootCommand.Parse(args);
+        var result = await parseResult.InvokeAsync(console);
+
+        if (result != 0)
+        {
+            throw new Exception(console.Error.ToString());
+        }
+
+        Assert.NotEmpty(console.Out.ToString());
+        Assert.NotEmpty(rootCommand.Subcommands);
     }
 }
