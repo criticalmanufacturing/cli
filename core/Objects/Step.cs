@@ -2,7 +2,10 @@
 using Cmf.CLI.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 
 namespace Cmf.CLI.Core.Objects
@@ -13,6 +16,13 @@ namespace Cmf.CLI.Core.Objects
     /// <seealso cref="Step" />
     public class Step : IEquatable<Step>
     {
+        #region Private Properties
+
+        private List<XElement> _elements;
+        private List<JObject> _jElements;
+
+        #endregion
+
         #region Public Properties
 
         /// <summary>
@@ -274,6 +284,13 @@ namespace Cmf.CLI.Core.Objects
         /// </summary>
         public string Value { get; set; }
 
+        /// <summary>
+        /// Gets the inner XML child elements of this step (e.g. from a Deployment Framework manifest.xml step, such as &lt;Role&gt; or &lt;Object&gt;).
+        /// Only used when converting a DF package (manifest.xml) to its package.json representation.
+        /// </summary>
+        [JsonIgnore]
+        public IEnumerable<XElement> Elements => _elements;
+
         #endregion
 
         #region Constructors
@@ -333,6 +350,26 @@ namespace Cmf.CLI.Core.Objects
         #endregion
 
         #region Public Methods
+
+        /// <summary>
+        /// Adds an inner XML child element to this step (used when parsing a Deployment Framework manifest.xml step).
+        /// </summary>
+        /// <param name="element">The element.</param>
+        public void AddElement(XElement element)
+        {
+            _elements ??= new List<XElement>();
+            _elements.Add(element);
+        }
+
+        /// <summary>
+        /// Adds an inner JSON child element to this step (used when parsing a Deployment Framework package.json step).
+        /// </summary>
+        /// <param name="element">The element.</param>
+        public void AddElement(JObject element)
+        {
+            _jElements ??= new List<JObject>();
+            _jElements.Add(element);
+        }
 
         /// <summary>
         /// Indicates whether the current object is equal to another object of the same type.

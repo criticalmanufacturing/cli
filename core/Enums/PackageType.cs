@@ -89,5 +89,10 @@
         /// The Grafana
         /// </summary>
         Grafana = 16,
+
+        /// <summary>
+        /// The Clickhouse Database
+        /// </summary>
+        ClickhouseDatabase = 17
     }
 }

@@ -370,3 +370,6 @@ npm/*.tgz
 .DS_Store
 
 .env
+
+*.lscache
+dotnet/

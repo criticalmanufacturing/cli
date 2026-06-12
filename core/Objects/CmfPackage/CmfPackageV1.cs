@@ -7,6 +7,7 @@ using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Interfaces;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Linq;
 
 namespace Cmf.CLI.Core.Objects;
 
@@ -248,6 +249,57 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
         /// </value>
         [JsonProperty(Order = 23)]
         public string DependenciesDirectory { get; set; }
+
+        /// <summary>
+        /// Gets the manifest version declared in the Deployment Framework manifest.xml.
+        /// Only used when converting a DF package (manifest.xml) to its package.json representation.
+        /// </summary>
+        [JsonIgnore]
+        public int ManifestVersion { get; internal set; }
+
+        /// <summary>
+        /// Gets the minimum SQL Server compatibility level required by the package.
+        /// Only used when converting a DF package (manifest.xml) to its package.json representation.
+        /// </summary>
+        [JsonIgnore]
+        public int MinSqlCompatibility { get; internal set; }
+
+        /// <summary>
+        /// Gets the target layer directory, which means the directory inside the container in which
+        /// the package contents should be installed when using Environment Manager.
+        /// Only used when converting a DF package (manifest.xml) to its package.json representation.
+        /// </summary>
+        [JsonIgnore]
+        public string TargetLayerDirectory { get; internal set; }
+
+        /// <summary>
+        /// Gets the package build date declared in the Deployment Framework manifest.xml.
+        /// Only used when converting a DF package (manifest.xml) to its package.json representation.
+        /// </summary>
+        [JsonIgnore]
+        public DateTime? BuildDate { get; internal set; }
+
+        /// <summary>
+        /// Gets the package upgrade strategy declared in the Deployment Framework manifest.xml.
+        /// Only used when converting a DF package (manifest.xml) to its package.json representation.
+        /// </summary>
+        [JsonIgnore]
+        public string UpgradeStrategy { get; internal set; }
+
+        /// <summary>
+        /// Gets the extended metadata (e.g. application name/version and custom metadata entries)
+        /// declared in the Deployment Framework manifest.xml.
+        /// Only used when converting a DF package (manifest.xml) to its package.json representation.
+        /// </summary>
+        [JsonIgnore]
+        public Dictionary<string, string> ExtendedMetadata { get; internal set; }
+
+        /// <summary>
+        /// Gets the package demands declared in the Deployment Framework manifest.xml.
+        /// Only used when converting a DF package (manifest.xml) to its package.json representation.
+        /// </summary>
+        [JsonIgnore]
+        public List<JObject> PackageDemands { get; internal set; }
     #endregion
 
     #region constructors
