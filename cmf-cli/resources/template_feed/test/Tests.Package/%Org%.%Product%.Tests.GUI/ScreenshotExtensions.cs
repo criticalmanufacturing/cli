@@ -23,7 +23,7 @@ namespace <%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.Tests.GUI
             string filePath = GenerateResourceFilePath(testClass, "png", "documentationScreenshotPath", step);
 
             // Save the screenshot
-            screenshot.SaveAsFile(filePath, ScreenshotImageFormat.Png);
+            screenshot.SaveAsFile(filePath);
         }
 
         private static string GenerateResourceFilePath(AbstractBaseTest testClass, string extension, string contextPathProperty = null, string fileName = null)
