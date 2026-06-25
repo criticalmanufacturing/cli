@@ -50,3 +50,4 @@ test/**/bin
 
 !font/**/*.css
 !font/svg/font.js
+__TEMP__
