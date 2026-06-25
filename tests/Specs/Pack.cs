@@ -640,6 +640,8 @@ namespace tests.Specs
                       ""packageType"": ""IoT"",
                       ""isInstallable"": true,
                       ""isUniqueInstall"": false,
+                      ""isToForceInstall"": true,
+                      ""forceRerunAfterDatabaseRestore"": true,
                       ""contentToPack"": [
                         {{
                           ""source"": ""src/*"",
@@ -691,6 +693,8 @@ namespace tests.Specs
                       ""packageType"": ""IoT"",
                       ""isInstallable"": true,
                       ""isUniqueInstall"": false,
+                      ""isToForceInstall"": true,
+                      ""forceRerunAfterDatabaseRestore"": true,
                       ""contentToPack"": [
                         {{
                           ""source"": ""src/*"",
@@ -746,6 +750,8 @@ namespace tests.Specs
                       ""packageType"": ""IoT"",
                       ""isInstallable"": true,
                       ""isUniqueInstall"": false,
+                      ""isToForceInstall"": true,
+                      ""forceRerunAfterDatabaseRestore"": true,
                       ""contentToPack"": [
                         {{
                           ""source"": ""src/*"",
@@ -801,6 +807,8 @@ namespace tests.Specs
                       ""packageType"": ""IoT"",
                       ""isInstallable"": true,
                       ""isUniqueInstall"": false,
+                      ""isToForceInstall"": true,
+                      ""forceRerunAfterDatabaseRestore"": true,
                       ""contentToPack"": [
                         {{
                           ""source"": ""src/*"",
