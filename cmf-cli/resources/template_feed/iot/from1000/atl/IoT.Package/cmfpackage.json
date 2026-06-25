@@ -5,6 +5,8 @@
   "packageType": "Root",
   "isInstallable": true,
   "isUniqueInstall": false,
+  "isToForceInstall": true,
+  "forceRerunAfterDatabaseRestore": true,
   "dependencies": [
     {
       "id": "Cmf.Environment",
