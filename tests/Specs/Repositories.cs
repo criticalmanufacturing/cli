@@ -93,8 +93,6 @@ public class Repositories
   ""packageType"": ""Root"",
   ""isInstallable"": true,
   ""isUniqueInstall"": false,
-  ""isToForceInstall"": true,
-  ""forceRerunAfterDatabaseRestore"": true,
   ""dependencies"": [
     {
          ""id"": ""Cmf.Custom.Business"",
@@ -679,8 +677,6 @@ public class Repositories
             <version>{packageRoot.Value}</version>
             <isInstallable>True</isInstallable>
             <isUniqueInstall>False</isUniqueInstall>
-            <isToForceInstall>True</isToForceInstall>
-            <forceRerunAfterDatabaseRestore>True</forceRerunAfterDatabaseRestore>
             <keywords>cmf-root-package</keywords>
             <dependencies>
               <dependency id=""Cmf.Environment"" version=""11.0.0"" mandatory=""false"" isIgnorable=""true"" />
