@@ -28,8 +28,6 @@ namespace tests.Specs
                   ""packageType"": ""Root"",
                   ""isInstallable"": true,
                   ""isUniqueInstall"": false,
-                  ""isToForceInstall"": true,
-                  ""forceRerunAfterDatabaseRestore"": true,
                   ""dependencies"": [
                     {{
                       ""id"": ""{packageDep1.Key}"",
@@ -81,8 +79,6 @@ namespace tests.Specs
                   ""packageType"": ""IoT"",
                   ""isInstallable"": true,
                   ""isUniqueInstall"": false,
-                  ""isToForceInstall"": true,
-                  ""forceRerunAfterDatabaseRestore"": true,
                   ""contentToPack"": [
                     {{
                       ""source"": ""src/packages/*"",
@@ -129,8 +125,6 @@ namespace tests.Specs
                   ""packageType"": ""IoTData"",
                   ""isInstallable"": true,
                   ""isUniqueInstall"": false,
-                  ""isToForceInstall"": true,
-                  ""forceRerunAfterDatabaseRestore"": true,
                   ""contentToPack"": [
                     {{
                       ""source"": ""{packageContent1.Key}"",

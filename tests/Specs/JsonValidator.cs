@@ -197,8 +197,6 @@ namespace tests.Specs
                       ""packageType"": ""IoTData"",
                       ""isInstallable"": true,
                       ""isUniqueInstall"": false,
-                      ""isToForceInstall"": true,
-                      ""forceRerunAfterDatabaseRestore"": true,
                       ""contentToPack"": [
                         {
                             {
@@ -307,8 +305,6 @@ namespace tests.Specs
                       ""packageType"": ""IoTData"",
                       ""isInstallable"": true,
                       ""isUniqueInstall"": false,
-                      ""isToForceInstall"": true,
-                      ""forceRerunAfterDatabaseRestore"": true,
                       ""contentToPack"": [
                         {
                             {
@@ -2178,8 +2174,6 @@ namespace tests.Specs
                       ""packageType"": ""IoTData"",
                       ""isInstallable"": true,
                       ""isUniqueInstall"": false,
-                      ""isToForceInstall"": true,
-                      ""forceRerunAfterDatabaseRestore"": true,
                       ""contentToPack"": [
                         {
                             {

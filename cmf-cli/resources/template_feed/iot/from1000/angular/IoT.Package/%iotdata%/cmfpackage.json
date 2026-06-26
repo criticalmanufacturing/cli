@@ -5,8 +5,6 @@
   "packageType": "IoTData",
   "isInstallable": true,
   "isUniqueInstall": true,
-  "isToForceInstall": true,
-  "forceRerunAfterDatabaseRestore": true,
   "contentToPack": [
     {
       "source": "MasterData/$(version)/*",
