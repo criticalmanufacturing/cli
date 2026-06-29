@@ -36,6 +36,10 @@ Boolean value *(default false)*. A value of true indicates that the package is o
 
 Boolean value *(default false)*. A value of true indicates that package installation should be forced by Deployment Framework.
 
+### forceRerunAfterDatabaseRestore
+
+Boolean value *(default false)*. A value of true indicates that package installation should be forced by Deployment Framework after a database restore.
+
 ### isToSetDefaultSteps
 
 Boolean value *(default true)*. A value of true indicates that a set of predefined steps (each packageType has a set of steps) will be used.
@@ -56,6 +60,7 @@ Example:
     "packageType": "Data",
     "isInstallable": true,
     "isToForceInstall": false,
+    "forceRerunAfterDatabaseRestore": false,
     "isUniqueInstall": true,
     "steps": [
     {

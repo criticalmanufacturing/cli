@@ -804,6 +804,7 @@ public class Repositories
       Assert.NotNull(packageJson.deployment.steps);
       Assert.Equal(1, (int)packageJson.deployment.steps.Count);
       Assert.False((bool)packageJson.isToForceInstall);
+      Assert.False((bool)packageJson.forceRerunAfterDatabaseRestore);
       Assert.Equal(packageRoot.Key.ToLowerInvariant(), packageJson.name.ToString());
       Assert.Equal(packageRoot.Key, packageJson._originalPackageId.ToString());
     }

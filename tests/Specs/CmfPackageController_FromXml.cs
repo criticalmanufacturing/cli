@@ -140,23 +140,43 @@ public class CmfPackageController_FromXml
     }
 
     [Fact]
-      public void FromXml_ShouldParseIsToForceInstall_FromManifestElement()
-      {
+    public void FromXml_ShouldParseIsToForceInstall_FromManifestElement()
+    {
         var xml = XDocument.Parse(
-          """
-          <deploymentPackage>
-            <packageId>Cmf.Custom.Data</packageId>
-            <version>1.0.0</version>
-            <isInstallable>true</isInstallable>
-            <isUniqueInstall>false</isUniqueInstall>
-            <IsToForceInstall>true</IsToForceInstall>
-          </deploymentPackage>
-          """);
+            """
+            <deploymentPackage>
+              <packageId>Cmf.Custom.Data</packageId>
+              <version>1.0.0</version>
+              <isInstallable>true</isInstallable>
+              <isUniqueInstall>false</isUniqueInstall>
+              <IsToForceInstall>true</IsToForceInstall>
+            </deploymentPackage>
+            """);
 
         var pkg = CmfPackageController.FromXml(xml);
 
         pkg.IsToForceInstall.Should().BeTrue();
-      }
+    }
+
+    [Fact]
+    public void FromXml_ShouldParseForceRerunAfterDatabaseRestore_FromManifestElement()
+    {
+        var xml = XDocument.Parse(
+            """
+            <deploymentPackage>
+              <packageId>Cmf.Custom.Data</packageId>
+              <version>1.0.0</version>
+              <isInstallable>true</isInstallable>
+              <isUniqueInstall>false</isUniqueInstall>
+              <IsToForceInstall>true</IsToForceInstall>
+              <forceRerunAfterDatabaseRestore>true</forceRerunAfterDatabaseRestore>
+            </deploymentPackage>
+            """);
+
+      var pkg = CmfPackageController.FromXml(xml);
+
+      pkg.ForceRerunAfterDatabaseRestore.Should().BeTrue();
+    }
 
     [Fact]
     public void FromXml_ShouldParseFileAttribute_ForTransformFileStep()

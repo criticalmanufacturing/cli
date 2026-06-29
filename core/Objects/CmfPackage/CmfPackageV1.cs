@@ -131,6 +131,12 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
         public bool? IsToForceInstall { get; private set; }
 
         /// <summary>
+        /// Gets or sets whether package installation should be forced by Deployment Framework after a database restore.
+        /// </summary>
+        [JsonProperty(Order = 17)]
+        public bool? ForceRerunAfterDatabaseRestore { get; private set; }
+
+        /// <summary>
         /// Gets or sets the is root package.
         /// </summary>
         /// <value>
@@ -258,6 +264,7 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
     /// <param name="isInstallable">The is installable.</param>
     /// <param name="isUniqueInstall">The is unique install.</param>
     /// <param name="isToForceInstall">The is to force install.</param>
+    /// <param name="forceRerunAfterDatabaseRestore">The force rerun after database restore.</param>
     /// <param name="keywords">The keywords.</param>
     /// <param name="isToSetDefaultSteps">The is to set default steps.</param>
     /// <param name="dependencies">The dependencies.</param>
@@ -268,9 +275,10 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
     /// <param name="testPackages">The test Packages.</param>
     [JsonConstructor]
     public CmfPackageV1(string name, string packageId, string version, string description, PackageType packageType,
-                      string targetDirectory, string targetLayer, bool? isInstallable, bool? isUniqueInstall, bool? isToForceInstall, string keywords,
-                      bool? isToSetDefaultSteps, DependencyCollection dependencies, List<Step> steps,
-                      List<ContentToPack> contentToPack, List<string> xmlInjection, bool? waitForIntegrationEntries, DependencyCollection testPackages = null)
+                      string targetDirectory, string targetLayer, bool? isInstallable, bool? isUniqueInstall, bool? isToForceInstall,
+                      bool? forceRerunAfterDatabaseRestore, string keywords, bool? isToSetDefaultSteps, DependencyCollection dependencies,
+                      List<Step> steps, List<ContentToPack> contentToPack, List<string> xmlInjection, bool? waitForIntegrationEntries,
+                      DependencyCollection testPackages = null)
             : this()
     {
         if (dependencies != null)
@@ -295,6 +303,7 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
         IsInstallable = isInstallable ?? true;
         IsUniqueInstall = isUniqueInstall ?? false;
         IsToForceInstall = isToForceInstall ?? false;
+        ForceRerunAfterDatabaseRestore = forceRerunAfterDatabaseRestore ?? false;
         Keywords = keywords;
         IsToSetDefaultSteps = isToSetDefaultSteps ?? true;
         Dependencies = dependencies;

@@ -159,6 +159,12 @@ namespace Cmf.CLI.Core.Objects
         public bool? IsToForceInstall { get; private set; }
 
         /// <summary>
+        /// Gets or sets whether package installation should be forced by Deployment Framework after a database restore.
+        /// </summary>
+        [JsonProperty(Order = 17)]
+        public bool? ForceRerunAfterDatabaseRestore { get; private set; }
+
+        /// <summary>
         /// Gets or sets the is root package.
         /// </summary>
         /// <value>
@@ -314,6 +320,7 @@ namespace Cmf.CLI.Core.Objects
         /// <param name="isInstallable">The is installable.</param>
         /// <param name="isUniqueInstall">The is unique install.</param>
         /// <param name="isToForceInstall">The is to force install.</param>
+        /// <param name="forceRerunAfterDatabaseRestore">The force rerun after database restore.</param>
         /// <param name="keywords">The keywords.</param>
         /// <param name="isToSetDefaultSteps">The is to set default steps.</param>
         /// <param name="dependencies">The dependencies.</param>
@@ -324,9 +331,10 @@ namespace Cmf.CLI.Core.Objects
         /// <param name="testPackages">The test Packages.</param>
         [JsonConstructor]
         public CmfPackage(string name, string packageId, string version, string description, PackageType packageType,
-                  string targetDirectory, string targetLayer, bool? isInstallable, bool? isUniqueInstall, bool? isToForceInstall, string keywords,
-                          bool? isToSetDefaultSteps, DependencyCollection dependencies, List<Step> steps,
-                          List<ContentToPack> contentToPack, List<string> xmlInjection, bool? waitForIntegrationEntries, List<string> baseLocalizationFiles, DependencyCollection testPackages = null) : this()
+                          string targetDirectory, string targetLayer, bool? isInstallable, bool? isUniqueInstall, bool? isToForceInstall,
+                          bool? forceRerunAfterDatabaseRestore, string keywords, bool? isToSetDefaultSteps, DependencyCollection dependencies,
+                          List<Step> steps, List<ContentToPack> contentToPack, List<string> xmlInjection, bool? waitForIntegrationEntries,
+                          List<string> baseLocalizationFiles, DependencyCollection testPackages = null) : this()
         {
             Name = name;
             PackageId = packageId ?? throw new ArgumentNullException(nameof(packageId));
@@ -338,6 +346,7 @@ namespace Cmf.CLI.Core.Objects
             IsInstallable = isInstallable ?? true;
             IsUniqueInstall = isUniqueInstall ?? false;
             IsToForceInstall = isToForceInstall;
+            ForceRerunAfterDatabaseRestore = forceRerunAfterDatabaseRestore;
             Keywords = keywords;
             IsToSetDefaultSteps = isToSetDefaultSteps ?? true;
             Dependencies = dependencies;
@@ -440,6 +449,7 @@ namespace Cmf.CLI.Core.Objects
                    IsInstallable == other.IsInstallable &&
                    IsUniqueInstall == other.IsUniqueInstall &&
                    IsToForceInstall == other.IsToForceInstall &&
+                   ForceRerunAfterDatabaseRestore == other.ForceRerunAfterDatabaseRestore &&
                    Keywords.IgnoreCaseEquals(other.Keywords) &&
                    XmlInjection.Equals(other.XmlInjection) &&
                    EqualityComparer<DependencyCollection>.Default.Equals(Dependencies, other.Dependencies) &&
@@ -892,6 +902,7 @@ namespace Cmf.CLI.Core.Objects
                 false,
                 false,
                 tokens.ContainsKey("istoforceinstall") ? bool.Parse(tokens["istoforceinstall"]) : null,
+                tokens.ContainsKey("forcererunafterdatabaserestore") ? bool.Parse(tokens["forcererunafterdatabaserestore"]) : null,
                 tokens.ContainsKey("keywords") ? tokens["keywords"] : null,
                 true,
                 deps,
