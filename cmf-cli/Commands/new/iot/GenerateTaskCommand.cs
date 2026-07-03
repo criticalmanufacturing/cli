@@ -96,7 +96,7 @@ namespace Cmf.CLI.Commands.New.IoT
             task.Inputs = this.Inputs.Concat(task.Inputs).ToDictionary(pair => pair.Key, pair => pair.Value);
             task.Outputs = this.Outputs.Concat(task.Outputs).ToDictionary(pair => pair.Key, pair => pair.Value);
 
-            var args = this.GenerateArgs(workingDir, this.fileSystem.Directory.GetCurrentDirectory(), task.Name, task.ClassName, task.SettingsDefaults, task.TestSettingsDefaults, task.InputsInterface, task.OutputsInterface, task.SettingsInterface, task.IsProtocol.ToString());
+            var args = this.GenerateArgs(workingDir, this.fileSystem.Directory.GetCurrentDirectory(), task.Name, task.ClassName, task.SettingsDefaults, task.TestSettingsDefaults, task.InputsInterface, task.OutputsInterface, task.SettingsInterface, task.IsProtocol.ToString(), task.TaskBaseClass);
             this.CommandName = "iot-task";
             base.RunCommand(args);
 
@@ -157,6 +157,21 @@ namespace Cmf.CLI.Commands.New.IoT
                     .Title("On which scopes this library can be used")
                     .NotRequired()
                     .AddChoices(taskLibraryDependsOnScope));
+
+            if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major >= 12)
+            {
+                var taskBaseNames = System.Enum.GetNames(typeof(TaskBase));
+                var taskBaseChoices = new[] { nameof(TaskBase.TaskBase) }
+                    .Concat(taskBaseNames.Where(n => n != nameof(TaskBase.TaskBase)));
+                task.TaskBaseClass = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .Title("Which task base class does this task extend?")
+                        .UseConverter(name => TaskBaseDescriptions.Descriptions.TryGetValue(name, out var desc)
+                            ? $"{name} - {desc}"
+                            : name)
+                        .AddChoices(taskBaseChoices));
+            }        
+
             return task;
         }
 
@@ -545,7 +560,8 @@ namespace Cmf.CLI.Commands.New.IoT
             string inputsInterface,
             string outputsInterface,
             string settingsInterface,
-            string isProtocolSetting)
+            string isProtocolSetting,
+            string taskBase)
         {
             Log.Debug($"Creating IoT Task at {packageLocation}");
 
@@ -559,7 +575,8 @@ namespace Cmf.CLI.Commands.New.IoT
                 "--inputsInterface", inputsInterface,
                 "--outputsInterface", outputsInterface,
                 "--settingsInterface", settingsInterface,
-                "--isProtocol", isProtocolSetting
+                "--isProtocol", isProtocolSetting,
+                "--taskBase", taskBase
             });
 
             return args;

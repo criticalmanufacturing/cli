@@ -299,6 +299,8 @@ namespace Cmf.CLI.Utilities
         public string SettingsDefaults { get; set; } = "";
         [JsonIgnore]
         public string TestSettingsDefaults { get; set; } = "";
+        [JsonIgnore]
+        public string TaskBaseClass { get; set; } = "";
     }
 
     [JsonObject]
@@ -465,5 +467,32 @@ namespace Cmf.CLI.Utilities
         FactoryAutomation,
         EnterpriseIntegration,
         DataPlatform
+    }
+
+    public enum TaskBase
+    {
+        AutoActivatedTaskBase,
+        DriverTriggeredTaskBase,
+        RequestReplyAnswerTaskBase,
+        RequestReplyListenerTaskBase,
+        SystemOperationTaskBase,
+        SystemRequestListenerTaskBase,
+        SystemRequestReplyTaskBase,
+        TaskBase
+    }
+
+    public static class TaskBaseDescriptions
+    {
+        public static readonly Dictionary<string, string> Descriptions = new()
+        {
+            { nameof(TaskBase.TaskBase),                      "(Default): Has no enable/disable lifecycle and requires full implementation control." },
+            { nameof(TaskBase.AutoActivatedTaskBase),         "Automatically activated. Intended as the starting point of an execution flow (for example, \"On Timer\" task)." },
+            { nameof(TaskBase.DriverTriggeredTaskBase),       "Triggered by equipment or protocol driver events. Intended as the starting point of an execution flow (for example, \"Subscribe in Driver\" task)." },
+            { nameof(TaskBase.RequestReplyAnswerTaskBase),    "Receives requests through the Message Bus and prepares the corresponding reply (for example, \"Message Bus Listener\" task)." },
+            { nameof(TaskBase.RequestReplyListenerTaskBase),  "Exclusive to Data Flows. Sends replies to a RequestReplyListenerTaskBase (for example, \"Send Message Bus Reply\" task)." },
+            { nameof(TaskBase.SystemOperationTaskBase),       "Provides reliable execution of system operations by sending requests to the MES with enhanced delivery guarantees (for example, \"Execute Service Call\" task)." },
+            { nameof(TaskBase.SystemRequestListenerTaskBase), "Receives MES system requests and prepares the corresponding reply (for example, \"System Action Listener\" task)." },
+            { nameof(TaskBase.SystemRequestReplyTaskBase),    "Exclusive to Data Flows. Sends replies to a SystemRequestListenerTaskBase (for example, \"Send System Action Reply\" task)." },
+        };
     }
 }
