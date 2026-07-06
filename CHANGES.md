@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [6.0.0-1](https://github.com/criticalmanufacturing/cli/compare/6.0.0-0...6.0.0-1) (2026-07-06)
+
+
+### Features
+
+* add metadata conversion logic for EnvManager packages ([e33113b](https://github.com/criticalmanufacturing/cli/commit/e33113b6062b3bc4ef928a35e6061eb3f032b37a))
+* add support to force install flags on IoT packages ([5686e3d](https://github.com/criticalmanufacturing/cli/commit/5686e3da00717551f69f26699f0d0c1f127e4c1a))
+* extend support to the `forceRerunAfterDatabaseRestore` flag ([8405bd4](https://github.com/criticalmanufacturing/cli/commit/8405bd46bfee261fcd20020ca581c887be67f91d))
+* scaffolding-validation.yml complete with all packages ([03dff51](https://github.com/criticalmanufacturing/cli/commit/03dff515e532d7b93774c7624c83628851ad6a90))
+
+
+### Bug Fixes
+
+* **init:** proper naming rule on project cration ([9de7f8d](https://github.com/criticalmanufacturing/cli/commit/9de7f8dcbcb169296fc9c95fb4e2359da9ac2032))
+* invoke plugin action instead of root command itself ([99007eb](https://github.com/criticalmanufacturing/cli/commit/99007ebed35c70b739f519e995faa7d376566828))
+* selenium 4 incompatibility ([652f436](https://github.com/criticalmanufacturing/cli/commit/652f43670234c716c9e38d7532e6ab6959b1bdc4))
+
 ## [6.0.0-0](https://github.com/criticalmanufacturing/cli/compare/5.10.8-0...6.0.0-0) (2026-06-01)
 
 
