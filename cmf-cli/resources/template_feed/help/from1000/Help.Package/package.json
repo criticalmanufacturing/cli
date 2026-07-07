@@ -42,7 +42,7 @@
     "lunr": "^2.3.9",
     "marked": "^4.1.1",
     "marked-katex": "^0.3.8",
-    "mermaid": "^9.1.3",
+    "mermaid": "9.1.3",
     "prismjs": "1.29.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.4.0",

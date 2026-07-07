@@ -2,7 +2,10 @@
 using Cmf.CLI.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 
 namespace Cmf.CLI.Core.Objects
@@ -13,6 +16,13 @@ namespace Cmf.CLI.Core.Objects
     /// <seealso cref="Step" />
     public class Step : IEquatable<Step>
     {
+        #region Private Properties
+
+        private List<XElement> _elements;
+        private List<JObject> _jElements;
+
+        #endregion
+
         #region Public Properties
 
         /// <summary>
@@ -189,6 +199,98 @@ namespace Cmf.CLI.Core.Objects
         /// </summary>
         public string TargetFile { get; set; }
 
+        /// <summary>
+        /// Gets or sets the user key for ClickHouse account steps.
+        /// </summary>
+        public string UserKey { get; set; }
+
+        /// <summary>
+        /// Gets or sets the quota for ClickHouse account steps.
+        /// </summary>
+        public string Quota { get; set; }
+
+        /// <summary>
+        /// Gets or sets the ID for integration entries or generic steps.
+        /// </summary>
+        public string Id { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to use machine name for database account steps.
+        /// </summary>
+        public bool? UseMachineName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the account name for database account steps.
+        /// </summary>
+        public string Account { get; set; }
+
+        /// <summary>
+        /// Gets or sets the on initialize handler for generic steps.
+        /// </summary>
+        public string OnInitialize { get; set; }
+
+        /// <summary>
+        /// Gets or sets the on prepare handler for generic steps.
+        /// </summary>
+        public string OnPrepare { get; set; }
+
+        /// <summary>
+        /// Gets or sets the script handler for generic steps.
+        /// </summary>
+        public string ScriptHandler { get; set; }
+
+        /// <summary>
+        /// Gets or sets the patch ID.
+        /// </summary>
+        public string PatchId { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to replace tokens.
+        /// </summary>
+        public bool? ReplaceTokens { get; set; }
+
+        /// <summary>
+        /// Gets or sets the source packages for install steps.
+        /// </summary>
+        public string SourcePackages { get; set; }
+
+        /// <summary>
+        /// Gets or sets the target database name for install steps.
+        /// </summary>
+        public string TargetDb { get; set; }
+
+        /// <summary>
+        /// Gets or sets the condition path for ClickHouse SQL steps.
+        /// </summary>
+        public string ConditionPath { get; set; }
+
+        /// <summary>
+        /// Gets or sets the patch description.
+        /// </summary>
+        public string PatchDescription { get; set; }
+
+        /// <summary>
+        /// Gets or sets the database type for SQL steps.
+        /// </summary>
+        public string DatabaseType { get; set; }
+
+        /// <summary>
+        /// Gets or sets the configuration path for update configuration steps.
+        /// </summary>
+        public string ConfigPath { get; set; }
+
+        /// <summary>
+        /// Gets or sets the value for update configuration steps.
+        /// </summary>
+        public string Value { get; set; }
+
+        /// <summary>
+        /// Gets the inner XML child elements of this step (e.g. from a Deployment Framework manifest.xml step, such as &lt;Role&gt; or &lt;Object&gt;).
+        /// Only used when converting a DF package (manifest.xml) to its package.json representation.
+        /// </summary>
+        [JsonIgnore]
+        public IEnumerable<XElement> Elements => _elements;
+
         #endregion
 
         #region Constructors
@@ -211,7 +313,7 @@ namespace Cmf.CLI.Core.Objects
             : this(type, title, onExecute, contentPath, file, tagFile, targetDatabase, messageType, relativePath, filePath, null, null, null)
         { }
         
-        public Step(StepType? type, string title, string onExecute, string contentPath, string file, bool? tagFile, string targetDatabase, MessageType? messageType, string relativePath, string filePath, string oldSystemName, string targetDirectory, string targetFile)
+    public Step(StepType? type, string title, string onExecute, string contentPath, string file, bool? tagFile, string targetDatabase, MessageType? messageType, string relativePath, string filePath, string oldSystemName, string targetDirectory, string targetFile)
         {
             Type = type ?? throw new ArgumentNullException(nameof(type));
             Title = title;
@@ -250,6 +352,26 @@ namespace Cmf.CLI.Core.Objects
         #region Public Methods
 
         /// <summary>
+        /// Adds an inner XML child element to this step (used when parsing a Deployment Framework manifest.xml step).
+        /// </summary>
+        /// <param name="element">The element.</param>
+        public void AddElement(XElement element)
+        {
+            _elements ??= new List<XElement>();
+            _elements.Add(element);
+        }
+
+        /// <summary>
+        /// Adds an inner JSON child element to this step (used when parsing a Deployment Framework package.json step).
+        /// </summary>
+        /// <param name="element">The element.</param>
+        public void AddElement(JObject element)
+        {
+            _jElements ??= new List<JObject>();
+            _jElements.Add(element);
+        }
+
+        /// <summary>
         /// Indicates whether the current object is equal to another object of the same type.
         /// </summary>
         /// <param name="other">An object to compare with this object.</param>
@@ -271,7 +393,24 @@ namespace Cmf.CLI.Core.Objects
                    FilePath == other.FilePath &&
                    OldSystemName == other.OldSystemName &&
                    TargetDirectory == other.TargetDirectory &&
-                   TargetFile == other.TargetFile;
+                   TargetFile == other.TargetFile &&
+                   UserKey == other.UserKey &&
+                   Quota == other.Quota &&
+                   Id == other.Id &&
+                   UseMachineName == other.UseMachineName &&
+                   Account == other.Account &&
+                   OnInitialize.IgnoreCaseEquals(other.OnInitialize) &&
+                   OnPrepare.IgnoreCaseEquals(other.OnPrepare) &&
+                   ScriptHandler.IgnoreCaseEquals(other.ScriptHandler) &&
+                   PatchId == other.PatchId &&
+                   ReplaceTokens == other.ReplaceTokens &&
+                   SourcePackages == other.SourcePackages &&
+                   TargetDb == other.TargetDb &&
+                   ConditionPath == other.ConditionPath &&
+                   PatchDescription == other.PatchDescription &&
+                   DatabaseType == other.DatabaseType &&
+                   ConfigPath == other.ConfigPath &&
+                   Value == other.Value;
         }
 
         #endregion

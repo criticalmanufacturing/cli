@@ -2,10 +2,6 @@ using Cmf.Core.Controls.PageObjects.Components;
 using Cmf.Core.PageObjects;
 using OpenQA.Selenium;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Customization.Common.PageObjects.Utilities
 {
@@ -21,12 +17,12 @@ namespace Customization.Common.PageObjects.Utilities
 		/// <param name="wizardOpener"></param>
 		/// <param name="selector"></param>
 		/// <returns>success</returns>
-		public static bool OpenWizardAndComplete<T>(BasePageObject wizardOpener, string selector = null) where T : Wizard
+		public static bool OpenWizardAndComplete<T>(AbstractBaseTest test, BasePageObject wizardOpener, string selector = null) where T : Wizard
 		{
 			wizardOpener.Click();
 
 			var wizard = wizardOpener.CreatePageObject<T>(selector ?? Wizard.Selector, searchContext: wizardOpener.Driver);
-			BaseTestClass.WaitForLoadingStop();
+			test.WaitForLoadingStop();
 
 			var hasSteps = wizard.ElementExistsInDom(By.CssSelector(HorizontalStepList.Selector));
 			if (hasSteps)
@@ -35,7 +31,7 @@ namespace Customization.Common.PageObjects.Utilities
 				for (int i = 0; i < len; i++)
 				{
 					wizard.ClickNextButton();
-					BaseTestClass.WaitForLoadingStop();
+					test.WaitForLoadingStop();
 				}
 			}
 			return wizard.ClickFinishButtonAndWaitForResult();

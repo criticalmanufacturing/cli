@@ -7,16 +7,15 @@ using Cmf.CLI.Core;
 using Cmf.CLI.Core.Objects;
 using Microsoft.Extensions.DependencyInjection;
 using Cmf.CLI.Core.Enums;
-using System.CommandLine.Parsing;
 using System.IO.Abstractions;
 using System.Linq;
-using System.Reflection;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Core.Services;
 using Cmf.CLI.Services;
 using Cmf.CLI.Core.Repository.Credentials;
 using Cmf.CLI.Core.Utilities;
+using System.CommandLine.Invocation;
 
 namespace Cmf.CLI
 {
@@ -36,7 +35,7 @@ namespace Cmf.CLI
             {
                 var fileSystem = new FileSystem();
 
-                var (rootCommand, parser) = await StartupModule.Configure(
+                var rootCommand = await StartupModule.Configure(
                     packageId: CliConstants.PackageName,
                     envVarPrefix: "cmf_cli",
                     description: "Critical Manufacturing CLI",
@@ -57,33 +56,33 @@ namespace Cmf.CLI
                 using var activity = ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!.StartActivity("Main");
 
                 var result = -1;
-                
+
                 if (rootCommand != null)
                 {
-                    var nonPluginCommands = rootCommand.Children.Where(symbol => symbol is Command).ToList();
-                    BaseCommand.AddPluginCommands(rootCommand);
+                    var nonPluginCommands = rootCommand.Subcommands.ToList();
+                    BaseCommand.AddPluginCommands(fileSystem, rootCommand);
                     var pluginCommands =
-                        rootCommand.Children.Where(cmd => cmd is Command && nonPluginCommands.All(np => np.Name != cmd.Name)).ToList();
+                        rootCommand.Subcommands.Where(cmd => nonPluginCommands.All(np => np.Name != cmd.Name)).ToList();
 
                     if (args.Length > 0 && pluginCommands.FirstOrDefault(pc => pc.Name == args[0]) is Command pluginMatch)
                     {
-                        // we are executing a plugin. we should forward all arguments (except the first) to the plugin
-                        var pluginArgs = args[1..];
-
-                        // we should invoke this through the System.CommandLine API but right now we'd have to generate a new pipeline. We'll revisit this in a next version, as it's expected the pipeline instantiation gets more flexible.
-                        var type = pluginMatch!.Handler!.GetType();
-                        var method = type.GetField("_handlerDelegate", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)!;
-                        var del = method.GetValue(pluginMatch.Handler) as Delegate;
-                        var pluginCommand = del!.Target as PluginCommand;
-                        pluginCommand!.Execute(pluginArgs);
-                        result = 0;
+                        // we are executing a plugin: parse and invoke through System.CommandLine
+                        // which will trigger the Action set by PluginCommand.Configure()
+                        var parseResult = rootCommand.Parse(args);
+                        result = await ((AsynchronousCommandLineAction)pluginMatch.Action).InvokeAsync(parseResult);
                     }
                     else
                     {
                         ExecutionContext.Initialize(fileSystem);
                         ExecutionContext.ServiceProvider.GetService<IRepositoryLocator>()!
                             .InitializeClientsForRepositories(ExecutionContext.Instance.FileSystem);
-                        result = await parser.InvokeAsync(args);
+
+                        // Global validation for all CLI core commands
+                        ValidateMesVersion(ExecutionContext.Instance.ProjectConfig?.MESVersion?.Major);
+                        
+                        // Parse and invoke using beta5 pattern
+                        var parseResult = rootCommand.Parse(args);
+                        result = await parseResult.InvokeAsync();
                     }
                 }
                  
@@ -102,6 +101,18 @@ namespace Cmf.CLI
                 Log.Exception(WrappedException.Unwrap(e));
                 ExecutionContext.ServiceProvider.GetService<ITelemetryService>()!.LogException(e);
                 return (int)ErrorCode.Default;
+            }
+        }
+
+        /// <summary>
+        /// This function will validate MES Version on every command.
+        /// This server to lock the CLI from executing on any project below version 10.
+        /// </summary>
+        internal static void ValidateMesVersion(int? majorVersion)
+        {
+            if (majorVersion < 10)
+            {
+                throw new CliException("MES Versions under 10 are no longer supported with the newest version of the CLI. Please use cmf-cli 5.8.0 or lower.");
             }
         }
     }

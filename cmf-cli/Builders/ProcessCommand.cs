@@ -79,16 +79,35 @@ namespace Cmf.CLI.Builders
                         }
                     }
 
+                    // Capture stdout and stderr to include in exception if command fails
+                    var stdoutCapture = new System.Text.StringBuilder();
+                    var stderrCapture = new System.Text.StringBuilder();
+
                     ps.Start();
-                    ps.AddEventOutDataReceived((sender, args) => Log.Verbose(args.Data));
-                    ps.AddEvenErrorDataReceived((sender, args) => Log.Error(args.Data));
+                    ps.AddEventOutDataReceived((sender, args) => {
+                        Log.Verbose(args.Data);
+                        if (args.Data != null) stdoutCapture.AppendLine(args.Data);
+                    });
+                    ps.AddEvenErrorDataReceived((sender, args) => {
+                        Log.Error(args.Data);
+                        if (args.Data != null) stderrCapture.AppendLine(args.Data);
+                    });
                     ps.BeginOutputReadLine();
                     ps.BeginErrorReadLine();
                     // Console.WriteLine(process.StandardOutput.ReadToEnd());
                     ps.WaitForExit();
                     if (ps.ExitCode != 0)
                     {
-                        throw new CliException($"Command '{command} {String.Join(' ', step.Args)}' did not finish successfully: Exit code {ps.ExitCode}. Please check the log for more details");
+                        var errorDetails = $"Command '{command} {String.Join(' ', step.Args)}' did not finish successfully: Exit code {ps.ExitCode}.";
+                        if (stderrCapture.Length > 0)
+                        {
+                            errorDetails += $" stderr: {stderrCapture}";
+                        }
+                        if (stdoutCapture.Length > 0)
+                        {
+                            errorDetails += $" stdout: {stdoutCapture}";
+                        }
+                        throw new CliException(errorDetails);
                     }
                     ps.Dispose();
                 }

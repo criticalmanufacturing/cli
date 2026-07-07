@@ -7,6 +7,7 @@ using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Interfaces;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Linq;
 
 namespace Cmf.CLI.Core.Objects;
 
@@ -131,6 +132,12 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
         public bool? IsToForceInstall { get; private set; }
 
         /// <summary>
+        /// Gets or sets whether package installation should be forced by Deployment Framework after a database restore.
+        /// </summary>
+        [JsonProperty(Order = 17)]
+        public bool? ForceRerunAfterDatabaseRestore { get; private set; }
+
+        /// <summary>
         /// Gets or sets the is root package.
         /// </summary>
         /// <value>
@@ -242,6 +249,57 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
         /// </value>
         [JsonProperty(Order = 23)]
         public string DependenciesDirectory { get; set; }
+
+        /// <summary>
+        /// Gets the manifest version declared in the Deployment Framework manifest.xml.
+        /// Only used when converting a DF package (manifest.xml) to its package.json representation.
+        /// </summary>
+        [JsonIgnore]
+        public int ManifestVersion { get; internal set; }
+
+        /// <summary>
+        /// Gets the minimum SQL Server compatibility level required by the package.
+        /// Only used when converting a DF package (manifest.xml) to its package.json representation.
+        /// </summary>
+        [JsonIgnore]
+        public int MinSqlCompatibility { get; internal set; }
+
+        /// <summary>
+        /// Gets the target layer directory, which means the directory inside the container in which
+        /// the package contents should be installed when using Environment Manager.
+        /// Only used when converting a DF package (manifest.xml) to its package.json representation.
+        /// </summary>
+        [JsonIgnore]
+        public string TargetLayerDirectory { get; internal set; }
+
+        /// <summary>
+        /// Gets the package build date declared in the Deployment Framework manifest.xml.
+        /// Only used when converting a DF package (manifest.xml) to its package.json representation.
+        /// </summary>
+        [JsonIgnore]
+        public DateTime? BuildDate { get; internal set; }
+
+        /// <summary>
+        /// Gets the package upgrade strategy declared in the Deployment Framework manifest.xml.
+        /// Only used when converting a DF package (manifest.xml) to its package.json representation.
+        /// </summary>
+        [JsonIgnore]
+        public string UpgradeStrategy { get; internal set; }
+
+        /// <summary>
+        /// Gets the extended metadata (e.g. application name/version and custom metadata entries)
+        /// declared in the Deployment Framework manifest.xml.
+        /// Only used when converting a DF package (manifest.xml) to its package.json representation.
+        /// </summary>
+        [JsonIgnore]
+        public Dictionary<string, string> ExtendedMetadata { get; internal set; }
+
+        /// <summary>
+        /// Gets the package demands declared in the Deployment Framework manifest.xml.
+        /// Only used when converting a DF package (manifest.xml) to its package.json representation.
+        /// </summary>
+        [JsonIgnore]
+        public List<JObject> PackageDemands { get; internal set; }
     #endregion
 
     #region constructors
@@ -258,6 +316,7 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
     /// <param name="isInstallable">The is installable.</param>
     /// <param name="isUniqueInstall">The is unique install.</param>
     /// <param name="isToForceInstall">The is to force install.</param>
+    /// <param name="forceRerunAfterDatabaseRestore">The force rerun after database restore.</param>
     /// <param name="keywords">The keywords.</param>
     /// <param name="isToSetDefaultSteps">The is to set default steps.</param>
     /// <param name="dependencies">The dependencies.</param>
@@ -268,9 +327,10 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
     /// <param name="testPackages">The test Packages.</param>
     [JsonConstructor]
     public CmfPackageV1(string name, string packageId, string version, string description, PackageType packageType,
-                      string targetDirectory, string targetLayer, bool? isInstallable, bool? isUniqueInstall, bool? isToForceInstall, string keywords,
-                      bool? isToSetDefaultSteps, DependencyCollection dependencies, List<Step> steps,
-                      List<ContentToPack> contentToPack, List<string> xmlInjection, bool? waitForIntegrationEntries, DependencyCollection testPackages = null)
+                      string targetDirectory, string targetLayer, bool? isInstallable, bool? isUniqueInstall, bool? isToForceInstall,
+                      bool? forceRerunAfterDatabaseRestore, string keywords, bool? isToSetDefaultSteps, DependencyCollection dependencies,
+                      List<Step> steps, List<ContentToPack> contentToPack, List<string> xmlInjection, bool? waitForIntegrationEntries,
+                      DependencyCollection testPackages = null)
             : this()
     {
         if (dependencies != null)
@@ -295,6 +355,7 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
         IsInstallable = isInstallable ?? true;
         IsUniqueInstall = isUniqueInstall ?? false;
         IsToForceInstall = isToForceInstall ?? false;
+        ForceRerunAfterDatabaseRestore = forceRerunAfterDatabaseRestore ?? false;
         Keywords = keywords;
         IsToSetDefaultSteps = isToSetDefaultSteps ?? true;
         Dependencies = dependencies;

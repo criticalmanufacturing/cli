@@ -4,7 +4,6 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - main
       - development
     paths-ignore:
       - 'features/**'
@@ -20,7 +19,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [12, 18]
+        include:
+          - node-version: 18
+            test-filter: TestCategory!=Node20
+          - node-version: 20
+            test-filter: TestCategory!=Node18
     steps:
       - uses: actions/checkout@v4
 
@@ -30,6 +33,7 @@ jobs:
           dotnet-version: |
             6.0.x
             8.0.x
+            10.0.x
 
       - name: Setup Node ${{ matrix.node-version }}
         uses: actions/setup-node@v4
@@ -40,13 +44,8 @@ jobs:
         run: |
           dotnet build --configuration Release
 
-      - name: Test (Node 12)
-        if: matrix.node-version == 12
-        run: dotnet test --configuration Release --no-build --no-restore --verbosity normal --filter "TestCategory!=Node18" --collect:"XPlat Code Coverage" --logger trx --results-directory TestResults
-
-      - name: Test (Node 18)
-        if: matrix.node-version == 18
-        run: dotnet test --configuration Release --no-build --no-restore --verbosity normal --filter "TestCategory!=Node12" --collect:"XPlat Code Coverage" --logger trx --results-directory TestResults
+      - name: Test ${{ matrix.node-version }}
+        run: dotnet test --configuration Release --no-build --no-restore --verbosity detailed --filter "${{ matrix.test-filter }}" --collect:"XPlat Code Coverage" --logger trx --logger "console;verbosity=detailed" --results-directory TestResults
       
       - name: Merge Coverage Reports
         run: |

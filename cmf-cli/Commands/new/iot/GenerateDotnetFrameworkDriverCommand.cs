@@ -8,8 +8,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
+using System.Threading.Tasks;
 
 namespace Cmf.CLI.Commands.New.IoT
 {
@@ -42,16 +42,20 @@ namespace Cmf.CLI.Commands.New.IoT
                 this.fileSystem
             );
 
-            cmd.AddArgument(new Argument<IDirectoryInfo>(
-                name: "workingDir",
-                parse: (argResult) => Parse<IDirectoryInfo>(argResult, nearestIoTPackage?.FullName),
-                isDefault: true
-            )
+            var workingDirArgument = new Argument<IDirectoryInfo>("workingDir")
             {
-                Description = "Working Directory"
-            });
+                Description = "Working Directory",
+                CustomParser = argResult => Parse<IDirectoryInfo>(argResult, nearestIoTPackage?.FullName),
+                DefaultValueFactory = _ => Parse<IDirectoryInfo>(null, nearestIoTPackage?.FullName)
+            };
+            cmd.Add(workingDirArgument);
 
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo>(this.Execute);
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                var workingDir = parseResult.GetValue(workingDirArgument);
+                Execute(workingDir);
+                return Task.FromResult(0);
+            });
         }
 
         /// <summary>

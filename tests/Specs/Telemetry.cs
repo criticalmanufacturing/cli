@@ -175,7 +175,8 @@ public class Telemetry
         mockNpmClient.Setup(c => c.GetLatestVersion(false)).Returns(() => Task.FromResult("2.0.0"));
         
         // Call Configure to initialize DI and telemetry
-        var (rootCommand, parser) = await StartupModule.Configure(
+        // In beta5, Configure returns just RootCommand (not a tuple)
+        var rootCommand = await StartupModule.Configure(
             packageId: "plugin-test",
             envVarPrefix: "plugin_test",
             description: "Plugin Test",
@@ -194,10 +195,19 @@ public class Telemetry
         Assert.NotNull(activity);
 
         // End the activity and check the output to see if telemetry was initiated correctly.
+        var originalOut = Console.Out;
         using var sw = new StringWriter();
-        Console.SetOut(sw);
-        activity?.Dispose();
-        telemetryService.Provider.ForceFlush();
+        try
+        {
+            Console.SetOut(sw);
+            activity?.Dispose();
+            telemetryService.Provider.ForceFlush();
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+        }
+
         var consoleOutput = sw.ToString();
         Assert.Contains("telemetry.sdk.version", consoleOutput);
     }

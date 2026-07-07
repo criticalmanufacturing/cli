@@ -5,10 +5,11 @@ using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
-using System.Linq;
 using System;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Cmf.CLI.Services;
 
 namespace Cmf.CLI.Commands.New
 {
@@ -31,12 +32,19 @@ namespace Cmf.CLI.Commands.New
         /// <inheritdoc />
         public override void Configure(Command cmd)
         {
-            cmd.AddOption(new Option<string>(
-                aliases: new[] { "--version" },
-                description: "Package Version",
-                getDefaultValue: () => "1.0.0"
-            ));
-            cmd.Handler = CommandHandler.Create<string>(Execute);
+            var versionOption = new Option<string>("--version")
+            {
+                Description = "Package Version",
+                DefaultValueFactory = _ => "1.0.0"
+            };
+            cmd.Add(versionOption);
+
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                var version = parseResult.GetValue(versionOption);
+                Execute(version);
+                return Task.FromResult(0);
+            });
         }
 
         /// <inheritdoc />
@@ -98,7 +106,7 @@ namespace Cmf.CLI.Commands.New
             }
             
             #region version-specific bits
-            args.AddRange(new []{ "--targetFramework", mesVersion.Major > 8 ? mesVersion.Major >= 11 ? "net8.0" : "net6.0" : "netcoreapp3.1" });
+            args.AddRange(new []{ "--targetFramework", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().DotNetTargetFramework(mesVersion) });
 
             if (mesVersion >= new Version(11, 2, 3))
             {

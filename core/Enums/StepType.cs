@@ -96,6 +96,35 @@
         CleanupS3InstallationFolder = 20,
 
         CreateAppUser = 21,
-        UpdateConfiguration = 22
+        
+        UpdateConfiguration = 22,
+        
+        DatabaseAccount = 23,
+
+        ClickHouseAccount = 24,
+
+        RunClickhouseMigration = 25,
+
+        CreateSystemUsers = 26,
+
+        InstallIfDbDoesntExist = 27,
+
+        ProductLicense = 28,
+
+        DeleteQueue = 29,
+
+        DeleteStorageEntries = 30,
+
+        DeleteKafkaTopics = 31,
+
+        DeleteSqlReports = 32,
+
+        ProductConfiguration = 33,
+
+        SignEntityTypes = 35,
+
+        EnqueueXmla = 36,
+
+        GrantPermissions = 37
     }
 }

@@ -1,13 +1,15 @@
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
+using System.Threading.Tasks;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Services;
 using Cmf.CLI.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Cmf.CLI.Commands.New
 {
@@ -40,13 +42,23 @@ namespace Cmf.CLI.Commands.New
         /// <param name="cmd"></param>
         public override void Configure(Command cmd)
         {
-            cmd.AddOption(new Option<bool>(
-                aliases: new[] { "--addApplicationVersionAssembly", "-av" },
-                description: "Will add application version project to the final solution if project is an app"
-            ));
-            base.GetBaseCommandConfig(cmd);
+            var addApplicationVersionAssemblyOption = new Option<bool>("--addApplicationVersionAssembly", "-av")
+            {
+                Description = "Will add application version project to the final solution if project is an app"
+            };
+            cmd.Add(addApplicationVersionAssemblyOption);
 
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, string, bool>(this.Execute);
+            var (workingDirArg, versionOpt) = base.GetBaseCommandConfig(cmd);
+
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                var workingDir = parseResult.GetValue(workingDirArg);
+                var version = parseResult.GetValue(versionOpt);
+                var addApplicationVersionAssembly = parseResult.GetValue(addApplicationVersionAssemblyOption);
+
+                Execute(workingDir, version, addApplicationVersionAssembly);
+                return Task.FromResult(0);
+            });
         }
 
         /// <summary>
@@ -73,28 +85,25 @@ namespace Cmf.CLI.Commands.New
             var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
             var includeMESNugets = true;
             
-            if (mesVersion.Major > 8)
+            this.CommandName = "business10"; // template name
+            var baseLayer = ExecutionContext.Instance.ProjectConfig.BaseLayer ?? CliConstants.DefaultBaseLayer;
+            includeMESNugets = baseLayer == BaseLayer.MES;
+            Log.Debug($"Project is targeting base layer {baseLayer}, so scaffolding {(includeMESNugets ? "with" : "without")} MES nugets.");
+
+            args.AddRange(new []{ "--targetFramework",  ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().DotNetTargetFramework(mesVersion) });
+
+            if (ExecutionContext.Instance.ProjectConfig.RepositoryType == RepositoryType.App)
             {
-                this.CommandName = "business9";
-                var baseLayer = ExecutionContext.Instance.ProjectConfig.BaseLayer ?? CliConstants.DefaultBaseLayer;
-                includeMESNugets = baseLayer == BaseLayer.MES;
-                Log.Debug($"Project is targeting base layer {baseLayer}, so scaffolding {(includeMESNugets ? "with" : "without")} MES nugets.");
-
-                args.AddRange(new []{ "--targetFramework",  mesVersion.Major >= 11 ? "net8.0" : "net6.0" });
-
-                if (ExecutionContext.Instance.ProjectConfig.RepositoryType == RepositoryType.App)
+                var appData = ExecutionContext.Instance.AppData ??
+                    throw new CliException("Could not retrieve repository AppData.");
+                args.AddRange(new[]
                 {
-                    var appData = ExecutionContext.Instance.AppData ??
-                        throw new CliException("Could not retrieve repository AppData.");
-                    args.AddRange(new[]
-                    {
-                        "--app", "true",
-                        "--licensedAppName", appData.licensedApplication,
-                        "--fileVersion", $"{mesVersion}.0",
-                        "--assemblyVersion", $"{mesVersion.Major}.{mesVersion.Minor}.0.0",
-                        "--addApplicationVersionAssembly", AddApplicationVersionAssembly.ToString()
-                    });
-                }
+                    "--app", "true",
+                    "--licensedAppName", appData.licensedApplication,
+                    "--fileVersion", $"{mesVersion}.0",
+                    "--assemblyVersion", $"{mesVersion.Major}.{mesVersion.Minor}.0.0",
+                    "--addApplicationVersionAssembly", AddApplicationVersionAssembly.ToString()
+                });
             }
 
             // calculate relative path to local environment and create a new symbol for it

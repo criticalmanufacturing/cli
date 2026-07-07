@@ -1,4 +1,3 @@
-using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Constants;
@@ -7,15 +6,12 @@ using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Factories;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-using SharpCompress.Common;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.IO;
 using System.IO.Abstractions;
-using System.Linq;
-using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace Cmf.CLI.Commands
 {
@@ -48,31 +44,43 @@ namespace Cmf.CLI.Commands
         /// <param name="cmd"></param>
         public override void Configure(Command cmd)
         {
-            cmd.AddArgument(new Argument<IDirectoryInfo>(
-                name: "packagePath",
-                parse: (argResult) => Parse<IDirectoryInfo>(argResult, "."),
-                description: "Package path"));
-
-            cmd.AddArgument(new Argument<string>(
-                name: "BaseVersion",
-                description: "New framework/MES Version"
-            ));
-
-            cmd.AddOption(new Option<string>(
-                aliases: new string[] { "-iot", "--iotVersion" },
-                description: "New MES version for the IoT workflows & masterdatas."
-            ));
-
-            cmd.AddOption(new Option<List<string>>(
-                aliases: new string[] { "-ignore", "--iotPackagesToIgnore" },
-                description: "IoT packages to ignore when updating the MES version of the tasks in IoT workflows"
-            )
+            var packagePathArgument = new Argument<IDirectoryInfo>("packagePath")
             {
-                AllowMultipleArgumentsPerToken = true,
-            });
+                Description = "Package path",
+                CustomParser = argResult => Parse<IDirectoryInfo>(argResult, ".")
+            };
+            cmd.Add(packagePathArgument);
+
+            var baseVersionArgument = new Argument<string>("BaseVersion")
+            {
+                Description = "New framework/MES Version"
+            };
+            cmd.Add(baseVersionArgument);
+
+            var iotVersionOption = new Option<string>("--iotVersion", "-iot")
+            {
+                Description = "New MES version for the IoT workflows & masterdatas."
+            };
+            cmd.Add(iotVersionOption);
+
+            var iotPackagesToIgnoreOption = new Option<List<string>>("--iotPackagesToIgnore", "-ignore")
+            {
+                Description = "IoT packages to ignore when updating the MES version of the tasks in IoT workflows",
+                AllowMultipleArgumentsPerToken = true
+            };
+            cmd.Add(iotPackagesToIgnoreOption);
 
             // Add the handler
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, string, string, List<string>>(Execute);
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                var packagePath = parseResult.GetValue(packagePathArgument);
+                var baseVersion = parseResult.GetValue(baseVersionArgument);
+                var iotVersion = parseResult.GetValue(iotVersionOption);
+                var iotPackagesToIgnore = parseResult.GetValue(iotPackagesToIgnoreOption);
+
+                Execute(packagePath, baseVersion, iotVersion, iotPackagesToIgnore);
+                return Task.FromResult(0);
+            });
         }
 
         /// <summary>

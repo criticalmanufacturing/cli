@@ -5,9 +5,9 @@ using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Cmf.CLI.Commands.New
 {
@@ -40,16 +40,20 @@ namespace Cmf.CLI.Commands.New
                 this.fileSystem
             );
 
-            cmd.AddArgument(new Argument<IDirectoryInfo>(
-                name: "workingDir",
-                parse: (argResult) => Parse<IDirectoryInfo>(argResult, nearestRootPackage?.FullName),
-                isDefault: true
-            )
+            var workingDirArgument = new Argument<IDirectoryInfo>("workingDir")
             {
-                Description = "Working Directory"
-            });
+                Description = "Working Directory",
+                CustomParser = argResult => Parse<IDirectoryInfo>(argResult, nearestRootPackage?.FullName),
+                DefaultValueFactory = _ => Parse<IDirectoryInfo>(null, nearestRootPackage?.FullName)
+            };
+            cmd.Add(workingDirArgument);
 
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo>(this.Execute);
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                var workingDir = parseResult.GetValue(workingDirArgument);
+                Execute(workingDir);
+                return Task.FromResult(0);
+            });
         }
 
         /// <summary>
@@ -59,37 +63,30 @@ namespace Cmf.CLI.Commands.New
         /// <param name="version">package version</param>
         public void Execute(IDirectoryInfo workingDir)
         {
-            if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major > 9)
+            IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{workingDir}/{CliConstants.CmfPackageFileName}");
+            var cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true, this.fileSystem);
+
+            if (cmfPackage.PackageType != PackageType.IoT)
             {
-                IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{workingDir}/{CliConstants.CmfPackageFileName}");
-                var cmfPackage = CmfPackage.Load(cmfpackageFile, setDefaultValues: true, this.fileSystem);
+                throw new CliException(CliMessages.CommandIsOnlyValidForPackageOfTypeIoT);
+            }
 
-                if (cmfPackage.PackageType != PackageType.IoT)
+            var listOfLibs = workingDir.EnumerateDirectories().FirstOrDefault(dir => dir.Name == "dist").EnumerateDirectories();
+            cmfPackage.RelatedPackages?.ForEach(relatedPackage =>
+            {
+                if (relatedPackage.CmfPackage.GetFileInfo().Directory.GetFile(CliConstants.AngularJson) != null)
                 {
-                    throw new CliException(CliMessages.CommandIsOnlyValidForPackageOfTypeIoT);
-                }
-
-                var listOfLibs = workingDir.EnumerateDirectories().FirstOrDefault(dir => dir.Name == "dist").EnumerateDirectories();
-                cmfPackage.RelatedPackages?.ForEach(relatedPackage =>
-                {
-                    if (relatedPackage.CmfPackage.GetFileInfo().Directory.GetFile(CliConstants.AngularJson) != null)
+                    foreach (var lib in listOfLibs)
                     {
-                        foreach (var lib in listOfLibs)
+                        new NPMCommand()
                         {
-                            new NPMCommand()
-                            {
-                                DisplayName = "npm link dist",
-                                Args = new string[] { "link", lib.FullName },
-                                WorkingDirectory = relatedPackage.CmfPackage.GetFileInfo().Directory
-                            }.Exec();
-                        }
+                            DisplayName = "npm link dist",
+                            Args = new string[] { "link", lib.FullName },
+                            WorkingDirectory = relatedPackage.CmfPackage.GetFileInfo().Directory
+                        }.Exec();
                     }
-                });
-            }
-            else
-            {
-                throw new CliException(string.Format(CliMessages.InvalidVersionForCommand, "10"));
-            }
+                }
+            });
         }
     }
 }
