@@ -1,5 +1,6 @@
 //#if (useLegacyTaskTemplate)
-import { Task, System, TaskBase } from "@criticalmanufacturing/connect-iot-controller-engine";
+import { Task, TaskBase } from "@criticalmanufacturing/connect-iot-controller-engine";
+import type { System } from "@criticalmanufacturing/connect-iot-controller-engine";
 
 /** Default values for settings */
 export const SETTINGS_DEFAULTS: <%= $CLI_PARAM_ClassName %>Settings = {
@@ -81,7 +82,8 @@ export interface <%= $CLI_PARAM_ClassName %>Settings extends System.TaskDefaultS
 
 
 //#elseif (isTaskBase)
-import { Task, System, TaskBase } from "@criticalmanufacturing/connect-iot-controller-engine";
+import { Task, TaskBase } from "@criticalmanufacturing/connect-iot-controller-engine";
+import type { System } from "@criticalmanufacturing/connect-iot-controller-engine";
 
 /** Default values for settings */
 export const SETTINGS_DEFAULTS: <%= $CLI_PARAM_ClassName %>Settings = {
@@ -146,7 +148,8 @@ export interface <%= $CLI_PARAM_ClassName %>Settings extends System.TaskDefaultS
 
 
 //#elseif (isAutoActivatedTaskBase)
-import { Task, System, AutoActivatedTaskBase } from "@criticalmanufacturing/connect-iot-controller-engine";
+import { Task, AutoActivatedTaskBase } from "@criticalmanufacturing/connect-iot-controller-engine";
+import type { System } from "@criticalmanufacturing/connect-iot-controller-engine";
 
 /** Default values for settings */
 export const SETTINGS_DEFAULTS: <%= $CLI_PARAM_ClassName %>Settings = {
@@ -230,7 +233,8 @@ export interface <%= $CLI_PARAM_ClassName %>Settings extends System.TaskDefaultS
 
 
 //#elseif (isDriverTriggeredTaskBase)
-import { Task, System, DriverTriggeredTaskBase } from "@criticalmanufacturing/connect-iot-controller-engine";
+import { Task, DriverTriggeredTaskBase } from "@criticalmanufacturing/connect-iot-controller-engine";
+import type { System } from "@criticalmanufacturing/connect-iot-controller-engine";
 
 /** Default values for settings */
 export const SETTINGS_DEFAULTS: <%= $CLI_PARAM_ClassName %>Settings = {
@@ -285,16 +289,16 @@ export class <%= $CLI_PARAM_ClassName %>Task extends DriverTriggeredTaskBase imp
     /** Handler to emit the message content */
     private onMessageReceivedHandler: any = (message: any): void => {
 
-    }
+    };
 
     /** Subscribes to the configured raw driver message channel. */
     private async subscribeHandler(): Promise<void> {
-       
+
     }
 
     /** Removes the raw driver message subscription. */
     private async unsubscribeHandler(): Promise<void> {
-        
+
     }
 
     /** Applies default settings before the task is initialized. */
@@ -314,7 +318,8 @@ export interface <%= $CLI_PARAM_ClassName %>Settings extends System.TaskDefaultS
 
 
 //#elseif (isRequestReplyAnswerTaskBase)
-import { Task, System, RequestReplyAnswerTaskBase } from "@criticalmanufacturing/connect-iot-controller-engine";
+import { Task, RequestReplyAnswerTaskBase } from "@criticalmanufacturing/connect-iot-controller-engine";
+import type { System } from "@criticalmanufacturing/connect-iot-controller-engine";
 
 /** Default values for settings */
 export const SETTINGS_DEFAULTS: <%= $CLI_PARAM_ClassName %>Settings = {
@@ -379,7 +384,8 @@ export interface <%= $CLI_PARAM_ClassName %>Settings extends System.TaskDefaultS
 }
 
 //#elseif (isRequestReplyListenerTaskBase)
-import { Task, System, RequestReplyListenerTaskBase } from "@criticalmanufacturing/connect-iot-controller-engine";
+import { Task, RequestReplyListenerTaskBase } from "@criticalmanufacturing/connect-iot-controller-engine";
+import type { Communication, System } from "@criticalmanufacturing/connect-iot-controller-engine";
 
 /** Default values for settings */
 export const SETTINGS_DEFAULTS: <%= $CLI_PARAM_ClassName %>Settings = {
@@ -528,7 +534,8 @@ export interface <%= $CLI_PARAM_ClassName %>Settings extends System.TaskDefaultS
 }
 
 //#elseif (isSystemOperationTaskBase)
-import { Task, System, SystemOperationTaskBase } from "@criticalmanufacturing/connect-iot-controller-engine";
+import { Task, SystemOperationTaskBase } from "@criticalmanufacturing/connect-iot-controller-engine";
+import type { System } from "@criticalmanufacturing/connect-iot-controller-engine";
 
 /** Default values for settings */
 export const SETTINGS_DEFAULTS: <%= $CLI_PARAM_ClassName %>Settings = {
@@ -578,12 +585,12 @@ export class <%= $CLI_PARAM_ClassName %>Task extends SystemOperationTaskBase imp
         //     retries: this.retries, // defined in SystemOperationTaskBase
         //     sleepBetweenRetries: this.sleepBetweenRetries // defined in SystemOperationTaskBase
         // });
-    
+
         // ... code here
         this.success.emit(true);
     }
 
-    
+
 }
 
 // Add settings here
@@ -595,7 +602,8 @@ export interface <%= $CLI_PARAM_ClassName %>Settings extends System.TaskDefaultS
 }
 
 //#elseif (isSystemRequestListenerTaskBase)
-import { Task, System, SystemRequestListenerTaskBase } from "@criticalmanufacturing/connect-iot-controller-engine";
+import { Task, SystemRequestListenerTaskBase } from "@criticalmanufacturing/connect-iot-controller-engine";
+import type { System } from "@criticalmanufacturing/connect-iot-controller-engine";
 
 /** Default values for settings */
 export const SETTINGS_DEFAULTS: <%= $CLI_PARAM_ClassName %>Settings = {
