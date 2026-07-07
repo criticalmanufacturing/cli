@@ -9,6 +9,7 @@ using Spectre.Console;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.IO.Abstractions;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Cmf.CLI.Commands.New.IoT
@@ -84,7 +85,9 @@ namespace Cmf.CLI.Commands.New.IoT
                 driver.PackageFullName,
                 driver.PackageVersion,
                 driver.HasCommands,
-                driver.HasTemplates);
+                driver.HasTemplates,
+                driver.DriverBaseClass,
+                driver.DriverBasePackage);
             this.CommandName = "iot-driver";
             base.RunCommand(args);
         }
@@ -103,6 +106,20 @@ namespace Cmf.CLI.Commands.New.IoT
             driver.HasCommands = AnsiConsole.Prompt(new ConfirmationPrompt("Does the protocol support commands?") { DefaultValue = driver.HasCommands });
             driver.HasTemplates = AnsiConsole.Prompt(new ConfirmationPrompt("Do you wish to use templates? (By saying no, you will only have events and commands from the driver definition)") { DefaultValue = driver.HasTemplates });
 
+            if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major >= 12)
+            {
+                driver.DriverBaseClass = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .Title("Which driver base class does this driver extend?")
+                        .UseConverter(name => DriverBases.All.TryGetValue(name, out var metadata)
+                            ? $"{name} - {metadata.Description}"
+                            : name)
+                        .AddChoices(DriverBases.All.Keys)
+                        .DefaultValue("DeviceDriverBase"));
+
+                driver.DriverBasePackage = DriverBases.GetPackageName(driver.DriverBaseClass);
+            }
+
             return driver;
         }
 
@@ -116,7 +133,9 @@ namespace Cmf.CLI.Commands.New.IoT
             string packageName,
             string packageVersion,
             bool hasCommands,
-            bool hasTemplates)
+            bool hasTemplates,
+            string driverBaseClass,
+            string driverBasePackage)
         {
             var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
             Log.Debug($"Creating IoT Driver at {packageLocation}");
@@ -132,7 +151,9 @@ namespace Cmf.CLI.Commands.New.IoT
                 "--packageVersion", packageVersion,
                 "--npmRegistry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.ToString(),
                 "--hasCommands", hasCommands.ToString(),
-                "--hasTemplates", hasTemplates.ToString()
+                "--hasTemplates", hasTemplates.ToString(),
+                "--driverBaseClass", driverBaseClass,
+                "--driverBasePackage", driverBasePackage
             });
 
             return args;
