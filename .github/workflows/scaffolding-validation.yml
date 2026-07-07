@@ -60,9 +60,6 @@ jobs:
     permissions:
       contents: read
       packages: read
-    if: >
-      github.event_name != 'pull_request_target' ||
-      contains(fromJson('["OWNER","MEMBER","COLLABORATOR"]'), github.event.pull_request.author_association)
     strategy:
       matrix:
         include:
