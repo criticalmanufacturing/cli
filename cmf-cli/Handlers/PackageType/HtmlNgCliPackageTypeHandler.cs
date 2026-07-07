@@ -78,6 +78,9 @@ namespace Cmf.CLI.Handlers
                     }
             );
 
+            // Exclude built assets/config.json from copied content
+            DefaultContentToIgnore.Add(CliConstants.CmfPackagePresentationConfig);
+
             var projectRoot = FileSystemUtilities.GetProjectRoot(this.fileSystem);
             var tsLBOsPath = this.fileSystem.Path.Join(projectRoot.FullName, "Libs", "LBOs", "TypeScript");
             var tsLBOsDir = this.fileSystem.DirectoryInfo.New(tsLBOsPath);
@@ -205,18 +208,6 @@ namespace Cmf.CLI.Handlers
         }
 
         /// <summary>
-        /// Gets the content to pack, excluding the assets/config.json file (generated in build).
-        /// This file cannot be included since it would replace the config.json running in container.
-        /// </summary>
-        internal override List<FileToPack> GetContentToPack(IDirectoryInfo packageOutputDir)
-        {
-            var filesToPack = base.GetContentToPack(packageOutputDir);
-
-            string configRelativePath = $"assets{this.fileSystem.Path.DirectorySeparatorChar}config.json";
-            return filesToPack.Where(ftp => !ftp.Target.FullName.EndsWith(configRelativePath)).ToList();
-        }
-
-        /// <summary>
         /// This function will pack the html package. It will also generate the config.json file in the root of the zip.
         /// </summary>
         public override void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir, bool dryRun = false)
@@ -237,9 +228,30 @@ namespace Cmf.CLI.Handlers
             Log.Debug("Generating Presentation config.json");
 
             string path = this.fileSystem.Path.Join(packageOutputDir.FullName, CliConstants.CmfPackagePresentationConfig);
-            string fileContent = ResourceUtilities.GetEmbeddedResourceContent($"{CliConstants.FolderTemplates}/{CmfPackage.PackageType}/{CliConstants.CmfPackagePresentationConfig}");
+            string fileContent = ResourceUtilities.GetEmbeddedResourceContent($"{CliConstants.FolderTemplates}/{CmfPackage.PackageType}/config.ng.json");
+
+            IDirectoryInfo cmfPackageDirectory = CmfPackage.GetFileInfo().Directory;
+            List<string> transformInjections = new();
+
+            foreach (ContentToPack contentToPack in CmfPackage.ContentToPack)
+            {
+                if (contentToPack.Action == PackAction.Transform)
+                {
+                    transformInjections.Add(contentToPack.Source);
+                }
+            }
 
             fileContent = fileContent.Replace(CliConstants.TokenVersion, CmfPackage.Version);
+
+            string injection = string.Empty;
+            if (transformInjections.HasAny())
+            {
+                // Trailing commas are required because the injection token is not the last property.
+                var injections = transformInjections.Select(injection => this.fileSystem.File.ReadAllText($"{cmfPackageDirectory}/{injection}") + ",");
+                injection = string.Join(System.Environment.NewLine, injections);
+            }
+
+            fileContent = fileContent.Replace(CliConstants.TokenJDTInjection, injection);
 
             this.fileSystem.File.WriteAllText(path, fileContent);
         }
