@@ -36,6 +36,7 @@ namespace tests.Objects
               ""name"": ""customization.package""
             }")},
             { MockUnixSupport.Path(@"c:\ui\src\packages\customization.common\customization.common.js"), new MockFileData(string.Empty)},
+            { MockUnixSupport.Path(@"c:\ui\transform\my-config-patch.json"), new MockFileData("\"jdttest\": true")}, // adding jdtinjection file
             { MockUnixSupport.Path(@"c:\ui\package.json"), new MockFileData(
             @"{
               ""name"": ""customization.package""
@@ -55,6 +56,10 @@ namespace tests.Objects
                   ""ignoreFiles"": [
                     "".npmignore""
                   ]
+                }},
+                {{
+                  ""source"": ""{MockUnixSupport.Path("transform\\my-config-patch.json").Replace("\\", "\\\\")}"",
+                  ""action"": ""Transform""
                 }}
               ]
             }}")}});
