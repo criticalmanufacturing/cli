@@ -72,6 +72,50 @@
       "datatype": "bool",
       "description": "Is Protocol Setting",
       "displayName": "Is Protocol Setting"
+    },
+    "taskBase": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "Task Base Class",
+      "displayName": "Task Base Class",
+      "defaultValue": "TaskBase",
+      "replaces": "<%= $CLI_PARAM_TaskBase %>"
+    },
+    "useLegacyTaskTemplate": {
+      "type": "computed",
+      "value": "(taskBase == \"\")"
+    },
+    "isTaskBase": {
+      "type": "computed",
+      "value": "(taskBase == \"TaskBase\")"
+    },
+    "isAutoActivatedTaskBase": {
+      "type": "computed",
+      "value": "(taskBase == \"AutoActivatedTaskBase\")"
+    },
+    "isDriverTriggeredTaskBase": {
+      "type": "computed",
+      "value": "(taskBase == \"DriverTriggeredTaskBase\")"
+    },
+    "isRequestReplyAnswerTaskBase": {
+      "type": "computed",
+      "value": "(taskBase == \"RequestReplyAnswerTaskBase\")"
+    },
+    "isRequestReplyListenerTaskBase": {
+      "type": "computed",
+      "value": "(taskBase == \"RequestReplyListenerTaskBase\")"
+    },
+    "isSystemOperationTaskBase": {
+      "type": "computed",
+      "value": "(taskBase == \"SystemOperationTaskBase\")"
+    },
+    "isSystemRequestListenerTaskBase": {
+      "type": "computed",
+      "value": "(taskBase == \"SystemRequestListenerTaskBase\")"
+    },
+    "isSystemRequestReplyTaskBase": {
+      "type": "computed",
+      "value": "(taskBase == \"SystemRequestReplyTaskBase\")"
     }
   }
 }

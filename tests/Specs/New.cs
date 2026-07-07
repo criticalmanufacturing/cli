@@ -540,6 +540,172 @@ namespace tests.Specs
             }
         }
 
+        [Theory, Trait("TestCategory", "Integration")]
+        [InlineData("11.1.6", null)]
+        [InlineData("12.0.0", "TaskBase")]
+        [InlineData("12.0.0", "AutoActivatedTaskBase")]
+        [InlineData("12.0.0", "DriverTriggeredTaskBase")]
+        [InlineData("12.0.0", "RequestReplyAnswerTaskBase")]
+        [InlineData("12.0.0", "RequestReplyListenerTaskBase")]
+        [InlineData("12.0.0", "SystemOperationTaskBase")]
+        [InlineData("12.0.0", "SystemRequestListenerTaskBase")]
+        [InlineData("12.0.0", "SystemRequestReplyTaskBase")]
+        public void IoTTask(string mesVersion, string taskBaseClass)
+        {
+            string dir = TestUtilities.GetTmpDirectory();
+            string packageId = "Cmf.Custom.IoT";
+            string packageFolderPackages = "Cmf.Custom.IoT.Packages";
+            string taskLibraryDir = "controller-engine-custom-tasks";
+            string taskName = "blackBox";
+            string taskClassName = "BlackBox";
+            bool isMesV12 = taskBaseClass != null;
+
+            var cur = Directory.GetCurrentDirectory();
+
+            try
+            {
+                CopyNewFixture(dir, mesVersion: mesVersion);
+                RunNew(new IoTCommand(), packageId, dir);
+
+                // Step 1: Create the task library in the IoT packages folder
+                Directory.SetCurrentDirectory($"{dir}/{packageId}/{packageFolderPackages}");
+
+                var consoleLib = new TestingConsole.TestConsole();
+                consoleLib.Profile.Capabilities.Interactive = true;
+                consoleLib.Input.PushTextWithEnter(""); // dirName: controller-engine-custom-tasks (default)
+                consoleLib.Input.PushTextWithEnter(""); // packageScope: @criticalmanufacturing (default)
+                consoleLib.Input.PushTextWithEnter(""); // packageName: connect-iot-controller-engine-custom-tasks (default)
+                consoleLib.Input.PushTextWithEnter(""); // packageVersion: 0.0.0 (default)
+                consoleLib.Input.PushTextWithEnter(""); // identifier: My Tasks Library (default)
+                consoleLib.Input.PushTextWithEnter(" "); // dependsOnScope: select ConnectIoT (Space) + confirm (Enter)
+                consoleLib.Input.PushTextWithEnter(""); // mandatoryForScope: no selection + confirm
+                consoleLib.Input.PushTextWithEnter(""); // dependsOnProtocol: ""
+                consoleLib.Input.PushTextWithEnter(""); // mandatoryForProtocol: null (default)
+
+                AnsiConsole.Console = consoleLib;
+                var cmdLib = new Command("lib");
+                var newTaskLibCmd = new GenerateTaskLibraryCommand();
+                newTaskLibCmd.Configure(cmdLib);
+                TestUtilities.GetParser(cmdLib).Invoke("");
+
+                Directory.Exists(Path.GetFullPath($"src/{taskLibraryDir}")).Should().BeTrue("Task library folder should be generated");
+
+                // Step 2: Create the task inside the task library
+                Directory.SetCurrentDirectory(Path.GetFullPath($"src/{taskLibraryDir}"));
+
+                var consoleTask = new TestingConsole.TestConsole();
+                consoleTask.Profile.Capabilities.Interactive = true;
+                consoleTask.Input.PushTextWithEnter(""); // task name: blackBox (default)
+                consoleTask.Input.PushTextWithEnter(""); // task title: Black Box (default)
+                consoleTask.Input.PushTextWithEnter(""); // icon class name (default)
+                consoleTask.Input.PushTextWithEnter(""); // isProtocol: No (default false)
+                consoleTask.Input.PushTextWithEnter(""); // lifecycle: Productive (first selection prompt option)
+                consoleTask.Input.PushTextWithEnter(""); // dependsOnProtocol (MultiSelect)
+                consoleTask.Input.PushTextWithEnter(""); // dependsOnScope (MultiSelect, 1 choice "ConnectIoT"): no selection + confirm
+
+                if (isMesV12)
+                {
+                    // Navigate the taskBase SelectionPrompt to the desired option.
+                    // Order mirrors the runtime choice list: TaskBase first, then remaining enum values.
+                    var taskBaseChoices = new[]
+                    {
+                        "TaskBase", "AutoActivatedTaskBase", "DriverTriggeredTaskBase",
+                        "RequestReplyAnswerTaskBase", "RequestReplyListenerTaskBase",
+                        "SystemOperationTaskBase", "SystemRequestListenerTaskBase",
+                        "SystemRequestReplyTaskBase"
+                    };
+                    int taskBaseIndex = Array.IndexOf(taskBaseChoices, taskBaseClass);
+                    for (int i = 0; i < taskBaseIndex; i++)
+                    {
+                        consoleTask.Input.PushKey(ConsoleKey.DownArrow);
+                    }
+                    consoleTask.Input.PushTextWithEnter(""); // confirm taskBase selection
+                }
+
+                consoleTask.Input.PushTextWithEnter(""); // HandleInputs: Done (first selection prompt option)
+                consoleTask.Input.PushTextWithEnter(""); // HandleOutputs: Done (first selection prompt option)
+                consoleTask.Input.PushTextWithEnter(""); // HandleSettings: Done (first selection prompt option)
+
+                AnsiConsole.Console = consoleTask;
+                var cmdTask = new Command("task");
+                var newTaskCmd = new GenerateTaskCommand();
+                newTaskCmd.Configure(cmdTask);
+                TestUtilities.GetParser(cmdTask).Invoke("");
+
+                // Assertions: task file is generated
+                var taskFilePath = Path.GetFullPath($"src/tasks/{taskName}/{taskName}.task.ts");
+                File.Exists(taskFilePath).Should().BeTrue($"Task file should be generated at {taskFilePath}");
+
+                var taskContent = File.ReadAllText(taskFilePath);
+                string expectedBase = taskBaseClass ?? "TaskBase";
+
+                taskContent.Should().Contain($"extends {expectedBase}", $"Task should extend {expectedBase}");
+                taskContent.Should().Contain(expectedBase,
+                    $"Task file should reference {expectedBase} from connect-iot-controller-engine");
+
+                // Variant-specific structural assertions
+                switch (taskBaseClass)
+                {
+                    case null:
+                        // v11 legacy template: uses onChanges hook
+                        taskContent.Should().Contain("onChanges");
+                        break;
+
+                    case "TaskBase":
+                        // v12 TaskBase: uses onActivate, not the legacy onChanges
+                        taskContent.Should().Contain("onActivate");
+                        taskContent.Should().NotContain("onChanges");
+                        break;
+
+                    case "AutoActivatedTaskBase":
+                        taskContent.Should().Contain("autoActivate: true");
+                        taskContent.Should().Contain("activateListenerCallback");
+                        break;
+
+                    case "DriverTriggeredTaskBase":
+                        taskContent.Should().Contain("autoActivate: true");
+                        taskContent.Should().Contain("subscribeHandler");
+                        taskContent.Should().Contain("unsubscribeHandler");
+                        break;
+
+                    case "RequestReplyAnswerTaskBase":
+                        taskContent.Should().Contain("defaultReply: {}");
+                        taskContent.Should().Contain("sendReplyMessage");
+                        break;
+
+                    case "RequestReplyListenerTaskBase":
+                        taskContent.Should().Contain("subjectToSubscribe");
+                        taskContent.Should().Contain("replyTimeout");
+                        break;
+
+                    case "SystemOperationTaskBase":
+                        taskContent.Should().Contain("systemRetries");
+                        break;
+
+                    case "SystemRequestListenerTaskBase":
+                        taskContent.Should().Contain("_handleRequest");
+                        break;
+
+                    case "SystemRequestReplyTaskBase":
+                        taskContent.Should().Contain("defaultReply");
+                        taskContent.Should().Contain("reply: object");
+                        break;
+                }
+
+                // Task export added to index.ts
+                var indexContent = File.ReadAllText(Path.GetFullPath("src/index.ts"));
+                indexContent.Should().Contain($"{taskClassName}Task");
+
+                // Task template JSON created
+                File.Exists(Path.GetFullPath($"templates/task_{taskName}.json")).Should().BeTrue("Task template JSON should be created");
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                Directory.Delete(dir, true);
+            }
+        }
+
         [Fact, Trait("TestCategory", "Integration")]
         public void Database()
         {
