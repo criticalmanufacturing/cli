@@ -107,6 +107,32 @@
       "displayName": "Driver Has Templates",
       "defaultValue": "false"
     },
+    "driverBaseClass": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "Driver base class",
+      "displayName": "Driver Base Class",
+      "defaultValue": "DeviceDriverBase",
+      "replaces": "<%= $CLI_PARAM_DriverBaseClass %>"
+    },
+    "driverBasePackage": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "Package that contains the selected driver base class",
+      "displayName": "Driver Base Package",
+      "defaultValue": "@criticalmanufacturing/connect-iot-driver",
+      "replaces": "<%= $CLI_PARAM_DriverBasePackage %>"
+    },
+    "isDeviceFileDriverBase": {
+      "type": "computed",
+      "datatype": "bool",
+      "value": "driverBaseClass == \"DeviceFileDriverBase\""
+    },
+    "isDeviceDriverBase": {
+      "type": "computed",
+      "datatype": "bool",
+      "value": "driverBaseClass == \"DeviceDriverBase\""
+    },
     "v1120OrGreater": {
       "type": "generated",
       "generator": "regexMatch",

@@ -164,6 +164,12 @@ namespace Cmf.CLI.Utilities
 
         [JsonIgnore]
         public bool HasTemplates { get; set; }
+
+        [JsonIgnore]
+        public string DriverBaseClass { get; set; } = "DeviceDriverBase";
+
+        [JsonIgnore]
+        public string DriverBasePackage { get; set; } = "@criticalmanufacturing/connect-iot-driver";
     }
 
     [JsonObject]
@@ -482,5 +488,40 @@ namespace Cmf.CLI.Utilities
             { "SystemRequestListenerTaskBase", "Receives MES system requests and prepares the corresponding reply (for example, \"System Action Listener\" task)." },
             { "SystemRequestReplyTaskBase",    "Exclusive to Data Flow. Sends replies to a SystemRequestListenerTaskBase (for example, \"Send System Action Reply\" task)." },
         };
+    }
+
+    public class DriverBaseMetadata
+    {
+        public string Description { get; set; }
+        public string PackageName { get; set; }
+    }
+
+    public static class DriverBases
+    {
+        public static readonly Dictionary<string, DriverBaseMetadata> All = new()
+        {
+            {
+                "DeviceDriverBase", new DriverBaseMetadata
+                {
+                    Description = "(Default): Base class for standard driver operations.",
+                    PackageName = "@criticalmanufacturing/connect-iot-driver"
+                }
+            },
+            {
+                "DeviceFileDriverBase", new DriverBaseMetadata
+                {
+                    Description = "Extends standard driver behavior with file-based operations.",
+                    PackageName = "@criticalmanufacturing/connect-iot-base-file-driver"
+                }
+            },
+        };
+
+        public static string GetPackageName(string driverBaseClass)
+        {
+            return !string.IsNullOrWhiteSpace(driverBaseClass)
+                && All.TryGetValue(driverBaseClass, out var metadata)
+                ? metadata.PackageName
+                : "@criticalmanufacturing/connect-iot-driver";
+        }
     }
 }

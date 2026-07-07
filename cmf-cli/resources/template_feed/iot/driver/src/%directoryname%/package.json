@@ -44,6 +44,9 @@
   },
   "dependencies": {
     "@criticalmanufacturing/connect-iot-common": "<%= $CLI_PARAM_TargetSystemVersionProcessed %>",
+    //#if (isDeviceFileDriverBase)
+    "@criticalmanufacturing/connect-iot-base-file-driver": "<%= $CLI_PARAM_TargetSystemVersionProcessed %>",
+    //#endif
     "@criticalmanufacturing/connect-iot-driver": "<%= $CLI_PARAM_TargetSystemVersionProcessed %>",
     "inversify": "6.0.2",
     "moment": "2.29.4",
