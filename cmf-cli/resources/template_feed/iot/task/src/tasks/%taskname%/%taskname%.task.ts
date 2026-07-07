@@ -1,6 +1,5 @@
 //#if (useLegacyTaskTemplate)
-import { Task, TaskBase } from "@criticalmanufacturing/connect-iot-controller-engine";
-import type { System } from "@criticalmanufacturing/connect-iot-controller-engine";
+import { Task, System, TaskBase } from "@criticalmanufacturing/connect-iot-controller-engine";
 
 /** Default values for settings */
 export const SETTINGS_DEFAULTS: <%= $CLI_PARAM_ClassName %>Settings = {
