@@ -694,50 +694,52 @@ namespace tests.Specs
                     $"Task file should reference {expectedBase} from connect-iot-controller-engine");
 
                 // Variant-specific structural assertions
-                if (taskBaseClass == null)
+                switch (taskBaseClass)
                 {
-                    // v11 legacy template: uses onChanges hook
-                    taskContent.Should().Contain("onChanges");
-                }
-                else if (taskBaseClass == "TaskBase")
-                {
-                    // v12 TaskBase: uses onActivate, not the legacy onChanges
-                    taskContent.Should().Contain("onActivate");
-                    taskContent.Should().NotContain("onChanges");
-                }
-                else if (taskBaseClass == "AutoActivatedTaskBase")
-                {
-                    taskContent.Should().Contain("autoActivate: true");
-                    taskContent.Should().Contain("activateListenerCallback");
-                }
-                else if (taskBaseClass == "DriverTriggeredTaskBase")
-                {
-                    taskContent.Should().Contain("autoActivate: true");
-                    taskContent.Should().Contain("subscribeHandler");
-                    taskContent.Should().Contain("unsubscribeHandler");
-                }
-                else if (taskBaseClass == "RequestReplyAnswerTaskBase")
-                {
-                    taskContent.Should().Contain("defaultReply: {}");
-                    taskContent.Should().Contain("sendReplyMessage");
-                }
-                else if (taskBaseClass == "RequestReplyListenerTaskBase")
-                {
-                    taskContent.Should().Contain("subjectToSubscribe");
-                    taskContent.Should().Contain("replyTimeout");
-                }
-                else if (taskBaseClass == "SystemOperationTaskBase")
-                {
-                    taskContent.Should().Contain("systemRetries");
-                }
-                else if (taskBaseClass == "SystemRequestListenerTaskBase")
-                {
-                    taskContent.Should().Contain("_handleRequest");
-                }
-                else if (taskBaseClass == "SystemRequestReplyTaskBase")
-                {
-                    taskContent.Should().Contain("defaultReply");
-                    taskContent.Should().Contain("reply: object");
+                    case null:
+                        // v11 legacy template: uses onChanges hook
+                        taskContent.Should().Contain("onChanges");
+                        break;
+
+                    case "TaskBase":
+                        // v12 TaskBase: uses onActivate, not the legacy onChanges
+                        taskContent.Should().Contain("onActivate");
+                        taskContent.Should().NotContain("onChanges");
+                        break;
+
+                    case "AutoActivatedTaskBase":
+                        taskContent.Should().Contain("autoActivate: true");
+                        taskContent.Should().Contain("activateListenerCallback");
+                        break;
+
+                    case "DriverTriggeredTaskBase":
+                        taskContent.Should().Contain("autoActivate: true");
+                        taskContent.Should().Contain("subscribeHandler");
+                        taskContent.Should().Contain("unsubscribeHandler");
+                        break;
+
+                    case "RequestReplyAnswerTaskBase":
+                        taskContent.Should().Contain("defaultReply: {}");
+                        taskContent.Should().Contain("sendReplyMessage");
+                        break;
+
+                    case "RequestReplyListenerTaskBase":
+                        taskContent.Should().Contain("subjectToSubscribe");
+                        taskContent.Should().Contain("replyTimeout");
+                        break;
+
+                    case "SystemOperationTaskBase":
+                        taskContent.Should().Contain("systemRetries");
+                        break;
+
+                    case "SystemRequestListenerTaskBase":
+                        taskContent.Should().Contain("_handleRequest");
+                        break;
+
+                    case "SystemRequestReplyTaskBase":
+                        taskContent.Should().Contain("defaultReply");
+                        taskContent.Should().Contain("reply: object");
+                        break;
                 }
 
                 // Task export added to index.ts

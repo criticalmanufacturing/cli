@@ -160,13 +160,12 @@ namespace Cmf.CLI.Commands.New.IoT
 
             if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major >= 12)
             {
-                var taskBaseNames = System.Enum.GetNames(typeof(TaskBase));
-                var taskBaseChoices = new[] { nameof(TaskBase.TaskBase) }
-                    .Concat(taskBaseNames.Where(n => n != nameof(TaskBase.TaskBase)));
+                var taskBaseChoices = new[] { "TaskBase" }
+                    .Concat(TaskBases.All.Keys.Where(n => n != "TaskBase"));
                 task.TaskBaseClass = AnsiConsole.Prompt(
                     new SelectionPrompt<string>()
                         .Title("Which task base class does this task extend?")
-                        .UseConverter(name => TaskBaseDescriptions.Descriptions.TryGetValue(name, out var desc)
+                        .UseConverter(name => TaskBases.All.TryGetValue(name, out var desc)
                             ? $"{name} - {desc}"
                             : name)
                         .AddChoices(taskBaseChoices));
