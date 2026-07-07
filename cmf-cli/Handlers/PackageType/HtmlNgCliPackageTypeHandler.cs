@@ -57,7 +57,7 @@ namespace Cmf.CLI.Handlers
                     {
                         new Step(StepType.DeployFiles)
                         {
-                            ContentPath = "**" // TODO: remove assets/config.json from the deployed files, should only apply transform
+                            ContentPath = "**"
                         },
                         new Step(StepType.TaggedFile)
                         {
@@ -69,10 +69,11 @@ namespace Cmf.CLI.Handlers
                             ContentPath = "ngsw.json",
                             TagFile = true
                         },
-                        new Step(StepType.TaggedFile)
+                        new Step(StepType.TransformFile)
                         {
-                            ContentPath = "assets/config.json",
-                            TagFile = true
+                            File = "config.json",
+                            TagFile = true,
+                            RelativePath = "assets",
                         }
                     }
             );
@@ -203,40 +204,44 @@ namespace Cmf.CLI.Handlers
             }
         }
 
-        // TODO: enable this when we can transform config.json
-        // public override void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir)
-        // {
-        //     var filesToPack = GetContentToPack(packageOutputDir);
-        //     if (CmfPackage.ContentToPack.HasAny() && !filesToPack.HasAny())
-        //     {
-        //         throw new CliException(string.Format(CoreMessages.ContentToPackNotFound, CmfPackage.PackageId, CmfPackage.Version));
-        //     }
-        //
-        //     if (filesToPack != null)
-        //     {
-        //         FilesToPack.AddRange(filesToPack);
-        //
-        //         FilesToPack.ForEach(fileToPack =>
-        //         {
-        //             Log.Debug($"Packing '{fileToPack.Source.FullName} to {fileToPack.Target.FullName} by contentToPack rule (Action: {fileToPack.ContentToPack.Action.ToString()}, Source: {fileToPack.ContentToPack.Source}, Target: {fileToPack.ContentToPack.Target})");
-        //             IDirectoryInfo _targetFolder = this.fileSystem.DirectoryInfo.New(fileToPack.Target.Directory.FullName);
-        //             if (!_targetFolder.Exists)
-        //             {
-        //                 _targetFolder.Create();
-        //             }
-        //         });
-        //     }
-        //
-        //     // TODO: replace this with an ignore entry in the ContentToPack of the template cmfpackage.json
-        //     FilesToPack = FilesToPack.Where(ftp => !ftp.Source.FullName.EndsWith($"assets{this.fileSystem.Path.DirectorySeparatorChar}config.json")).ToList();
-        //     GeneratePresentationConfigFile(packageOutputDir);
-        //
-        //     GenerateDeploymentFrameworkManifest(packageOutputDir);
-        //
-        //     FinalArchive(packageOutputDir, outputDir);
-        //
-        //     Log.Information($"{outputDir.FullName}/{CmfPackage.ZipPackageName} created");
-        //     
-        // }
+        /// <summary>
+        /// Gets the content to pack, excluding the assets/config.json file (generated in build).
+        /// This file cannot be included since it would replace the config.json running in container.
+        /// </summary>
+        internal override List<FileToPack> GetContentToPack(IDirectoryInfo packageOutputDir)
+        {
+            var filesToPack = base.GetContentToPack(packageOutputDir);
+
+            string configRelativePath = $"assets{this.fileSystem.Path.DirectorySeparatorChar}config.json";
+            return filesToPack.Where(ftp => !ftp.Target.FullName.EndsWith(configRelativePath)).ToList();
+        }
+
+        /// <summary>
+        /// This function will pack the html package. It will also generate the config.json file in the root of the zip.
+        /// </summary>
+        public override void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir, bool dryRun = false)
+        {
+            if (!dryRun)
+            {
+                GeneratePresentationConfigFile(packageOutputDir);
+            }
+            base.Pack(packageOutputDir, outputDir, dryRun);
+        }
+
+        /// <summary>
+        /// This function will generated the config.json using the html template.
+        /// This file is packed and included in the root of the zip file, which will then be applied transformation within the target environment config.json (located at /assets/config.json).
+        /// </summary>
+        private void GeneratePresentationConfigFile(IDirectoryInfo packageOutputDir)
+        {
+            Log.Debug("Generating Presentation config.json");
+
+            string path = this.fileSystem.Path.Join(packageOutputDir.FullName, CliConstants.CmfPackagePresentationConfig);
+            string fileContent = ResourceUtilities.GetEmbeddedResourceContent($"{CliConstants.FolderTemplates}/{CmfPackage.PackageType}/{CliConstants.CmfPackagePresentationConfig}");
+
+            fileContent = fileContent.Replace(CliConstants.TokenVersion, CmfPackage.Version);
+
+            this.fileSystem.File.WriteAllText(path, fileContent);
+        }
     }
 }

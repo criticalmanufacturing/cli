@@ -294,6 +294,7 @@ namespace tests.Specs
                     List<string> expectedFiles = new()
                     {
                         "manifest.xml",
+                        "config.json",
                         "node_modules/customization.package/package.json",
                         "node_modules/customization.package/customization.common.js"
                     };
@@ -301,6 +302,26 @@ namespace tests.Specs
                     foreach (var expectedFile in expectedFiles)
                     {
                         Assert.NotNull(entriesToExtract.FirstOrDefault(x => x.Item2.Equals(expectedFile)));
+                    }
+
+                    Assert.Null(entriesToExtract.FirstOrDefault(x => x.Item2.Equals("assets/config.json")));
+
+                    var manifestEntry = zip.GetEntry("manifest.xml");
+                    Assert.NotNull(manifestEntry);
+                    using (var manifestStream = manifestEntry.Open())
+                    using (var manifestReader = new StreamReader(manifestStream))
+                    {
+                        var manifestXmlContent = manifestReader.ReadToEnd();
+                        Assert.Contains("<step type=\"TransformFile\" file=\"config.json\" tagFile=\"true\" relativePath=\"assets\" />", manifestXmlContent);
+                    }
+
+                    var configEntry = zip.GetEntry("config.json");
+                    Assert.NotNull(configEntry);
+                    using (var configStream = configEntry.Open())
+                    using (var configReader = new StreamReader(configStream))
+                    {
+                        var configJsonContent = configReader.ReadToEnd();
+                        Assert.Contains("\"customizationVersion\": \"1.1.0\"", configJsonContent);
                     }
                 }
             }
