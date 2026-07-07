@@ -322,6 +322,7 @@ namespace tests.Specs
                     {
                         var configJsonContent = configReader.ReadToEnd();
                         Assert.Contains("\"customizationVersion\": \"1.1.0\"", configJsonContent);
+                        Assert.Contains("\"jdttest\": true", configJsonContent);
                     }
                 }
             }

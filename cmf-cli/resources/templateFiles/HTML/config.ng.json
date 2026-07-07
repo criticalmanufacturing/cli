@@ -1,3 +1,4 @@
 {
+  $(JDTInjection)
   "customizationVersion": "$(version)"
 }
