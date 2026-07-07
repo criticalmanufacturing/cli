@@ -440,6 +440,10 @@ namespace tests.Specs
                 console.Input.PushTextWithEnter(""); // Identifier
                 console.Input.PushTextWithEnter(""); // HasCommands
                 console.Input.PushTextWithEnter(""); // HasTemplates
+                if (Version.Parse(mesVersion).Major >= 12)
+                {
+                    console.Input.PushTextWithEnter(""); // DriverBaseClass: DeviceDriverBase (default)
+                }
 
                 AnsiConsole.Console = console; // so that the prompts asked by the command use this console instance
 
@@ -459,6 +463,87 @@ namespace tests.Specs
                 else
                 {
                     File.ReadAllText(Path.GetFullPath("src/driver-sample/src/index.ts")).Should().Contain("import * as yargs");
+                }
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                Directory.Delete(dir, true);
+            }
+        }
+
+        [Theory, Trait("TestCategory", "Integration")]
+        [InlineData("12.0.0", "DeviceDriverBase")]
+        [InlineData("12.0.0", "DeviceFileDriverBase")]
+        public void IoTDriverBase(string mesVersion, string driverBaseClass)
+        {
+            string dir = TestUtilities.GetTmpDirectory();
+            string packageId = "Cmf.Custom.IoT";
+            string packageFolderPackages = "Cmf.Custom.IoT.Packages";
+
+            var cur = Directory.GetCurrentDirectory();
+
+            try
+            {
+                CopyNewFixture(dir, mesVersion: mesVersion);
+                RunNew(new IoTCommand(), packageId, dir);
+
+                Directory.SetCurrentDirectory($"{dir}/{packageId}/{packageFolderPackages}");
+
+                TestingConsole.TestConsole console = new();
+                console.Profile.Capabilities.Interactive = true;
+                console.Input.PushTextWithEnter(""); // directory name: driver-sample (default)
+                console.Input.PushTextWithEnter(""); // package scope (default)
+                console.Input.PushTextWithEnter(""); // package name (default)
+                console.Input.PushTextWithEnter(""); // package version (default)
+                console.Input.PushTextWithEnter(""); // identifier: SampleDriver (default)
+                console.Input.PushTextWithEnter(""); // HasCommands: No (default false)
+                console.Input.PushTextWithEnter(""); // HasTemplates: No (default false)
+
+                var driverBaseChoices = new[] { "DeviceDriverBase", "DeviceFileDriverBase" };
+                int driverBaseIndex = Array.IndexOf(driverBaseChoices, driverBaseClass);
+                for (int i = 0; i < driverBaseIndex; i++)
+                {
+                    console.Input.PushKey(ConsoleKey.DownArrow);
+                }
+                console.Input.PushTextWithEnter(""); // confirm driver base selection
+
+                AnsiConsole.Console = console;
+
+                var cmd = new Command("x");
+                var newCommand = new GenerateDriverCommand();
+                newCommand.Configure(cmd);
+                TestUtilities.GetParser(cmd).Invoke("");
+
+                Directory.Exists(Path.GetFullPath("src/driver-sample")).Should().BeTrue("Driver folder should be generated");
+
+                var driverImpl = File.ReadAllText(Path.GetFullPath("src/driver-sample/src/driverImplementation.ts"));
+                var inversifyConfig = File.ReadAllText(Path.GetFullPath("src/driver-sample/src/inversify.config.ts"));
+                var packageJson = File.ReadAllText(Path.GetFullPath("src/driver-sample/package.json"));
+
+                if (driverBaseClass == "DeviceFileDriverBase")
+                {
+                    driverImpl.Should().Contain("DeviceFileDriverBase",
+                        "Driver should import DeviceFileDriverBase when needsFileAccess is true");
+                    driverImpl.Should().NotContain("DeviceDriverBase",
+                        "Driver should not import DeviceDriverBase when needsFileAccess is true");   
+                    driverImpl.Should().Contain("extends DeviceFileDriverBase",
+                        "Driver class should extend DeviceFileDriverBase when needsFileAccess is true");
+                    inversifyConfig.Should().Contain("FileHandler",
+                        "inversify.config should bind FileHandler when needsFileAccess is true");
+                    packageJson.Should().Contain("connect-iot-base-file-driver",
+                        "package.json should include connect-iot-base-file-driver when needsFileAccess is true");
+                }
+                else
+                {
+                    driverImpl.Should().NotContain("DeviceFileDriverBase",
+                        "Driver should not reference DeviceFileDriverBase when needsFileAccess is false");
+                    driverImpl.Should().Contain("extends DeviceDriverBase",
+                        "Driver class should extend DeviceDriverBase when needsFileAccess is false");
+                    inversifyConfig.Should().NotContain("FileHandler",
+                        "inversify.config should not bind FileHandler when needsFileAccess is false");
+                    packageJson.Should().NotContain("connect-iot-base-file-driver",
+                        "package.json should not include connect-iot-base-file-driver when needsFileAccess is false");
                 }
             }
             finally

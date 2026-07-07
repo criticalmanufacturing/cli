@@ -2,6 +2,9 @@ import "reflect-metadata";
 import { Container } from "inversify";
 
 import { DeviceDriver, TYPES as COMMUNICATION_TYPES, container as driverContainer } from "@criticalmanufacturing/connect-iot-driver";
+//#if (isDeviceFileDriverBase)
+import { FileHandler, MountPointHandler } from "<%= $CLI_PARAM_DriverBasePackage %>";
+//#endif
 import { TYPES } from "./types";
 import { <%= $CLI_PARAM_Identifier %>DeviceDriver } from "./driverImplementation";
 //#if hasTemplates
@@ -11,6 +14,10 @@ import { ExtensionHandler } from "./extensions";
 const container = new Container();
 container.parent = driverContainer;
 container.parent?.bind<Container>(TYPES.Injector).toConstantValue(container);
+//#if (isDeviceFileDriverBase)
+container.parent?.bind<FileHandler>(COMMUNICATION_TYPES.FileHandler).to(FileHandler).inSingletonScope();
+container.parent?.bind<MountPointHandler>(COMMUNICATION_TYPES.MountPointHandler).to(MountPointHandler).inSingletonScope();
+//#endif
 //#if hasTemplates
 container.bind<ExtensionHandler>(TYPES.ExtensionHandler).to(ExtensionHandler).inSingletonScope();
 //#endif
