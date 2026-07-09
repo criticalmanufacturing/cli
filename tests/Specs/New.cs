@@ -600,8 +600,8 @@ namespace tests.Specs
                 consoleTask.Input.PushTextWithEnter(""); // icon class name (default)
                 consoleTask.Input.PushTextWithEnter(""); // isProtocol: No (default false)
                 consoleTask.Input.PushTextWithEnter(""); // lifecycle: Productive (first selection prompt option)
-                consoleTask.Input.PushTextWithEnter(""); // dependsOnProtocol (MultiSelect)
-                consoleTask.Input.PushTextWithEnter(""); // dependsOnScope (MultiSelect, 1 choice "ConnectIoT"): no selection + confirm
+                // dependsOnProtocol is skipped: task library has no protocols (empty list from library setup)
+                consoleTask.Input.PushTextWithEnter(""); // dependsOnScope MultiSelect (library has ["ConnectIoT"]): no selection + confirm
 
                 if (isMesV12)
                 {

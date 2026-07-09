@@ -150,17 +150,23 @@ namespace Cmf.CLI.Commands.New.IoT
             string[] taskLibraryDependsOnProtocols = taskLibraryPkgJson.criticalManufacturing.tasksLibrary.dependsOnProtocol.ToObject<string[]>();
             string[] taskLibraryDependsOnScope = taskLibraryPkgJson.criticalManufacturing.tasksLibrary.dependsOnScope.ToObject<string[]>();
 
-            task.DependsOnProtocol = AnsiConsole.Prompt(
-                new MultiSelectionPrompt<string>()
-                    .Title("Is this task specific for any protocol?")
-                    .NotRequired()
-                    .AddChoices(taskLibraryDependsOnProtocols));
+            if (taskLibraryDependsOnProtocols.Length > 0)
+            {
+                task.DependsOnProtocol = AnsiConsole.Prompt(
+                    new MultiSelectionPrompt<string>()
+                        .Title("Is this task specific for any protocol?")
+                        .NotRequired()
+                        .AddChoices(taskLibraryDependsOnProtocols));
+            }
 
-            task.DependsOnScope = AnsiConsole.Prompt(
-                new MultiSelectionPrompt<string>()
-                    .Title("On which scopes this library can be used")
-                    .NotRequired()
-                    .AddChoices(taskLibraryDependsOnScope));
+            if (taskLibraryDependsOnScope.Length > 0)
+            {
+                task.DependsOnScope = AnsiConsole.Prompt(
+                    new MultiSelectionPrompt<string>()
+                        .Title("On which scopes this library can be used")
+                        .NotRequired()
+                        .AddChoices(taskLibraryDependsOnScope));
+            }
 
             if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major >= 12)
             {
