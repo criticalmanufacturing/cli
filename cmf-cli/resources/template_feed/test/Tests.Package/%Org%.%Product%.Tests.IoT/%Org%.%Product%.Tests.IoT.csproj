@@ -66,4 +66,11 @@
   <ItemGroup>
     <PackageReference Include="Cmf.Dev.Mes.TestScenarios" Version="<%= $CLI_PARAM_TestScenariosNugetVersion %>" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Cmf.ConnectIoT.TestOrchestrator.Core.LBOs" Version="*" />
+    <PackageReference Include="Cmf.ConnectIoT.TestOrchestrator.Core.Common" Version="*" />
+    <PackageReference Include="Cmf.ConnectIoT.TestOrchestrator.Core.ScenarioBuilder" Version="*" />
+    <PackageReference Include="Cmf.ConnectIoT.TestOrchestrator.Plugin.StartMode.Local" Version="*" />
+    <PackageReference Include="Cmf.ConnectIoT.TestOrchestrator.Plugin.System.MockSystem" Version="*" />
+  </ItemGroup>
 </Project>
