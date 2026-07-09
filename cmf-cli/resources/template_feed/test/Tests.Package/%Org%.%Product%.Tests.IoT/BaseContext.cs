@@ -67,18 +67,6 @@ namespace Settings
         }
 
         /// <summary>
-        /// IoT Tests Mode
-        /// </summary>
-        /// <value>
-        /// Enum with modes
-        /// </value>
-        public static IoTModes Mode
-        {
-            get;
-            private set;
-        } = IoTModes.Local;
-
-        /// <summary>
         /// Gets the user role.
         /// </summary>
         /// <value>
@@ -147,27 +135,6 @@ namespace Settings
 
             // Handle Culture
             CultureInfo.DefaultThreadCurrentCulture = new CultureInfo(GetString(context, "culture"));
-
-            #region Connect IoT
-
-            if (context.Properties.Contains("mode"))
-            {
-                IoTModes ioTMode;
-                Enum.TryParse(GetString(context, "mode"), out ioTMode);
-
-                Mode = ioTMode;
-            }
-
-            if (GetString(context, "TestRunDirectory").Contains("TestExecution"))
-            {
-                FilePath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), GetString(context, "filePathRemote")));
-            }
-            else
-            {
-                FilePath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), GetString(context, "filePathLocal")));
-            }
-
-            #endregion Connect IoT
         }
 
         /// <summary>
@@ -222,13 +189,6 @@ namespace Settings
             {
                 return context.Properties[property].ToString();
             }
-        }
-
-        public enum IoTModes
-        {
-            Local,
-            RemoteDownload,
-            RemoteService
         }
 
         #endregion Private & Internal Methods
