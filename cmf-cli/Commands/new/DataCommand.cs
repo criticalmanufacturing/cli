@@ -72,7 +72,7 @@ namespace Cmf.CLI.Commands.New
                 "--rootRelativePath", relativePathToRoot,
                 "--repositoryType", repoType.ToString()
             });
-            args.AddRange(new []{ "--targetFramework", DependencyVersionService.NET6TARGETFRAMEWORK });
+            args.AddRange(new []{ "--targetFramework", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().DotNetTargetFramework(version) });
 
             return args;
         }

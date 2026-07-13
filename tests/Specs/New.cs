@@ -208,6 +208,35 @@ namespace tests.Specs
             RunNew(new DataCommand(), "Cmf.Custom.Data");
         }
 
+        [Fact, Trait("TestCategory", "Integration")]
+        public void Data_TargetFramework_Net8_For_MES11()
+        {
+            RunNew(new DataCommand(), "Cmf.Custom.Data",
+                extraAsserts: args =>
+                {
+                    var (_, dir) = args;
+                    var actionsCsproj = Path.Combine(dir, "Cmf.Custom.Data", "DEEs", "Cmf.Custom.tenant.Actions.csproj");
+                    File.Exists(actionsCsproj).Should().BeTrue();
+                    var content = File.ReadAllText(actionsCsproj);
+                    content.Should().Contain("<TargetFramework>net8.0</TargetFramework>");
+                });
+        }
+
+        [Fact, Trait("TestCategory", "Integration")]
+        public void Data_TargetFramework_Net6_For_MES10()
+        {
+            RunNew(new DataCommand(), "Cmf.Custom.Data",
+                mesVersion: "10.2.0",
+                extraAsserts: args =>
+                {
+                    var (_, dir) = args;
+                    var actionsCsproj = Path.Combine(dir, "Cmf.Custom.Data", "DEEs", "Cmf.Custom.tenant.Actions.csproj");
+                    File.Exists(actionsCsproj).Should().BeTrue();
+                    var content = File.ReadAllText(actionsCsproj);
+                    content.Should().Contain("<TargetFramework>net6.0</TargetFramework>");
+                });
+        }
+
         [Fact, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Integration")]
         public void Data_WithBusiness()
         {
