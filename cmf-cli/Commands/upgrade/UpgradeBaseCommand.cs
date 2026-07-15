@@ -1,6 +1,3 @@
-using NuGet.Versioning;
-using System.Linq;
-using System;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Constants;
@@ -9,6 +6,7 @@ using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Factories;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+using NuGet.Versioning;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.IO;
@@ -24,13 +22,6 @@ namespace Cmf.CLI.Commands
     [CmfCommand(name: "base", Id = "upgrade_base", ParentId = "upgrade", Description = "Upgrade the baseline version of the MES.")]
     public class UpgradeBaseCommand : BaseCommand
     {
-        private readonly Func<IFileInfo, ProjectConfig> loadProjectConfig = new ProjectConfigService().Load;
-
-        internal UpgradeBaseCommand(IFileSystem fileSystem, Func<IFileInfo, ProjectConfig> loadProjectConfig) : base(fileSystem)
-        {
-            this.loadProjectConfig = loadProjectConfig;
-        }
-
         
         /// <summary>
         /// constructor for System.IO filesystem
@@ -60,36 +51,26 @@ namespace Cmf.CLI.Commands
             };
             cmd.Add(packagePathArgument);
 
-            var baseVersionArgument = new Argument<NuGetVersion>("BaseVersion")
+            var baseVersionArgument = new Argument<string>("BaseVersion")
             {
-                Description = "New framework/MES Version",
-                CustomParser = result => VersionUtilities.ParseVersion(result, text => VersionUtilities.ParseMesVersion(text, "BaseVersion"))
+                Description = "New framework/MES Version"
             };
             cmd.Add(baseVersionArgument);
 
-            var iotVersionOption = new Option<NuGetVersion>("--iotVersion", "-iot")
+            var manifestOption = new Option<string>("--manifest", "-m")
             {
-                Description = "New MES version for the IoT workflows & masterdatas.",
-                CustomParser = result => VersionUtilities.ParseVersion(result, text => VersionUtilities.ParseMesVersion(text, "--iotVersion"))
+                Description = "The manifest file to use for the upgrade."
             };
-            cmd.Add(iotVersionOption);
-
-            var iotPackagesToIgnoreOption = new Option<List<string>>("--iotPackagesToIgnore", "-ignore")
-            {
-                Description = "IoT packages to ignore when updating the MES version of the tasks in IoT workflows",
-                AllowMultipleArgumentsPerToken = true
-            };
-            cmd.Add(iotPackagesToIgnoreOption);
+            cmd.Add(manifestOption);
 
             // Add the handler
             cmd.SetAction((parseResult, cancellationToken) =>
             {
                 var packagePath = parseResult.GetValue(packagePathArgument);
                 var baseVersion = parseResult.GetValue(baseVersionArgument);
-                var iotVersion = parseResult.GetValue(iotVersionOption);
-                var iotPackagesToIgnore = parseResult.GetValue(iotPackagesToIgnoreOption);
+                var manifest = parseResult.GetValue(manifestOption);
 
-                Execute(packagePath, baseVersion, iotVersion, iotPackagesToIgnore);
+                Execute(packagePath, baseVersion, manifest);
                 return Task.FromResult(0);
             });
         }
@@ -99,69 +80,21 @@ namespace Cmf.CLI.Commands
         /// </summary>
         /// <param name="packagePath">The package path.</param>
         /// <param name="baseVersion">The new Base version.</param>
-        /// <param name="iotVersion">New MES version for the IoT workflows & masterdata</param>
-        /// <param name="iotPackagesToIgnore">IoT packages to ignore when updating the MES version of the tasks in IoT workflows</param>
-        /// <exception cref="CliException"></exception>
-        public void Execute(IDirectoryInfo packagePath, NuGetVersion baseVersion, NuGetVersion iotVersion, List<string> iotPackagesToIgnore)
+        /// <param name="manifest">The manifest file to use for the upgrade.</param>
+        public void Execute(IDirectoryInfo packagePath, string baseVersion, string manifest = null)
         {
-            var configurations = new HashSet<string>(OperatingSystem.IsWindows() ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
-            ValidateProjectConfig(packagePath, configurations);
             using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
 
             var cmfPackagePaths = packagePath.GetFiles("cmfpackage.json", SearchOption.AllDirectories);
 
-            foreach (var path in cmfPackagePaths)
-            {
-                ValidateProjectConfig(path.Directory, configurations);
-            }
-
             foreach (IFileInfo path in cmfPackagePaths)
             {
                 Log.Debug($"Processing {path.FullName}");
-                UpgradePackage(CmfPackage.Load(path), baseVersion, iotVersion, iotPackagesToIgnore);
+                new UpgradeCommand(this.fileSystem).Execute(path.Directory, baseVersion, manifest);
             }
 
             UpdateProjectConfig(packagePath, baseVersion);
             Log.Warning("Don't forget to update pipeline files");
-        }
-
-        /// <summary>
-        /// Executes the specified CMF package.
-        /// </summary>
-        /// <param name="cmfPackage">The CMF package.</param>
-        /// <param name="version">The version.</param>
-        /// <param name="iotVersion">New MES version for the IoT workflows & masterdata</param>
-        /// <param name="iotPackagesToIgnore">IoT packages to ignore when updating the MES version of the tasks in IoT workflows</param>
-        /// <exception cref="CliException"></exception>
-        public void Execute(CmfPackage cmfPackage, NuGetVersion version, NuGetVersion iotVersion, List<string> iotPackagesToIgnore)
-        {
-            ValidateProjectConfig(cmfPackage.GetFileInfo().Directory,
-                new HashSet<string>(OperatingSystem.IsWindows() ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal));
-            UpgradePackage(cmfPackage, version, iotVersion, iotPackagesToIgnore);
-        }
-
-        private static void UpgradePackage(CmfPackage cmfPackage, NuGetVersion version, NuGetVersion iotVersion, List<string> iotPackagesToIgnore)
-        {
-            IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfPackage);
-
-            packageTypeHandler.UpgradeBase(VersionUtilities.GetVersionText(version), VersionUtilities.GetVersionText(iotVersion), iotPackagesToIgnore);
-        }
-
-        private void ValidateProjectConfig(IDirectoryInfo directory, HashSet<string> configurations)
-        {
-            while (directory != null)
-            {
-                var config = fileSystem.FileInfo.New(fileSystem.Path.Combine(directory.FullName, CoreConstants.ProjectConfigFileName));
-                if (config.Exists)
-                {
-                    if (configurations.Add(config.FullName))
-                    {
-                        loadProjectConfig(config);
-                    }
-                    return;
-                }
-                directory = directory.Parent;
-            }
         }
 
         #region Utilities
@@ -171,7 +104,7 @@ namespace Cmf.CLI.Commands
         /// </summary>
         /// <param name="packagePath">The package path.</param>
         /// <param name="baseVersion">The new Base version.</param>
-        private void UpdateProjectConfig(IDirectoryInfo packagePath, NuGetVersion baseVersion)
+        private void UpdateProjectConfig(IDirectoryInfo packagePath, string baseVersion)
         {
             IFileInfo projectConfig = this.fileSystem.FileInfo.New(Path.Combine(packagePath.FullName, CoreConstants.ProjectConfigFileName));
 
@@ -182,10 +115,10 @@ namespace Cmf.CLI.Commands
                 string text = fileSystem.File.ReadAllText(projectConfig.FullName);
                 foreach (string key in new string[] { "MESVersion", "NugetVersion", "TestScenariosNugetVersion" })
                 {
-                    text = UpgradeBaseUtilities.UpdateJsonValue(text, key, VersionUtilities.GetVersionText(baseVersion));
+                    text = UpgradeBaseUtilities.UpdateJsonValue(text, key, baseVersion);
                 }
 
-                if (baseVersion.Major >= 11)
+                if (NuGetVersion.Parse(baseVersion).Major >= 11)
                 {
                     // TODO: find a more elegant way to apply these changes to files/packages when this command is executed.
                     // For the moment, sneaking this if-statement in will do the job but long-term we'll need an approach that
