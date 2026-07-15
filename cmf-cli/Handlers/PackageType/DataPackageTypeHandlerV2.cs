@@ -17,7 +17,7 @@ namespace Cmf.CLI.Handlers
     public class DataPackageTypeHandlerV2 : PackageTypeHandler
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="DataPackageTypeHandler" /> class.
+        /// Initializes a new instance of the <see cref="DataPackageTypeHandlerV2" /> class.
         /// </summary>
         /// <param name="cmfPackage">The CMF package.</param>
         public DataPackageTypeHandlerV2(CmfPackage cmfPackage) : base(cmfPackage)
@@ -52,8 +52,8 @@ namespace Cmf.CLI.Handlers
                         }
                      });
 
-            BuildSteps = new IBuildCommand[]
-            {
+            BuildSteps =
+            [
                 new JSONValidatorCommand()
                 {
                     DisplayName = "JSON Validator Command",
@@ -64,7 +64,7 @@ namespace Cmf.CLI.Handlers
                     DisplayName = "DEE Validator Command",
                     FilesToValidate = GetContentToPack(this.fileSystem.DirectoryInfo.New("."))
                 }
-            };
+            ];
 
             cmfPackage.DFPackageType = PackageType.Business; // necessary because we restart the host during installation
 
@@ -91,21 +91,13 @@ namespace Cmf.CLI.Handlers
             base.Pack(packageOutputDir, outputDir, dryRun);
         }
 
-        /// <summary>
-        /// Bumps the Base version of the package
-        /// </summary>
-        /// <param name="version">The new Base version.</param>
-        public override void UpgradeBase(string version, string iotVersion, List<string> iotPackagesToIgnore)
+        /// <inheritdoc/>
+        public override void Upgrade(string version, string manifest = null)
         {
-            base.UpgradeBase(version, iotVersion, iotPackagesToIgnore);
+            base.Upgrade(version, manifest);
             UpgradeBaseUtilities.UpdateCSharpProject(this.fileSystem, this.CmfPackage, version, true);
 
-            if (iotVersion == null)
-            {
-                return;
-            }
-
-            UpgradeBaseUtilities.UpdateIoTMasterdatasAndWorkflows(this.fileSystem, this.CmfPackage, iotVersion, iotPackagesToIgnore);
+            UpgradeBaseUtilities.UpdateIoTMasterdataFiles(this.fileSystem, this.CmfPackage, version, manifest);
         }
 
         /// <summary>

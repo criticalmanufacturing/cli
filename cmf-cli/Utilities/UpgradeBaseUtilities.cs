@@ -2,15 +2,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Objects;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using Cmf.CLI.Core.Enums;
-using System.Text.Json.Nodes;
 using System.Runtime.CompilerServices;
+using Cmf.CLI.Builders;
+using System;
 
 [assembly: InternalsVisibleTo("tests")]
 namespace Cmf.CLI.Utilities
@@ -112,38 +112,16 @@ namespace Cmf.CLI.Utilities
         }
 
         /// <summary>
-        /// Updates version references in IoT master data and automation workflow files
-        /// within a given package, skipping specific packages if configured.
+        /// Updates IoT Masterdata and Automation Workflows files executing the appropriate migration scripts.
         /// </summary>
         /// <param name="fileSystem">The file system abstraction used to access files.</param>
         /// <param name="cmfPackage">The CMF package being processed.</param>
         /// <param name="version">The new Base version.</param>
-        /// <param name="iotPackagesToIgnore">List of package names to ignore during the update (e.g., custom tasks).</param>
-        public static void UpdateIoTMasterdatasAndWorkflows(IFileSystem fileSystem, CmfPackage cmfPackage, string version, List<string> iotPackagesToIgnore)
-        {
-            /// You might be wondering why the ignorePackages starts with these three packages by default:
-            /// 
-            /// When I was testing this command on a bunch of projects, 
-            /// I noticed that the version of these template packages were being inadvertently changed on a lot of projects.
-            /// 
-            /// While one is able to use the --iotPackagesToIgnore flag to ignore these packages,
-            /// by adding these packages to the ignore list by default we make the usage of this command more ergonomic.
-            
-            List<string> ignorePackages = new List<string>()
-            {
-                "@criticalmanufacturing/connect-iot-controller-engine-custom-utilities-tasks", // SMT Template
-                "@criticalmanufacturing/connect-iot-controller-engine-custom-smt-utilities-tasks", // SMT Template
-                "@criticalmanufacturing/connect-iot-utilities-semi-tasks", // Semi Template
-            };
-            ignorePackages.AddRange(iotPackagesToIgnore ?? []);
-
-            // Useful debug info
-            Log.Debug("Packages that will be ignored:");
-            ignorePackages.ForEach(pkg => Log.Debug($"  - {pkg}"));
-
-            List<string> mdlFiles = new List<string>();
-            List<string> workflowFiles = new List<string>();
-
+        /// <param name="manifest">Optional manifest file path for the migration tool.</param>
+        public static void UpdateIoTMasterdataFiles(IFileSystem fileSystem, CmfPackage cmfPackage, string version, string manifest = null)
+        {        
+            List<string> args = [];
+            string workflowsFolder = null; 
             foreach (ContentToPack contentToPack in cmfPackage.ContentToPack ?? [])
             {
                 if (contentToPack.Source?.Contains(@"$(version)") ?? false)
@@ -154,190 +132,45 @@ namespace Cmf.CLI.Utilities
 
                 if (contentToPack.ContentType == ContentType.MasterData)
                 {
-                    mdlFiles.AddRange(fileSystem.Directory.GetFiles(
-                        cmfPackage.GetFileInfo().DirectoryName,
-                        contentToPack.Source,
-                        SearchOption.AllDirectories
-                    ));
-                }
-                else if (contentToPack.ContentType == ContentType.AutomationWorkFlows)
+                    var mdFilePath = fileSystem.Path.GetFullPath(fileSystem.Path.Combine(cmfPackage.GetFileInfo().DirectoryName, contentToPack.Source)).Replace("*", "");
+                    args.Add(mdFilePath);
+                } else if (contentToPack.ContentType == ContentType.AutomationWorkFlows)
                 {
-                    workflowFiles.AddRange(fileSystem.Directory.GetFiles(
-                        cmfPackage.GetFileInfo().DirectoryName,
-                        contentToPack.Source,
-                        SearchOption.AllDirectories
-                    ));
+                    workflowsFolder = fileSystem.Path.GetFullPath(fileSystem.Path.Combine(cmfPackage.GetFileInfo().DirectoryName, contentToPack.Source)).Replace("*", "");
                 }
             }
 
-            if (mdlFiles.Where(mdl => !mdl.EndsWith(".json")).Any())
+            if (!string.IsNullOrEmpty(workflowsFolder))
             {
-                Log.Warning("Only .json masterdata files will be updated");
+                args.AddRange(["--workflowsFolder", workflowsFolder]);
             }
 
-            // Update the MES references that might be present in the mdl files
-            foreach (string mdlPath in mdlFiles.Where(mdl => mdl.EndsWith(".json")))
+            if (!string.IsNullOrEmpty(manifest))
             {
-                UpdateIoTMasterdata(mdlPath, fileSystem, cmfPackage, version, ignorePackages);
+                args.AddRange(["--manifest", manifest]);
             }
 
-            Log.Debug("Processing workflows...");
-            // Update the IoT workflows
-            foreach (string wflPath in workflowFiles.Where(path => path.EndsWith(".json")))
+            args.AddRange(["--registry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.ToString()]);
+            args.AddRange(["--version", version]);
+
+            var npxCommand = new NPXCommand
             {
-                UpdateIoTWorkflow(wflPath, fileSystem, cmfPackage, version, ignorePackages);
-            }
-        }
+                Command = "workflow-migration-tool",
+                Args = [.. args],
+                ForceColorOutput = true,
+                DisplayName = "Workflow Migration Tool",
+                WorkingDirectory = fileSystem.Directory.GetParent(cmfPackage.GetFileInfo().FullName)
+            };
 
-        /// <summary>
-        /// Updates version values in a given IoT master data (.json) file.
-        /// </summary>
-        /// <param name="mdlPath">Path to the master data file.</param>
-        /// <param name="fileSystem">The file system abstraction used to access files.</param>
-        /// <param name="cmfPackage">The CMF package that owns the master data.</param>
-        /// <param name="version">The new Base version.</param>
-        /// <param name="ignorePackages">List of task package names to ignore.</param>
-        private static void UpdateIoTMasterdata(string mdlPath, IFileSystem fileSystem, CmfPackage cmfPackage, string version, List<string> ignorePackages)
-        {
-            // Update some versions in several places in the masterdata
-            string text = fileSystem.File.ReadAllText(mdlPath);
-            foreach (string key in new string[] { "PackageVersion", "ControllerPackageVersion", "MonitorPackageVersion", "ManagerPackageVersion" })
+            try
             {
-                text = UpgradeBaseUtilities.UpdateJsonValue(text, key, version);
+                npxCommand.Exec();
+                Log.Information("Migration complete.");
             }
-
-            // Updating the versions in <DM>AutomationController requires special handling
-            JObject packageJsonObject = JsonConvert.DeserializeObject<JObject>(text);
-
-            if (packageJsonObject.ContainsKey("<DM>AutomationController"))
+            catch (Exception ex)
             {
-                JObject automationControllers = packageJsonObject["<DM>AutomationController"] as JObject;
-
-                foreach (JProperty prop in automationControllers.Properties())
-                {
-                    UpdateTaskLibraryPackageJson(prop, version, ignorePackages);
-                }
+                throw new CliException($"Workflow migration failed: {ex.Message}");
             }
-
-            SerializeWithOriginalIndentation(mdlPath, text, packageJsonObject, fileSystem);
-        }
-
-        /// <summary>
-        /// Updates the version of package strings listed in the "TasksLibraryPackages" field of a given <DM>AutomationController JSON property.
-        /// </summary>
-        /// <param name="prop">The JSON property representing a controller entry within the "<DM>AutomationController" object.</param>
-        /// <param name="version">The new version string to apply to all eligible package entries.</param>
-        /// <param name="ignorePackages"> A list of package name substrings to exclude from version updates.
-        /// Any package string that contains a substring from this list will be skipped.
-        /// </param>
-        /// <remarks>
-        /// The "TasksLibraryPackages" field may be stored either as a JSON array or as a stringified JSON array.
-        /// This method detects the format and updates the version suffix (e.g., "@11.1.3") for each package string,
-        /// while preserving the original format of the field (string or array). I have no idea why are two different
-        /// formats are allowed in this field, but now we're stuck supporting them both
-        /// </remarks>
-        private static void UpdateTaskLibraryPackageJson(JProperty prop, string version, List<string> ignorePackages)
-        {
-            JObject controller = (JObject)prop.Value;
-            JToken tasksLibraryPackagesToken = controller["TasksLibraryPackages"];
-
-            if (tasksLibraryPackagesToken == null || tasksLibraryPackagesToken.Type == JTokenType.Null)
-            {
-                return;
-            }
-
-            JArray tasksLibraryPackages = null;
-            bool wasStringFormat = false;
-
-            if (tasksLibraryPackagesToken.Type == JTokenType.String)
-            {
-                string rawString = tasksLibraryPackagesToken.ToString();
-                if (!string.IsNullOrWhiteSpace(rawString))
-                {
-                    tasksLibraryPackages = JsonConvert.DeserializeObject<JArray>(rawString);
-                    wasStringFormat = true;
-                }
-            }
-            else if (tasksLibraryPackagesToken.Type == JTokenType.Array)
-            {
-                tasksLibraryPackages = (JArray)tasksLibraryPackagesToken;
-            }
-
-            if (tasksLibraryPackages == null)
-            {
-                return;
-            }
-
-            for (int i = 0; i < tasksLibraryPackages.Count; i++)
-            {
-                string packageStr = tasksLibraryPackages[i]?.ToString();
-
-                if (string.IsNullOrEmpty(packageStr) || ignorePackages.Any(ignore => packageStr.Contains(ignore)))
-                {
-                    continue;
-                }
-                tasksLibraryPackages[i] = Regex.Replace(packageStr, @"@\d+.*$", $"@{version}");
-            }
-
-            if (wasStringFormat)
-            {
-                // Write back as a compact JSON string
-                controller["TasksLibraryPackages"] = JsonConvert.SerializeObject(tasksLibraryPackages, Formatting.None);
-            }
-            else
-            {
-                // Preserve original JArray structure
-                controller["TasksLibraryPackages"] = tasksLibraryPackages;
-            }
-        }
-
-        /// <summary>
-        /// Updates the package version references in an IoT automation workflow file, 
-        /// skipping any package names included in the ignore list.
-        /// </summary>
-        /// <param name="wflPath">Path to the workflow .json file.</param>
-        /// <param name="fileSystem">The file system abstraction used to access files.</param>
-        /// <param name="cmfPackage">The CMF package that owns the workflow.</param>
-        /// <param name="version">The new Base version.</param>
-        /// <param name="ignorePackages">List of task package names to skip when applying the version update.</param>
-        private static void UpdateIoTWorkflow(string wflPath, IFileSystem fileSystem, CmfPackage cmfPackage, string version, List<string> ignorePackages)
-        {
-            Log.Debug($"  - {wflPath}");
-            string packageJson = fileSystem.File.ReadAllText(wflPath);
-            dynamic packageJsonObject = JsonConvert.DeserializeObject(packageJson);
-
-            if (!packageJsonObject.ContainsKey("tasks"))
-            {
-                throw new CliException(string.Format(CoreMessages.MissingMandatoryPropertyInFile, "tasks", wflPath));
-            }
-            if (!packageJsonObject.ContainsKey("converters"))
-            {
-                throw new CliException(string.Format(CoreMessages.MissingMandatoryPropertyInFile, "converters", wflPath));
-            }
-
-            foreach (var task in packageJsonObject?["tasks"])
-            {
-                string name = (string)task["reference"]["package"]["name"];
-                if (ignorePackages.Any(ignore => name.Contains(ignore)))
-                {
-                    continue; // If there's a match with a package in the ignorePackages, skip the version bump
-                }
-
-                task["reference"]["package"]["version"] = version;
-            }
-
-            foreach (var converter in packageJsonObject?["converters"])
-            {
-                string name = (string)converter["reference"]["package"]["name"];
-                if (ignorePackages.Any(ignore => name.Contains(ignore)))
-                {
-                    continue; // If there's a match with a package in the ignorePackages, skip the version bump
-                }
-
-                converter["reference"]["package"]["version"] = version;
-            }
-
-            SerializeWithOriginalIndentation(wflPath, packageJson, packageJsonObject, fileSystem);
         }
 
         /// <summary>
