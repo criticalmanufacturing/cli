@@ -57,28 +57,20 @@ namespace Cmf.CLI.Commands
             };
             cmd.Add(baseVersionArgument);
 
-            var iotVersionOption = new Option<string>("--iotVersion", "-iot")
+            var manifestOption = new Option<string>("--manifest", "-m")
             {
-                Description = "New MES version for the IoT workflows & masterdatas."
+                Description = "The manifest file to use for the upgrade."
             };
-            cmd.Add(iotVersionOption);
-
-            var iotPackagesToIgnoreOption = new Option<List<string>>("--iotPackagesToIgnore", "-ignore")
-            {
-                Description = "IoT packages to ignore when updating the MES version of the tasks in IoT workflows",
-                AllowMultipleArgumentsPerToken = true
-            };
-            cmd.Add(iotPackagesToIgnoreOption);
+            cmd.Add(manifestOption);
 
             // Add the handler
             cmd.SetAction((parseResult, cancellationToken) =>
             {
                 var packagePath = parseResult.GetValue(packagePathArgument);
                 var baseVersion = parseResult.GetValue(baseVersionArgument);
-                var iotVersion = parseResult.GetValue(iotVersionOption);
-                var iotPackagesToIgnore = parseResult.GetValue(iotPackagesToIgnoreOption);
+                var manifest = parseResult.GetValue(manifestOption);
 
-                Execute(packagePath, baseVersion, iotVersion, iotPackagesToIgnore);
+                Execute(packagePath, baseVersion, manifest);
                 return Task.FromResult(0);
             });
         }
@@ -88,10 +80,8 @@ namespace Cmf.CLI.Commands
         /// </summary>
         /// <param name="packagePath">The package path.</param>
         /// <param name="baseVersion">The new Base version.</param>
-        /// <param name="iotVersion">New MES version for the IoT workflows & masterdata</param>
-        /// <param name="iotPackagesToIgnore">IoT packages to ignore when updating the MES version of the tasks in IoT workflows</param>
-        /// <exception cref="CliException"></exception>
-        public void Execute(IDirectoryInfo packagePath, string baseVersion, string iotVersion, List<string> iotPackagesToIgnore)
+        /// <param name="manifest">The manifest file to use for the upgrade.</param>
+        public void Execute(IDirectoryInfo packagePath, string baseVersion, string manifest = null)
         {
             using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
 
@@ -100,27 +90,11 @@ namespace Cmf.CLI.Commands
             foreach (IFileInfo path in cmfPackagePaths)
             {
                 Log.Debug($"Processing {path.FullName}");
-                Execute(CmfPackage.Load(path), baseVersion, iotVersion, iotPackagesToIgnore);
+                new UpgradeCommand(this.fileSystem).Execute(path.Directory, baseVersion, manifest);
             }
 
             UpdateProjectConfig(packagePath, baseVersion);
             Log.Warning("Don't forget to update pipeline files");
-        }
-
-        /// <summary>
-        /// Executes the specified CMF package.
-        /// </summary>
-        /// <param name="cmfPackage">The CMF package.</param>
-        /// <param name="version">The version.</param>
-        /// <param name="iotVersion">New MES version for the IoT workflows & masterdata</param>
-        /// <param name="iotPackagesToIgnore">IoT packages to ignore when updating the MES version of the tasks in IoT workflows</param>
-        /// <exception cref="CliException"></exception>
-        public void Execute(CmfPackage cmfPackage, string version, string iotVersion, List<string> iotPackagesToIgnore)
-        {
-            IDirectoryInfo packageDirectory = cmfPackage.GetFileInfo().Directory;
-            IPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfPackage);
-
-            packageTypeHandler.UpgradeBase(version, iotVersion, iotPackagesToIgnore);
         }
 
         #region Utilities
