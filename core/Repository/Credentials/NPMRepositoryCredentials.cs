@@ -63,7 +63,6 @@ namespace Cmf.CLI.Core.Repository.Credentials
                         var auth = Convert.ToBase64String(authBytes);
 
                         config.SetValue("", $"//{repoUri}:_auth", auth);
-                        config.SetValue("", $"//{repoUri}:always_auth", "true");
 
                         // Make sure we unset any potential conflicting properties
                         config.RemoveValue("", $"//{repoUri}:_authToken");
@@ -73,7 +72,6 @@ namespace Cmf.CLI.Core.Repository.Credentials
                     else if (cred is BearerCredential bearerCredential)
                     {
                         config.SetValue("", $"//{repoUri}:_authToken", bearerCredential.Token);
-                        config.SetValue("", $"//{repoUri}:always_auth", "true");
 
                         // Make sure we unset any potential conflicting properties
                         config.RemoveValue("", $"//{repoUri}:_auth");
