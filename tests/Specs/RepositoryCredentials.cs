@@ -768,7 +768,6 @@ public class RepositoryCredentials
                 registry="https://criticalmanufacturing.io/repository/npm/"
                 //registry.npmjs.org/:_auth="V2h5V291bGQ6WW91RG9UaGF0"
                 //criticalmanufacturing.io/repository/npm/:_authToken="header.payload.signature"
-                //criticalmanufacturing.io/repository/npm/:always_auth="true"
                 """
             ) }
         });
@@ -800,9 +799,7 @@ public class RepositoryCredentials
             registry="https://criticalmanufacturing.io/repository/npm/"
             //registry.npmjs.org/:_auth="V2h5V291bGQ6WW91RG9UaGF0"
             //custom-registry.com/:_authToken="A.B.C"
-            //criticalmanufacturing.io/repository/npm/:always_auth="true"
             //criticalmanufacturing.io/repository/npm/:_auth="{expectedAuth}"
-            //custom-registry.com/:always_auth="true"
             """
         );
     }
