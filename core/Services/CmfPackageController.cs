@@ -281,6 +281,25 @@ public class CmfPackageController
         var allAttributes = element.Attributes().Select(a => a.Name.LocalName);
         return allAttributes.Except(knownAttributes).ToList();
     }
+
+    private static TEnum? ParseStepEnumAttribute<TEnum>(XElement element, string attributeName, bool strictStepParsing, ref bool hasParsingErrors) where TEnum : struct, Enum
+    {
+        var rawValue = element.Attribute(attributeName)?.Value;
+        if (rawValue == null)
+        {
+            return null;
+        }
+
+        if (Enum.TryParse<TEnum>(rawValue, out var parsedValue))
+        {
+            return parsedValue;
+        }
+
+        hasParsingErrors = true;
+        var logMsg = $"Step attribute '{attributeName}' could not be parsed as {typeof(TEnum).Name}: '{rawValue}'";
+        if (strictStepParsing) Log.Error(logMsg); else Log.Debug(logMsg);
+        return null;
+    }
     
     private static CmfPackageV1 FromXmlManifest(string manifest, bool setDefaultValues = false)
     {
@@ -373,8 +392,10 @@ public class CmfPackageController
                 throw new CliException("Invalid manifest");
             }
 
+            Log.Debug($"Parsing '{rootNode.Element("packageId", true)?.Value}@{rootNode.Element("version", true)?.Value}' package's XML manifest.");
+
             var strictStepParsing = Environment.GetEnvironmentVariable("cmf_cli_internal_strict_step_parsing") != null;
-            var parsingErrors = new List<string>();
+            bool hasParsingErrors = false;
 
             PackageType cliPackageType = PackageType.Generic;
             if (!Enum.TryParse<PackageType>(rootNode.Element("clipackagetype", true)?.Value, out cliPackageType))
@@ -382,7 +403,7 @@ public class CmfPackageController
                 if (!Enum.TryParse<PackageType>(rootNode.Element("packageType", true)?.Value, out cliPackageType))
                 {
                     var logMsg = $"Unknown packageType: '{rootNode.Element("packageType", true)?.Value}'";
-                    parsingErrors.Add(logMsg);
+                    hasParsingErrors = true;
                     if (strictStepParsing) Log.Error(logMsg); else Log.Debug(logMsg);
                 }
 
@@ -401,14 +422,14 @@ public class CmfPackageController
                     if (!typeParsed)
                     {
                         var logMsg = $"Step has an unknown type: {typeAttributeValue}";
-                        parsingErrors.Add(logMsg);
+                        hasParsingErrors = true;
                         if (strictStepParsing) Log.Error(logMsg); else Log.Debug(logMsg);
                     }
 
                     if (unknownAttributes.Count > 0)
                     {
                         var logMsg = $"Step (type: {typeAttributeValue}) has unknown attributes. Attributes: {string.Join(", ", unknownAttributes)}";
-                        parsingErrors.Add(logMsg);
+                        hasParsingErrors = true;
                         if (strictStepParsing) Log.Error(logMsg); else Log.Debug(logMsg);
                     }
 
@@ -421,7 +442,7 @@ public class CmfPackageController
                         File = element.Attribute("file")?.Value,
                         TagFile = bool.TryParse(element.Attribute("tagFile")?.Value, out bool tagFile) ? tagFile : null,
                         TargetDatabase = element.Attribute("targetDatabase")?.Value,
-                        MessageType = Enum.TryParse(element.Attribute("messageType")?.Value, out MessageType messageType) ? messageType : null,
+                        MessageType = ParseStepEnumAttribute<MessageType>(element, "messageType", strictStepParsing, ref hasParsingErrors),
                         RelativePath = null,
                         FilePath = element.Attribute("filePath")?.Value,
                         OldSystemName = element.Attribute("oldSystemName")?.Value,
@@ -433,7 +454,7 @@ public class CmfPackageController
                         ImportXMLObjectPath = element.Attribute("importXMLObjectPath")?.Value,
                         AutomationWorkflowFileBasePath = element.Attribute("automationWorkflowFileBasePath")?.Value,
                         CreateInCollection = bool.TryParse(element.Attribute("createInCollection")?.Value, out bool createInCollection) ? createInCollection : null,
-                        TargetPlatform = Enum.TryParse(element.Attribute("targetPlatform")?.Value, out MasterDataTargetPlatformType targetPlatform) ? targetPlatform : null,
+                        TargetPlatform = ParseStepEnumAttribute<MasterDataTargetPlatformType>(element, "targetPlatform", strictStepParsing, ref hasParsingErrors),
                         UserKey = element.Attribute("userKey")?.Value,
                         Quota = element.Attribute("quota")?.Value,
                         Id = element.Attribute("id")?.Value,
@@ -469,9 +490,9 @@ public class CmfPackageController
                 }
             }
 
-            if (strictStepParsing && parsingErrors.Count > 0)
+            if (strictStepParsing && hasParsingErrors)
             {
-                throw new CliException("CLI encountered unknown metadata when parsing package's manifest.xml! Check error messages for details.");
+                throw new CliException($"CLI encountered unknown metadata when parsing '{rootNode.Element("packageId", true)?.Value}@{rootNode.Element("version", true)?.Value}' package's manifest.xml! Check error messages for details.");
             }
 
             DependencyCollection deps = new();
