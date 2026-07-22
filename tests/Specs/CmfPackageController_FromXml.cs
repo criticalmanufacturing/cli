@@ -799,4 +799,100 @@ public class CmfPackageController_FromXml
         pkg.Steps.Should().ContainSingle();
         pkg.Steps.Single().Type.Should().Be(StepType.Generic);
     }
+
+    [Fact]
+    public void FromXml_ShouldKeepStepEnumAttributeNull_WhenAttributeIsMissing()
+    {
+        var xml = XDocument.Parse(
+            """
+            <deploymentPackage>
+              <packageId>Cmf.Custom.Data</packageId>
+              <version>1.0.0</version>
+              <steps>
+                <step type="DeployFiles" contentPath="*.example" />
+              </steps>
+            </deploymentPackage>
+            """);
+
+        var pkg = CmfPackageController.FromXml(xml);
+
+        pkg.Steps.Single().MessageType.Should().BeNull();
+        pkg.Steps.Single().TargetPlatform.Should().BeNull();
+    }
+
+    [Fact]
+    public void FromXml_ShouldKeepStepEnumAttributeNullAndNotThrow_WhenValueIsInvalidAndStrictStepParsingDisabled()
+    {
+        Environment.SetEnvironmentVariable("cmf_cli_internal_strict_step_parsing", null);
+
+        var xml = XDocument.Parse(
+            """
+            <deploymentPackage>
+              <packageId>Cmf.Custom.Data</packageId>
+              <version>1.0.0</version>
+              <steps>
+                <step type="DeployFiles" contentPath="*.example" messageType="NotARealMessageType" targetPlatform="NotARealPlatform" />
+              </steps>
+            </deploymentPackage>
+            """);
+
+        var pkg = CmfPackageController.FromXml(xml);
+
+        pkg.Steps.Single().MessageType.Should().BeNull();
+        pkg.Steps.Single().TargetPlatform.Should().BeNull();
+    }
+
+    [Fact]
+    public void FromXml_ShouldThrowException_WhenStrictStepParsingEnabledAndMessageTypeIsInvalid()
+    {
+        Environment.SetEnvironmentVariable("cmf_cli_internal_strict_step_parsing", "1");
+        try
+        {
+            var xml = XDocument.Parse(
+                """
+                <deploymentPackage>
+                  <packageId>Cmf.Custom.Data</packageId>
+                  <version>1.0.0</version>
+                  <steps>
+                    <step type="DeployFiles" contentPath="*.example" messageType="NotARealMessageType" />
+                  </steps>
+                </deploymentPackage>
+                """);
+
+            Action act = () => CmfPackageController.FromXml(xml);
+
+            act.Should().Throw<CliException>().WithMessage("*CLI encountered unknown metadata*");
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("cmf_cli_internal_strict_step_parsing", null);
+        }
+    }
+
+    [Fact]
+    public void FromXml_ShouldThrowException_WhenStrictStepParsingEnabledAndTargetPlatformIsInvalid()
+    {
+        Environment.SetEnvironmentVariable("cmf_cli_internal_strict_step_parsing", "1");
+        try
+        {
+            var xml = XDocument.Parse(
+                """
+                <deploymentPackage>
+                  <packageId>Cmf.Custom.Data</packageId>
+                  <version>1.0.0</version>
+                  <steps>
+                    <step type="MasterData" contentPath="*.example" targetPlatform="NotARealPlatform" />
+                  </steps>
+                </deploymentPackage>
+                """);
+
+            Action act = () => CmfPackageController.FromXml(xml);
+
+            act.Should().Throw<CliException>().WithMessage("*CLI encountered unknown metadata*");
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("cmf_cli_internal_strict_step_parsing", null);
+        }
+    }
 }
