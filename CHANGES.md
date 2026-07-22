@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [6.0.0-2](https://github.com/criticalmanufacturing/cli/compare/6.0.0-1...6.0.0-2) (2026-07-22)
+
+
+### Features
+
+* add intelisense to biz scenarios scripts ([d1ac39e](https://github.com/criticalmanufacturing/cli/commit/d1ac39ed5c31e11042425b3f60493a6d8ebb81a1))
+* update iot task scaffolding with new task bases ([#765](https://github.com/criticalmanufacturing/cli/issues/765)) ([6af4eaa](https://github.com/criticalmanufacturing/cli/commit/6af4eaab73962d4138039776c68cd98663449770))
+* update iot test package scaffolding to use test orchestrator ([9ca59d5](https://github.com/criticalmanufacturing/cli/commit/9ca59d5db7a46763688678353ba3708b292492f2))
+* update new iot driver scaffolding to handle file access ([28f7afc](https://github.com/criticalmanufacturing/cli/commit/28f7afc93210f973e79305cad13890d27d90dc36))
+
+
+### Bug Fixes
+
+* html config overrides oob config.json on deploy ([e7dede5](https://github.com/criticalmanufacturing/cli/commit/e7dede5906b4f1f93dd63be9d042e595e81eaa58))
+* iot tasks scaffolding handle empty choices ([860e6a4](https://github.com/criticalmanufacturing/cli/commit/860e6a47cd940b341c643f200984c0cfbe1e2602))
+* remove deprecated always_auth from npmrc sync ([692d8f6](https://github.com/criticalmanufacturing/cli/commit/692d8f6484cbf9a1cc12ed7de92a4195d46bc06c))
+* **scaffold:** use dynamic TargetFramework for data package Actions project ([a8fa808](https://github.com/criticalmanufacturing/cli/commit/a8fa80871a3a01191a07c7a28ebe568f11694952)), closes [#770](https://github.com/criticalmanufacturing/cli/issues/770)
+
 ## [6.0.0-1](https://github.com/criticalmanufacturing/cli/compare/6.0.0-0...6.0.0-1) (2026-07-06)
 
 
