@@ -49,6 +49,32 @@
             "type": "shell",
             "command": "dotnet test --configuration Release -verbosity diagnostic",
             "dependsOn": "use-node"
+        },
+        {
+            "type": "shell",
+            "label": "scaffold-cli",
+            "command": "./.vscode/scaffold-cli-project.sh \"${input:ScaffoldProjectVersion}\" \"${input:ScaffoldMesVersion}\" && exec zsh -i",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": false,
+                "focus": true,
+                "group": "scaffold-cli",
+                "panel": "dedicated"
+            },
+            "runOptions": {
+                "runOn": "folderOpen"
+            }
+        },
+        {
+            "type": "shell",
+            "label": "clean-all-scaffold-cli",
+            "command": "find /tmp -maxdepth 1 -type d -name 'cli-project*' -exec rm -rf {} +",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "focus": false,
+                "panel": "dedicated"
+            }
         }
     ],
     "inputs": [
@@ -61,6 +87,18 @@
                 "20"
             ],
             "default": "18"
+        },
+        {
+            "id": "ScaffoldProjectVersion",
+            "type": "promptString",
+            "description": "Insert scaffold project's version",
+            "default": "12.0.0"
+        },
+        {
+            "id": "ScaffoldMesVersion",
+            "type": "promptString",
+            "description": "Insert scaffold project's MES version",
+            "default": "1.0.0"
         }
     ]
 }
