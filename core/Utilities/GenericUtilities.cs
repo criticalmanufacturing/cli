@@ -7,6 +7,7 @@ using Cmf.CLI.Core;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Core.Repository.Credentials;
+using NuGet.Versioning;
 using Spectre.Console;
 
 namespace Cmf.CLI.Utilities
@@ -182,6 +183,93 @@ namespace Cmf.CLI.Utilities
         public static Uri? JsonObjectToUri(dynamic value)
         {
             return string.IsNullOrEmpty(value?.Value) ? null : new Uri(value!.Value);
+        }
+#nullable disable
+
+        /// <summary>
+        /// Parses a version string into a <see cref="NuGetVersion"/>, supporting semantic versioning
+        /// pre-release labels and/or build metadata (e.g. "12.0.0-alpha.1+build"), unlike <see cref="Version"/>.
+        /// </summary>
+        /// <param name="version">the version string to parse</param>
+        /// <returns>a <see cref="NuGetVersion"/> representing <paramref name="version"/></returns>
+        /// <exception cref="ArgumentException">thrown when <paramref name="version"/> is null or empty</exception>
+        /// <exception cref="FormatException">thrown when <paramref name="version"/> is not a valid version</exception>
+        public static NuGetVersion ParseVersion(string version)
+        {
+            if (string.IsNullOrWhiteSpace(version))
+            {
+                throw new ArgumentException("Version cannot be null or empty", nameof(version));
+            }
+
+            if (NuGetVersion.TryParse(version, out var nuGetVersion))
+            {
+                return nuGetVersion;
+            }
+
+            // fallback to the standard parser, so a meaningful FormatException is still thrown for truly invalid values
+            return new NuGetVersion(Version.Parse(version));
+        }
+
+        /// <summary>
+        /// Same as <see cref="ParseVersion(string)"/> but returns <see langword="false"/> instead of throwing
+        /// when <paramref name="version"/> cannot be parsed.
+        /// </summary>
+        /// <param name="version">the version string to parse</param>
+        /// <param name="result">the parsed <see cref="NuGetVersion"/>, or <see langword="null"/> if parsing failed</param>
+        /// <returns><see langword="true"/> if <paramref name="version"/> was successfully parsed</returns>
+        public static bool TryParseVersion(string version, out NuGetVersion result)
+        {
+            if (string.IsNullOrWhiteSpace(version))
+            {
+                result = null;
+                return false;
+            }
+
+            return NuGetVersion.TryParse(version, out result);
+        }
+
+        /// <summary>
+        /// Converts a <see cref="NuGetVersion"/> to a <see cref="Version"/>, keeping the traditional
+        /// 3-part "Major.Minor.Build" formatting (as opposed to <see cref="NuGetVersion.Version"/>, which
+        /// always includes a 4th "Revision" component, e.g. "11.0.0.0" instead of "11.0.0"). Any
+        /// pre-release label and/or build metadata is discarded, since <see cref="Version"/> cannot
+        /// represent it.
+        /// </summary>
+        /// <param name="version">the version to convert</param>
+        /// <returns>a <see cref="Version"/> built from the numeric release components of <paramref name="version"/></returns>
+        public static Version ToVersion(NuGetVersion version)
+        {
+            return version.Version.Revision > 0
+                ? version.Version
+                : new Version(version.Major, version.Minor, version.Patch);
+        }
+
+        /// <summary>
+        /// Computes the npm dist-tag conventionally used by CM packages (e.g. "@criticalmanufacturing/ngx-schematics")
+        /// for a given product/MES version, e.g.:
+        /// <list type="bullet">
+        /// <item>"12.0.0" -&gt; "release-1200"</item>
+        /// <item>"12.0.0-alpha.1" -&gt; "alpha-1200"</item>
+        /// <item>"12.0.0-next.2" -&gt; "next-1200"</item>
+        /// </list>
+        /// </summary>
+        /// <param name="version">the version to compute the dist-tag for</param>
+        /// <returns>the npm dist-tag for <paramref name="version"/></returns>
+        public static string GetNpmDistTag(NuGetVersion version)
+        {
+            var label = version.IsPrerelease ? version.ReleaseLabels.FirstOrDefault() : null;
+            return $"{(string.IsNullOrWhiteSpace(label) ? "release" : label)}-{version.Major}{version.Minor}{version.Patch}";
+        }
+
+        /// <summary>
+        /// Same as <see cref="GetNpmDistTag(NuGetVersion)"/>, but for a plain <see cref="Version"/> (which
+        /// cannot carry a pre-release label, so the result always uses the "release" dist-tag).
+        /// </summary>
+        /// <param name="version">the version to compute the dist-tag for</param>
+        /// <returns>the npm dist-tag for <paramref name="version"/></returns>
+        public static string GetNpmDistTag(Version version)
+        {
+            return GetNpmDistTag(new NuGetVersion(version.Major, version.Minor, version.Build));
         }
 
         /// <summary>

@@ -514,8 +514,8 @@ namespace Cmf.CLI.Commands
 
             if (string.IsNullOrWhiteSpace(x.ngxSchematicsVersion))
             {
-                var mesVer = Version.Parse(x.BaseVersion);
-                x.ngxSchematicsVersion = $"release-{mesVer.Major}{mesVer.Minor}{mesVer.Build}";
+                var mesVer = GenericUtilities.ParseVersion(x.BaseVersion);
+                x.ngxSchematicsVersion = GenericUtilities.GetNpmDistTag(mesVer);
             }
 
             Log.Information($"Using ngx-schematics version: {x.ngxSchematicsVersion}");
@@ -578,7 +578,7 @@ namespace Cmf.CLI.Commands
 
             #region version-specific bits
 
-            var version = Version.Parse(x.BaseVersion);
+            var version = GenericUtilities.ToVersion(GenericUtilities.ParseVersion(x.BaseVersion));
             args.AddRange(new []{ "--dotnetSDKVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().DotNetSdk(version) });
 
             if(version < new Version(10,0))

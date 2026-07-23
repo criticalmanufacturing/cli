@@ -130,7 +130,7 @@ namespace Cmf.CLI.Commands.New.IoT
                 "--identifierLower", identifier.Replace(" ", "").ToLower().Trim(),
                 "--packageName", fullPackageName,
                 "--packageVersion", packageVersion,
-                "--targetSystemVersionProcessed", $"release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}",
+                "--targetSystemVersionProcessed", GenericUtilities.GetNpmDistTag(mesVersion),
                 "--dependsOnScope", JsonConvert.SerializeObject(dependsOnScope),
                 "--mandatoryForScope", JsonConvert.SerializeObject(mandatoryForScope),
                 "--dependsOnProtocol", JsonConvert.SerializeObject(dependsOnProtocol),

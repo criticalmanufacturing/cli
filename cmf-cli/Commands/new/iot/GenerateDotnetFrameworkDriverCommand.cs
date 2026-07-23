@@ -123,7 +123,7 @@ namespace Cmf.CLI.Commands.New.IoT
             var args = new List<string>();
             args.AddRange(new[]
             {
-                "--targetSystemVersionProcessed", $"release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}",
+                "--targetSystemVersionProcessed", GenericUtilities.GetNpmDistTag(mesVersion),
                 "--directoryName", directoryName,
                 "--identifier", identifier,
                 "--identifierCamel", identifierCamel,

@@ -250,6 +250,51 @@ namespace tests.Specs
             }
         }
 
+        [Theory]
+        [InlineData("12.0.0-alpha.1", "alpha-1200")]
+        [InlineData("11.1.5-beta.2", "beta-1115")]
+        public void Init_PreReleaseMESVersion_Succeeds(string mesVersion, string expectedNgxSchematicsVersion)
+        {
+            var tmp = TestUtilities.GetTmpDirectory();
+            var projectName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
+            var deploymentDir = "\\\\share\\deployment_dir";
+
+            var cur = Directory.GetCurrentDirectory();
+            try
+            {
+                var console = new TestConsole();
+                Directory.SetCurrentDirectory(tmp);
+
+                var initCommand = new InitCommand();
+                var cmd = new Command("x");
+                initCommand.Configure(cmd);
+
+                TestUtilities.GetParser(cmd).Invoke(new[]
+                {
+                    projectName,
+                    "--infra", TestUtilities.GetFixturePath("init", "infrastructure.json"),
+                    "-c", TestUtilities.GetFixturePath("init", "config.json"),
+                    "--MESVersion", mesVersion,
+                    // --nugetVersion, --testScenariosNugetVersion and --ngxSchematicsVersion are intentionally omitted
+                    "--deploymentDir", deploymentDir,
+                }, console);
+
+                console.Error.ToString().Should().BeEmpty("command should succeed with a pre-release MES version");
+                Assert.True(File.Exists("cmfpackage.json"), "root cmfpackage is missing");
+
+                var projectConfig = File.ReadAllText(Path.Join(tmp, ".project-config.json"));
+                projectConfig.Should().Contain($@"""MESVersion"": ""{mesVersion}""", "MESVersion should retain the original pre-release string");
+                projectConfig.Should().Contain($@"""NugetVersion"": ""{mesVersion}""", "NugetVersion should default to the MES version");
+                projectConfig.Should().Contain($@"""TestScenariosNugetVersion"": ""{mesVersion}""", "TestScenariosNugetVersion should default to the MES version");
+                projectConfig.Should().Contain($@"""NGXSchematicsVersion"": ""{expectedNgxSchematicsVersion}""", "NGXSchematicsVersion should be derived from the MES version's pre-release label and numeric components");
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                Directory.Delete(tmp, true);
+            }
+        }
+
         [Fact]
         public void Init_Fail_ForLTv10()
         {
@@ -282,6 +327,48 @@ namespace tests.Specs
                     "--deploymentDir", deploymentDir,
                 }, console);
 
+                console.Error.ToString().Should().Contain("MES Versions under 10 are no longer supported with the newest version of the CLI. Please use cmf-cli 5.8.0 or lower.");
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                Directory.Delete(tmp, true);
+            }
+        }
+
+        [Fact]
+        public void Init_Fail_ForLTv10_WithPreReleaseVersion()
+        {
+            var console = new TestConsole();
+            var tmp = TestUtilities.GetTmpDirectory();
+
+            var projectName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
+            var deploymentDir = "\\\\share\\deployment_dir";
+
+            var cur = Directory.GetCurrentDirectory();
+            try
+            {
+                Directory.SetCurrentDirectory(tmp);
+
+                var initCommand = new InitCommand();
+                var cmd = new Command("x"); // this is the command name used in help text
+                initCommand.Configure(cmd);
+
+                TestUtilities.GetParser(cmd).Invoke(new[]
+                {
+                    projectName,
+                    "-c", TestUtilities.GetFixturePath("init", "config.json"),
+                    "--MESVersion", "8.2.0-alpha.1",
+                    "--nugetVersion", "8.2.0-alpha.1",
+                    "--testScenariosNugetVersion", "8.2.0-alpha.1",
+                    "--nugetRegistry", "http://nuget.example/feed",
+                    "--npmRegistry", "http://npm.example/feed",
+                    "--ISOLocation", "dummy",
+                    "--ngxSchematicsVersion", "1.3.7",
+                    "--deploymentDir", deploymentDir,
+                }, console);
+
+                // the pre-release label should not stop the numeric comparison from being evaluated correctly
                 console.Error.ToString().Should().Contain("MES Versions under 10 are no longer supported with the newest version of the CLI. Please use cmf-cli 5.8.0 or lower.");
             }
             finally

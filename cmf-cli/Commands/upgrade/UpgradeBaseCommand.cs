@@ -144,7 +144,7 @@ namespace Cmf.CLI.Commands
                     text = UpgradeBaseUtilities.UpdateJsonValue(text, key, baseVersion);
                 }
 
-                if (new Version(baseVersion).Major >= 11)
+                if (GenericUtilities.ParseVersion(baseVersion).Major >= 11)
                 {
                     // TODO: find a more elegant way to apply these changes to files/packages when this command is executed.
                     // For the moment, sneaking this if-statement in will do the job but long-term we'll need an approach that

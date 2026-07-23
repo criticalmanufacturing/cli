@@ -54,12 +54,14 @@ namespace Cmf.CLI.Utilities
         {
             // package.json files
             string[] filesToUpdate = fileSystem.Directory.GetFiles(cmfPackage.GetFileInfo().DirectoryName, "package.json", SearchOption.AllDirectories);
-            string pattern = @"release-\d+";
+            // matches any npm dist-tag in the "{label}-{version}" convention (e.g. "release-1200", "alpha-1200", "next-1200")
+            string pattern = @"(?:release|alpha|beta|rc|next|canary|preview)-\d+";
+            string newDistTag = GenericUtilities.GetNpmDistTag(GenericUtilities.ParseVersion(version));
 
             foreach (string filePath in filesToUpdate.Where(path => !path.Contains("node_modules") && !path.Contains("dist")))
             {
                 string text = fileSystem.File.ReadAllText(filePath);
-                text = Regex.Replace(text, pattern, $"release-{version.Replace(".", "")}", RegexOptions.IgnoreCase);
+                text = Regex.Replace(text, pattern, newDistTag, RegexOptions.IgnoreCase);
 
                 fileSystem.File.WriteAllText(filePath, text);
             }

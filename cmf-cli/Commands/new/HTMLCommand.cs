@@ -104,7 +104,7 @@ namespace Cmf.CLI.Commands.New
             var packageName = base.GeneratePackageName(workingDir)!.Value.Item1;
             var packageDir = workingDir.GetDirectories(packageName).First();
 
-            var schematicsVersion = !string.IsNullOrEmpty(ngxSchematicsVersion) ? ngxSchematicsVersion : $"release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}";
+            var schematicsVersion = !string.IsNullOrEmpty(ngxSchematicsVersion) ? ngxSchematicsVersion : GenericUtilities.GetNpmDistTag(mesVersion);
 
             //After v11 we use Angular default routing
             var routing = mesVersion.Major >= 11 ? "true" : "false";
@@ -143,7 +143,7 @@ namespace Cmf.CLI.Commands.New
                     "add", "--registry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.OriginalString,
                                       "--skip-confirmation", $"@criticalmanufacturing/ngx-schematics@{schematicsVersion}",
                                       "--eslint", "--application", baseLayer.ToString(),
-                                      "--version", $"release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}"
+                                      "--version", GenericUtilities.GetNpmDistTag(mesVersion)
                 ],
                 WorkingDirectory = packageDir,
                 ForceColorOutput = false

@@ -164,6 +164,25 @@ public class MESVersionValidation
         result.Should().BeFalse();
     }
 
+    [Theory]
+    [InlineData("12.0.0-alpha.1", "11.0.0", true)] // pre-release, current version higher
+    [InlineData("12.0.0-alpha.1", "12.0.0", true)] // pre-release, exact numeric match
+    [InlineData("12.0.0-alpha.1", "13.0.0", false)] // pre-release, current version lower
+    public void ProjectConfig_WithPreReleaseMESVersion_LoadsAndComparesCorrectly(string currentVersion, string minimumVersion, bool expectedResult)
+    {
+        // Arrange - this exercises loading a .project-config.json (as produced by `cmf init`) whose
+        // MESVersion contains a semantic versioning pre-release label (e.g. "12.0.0-alpha.1")
+        SetupExecutionContext(currentVersion);
+        var service = new MESVersionValidationService();
+
+        // Act
+        var result = service.IsVersionCompatible(minimumVersion);
+
+        // Assert
+        result.Should().Be(expectedResult);
+        ExecutionContext.Instance.ProjectConfig.MESVersion.Should().Be(new Version(12, 0, 0));
+    }
+
     private void SetupExecutionContext(string mesVersion)
     {
         var projConfig = projCfgTemplate.Replace("{MES_VERSION}", mesVersion);

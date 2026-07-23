@@ -102,7 +102,7 @@ namespace Cmf.CLI.Commands.New
 
             var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
 
-            this.schematicsVersion = ngxSchematicsVersion ?? $"release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}";
+            this.schematicsVersion = ngxSchematicsVersion ?? GenericUtilities.GetNpmDistTag(mesVersion);
 
             //Switch between v10 and v11 template 
             switch (majorVersion)

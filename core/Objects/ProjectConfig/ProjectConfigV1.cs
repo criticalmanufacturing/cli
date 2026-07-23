@@ -1,6 +1,7 @@
 using System;
 using System.Text.Json.Serialization;
 using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Utilities;
 using Newtonsoft.Json;
 using NuGet.Versioning;
 
@@ -26,12 +27,16 @@ public class ProjectConfigV1
     [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
     public int? RESTPort { get; set; }
     public string Tenant { get; set; }
+    [Newtonsoft.Json.JsonConverter(typeof(LenientVersionConverter))]
     public Version MESVersion { get; set; }
     public SemanticVersion DevTasksVersion { get; set; }
+    [Newtonsoft.Json.JsonConverter(typeof(LenientVersionConverter))]
     public Version HTMLStarterVersion { get; set; }
     public SemanticVersion YoGeneratorVersion { get; set; }
     public string NGXSchematicsVersion { get; set; }
+    [Newtonsoft.Json.JsonConverter(typeof(LenientVersionConverter))]
     public Version NugetVersion { get; set; }
+    [Newtonsoft.Json.JsonConverter(typeof(LenientVersionConverter))]
     public Version TestScenariosNugetVersion { get; set; }
     [Newtonsoft.Json.JsonConverter(typeof(BooleanJsonConverter))]
     public bool IsSslEnabled { get; set; }
@@ -104,4 +109,30 @@ public class BooleanJsonConverter : Newtonsoft.Json.JsonConverter
     {
     }
 
+}
+
+/// <summary>
+/// Converts a version string to/from a <see cref="Version"/>, tolerating semantic versioning
+/// pre-release labels and/or build metadata (e.g. "12.0.0-alpha.1+build"). Only the numeric
+/// release components (Major.Minor.Build[.Revision]) are kept, since <see cref="Version"/> has
+/// no concept of pre-release/build metadata. This keeps backward compatibility with existing
+/// project configs that only have plain "Major.Minor.Build" versions.
+/// </summary>
+public class LenientVersionConverter : Newtonsoft.Json.JsonConverter<Version>
+{
+    public override Version ReadJson(JsonReader reader, Type objectType, Version existingValue, bool hasExistingValue, JsonSerializer serializer)
+    {
+        if (reader.TokenType == JsonToken.Null)
+        {
+            return null;
+        }
+
+        var value = reader.Value?.ToString();
+        return string.IsNullOrWhiteSpace(value) ? null : GenericUtilities.ToVersion(GenericUtilities.ParseVersion(value));
+    }
+
+    public override void WriteJson(JsonWriter writer, Version value, JsonSerializer serializer)
+    {
+        writer.WriteValue(value?.ToString());
+    }
 }
