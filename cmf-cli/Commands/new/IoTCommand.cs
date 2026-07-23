@@ -212,7 +212,7 @@ namespace Cmf.CLI.Commands.New
 
             var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
 
-            var schematicsVersion = ngxSchematicsVersion ?? $"release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}";
+            var schematicsVersion = ngxSchematicsVersion ?? GenericUtilities.GetNpmDistTag(mesVersion);
 
             Log.Debug($"Creating new IoT Workspace {packageName}");
 
@@ -256,7 +256,7 @@ namespace Cmf.CLI.Commands.New
                                                  "--skip-confirmation", $"@criticalmanufacturing/ngx-iot-schematics@{schematicsVersion}",
                                                  "--lint",
                                                  "--base-app", baseLayer.ToString(),
-                                                 "--version", $"release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}" },
+                                                 "--version", GenericUtilities.GetNpmDistTag(mesVersion) },
                 WorkingDirectory = iotCustomPackageWorkDir,
                 ForceColorOutput = false
             }.Exec();
