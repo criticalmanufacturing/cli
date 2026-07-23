@@ -17,10 +17,9 @@
             "env": {
                 "cmf_cli_feature__use_repository_clients": "true"
             },
-            "cwd": "${workspaceFolder}/repo",
+            "cwd": "${workspaceFolder}",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
-            "console": "internalConsole",
-            "stopAtEntry": false
+            "console": "internalConsole"
         },
         {
             "name": ".NET Core Attach",
