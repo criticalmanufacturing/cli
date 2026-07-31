@@ -81,10 +81,19 @@ The development of IoT drivers on Critical Manufacturing MES has a dependency fo
 
 ## 2. Install CLI
 
+!!! warning "NPM `allow-scripts` requirement"
+
+    Recent NPM versions may block install-time scripts by default as a
+    security measure. Since `@criticalmanufacturing/cli` relies on install
+    scripts, the installation can fail or complete incompletely unless the
+    package is explicitly allowed to run them. The first command below
+    allows the package's install scripts before installing.
+
  1. Open a command line with administration privileges.
- 2. Execute the command:
+ 2. Execute the commands:
 
     ```PowerShell
+    npm config set allow-scripts=@criticalmanufacturing/cli --location=user
     npm install -g @criticalmanufacturing/cli
     ```
 
