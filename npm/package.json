@@ -34,7 +34,7 @@
     "npm-shrinkwrap.json"
   ],
   "dependencies": {
-    "adm-zip": "^0.5.12",
+    "adm-zip": "^0.6.0",
     "axios": "^1.7.9",
     "debug": "^4.3.4",
     "global-dirs": "3.0.0",
