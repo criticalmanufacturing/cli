@@ -1,3 +1,9 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
+using System.Linq;
 using Cmf.CLI.Builders;
 using Cmf.CLI.Commands;
 using Cmf.CLI.Constants;
@@ -12,12 +18,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.IO.Abstractions;
-using System.IO.Abstractions.TestingHelpers;
-using System.Linq;
 using Xunit;
 
 namespace tests.Specs;
@@ -654,8 +654,10 @@ public class Build
             .Should().Be(withRelatedSteps);
     }
 
-    [Fact]
-    public void GenericBuildWithout_BuildSteps()
+    [Theory]
+    [InlineData("Generic.Package")]
+    [InlineData("@cm-community/Generic.Package")]
+    public void GenericBuildWithout_BuildSteps(string packageName)
     {
         string url = TestUtilities.GetTmpDirectory();
 
@@ -663,7 +665,7 @@ public class Build
         {
             { $"{url}/cmfpackage.json", new MockFileData(
                 @$"{{
-                  ""packageId"": ""Generic.Package"",
+                  ""packageId"": ""{packageName}"",
                   ""version"": ""1.0.0"",
                   ""description"": ""This package deploys Critical Manufacturing Customization"",
                   ""packageType"": ""Generic"",
@@ -697,8 +699,10 @@ public class Build
         Assert.True(string.IsNullOrWhiteSpace(standardOutput.ToString().Trim()));
     }
 
-    [Fact]
-    public void GenericBuildWith_BuildSteps()
+    [Theory]
+    [InlineData("Generic.Package")]
+    [InlineData("@cm-community/Generic.Package")]
+    public void GenericBuildWith_BuildSteps(string packageName)
     {
         string url = TestUtilities.GetTmpDirectory();
 
@@ -706,7 +710,7 @@ public class Build
         {
             { $"{url}/cmfpackage.json", new MockFileData(
                 @$"{{
-                ""packageId"": ""Generic.Package"",
+                ""packageId"": ""{packageName}"",
                 ""version"": ""1.0.0"",
                 ""description"": ""This package deploys Critical Manufacturing Customization"",
                 ""packageType"": ""Generic"",

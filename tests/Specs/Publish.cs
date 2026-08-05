@@ -1,30 +1,30 @@
 using System;
-using Xunit;
-using System.CommandLine;
-using System.IO.Abstractions;
-using Moq;
-using Cmf.CLI.Commands;
-using System.Threading.Tasks;
-using Cmf.CLI.Core;
-using Cmf.CLI.Utilities;
 using System.Collections.Generic;
+using System.CommandLine;
 using System.Formats.Tar;
-using System.IO.Abstractions.TestingHelpers;
-using Cmf.CLI.Core.Objects;
-using System.IO.Compression;
 using System.IO;
+using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
+using System.IO.Compression;
+using System.Linq;
 using System.Text;
-using Microsoft.Extensions.DependencyInjection;
+using System.Threading.Tasks;
+using Cmf.CLI.Commands;
+using Cmf.CLI.Core;
 using Cmf.CLI.Core.Interfaces;
+using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Core.Repository;
-using Cmf.CLI.Core.Services;
 using Cmf.CLI.Core.Repository.Credentials;
-using Spectre.Console;
+using Cmf.CLI.Core.Services;
+using Cmf.CLI.Utilities;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
+using Moq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Spectre.Console;
 using tests.Mocks;
-using System.Linq;
+using Xunit;
 
 namespace tests.Specs;
 
@@ -100,19 +100,19 @@ public class Publish
         }, MockUnixSupport.Path(@"C:\repo\Cmf.Custom.Test"));
 
         IFileInfo publishedFileInfo = null;
-        
+
         // Set up a Mock NPM Client that saves the last file info that was published to it
         // Later we can validate that it was only called once, and that means this is the only file that was uploaded
         var npmClient = new Mock<INPMClientEx>();
         npmClient.Setup(x => x.PublishPackage(It.IsAny<IFileInfo>()))
             .Callback((IFileInfo fileInfo) => publishedFileInfo = fileInfo);
-        
+
         var repositoryLocator = new Mock<IRepositoryLocator>();
         repositoryLocator
             .SetupSequence(m => m.GetRepositoryClient(It.IsAny<Uri>(), It.IsAny<IFileSystem>()))
             .Returns(new ArchiveRepositoryClient(archivePath, fileSystem))
             .Returns(new NPMRepositoryClient(repositoryUrl.AbsoluteUri, fileSystem, npmClient.Object));
-        
+
         ExecutionContext.ServiceProvider = (new ServiceCollection())
             .AddSingleton<IFileSystem>(fileSystem)
             .AddSingleton<IVersionService, MockVersionService>()
@@ -131,7 +131,7 @@ public class Publish
         publishedFileInfo.Should().NotBeNull();
         publishedFileInfo.Exists.Should().BeTrue();
         publishedFileInfo.Extension.Should().Be(".tgz");
-        
+
         // Extract the "package.json" file from the .tgz that was "uploaded" to the mock NPM client
         using GZipStream gzipStream = new GZipStream(publishedFileInfo.OpenRead(), CompressionMode.Decompress);
         using TarReader tarReader = new(gzipStream);
@@ -152,19 +152,19 @@ public class Publish
                 break;
             }
         }
-        
+
         // Make sure the file package.json exists
         Assert.NotNull(json);
-        
+
         Assert.True(json.ContainsKey("name"));
         Assert.Equal("cmf.custom.tests", json["name"]!.Value<string>()); // publishing to NPM causes the package id to become lowercase
 
         Assert.True(json.ContainsKey("version"));
         Assert.Equal("1.1.0", json["version"]!.Value<string>());
-        
+
         Assert.False(json.ContainsKey("deployment"));
     }
-    
+
     [Fact]
     public void PublishToContinuousIntegrationRepo()
     {
@@ -189,7 +189,7 @@ public class Publish
 
         var archivePath = MockUnixSupport.Path(@"C:\repo\Cmf.Custom.Test\Package\Cmf.Custom.Test.1.0.0.zip");
         var archiveData = zipStream.ToArray();
-        
+
         var repositoryUrl = new Uri("https://fake.criticalmanufacturing.io");
 
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
@@ -207,13 +207,13 @@ public class Publish
 
         var remoteClientMock = new Mock<IRepositoryClient>();
         remoteClientMock.Setup(x => x.Put(It.IsAny<CmfPackageV1>()));
-        
+
         var repositoryLocator = new Mock<IRepositoryLocator>();
         repositoryLocator
             .SetupSequence(m => m.GetRepositoryClient(It.IsAny<Uri>(), It.IsAny<IFileSystem>()))
             .Returns(new ArchiveRepositoryClient(archivePath, fileSystem))
             .Returns(remoteClientMock.Object);
-        
+
         ExecutionContext.ServiceProvider = (new ServiceCollection())
             .AddSingleton<IFileSystem>(fileSystem)
             .AddSingleton(repositoryLocator.Object)
@@ -227,7 +227,7 @@ public class Publish
         // Assert
         repositoryLocator.Verify(x => x.GetRepositoryClient(repositoryUrl, It.IsAny<IFileSystem>()), Times.Once);
     }
-    
+
     [Fact]
     public void NonDeploymentFrameworkPackage_MissingKeyword()
     {
@@ -260,19 +260,19 @@ public class Publish
         }, MockUnixSupport.Path(@"C:\repo\Cmf.Custom.Test"));
 
         IFileInfo publishedFileInfo = null;
-        
+
         // Set up a Mock NPM Client that saves the last file info that was published to it
         // Later we can validate that it was only called once, and that means this is the only file that was uploaded
         var npmClient = new Mock<INPMClientEx>();
         npmClient.Setup(x => x.PublishPackage(It.IsAny<IFileInfo>()))
             .Callback((IFileInfo fileInfo) => publishedFileInfo = fileInfo);
-        
+
         var repositoryLocator = new Mock<IRepositoryLocator>();
         repositoryLocator
             .SetupSequence(m => m.GetRepositoryClient(It.IsAny<Uri>(), It.IsAny<IFileSystem>()))
             .Returns(new ArchiveRepositoryClient(archivePath, fileSystem))
             .Returns(new NPMRepositoryClient(repositoryUrl.AbsoluteUri, fileSystem, npmClient.Object));
-        
+
         ExecutionContext.ServiceProvider = (new ServiceCollection())
             .AddSingleton<IFileSystem>(fileSystem)
             .AddSingleton<IVersionService, MockVersionService>()
@@ -340,18 +340,21 @@ public class Publish
         repositoryLocator.Verify(x => x.GetRepositoryClient(repositoryUrl, It.IsAny<IFileSystem>()), Times.Once);
     }
 
-    [Fact]
-    public void PublishFromDirectory()
+    [Theory]
+    [InlineData("Cmf.Custom.Tests")]
+    [InlineData("@cm-community/Cmf.Custom.Tests")]
+    public void PublishFromDirectory(string packageName)
     {
         // Arrange
         var repositoryUrl = new Uri("https://fake.criticalmanufacturing.io");
-        var packageDir = MockUnixSupport.Path(@"C:\repo\Cmf.Custom.Test\Package");
-        var topLevelArchive1 = MockUnixSupport.Path(packageDir + @"\Cmf.Custom.Tests.1.1.0.zip");
-        var topLevelArchive2 = MockUnixSupport.Path(packageDir + @"\Cmf.Custom.Tests.2.0.0.zip");
-        var nestedArchive = MockUnixSupport.Path(packageDir + @"\subfolder\Cmf.Custom.Tests.3.0.0.zip");
-        var archiveData1 = CreatePackageArchiveData("1.1.0");
-        var archiveData2 = CreatePackageArchiveData("2.0.0");
-        var archiveData3 = CreatePackageArchiveData("3.0.0");
+        var normalizedPackageName = packageName.Replace("/", "-");
+        var packageDir = MockUnixSupport.Path(@"C:\repo\" + normalizedPackageName + @"\Package");
+        var topLevelArchive1 = MockUnixSupport.Path(packageDir + $@"\{normalizedPackageName}.1.1.0.zip");
+        var topLevelArchive2 = MockUnixSupport.Path(packageDir + $@"\{normalizedPackageName}.2.0.0.zip");
+        var nestedArchive = MockUnixSupport.Path(packageDir + $@"\subfolder\{normalizedPackageName}.3.0.0.zip");
+        var archiveData1 = CreatePackageArchiveData("1.1.0", packageName);
+        var archiveData2 = CreatePackageArchiveData("2.0.0", packageName);
+        var archiveData3 = CreatePackageArchiveData("3.0.0", packageName);
 
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
@@ -361,11 +364,11 @@ public class Publish
         }, packageDir);
 
         var publishedFilesCount = 0;
-        
+
         var npmClient = new Mock<INPMClientEx>();
         npmClient.Setup(x => x.PublishPackage(It.IsAny<IFileInfo>()))
             .Callback(() => publishedFilesCount++);
-        
+
         var repositoryLocator = new Mock<IRepositoryLocator>();
         repositoryLocator
             .Setup(m => m.GetRepositoryClient(It.IsAny<Uri>(), It.IsAny<IFileSystem>()))
@@ -377,7 +380,7 @@ public class Publish
                 }
                 return new NPMRepositoryClient(repositoryUrl.AbsoluteUri, fs, npmClient.Object);
             });
-        
+
         ExecutionContext.ServiceProvider = (new ServiceCollection())
             .AddSingleton<IFileSystem>(fileSystem)
             .AddSingleton<IVersionService, MockVersionService>()
@@ -551,7 +554,7 @@ public class Publish
         npmClient.Verify(x => x.PublishPackage(It.IsAny<IFileInfo>()), Times.Never);
     }
 
-    private static byte[] CreatePackageArchiveData(string version)
+    private static byte[] CreatePackageArchiveData(string version, string packageName = "Cmf.Custom.Tests")
     {
         using var zipStream = new MemoryStream();
         using (var zipArchive = new ZipArchive(zipStream, ZipArchiveMode.Create, leaveOpen: true))
@@ -559,7 +562,7 @@ public class Publish
             using var entryStream = zipArchive.CreateEntry("package.json").Open();
             entryStream.Write(Encoding.UTF8.GetBytes($$"""
             {
-                "name": "Cmf.Custom.Tests",
+                "name": "{{packageName}}",
                 "version": "{{version}}",
                 "description": "Custom Tests Package",
                 "author": "Critical Manufacturing",

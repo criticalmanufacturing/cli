@@ -28,7 +28,7 @@ public class CIFSRepositoryClient : ICIFSRepositoryClient
         this.client = new CIFSClient(this.root);
         this.fileSystem = fileSystem ?? new FileSystem();
     }
-    
+
     public Task<CmfPackageV1> Find(string packageId, string version)
     {
         string dependencyFileName = $"{packageId}.{version}.*";
@@ -36,13 +36,13 @@ public class CIFSRepositoryClient : ICIFSRepositoryClient
     }
 
     public async Task Put(CmfPackageV1 package)
-    {        
+    {
         var tmp = this.fileSystem.DirectoryInfo.New(this.fileSystem.Path.GetTempPath());
         Log.Debug($"Retrieving Package {package.PackageDotRef} to temp directory {tmp.FullName}");
         var file = await package.Client.Get(package, tmp);
 
         Log.Debug($"Saving to file {this.root}...");
-        this.client.SharedFolders.Single(sf => sf.Exists)?.PutFile(file.FullName, $"{package.PackageDotRef}.zip");
+        this.client.SharedFolders.Single(sf => sf.Exists)?.PutFile(file.FullName, package.ZipPackageName);
         Log.Debug($"File saved successfully");
     }
 
@@ -52,7 +52,7 @@ public class CIFSRepositoryClient : ICIFSRepositoryClient
             targetDirectory.FileSystem.FileInfo.New(
                 targetDirectory.FileSystem.Path.Join(targetDirectory.FullName,
                     $"{package.PackageId}.{package.Version}.zip"));
-        
+
         string dependencyFileName = $"{package.PackageId}.{package.Version}.*";
         this.DownloadFile(dependencyFileName, targetFile);
         return Task.FromResult(targetFile);
@@ -70,7 +70,7 @@ public class CIFSRepositoryClient : ICIFSRepositoryClient
                 // these tuples allow us to rewrite entry paths
                 var entriesToExtract = new List<Tuple<ZipArchiveEntry, string>>();
                 entriesToExtract.AddRange(zip.Entries.Select(entry => new Tuple<ZipArchiveEntry, string>(entry, entry.FullName)));
-    
+
                 foreach (var entry in entriesToExtract)
                 {
                     var target = fileSystem.Path.Join(targetDirectory.FullName, entry.Item2);
@@ -81,7 +81,7 @@ public class CIFSRepositoryClient : ICIFSRepositoryClient
                         // however, afterwards all folder contents are separate entries, so we can just skip these
                         continue;
                     }
-    
+
                     if (!fileSystem.File.Exists(target)) // TODO: support overwriting if requested
                     {
                         var overwrite = false;
@@ -90,7 +90,7 @@ public class CIFSRepositoryClient : ICIFSRepositoryClient
                         {
                             fileSystem.Directory.CreateDirectory(targetDir);
                         }
-    
+
                         entry.Item1.ExtractToFile(target, overwrite, fileSystem);
                     }
                     else
@@ -109,13 +109,13 @@ public class CIFSRepositoryClient : ICIFSRepositoryClient
         var (_, stream) = this.client?.SharedFolders?.FirstOrDefault(sf => sf.Exists)?.GetFile(file) ?? new Tuple<Uri, Stream>(null, null);
         return stream;
     }
-    
+
     private Task<CmfPackageV1> GetFromRepository(string dependencyFileName, bool fromManifest)
     {
         var stream = this.GetFileStream(dependencyFileName);
-        if(stream != null)
-        {                   
-            if(fromManifest)
+        if (stream != null)
+        {
+            if (fromManifest)
             {
                 using (ZipArchive zip = new(stream, ZipArchiveMode.Read))
                 {

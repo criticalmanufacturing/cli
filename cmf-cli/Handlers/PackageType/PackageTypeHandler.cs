@@ -339,7 +339,7 @@ namespace Cmf.CLI.Handlers
                 fileToPack.Source.CopyTo(fileToPack.Target.FullName, true);
             }
 
-            string tempzipPath = $"{CmfPackage.GetFileInfo().Directory.FullName}/{CmfPackage.PackageName}.zip";
+            string tempzipPath = $"{CmfPackage.GetFileInfo().Directory.FullName}/{CmfPackage.PackageNameForFileSystem}.zip";
             if (this.fileSystem.File.Exists(tempzipPath))
             {
                 this.fileSystem.File.Delete(tempzipPath);

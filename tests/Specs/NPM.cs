@@ -46,7 +46,7 @@ public class NPM
 
         pkgNames.Should().Contain("@criticalmanufacturing/cli");
     }
-    
+
     [Fact]
     public async Task GetPackageVersion()
     {
@@ -77,14 +77,16 @@ public class NPM
         // var fs = new FileSystem();
         var output = fs.FileInfo.New("/tmp/cli@5.1.0.tgz");
         var outputFile = await npmClient.DownloadPackage("@criticalmanufacturing/cli", "5.1.0", output);
-        
+
         outputFile.Should().NotBeNull();
         outputFile.Exists.Should().BeTrue();
         outputFile.Length.Should().BeGreaterThan(0);
     }
 
-    [Fact]
-    public async Task PublishPackage()
+    [Theory]
+    [InlineData("Cmf.Custom.Baseline.TarExample")]
+    [InlineData("@cm-community/Cmf.Custom.Baseline.TarExample")]
+    public async Task PublishPackage(string packageName)
     {
         var repositoryAuthStoreMock = new Mock<IRepositoryAuthStore>();
         repositoryAuthStoreMock.Setup(x => x.GetOrLoad()).Returns(Task.FromResult(new CmfAuthFile()));
@@ -95,12 +97,12 @@ public class NPM
             .BuildServiceProvider();
 
         var feed = "https://example.repo/";
-        var packageId = "Cmf.Custom.Baseline.TarExample";
+        var packageId = packageName;
         var version = "3.2.1";
-        
+
         // Mock HttpMessageHandler to intercept the HttpClient request
         var mockHandler = new Mock<HttpMessageHandler>(MockBehavior.Strict);
-        
+
         // Setup the protected method SendAsync
         mockHandler.Protected()
             .Setup<Task<HttpResponseMessage>>(
@@ -118,10 +120,10 @@ public class NPM
         {
             BaseAddress = new Uri(feed.TrimEnd('/'))
         };
-        
+
         var npmClient = new NPMClient(baseUrl: feed, client: client);
 
-        
+
         var repo = OperatingSystem.IsWindows() ? "\\\\share\\dir" : "/repoDir";
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
@@ -130,7 +132,7 @@ public class NPM
                  {
                     "dummy, will use manifest.xml first if available"
                  }
-                 """).CreateEntry("manifest.xml", 
+                 """).CreateEntry("manifest.xml",
                 $"""
                  <?xml version="1.0" encoding="utf-8"?>
                                      <deploymentPackage>
@@ -145,7 +147,7 @@ public class NPM
         var pkg = fileSystem.FileInfo.New($"{repo}/{packageId}.{version}.tgz");
         pkg.Exists.Should().BeTrue();
         await npmClient.PublishPackage(pkg);
-        
+
         // Verify that the mocked handler was called as expected
         mockHandler.Protected().Verify(
             "SendAsync",

@@ -137,7 +137,7 @@ namespace Cmf.CLI.Commands
             }
 
             IDirectoryInfo packageOutputDir = dryRun
-                ? this.fileSystem.DirectoryInfo.New($"{packageDirectory}/{cmfPackage.PackageName}")
+                ? this.fileSystem.DirectoryInfo.New($"{packageDirectory}/{cmfPackage.PackageNameForFileSystem}")
                 : FileSystemUtilities.GetPackageOutputDir(cmfPackage, packageDirectory, this.fileSystem);
 
             #endregion

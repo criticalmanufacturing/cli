@@ -56,13 +56,25 @@ namespace Cmf.CLI.Core.Objects
         public string PackageName => $"{PackageId}.{Version}";
 
         /// <summary>
+        /// Gets a file system safe version of <see cref="PackageName"/>.
+        /// This is needed because <see cref="PackageId"/> may contain characters that are valid in a
+        /// package identifier (e.g. npm scopes like "@scope/PackageName") but are not valid/safe to use
+        /// directly as a file or directory name (e.g. "/").
+        /// </summary>
+        /// <value>
+        /// The file system safe name of the package.
+        /// </value>
+        [JsonIgnore]
+        public string PackageNameForFileSystem => PackageName.Replace("/", "-").Replace("\\", "-");
+
+        /// <summary>
         /// Gets the name of the zip package.
         /// </summary>
         /// <value>
         /// The name of the zip package.
         /// </value>
         [JsonIgnore]
-        public string ZipPackageName => $"{PackageName}.zip";
+        public string ZipPackageName => $"{PackageNameForFileSystem}.zip";
 
         #endregion Internal Properties
 

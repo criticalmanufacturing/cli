@@ -449,14 +449,14 @@ namespace Cmf.CLI.Utilities
         public static IDirectoryInfo GetPackageOutputDir(CmfPackage cmfPackage, IDirectoryInfo packageDirectory, IFileSystem fileSystem)
         {
             // Clear and Create packageOutputDir
-            IDirectoryInfo packageOutputDir = fileSystem.DirectoryInfo.New($"{packageDirectory}/{cmfPackage.PackageName}");
+            IDirectoryInfo packageOutputDir = fileSystem.DirectoryInfo.New($"{packageDirectory}/{cmfPackage.PackageNameForFileSystem}");
             if (packageOutputDir.Exists)
             {
                 packageOutputDir.Delete(true);
                 packageOutputDir.Refresh();
             }
 
-            Log.Debug($"Generating output folder {cmfPackage.PackageName}");
+            Log.Debug($"Generating output folder {cmfPackage.PackageNameForFileSystem}");
             packageOutputDir.Create();
 
             return packageOutputDir;

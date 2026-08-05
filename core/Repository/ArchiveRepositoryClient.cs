@@ -19,7 +19,7 @@ public class ArchiveRepositoryClient : ICIFSRepositoryClient
     public ArchiveRepositoryClient(string rootPath) : this(rootPath, new FileSystem())
     {
     }
-    
+
     public ArchiveRepositoryClient(string rootPath, IFileSystem fileSystem)
     {
         root = fileSystem.DirectoryInfo.New(rootPath.Replace("file:", ""));
@@ -30,7 +30,7 @@ public class ArchiveRepositoryClient : ICIFSRepositoryClient
             root = checkFile.Directory;
         }
     }
-    
+
     public async Task<CmfPackageV1> Find(string packageId, string version)
     {
         ArgumentNullException.ThrowIfNull(version);
@@ -46,7 +46,7 @@ public class ArchiveRepositoryClient : ICIFSRepositoryClient
 
     public Task Put(CmfPackageV1 package)
     {
-        var targetFilePath = root.FileSystem.Path.Join(root.FullName, $"{package.PackageDotRef}.zip");
+        var targetFilePath = root.FileSystem.Path.Join(root.FullName, package.ZipPackageName);
         // using var fileStream = root.FileSystem.FileInfo.New(filePath).Create();
         // package.Stream.Seek(0, SeekOrigin.Begin);
         // package.Stream.CopyTo(fileStream);
@@ -56,7 +56,7 @@ public class ArchiveRepositoryClient : ICIFSRepositoryClient
 
     public Task<IFileInfo> Get(CmfPackageV1 package, IDirectoryInfo targetDirectory)
     {
-        var files = this.Unreacheable ? [] : (this.file != null ? [file] : root?.GetFiles($"{package.PackageDotRef}.*", SearchOption.TopDirectoryOnly));
+        var files = this.Unreacheable ? [] : (this.file != null ? [file] : root?.GetFiles($"{package.PackageNameForFileSystem}.*", SearchOption.TopDirectoryOnly));
         return Task.FromResult(files?.Where(f => f.Extension is ".tgz" or ".zip").FirstOrDefault());
     }
 
@@ -72,7 +72,7 @@ public class ArchiveRepositoryClient : ICIFSRepositoryClient
                 // these tuples allow us to rewrite entry paths
                 var entriesToExtract = new List<Tuple<ZipArchiveEntry, string>>();
                 entriesToExtract.AddRange(zip.Entries.Select(entry => new Tuple<ZipArchiveEntry, string>(entry, entry.FullName)));
-    
+
                 foreach (var entry in entriesToExtract)
                 {
                     var target = fileSystem.Path.Join(targetDirectory.FullName, entry.Item2);
@@ -83,7 +83,7 @@ public class ArchiveRepositoryClient : ICIFSRepositoryClient
                         // however, afterwards all folder contents are separate entries, so we can just skip these
                         continue;
                     }
-    
+
                     if (!fileSystem.File.Exists(target)) // TODO: support overwriting if requested
                     {
                         var overwrite = false;
@@ -92,7 +92,7 @@ public class ArchiveRepositoryClient : ICIFSRepositoryClient
                         {
                             depPkgDir = fileSystem.Directory.CreateDirectory(targetDir);
                         }
-    
+
                         entry.Item1.ExtractToFile(target, overwrite, fileSystem);
                     }
                     else
@@ -112,7 +112,7 @@ public class ArchiveRepositoryClient : ICIFSRepositoryClient
     private Task<CmfPackageV1Collection> GetPackages(string dependencyFileName)
     {
         CmfPackageV1Collection cmfPackages = [];
-        
+
         var files = this.Unreacheable ? [] : (this.file != null ? [file] : root?.GetFiles(dependencyFileName));
 
         foreach (var file in files ?? [])

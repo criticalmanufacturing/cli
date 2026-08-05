@@ -1302,6 +1302,113 @@ namespace tests.Specs
             steps.Elements().Count().Should().Be(4, "HTML package should have 4 installation steps");
         }
 
+        [Fact]
+        public void Pack_RootPackage()
+        {
+            // Arrange
+            KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Root", "1.1.0");
+
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { MockUnixSupport.Path(@"C:\repo\.project-config.json"), new MockFileData("{}") },
+                { MockUnixSupport.Path(@"C:\repo\cmfpackage.json"), new MockFileData(
+                $$"""
+                {
+                  "packageId": "Cmf.Custom.Root",
+                  "version": "1.1.0",
+                  "description": "This package deploys Critical Manufacturing Customization",
+                  "packageType": "Root",
+                  "isInstallable": false,
+                  "isUniqueInstall": false,
+                  "dependencies": [
+                    {
+                      "id": "Cmf.Environment",
+                      "version": "11.1.0",
+                      "mandatory": false
+                    }
+                  ]
+                }
+                """)}
+            }, MockUnixSupport.Path(@"C:\repo\"));
+            ExecutionContext.Initialize(fileSystem);
+
+            IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"./{CliConstants.CmfPackageFileName}");
+
+            // Act
+            var packCommand = new PackCommand(fileSystem);
+            packCommand.Execute(cmfpackageFile.Directory, fileSystem.DirectoryInfo.New("./output"), false);
+
+            // Assert
+            var archive = fileSystem.FileInfo.New($"./output/{packageRoot.Key}.{packageRoot.Value}.zip");
+            Assert.True(archive.Exists);
+
+            var manifest = FileSystemUtilities.GetManifestFromPackage(archive.FullName, fileSystem);
+            XElement rootNode = manifest.Element("deploymentPackage", true);
+            if (rootNode == null)
+            {
+                throw new CliException(string.Format(CoreMessages.InvalidManifestFile));
+            }
+
+            var steps = rootNode.Elements().FirstOrDefault(e => e.Name.LocalName == "steps");
+            Assert.Null(steps);
+
+            Assert.True(rootNode.Elements().FirstOrDefault(e => e.Name.LocalName == "packageId").Value == "Cmf.Custom.Root");
+            Assert.True(rootNode.Elements().FirstOrDefault(e => e.Name.LocalName == "version").Value == "1.1.0");
+        }
+
+        [Fact]
+        public void Pack_Scoped_RootPackage()
+        {
+            // Arrange
+            KeyValuePair<string, string> packageRoot = new("@cm-community/Cmf.Custom.Root", "1.1.0");
+
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { MockUnixSupport.Path(@"C:\repo\.project-config.json"), new MockFileData("{}") },
+                { MockUnixSupport.Path(@"C:\repo\cmfpackage.json"), new MockFileData(
+                $$"""
+                {
+                  "packageId": "@cm-community/Cmf.Custom.Root",
+                  "version": "1.1.0",
+                  "description": "This package deploys Critical Manufacturing Customization",
+                  "packageType": "Root",
+                  "isInstallable": false,
+                  "isUniqueInstall": false,
+                  "dependencies": [
+                    {
+                      "id": "Cmf.Environment",
+                      "version": "11.1.0",
+                      "mandatory": false
+                    }
+                  ]
+                }
+                """)}
+            }, MockUnixSupport.Path(@"C:\repo\"));
+            ExecutionContext.Initialize(fileSystem);
+
+            IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"./{CliConstants.CmfPackageFileName}");
+
+            // Act
+            var packCommand = new PackCommand(fileSystem);
+            packCommand.Execute(cmfpackageFile.Directory, fileSystem.DirectoryInfo.New("./output"), false);
+
+            // Assert
+            var archive = fileSystem.FileInfo.New($"./output/@cm-community-Cmf.Custom.Root.{packageRoot.Value}.zip");
+            Assert.True(archive.Exists);
+
+            var manifest = FileSystemUtilities.GetManifestFromPackage(archive.FullName, fileSystem);
+            XElement rootNode = manifest.Element("deploymentPackage", true);
+            if (rootNode == null)
+            {
+                throw new CliException(string.Format(CoreMessages.InvalidManifestFile));
+            }
+
+            var steps = rootNode.Elements().FirstOrDefault(e => e.Name.LocalName == "steps");
+            Assert.Null(steps);
+
+            Assert.True(rootNode.Elements().FirstOrDefault(e => e.Name.LocalName == "packageId").Value == "@cm-community/Cmf.Custom.Root");
+            Assert.True(rootNode.Elements().FirstOrDefault(e => e.Name.LocalName == "version").Value == "1.1.0");
+        }
 
         [Fact]
         public void Pack_TestPackage()
