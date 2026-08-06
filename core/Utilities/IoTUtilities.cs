@@ -64,7 +64,7 @@ namespace Cmf.CLI.Utilities
         }
 
         /// <summary>
-        /// Bumps the io t master data.
+        /// Bumps the iot master data.
         /// </summary>
         /// <param name="automationWorkflowFileGroup">The automation workflow file group.</param>
         /// <param name="version">The version.</param>
@@ -142,7 +142,7 @@ namespace Cmf.CLI.Utilities
             }
 
             string[] xmlMasterDatas = fileSystem.Directory.GetFiles(parentDirectory.FullName, "*.xml");
-            string[] xlsxMasterDatas = fileSystem.Directory.GetFiles(parentDirectory.FullName, "*.xml");
+            string[] xlsxMasterDatas = fileSystem.Directory.GetFiles(parentDirectory.FullName, "*.xlsx");
 
             if (xmlMasterDatas == null || xmlMasterDatas.Length == 0)
             {
