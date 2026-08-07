@@ -91,6 +91,8 @@ Properties:
 
 The properties **source** and **target** have support for token replacement of any property of the cmfpackage.
 
+`Transform` is currently only available for HTML packages, specificaly to add or change custom properties in a UI `config.json`. See [HTML package config transformations](html-transformations.md) for the source-file format, deployment behavior, and examples.
+
 Example:
 
 ```json
