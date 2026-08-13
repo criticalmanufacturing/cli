@@ -25,7 +25,7 @@
       <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.15.3" />
       <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.15.3" />
       <PackageReference Include="PeanutButter.INI" Version="3.0.418" />
-      <PackageReference Include="SharpCompress" Version="0.39.0" />
+      <PackageReference Include="SharpCompress" Version="0.50.4" />
       <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
       <PackageReference Include="SMBLibrary" Version="1.5.7" />
       <PackageReference Include="Spectre.Console" Version="0.55.2" />
