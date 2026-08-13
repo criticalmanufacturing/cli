@@ -158,9 +158,12 @@ public class CmfPackageController
             Log.Debug("File is a DF package in TAR.GZ format");
             using Stream zipToOpen = file.OpenRead();
             using GZipStream gzipStream = new GZipStream(zipToOpen, CompressionMode.Decompress);
+            using var decompressedStream = new MemoryStream();
+            gzipStream.CopyTo(decompressedStream);
+            decompressedStream.Position = 0;
             var foundManifest = false;
 
-            using var tarReader = SharpCompress.Readers.Tar.TarReader.Open(gzipStream, new SharpCompress.Readers.ReaderOptions { });
+            using var tarReader = SharpCompress.Readers.Tar.TarReader.OpenReader(decompressedStream, new SharpCompress.Readers.ReaderOptions { });
             while (tarReader.MoveToNextEntry())
             {
                 var entry = tarReader.Entry;
@@ -183,7 +186,10 @@ public class CmfPackageController
             {
                 using Stream zipToOpen2 = file.OpenRead();
                 using GZipStream gzipStream2 = new GZipStream(zipToOpen2, CompressionMode.Decompress);
-                using var tarReader2 = SharpCompress.Readers.Tar.TarReader.Open(gzipStream2, new SharpCompress.Readers.ReaderOptions { });
+                using var decompressedStream2 = new MemoryStream();
+                gzipStream2.CopyTo(decompressedStream2);
+                decompressedStream2.Position = 0;
+                using var tarReader2 = SharpCompress.Readers.Tar.TarReader.OpenReader(decompressedStream2, new SharpCompress.Readers.ReaderOptions { });
 
                 while (tarReader2.MoveToNextEntry())
                 {
@@ -782,9 +788,9 @@ public class CmfPackageController
 
         var auxArr = (JObject)rootNode.Value;
         var steps = new List<Step>();
-        if (auxArr.Property("steps").Value.Type == JTokenType.Array)
+        var stepsProperty = auxArr.Property("steps");
+        if (stepsProperty?.Value is JArray stepsEl)
         {
-            var stepsEl = (JArray)auxArr.Property("steps").Value;
 
             if (stepsEl != null)
             {
