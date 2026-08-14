@@ -253,10 +253,22 @@ namespace Cmf.CLI.Utilities
         /// <item>"12.0.0-next.2" -&gt; "next-1200"</item>
         /// </list>
         /// </summary>
-        /// <param name="version">the version to compute the dist-tag for</param>
+        /// <param name="version">the MES version whose prerelease label must be preserved when computing the dist-tag</param>
+        /// <returns>the npm dist-tag for <paramref name="version"/></returns>
+        public static string GetNpmDistTag(MesVersion version)
+        {
+            return GetNpmDistTag(version.NuGetVersion);
+        }
+
+        /// <summary>
+        /// Computes the npm dist-tag for a full SemVer value, preserving the prerelease label when present.
+        /// </summary>
+        /// <param name="version">the parsed NuGet version to convert</param>
         /// <returns>the npm dist-tag for <paramref name="version"/></returns>
         public static string GetNpmDistTag(NuGetVersion version)
         {
+            // ReleaseLabels are dot separated values from the pre-release part of the version, e.g. "alpha.1" or "beta.2".
+            // We only want the first label (e.g. "alpha" or "beta") for the dist-tag.
             var label = version.IsPrerelease ? version.ReleaseLabels.FirstOrDefault() : null;
             return $"{(string.IsNullOrWhiteSpace(label) ? "release" : label)}-{version.Major}{version.Minor}{version.Patch}";
         }

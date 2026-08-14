@@ -114,10 +114,10 @@ namespace Cmf.CLI.Commands.New
             var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
             // (ATL) Automation Task Library Package
             // only introduced in v10.2.7
-            var executeV10ATL = !isAngularPackage && mesVersion >= new Version(10, 2, 7) && mesVersion < new Version(11, 0, 0);
+            var executeV10ATL = !isAngularPackage && mesVersion >= new MesVersion("10.2.7") && mesVersion < new MesVersion("11.0.0");
 
             // only introduced in v11
-            var executeV11ATL = !isAngularPackage && mesVersion >= new Version(11, 0, 0);
+            var executeV11ATL = !isAngularPackage && mesVersion >= new MesVersion("11.0.0");
 
             if (executeV10ATL)
             {

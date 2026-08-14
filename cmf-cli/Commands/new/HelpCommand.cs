@@ -64,9 +64,10 @@ namespace Cmf.CLI.Commands.New
                         projectRoot.FullName)
                 ).Replace("\\", "/");
 
+            var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
             var requireModuleSES =
-                ExecutionContext.Instance.ProjectConfig.MESVersion >= new Version(11, 0, 0) &&
-                ExecutionContext.Instance.ProjectConfig.MESVersion < new Version(11, 2, 0);
+                mesVersion >= new MesVersion("11.0.0") &&
+                mesVersion < new MesVersion("11.2.0");
 
             var angularDeps = ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(ExecutionContext.Instance.ProjectConfig.MESVersion);
 

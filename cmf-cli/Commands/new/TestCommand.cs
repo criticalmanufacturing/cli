@@ -108,7 +108,7 @@ namespace Cmf.CLI.Commands.New
             #region version-specific bits
             args.AddRange(new []{ "--targetFramework", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().DotNetTargetFramework(mesVersion) });
 
-            if (mesVersion >= new Version(11, 2, 3))
+            if (mesVersion >= new MesVersion("11.2.3"))
             {
                 args.Add("--hostPerformanceTests");
             }

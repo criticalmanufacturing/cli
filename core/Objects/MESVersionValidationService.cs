@@ -1,4 +1,6 @@
 using System;
+using Cmf.CLI.Utilities;
+using NuGet.Versioning;
 
 namespace Cmf.CLI.Core.Objects
 {
@@ -43,9 +45,14 @@ namespace Cmf.CLI.Core.Objects
                 return; // No validation needed if no minimum version is specified
             }
 
-            if (!Version.TryParse(minimumVersion, out Version minVersion))
+            NuGetVersion minVersion;
+            try
             {
-                throw new ArgumentException($"Invalid minimum version format: {minimumVersion}. Expected format: 'Major.Minor.Build' (e.g., '11.0.0')");
+                minVersion = GenericUtilities.ParseVersion(minimumVersion);
+            }
+            catch (Exception ex) when (ex is ArgumentException or FormatException)
+            {
+                throw new ArgumentException($"Invalid minimum version format: {minimumVersion}.");
             }
 
             var currentVersion = ExecutionContext.Instance?.ProjectConfig?.MESVersion;
@@ -54,7 +61,7 @@ namespace Cmf.CLI.Core.Objects
                 throw new MESVersionValidationException("MES version information is not available. Please ensure you are running this command in a valid project context.");
             }
 
-            if (currentVersion < minVersion)
+            if (currentVersion.Value.NuGetVersion < minVersion)
             {
                 throw new MESVersionValidationException($"This command requires MES version {minimumVersion} or higher. Current version: {currentVersion}");
             }
@@ -68,7 +75,7 @@ namespace Cmf.CLI.Core.Objects
                 return true; // No minimum version requirement
             }
 
-            if (!Version.TryParse(minimumVersion, out Version minVersion))
+            if (!GenericUtilities.TryParseVersion(minimumVersion, out var minVersion))
             {
                 return false;
             }
@@ -79,7 +86,7 @@ namespace Cmf.CLI.Core.Objects
                 return false;
             }
 
-            return currentVersion >= minVersion;
+            return currentVersion.Value.NuGetVersion >= minVersion;
         }
     }
 }

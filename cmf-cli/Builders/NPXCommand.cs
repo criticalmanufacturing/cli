@@ -48,7 +48,7 @@ namespace Cmf.CLI.Builders
             // So we get the MES version of the project, and we assume that the user must be running the supported
             // node version for that MES project
             var mesVersion = ExecutionContext.Instance?.ProjectConfig?.MESVersion;
-            if (mesVersion != null && mesVersion < new Version(10, 0)) 
+            if (mesVersion.HasValue && mesVersion.Value < new Version(10, 0))
             {
                 args.Add("true");
             }
