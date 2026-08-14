@@ -14,6 +14,7 @@ using Cmf.CLI.Services;
 using Xunit;
 using Newtonsoft.Json;
 using Assert = tests.AssertWithMessage;
+using NuGet.Versioning;
 
 namespace tests.Specs
 {
@@ -82,9 +83,9 @@ namespace tests.Specs
                 var extractFileName = new Func<string, string>(s => s.Split(Path.DirectorySeparatorChar).LastOrDefault());
 
                 // For v10 and above, the devcontainer should be created
-                var baseVersion = new Version(baseVersionStr);
+                var baseVersion = new NuGetVersion(baseVersionStr);
 
-                if (baseVersion >= new Version(10, 0)) 
+                if (baseVersion >= new NuGetVersion(10, 0, 0)) 
                 {
                     var devContainerFile = File.ReadAllText(Path.Join(tmp, ".devcontainer/devcontainer.json"));
 

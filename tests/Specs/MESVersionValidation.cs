@@ -1,9 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;
 using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Utilities;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using NuGet.Versioning;
 using Xunit;
 
 namespace tests.Specs;
@@ -166,7 +167,7 @@ public class MESVersionValidation
 
     [Theory]
     [InlineData("12.0.0-alpha.1", "11.0.0", true)] // pre-release, current version higher
-    [InlineData("12.0.0-alpha.1", "12.0.0", true)] // pre-release, exact numeric match
+    [InlineData("12.0.0-alpha.1", "12.0.0", false)] // pre-release is still below the release build
     [InlineData("12.0.0-alpha.1", "13.0.0", false)] // pre-release, current version lower
     public void ProjectConfig_WithPreReleaseMESVersion_LoadsAndComparesCorrectly(string currentVersion, string minimumVersion, bool expectedResult)
     {
@@ -180,7 +181,51 @@ public class MESVersionValidation
 
         // Assert
         result.Should().Be(expectedResult);
-        ExecutionContext.Instance.ProjectConfig.MESVersion.Should().Be(new Version(12, 0, 0));
+        ExecutionContext.Instance.ProjectConfig.MESVersion.ToString().Should().Be(currentVersion);
+    }
+
+    [Fact]
+    public void IsVersionCompatible_PreReleaseCurrentVersion_BelowReleaseMinimum_ShouldReturnFalse()
+    {
+        // SemVer rule: 12.0.0-alpha.1 is lower than 12.0.0.
+        SetupExecutionContext("12.0.0-alpha.1");
+        var service = new MESVersionValidationService();
+
+        service.IsVersionCompatible("12.0.0").Should().BeFalse();
+    }
+
+    [Fact]
+    public void ValidateMinimumVersion_PrereleaseMinimumVersion_ShouldAcceptSemVerMinimum()
+    {
+        // The API should accept prerelease minimums like 12.0.0-beta.1 instead of rejecting them as invalid.
+        SetupExecutionContext("12.0.0-beta.2");
+        var service = new MESVersionValidationService();
+
+        service.Invoking(x => x.ValidateMinimumVersion("12.0.0-beta.1"))
+            .Should().NotThrow();
+    }
+
+    [Fact]
+    public void IsVersionCompatible_PrereleaseMinimumVersion_ShouldCompareUsingSemVerRules()
+    {
+        // A minimum of 12.0.0-beta.1 should be considered lower than the current 12.0.0-beta.2 version.
+        SetupExecutionContext("12.0.0-beta.2");
+        var service = new MESVersionValidationService();
+
+        service.IsVersionCompatible("12.0.0-beta.1").Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData("12.0.0")]
+    [InlineData("12.0.0-beta.1")]
+    public void ProjectConfig_WithReleaseOrPrereleaseMESVersion_ShouldRoundTripWithoutLosingSemVer(string mesVersion)
+    {
+        // The config must preserve the original SemVer identity, including prerelease labels,
+        // while still exposing the normalized form used for comparisons.
+        SetupExecutionContext(mesVersion);
+
+        ExecutionContext.Instance.ProjectConfig.MESVersion.ToString().Should().Be(mesVersion);
+        ExecutionContext.Instance.ProjectConfig.MESVersion.ToNormalizedString().Should().Be(NuGetVersion.Parse(mesVersion).ToNormalizedString());
     }
 
     private void SetupExecutionContext(string mesVersion)

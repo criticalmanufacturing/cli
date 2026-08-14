@@ -9,6 +9,7 @@ using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 using Microsoft.CodeAnalysis;
 using Newtonsoft.Json;
+using NuGet.Versioning;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -479,12 +480,12 @@ namespace Cmf.CLI.Handlers
                     "angular.json"));
         }
 
-        private List<Step> AddAutomationTaskLibrariesStep(Version targetVersion, CmfPackage cmfPackage, List<Step> defaultSteps, string packageLocation = "src")
+        private List<Step> AddAutomationTaskLibrariesStep(NuGetVersion targetVersion, CmfPackage cmfPackage, List<Step> defaultSteps, string packageLocation = "src")
         {
             // Introduced in version 10.2.x
             if ((targetVersion.Major > 10 || (targetVersion.Major == 10 &&
                     targetVersion.Minor >= 2 &&
-                    targetVersion.Build >= 7)) && !this.IsAngularProject(cmfPackage.GetFileInfo().Directory.FullName))
+                    targetVersion.Patch >= 7)) && !this.IsAngularProject(cmfPackage.GetFileInfo().Directory.FullName))
             {
                 var packages = string.Join(",", this.GetPackagesWithTaskLibraries(this.GetPackageJsons(cmfPackage, packageLocation)));
 
@@ -499,10 +500,10 @@ namespace Cmf.CLI.Handlers
             return defaultSteps;
         }
 
-        private List<Step> AddAutomationBusinessScenarioStep(Version targetVersion, CmfPackage cmfPackage, List<Step> defaultSteps, string packageLocation = "src")
+        private List<Step> AddAutomationBusinessScenarioStep(NuGetVersion targetVersion, CmfPackage cmfPackage, List<Step> defaultSteps, string packageLocation = "src")
         {
             // Introduced in version 11.1.x
-            if ((targetVersion.Major > 11 || (targetVersion.Major == 11 && targetVersion.Minor >= 1)))
+            if (targetVersion.Major > 11 || (targetVersion.Major == 11 && targetVersion.Minor >= 1))
             {
                 var packages = string.Join(",", this.GetPackagesWithBusinessScenarios(this.GetPackageJsons(cmfPackage, packageLocation)));
 
