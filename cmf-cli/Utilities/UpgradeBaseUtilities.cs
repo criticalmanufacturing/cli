@@ -2,15 +2,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Objects;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using Cmf.CLI.Core.Enums;
-using System.Text.Json.Nodes;
 using System.Runtime.CompilerServices;
+using NuGet.Versioning;
 
 [assembly: InternalsVisibleTo("tests")]
 namespace Cmf.CLI.Utilities
@@ -56,7 +55,7 @@ namespace Cmf.CLI.Utilities
             string[] filesToUpdate = fileSystem.Directory.GetFiles(cmfPackage.GetFileInfo().DirectoryName, "package.json", SearchOption.AllDirectories);
             // matches any npm dist-tag in the "{label}-{version}" convention (e.g. "release-1200", "alpha-1200", "next-1200")
             string pattern = @"(?:release|alpha|beta|rc|next|canary|preview)-\d+";
-            string newDistTag = GenericUtilities.GetNpmDistTag(GenericUtilities.ParseVersion(version));
+            string newDistTag = GenericUtilities.GetNpmDistTag(NuGetVersion.Parse(version));
 
             foreach (string filePath in filesToUpdate.Where(path => !path.Contains("node_modules") && !path.Contains("dist")))
             {

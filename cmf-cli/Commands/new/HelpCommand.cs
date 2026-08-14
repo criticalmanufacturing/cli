@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.IO.Abstractions;
@@ -16,6 +15,7 @@ using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NuGet.Versioning;
 
 namespace Cmf.CLI.Commands.New
 {
@@ -64,9 +64,10 @@ namespace Cmf.CLI.Commands.New
                         projectRoot.FullName)
                 ).Replace("\\", "/");
 
+            var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
             var requireModuleSES =
-                ExecutionContext.Instance.ProjectConfig.MESVersion >= new Version(11, 0, 0) &&
-                ExecutionContext.Instance.ProjectConfig.MESVersion < new Version(11, 2, 0);
+                mesVersion >= new NuGetVersion(11, 0, 0) &&
+                mesVersion < new NuGetVersion(11, 2, 0);
 
             var angularDeps = ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(ExecutionContext.Instance.ProjectConfig.MESVersion);
 
@@ -102,7 +103,7 @@ namespace Cmf.CLI.Commands.New
 
             var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
 
-            this.schematicsVersion = ngxSchematicsVersion ?? GenericUtilities.GetNpmDistTag(mesVersion);
+            this.schematicsVersion = !string.IsNullOrEmpty(ngxSchematicsVersion?.ToString()) ? ngxSchematicsVersion.ToString() : GenericUtilities.GetNpmDistTag(mesVersion);
 
             //Switch between v10 and v11 template 
             switch (majorVersion)
