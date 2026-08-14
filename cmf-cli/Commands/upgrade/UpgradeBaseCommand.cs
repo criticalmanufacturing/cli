@@ -6,7 +6,7 @@ using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Factories;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-using System;
+using NuGet.Versioning;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.IO;
@@ -144,7 +144,7 @@ namespace Cmf.CLI.Commands
                     text = UpgradeBaseUtilities.UpdateJsonValue(text, key, baseVersion);
                 }
 
-                if (GenericUtilities.ParseVersion(baseVersion).Major >= 11)
+                if (NuGetVersion.Parse(baseVersion).Major >= 11)
                 {
                     // TODO: find a more elegant way to apply these changes to files/packages when this command is executed.
                     // For the moment, sneaking this if-statement in will do the job but long-term we'll need an approach that

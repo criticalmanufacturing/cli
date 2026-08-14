@@ -8,7 +8,7 @@ using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 using System.Linq;
-using System;
+using NuGet.Versioning;
 
 namespace Cmf.CLI.Commands.html;
 
@@ -21,7 +21,7 @@ public class LocalizeCommand : BaseCommand
     /// <summary>
     /// The minimum MES Version that supports this command
     /// </summary>
-    private readonly Version MIN_MES_VERSION = new Version(11, 2, 0);
+    private readonly NuGetVersion MIN_MES_VERSION = new NuGetVersion(11, 2, 0);
 
     public override void Configure(Command cmd)
     {

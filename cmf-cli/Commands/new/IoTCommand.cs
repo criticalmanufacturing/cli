@@ -7,7 +7,7 @@ using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Services;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-using System;
+using NuGet.Versioning;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.IO.Abstractions;
@@ -114,10 +114,10 @@ namespace Cmf.CLI.Commands.New
             var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
             // (ATL) Automation Task Library Package
             // only introduced in v10.2.7
-            var executeV10ATL = !isAngularPackage && mesVersion >= new Version(10, 2, 7) && mesVersion < new Version(11, 0, 0);
+            var executeV10ATL = !isAngularPackage && mesVersion >= new NuGetVersion(10, 2, 7) && mesVersion < new NuGetVersion(11, 0, 0);
 
             // only introduced in v11
-            var executeV11ATL = !isAngularPackage && mesVersion >= new Version(11, 0, 0);
+            var executeV11ATL = !isAngularPackage && mesVersion >= new NuGetVersion(11, 0, 0);
 
             if (executeV10ATL)
             {
@@ -175,8 +175,10 @@ namespace Cmf.CLI.Commands.New
             {
                 throw new CliException(CliMessages.IoTV10HTMLPackageMustBeProvided);
             }
-
+            
+            var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
             var ngxSchematicsVersion = ExecutionContext.Instance.ProjectConfig.NGXSchematicsVersion;
+            var schematicsVersion = !string.IsNullOrEmpty(ngxSchematicsVersion?.ToString()) ? ngxSchematicsVersion.ToString() : GenericUtilities.GetNpmDistTag(mesVersion);
 
             IDirectoryInfo htmlPackageDir = fileSystem.DirectoryInfo.New(htmlPackageLocation);
 
@@ -208,11 +210,6 @@ namespace Cmf.CLI.Commands.New
             }
 
             var iotCustomPackageWorkDir = iotCustomPackage.GetFileInfo().Directory;
-            var iotCustomPackageName = base.GeneratePackageName(iotCustomPackageWorkDir)!.Value.Item1;
-
-            var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
-
-            var schematicsVersion = ngxSchematicsVersion ?? GenericUtilities.GetNpmDistTag(mesVersion);
 
             Log.Debug($"Creating new IoT Workspace {packageName}");
 
@@ -276,7 +273,7 @@ namespace Cmf.CLI.Commands.New
             #endregion Link To HTML Package
         }
 
-        private static void InstallYoeman(IDirectoryInfo iotCustomPackageWorkDir, Version mesVersion)
+        private static void InstallYoeman(IDirectoryInfo iotCustomPackageWorkDir, NuGetVersion mesVersion)
         {
             Log.Debug($"Installing Yeoman");
 

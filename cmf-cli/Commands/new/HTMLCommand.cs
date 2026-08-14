@@ -104,7 +104,7 @@ namespace Cmf.CLI.Commands.New
             var packageName = base.GeneratePackageName(workingDir)!.Value.Item1;
             var packageDir = workingDir.GetDirectories(packageName).First();
 
-            var schematicsVersion = !string.IsNullOrEmpty(ngxSchematicsVersion) ? ngxSchematicsVersion : GenericUtilities.GetNpmDistTag(mesVersion);
+            var schematicsVersion = !string.IsNullOrEmpty(ngxSchematicsVersion?.ToString()) ? ngxSchematicsVersion.ToString() : GenericUtilities.GetNpmDistTag(mesVersion);
 
             //After v11 we use Angular default routing
             var routing = mesVersion.Major >= 11 ? "true" : "false";

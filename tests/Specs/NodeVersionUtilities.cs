@@ -1,7 +1,6 @@
 using Cmf.CLI.Utilities;
-using Cmf.CLI.Core;
-using System;
 using Xunit;
+using NuGet.Versioning;
 
 namespace tests.Specs
 {
@@ -28,7 +27,7 @@ namespace tests.Specs
         public void ValidateNodeVersion_ThrowsException_WhenNodeNotInstalled(string mesVersionString, string requiredNodeVersion)
         {
             // Arrange
-            var mesVersion = new Version(mesVersionString);
+            var mesVersion = new NuGetVersion(mesVersionString);
             
             // Act & Assert
             // This test assumes Node.js is either not installed or the version doesn't match
@@ -62,20 +61,20 @@ namespace tests.Specs
             if (installedVersion != null)
             {
                 // Determine the MES version based on the installed Node.js version
-                Version mesVersion;
+                NuGetVersion mesVersion;
                 string requiredNodeVersion = installedVersion.Major.ToString();
                 
                 switch (installedVersion.Major)
                 {
                     case 12:
-                        mesVersion = new Version("8.0.0");
+                        mesVersion = new NuGetVersion(8, 0, 0);
                         break;
                     case 18:
-                        mesVersion = new Version("10.0.0");
+                        mesVersion = new NuGetVersion(10, 0, 0);
                         break;
                     case 20:
                     default:
-                        mesVersion = new Version("11.0.0");
+                        mesVersion = new NuGetVersion(11, 0, 0);
                         break;
                 }
                 

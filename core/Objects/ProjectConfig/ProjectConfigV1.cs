@@ -27,17 +27,20 @@ public class ProjectConfigV1
     [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
     public int? RESTPort { get; set; }
     public string Tenant { get; set; }
-    [Newtonsoft.Json.JsonConverter(typeof(LenientVersionConverter))]
-    public Version MESVersion { get; set; }
+    [Newtonsoft.Json.JsonConverter(typeof(VersionStringConverter<NuGetVersion>))]
+    public NuGetVersion MESVersion { get; set; }
+    [Newtonsoft.Json.JsonConverter(typeof(VersionStringConverter<SemanticVersion>))]
     public SemanticVersion DevTasksVersion { get; set; }
-    [Newtonsoft.Json.JsonConverter(typeof(LenientVersionConverter))]
-    public Version HTMLStarterVersion { get; set; }
+    [Newtonsoft.Json.JsonConverter(typeof(VersionStringConverter<SemanticVersion>))]
+    public SemanticVersion HTMLStarterVersion { get; set; }
+    [Newtonsoft.Json.JsonConverter(typeof(VersionStringConverter<SemanticVersion>))]
     public SemanticVersion YoGeneratorVersion { get; set; }
-    public string NGXSchematicsVersion { get; set; }
-    [Newtonsoft.Json.JsonConverter(typeof(LenientVersionConverter))]
-    public Version NugetVersion { get; set; }
-    [Newtonsoft.Json.JsonConverter(typeof(LenientVersionConverter))]
-    public Version TestScenariosNugetVersion { get; set; }
+    [Newtonsoft.Json.JsonConverter(typeof(VersionStringConverter<SemanticVersion>))]
+    public SemanticVersion NGXSchematicsVersion { get; set; }
+    [Newtonsoft.Json.JsonConverter(typeof(VersionStringConverter<NuGetVersion>))]
+    public NuGetVersion NugetVersion { get; set; }
+    [Newtonsoft.Json.JsonConverter(typeof(VersionStringConverter<NuGetVersion>))]
+    public NuGetVersion TestScenariosNugetVersion { get; set; }
     [Newtonsoft.Json.JsonConverter(typeof(BooleanJsonConverter))]
     public bool IsSslEnabled { get; set; }
     public string vmHostname { get; set; }
@@ -72,6 +75,48 @@ public class ProjectConfigV1
 
     public string Organization { get; set; }
     public string Product { get; set; }
+}
+
+/***
+ * Converts project-config version strings into the concrete CLR types expected by the model.
+ * This is required because .project-config.json stores values as strings while fields such as
+ * MESVersion and NugetVersion are typed as NuGetVersion/SemanticVersion instances.
+ * Without this conversion, Json.NET can try to assign a SemanticVersion to a NuGetVersion and throw
+ * an invalid cast when prerelease values such as "12.0.0-beta.1" are deserialized.
+ */
+public class VersionStringConverter<T> : Newtonsoft.Json.JsonConverter<T>
+    where T : class
+{
+    public override T ReadJson(JsonReader reader, Type objectType, T existingValue, bool hasExistingValue, JsonSerializer serializer)
+    {
+        if (reader.TokenType == JsonToken.Null || reader.Value is null)
+        {
+            return null;
+        }
+
+        var value = reader.Value?.ToString();
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        if (typeof(T) == typeof(NuGetVersion))
+        {
+            return (T)(object)NuGetVersion.Parse(value);
+        }
+
+        if (typeof(T) == typeof(SemanticVersion))
+        {
+            return (T)(object)SemanticVersion.Parse(value);
+        }
+
+        throw new NotSupportedException($"Unsupported version type: {typeof(T).FullName}");
+    }
+
+    public override void WriteJson(JsonWriter writer, T value, JsonSerializer serializer)
+    {
+        writer.WriteValue(value?.ToString());
+    }
 }
 
 public class BooleanJsonConverter : Newtonsoft.Json.JsonConverter
@@ -109,30 +154,4 @@ public class BooleanJsonConverter : Newtonsoft.Json.JsonConverter
     {
     }
 
-}
-
-/// <summary>
-/// Converts a version string to/from a <see cref="Version"/>, tolerating semantic versioning
-/// pre-release labels and/or build metadata (e.g. "12.0.0-alpha.1+build"). Only the numeric
-/// release components (Major.Minor.Build[.Revision]) are kept, since <see cref="Version"/> has
-/// no concept of pre-release/build metadata. This keeps backward compatibility with existing
-/// project configs that only have plain "Major.Minor.Build" versions.
-/// </summary>
-public class LenientVersionConverter : Newtonsoft.Json.JsonConverter<Version>
-{
-    public override Version ReadJson(JsonReader reader, Type objectType, Version existingValue, bool hasExistingValue, JsonSerializer serializer)
-    {
-        if (reader.TokenType == JsonToken.Null)
-        {
-            return null;
-        }
-
-        var value = reader.Value?.ToString();
-        return string.IsNullOrWhiteSpace(value) ? null : GenericUtilities.ToVersion(GenericUtilities.ParseVersion(value));
-    }
-
-    public override void WriteJson(JsonWriter writer, Version value, JsonSerializer serializer)
-    {
-        writer.WriteValue(value?.ToString());
-    }
 }

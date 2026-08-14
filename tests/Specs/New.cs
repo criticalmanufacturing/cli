@@ -29,6 +29,7 @@ using Cmf.CLI.Core;
 using Cmf.CLI.Commands.New.IoT;
 using TestingConsole = Spectre.Console.Testing;
 using Xunit.Sdk;
+using NuGet.Versioning;
 
 namespace tests.Specs
 {
@@ -304,7 +305,7 @@ namespace tests.Specs
                 Assert.True(File.Exists($"Cmf.Custom.HTML/src/index.html"), "Index file is missing or has wrong name");
                 Assert.True(File.ReadAllText("Cmf.Custom.HTML/src/index.html").Contains("MES"), "Index content is not expected");
                 Assert.True(File.ReadAllText("Cmf.Custom.HTML/src/index.html").Contains("<base href=\"/\">"), "Index base path was not changed correctly");
-                if(new Version(mesVersion) < new Version(11,0,0)) 
+                if(new NuGetVersion(mesVersion) < new NuGetVersion(11,0,0)) 
                 {
                 if (layer == BaseLayer.Core)
                     {
@@ -374,7 +375,7 @@ namespace tests.Specs
             string packageFolderData = packageIdData;
 
             // Before v10.2.7, all packages were Angular packages, even if the flag was not passed explicitly
-            bool isAngularPackage = isAngularPackageFlag || Version.Parse(mesVersion) < new Version(10, 2, 7);
+            bool isAngularPackage = isAngularPackageFlag || NuGetVersion.Parse(mesVersion) < new NuGetVersion(10, 2, 7);
 
             CopyNewFixture(dir, mesVersion: mesVersion);
             if (isAngularPackage)
@@ -451,7 +452,7 @@ namespace tests.Specs
 
             string packageFolderPackages = "Cmf.Custom.IoT.Packages";
 
-            bool isGreaterOrEqualThan1120 = Version.Parse(mesVersion) >= new Version(11, 2, 0);
+            bool isGreaterOrEqualThan1120 = NuGetVersion.Parse(mesVersion) >= new NuGetVersion(11, 2, 0);
             var cur = Directory.GetCurrentDirectory();
 
             try

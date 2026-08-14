@@ -78,7 +78,7 @@ namespace Cmf.CLI
                             .InitializeClientsForRepositories(ExecutionContext.Instance.FileSystem);
 
                         // Global validation for all CLI core commands
-                        ValidateMesVersion(ExecutionContext.Instance.ProjectConfig?.MESVersion?.Major);
+                        ValidateMesVersion(ExecutionContext.Instance.ProjectConfig?.MESVersion.Major);
                         
                         // Parse and invoke using beta5 pattern
                         var parseResult = rootCommand.Parse(args);
