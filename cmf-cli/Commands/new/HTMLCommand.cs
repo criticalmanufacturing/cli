@@ -170,7 +170,15 @@ namespace Cmf.CLI.Commands.New
                 rootPkgJson.devDependencies["cross-env"] = "^10.1.0";
             }
 
-            rootPkgJson.scripts["serve"] = "cross-env NODE_OPTIONS=--max-old-space-size=8192 npm run start -- --host 0.0.0.0 --disable-host-check --port 7000";
+
+            if (mesVersion.Major < 12)
+            {
+                rootPkgJson.scripts["serve"] = "cross-env NODE_OPTIONS=--max-old-space-size=8192 npm run start -- --host 0.0.0.0 --disable-host-check --port 7000";
+            }
+            else
+            {
+                rootPkgJson.scripts["serve"] = "cross-env NODE_OPTIONS=--max-old-space-size=8192 npm run start -- --host 0.0.0.0 --port 7000";
+            }
 
             if (ExecutionContext.Instance.ProjectConfig.RepositoryType == RepositoryType.App)
             {
