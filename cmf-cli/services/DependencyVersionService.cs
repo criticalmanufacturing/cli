@@ -70,18 +70,23 @@ public class DependencyVersionService : IDependencyVersionService
     public const string NG15 = "15.2.1";
     public const string NG17 = "17.2.1";
     public const string NG21 = "21.1.0";
+    public const string NG22 = "22.1.2";
     public const string NG15_ZONE = "0.12.0";
     public const string NG17_ZONE = "0.14.3";
     public const string NG21_ZONE = "0.16.0";
+    public const string NG22_ZONE = "0.16.2";
     public const string NG15_TSESLINT = "5.44.0";
     public const string NG17_TSESLINT = "6.10.0";
     public const string NG21_TSESLINT = "8.52.0";
+    public const string NG22_TSESLINT = "8.67.0";
     public const string NG15_ESLINT = "8.28.0";
     public const string NG17_ESLINT = "8.53.0";
     public const string NG21_ESLINT = "9.39.2";
+    public const string NG22_ESLINT = "10.8.1";
     public const string NG15_TS = "4.8.4";
     public const string NG17_TS = "5.3.3";
     public const string NG21_TS = "5.9.3";
+    public const string NG22_TS = "6.0.3";
 
     public string DotNetSdk(NuGetVersion productVersion) => 
         productVersion.Major >= 12 
@@ -125,11 +130,11 @@ public class DependencyVersionService : IDependencyVersionService
             },
             12 => new AngularDeps()
             {
-                CLI = Version.Parse(NG21),
-                Zone = NG21_ZONE,
-                Typescript = NG21_TS,
-                ESLint = NG21_ESLINT,
-                TSESLint = NG21_TSESLINT
+                CLI = Version.Parse(NG22),
+                Zone = NG22_ZONE,
+                Typescript = NG22_TS,
+                ESLint = NG22_ESLINT,
+                TSESLint = NG22_TSESLINT
             },
             _ => throw new NotSupportedException($"No Angular dependencies defined for MES version {productVersion}")
         };
