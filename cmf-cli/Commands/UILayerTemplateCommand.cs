@@ -41,13 +41,13 @@ namespace Cmf.CLI.Commands
             target.GetFiles(".gitkeep").FirstOrDefault()?.Delete();
             Log.Verbose("cloning html starter");
             // git init
-            (new GitCommand() { Command = "init", WorkingDirectory = target }).Exec();
+            new GitCommand() { Command = "init", WorkingDirectory = target }.Exec();
             // git remote add origin https://github.com/criticalmanufacturing/html-starter
-            (new GitCommand() { Command = "remote", WorkingDirectory = target, Args = new[] { "add", "origin", "https://github.com/criticalmanufacturing/html-starter" } }).Exec();
+            new GitCommand() { Command = "remote", WorkingDirectory = target, Args = ["add", "origin", "https://github.com/criticalmanufacturing/html-starter"] }.Exec();
             // git fetch
-            (new GitCommand() { Command = "fetch", WorkingDirectory = target }).Exec();
+            new GitCommand() { Command = "fetch", WorkingDirectory = target }.Exec();
             // git pull origin $vars['HTMLStarterVersion']
-            (new GitCommand() { Command = "pull", WorkingDirectory = target, Args = new[] { "origin", versionTag.ToString() } }).Exec();
+            new GitCommand() { Command = "pull", WorkingDirectory = target, Args = ["origin", versionTag.ToString()] }.Exec();
             Log.Debug("delete .git folder");
             this.DeleteFolderWithReadOnlyFiles(target.GetDirectories(".git").FirstOrDefault());
             // delete apps/.gitkeep

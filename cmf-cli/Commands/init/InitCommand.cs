@@ -17,6 +17,7 @@ using Cmf.CLI.Services;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using NuGet.Versioning;
 
 namespace Cmf.CLI.Commands
 {
@@ -578,10 +579,10 @@ namespace Cmf.CLI.Commands
 
             #region version-specific bits
 
-            var version = GenericUtilities.ToVersion(GenericUtilities.ParseVersion(x.BaseVersion));
+            var version = new NuGetVersion(x.BaseVersion);
             args.AddRange(new []{ "--dotnetSDKVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().DotNetSdk(version) });
 
-            if(version < new Version(10,0))
+            if(version < new NuGetVersion(10, 0, 0))
             {
                 throw new CliException("MES Versions under 10 are no longer supported with the newest version of the CLI. Please use cmf-cli 5.8.0 or lower.");
             }

@@ -10,10 +10,10 @@ using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 using System.Xml.Linq;
 using System.Linq;
-using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
+using NuGet.Versioning;
 
 namespace Cmf.CLI.Commands.html;
 
@@ -26,7 +26,7 @@ public class ExtractI18nCommand : BaseCommand
     /// <summary>
     /// The minimum MES Version that supports this command
     /// </summary>
-    private readonly Version MIN_MES_VERSION = new Version(11, 2, 0);
+    private readonly NuGetVersion MIN_MES_VERSION = new NuGetVersion(11, 2, 0);
 
     /// <summary>
     /// constructor

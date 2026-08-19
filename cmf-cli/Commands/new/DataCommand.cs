@@ -58,7 +58,7 @@ namespace Cmf.CLI.Commands.New
         protected override List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args)
         {
             var repoType = ExecutionContext.Instance.ProjectConfig.RepositoryType ?? CliConstants.DefaultRepositoryType;
-            Version version = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            var version = ExecutionContext.Instance.ProjectConfig.MESVersion;
 
             var relativePathToRoot =
                 this.fileSystem.Path.Join("..", //always one level deeper

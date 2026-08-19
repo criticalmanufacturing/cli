@@ -27,17 +27,20 @@ public class ProjectConfigV1
     [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
     public int? RESTPort { get; set; }
     public string Tenant { get; set; }
-    [Newtonsoft.Json.JsonConverter(typeof(MesVersionConverter))]
-    public MesVersion MESVersion { get; set; }
+    [Newtonsoft.Json.JsonConverter(typeof(VersionStringConverter<NuGetVersion>))]
+    public NuGetVersion MESVersion { get; set; }
+    [Newtonsoft.Json.JsonConverter(typeof(VersionStringConverter<SemanticVersion>))]
     public SemanticVersion DevTasksVersion { get; set; }
-    [Newtonsoft.Json.JsonConverter(typeof(MesVersionConverter))]
-    public MesVersion HTMLStarterVersion { get; set; }
+    [Newtonsoft.Json.JsonConverter(typeof(VersionStringConverter<SemanticVersion>))]
+    public SemanticVersion HTMLStarterVersion { get; set; }
+    [Newtonsoft.Json.JsonConverter(typeof(VersionStringConverter<SemanticVersion>))]
     public SemanticVersion YoGeneratorVersion { get; set; }
-    public string NGXSchematicsVersion { get; set; }
-    [Newtonsoft.Json.JsonConverter(typeof(MesVersionConverter))]
-    public MesVersion NugetVersion { get; set; }
-    [Newtonsoft.Json.JsonConverter(typeof(MesVersionConverter))]
-    public MesVersion TestScenariosNugetVersion { get; set; }
+    [Newtonsoft.Json.JsonConverter(typeof(VersionStringConverter<SemanticVersion>))]
+    public SemanticVersion NGXSchematicsVersion { get; set; }
+    [Newtonsoft.Json.JsonConverter(typeof(VersionStringConverter<NuGetVersion>))]
+    public NuGetVersion NugetVersion { get; set; }
+    [Newtonsoft.Json.JsonConverter(typeof(VersionStringConverter<NuGetVersion>))]
+    public NuGetVersion TestScenariosNugetVersion { get; set; }
     [Newtonsoft.Json.JsonConverter(typeof(BooleanJsonConverter))]
     public bool IsSslEnabled { get; set; }
     public string vmHostname { get; set; }
@@ -72,6 +75,48 @@ public class ProjectConfigV1
 
     public string Organization { get; set; }
     public string Product { get; set; }
+}
+
+/***
+ * Converts project-config version strings into the concrete CLR types expected by the model.
+ * This is required because .project-config.json stores values as strings while fields such as
+ * MESVersion and NugetVersion are typed as NuGetVersion/SemanticVersion instances.
+ * Without this conversion, Json.NET can try to assign a SemanticVersion to a NuGetVersion and throw
+ * an invalid cast when prerelease values such as "12.0.0-beta.1" are deserialized.
+ */
+public class VersionStringConverter<T> : Newtonsoft.Json.JsonConverter<T>
+    where T : class
+{
+    public override T ReadJson(JsonReader reader, Type objectType, T existingValue, bool hasExistingValue, JsonSerializer serializer)
+    {
+        if (reader.TokenType == JsonToken.Null || reader.Value is null)
+        {
+            return null;
+        }
+
+        var value = reader.Value?.ToString();
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        if (typeof(T) == typeof(NuGetVersion))
+        {
+            return (T)(object)GenericUtilities.ParseVersion(value);
+        }
+
+        if (typeof(T) == typeof(SemanticVersion))
+        {
+            return (T)(object)SemanticVersion.Parse(value);
+        }
+
+        throw new NotSupportedException($"Unsupported version type: {typeof(T).FullName}");
+    }
+
+    public override void WriteJson(JsonWriter writer, T value, JsonSerializer serializer)
+    {
+        writer.WriteValue(value?.ToString());
+    }
 }
 
 public class BooleanJsonConverter : Newtonsoft.Json.JsonConverter
@@ -109,176 +154,4 @@ public class BooleanJsonConverter : Newtonsoft.Json.JsonConverter
     {
     }
 
-}
-
-/// <summary>
-/// Represents a MES version while preserving full semantic-version identity.
-/// Unlike <see cref="Version"/>, a <see cref="NuGetVersion"/> can safely carry pre-release labels
-/// and build metadata such as "12.0.0-beta.1" or "12.0.0-alpha.3+build.7".
-/// <para>
-/// This wrapper keeps compatibility with older numeric checks by exposing a <see cref="NumericVersion"/>
-/// conversion and implicit conversions for <see cref="Version"/>, while retaining the original SemVer
-/// value for comparisons and serialization.
-/// </para>
-/// </summary>
-public readonly struct MesVersion : IComparable, IComparable<MesVersion>, IComparable<Version>, IEquatable<MesVersion>, IEquatable<Version>
-{
-    private readonly NuGetVersion value;
-
-    private static int NormalizeBuild(int build)
-    {
-        return build < 0 ? 0 : build;
-    }
-
-    private static Version NormalizeLegacyVersion(Version value)
-    {
-        if (value is null)
-        {
-            return null;
-        }
-
-        return new Version(value.Major, value.Minor, NormalizeBuild(value.Build));
-    }
-
-    public MesVersion(string version)
-        : this(GenericUtilities.ParseVersion(version))
-    {
-    }
-
-    public MesVersion(Version version)
-        : this(version is null ? throw new ArgumentNullException(nameof(version)) : new NuGetVersion(version.Major, version.Minor, NormalizeBuild(version.Build)))
-    {
-    }
-
-    public MesVersion(NuGetVersion version)
-    {
-        this.value = version ?? throw new ArgumentNullException(nameof(version));
-    }
-
-    public int Major => value.Major;
-    public int Minor => value.Minor;
-    public int Patch => value.Patch;
-    public int Revision => value.Version.Revision;
-    public bool IsPrerelease => value.IsPrerelease;
-    public string Release => value.IsPrerelease ? value.Release : string.Empty;
-    public Version NumericVersion => GenericUtilities.ToVersion(value);
-    public NuGetVersion NuGetVersion => value;
-
-    public override string ToString() => value.OriginalVersion;
-    public override int GetHashCode() => value.GetHashCode();
-
-    public override bool Equals(object obj)
-    {
-        return obj switch
-        {
-            MesVersion other => Equals(other),
-            Version version => Equals(version),
-            _ => false
-        };
-    }
-
-    public bool Equals(MesVersion other) => value.Equals(other.value);
-    public bool Equals(Version other)
-    {
-        if (other is null)
-        {
-            return false;
-        }
-
-        return NumericVersion == NormalizeLegacyVersion(other);
-    }
-
-    public int CompareTo(object obj)
-    {
-        if (obj is null)
-        {
-            return 1;
-        }
-
-        return obj switch
-        {
-            MesVersion other => CompareTo(other),
-            Version version => CompareTo(version),
-            _ => throw new ArgumentException($"Object must be of type {nameof(MesVersion)} or {nameof(Version)}.", nameof(obj))
-        };
-    }
-
-    public int CompareTo(MesVersion other) => value.CompareTo(other.value);
-
-    public int CompareTo(Version other)
-    {
-        if (other is null)
-        {
-            return 1;
-        }
-
-        var otherVersion = new NuGetVersion(other.Major, other.Minor, NormalizeBuild(other.Build));
-        return value.CompareTo(otherVersion);
-    }
-
-    public static bool operator <(MesVersion left, MesVersion right) => left.CompareTo(right) < 0;
-    public static bool operator >(MesVersion left, MesVersion right) => left.CompareTo(right) > 0;
-    public static bool operator <=(MesVersion left, MesVersion right) => left.CompareTo(right) <= 0;
-    public static bool operator >=(MesVersion left, MesVersion right) => left.CompareTo(right) >= 0;
-    public static bool operator <(MesVersion left, Version right) => left.CompareTo(right) < 0;
-    public static bool operator >(MesVersion left, Version right) => left.CompareTo(right) > 0;
-    public static bool operator <=(MesVersion left, Version right) => left.CompareTo(right) <= 0;
-    public static bool operator >=(MesVersion left, Version right) => left.CompareTo(right) >= 0;
-    public static bool operator <(Version left, MesVersion right) => right.CompareTo(left) > 0;
-    public static bool operator >(Version left, MesVersion right) => right.CompareTo(left) < 0;
-    public static bool operator <=(Version left, MesVersion right) => right.CompareTo(left) >= 0;
-    public static bool operator >=(Version left, MesVersion right) => right.CompareTo(left) <= 0;
-
-    public static implicit operator MesVersion(string value) => string.IsNullOrWhiteSpace(value) ? default : new MesVersion(value);
-    public static implicit operator MesVersion(Version value) => value is null ? default : new MesVersion(value);
-    public static implicit operator Version(MesVersion value) => value.NumericVersion;
-    public static implicit operator NuGetVersion(MesVersion value) => value.value;
-}
-
-/// <summary>
-/// Reads and writes MES versions using the full SemVer form so prerelease labels are preserved.
-/// This is the canonical converter for <see cref="ProjectConfigV1.MESVersion"/> because losing the
-/// prerelease suffix would change the meaning of versions such as "12.0.0-beta.1".
-/// </summary>
-public class MesVersionConverter : Newtonsoft.Json.JsonConverter<MesVersion>
-{
-    public override MesVersion ReadJson(JsonReader reader, Type objectType, MesVersion existingValue, bool hasExistingValue, JsonSerializer serializer)
-    {
-        if (reader.TokenType == JsonToken.Null)
-        {
-            return default;
-        }
-
-        var value = reader.Value?.ToString();
-        return string.IsNullOrWhiteSpace(value) ? default : new MesVersion(value);
-    }
-
-    public override void WriteJson(JsonWriter writer, MesVersion value, JsonSerializer serializer)
-    {
-        writer.WriteValue(value.ToString());
-    }
-}
-
-/// <summary>
-/// Converts a JSON version to a plain <see cref="Version"/> while intentionally discarding any
-/// prerelease or build metadata. This is kept only for legacy config fields that are known to be
-/// numeric-only and therefore cannot represent SemVer labels.
-/// </summary>
-public class LenientVersionConverter : Newtonsoft.Json.JsonConverter<Version>
-{
-    public override Version ReadJson(JsonReader reader, Type objectType, Version existingValue, bool hasExistingValue, JsonSerializer serializer)
-    {
-        if (reader.TokenType == JsonToken.Null)
-        {
-            return null;
-        }
-
-        var value = reader.Value?.ToString();
-        return string.IsNullOrWhiteSpace(value) ? null : GenericUtilities.ToVersion(GenericUtilities.ParseVersion(value));
-    }
-
-    public override void WriteJson(JsonWriter writer, Version value, JsonSerializer serializer)
-    {
-        writer.WriteValue(value?.ToString());
-    }
 }

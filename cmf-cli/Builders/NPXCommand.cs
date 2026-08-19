@@ -1,8 +1,7 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
 using Cmf.CLI.Core.Objects;
+using NuGet.Versioning;
 
 namespace Cmf.CLI.Builders
 {
@@ -48,7 +47,7 @@ namespace Cmf.CLI.Builders
             // So we get the MES version of the project, and we assume that the user must be running the supported
             // node version for that MES project
             var mesVersion = ExecutionContext.Instance?.ProjectConfig?.MESVersion;
-            if (mesVersion.HasValue && mesVersion.Value < new Version(10, 0))
+            if (mesVersion != null && mesVersion < new NuGetVersion(10, 0, 0))
             {
                 args.Add("true");
             }

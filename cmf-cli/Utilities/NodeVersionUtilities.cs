@@ -1,4 +1,5 @@
 using Cmf.CLI.Core;
+using NuGet.Versioning;
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -69,7 +70,7 @@ namespace Cmf.CLI.Utilities
         /// <param name="mesVersion">The target MES version</param>
         /// <param name="requiredNodeMajorVersion">The required Node.js major version</param>
         /// <exception cref="CliException">Thrown when Node.js is not installed or the version is incompatible</exception>
-        public static void ValidateNodeVersion(Version mesVersion, string requiredNodeMajorVersion)
+        public static void ValidateNodeVersion(SemanticVersion mesVersion, string requiredNodeMajorVersion)
         {
             var installedVersion = GetInstalledNodeVersion();
 

@@ -1,5 +1,5 @@
 using System;
-using Cmf.CLI.Core.Objects;
+using NuGet.Versioning;
 
 namespace Cmf.CLI.Services;
 
@@ -22,35 +22,35 @@ public interface IDependencyVersionService
     /// </summary>
     /// <param name="productVersion">The product version to use</param>
     /// <returns>String representing the .NET SDK version</returns>
-    string DotNetSdk(MesVersion productVersion);
+    string DotNetSdk(NuGetVersion productVersion);
 
     /// <summary>
     /// Returns the expected .NET Target Framework for the given product version
     /// </summary>
     /// <param name="productVersion"></param>
     /// <returns>String representing the .NET Target Framework</returns>
-    string DotNetTargetFramework(MesVersion productVersion);
+    string DotNetTargetFramework(NuGetVersion productVersion);
     
     /// <summary>
     /// Returns the expected Node.js version for the given product version
     /// </summary>
     /// <param name="productVersion">The product version to use</param>
     /// <returns>String representing the Node.js version</returns>
-    string Node(MesVersion productVersion);
+    string Node(SemanticVersion productVersion);
 
     /// <summary>
     /// Returns the expected Angular CLI major version for the given product version
     /// </summary>
     /// <param name="productVersion">The product version to use</param>
     /// <returns>String representing the Angular CLI major version</returns>
-    string AngularCLI(MesVersion productVersion);
+    string AngularCLI(SemanticVersion productVersion);
 
     /// <summary>
     /// Returns the expected Angular dependencies for the given product version
     /// </summary>
     /// <param name="productVersion">The product version to use</param>
     /// <returns>AngularDeps representing the Angular dependencies</returns>
-    AngularDeps Angular(MesVersion productVersion);
+    AngularDeps Angular(SemanticVersion productVersion);
 }
 
 /// <summary>
@@ -80,11 +80,11 @@ public class DependencyVersionService : IDependencyVersionService
     public const string NG17_TS = "5.3.3";
     public const string NG21_TS = "5.9.3";
 
-    public string DotNetSdk(MesVersion productVersion) => productVersion.Major >= 11 ? NET8SDK :  NET6SDK;
-    public string DotNetTargetFramework(MesVersion productVersion) => productVersion.Major >= 11 ? NET8TARGETFRAMEWORK :  NET6TARGETFRAMEWORK;
-    public string Node(MesVersion productVersion) => productVersion.Major >= 11 ? NODE20 :  NODE18;
+    public string DotNetSdk(NuGetVersion productVersion) => productVersion.Major >= 11 ? NET8SDK :  NET6SDK;
+    public string DotNetTargetFramework(NuGetVersion productVersion) => productVersion.Major >= 11 ? NET8TARGETFRAMEWORK :  NET6TARGETFRAMEWORK;
+    public string Node(SemanticVersion productVersion) => productVersion.Major >= 11 ? NODE20 :  NODE18;
 
-    public AngularDeps Angular(MesVersion productVersion) =>
+    public AngularDeps Angular(SemanticVersion productVersion) =>
         productVersion.Major switch
         {
             <= 10 => new AngularDeps()
@@ -114,5 +114,5 @@ public class DependencyVersionService : IDependencyVersionService
             _ => throw new NotSupportedException($"No Angular dependencies defined for MES version {productVersion}")
         };
 
-    public string AngularCLI(MesVersion productVersion) => this.Angular(productVersion).CLI.Major.ToString();
+    public string AngularCLI(SemanticVersion productVersion) => this.Angular(productVersion).CLI.Major.ToString();
 }

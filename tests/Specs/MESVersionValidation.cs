@@ -214,24 +214,17 @@ public class MESVersionValidation
         service.IsVersionCompatible("12.0.0-beta.1").Should().BeTrue();
     }
 
-    [Fact]
-    public void ProjectConfig_WithPrereleaseMESVersion_ShouldPreserveSemVerIdentity()
-    {
-        // The config should not silently discard the prerelease label during deserialization.
-        SetupExecutionContext("12.0.0-beta.1");
-
-        ExecutionContext.Instance.ProjectConfig.MESVersion.ToString().Should().Be("12.0.0-beta.1");
-    }
-
     [Theory]
     [InlineData("12.0.0")]
     [InlineData("12.0.0-beta.1")]
     public void ProjectConfig_WithReleaseOrPrereleaseMESVersion_ShouldRoundTripWithoutLosingSemVer(string mesVersion)
     {
+        // The config must preserve the original SemVer identity, including prerelease labels,
+        // while still exposing the normalized form used for comparisons.
         SetupExecutionContext(mesVersion);
 
         ExecutionContext.Instance.ProjectConfig.MESVersion.ToString().Should().Be(mesVersion);
-        ExecutionContext.Instance.ProjectConfig.MESVersion.NuGetVersion.ToNormalizedString().Should().Be(GenericUtilities.ParseVersion(mesVersion).ToNormalizedString());
+        ExecutionContext.Instance.ProjectConfig.MESVersion.ToNormalizedString().Should().Be(GenericUtilities.ParseVersion(mesVersion).ToNormalizedString());
     }
 
     private void SetupExecutionContext(string mesVersion)

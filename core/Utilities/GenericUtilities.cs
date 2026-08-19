@@ -229,38 +229,6 @@ namespace Cmf.CLI.Utilities
         }
 
         /// <summary>
-        /// Converts a <see cref="NuGetVersion"/> to a <see cref="Version"/>, keeping the traditional
-        /// 3-part "Major.Minor.Build" formatting (as opposed to <see cref="NuGetVersion.Version"/>, which
-        /// always includes a 4th "Revision" component, e.g. "11.0.0.0" instead of "11.0.0"). Any
-        /// pre-release label and/or build metadata is discarded, since <see cref="Version"/> cannot
-        /// represent it.
-        /// </summary>
-        /// <param name="version">the version to convert</param>
-        /// <returns>a <see cref="Version"/> built from the numeric release components of <paramref name="version"/></returns>
-        public static Version ToVersion(NuGetVersion version)
-        {
-            return version.Version.Revision > 0
-                ? version.Version
-                : new Version(version.Major, version.Minor, version.Patch);
-        }
-
-        /// <summary>
-        /// Computes the npm dist-tag conventionally used by CM packages (e.g. "@criticalmanufacturing/ngx-schematics")
-        /// for a given product/MES version, e.g.:
-        /// <list type="bullet">
-        /// <item>"12.0.0" -&gt; "release-1200"</item>
-        /// <item>"12.0.0-alpha.1" -&gt; "alpha-1200"</item>
-        /// <item>"12.0.0-next.2" -&gt; "next-1200"</item>
-        /// </list>
-        /// </summary>
-        /// <param name="version">the MES version whose prerelease label must be preserved when computing the dist-tag</param>
-        /// <returns>the npm dist-tag for <paramref name="version"/></returns>
-        public static string GetNpmDistTag(MesVersion version)
-        {
-            return GetNpmDistTag(version.NuGetVersion);
-        }
-
-        /// <summary>
         /// Computes the npm dist-tag for a full SemVer value, preserving the prerelease label when present.
         /// </summary>
         /// <param name="version">the parsed NuGet version to convert</param>

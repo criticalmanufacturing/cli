@@ -61,7 +61,7 @@ namespace Cmf.CLI.Core.Objects
                 throw new MESVersionValidationException("MES version information is not available. Please ensure you are running this command in a valid project context.");
             }
 
-            if (currentVersion.Value.NuGetVersion < minVersion)
+            if (currentVersion < minVersion)
             {
                 throw new MESVersionValidationException($"This command requires MES version {minimumVersion} or higher. Current version: {currentVersion}");
             }
@@ -86,7 +86,7 @@ namespace Cmf.CLI.Core.Objects
                 return false;
             }
 
-            return currentVersion.Value.NuGetVersion >= minVersion;
+            return currentVersion >= minVersion;
         }
     }
 }

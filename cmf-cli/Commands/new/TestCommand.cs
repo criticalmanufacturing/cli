@@ -6,10 +6,10 @@ using Cmf.CLI.Utilities;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.IO.Abstractions;
-using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Cmf.CLI.Services;
+using NuGet.Versioning;
 
 namespace Cmf.CLI.Commands.New
 {
@@ -108,7 +108,7 @@ namespace Cmf.CLI.Commands.New
             #region version-specific bits
             args.AddRange(new []{ "--targetFramework", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().DotNetTargetFramework(mesVersion) });
 
-            if (mesVersion >= new MesVersion("11.2.3"))
+            if (mesVersion >= new NuGetVersion(11, 2, 3))
             {
                 args.Add("--hostPerformanceTests");
             }

@@ -2,6 +2,7 @@ using System;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 using FluentAssertions;
+using NuGet.Versioning;
 using Xunit;
 
 namespace tests.Specs
@@ -88,20 +89,6 @@ namespace tests.Specs
         }
 
         [Theory]
-        [InlineData("12.0.0", "12.0.0")]
-        [InlineData("11.1.5", "11.1.5")]
-        [InlineData("12.0.0-alpha.1", "12.0.0")]
-        [InlineData("10.0.0.0", "10.0.0")]
-        public void ToVersion_CollapsesToThreePartVersion_WhenRevisionIsZero(string version, string expected)
-        {
-            var nuGetVersion = GenericUtilities.ParseVersion(version);
-
-            var result = GenericUtilities.ToVersion(nuGetVersion);
-
-            result.ToString().Should().Be(expected);
-        }
-
-        [Theory]
         [InlineData("12.0.0", "release-1200")]
         [InlineData("11.1.5", "release-1115")]
         [InlineData("12.0.0-alpha.1", "alpha-1200")]
@@ -136,9 +123,9 @@ namespace tests.Specs
         [Theory]
         [InlineData("12.0.0", "release-1200")]
         [InlineData("12.0.0-beta.2", "beta-1200")]
-        public void GetNpmDistTag_MesVersion_UsesSemVerAwareDistTag(string version, string expectedDistTag)
+        public void GetNpmDistTag_NuGetVersion_UsesSemVerAwareDistTag(string version, string expectedDistTag)
         {
-            var mesVersion = new MesVersion(version);
+            var mesVersion = GenericUtilities.ParseVersion(version);
 
             var result = GenericUtilities.GetNpmDistTag(mesVersion);
 
@@ -150,68 +137,12 @@ namespace tests.Specs
         [InlineData("12.0.0-beta.1", "12.0.0-beta.2", true)]
         [InlineData("12.0.0-beta.2", "12.0.0", true)]
         [InlineData("12.0.0", "12.0.0-beta.1", false)]
-        public void MesVersion_Comparison_RespectsSemVerOrdering(string left, string right, bool leftIsLessThanRight)
+        public void NuGetVersion_Comparison_RespectsSemVerOrdering(string left, string right, bool leftIsLessThanRight)
         {
-            var leftVersion = new MesVersion(left);
-            var rightVersion = new MesVersion(right);
+            var leftVersion = new NuGetVersion(left);
+            var rightVersion = new NuGetVersion(right);
 
             (leftVersion < rightVersion).Should().Be(leftIsLessThanRight);
-        }
-
-        [Theory]
-        [InlineData("12.0.0", 10, 0, true, false, true)]
-        [InlineData("12.0.0", 12, 0, true, false, true)]
-        [InlineData("12.0.0-beta.1", 12, 0, false, true, false)]
-        [InlineData("12.0.0-beta.2", 12, 0, false, true, false)]
-        public void MesVersion_InteroperatesWithVersion_ForLegacyCompatibilityChecks(string mesVersion, int major, int minor, bool expectedGreaterOrEqual, bool expectedLessThan, bool expectedLegacyLessOrEqual)
-        {
-            var legacyVersion = new Version(major, minor, 0);
-            var current = new MesVersion(mesVersion);
-
-            (current >= legacyVersion).Should().Be(expectedGreaterOrEqual);
-            (current < legacyVersion).Should().Be(expectedLessThan);
-            (legacyVersion <= current).Should().Be(expectedLegacyLessOrEqual);
-        }
-
-        [Theory]
-        [InlineData(10, 0)]
-        [InlineData(11, 2)]
-        public void MesVersion_InteroperatesWithVersion_WithoutExplicitBuild_UsesZeroPatch(int major, int minor)
-        {
-            var legacyVersion = new Version(major, minor);
-            var current = new MesVersion($"{major}.{minor}.0");
-
-            (current >= legacyVersion).Should().BeTrue();
-            (legacyVersion <= current).Should().BeTrue();
-            current.CompareTo(legacyVersion).Should().Be(0);
-        }
-
-        [Theory]
-        [InlineData("12.0.0", true)]
-        [InlineData("12.0.0-beta.1", true)]
-        public void MesVersion_ImplicitConversionToVersion_UsesNumericReleaseForLegacyChecks(string mesVersion, bool shouldBeCompatible)
-        {
-            var current = new MesVersion(mesVersion);
-            Version legacy = current;
-
-            legacy.Should().NotBeNull();
-            legacy.Major.Should().Be(12);
-            legacy.Minor.Should().Be(0);
-            legacy.Build.Should().Be(0);
-            (legacy == current.NumericVersion).Should().BeTrue();
-            shouldBeCompatible.Should().BeTrue();
-        }
-
-        [Fact]
-        public void ToVersion_FromPreReleaseNuGetVersion_ShouldPreserveReleaseComponentsButNotSemVerLabel()
-        {
-            // This documents the compatibility conversion boundary: the numeric release components survive, while the
-            // prerelease label is intentionally lost. Future call sites must avoid relying on this plain Version value.
-            var nuGetVersion = GenericUtilities.ParseVersion("12.0.0-beta.2");
-
-            var result = GenericUtilities.ToVersion(nuGetVersion);
-
-            result.Should().Be(new Version(12, 0, 0));
         }
     }
 }
