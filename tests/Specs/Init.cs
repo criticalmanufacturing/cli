@@ -13,6 +13,8 @@ using System.Linq;
 using Cmf.CLI.Services;
 using Xunit;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Text.RegularExpressions;
 using Assert = tests.AssertWithMessage;
 
 namespace tests.Specs
@@ -35,6 +37,25 @@ namespace tests.Specs
                     "--reset"
                 });
                 parseResult.Invoke(console);
+        }
+
+        [Theory]
+        [InlineData("10.2.0", "10", "10.x.x", "10.2.x")]
+        [InlineData("11.1.5", "11", "11.x.x", "11.1.x")]
+        [InlineData("12.0.0-beta.2", "12", "12.x.x", "12.0.x")]
+        public void Template_VersionTransforms_MatchTheConfiguredRegexes(string version, string expectedMajor, string expectedMajorRange, string expectedFeature)
+        {
+            var templatePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "cmf-cli", "resources", "template_feed", "init", ".template.config", "template.json"));
+            var template = JObject.Parse(File.ReadAllText(templatePath));
+            var forms = (JObject)template["forms"]!;
+
+            var major = Transform(forms["versionToMajor"]!, version);
+            var majorRange = Transform(forms["versionToMajorRange"]!, version);
+            var feature = Transform(forms["versionToFeature"]!, version);
+
+            major.Should().Be(expectedMajor, $"versionToMajor should reduce '{version}' to its major segment");
+            majorRange.Should().Be(expectedMajorRange, $"versionToMajorRange should produce a major-only range from '{version}'");
+            feature.Should().Be(expectedFeature, $"versionToFeature should produce the feature segment from '{version}'");
         }
 
         [Theory]
@@ -131,6 +152,13 @@ namespace tests.Specs
                 Directory.SetCurrentDirectory(cur);
                 Directory.Delete(tmp, true);
             }
+        }
+
+        private static string Transform(JToken form, string value)
+        {
+            var pattern = (string)form["pattern"]!;
+            var replacement = (string)form["replacement"]!;
+            return Regex.Replace(value, pattern, replacement);
         }
 
         [Fact]
