@@ -60,8 +60,11 @@ public class DependencyVersionService : IDependencyVersionService
 {
     public const string NET6TARGETFRAMEWORK = "net6.0";
     public const string NET8TARGETFRAMEWORK = "net8.0";
+    public const string NET10TARGETFRAMEWORK = "net10.0";
     public const string NET6SDK = "6.0.201"; // avoid >2xx as it requires HTTPS for nuget pulls
     public const string NET8SDK = "8.0.301";
+    public const string NET10SDK = "10.0.301";
+    public const string NODE24 = "24";
     public const string NODE20 = "20";
     public const string NODE18 = "18";
     public const string NG15 = "15.2.1";
@@ -80,9 +83,26 @@ public class DependencyVersionService : IDependencyVersionService
     public const string NG17_TS = "5.3.3";
     public const string NG21_TS = "5.9.3";
 
-    public string DotNetSdk(NuGetVersion productVersion) => productVersion.Major >= 11 ? NET8SDK :  NET6SDK;
-    public string DotNetTargetFramework(NuGetVersion productVersion) => productVersion.Major >= 11 ? NET8TARGETFRAMEWORK :  NET6TARGETFRAMEWORK;
-    public string Node(SemanticVersion productVersion) => productVersion.Major >= 11 ? NODE20 :  NODE18;
+    public string DotNetSdk(NuGetVersion productVersion) => 
+        productVersion.Major >= 12 
+            ? NET10SDK 
+            : productVersion.Major >= 11 
+                ? NET8SDK 
+                :  NET6SDK;
+
+    public string DotNetTargetFramework(NuGetVersion productVersion) => 
+        productVersion.Major >= 12 
+            ? NET10TARGETFRAMEWORK 
+            : productVersion.Major >= 11 
+                ? NET8TARGETFRAMEWORK 
+                :  NET6TARGETFRAMEWORK;
+
+    public string Node(SemanticVersion productVersion) => 
+        productVersion.Major >= 12 
+            ? NODE24 
+            : productVersion.Major >= 11 
+                ? NODE20 
+                :  NODE18;
 
     public AngularDeps Angular(SemanticVersion productVersion) =>
         productVersion.Major switch
