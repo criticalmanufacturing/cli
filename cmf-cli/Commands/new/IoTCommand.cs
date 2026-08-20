@@ -160,7 +160,6 @@ namespace Cmf.CLI.Commands.New
             }
 
             var iotCustomPackageWorkDir = iotCustomPackage.GetFileInfo().Directory;
-            var iotCustomPackageName = base.GeneratePackageName(iotCustomPackageWorkDir)!.Value.Item1;
 
             var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
 
