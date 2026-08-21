@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [6.0.0-3](https://github.com/criticalmanufacturing/cli/compare/6.0.0-2...6.0.0-3) (2026-08-21)
+
+
+### Features
+
+* add dependency version for v12 (dotnet, node, ng22) ([3c3019a](https://github.com/criticalmanufacturing/cli/commit/3c3019af1202e790770c25240493335c35deb89e))
+* add support for pre-releases ([2d89954](https://github.com/criticalmanufacturing/cli/commit/2d89954ae20f980209508aea1a702f3f634dca49))
+
+
+### Bug Fixes
+
+* update SharpCompress package version and improve TAR.GZ handling in CmfPackageController ([c3f654b](https://github.com/criticalmanufacturing/cli/commit/c3f654bb62b8b4032f924e17c8332f30281b0a8a))
+
+
+### Under the hood
+
+* remove outdated NPX version handling logic from NPXCommand ([5a75a86](https://github.com/criticalmanufacturing/cli/commit/5a75a86b21231a7582d9ccd64ba9b8a0605e511d))
+* replace Version with MesVersion for improved semantic version handling across the CLI ([7893e74](https://github.com/criticalmanufacturing/cli/commit/7893e749d07c83a60498c513ce9bf91aa8d3aabf))
+
 ## [6.0.0-2](https://github.com/criticalmanufacturing/cli/compare/6.0.0-1...6.0.0-2) (2026-07-22)
 
 
