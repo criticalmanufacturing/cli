@@ -290,6 +290,7 @@ public class ControlledExceptions
     {
         var credential = new Mock<ICredential>();
         credential.SetupGet(x => x.Repository).Returns("https://example.com/packages");
+        credential.SetupGet(x => x.Key).Returns("Packages");
         credential.SetupGet(x => x.RepositoryType).Returns(RepositoryCredentialsType.NPM);
         IRepositoryCredentials repository = operation == "npm"
             ? new NPMRepositoryCredentials(new MockFileSystem())

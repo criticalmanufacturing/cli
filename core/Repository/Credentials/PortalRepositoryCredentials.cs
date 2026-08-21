@@ -124,7 +124,20 @@ namespace Cmf.CLI.Core.Repository.Credentials
 
                     var token = ((BearerCredential)cred).Token;
 
-                    var username = ParseJwt(token).Subject;
+                    string username;
+                    try
+                    {
+                        username = ParseJwt(token).Subject;
+                    }
+                    catch (Exception ex) when (ex is CliException or ArgumentNullException)
+                    {
+                        throw new CliException(string.Format(CoreMessages.PortalTokenInvalidJwt, cred.Repository, ex.Message), ex);
+                    }
+
+                    if (string.IsNullOrWhiteSpace(username))
+                    {
+                        throw new CliException(string.Format(CoreMessages.PortalTokenMissingSubject, cred.Repository));
+                    }
 
                     // NuGet
                     yield return new BasicCredential

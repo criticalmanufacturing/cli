@@ -62,4 +62,16 @@
   <data name="InvalidJwtPayload" xml:space="preserve">
     <value>Invalid format JWT token, payload is missing or invalid.</value>
   </data>
+  <data name="PortalTokenInvalidJwt" xml:space="preserve">
+    <value>Failed to derive credentials from Portal token for repository '{0}': token is not a valid JWT - {1}</value>
+  </data>
+  <data name="PortalTokenMissingSubject" xml:space="preserve">
+    <value>Failed to derive credentials from Portal token for repository '{0}': token payload is missing required 'sub' claim (username). The token may be invalid, not a Portal-issued JWT, or has an unexpected format. Unable to create derived credentials for NuGet/NPM/Docker.</value>
+  </data>
+  <data name="NuGetMissingUsername" xml:space="preserve">
+    <value>Missing mandatory "username" value for {0} repository "{1}" (key="{2}"). This can happen when deriving credentials from a Portal token whose JWT payload is missing the 'sub' claim.</value>
+  </data>
+  <data name="NuGetMissingPassword" xml:space="preserve">
+    <value>Missing mandatory "password" value for {0} repository "{1}" (key="{2}")</value>
+  </data>
 </root>

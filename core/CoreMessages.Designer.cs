@@ -167,5 +167,41 @@ namespace Cmf.CLI.Core {
                 return ResourceManager.GetString("VersionFailedConsistencyCheck", resourceCulture);
             }
         }
+        /// <summary>
+        ///   Looks up a localized credential validation message.
+        /// </summary>
+        public static string PortalTokenInvalidJwt {
+            get {
+                return ResourceManager.GetString("PortalTokenInvalidJwt", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized credential validation message.
+        /// </summary>
+        public static string PortalTokenMissingSubject {
+            get {
+                return ResourceManager.GetString("PortalTokenMissingSubject", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized credential validation message.
+        /// </summary>
+        public static string NuGetMissingUsername {
+            get {
+                return ResourceManager.GetString("NuGetMissingUsername", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized credential validation message.
+        /// </summary>
+        public static string NuGetMissingPassword {
+            get {
+                return ResourceManager.GetString("NuGetMissingPassword", resourceCulture);
+            }
+        }
+
     }
 }

@@ -87,6 +87,8 @@ cmf login portal --auth-type Bearer -t <token>
     You can avoid the parameters `-u`/`--username`, `-p`/`--password` and `-t`/`--token`, in which case they will
     be prompted interactively on the console.
 
+Portal tokens used to derive NuGet, NPM and Docker credentials must be JWTs with a non-empty `sub` claim (username). Invalid JWTs or missing subjects produce a specific token validation error. NuGet credentials require a non-empty username and a non-null password; validation errors are reported before accessing `NuGet.Config`.
+
 ### Environment Variables
 
 It is also possible to override some credentials when running commands through the use of environment variables. The format of the environment variables is as follows:
