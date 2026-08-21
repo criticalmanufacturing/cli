@@ -124,7 +124,20 @@ namespace Cmf.CLI.Core.Repository.Credentials
 
                     var token = ((BearerCredential)cred).Token;
 
-                    var username = ParseJwt(token).Subject;
+                    string username;
+                    try
+                    {
+                        username = ParseJwt(token).Subject;
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception($"Failed to derive credentials from Portal token for repository '{cred.Repository}': token is not a valid JWT - {ex.Message}", ex);
+                    }
+
+                    if (string.IsNullOrWhiteSpace(username))
+                    {
+                        throw new Exception($"Failed to derive credentials from Portal token for repository '{cred.Repository}': token payload is missing required 'sub' claim (username). The token may be invalid, not a Portal-issued JWT, or has an unexpected format. Unable to create derived credentials for NuGet/NPM/Docker.");
+                    }
 
                     // NuGet
                     yield return new BasicCredential
