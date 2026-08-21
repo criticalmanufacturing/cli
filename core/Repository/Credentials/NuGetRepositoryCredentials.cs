@@ -52,15 +52,27 @@ namespace Cmf.CLI.Core.Repository.Credentials
                     throw new CliException($"Missing mandatory \"key\" value for {RepositoryType} repository \"{credential.Repository}\"");
                 }
 
-                if (credential is not BasicCredential)
+                if (credential is not BasicCredential basicCred)
                 {
                     throw new InvalidAuthTypeException(credential);
+                }
+
+                if (string.IsNullOrWhiteSpace(basicCred.Username))
+                {
+                    throw new CliException(string.Format(CoreMessages.NuGetMissingUsername, RepositoryType, credential.Repository, credential.Key));
+                }
+
+                if (basicCred.Password == null)
+                {
+                    throw new CliException(string.Format(CoreMessages.NuGetMissingPassword, RepositoryType, credential.Repository, credential.Key));
                 }
             }
         }
 
         public async Task SyncCredentials(IList<ICredential> credentials)
         {
+            // Surface validation errors before accessing the NuGet configuration file.
+            ValidateCredentials(credentials);
 
             IFileInfo nugetConfigFile = null;
             try
