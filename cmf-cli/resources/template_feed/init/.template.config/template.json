@@ -29,6 +29,24 @@
       "displayName": "Project Name",
       "replaces": "<%= $CLI_PARAM_ProjectName %>"
     },
+    "projectConfigV2": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": false,
+      "replaces": "<%= $CLI_PARAM_ProjectConfigV2 %>"
+    },
+    "projectConfigV1File": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": ".project-config",
+      "fileRename": ".project-config-v1"
+    },
+    "projectConfigV2File": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": ".project-config",
+      "fileRename": ".project-config-v2"
+    },
     "customPackageName": {
       "type": "parameter",
       "datatype": "string",
@@ -638,6 +656,14 @@
             "assets/**",
             "assets/"
           ]
+        },
+        {
+          "condition": "projectConfigV2",
+          "exclude": [ ".project-config-v1.json" ]
+        },
+        {
+          "condition": "!projectConfigV2",
+          "exclude": [ ".project-config-v2.json" ]
         }
       ]
     }

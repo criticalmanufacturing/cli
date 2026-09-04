@@ -18,6 +18,7 @@ public class MESVersionValidation
           ""RepositoryURL"": ""https://example.com/repo"",
           ""Tenant"": ""ExampleClient"",
           ""MESVersion"": ""{MES_VERSION}"",
+          ""NGXSchematicsVersion"": ""{NGX_SCHEMATICS_VERSION}"",
           ""DevTasksVersion"": ""1.0.0"",
           ""HTMLStarterVersion"": ""8.0.0"",
           ""DefaultDomain"": ""AD"",
@@ -216,6 +217,25 @@ public class MESVersionValidation
     }
 
     [Theory]
+    [InlineData("11.0.0", typeof(ProjectConfigV1))]
+    [InlineData("12.0.0-alpha.1", typeof(ProjectConfigV2))]
+    public void ProjectConfig_LoadsVersionSpecificModel(string mesVersion, Type expectedType)
+    {
+        SetupExecutionContext(mesVersion);
+
+        ExecutionContext.Instance.ProjectConfig.GetType().Should().Be(expectedType);
+    }
+
+    [Fact]
+    public void ProjectConfigV2_DoesNotExposeLegacyProperties()
+    {
+        typeof(ProjectConfigV2).GetProperty(nameof(ProjectConfigV1.EnvironmentName))
+            .Should().BeNull();
+        typeof(ProjectConfigV2).GetProperty(nameof(ProjectConfigV1.DeploymentDir))
+            .Should().BeNull();
+    }
+
+    [Theory]
     [InlineData("12.0.0")]
     [InlineData("12.0.0-beta.1")]
     public void ProjectConfig_WithReleaseOrPrereleaseMESVersion_ShouldRoundTripWithoutLosingSemVer(string mesVersion)
@@ -228,9 +248,24 @@ public class MESVersionValidation
         ExecutionContext.Instance.ProjectConfig.MESVersion.ToNormalizedString().Should().Be(NuGetVersion.Parse(mesVersion).ToNormalizedString());
     }
 
-    private void SetupExecutionContext(string mesVersion)
+    [Fact]
+    public void ProjectConfig_NgxSchematicsVersion_AllowsNpmDistTag()
     {
-        var projConfig = projCfgTemplate.Replace("{MES_VERSION}", mesVersion);
+        // Arrange
+        SetupExecutionContext("12.0.0-alpha.2", "alpha-1200");
+
+        // Act
+        var schematicsVersion = ExecutionContext.Instance.ProjectConfig.NGXSchematicsVersion;
+
+        // Assert
+        schematicsVersion.Should().Be("alpha-1200");
+    }
+
+    private void SetupExecutionContext(string mesVersion, string ngxSchematicsVersion = "10.0.0")
+    {
+        var projConfig = projCfgTemplate
+            .Replace("{MES_VERSION}", mesVersion)
+            .Replace("{NGX_SCHEMATICS_VERSION}", ngxSchematicsVersion);
 
         var fileSystem = new MockFileSystem();
         var projectConfigPath = fileSystem.Path.Join(fileSystem.Directory.GetCurrentDirectory(), ".project-config.json");

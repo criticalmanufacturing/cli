@@ -507,6 +507,7 @@ namespace Cmf.CLI.Commands
             if (x.BaseVersion != null)
             {
                 args.AddRange(new[] { "--MESVersion", x.BaseVersion });
+                args.AddRange(new[] { "--projectConfigV2", (NuGetVersion.Parse(x.BaseVersion).Major >= 12).ToString() });
             }
 
             args.AddRange(new [] {"--DevTasksVersion", x.DevTasksVersion ?? ""});

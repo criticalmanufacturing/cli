@@ -15,6 +15,9 @@ namespace tests.Specs;
 
 public class Bump
 {
+    private const string ProjectConfigJson = @"{
+              ""MESVersion"": ""11.0.0""
+            }";
 
     [Theory]
     [InlineData("alpha.1")]
@@ -34,10 +37,7 @@ public class Bump
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
             {
-                MockUnixSupport.Path(@"c:\.project-config.json"), new MockFileData(
-                    @"{
-              ""MESVersion"": ""11.0.0""
-            }")
+              MockUnixSupport.Path(@"c:\.project-config.json"), new MockFileData(ProjectConfigJson)
             },
             {
                 cmfPackageJson, new MockFileData(
@@ -123,7 +123,7 @@ public class Bump
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
             // project config file
-            { ".project-config.json", new MockFileData("") },
+            { ".project-config.json", new MockFileData(ProjectConfigJson) },
 
             // root cmfpackage file
             {
@@ -370,7 +370,7 @@ public class Bump
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
             // project config file
-            { ".project-config.json", new MockFileData("") },
+            { ".project-config.json", new MockFileData(ProjectConfigJson) },
 
             // root cmfpackage file
             {
