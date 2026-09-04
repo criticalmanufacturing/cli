@@ -1,0 +1,13 @@
+{
+  "ProjectName": "<%= $CLI_PARAM_ProjectName %>",
+  "RepositoryType": "<%= $CLI_PARAM_RepositoryType %>",
+  "BaseLayer": "<%= $CLI_PARAM_BaseLayer %>",
+  "NPMRegistry": "<%= $CLI_PARAM_NPMRegistry %>",
+  "NuGetRegistry": "<%= $CLI_PARAM_NuGetRegistry %>",
+  "Tenant": "<%= $CLI_PARAM_Tenant %>",
+  "MESVersion": "<%= $CLI_PARAM_MESVersion %>",
+  "NGXSchematicsVersion": "<%= $CLI_PARAM_NGXSchematicsVersion %>",
+  "NugetVersion": "<%= $CLI_PARAM_NugetVersion %>",
+  "TestScenariosNugetVersion": "<%= $CLI_PARAM_TestScenariosNugetVersion %>",
+  "CIRepo": "<%= $CLI_PARAM_CIRepo %>"
+}
