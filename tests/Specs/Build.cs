@@ -24,6 +24,10 @@ namespace tests.Specs;
 
 public class Build
 {
+    private const string ProjectConfigJson = @"{
+            ""MESVersion"": ""11.0.0""
+        }";
+
     [Fact]
     public void AbstractionsDirectoryConverter_SerializeDirectoryPath()
     {
@@ -470,7 +474,7 @@ public class Build
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
             // project config file
-            { ".project-config.json", new MockFileData("")},
+            { ".project-config.json", ProjectConfigJson},
 
             // root cmfpackage file
             { $"cmfpackage.json", new MockFileData(

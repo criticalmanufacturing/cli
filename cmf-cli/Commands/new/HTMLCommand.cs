@@ -248,8 +248,9 @@ namespace Cmf.CLI.Commands.New
             configJsonJson.host.rest.port = 80;
             configJsonJson.host.isLoadBalancerEnabled = false;
             configJsonJson.host.tenant.name = ExecutionContext.Instance.ProjectConfig.Tenant;
-            configJsonJson.general.defaultDomain = ExecutionContext.Instance.ProjectConfig.DefaultDomain;
-            configJsonJson.general.environmentName = ExecutionContext.Instance.ProjectConfig.EnvironmentName;
+            var legacyProjectConfig = ExecutionContext.Instance.ProjectConfig as ProjectConfigV1;
+            configJsonJson.general.defaultDomain = legacyProjectConfig?.DefaultDomain;
+            configJsonJson.general.environmentName = legacyProjectConfig?.EnvironmentName;
             configJsonJson.version = $"{ExecutionContext.Instance.ProjectConfig.ProjectName} $(Build.BuildNumber) - {mesVersion}";
             configJsonStr = JsonConvert.SerializeObject(configJsonJson, Formatting.Indented);
             this.fileSystem.File.WriteAllText(configJsonPath, configJsonStr);

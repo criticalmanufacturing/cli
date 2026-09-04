@@ -316,6 +316,15 @@ namespace tests.Specs
                 projectConfig.Should().Contain($@"""NugetVersion"": ""{mesVersion}""", "NugetVersion should default to the MES version");
                 projectConfig.Should().Contain($@"""TestScenariosNugetVersion"": ""{mesVersion}""", "TestScenariosNugetVersion should default to the MES version");
                 projectConfig.Should().Contain($@"""NGXSchematicsVersion"": ""{expectedNgxSchematicsVersion}""", "NGXSchematicsVersion should be derived from the MES version's pre-release label and numeric components");
+                if (mesVersion.StartsWith("12."))
+                {
+                    projectConfig.Should().NotContain(@"""EnvironmentName""", "MES 12+ project configs should use V2");
+                    projectConfig.Should().NotContain(@"""DeploymentDir""", "MES 12+ project configs should omit legacy fields");
+                }
+                else
+                {
+                    projectConfig.Should().Contain(@"""EnvironmentName""", "MES 11 project configs should use V1");
+                }
             }
             finally
             {
