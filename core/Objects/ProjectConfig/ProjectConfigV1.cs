@@ -1,21 +1,13 @@
 using System;
 using System.Text.Json.Serialization;
 using Cmf.CLI.Core.Enums;
-using Cmf.CLI.Utilities;
 using Newtonsoft.Json;
 using NuGet.Versioning;
 
 namespace Cmf.CLI.Core.Objects;
 
-public class ProjectConfigV1
+public class ProjectConfigV1 : ProjectConfig
 {
-    public string ProjectName { get; set; }
-    public RepositoryType? RepositoryType { get; set; }
-    public BaseLayer? BaseLayer { get; set; }
-    [Newtonsoft.Json.JsonConverter(typeof(UriConverter))]
-    public Uri NPMRegistry { get; set; }
-    [Newtonsoft.Json.JsonConverter(typeof(UriConverter))]
-    public Uri NuGetRegistry { get; set; }
     [Newtonsoft.Json.JsonConverter(typeof(UriConverter))]
     public Uri AzureDevopsCollectionURL { get; set; }
     public string AgentPool { get; set; }
@@ -25,22 +17,13 @@ public class ProjectConfigV1
     public string EnvironmentName { get; set; }
     public string DefaultDomain { get; set; }
     [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
-    public int? RESTPort { get; set; }
-    public string Tenant { get; set; }
-    [Newtonsoft.Json.JsonConverter(typeof(VersionStringConverter<NuGetVersion>))]
-    public NuGetVersion MESVersion { get; set; }
+	public int? RESTPort { get; set; }
     [Newtonsoft.Json.JsonConverter(typeof(VersionStringConverter<SemanticVersion>))]
     public SemanticVersion DevTasksVersion { get; set; }
     [Newtonsoft.Json.JsonConverter(typeof(VersionStringConverter<SemanticVersion>))]
     public SemanticVersion HTMLStarterVersion { get; set; }
     [Newtonsoft.Json.JsonConverter(typeof(VersionStringConverter<SemanticVersion>))]
     public SemanticVersion YoGeneratorVersion { get; set; }
-    [Newtonsoft.Json.JsonConverter(typeof(VersionStringConverter<SemanticVersion>))]
-    public SemanticVersion NGXSchematicsVersion { get; set; }
-    [Newtonsoft.Json.JsonConverter(typeof(VersionStringConverter<NuGetVersion>))]
-    public NuGetVersion NugetVersion { get; set; }
-    [Newtonsoft.Json.JsonConverter(typeof(VersionStringConverter<NuGetVersion>))]
-    public NuGetVersion TestScenariosNugetVersion { get; set; }
     [Newtonsoft.Json.JsonConverter(typeof(BooleanJsonConverter))]
     public bool IsSslEnabled { get; set; }
     public string vmHostname { get; set; }
@@ -70,9 +53,6 @@ public class ProjectConfigV1
     public Uri DeploymentDir { get; set; }
     [Newtonsoft.Json.JsonConverter(typeof(UriConverter))]
     public Uri DeliveredRepo { get; set; }
-    [Newtonsoft.Json.JsonConverter(typeof(UriConverter))]
-    public Uri CIRepo { get; set; }
-
     public string Organization { get; set; }
     public string Product { get; set; }
 }

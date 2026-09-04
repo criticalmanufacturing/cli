@@ -71,7 +71,7 @@ namespace Cmf.CLI.Commands.New
         protected override List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args)
         {
             var npmRegistry = ExecutionContext.Instance.ProjectConfig.NPMRegistry;
-            var devTasksVersion = ExecutionContext.Instance.ProjectConfig.DevTasksVersion;
+            var devTasksVersion = (ExecutionContext.Instance.ProjectConfig as ProjectConfigV1)?.DevTasksVersion;
             var repoType = ExecutionContext.Instance.ProjectConfig.RepositoryType ?? CliConstants.DefaultRepositoryType;
             Log.Debug($"Creating IoT Package at {workingDir} for repo type {repoType} using registry {npmRegistry}");
 

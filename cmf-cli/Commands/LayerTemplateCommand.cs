@@ -102,15 +102,16 @@ namespace Cmf.CLI.Commands
         {
             //load .project-config
             var projectConfig = ExecutionContext.Instance.ProjectConfig;
+            var legacyProjectConfig = projectConfig as ProjectConfigV1;
             var organization = Constants.CliConstants.DefaultOrganization;
             var product = Constants.CliConstants.DefaultProduct;
-            if (!string.IsNullOrWhiteSpace(projectConfig.Organization))
+            if (!string.IsNullOrWhiteSpace(legacyProjectConfig?.Organization))
             {
-                organization = projectConfig.Organization;
+                organization = legacyProjectConfig.Organization;
             }
-            if (!string.IsNullOrWhiteSpace(projectConfig.Product))
+            if (!string.IsNullOrWhiteSpace(legacyProjectConfig?.Product))
             {
-                product = projectConfig.Product;
+                product = legacyProjectConfig.Product;
             }
 
             return (organization, product);

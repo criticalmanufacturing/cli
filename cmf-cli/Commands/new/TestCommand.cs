@@ -80,25 +80,38 @@ namespace Cmf.CLI.Commands.New
             };
 
             var projectName = projectConfig.ProjectName;
-            var restPort = projectConfig.RESTPort;
             var mesVersion = projectConfig.MESVersion;
-            var htmlPort = projectConfig.HTMLPort;
-            var vmHostname = projectConfig.vmHostname;
             var testScenariosNugetVersion = projectConfig.TestScenariosNugetVersion;
-            var isSslEnabled = projectConfig.IsSslEnabled;
+            var legacyProjectConfig = projectConfig as ProjectConfigV1;
+            var restPort = legacyProjectConfig?.RESTPort;
+            var htmlPort = legacyProjectConfig?.HTMLPort;
+            var vmHostname = legacyProjectConfig?.vmHostname;
+            var isSslEnabled = legacyProjectConfig?.IsSslEnabled ?? false;
 
             args.AddRange(new[]
             {
                 "--projectName", projectName,
                 "--repositoryType", repoType.ToString(),
-                "--vmHostname", vmHostname,
-                "--RESTPort", restPort.ToString(),
                 "--testScenariosNugetVersion", testScenariosNugetVersion.ToString(),
-                "--HTMLPort", htmlPort.ToString(),
                 "--MESVersion", mesVersion.ToString(),
                 "--Product", product,
                 "--Organization", organization
             });
+
+            if (vmHostname != null)
+            {
+                args.AddRange(new[] { "--vmHostname", vmHostname });
+            }
+
+            if (restPort.HasValue)
+            {
+                args.AddRange(new[] { "--RESTPort", restPort.Value.ToString() });
+            }
+
+            if (htmlPort.HasValue)
+            {
+                args.AddRange(new[] { "--HTMLPort", htmlPort.Value.ToString() });
+            }
 
             if (isSslEnabled)
             {
