@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [6.0.0-4](https://github.com/criticalmanufacturing/cli/compare/6.0.0-3...6.0.0-4) (2026-09-04)
+
+
+### Features
+
+* introduce ProjectConfigV2 ([7edf0dd](https://github.com/criticalmanufacturing/cli/commit/7edf0dd6ca48342b6d30869d55366da5cf57dcf1))
+
 ## [6.0.0-3](https://github.com/criticalmanufacturing/cli/compare/6.0.0-2...6.0.0-3) (2026-08-21)
 
 
