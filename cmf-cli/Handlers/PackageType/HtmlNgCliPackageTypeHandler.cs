@@ -46,6 +46,22 @@ namespace Cmf.CLI.Handlers
                 }
             }
 
+            var configStep = new Step(StepType.TaggedFile)
+            {
+                ContentPath = "assets/config.json",
+                TagFile = true
+            };
+
+            if(ExecutionContext.Instance.ProjectConfig.MESVersion.Major >= 12)
+            {
+                configStep = new Step(StepType.TransformFile)
+                {
+                    File = "config.json",
+                    TagFile = true,
+                    RelativePath = "assets",
+                };
+            }                
+
             cmfPackage.SetDefaultValues
             (
                 targetDirectory:
@@ -69,12 +85,7 @@ namespace Cmf.CLI.Handlers
                             ContentPath = "ngsw.json",
                             TagFile = true
                         },
-                        new Step(StepType.TransformFile)
-                        {
-                            File = "config.json",
-                            TagFile = true,
-                            RelativePath = "assets",
-                        }
+                        configStep
                     }
             );
 
@@ -212,9 +223,9 @@ namespace Cmf.CLI.Handlers
         /// </summary>
         public override void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir, bool dryRun = false)
         {
-            if (!dryRun)
+            if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major >= 12)
             {
-                GeneratePresentationConfigFile(packageOutputDir);
+                GeneratePresentationConfigFile(packageOutputDir, dryRun);
             }
             base.Pack(packageOutputDir, outputDir, dryRun);
         }
@@ -223,11 +234,11 @@ namespace Cmf.CLI.Handlers
         /// This function will generated the config.json using the html template.
         /// This file is packed and included in the root of the zip file, which will then be applied transformation within the target environment config.json (located at /assets/config.json).
         /// </summary>
-        private void GeneratePresentationConfigFile(IDirectoryInfo packageOutputDir)
+        private void GeneratePresentationConfigFile(IDirectoryInfo packageOutputDir, bool dryRun = false)
         {
             Log.Debug("Generating Presentation config.json");
 
-            string path = this.fileSystem.Path.Join(packageOutputDir.FullName, CliConstants.CmfPackagePresentationConfig);
+            string path = fileSystem.Path.Join(packageOutputDir.FullName, CliConstants.CmfPackagePresentationConfig);
             string fileContent = ResourceUtilities.GetEmbeddedResourceContent($"{CliConstants.FolderTemplates}/{CmfPackage.PackageType}/config.ng.json");
 
             IDirectoryInfo cmfPackageDirectory = CmfPackage.GetFileInfo().Directory;
@@ -253,7 +264,13 @@ namespace Cmf.CLI.Handlers
 
             fileContent = fileContent.Replace(CliConstants.TokenJDTInjection, injection);
 
-            this.fileSystem.File.WriteAllText(path, fileContent);
+            if(dryRun)
+            {
+                Log.Debug("Dry run enabled - skipping writing Presentation config.json");
+                return;
+            }
+
+            fileSystem.File.WriteAllText(path, fileContent);
         }
     }
 }
