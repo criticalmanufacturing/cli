@@ -1,6 +1,6 @@
 # HTML package config transformations
 
-The `Transform` action has a special case for HTML packages. It lets you add or change custom properties in the UI `config.json` without replacing the out-of-the-box file.
+For MES v12 and later, the `Transform` action has a special case for HTML packages. It lets you add or change custom properties in the UI `config.json` without replacing the out-of-the-box file. This behavior does not apply to MES versions before v12.
 
 The `source` is a JSON transformation fragment, such as `my-transforms.json` (example name), and the `target` value is ignored by the packer. The transformation is generated into the package's root `config.json` during packing and is applied to the product-managed `assets/config.json` during deployment.
 

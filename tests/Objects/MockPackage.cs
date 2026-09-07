@@ -9,7 +9,7 @@ namespace tests.Objects
         {
             { MockUnixSupport.Path(@"c:\.project-config.json"), new MockFileData(
             @"{
-              ""MESVersion"": ""10.0.0""
+              ""MESVersion"": ""12.0.0""
             }")
             },
             { MockUnixSupport.Path(@"c:\ui\angular.json"), new MockFileData(

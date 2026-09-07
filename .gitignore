@@ -373,3 +373,5 @@ npm/*.tgz
 
 *.lscache
 dotnet/
+
+repo/
