@@ -59,10 +59,7 @@
                 "echo": false,
                 "focus": true,
                 "group": "scaffold-cli",
-                "panel": "dedicated"
-            },
-            "runOptions": {
-                "runOn": "folderOpen"
+                "panel": "dedicated",
             }
         },
         {
