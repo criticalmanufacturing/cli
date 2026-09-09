@@ -335,6 +335,21 @@ namespace tests.Specs
             Help_internal(mesVersion: mesVersion, ngxSchematicsVersion: ngxSchematicsVersion);
         }
 
+        [Theory, Trait("TestCategory", "Integration")]
+        [InlineData("12.0.0")]
+        public void Help_v12(string mesVersion)
+        {
+            RunNew(new Cmf.CLI.Commands.New.HelpCommand(), "Cmf.Custom.Help", mesVersion: mesVersion, extraAsserts: args =>
+            {
+                Assert.True(File.Exists("Cmf.Custom.Help/mkdocs.yml"), "MkDocs configuration is missing");
+                Assert.True(File.Exists("Cmf.Custom.Help/docs/index.md"), "MkDocs home page is missing");
+                Assert.True(File.Exists("Cmf.Custom.Help/cmfpackage.json"), "Package metadata is missing");
+                Assert.True(File.ReadAllText("Cmf.Custom.Help/cmfpackage.json").Contains("\"packageType\": \"Help\""), "Package type is not Help");
+                Assert.False(File.Exists("Cmf.Custom.Help/package.json"), "NPM project should not be created for MES 12 Help packages");
+                Assert.False(File.Exists("Cmf.Custom.Help/angular.json"), "Angular workspace should not be created for MES 12 Help packages");
+            });
+        }
+
         private void Help_internal(string mesVersion, string ngxSchematicsVersion, string scaffoldingDir = null)
         {
             RunNew(new Cmf.CLI.Commands.New.HelpCommand(), "Cmf.Custom.Help", scaffoldingDir: scaffoldingDir, mesVersion: mesVersion, ngxSchematicsVersion: ngxSchematicsVersion, extraAsserts: args =>
