@@ -335,6 +335,77 @@ namespace tests.Specs
             Help_internal(mesVersion: mesVersion, ngxSchematicsVersion: ngxSchematicsVersion);
         }
 
+        [Theory, Trait("TestCategory", "Integration")]
+        [InlineData("12.0.0")]
+        public void Help_v12(string mesVersion)
+        {
+            var root = MockUnixSupport.Path(@"c:\test");
+            
+            // Create .project-config.json and cmfpackage.json
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { MockUnixSupport.Path($@"{root}\.project-config.json"), new MockFileData(@"{
+                    ""ProjectName"": ""localtest"",
+                    ""RepositoryType"": ""Customization"",
+                    ""BaseLayer"": ""MES"",
+                    ""Tenant"": ""cmf"",
+                    ""MESVersion"": """ + mesVersion + @""",
+                    ""NPMRegistry"": ""http://npm_registry/""
+                }") },
+                { MockUnixSupport.Path($@"{root}\cmfpackage.json"), new MockFileData(@"{
+                    ""packageId"": ""Cmf.Custom.Package"",
+                    ""version"": ""1.0.0"",
+                    ""packageType"": ""Root"",
+                    ""isInstallable"": true,
+                    ""isUniqueInstall"": false
+                }") }
+            });
+
+            // Place template feed in the temporary memory
+            var templateFeedSource = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "resources", "template_feed"));
+            if (Directory.Exists(templateFeedSource))
+            {
+                foreach (var file in Directory.GetFiles(templateFeedSource, "*", SearchOption.AllDirectories))
+                {
+                    fileSystem.AddFile(file, new MockFileData(File.ReadAllBytes(file)));
+                }
+            }
+
+            ExecutionContext.ServiceProvider = new ServiceCollection()
+                .AddSingleton<IProjectConfigService>(new ProjectConfigService())
+                .AddSingleton<IVersionService>(new VersionService(CliConstants.PackageName))
+                .AddSingleton<IRepositoryLocator, RepositoryLocator>()
+                .AddSingleton<IDependencyVersionService, DependencyVersionService>()
+                .BuildServiceProvider();
+
+            fileSystem.Directory.SetCurrentDirectory(root);
+            ExecutionContext.Initialize(fileSystem);
+
+            // Execute new help inside the folder
+            var cmd = new Command("help");
+            var helpCommand = new Cmf.CLI.Commands.New.HelpCommand(fileSystem);
+            helpCommand.Configure(cmd);
+            TestUtilities.GetParser(cmd).Invoke(new string[] { "--version", "1.0.0", root }, new TestConsole());
+
+            var helpDir = fileSystem.Path.Join(root, "Cmf.Custom.Help");
+            
+            // Assertions
+            Assert.True(fileSystem.File.Exists(fileSystem.Path.Join(helpDir, "mkdocs.yml")), "MkDocs configuration is missing");
+            Assert.True(fileSystem.File.Exists(fileSystem.Path.Join(helpDir, "docs", "index.md")), "MkDocs home page is missing");
+            Assert.True(fileSystem.Directory.Exists(fileSystem.Path.Join(helpDir, "docs", "localtest")), "ProjectName docs folder is missing");
+            Assert.True(fileSystem.File.Exists(fileSystem.Path.Join(helpDir, "docs", "localtest", "index.md")), "ProjectName landing page is missing");
+            Assert.True(fileSystem.File.Exists(fileSystem.Path.Join(helpDir, "docs", "assets", "images", "cmf-logo.png")), "Shared logo asset is missing");
+            Assert.True(fileSystem.File.Exists(fileSystem.Path.Join(helpDir, "docs", "assets", "images", "favicon.ico")), "Favicon asset is missing");
+            Assert.True(fileSystem.File.Exists(fileSystem.Path.Join(helpDir, "cmfpackage.json")), "Package metadata is missing");
+            Assert.False(fileSystem.File.Exists(fileSystem.Path.Join(helpDir, "package.json")), "NPM project should not be created for MES 12 Help packages");
+            Assert.False(fileSystem.File.Exists(fileSystem.Path.Join(helpDir, "angular.json")), "Angular workspace should not be created for MES 12 Help packages");
+
+            // Content
+            Assert.True(fileSystem.File.ReadAllText(fileSystem.Path.Join(helpDir, "mkdocs.yml")).Contains("dev_addr: 0.0.0.0:7001"), "MkDocs development address is not configured");
+            Assert.True(fileSystem.File.ReadAllText(fileSystem.Path.Join(helpDir, "docs", "localtest", "index.md")).Contains("localtest"), "ProjectName is not rendered into the landing page");
+            Assert.True(fileSystem.File.ReadAllText(fileSystem.Path.Join(helpDir, "cmfpackage.json")).Contains("\"source\": \"docs/localtest/**\""), "ProjectName content mapping is not rendered into the package metadata");
+        }
+
         private void Help_internal(string mesVersion, string ngxSchematicsVersion, string scaffoldingDir = null)
         {
             RunNew(new Cmf.CLI.Commands.New.HelpCommand(), "Cmf.Custom.Help", scaffoldingDir: scaffoldingDir, mesVersion: mesVersion, ngxSchematicsVersion: ngxSchematicsVersion, extraAsserts: args =>

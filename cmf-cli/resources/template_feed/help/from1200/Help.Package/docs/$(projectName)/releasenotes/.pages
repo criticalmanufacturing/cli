@@ -1,0 +1,5 @@
+title: Release Notes
+nav:
+    - Release Notes: index.md
+    - ... | **/*
+order: asc
