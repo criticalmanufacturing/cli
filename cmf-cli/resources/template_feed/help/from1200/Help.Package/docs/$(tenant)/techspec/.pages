@@ -1,0 +1,5 @@
+title: Technical Specification
+nav:
+    - Technical Specification: index.md
+    - ... | **/*
+order: asc
