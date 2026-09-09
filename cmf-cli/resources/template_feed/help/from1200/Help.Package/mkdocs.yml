@@ -1,1 +1,121 @@
-site_name: My Docs
+site_name: Critical Manufacturing MES Project Documentation
+docs_dir: docs
+theme:
+  name: material
+  language: en
+  features:
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - navigation.path
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - toc.follow
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+    - scheme: slate
+      primary: black
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: Switch to light mode
+  font:
+    text: Open Sans
+    code: Source Code Pro
+  logo: assets/images/cmf-logo.png
+  favicon: assets/images/favicon.ico
+  social:
+    - icon: material/web
+      link: http://www.criticalmanufacturing.com
+      name: Critical Manufacturing Website
+    - icon: fontawesome/solid/book-open
+      link: https://help.criticalmanufacturing.com
+      name: Critical Manufacturing Documentation Portal
+    - icon: material/code-tags
+      link: https://developer.criticalmanufacturing.com
+      name: Critical Manufacturing Developer Portal
+    - icon: material/text-box
+      link: https://devblog.criticalmanufacturing.com
+      name: Critical Manufacturing Developer Blog
+    - icon: material/server
+      link: https://portal.criticalmanufacturing.com
+      name: Critical Manufacturing Customer Portal
+  custom_dir: 'overrides/'
+extra_css:
+  - assets/stylesheets/extra.css
+  - assets/stylesheets/glightbox.min.css
+  - assets/stylesheets/neoteroi-mkdocs.css
+  - assets/stylesheets/datatables.min.css # https://cdn.datatables.net/v/dt/jszip-3.10.1/dt-2.3.2/b-3.2.3/b-colvis-3.2.3/b-html5-3.2.3/b-print-3.2.3/r-3.0.4/rg-1.5.1/sb-1.8.2/sp-2.3.3/sl-3.0.1/datatables.min.css
+  - assets/stylesheets/font-awesome.min.css # https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css
+extra_javascript:
+  - assets/javascripts/mermaid.min.js # https://unpkg.com/mermaid@11.12.1/dist/mermaid.min.js
+  - assets/javascripts/tablesort.min.js
+  - assets/javascripts/extra.js
+  - assets/javascripts/tex-mml-chtml.js
+  - assets/javascripts/mathjax.js
+  - assets/javascripts/glightbox.min.js
+  - assets/javascripts/jquery-3.7.1.min.js # https://code.jquery.com/jquery-3.7.1.min.js
+  - assets/javascripts/vfs_fonts.js # https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js
+  - assets/javascripts/datatables.min.js # https://cdn.datatables.net/v/dt/jszip-3.10.1/dt-2.3.2/b-3.2.3/b-colvis-3.2.3/b-html5-3.2.3/b-print-3.2.3/r-3.0.4/rg-1.5.1/sb-1.8.2/sp-2.3.3/sl-3.0.1/datatables.min.js
+validation:
+  nav:
+    omitted_files: ignore
+    not_found: warn
+    absolute_links: warn
+  links:
+    not_found: warn
+    absolute_links: warn
+    unrecognized_links: warn
+plugins:
+  - search:
+      lang:
+        - en
+  - awesome-pages:
+      collapse_single_pages: true
+  - glightbox:
+      skip_classes:
+        - icon
+  - alias:
+      verbose: false
+  - link-marker:
+      icon_external_link: ↗
+  - macros:
+      verbose: true
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - neoteroi.cards
+  - tables
+  - pymdownx.extra
+  - pymdownx.blocks.html
+  - toc:
+      permalink: "#"
+      permalink_title: Direct link to this section
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      use_pygments: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.caret
+  - pymdownx.mark
+  - pymdownx.tilde

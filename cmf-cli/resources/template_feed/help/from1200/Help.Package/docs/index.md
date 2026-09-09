@@ -1,17 +1,36 @@
-# Welcome to MkDocs
+---
+alias: main-index
+description: "This section is a landing page for a future MES Project Documentation."
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
+---
 
-## Commands
+# MES Project Help
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.
+This section documents the customizations provided as part of a CM MES implementation project.
 
-## Project layout
+For general product documentation, visit [Critical Manufacturing Help](https://help.criticalmanufacturing.com).
+<!--
+::cards:: cols=4
 
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+- title: "User Guide"
+  content: "This page documents the customizations, from an end-user perspective, provided as part of CM MES implementation project."
+  icon: "assets/images/card-book.svg"
+  url: "userguide/index.md"
+
+- title: "Technical Specification"
+  content: "This section describes the Project Technical Specification of the features."
+  icon: "assets/images/card-gears.svg"
+  url: "techspec/index.md"
+
+- title: "Release Notes"
+  content: "Release information of CM MES implementation."
+  icon: "assets/images/card-release.svg"
+  url: "releasenotes/index.md"
+
+- title: "Frequently Asked Questions"
+  content: "This will have a list of frequently asked questions."
+  icon: "assets/images/card-question.svg"
+  url: "faq/index.md"
+
+::/cards::
+-->
