@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Section">
+  <path d="M8 20h19l5 7h24v25H8V20z" fill="#AFCDE1"/>
+  <path d="M8 20h19l5 7h24v25H8V20z" fill="none" stroke="#00558C" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M8 30h48" stroke="#00558C" stroke-width="4" stroke-linecap="round"/>
+</svg>

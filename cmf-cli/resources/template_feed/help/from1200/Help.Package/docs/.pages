@@ -1,0 +1,8 @@
+nav:
+    - Home: index.md
+    - User Guide: userguide
+    - Technical Specification: techspec
+    - Release Notes: releasenotes
+    - FAQ: faq
+    - Documentation Portal &#8599;: https://help.criticalmanufacturing.com
+order: asc

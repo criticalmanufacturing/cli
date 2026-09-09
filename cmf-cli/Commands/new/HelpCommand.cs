@@ -105,7 +105,7 @@ namespace Cmf.CLI.Commands.New
 
             this.schematicsVersion = !string.IsNullOrEmpty(ngxSchematicsVersion?.ToString()) ? ngxSchematicsVersion.ToString() : GenericUtilities.GetNpmDistTag(mesVersion);
 
-            //Switch between v10 and v11 template 
+            //Switch between version templates
             switch (majorVersion)
             {
                 case 10:
@@ -114,6 +114,10 @@ namespace Cmf.CLI.Commands.New
                 case 11:
                     this.CommandName = "help11";
                     break;
+                case 12:
+                    this.CommandName = "help12";
+                    base.Execute(workingDir, version);
+                    return;
             }
 
             var ngCliVersion = ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().AngularCLI(ExecutionContext.Instance.ProjectConfig.MESVersion);
