@@ -722,6 +722,65 @@ public class RepositoryCredentials
     }
 
     [Fact]
+    public void PortalRepositoryCredentials_GetDerivedCredentials_MissingSub_ShouldThrow()
+    {
+        // Arrange - token with valid 3-part structure but payload missing 'sub' claim
+        var portal = new PortalRepositoryCredentials(new MockFileSystem());
+        var payloadNoSub = Convert.ToBase64String(Encoding.UTF8.GetBytes(
+            """
+            {
+                "exp": 9999999999,
+                "iat": 0
+            }
+            """));
+        var tokenNoSub = $"header.{payloadNoSub}.sig";
+
+        ExecutionContext.Initialize(new MockFileSystem());
+
+        // Act
+        var act = () => portal.GetDerivedCredentials([
+            new BearerCredential
+            {
+                Token = tokenNoSub,
+                RepositoryType = RepositoryCredentialsType.Portal,
+                Repository = CmfAuthConstants.PortalRepository,
+            }
+        ]).ToList();
+
+        // Assert - should surface clear error about missing 'sub' instead of downstream NuGet ArgumentNullException
+        act.Should().Throw<Exception>()
+            .WithMessage("*sub*")
+            .WithMessage("*Failed to derive credentials from Portal token*");
+    }
+
+    [Fact]
+    public void PortalRepositoryCredentials_GetDerivedCredentials_InvalidJwtFormat_ShouldThrow()
+    {
+        // Arrange - opaque PAT, not a JWT (no dots)
+        var portal = new PortalRepositoryCredentials(new MockFileSystem());
+        var badToken = "not-a-jwt";
+
+        ExecutionContext.Initialize(new MockFileSystem());
+
+        // Act
+        var act = () => portal.GetDerivedCredentials([
+            new BearerCredential
+            {
+                Token = badToken,
+                RepositoryType = RepositoryCredentialsType.Portal,
+                Repository = CmfAuthConstants.PortalRepository,
+            }
+        ]).ToList();
+
+        // Assert - should surface valid-JWT hint, preserving inner format error
+        var ex = act.Should().Throw<Exception>()
+            .WithMessage("*not a valid JWT*")
+            .WithMessage("*Failed to derive credentials from Portal token*");
+        ex.Which.InnerException.Should().NotBeNull();
+        ex.Which.InnerException.Message.Should().Contain("Invalid format JWT token");
+    }
+
+    [Fact]
     public async Task NPMRepositoryCredentials_SyncCredentials_NoFileExists()
     {
         // Arrange
@@ -926,6 +985,84 @@ public class RepositoryCredentials
             </configuration>
             """
         );
+    }
+
+    [Fact]
+    public void NuGetRepositoryCredentials_ValidateCredentials_MissingUsername_ShouldThrow()
+    {
+        // Arrange
+        var nuget = new NuGetRepositoryCredentials(new MockFileSystem());
+        var creds = new List<ICredential>
+        {
+            new BasicCredential
+            {
+                RepositoryType = RepositoryCredentialsType.NuGet,
+                Repository = CmfAuthConstants.NuGetRepository,
+                Key = CmfAuthConstants.NuGetKey,
+                Username = null,
+                Password = "pass"
+            }
+        };
+
+        // Act
+        var act = () => nuget.ValidateCredentials(creds);
+
+        // Assert - clear message, not ArgumentNullException from XAttribute
+        act.Should().Throw<Exception>()
+            .WithMessage("*username*")
+            .Which.Should().NotBeOfType<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void NuGetRepositoryCredentials_ValidateCredentials_MissingPassword_ShouldThrow()
+    {
+        // Arrange
+        var nuget = new NuGetRepositoryCredentials(new MockFileSystem());
+        var creds = new List<ICredential>
+        {
+            new BasicCredential
+            {
+                RepositoryType = RepositoryCredentialsType.NuGet,
+                Repository = CmfAuthConstants.NuGetRepository,
+                Key = CmfAuthConstants.NuGetKey,
+                Username = "user",
+                Password = null
+            }
+        };
+
+        // Act
+        var act = () => nuget.ValidateCredentials(creds);
+
+        // Assert
+        act.Should().Throw<Exception>().WithMessage("*password*");
+    }
+
+    [Fact]
+    public async Task NuGetRepositoryCredentials_SyncCredentials_MissingUsername_ShouldThrowClearError()
+    {
+        // Arrange - mirrors regression: derived Portal token without 'sub' would previously crash with ArgumentNullException inside XAttribute
+        var nuget = new NuGetRepositoryCredentials(new MockFileSystem());
+        var creds = new List<ICredential>
+        {
+            new BasicCredential
+            {
+                RepositoryType = RepositoryCredentialsType.NuGet,
+                Repository = CmfAuthConstants.NuGetRepository,
+                Key = CmfAuthConstants.NuGetKey,
+                Username = null,
+                Password = "pass"
+            }
+        };
+
+        // Act
+        var act = async () => await nuget.SyncCredentials(creds);
+
+        // Assert - Sync validates early and wraps as "Failed to sync ..." with inner containing username hint, not raw ArgumentNullException
+        var ex = (await act.Should().ThrowAsync<Exception>()).Which;
+        ex.Message.Should().Contain("Failed to sync credentials into NuGet config file");
+        ex.InnerException.Should().NotBeNull();
+        ex.InnerException.Message.Should().Contain("username");
+        ex.InnerException.Should().NotBeOfType<ArgumentNullException>();
     }
 
     [Theory]

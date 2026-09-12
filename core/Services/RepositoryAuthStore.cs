@@ -375,6 +375,9 @@ namespace Cmf.CLI.Core.Services
 
                 foreach (var (repoType, repoCredentials) in authFile.Repositories)
                 {
+                    // Validate derived credentials as well before syncing to surface clear errors
+                    // (e.g. missing 'sub' claim from Portal JWT) instead of downstream ArgumentNullException in NuGet sync
+                    GetRepositoryType(repoType).ValidateCredentials(repoCredentials.Credentials);
                     await GetRepositoryType(repoType).SyncCredentials(repoCredentials.Credentials);
                 }
             }
