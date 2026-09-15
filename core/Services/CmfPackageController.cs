@@ -23,8 +23,7 @@ using TarWriter = System.Formats.Tar.TarWriter;
 namespace Cmf.CLI.Core.Services;
 
 public class CmfPackageController
-{
-    
+{   
     private const string NPMAliasPrefix = "npm:"; 
         
     private static List<CmfPackageV1> loadedPackages = new();
@@ -566,13 +565,16 @@ public class CmfPackageController
                 }
             }
 
+            var targetDirectoryElement = rootNode.Element("targetDirectory", true);
+            var mesVersion = ExecutionContext.Instance?.ProjectConfig?.MESVersion;
+
             var cmfPackage = new CmfPackageV1(
                 rootNode.Element("name", true)?.Value,
                 rootNode.Element("packageId", true)?.Value,
                 rootNode.Element("version", true)?.Value,
                 rootNode.Element("description", true)?.Value,
                 cliPackageType,
-                rootNode.Element("targetDirectory", true)?.Value,
+                mesVersion?.Major >= CoreConstants.TargetDirectoryRemovalMesMajorVersion ? null : targetDirectoryElement?.Value,
                 rootNode.Element("targetLayer", true)?.Value,
                 bool.Parse(rootNode.Element("isInstallable", true)?.Value ?? "false"),
                 rootNode.Element("isUniqueInstall", true)?.Value != null ? bool.Parse(rootNode.Element("isUniqueInstall", true).Value) : false,
@@ -937,6 +939,9 @@ public class CmfPackageController
         
         PackageType cliPackageType = PackageType.Generic;
         Enum.TryParse(packageType, out cliPackageType);
+
+        var targetDirectoryToken = json.Property("targetDirectory")?.Value?.ToString();
+        var mesVersion = ExecutionContext.Instance?.ProjectConfig?.MESVersion;
         
         // package.IsRootPackage = keywords.Any(s => s.Equals(JSONPackageKeywordIsRootPackage)) ? true : false;
         //
@@ -960,8 +965,8 @@ public class CmfPackageController
             json.Property("version")?.Value.ToString(),
             json.Property("description")?.Value?.ToString(),
             cliPackageType,
-            json.Property("targetDirectory")?.Value.ToString(),
-            json.Property("targetLayer")?.Value.ToString(),
+            mesVersion?.Major >= CoreConstants.TargetDirectoryRemovalMesMajorVersion ? null : targetDirectoryToken,
+            json.Property("targetLayer")?.Value?.ToString(),
             bool.Parse(json.Property("isInstallable")?.Value.ToString() ?? "false"),
             bool.Parse(json.Property("isUniqueInstall")?.Value.ToString() ?? "false"),
             bool.Parse(json.Property("isToForceInstall")?.Value.ToString() ?? "false"),
@@ -1187,6 +1192,23 @@ public class CmfPackageController
             ? package.ManifestVersion
             : (addManifestVersion ? CoreConstants.ManifestVersion : package.ManifestVersion);
 
+        JObject deploymentObject = new JObject(
+            new JProperty("manifestVersion", manifestVersion),
+            new JProperty("isInstallable", package.IsInstallable),
+            new JProperty("packageType", Enum.GetName<PackageType>(package.PackageType)),
+            new JProperty("targetLayerDirectory", !String.IsNullOrEmpty(package.TargetLayerDirectory) ? package.TargetLayerDirectory : ""),
+            new JProperty("targetLayer", !String.IsNullOrEmpty(package.TargetLayer) ? package.TargetLayer : ""),
+            new JProperty("buildDate", package.BuildDate?.ToString()),
+            new JProperty("steps", stepsArray),
+            new JProperty("packageDemands", demandsArray));
+
+        var mesVersion = ExecutionContext.Instance?.ProjectConfig?.MESVersion;
+        if ((mesVersion == null || mesVersion.Major < CoreConstants.TargetDirectoryRemovalMesMajorVersion)
+            && !String.IsNullOrEmpty(package.TargetDirectory))
+        {
+            deploymentObject.Add("targetDirectory", package.TargetDirectory);
+        }
+
         JObject jsonObject = new JObject(
                                 new JProperty("name", lowercase ? package.PackageId.ToLowerInvariant() : package.PackageId),
                                 new JProperty("description", package.Description),
@@ -1198,16 +1220,7 @@ public class CmfPackageController
                                 new JProperty("isUniqueInstall", package.IsUniqueInstall),
                                 new JProperty("forceRerunAfterDatabaseRestore", package.ForceRerunAfterDatabaseRestore ?? false),
                                 new JProperty("upgradeStrategy", package.UpgradeStrategy ?? string.Empty),
-                                new JProperty("deployment", new JObject(
-                                                                new JProperty("manifestVersion", manifestVersion),
-                                                                new JProperty("isInstallable", package.IsInstallable),
-                                                                new JProperty("packageType", Enum.GetName<PackageType>(package.PackageType)),
-                                                                new JProperty("targetDirectory", !String.IsNullOrEmpty(package.TargetDirectory) ? package.TargetDirectory : ""),
-                                                                new JProperty("targetLayerDirectory", !String.IsNullOrEmpty(package.TargetLayerDirectory) ? package.TargetLayerDirectory : ""),
-                                                                new JProperty("targetLayer", !String.IsNullOrEmpty(package.TargetLayer) ? package.TargetLayer : ""),
-                                                                new JProperty("buildDate", package.BuildDate?.ToString()),
-                                                                new JProperty("steps", stepsArray),
-                                                                new JProperty("packageDemands", demandsArray))),
+                                 new JProperty("deployment", deploymentObject),
                                 new JProperty("dependencies", dependecies),
                                 new JProperty("mandatoryDependencies", mandatoryDependecies),
                                 new JProperty("conditionalDependencies", conditionalDependencies),

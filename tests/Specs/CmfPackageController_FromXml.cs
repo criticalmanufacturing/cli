@@ -1,10 +1,14 @@
 using System;
+using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
 using System.Xml.Linq;
 using Cmf.CLI.Core.Enums;
+using Cmf.CLI.Core.Interfaces;
+using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Core.Services;
 using Cmf.CLI.Utilities;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
@@ -12,6 +16,34 @@ namespace tests.Specs;
 
 public class CmfPackageController_FromXml
 {
+    private void SetupExecutionContext(string mesVersion)
+    {
+        var projConfig = $$"""
+            {
+              "ProjectName": "ExampleProject",
+              "NPMRegistry": "http://npmrepo/",
+              "NuGetRegistry": "https://nuget-repo/",
+              "RepositoryURL": "https://example.com/repo",
+              "Tenant": "ExampleClient",
+              "MESVersion": "{{mesVersion}}",
+              "NGXSchematicsVersion": "10.0.0",
+              "DevTasksVersion": "1.0.0",
+              "HTMLStarterVersion": "8.0.0",
+              "DefaultDomain": "AD",
+              "RESTPort": "443"
+            }
+            """;
+
+        var fileSystem = new MockFileSystem();
+        var projectConfigPath = fileSystem.Path.Join(fileSystem.Directory.GetCurrentDirectory(), ".project-config.json");
+        fileSystem.AddFile(projectConfigPath, new MockFileData(projConfig));
+
+        var serviceCollection = new ServiceCollection()
+            .AddSingleton<IProjectConfigService, ProjectConfigService>();
+        ExecutionContext.ServiceProvider = serviceCollection.BuildServiceProvider();
+
+        ExecutionContext.Initialize(fileSystem);
+    }
     [Fact]
     public void FromXml_ShouldParseStepMessageType_FromManifestAttribute()
     {
@@ -159,6 +191,30 @@ public class CmfPackageController_FromXml
         var pkg = CmfPackageController.FromXml(xml);
 
         pkg.IsToForceInstall.Should().BeTrue();
+    }
+
+    [Fact]
+    public void FromXml_ShouldParseTargetDirectory_FromManifestElement_ForMes11()
+    {
+        SetupExecutionContext("11.0.0");
+        var xml = XDocument.Parse(
+            """
+            <deploymentPackage>
+              <packageId>Cmf.Custom.Data</packageId>
+              <version>1.0.0</version>
+              <targetDirectory>BusinessTier</targetDirectory>
+              <dependencies>
+                <dependency id="Cmf.Environment" version="11.0.0" />
+              </dependencies>
+            </deploymentPackage>
+            """);
+
+        var pkg = CmfPackageController.FromXml(xml);
+
+        pkg.TargetDirectory.Should().Be("BusinessTier");
+
+        var packageJson = JObject.Parse(new CmfPackageController(pkg, null).ToJson());
+        packageJson["deployment"]["targetDirectory"]!.Value<string>().Should().Be("BusinessTier");
     }
 
     [Fact]
@@ -722,6 +778,81 @@ public class CmfPackageController_FromXml
         objects.Should().HaveCount(2);
         ((JObject)objects[0]["Object"])["type"]!.Value<string>().Should().Be("udtt");
         ((JObject)objects[1]["Object"])["type"]!.Value<string>().Should().Be("function");
+    }
+
+    [Fact]
+    public void FromJson_ShouldParseTargetDirectory_FromDeploymentMetadata()
+    {
+        SetupExecutionContext("12.0.0");
+        var json =
+            """
+            {
+              "name": "cmf.custom.data",
+              "packageName": "Custom Data",
+              "version": "1.0.0",
+              "keywords": ["cmf-deployment-package"],
+              "deployment": {
+                "packageType": "Generic",
+                "targetDirectory": "BusinessTier",
+                "targetLayer": "host",
+                "isInstallable": true,
+                "steps": []
+              },
+              "dependencies": {
+                "Cmf.Environment": "12.0.0"
+              },
+              "mandatoryDependencies": {},
+              "conditionalDependencies": {}
+            }
+            """;
+
+        var pkg = CmfPackageController.FromJson(json);
+
+        pkg.TargetDirectory.Should().BeNull();
+
+        JObject.Parse(new CmfPackageController(pkg, null).ToJson())["deployment"]!["targetDirectory"].Should().BeNull();
+    }
+
+    [Fact]
+    public void FromXml_ShouldIgnoreTargetDirectory_FromMes12Manifest()
+    {
+        SetupExecutionContext("12.0.0");
+        var xml = XDocument.Parse(
+            """
+            <deploymentPackage>
+              <packageId>Cmf.Custom.Data</packageId>
+              <version>1.0.0</version>
+              <targetDirectory>BusinessTier</targetDirectory>
+              <dependencies>
+                <dependency id="Cmf.Environment" version="12.0.0" />
+              </dependencies>
+            </deploymentPackage>
+            """);
+
+        var pkg = CmfPackageController.FromXml(xml);
+
+        pkg.TargetDirectory.Should().BeNull();
+        JObject.Parse(new CmfPackageController(pkg, null).ToJson())["deployment"]!["targetDirectory"].Should().BeNull();
+    }
+
+    [Fact]
+    public void FromXml_ShouldKeepTargetDirectory_WhenMesVersionMetadataIsMissing()
+    {
+        // MES version is deduced from ProjectConfig, not from package dependencies,
+        // so a missing Cmf.Environment dependency must not fail parsing.
+        SetupExecutionContext("11.0.0");
+        var xml = XDocument.Parse(
+            """
+            <deploymentPackage>
+              <packageId>Cmf.Custom.Data</packageId>
+              <version>1.0.0</version>
+              <targetDirectory>BusinessTier</targetDirectory>
+            </deploymentPackage>
+            """);
+
+        var pkg = CmfPackageController.FromXml(xml);
+
+        pkg.TargetDirectory.Should().Be("BusinessTier");
     }
 
     [Fact]
