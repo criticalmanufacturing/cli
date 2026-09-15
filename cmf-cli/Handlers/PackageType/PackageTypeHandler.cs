@@ -213,6 +213,14 @@ namespace Cmf.CLI.Handlers
 
                 object propertyValue = CmfPackage.GetPropertyValueFromTokenName(token);
 
+                if (element.Name.LocalName.Equals("targetDirectory", StringComparison.OrdinalIgnoreCase)
+                    && ExecutionContext.Instance?.ProjectConfig?.MESVersion?.Major >= 12)
+                {
+                    // targetDirectory is not valid for MES v12+ packages.
+                    elementsToRemove.Add(element);
+                    continue;
+                }
+
                 // If a Property with the same name of the token was not found
                 // We need to remove that element from the final xml file
                 if (propertyValue.IsNullOrEmpty())

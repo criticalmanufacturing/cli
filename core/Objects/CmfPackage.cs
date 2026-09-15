@@ -505,7 +505,13 @@ namespace Cmf.CLI.Core.Objects
             {
                 Name = string.IsNullOrEmpty(Name) ? string.IsNullOrEmpty(name) ? $"{PackageId.Replace(".", " ")}" : name : Name;
 
-                TargetDirectory = string.IsNullOrEmpty(TargetDirectory) ? targetDirectory : TargetDirectory;
+                // MES v12+ uses the package's target layer and no longer ignores targetDirectory.
+                // Do not inject the legacy default for those projects.
+                var mesVersion = ExecutionContext.Instance?.ProjectConfig?.MESVersion;
+                if (mesVersion == null || mesVersion.Major < CoreConstants.TargetDirectoryRemovalMesMajorVersion)
+                {
+                    TargetDirectory = string.IsNullOrEmpty(TargetDirectory) ? targetDirectory : TargetDirectory;
+                }
 
                 TargetLayer = string.IsNullOrEmpty(TargetLayer) ? targetLayer : TargetLayer;
 
