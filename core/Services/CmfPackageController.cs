@@ -18,12 +18,15 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
+using NuGet.Versioning;
 using TarWriter = System.Formats.Tar.TarWriter;
 
 namespace Cmf.CLI.Core.Services;
 
 public class CmfPackageController
 {
+    private const int TargetDirectoryRemovalMesMajorVersion = 12;
+    private static readonly string[] MesVersionDependencyIds = ["cmf.environment", "criticalmanufacturing.deploymentmetadata"];
     
     private const string NPMAliasPrefix = "npm:"; 
         
@@ -566,13 +569,20 @@ public class CmfPackageController
                 }
             }
 
+            var targetDirectoryElement = rootNode.Element("targetDirectory", true);
+            var targetMesVersion = GetTargetMesVersion(
+                deps,
+                rootNode.Element("packageId", true)?.Value,
+                "manifest.xml",
+                targetDirectoryElement != null && !string.IsNullOrWhiteSpace(targetDirectoryElement.Value));
+
             var cmfPackage = new CmfPackageV1(
                 rootNode.Element("name", true)?.Value,
                 rootNode.Element("packageId", true)?.Value,
                 rootNode.Element("version", true)?.Value,
                 rootNode.Element("description", true)?.Value,
                 cliPackageType,
-                rootNode.Element("targetDirectory", true)?.Value,
+                targetMesVersion?.Major >= TargetDirectoryRemovalMesMajorVersion ? null : targetDirectoryElement?.Value,
                 rootNode.Element("targetLayer", true)?.Value,
                 bool.Parse(rootNode.Element("isInstallable", true)?.Value ?? "false"),
                 rootNode.Element("isUniqueInstall", true)?.Value != null ? bool.Parse(rootNode.Element("isUniqueInstall", true).Value) : false,
@@ -592,6 +602,7 @@ public class CmfPackageController
             // cmfpackage.json, but they are required to achieve package.json parity with Environment
             // Manager when converting a DF package (manifest.xml) to its npm (package.json) representation.
             cmfPackage.ManifestVersion = int.TryParse(rootNode.Element("manifestVersion", true)?.Value, out var manifestVersion) ? manifestVersion : 0;
+            cmfPackage.TargetMesVersion = targetMesVersion;
             cmfPackage.MinSqlCompatibility = int.TryParse(rootNode.Element("minSqlCompatibility", true)?.Value, out var minSqlCompatibility) ? minSqlCompatibility : 0;
             cmfPackage.TargetLayerDirectory = rootNode.Element("targetLayerDirectory", true)?.Value;
             cmfPackage.BuildDate = rootNode.Element("buildDate", true)?.Value != null
@@ -740,6 +751,9 @@ public class CmfPackageController
 
         var deploymentVariables = rootNode.Children<JObject>();
         string packageType = null;
+        var deployment = rootNode.Value as JObject;
+        string targetDirectory = deployment?.Property("targetDirectory")?.Value?.ToString();
+        string targetLayer = deployment?.Property("targetLayer")?.Value?.ToString();
 
         foreach (var entry in deploymentVariables)
         {
@@ -758,20 +772,9 @@ public class CmfPackageController
                 packageType = entry.Property("packageType")?.Value.ToString();
             }
 
-            // if (!string.IsNullOrEmpty(entry.Property("targetDirectory")?.Value.ToString()))
-            // {
-            //     targetDirectory = entry.Property("targetDirectory")?.Value.ToString();
-            // }
-            //
-            // if (!string.IsNullOrEmpty(entry.Property("targetLayerDirectory")?.Value.ToString()))
-            // {
-            //     package.TargetLayerDirectory = entry.Property("targetLayerDirectory")?.Value.ToString();
-            // }
-            //
-            // if (!string.IsNullOrEmpty(entry.Property("targetLayer")?.Value.ToString()))
-            // {
-            //     package.TargetLayer = entry.Property("targetLayer")?.Value.ToString();
-            // }
+            // Deployment metadata is nested in package.json, unlike legacy source metadata.
+            targetDirectory ??= entry.Property("targetDirectory")?.Value?.ToString();
+            targetLayer ??= entry.Property("targetLayer")?.Value?.ToString();
 
             // if (!string.IsNullOrEmpty(entry.Property("buildDate")?.Value.ToString()))
             // {
@@ -937,6 +940,13 @@ public class CmfPackageController
         
         PackageType cliPackageType = PackageType.Generic;
         Enum.TryParse(packageType, out cliPackageType);
+
+        var targetDirectoryToken = targetDirectory ?? json.Property("targetDirectory")?.Value?.ToString();
+        var targetMesVersion = GetTargetMesVersion(
+            deps,
+            json.Property("name")?.Value?.ToString(),
+            "package.json",
+            !string.IsNullOrWhiteSpace(targetDirectoryToken));
         
         // package.IsRootPackage = keywords.Any(s => s.Equals(JSONPackageKeywordIsRootPackage)) ? true : false;
         //
@@ -960,8 +970,8 @@ public class CmfPackageController
             json.Property("version")?.Value.ToString(),
             json.Property("description")?.Value?.ToString(),
             cliPackageType,
-            json.Property("targetDirectory")?.Value.ToString(),
-            json.Property("targetLayer")?.Value.ToString(),
+            targetMesVersion?.Major >= TargetDirectoryRemovalMesMajorVersion ? null : targetDirectoryToken,
+            targetLayer ?? json.Property("targetLayer")?.Value?.ToString(),
             bool.Parse(json.Property("isInstallable")?.Value.ToString() ?? "false"),
             bool.Parse(json.Property("isUniqueInstall")?.Value.ToString() ?? "false"),
             bool.Parse(json.Property("isToForceInstall")?.Value.ToString() ?? "false"),
@@ -976,7 +986,49 @@ public class CmfPackageController
             testPackages
         );
 
+        cmfPackage.TargetMesVersion = targetMesVersion;
+
         return cmfPackage;
+    }
+
+    private static NuGetVersion GetTargetMesVersion(DependencyCollection dependencies, string packageId, string sourceFile, bool required)
+    {
+        var mesDependencies = dependencies?.Where(dependency =>
+            MesVersionDependencyIds.Contains(dependency.Id, StringComparer.OrdinalIgnoreCase)).ToList() ?? [];
+
+        if (mesDependencies.Count == 0)
+        {
+            if (!required)
+            {
+                return null;
+            }
+
+            throw new CliException($"Cannot determine the MES version for package '{packageId}' from '{sourceFile}': neither Cmf.Environment nor CriticalManufacturing.DeploymentMetadata is declared.");
+        }
+
+        var versions = new List<(string Id, string Version, NuGetVersion Parsed)>();
+        foreach (var dependency in mesDependencies)
+        {
+            if (!NuGetVersion.TryParse(dependency.Version, out var parsedVersion))
+            {
+                throw new CliException($"Cannot process targetDirectory for package '{packageId}' from '{sourceFile}': detected MES version '{dependency.Version}' in dependency '{dependency.Id}' is invalid.");
+            }
+
+            versions.Add((dependency.Id, dependency.Version, parsedVersion));
+        }
+
+        var targetVersion = versions[0].Parsed;
+        if (versions.Any(version => version.Parsed.Major != targetVersion.Major))
+        {
+            throw new CliException($"Cannot process targetDirectory for package '{packageId}' from '{sourceFile}': conflicting MES versions were detected ({string.Join(", ", versions.Select(version => $"{version.Id}={version.Version}"))}).");
+        }
+
+        if (targetVersion.Major >= TargetDirectoryRemovalMesMajorVersion)
+        {
+            Log.Debug($"Ignoring targetDirectory for package '{packageId}' from '{sourceFile}': detected MES version '{targetVersion}' is v12 or newer.");
+        }
+
+        return targetVersion;
     }
 
     public static string JSONPackageKeyword = "cmf-deployment-package";
@@ -1187,6 +1239,22 @@ public class CmfPackageController
             ? package.ManifestVersion
             : (addManifestVersion ? CoreConstants.ManifestVersion : package.ManifestVersion);
 
+        JObject deploymentObject = new JObject(
+            new JProperty("manifestVersion", manifestVersion),
+            new JProperty("isInstallable", package.IsInstallable),
+            new JProperty("packageType", Enum.GetName<PackageType>(package.PackageType)),
+            new JProperty("targetLayerDirectory", !String.IsNullOrEmpty(package.TargetLayerDirectory) ? package.TargetLayerDirectory : ""),
+            new JProperty("targetLayer", !String.IsNullOrEmpty(package.TargetLayer) ? package.TargetLayer : ""),
+            new JProperty("buildDate", package.BuildDate?.ToString()),
+            new JProperty("steps", stepsArray),
+            new JProperty("packageDemands", demandsArray));
+
+        if ((package.TargetMesVersion == null || package.TargetMesVersion.Major < TargetDirectoryRemovalMesMajorVersion)
+            && !String.IsNullOrEmpty(package.TargetDirectory))
+        {
+            deploymentObject.Add("targetDirectory", package.TargetDirectory);
+        }
+
         JObject jsonObject = new JObject(
                                 new JProperty("name", lowercase ? package.PackageId.ToLowerInvariant() : package.PackageId),
                                 new JProperty("description", package.Description),
@@ -1198,16 +1266,7 @@ public class CmfPackageController
                                 new JProperty("isUniqueInstall", package.IsUniqueInstall),
                                 new JProperty("forceRerunAfterDatabaseRestore", package.ForceRerunAfterDatabaseRestore ?? false),
                                 new JProperty("upgradeStrategy", package.UpgradeStrategy ?? string.Empty),
-                                new JProperty("deployment", new JObject(
-                                                                new JProperty("manifestVersion", manifestVersion),
-                                                                new JProperty("isInstallable", package.IsInstallable),
-                                                                new JProperty("packageType", Enum.GetName<PackageType>(package.PackageType)),
-                                                                new JProperty("targetDirectory", !String.IsNullOrEmpty(package.TargetDirectory) ? package.TargetDirectory : ""),
-                                                                new JProperty("targetLayerDirectory", !String.IsNullOrEmpty(package.TargetLayerDirectory) ? package.TargetLayerDirectory : ""),
-                                                                new JProperty("targetLayer", !String.IsNullOrEmpty(package.TargetLayer) ? package.TargetLayer : ""),
-                                                                new JProperty("buildDate", package.BuildDate?.ToString()),
-                                                                new JProperty("steps", stepsArray),
-                                                                new JProperty("packageDemands", demandsArray))),
+                                 new JProperty("deployment", deploymentObject),
                                 new JProperty("dependencies", dependecies),
                                 new JProperty("mandatoryDependencies", mandatoryDependecies),
                                 new JProperty("conditionalDependencies", conditionalDependencies),

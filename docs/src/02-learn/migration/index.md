@@ -25,6 +25,14 @@ Please, review some version-specific migration details:
 
 * [Migration to V3 or above](migration-v3.md)
 
+### MES v12 target directories
+
+MES v12 and newer no longer ignore the package-level `targetDirectory` value. The CLI therefore does not inject this legacy value when packing a project targeting MES v12 or newer, and it omits `targetDirectory` when converting `manifest.xml` or `package.json` for those versions.
+
+For MES versions before v12, the existing `targetDirectory` behavior is preserved. When upgrading a project to MES v12 or newer, use the package's supported target layer and review custom deployment steps instead of relying on the package-level target directory.
+
+Package conversion requires an MES version dependency (`Cmf.Environment` or `CriticalManufacturing.DeploymentMetadata`) when `targetDirectory` is present. If the dependency is missing, malformed, or has a conflicting major version, the CLI reports the package, source file, detected metadata, and reason rather than guessing whether the value is safe to use.
+
 ### Release Tags
 
 The @criticalmanufactuing/cli has release tags that you may use to dynamically retrieve the latest @releases:
