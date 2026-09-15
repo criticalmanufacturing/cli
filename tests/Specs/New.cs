@@ -339,10 +339,16 @@ namespace tests.Specs
         [InlineData("12.0.0")]
         public void Help_v12(string mesVersion)
         {
-            RunNew(new Cmf.CLI.Commands.New.HelpCommand(), "Cmf.Custom.Help", mesVersion: mesVersion, extraAsserts: args =>
+            RunNew(new Cmf.CLI.Commands.New.HelpCommand(), "Cmf.Custom.Help", mesVersion: mesVersion, tenant: "cmf", extraAsserts: args =>
             {
+
                 Assert.True(File.Exists("Cmf.Custom.Help/mkdocs.yml"), "MkDocs configuration is missing");
                 Assert.True(File.Exists("Cmf.Custom.Help/docs/index.md"), "MkDocs home page is missing");
+                Assert.True(File.Exists($"Cmf.Custom.Help/docs/cmf/index.md"), "Tenant landing page is missing");
+                Assert.True(Directory.Exists("Cmf.Custom.Help/docs/cmf"), "Folder cmf should exist after generation");
+                Assert.True(File.Exists("Cmf.Custom.Help/docs/assets/images/cmf-logo.png"), "Shared logo asset is missing");
+                Assert.True(File.Exists($"Cmf.Custom.Help/docs/assets/images/favicon.ico"), "Asset is missing");
+                Assert.True(File.ReadAllText($"Cmf.Custom.Help/docs/cmf/index.md").Contains("cmf"), "Tenant name is not rendered into the landing page");
                 Assert.True(File.Exists("Cmf.Custom.Help/cmfpackage.json"), "Package metadata is missing");
                 Assert.True(File.ReadAllText("Cmf.Custom.Help/cmfpackage.json").Contains("\"packageType\": \"Help\""), "Package type is not Help");
                 Assert.False(File.Exists("Cmf.Custom.Help/package.json"), "NPM project should not be created for MES 12 Help packages");
@@ -1326,7 +1332,8 @@ namespace tests.Specs
             string mesVersion = "11.2.2",
             string ngxSchematicsVersion = NGX_SCHEMATICS_VERSION,
             BaseLayer baseLayer = BaseLayer.MES,
-            RepositoryType repositoryType = RepositoryType.Customization) where T : TemplateCommand
+            RepositoryType repositoryType = RepositoryType.Customization,
+            string tenant = null) where T : TemplateCommand
         {
             var dir = scaffoldingDir ?? TestUtilities.GetTmpDirectory();
 
@@ -1342,7 +1349,7 @@ namespace tests.Specs
                 // place new fixture: an init'd repository
                 if (scaffoldingDir == null)
                 {
-                    CopyNewFixture(dir, mesVersion, ngxSchematicsVersion, baseLayer, repositoryType);
+                    CopyNewFixture(dir, mesVersion, ngxSchematicsVersion, baseLayer, repositoryType, tenant);
                 }
 
                 if (File.Exists(Path.Join(dir, ".project-config.json")))
@@ -1412,7 +1419,8 @@ namespace tests.Specs
             string mesVersion = "11.2.2",
             string ngxSchematicsVersion = NGX_SCHEMATICS_VERSION,
             BaseLayer baseLayer = BaseLayer.MES,
-            RepositoryType repositoryType = RepositoryType.Customization)
+            RepositoryType repositoryType = RepositoryType.Customization,
+            string tenant = null)
         {
             TestUtilities.CopyFixture("new", new DirectoryInfo(dir));
             var projCfg = Path.Join(dir, ".project-config.json");
@@ -1428,6 +1436,11 @@ namespace tests.Specs
                     .Replace("backup_share", MockUnixSupport.Path(@"y:\backup_share").Replace(@"\", @"\\"))
                     .Replace("temp_folder", MockUnixSupport.Path(@"z:\temp_folder").Replace(@"\", @"\\"))
                 );
+                if (!string.IsNullOrEmpty(tenant))
+                {
+                    File.WriteAllText(projCfg, File.ReadAllText(projCfg)
+                        .Replace(@"""Tenant"": ""tenant""", $@"""Tenant"": ""{tenant}"""));
+                }
             }
 
             if (repositoryType == RepositoryType.App)

@@ -33,7 +33,8 @@
     "Tenant": {
       "type": "parameter",
       "datatype": "string",
-      "replaces": "<%= $CLI_PARAM_Tenant %>"
+      "replaces": "<%= $CLI_PARAM_Tenant %>",
+      "fileRename": "$(tenant)"
     }
   }
 }
