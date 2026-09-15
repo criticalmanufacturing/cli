@@ -80,11 +80,6 @@ namespace Cmf.CLI.Commands.New
         public void Execute(IDirectoryInfo workingDir, string version)
         {
             CommandUtilities.ThrowIfNoProjectConfig(ExecutionContext.Instance);
-            this.ExecuteV10(workingDir, version);
-        }
-
-        public void ExecuteV10(IDirectoryInfo workingDir, string version)
-        {
             var ngxSchematicsVersion = ExecutionContext.Instance.ProjectConfig.NGXSchematicsVersion;
 
             var baseLayer = ExecutionContext.Instance.ProjectConfig.BaseLayer ?? CliConstants.DefaultBaseLayer;
@@ -206,6 +201,25 @@ namespace Cmf.CLI.Commands.New
             json = JsonConvert.SerializeObject(rootPkgJson, Formatting.Indented);
             this.fileSystem.File.WriteAllText(rootPkgJsonPath, json);
             Log.Verbose("Updated package.json");
+
+            if(mesVersion.Major >= 12)
+            {
+            // TODO: This should be removed after beta.2 release
+            this.fileSystem.File.WriteAllText(this.fileSystem.Path.Join(packageDir.FullName, "src/assets/build.json"), string.Empty);
+            var maints = 
+@"/// <reference types=""@angular/localize"" />
+
+import { bootstrapApplication } from '@angular/platform-browser';
+import { App } from './app/app';
+import { loadApplicationConfig } from 'cmf-core/init';
+
+loadApplicationConfig('assets/config.json', 'assets/build.json').then(() => {
+  import(/* webpackMode: ""eager"" */ './app/app.config').then(({ appConfig }) => {
+    bootstrapApplication(App, appConfig).catch((err) => console.error(err));
+  });
+});";
+            this.fileSystem.File.WriteAllText(this.fileSystem.Path.Join(packageDir.FullName, "src/main.ts"), maints);   
+            }
 
             // build
             new BuildCommand(fileSystem).Execute(packageDir);
