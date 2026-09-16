@@ -14,6 +14,11 @@ jobs:
   build-and-publish:
     runs-on: ubuntu-latest
     steps:
+      - name: Add custom criticalmanufacturing.io entry
+        env:
+          TARGET_IP: ${{ secrets.CRITICALMANUFACTURING_IO_IP }}
+        run: |
+          echo "$TARGET_IP criticalmanufacturing.io" | sudo tee -a /etc/hosts > /dev/null
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
