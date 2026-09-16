@@ -50,9 +50,19 @@ namespace Cmf.CLI.Core.Repository.Credentials
                     throw new Exception($"Missing mandatory \"key\" value for {RepositoryType} repository \"{credential.Repository}\"");
                 }
 
-                if (credential is not BasicCredential)
+                if (credential is not BasicCredential basicCred)
                 {
                     throw new InvalidAuthTypeException(credential);
+                }
+
+                if (string.IsNullOrEmpty(basicCred.Username))
+                {
+                    throw new Exception($"Missing mandatory \"username\" value for {RepositoryType} repository \"{credential.Repository}\" (key=\"{credential.Key}\"). This can happen when deriving credentials from a Portal token whose JWT payload is missing the 'sub' claim.");
+                }
+
+                if (basicCred.Password == null)
+                {
+                    throw new Exception($"Missing mandatory \"password\" value for {RepositoryType} repository \"{credential.Repository}\" (key=\"{credential.Key}\")");
                 }
             }
         }
@@ -63,6 +73,9 @@ namespace Cmf.CLI.Core.Repository.Credentials
             IFileInfo nugetConfigFile = null;
             try
             {
+                // Validate early to surface a clear error instead of ArgumentNullException from XAttribute when Username/Password is null
+                ValidateCredentials(credentials);
+
                 nugetConfigFile = GetConfigFile();
 
                 var config = await LoadConfig(nugetConfigFile);
