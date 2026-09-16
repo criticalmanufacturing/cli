@@ -138,6 +138,25 @@ Example:
 }
 ```
 
+### grafanaPlugins
+
+For Grafana distributions embedded as files, use [`grafanaPlugins`](grafana-plugins.md)
+instead of CMF dependencies. Restore prepares the plugins; pack embeds verified local inputs
+alongside provisioning files in one Grafana ZIP, from one `cmfpackage.json`.
+Bundling does not configure Grafana's startup downloaders or block network access;
+see the [runtime settings for offline deployments](grafana-plugins.md#runtime-settings-for-offline-deployments).
+
+### grafanaPluginsTargetPath
+
+Optional absolute Linux directory where declared Grafana plugins are deployed. It defaults to
+`/data/grafana/plugins`, the plugin directory used by the CMF Grafana image. Set this
+when the target image uses another Grafana plugin path; it does not download plugins or
+change the Grafana image configuration. The CLI preserves the exact directory name and
+generates a root-relative ZIP layout with scoped deployment steps; provisioning remains
+under `/etc/grafana/provisioning`, without changing EnvManager. See the [Grafana plugin reference](grafana-plugins.md)
+for validation rules and deployment prerequisites.
+
+
 ### relatedPackages
 
 In some cases, you want to guarantee that a set packages are built or packed together.

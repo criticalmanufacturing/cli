@@ -129,7 +129,9 @@ async function install(callback) {
     const installPath = await getInstallationPath();
     if (process.platform === "win32") {
         debug("Installing for windows");
-        await execShellCommand(`robocopy ${src.replace(/\//g, "\\")} "${installPath}" /e /is /it`, [1]);
+        // A bundled CLI has thousands of files: per-file output can exceed exec's buffer.
+        // Robocopy exit codes below 8 indicate success; keep failed-copy retries bounded.
+        await execShellCommand(`robocopy ${src.replace(/\//g, "\\")} "${installPath}" /e /is /it /nfl /ndl /np /r:2 /w:1`, [1, 2, 3, 4, 5, 6, 7]);
     } else {
         debug("Installing for *NIX: " + process.platform);
         await execShellCommand(`cp -r ${src}/. "${installPath}"`);
@@ -167,12 +169,9 @@ function execShellCommand(cmd, valid_error_codes = null) {
     const exec = require('child_process').exec;
     return new Promise((resolve, reject) => {
         exec(cmd, (error, stdout, stderr) => {
-            if (error) {
-                let shouldPrint = true;
-                if (valid_error_codes != null) {
-                    shouldPrint = valid_error_codes.indexOf(error.code) < 0;
-                }
-                shouldPrint && console.warn(error);
+            if (error && !(valid_error_codes || []).includes(error.code)) {
+                reject(error);
+                return;
             }
             resolve(stdout? stdout : stderr);
         });
@@ -194,5 +193,8 @@ if (argv && argv.length > 2) {
         } else {
             process.exit(0);
         }
+    }).catch(function (err) {
+        console.error(err);
+        process.exit(1);
     });
 }
