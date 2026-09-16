@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using tests.Objects;
 using Xunit;
 using Assert = tests.AssertWithMessage;
+using Cmf.CLI.Handlers;
 
 namespace tests.Specs
 {
@@ -198,6 +199,83 @@ namespace tests.Specs
             exception.Should().BeNull();
             
             logWriter.ToString().Should().Contain("No present remote dependencies to restore. Exiting...");
+        }
+
+        [Fact]
+        public void RestoreDependencies_HelpMkDocs()
+        {
+            var gitRepo = MockUnixSupport.Path(@"c:\test");
+            var ciRepo = MockUnixSupport.Path(@"c:\cirepo");
+
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { MockUnixSupport.Path($@"{gitRepo}\.project-config.json"), new MockFileData(@"{
+                    ""ProjectName"": ""localtestrj"",
+                    ""RepositoryType"": ""Customization"",
+                    ""BaseLayer"": ""MES"",
+                    ""Tenant"": ""MyTenant"",
+                    ""MESVersion"": ""12.0.0""
+                }") },
+                { $"{gitRepo}/cmfpackage.json", new MockFileData(@"{
+                    ""packageId"": ""Cmf.Custom.Help2"",
+                    ""version"": ""1.0.0"",
+                    ""description"": ""Cmf Custom cmf Cmf.Custom.Help Package"",
+                    ""packageType"": ""Help"",
+                    ""targetLayer"": ""reference"",
+                    ""isInstallable"": true,
+                    ""isUniqueInstall"": false,
+                    ""contentToPack"": [
+                        { ""source"": ""site/**"", ""target"": ""site"" },
+                        { ""source"": ""docs/MyProject/**"", ""target"": ""docs/MyProject"" }
+                    ],
+                    ""dependencies"": [
+                        { ""id"": ""Cmf.Custom.Help"", ""version"": ""1.0.0"" }
+                    ]
+                }") },
+                { $"{gitRepo}/requirements.txt", new MockFileData("mkdocs") },
+                { $"{gitRepo}/docs/other.txt", new MockFileData("original other") },
+                { $"{gitRepo}/docs/MyProject/old-file.txt", new MockFileData("old content") },
+                { $"{gitRepo}/docs/MyProject/index.html", new MockFileData("<html>old index</html>") },
+                { $"{ciRepo}/Cmf.Custom.Help.1.0.0.zip", new MockFileData(new DFPackageBuilder()
+                    .CreateEntry("manifest.xml", @"<?xml version=""1.0"" encoding=""utf-8""?><deploymentPackage><packageId>Cmf.Custom.Help</packageId><version>1.0.0</version></deploymentPackage>")
+                    .CreateEntry("docs/MyProject/index.html", "<html>index</html>")
+                    .CreateEntry("docs/MyProject/getting-started.html", "<html>getting started</html>")
+                    .CreateEntry("docs/MyProject/reference.md", "# Reference")
+                    .CreateEntry("docs/other.txt", "restored other")
+                    .CreateEntry("docs/assets/icon.png", "icon data")
+                    .ToByteArray()) }
+            });
+
+            ExecutionContext.ServiceProvider = new ServiceCollection()
+                .AddSingleton<IProjectConfigService>(new ProjectConfigService())
+                .AddSingleton<IRepositoryLocator, RepositoryLocator>()
+                .BuildServiceProvider();
+
+            fileSystem.Directory.SetCurrentDirectory(gitRepo);
+            ExecutionContext.Initialize(fileSystem);
+
+            var package = CmfPackage.Load(fileSystem.FileInfo.New($"{gitRepo}/cmfpackage.json"), true, fileSystem);
+            var handler = PackageTypeFactory.GetPackageTypeHandler(package, false);
+            handler.Should().BeOfType<HelpMkDocsPackageTypeHandler>();
+
+            var repo = new UriBuilder { Scheme = Uri.UriSchemeFile, Host = "", Path = ciRepo }.Uri;
+
+            handler.RestoreDependencies(new[] { repo });
+
+            var docs = MockUnixSupport.Path($@"{gitRepo}\docs\MyProject");
+
+            // Verify that the restore replaced all docs tenant files and did not remove any other files
+            Assert.False(fileSystem.FileInfo.New($"{docs}/old-file.txt").Exists, "Old file was not replaced");
+            Assert.True(fileSystem.FileInfo.New($"{docs}/.gitignore").Exists, ".gitignore not found");
+            Assert.Equal("**", fileSystem.FileInfo.New($"{docs}/.gitignore").OpenText().ReadToEnd().Trim());
+            Assert.Equal("<html>index</html>", fileSystem.FileInfo.New($"{docs}/index.html").OpenText().ReadToEnd());
+            Assert.Equal("<html>getting started</html>", fileSystem.FileInfo.New($"{docs}/getting-started.html").OpenText().ReadToEnd());
+            Assert.Equal("# Reference", fileSystem.FileInfo.New($"{docs}/reference.md").OpenText().ReadToEnd());
+
+            // Verify files outside docs/tenant were not touched or restored
+            Assert.True(fileSystem.FileInfo.New(MockUnixSupport.Path($@"{gitRepo}\docs\other.txt")).Exists, "File outside docs/tenant was removed");
+            Assert.Equal("original other", fileSystem.FileInfo.New(MockUnixSupport.Path($@"{gitRepo}\docs\other.txt")).OpenText().ReadToEnd());
+            Assert.False(fileSystem.FileInfo.New(MockUnixSupport.Path($@"{gitRepo}\docs\assets\icon.png")).Exists, "Assets folder should not be restored");
         }
     }
 }
