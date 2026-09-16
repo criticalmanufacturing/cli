@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
@@ -110,6 +111,54 @@ namespace Cmf.CLI.Handlers
             }
 
             base.Pack(packageOutputDir, outputDir, dryRun);
+        }
+
+        /// <summary>
+        /// Restores dependency documentation into the local docs folder.
+        /// </summary>
+        public override void RestoreDependencies(Uri[] repoUris)
+        {
+            var packageDirectory = CmfPackage.GetFileInfo().DirectoryName;
+            var docsFolder = this.fileSystem.DirectoryInfo.New(this.fileSystem.Path.Join(packageDirectory, "docs"));
+            var stagingFolder = this.fileSystem.DirectoryInfo.New(this.fileSystem.Path.Join(
+                this.fileSystem.Path.GetTempPath(), $"cmf-mkdocs-restore-{Guid.NewGuid()}"));
+            var originalDependenciesFolder = DependenciesFolder;
+
+            try
+            {
+                DependenciesFolder = stagingFolder;
+                base.RestoreDependencies(repoUris);
+
+                if (!docsFolder.Exists)
+                {
+                    docsFolder.Create();
+                }
+
+                foreach (var dependencyFolder in stagingFolder.GetDirectories())
+                {
+                    var dependencyDocsFolder = this.fileSystem.Path.Join(dependencyFolder.FullName, "docs");
+                    if (this.fileSystem.Directory.Exists(dependencyDocsFolder))
+                    {
+                        FileSystemUtilities.CopyDirectory(
+                            dependencyDocsFolder,
+                            docsFolder.FullName,
+                            this.fileSystem,
+                            copySubDirs: true,
+                            isCopyDependencies: true);
+                    }
+                }
+
+                // Create gitignore
+                this.fileSystem.File.WriteAllText(this.fileSystem.Path.Join(docsFolder.FullName, ".gitignore"),"**" + Environment.NewLine);
+            }
+            finally
+            {
+                DependenciesFolder = originalDependenciesFolder;
+                if (stagingFolder.Exists)
+                {
+                    stagingFolder.Delete(true);
+                }
+            }
         }
     }
 }
