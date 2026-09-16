@@ -5,7 +5,6 @@ using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Handlers;
 using Cmf.CLI.Utilities;
-using System;
 using System.IO.Abstractions;
 
 namespace Cmf.CLI.Factories
@@ -46,7 +45,11 @@ namespace Cmf.CLI.Factories
                 PackageType.Generic => new GenericPackageTypeHandler(cmfPackage),
                 PackageType.Business => new BusinessPackageTypeHandler(cmfPackage),
                 PackageType.HTML => new HtmlNgCliPackageTypeHandler(cmfPackage),
-                PackageType.Help => new HelpNgCliPackageTypeHandler(cmfPackage),
+                PackageType.Help => cmfPackage.HandlerVersion switch
+                {
+                    2 => new HelpMkDocsPackageTypeHandler(cmfPackage),
+                    _ => new HelpNgCliPackageTypeHandler(cmfPackage)
+                },
                 PackageType.IoT => new IoTPackageTypeHandler(cmfPackage),
                 PackageType.IoTData => cmfPackage.HandlerVersion switch
                 {

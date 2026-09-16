@@ -140,6 +140,29 @@ namespace tests.Specs
         }
 
         [Fact]
+        public void Help_v12_UsesMkDocsHandlerVersion2()
+        {
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { "/repo/Cmf.Custom.Help/cmfpackage.json", new MockFileData(@"{
+                  ""packageId"": ""Cmf.Custom.Help"",
+                  ""version"": ""1.0.0"",
+                  ""packageType"": ""Help"",
+                  ""handlerVersion"": 2
+                }") },
+                { "/repo/Cmf.Custom.Help/docs/requirements.txt", new MockFileData("mkdocs-material") }
+            });
+
+            ExecutionContext.Initialize(fileSystem);
+
+            var cmfPackage = CmfPackage.Load(fileSystem.FileInfo.New("/repo/Cmf.Custom.Help/cmfpackage.json"), setDefaultValues: true);
+            cmfPackage.HandlerVersion.Should().Be(2, "handler version should be 2 for MES 12 MkDocs-based Help packages");
+
+            var packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(fileSystem.FileInfo.New("/repo/Cmf.Custom.Help/cmfpackage.json")) as HelpMkDocsPackageTypeHandler;
+            packageTypeHandler.Should().NotBeNull("handlerVersion 2 should resolve to the MkDocs Help package handler");
+        }
+
+        [Fact]
         public void DatabasePackageTypeHandler_OnlyOnlineTarget_AddsOnlyOnlineStep()
         {
             // Arrange

@@ -356,8 +356,8 @@ public class Build
         mock.Object.DisplayName = "Run Business Unit Tests";
         BusinessPackageTypeHandler businessPackageTypeHandler = new BusinessPackageTypeHandler(cmfPackage);
         businessPackageTypeHandler.BuildSteps = new IBuildCommand[]
-        {
-            mock.Object
+            {
+                mock.Object
         };
 
         StringWriter standardOutput = (new Logging()).GetLogStringWriter();
@@ -765,6 +765,42 @@ public class Build
         StringWriter standardOutput = (new Logging()).GetLogStringWriter();
         businessPackageTypeHandler.Build(false);
         Assert.Contains("Executing 'Run Build Command'", standardOutput.ToString().Trim());
+    }
+
+    [Fact]
+    public void Help_v12_MkDocsBuild_ExecutesMkDocsStep()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { "/repo/Cmf.Custom.Help/cmfpackage.json", new MockFileData(@"{
+              ""packageId"": ""Cmf.Custom.Help"",
+              ""version"": ""1.0.0"",
+              ""packageType"": ""Help"",
+              ""handlerVersion"": 2
+            }") },
+            { "/repo/Cmf.Custom.Help/docs/requirements.txt", new MockFileData("mkdocs-material") }
+        });
+
+        ExecutionContext.Initialize(fileSystem);
+
+        var cmfPackage = fileSystem.FileInfo.New("/repo/Cmf.Custom.Help/cmfpackage.json");
+        var packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfPackage) as HelpMkDocsPackageTypeHandler;
+
+        packageTypeHandler.Should().NotBeNull();
+
+        var mock = new Mock<IBuildCommand>();
+        mock.Setup(m => m.Exec());
+        mock.SetupAllProperties();
+        mock.Object.Test = false;
+        mock.Object.DisplayName = "mkdocs build";
+        packageTypeHandler.BuildSteps =
+        [
+            mock.Object
+        ];
+
+        StringWriter standardOutput = new Logging().GetLogStringWriter();
+        packageTypeHandler.Build(true);
+        Assert.Contains("Executing 'mkdocs build'", standardOutput.ToString().Trim());
     }
 
     [Theory]
