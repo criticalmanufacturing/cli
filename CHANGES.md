@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [6.0.0-5](https://github.com/criticalmanufacturing/cli/compare/6.0.0-4...6.0.0-5) (2026-09-16)
+
+
+### Features
+
+* **devcontainer:** merge csharp extensions on csdevkit (latest) ([1188ff9](https://github.com/criticalmanufacturing/cli/commit/1188ff99860ca3cb8e47d8b0616440e1f75a6677))
+
 ## [6.0.0-4](https://github.com/criticalmanufacturing/cli/compare/6.0.0-3...6.0.0-4) (2026-09-04)
 
 
