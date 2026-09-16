@@ -341,19 +341,21 @@ namespace tests.Specs
         {
             RunNew(new Cmf.CLI.Commands.New.HelpCommand(), "Cmf.Custom.Help", mesVersion: mesVersion, tenant: "cmf", extraAsserts: args =>
             {
-
+                // Structure
                 Assert.True(File.Exists("Cmf.Custom.Help/mkdocs.yml"), "MkDocs configuration is missing");
-                Assert.True(File.ReadAllText("Cmf.Custom.Help/mkdocs.yml").Contains("dev_addr: 0.0.0.0:7001"), "MkDocs development address is not configured");
                 Assert.True(File.Exists("Cmf.Custom.Help/docs/index.md"), "MkDocs home page is missing");
-                Assert.True(File.Exists($"Cmf.Custom.Help/docs/cmf/index.md"), "Tenant landing page is missing");
-                Assert.True(Directory.Exists("Cmf.Custom.Help/docs/cmf"), "Folder cmf should exist after generation");
+                Assert.True(Directory.Exists("Cmf.Custom.Help/docs/cmf"), "Tenant docs folder is missing");
+                Assert.True(File.Exists("Cmf.Custom.Help/docs/cmf/index.md"), "Tenant landing page is missing");
                 Assert.True(File.Exists("Cmf.Custom.Help/docs/assets/images/cmf-logo.png"), "Shared logo asset is missing");
-                Assert.True(File.Exists($"Cmf.Custom.Help/docs/assets/images/favicon.ico"), "Asset is missing");
-                Assert.True(File.ReadAllText($"Cmf.Custom.Help/docs/cmf/index.md").Contains("cmf"), "Tenant name is not rendered into the landing page");
+                Assert.True(File.Exists("Cmf.Custom.Help/docs/assets/images/favicon.ico"), "Favicon asset is missing");
                 Assert.True(File.Exists("Cmf.Custom.Help/cmfpackage.json"), "Package metadata is missing");
-                Assert.True(File.ReadAllText("Cmf.Custom.Help/cmfpackage.json").Contains("\"source\": \"docs/cmf/**\""), "Tenant content mapping is not rendered into the package metadata");
                 Assert.False(File.Exists("Cmf.Custom.Help/package.json"), "NPM project should not be created for MES 12 Help packages");
                 Assert.False(File.Exists("Cmf.Custom.Help/angular.json"), "Angular workspace should not be created for MES 12 Help packages");
+
+                // Content
+                Assert.True(File.ReadAllText("Cmf.Custom.Help/mkdocs.yml").Contains("dev_addr: 0.0.0.0:7001"), "MkDocs development address is not configured");
+                Assert.True(File.ReadAllText("Cmf.Custom.Help/docs/cmf/index.md").Contains("cmf"), "Tenant name is not rendered into the landing page");
+                Assert.True(File.ReadAllText("Cmf.Custom.Help/cmfpackage.json").Contains("\"source\": \"docs/cmf/**\""), "Tenant content mapping is not rendered into the package metadata");
             });
         }
 
