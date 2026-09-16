@@ -345,7 +345,7 @@ namespace Cmf.CLI.Handlers
                 this.fileSystem.File.Delete(tempzipPath);
             }
 
-            FileSystemUtilities.ZipDirectory(fileSystem, tempzipPath, packageOutputDir);
+            FileSystemUtilities.ZipDirectory(fileSystem, tempzipPath, packageOutputDir, AddArchiveEntries);
 
             // move to final destination
             string destZipPath = $"{outputDir.FullName}/{CmfPackage.ZipPackageName}";
@@ -357,6 +357,8 @@ namespace Cmf.CLI.Handlers
         /// </summary>
         /// <param name="packageOutputDir">The pack directory.</param>
         /// <returns></returns>
+        internal virtual void AddArchiveEntries(ZipArchive archive, IDictionary<string, int> unixModes) { }
+
         internal virtual List<FileToPack> GetContentToPack(IDirectoryInfo packageOutputDir)
         {
             List<FileToPack> filesToPack = new();
@@ -573,7 +575,9 @@ namespace Cmf.CLI.Handlers
 
             foreach (var relatedPackageHandler in RelatedPackagesHandlers.Where(rp => !rp.Key.IsSet && rp.Key.PrePack))
             {
-                var relatedPackagPackageOutputDir = FileSystemUtilities.GetPackageOutputDir(relatedPackageHandler.Key.CmfPackage, packageOutputDir, fileSystem);
+                var relatedPackagPackageOutputDir = dryRun
+                    ? fileSystem.DirectoryInfo.New($"{packageOutputDir}/{relatedPackageHandler.Key.CmfPackage.PackageName}")
+                    : FileSystemUtilities.GetPackageOutputDir(relatedPackageHandler.Key.CmfPackage, packageOutputDir, fileSystem);
                 relatedPackageHandler.Value.Pack(relatedPackagPackageOutputDir, outputDir, dryRun);
                 relatedPackageHandler.Key.IsSet = true;
             }
@@ -635,7 +639,9 @@ namespace Cmf.CLI.Handlers
 
             foreach (var relatedPackageHandler in RelatedPackagesHandlers.Where(rp => !rp.Key.IsSet && rp.Key.PostPack))
             {
-                var relatedPackagPackageOutputDir = FileSystemUtilities.GetPackageOutputDir(relatedPackageHandler.Key.CmfPackage, packageOutputDir, fileSystem);
+                var relatedPackagPackageOutputDir = dryRun
+                    ? fileSystem.DirectoryInfo.New($"{packageOutputDir}/{relatedPackageHandler.Key.CmfPackage.PackageName}")
+                    : FileSystemUtilities.GetPackageOutputDir(relatedPackageHandler.Key.CmfPackage, packageOutputDir, fileSystem);
                 relatedPackageHandler.Value.Pack(relatedPackagPackageOutputDir, outputDir, dryRun);
                 relatedPackageHandler.Key.IsSet = true;
             }

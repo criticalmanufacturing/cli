@@ -39,6 +39,7 @@ namespace Cmf.CLI.Factories
         /// </exception>
         public static IPackageTypeHandler GetPackageTypeHandler(CmfPackage cmfPackage, bool setDefaultValues = false)
         {
+            cmfPackage.ValidateGrafanaPlugins();
             IPackageTypeHandler packageTypeHandler;
             packageTypeHandler = cmfPackage.PackageType switch
             {

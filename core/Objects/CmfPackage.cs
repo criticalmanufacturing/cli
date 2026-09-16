@@ -298,6 +298,12 @@ namespace Cmf.CLI.Core.Objects
         public List<string> BaseLocalizationFiles { get; private set; }
 
         /// <summary>
+        /// Declared Grafana plugin requirements for Grafana packages.
+        /// </summary>
+        [JsonProperty(Order = 25)]
+        public GrafanaPluginRequirementCollection GrafanaPlugins { get; private set; }
+
+        /// <summary>
         /// Loaded SharedFolder when loading from cifs
         /// </summary>
         [JsonIgnore]
@@ -329,12 +335,13 @@ namespace Cmf.CLI.Core.Objects
         /// <param name="xmlInjection">The XML injection.</param>
         /// <param name="waitForIntegrationEntries">should wait for integration entries to complete</param>
         /// <param name="testPackages">The test Packages.</param>
+        /// <param name="grafanaPlugins">The Grafana plugin requirements.</param>
         [JsonConstructor]
         public CmfPackage(string name, string packageId, string version, string description, PackageType packageType,
                           string targetDirectory, string targetLayer, bool? isInstallable, bool? isUniqueInstall, bool? isToForceInstall,
                           bool? forceRerunAfterDatabaseRestore, string keywords, bool? isToSetDefaultSteps, DependencyCollection dependencies,
                           List<Step> steps, List<ContentToPack> contentToPack, List<string> xmlInjection, bool? waitForIntegrationEntries,
-                          List<string> baseLocalizationFiles, DependencyCollection testPackages = null) : this()
+                          List<string> baseLocalizationFiles, DependencyCollection testPackages = null, GrafanaPluginRequirementCollection grafanaPlugins = null) : this()
         {
             Name = name;
             PackageId = packageId ?? throw new ArgumentNullException(nameof(packageId));
@@ -356,6 +363,7 @@ namespace Cmf.CLI.Core.Objects
             WaitForIntegrationEntries = waitForIntegrationEntries;
             TestPackages = testPackages;
             BaseLocalizationFiles = baseLocalizationFiles;
+            GrafanaPlugins = grafanaPlugins;
         }
 
         /// <summary>
@@ -402,7 +410,7 @@ namespace Cmf.CLI.Core.Objects
             if (!PackageType.Equals(PackageType.Root) &&
                 (IsInstallable ?? false))
             {
-                if (!ContentToPack.HasAny())
+                if (!ContentToPack.HasAny() && !(PackageType == PackageType.Grafana && GrafanaPlugins.HasAny()))
                 {
                     throw new CliException(string.Format(CoreMessages.MissingMandatoryPropertyInFile, nameof(ContentToPack), $"{FileInfo.FullName}"));
                 }
@@ -428,6 +436,8 @@ namespace Cmf.CLI.Core.Objects
             //{
             //    throw new CliException(string.Format(CliMessages.MissingMandatoryDependency, $"{ Dependency.DefaultDependenciesToIgnore[2] }", string.Empty));
             //}
+
+            ValidateGrafanaPlugins();
         }
 
         /// <summary>
@@ -452,6 +462,7 @@ namespace Cmf.CLI.Core.Objects
                    ForceRerunAfterDatabaseRestore == other.ForceRerunAfterDatabaseRestore &&
                    Keywords.IgnoreCaseEquals(other.Keywords) &&
                    XmlInjection.Equals(other.XmlInjection) &&
+                   EqualityComparer<GrafanaPluginRequirementCollection>.Default.Equals(GrafanaPlugins, other.GrafanaPlugins) &&
                    EqualityComparer<DependencyCollection>.Default.Equals(Dependencies, other.Dependencies) &&
                    EqualityComparer<List<Step>>.Default.Equals(Steps, other.Steps) &&
                    EqualityComparer<List<ContentToPack>>.Default.Equals(ContentToPack, other.ContentToPack) &&
@@ -573,7 +584,9 @@ namespace Cmf.CLI.Core.Objects
                     Log.Warning($"{CoreMessages.UrlsNotSupported}, discarding repositories {string.Join(", ", urlRepos.Select(r => r.OriginalString))}");
                 }
 
-                IDirectoryInfo[] repoDirectories = repoUris?.Where(r => r.IsDirectory()).Select(r => r.GetDirectory()).Where(d=> d.Exists==true).ToArray();
+                IDirectoryInfo[] repoDirectories = repoUris?.Where(r => r.IsDirectory())
+                    .Select(r => this.fileSystem.DirectoryInfo.New(r.IsUnc ? r.OriginalString : r.LocalPath))
+                    .Where(d => d.Exists == true).ToArray();
                 if (ExecutionContext.Instance.RunningOnWindows && repoDirectories != null && repoDirectories.Length == 0)
                 {
                     Log.Warning($"None of the provided repositories exist: {string.Join(", ", repoUris.Select(d => d.OriginalString))}");
@@ -652,6 +665,95 @@ namespace Cmf.CLI.Core.Objects
         public bool ShouldSerializeDependenciesDirectory()
         {
             return !string.IsNullOrWhiteSpace(DependenciesDirectory);
+        }
+
+        /// <summary>
+        /// Should the Grafana plugin declaration be serialized.
+        /// </summary>
+        public bool ShouldSerializeGrafanaPlugins()
+        {
+            return GrafanaPlugins.HasAny();
+        }
+
+        public void ValidateGrafanaPlugins()
+        {
+            if (!GrafanaPlugins.HasAny())
+            {
+                return;
+            }
+
+            if (PackageType != PackageType.Grafana)
+            {
+                throw new CliException("grafanaPlugins is only valid for packageType Grafana.");
+            }
+
+            var seenPlugins = new Dictionary<string, GrafanaPluginRequirement>(StringComparer.OrdinalIgnoreCase);
+            foreach (var plugin in GrafanaPlugins)
+            {
+                if (plugin == null)
+                {
+                    throw new CliException("Invalid grafanaPlugins declaration. Empty plugin entry found.");
+                }
+
+                if (string.IsNullOrWhiteSpace(plugin.Id) || !Regex.IsMatch(plugin.Id, @"\A[a-z0-9]+(?:-[a-z0-9]+)+\z"))
+                {
+                    throw new CliException("Invalid grafanaPlugins declaration. A lowercase, hyphen-separated plugin id is required.");
+                }
+
+                if (!IsExactGrafanaVersion(plugin.Version))
+                {
+                    throw new CliException($"Invalid grafanaPlugins declaration for '{plugin.Id}'. Exact plugin version is required.");
+                }
+
+                if (plugin.Sha256 != null && !Regex.IsMatch(plugin.Sha256, @"\A[a-fA-F0-9]{64}\z"))
+                {
+                    throw new CliException($"Invalid grafanaPlugins declaration for '{plugin.Id}'. sha256 must be a 64-character hex string.");
+                }
+
+                if (plugin.Source != null && !IsSupportedPluginSource(plugin.Source))
+                {
+                    throw new CliException($"Invalid grafanaPlugins declaration for '{plugin.Id}'. Source must be HTTPS URL or local path.");
+                }
+
+                if (plugin.Platform != null && !Regex.IsMatch(plugin.Platform, @"\A(?:linux-(?:amd64|arm64|arm)|darwin-(?:amd64|arm64)|windows-amd64)\z"))
+                {
+                    throw new CliException($"Invalid platform for '{plugin.Id}'. Use linux-amd64, linux-arm64, linux-arm, darwin-amd64, darwin-arm64 or windows-amd64.");
+                }
+
+                if (seenPlugins.ContainsKey(plugin.Id))
+                {
+                    throw new CliException($"Duplicate grafanaPlugins entry for '{plugin.Id}'.");
+                }
+
+                seenPlugins.Add(plugin.Id, plugin);
+            }
+        }
+
+        private static bool IsExactGrafanaVersion(string version)
+        {
+            if (string.IsNullOrWhiteSpace(version))
+            {
+                return false;
+            }
+
+            return NuGet.Versioning.SemanticVersion.TryParse(version, out _) &&
+                Regex.IsMatch(version, @"\A(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?\z");
+        }
+
+        private static bool IsSupportedPluginSource(string source)
+        {
+            if (string.IsNullOrWhiteSpace(source) || source.Any(char.IsControl))
+            {
+                return false;
+            }
+
+            if (Uri.TryCreate(source, UriKind.Absolute, out var sourceUri))
+            {
+                return (sourceUri.Scheme == Uri.UriSchemeHttps && string.IsNullOrEmpty(sourceUri.UserInfo) && string.IsNullOrEmpty(sourceUri.Fragment)) ||
+                       (sourceUri.IsFile && !source.Contains("://"));
+            }
+
+            return !source.Contains(":") && !source.Any(char.IsControl);
         }
 
         #region Static Methods
