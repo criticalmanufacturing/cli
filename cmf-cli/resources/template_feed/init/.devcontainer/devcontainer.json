@@ -24,10 +24,7 @@
             "extensions": [
                 "formulahendry.docker-explorer",
                 "ms-azuretools.vscode-docker",
-                "ms-dotnettools.csdevkit@1.9.55",
-                "ms-dotnettools.csharp@2.39.29",
-                "ms-dotnettools.vscode-dotnet-runtime",
-                "ms-dotnettools.vscodeintellicode-csharp",
+                "ms-dotnettools.csdevkit",
                 "FullStackSpider.visual-nuget",
                 "actboy168.tasks"
             ],
