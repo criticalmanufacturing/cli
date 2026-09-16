@@ -350,7 +350,7 @@ namespace tests.Specs
                 Assert.True(File.Exists($"Cmf.Custom.Help/docs/assets/images/favicon.ico"), "Asset is missing");
                 Assert.True(File.ReadAllText($"Cmf.Custom.Help/docs/cmf/index.md").Contains("cmf"), "Tenant name is not rendered into the landing page");
                 Assert.True(File.Exists("Cmf.Custom.Help/cmfpackage.json"), "Package metadata is missing");
-                Assert.True(File.ReadAllText("Cmf.Custom.Help/cmfpackage.json").Contains("\"packageType\": \"Help\""), "Package type is not Help");
+                Assert.True(File.ReadAllText("Cmf.Custom.Help/cmfpackage.json").Contains("\"source\": \"docs/cmf/**\""), "Tenant content mapping is not rendered into the package metadata");
                 Assert.False(File.Exists("Cmf.Custom.Help/package.json"), "NPM project should not be created for MES 12 Help packages");
                 Assert.False(File.Exists("Cmf.Custom.Help/angular.json"), "Angular workspace should not be created for MES 12 Help packages");
             });

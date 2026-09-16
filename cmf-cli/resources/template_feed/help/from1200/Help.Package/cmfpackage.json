@@ -10,6 +10,10 @@
     {
       "source": "site/**",
       "target": ""
+    },
+    {
+      "source": "docs/<%= $CLI_PARAM_Tenant %>/**",
+      "target": "docs/<%= $CLI_PARAM_Tenant %>"
     }
   ]
 }
