@@ -1,5 +1,6 @@
 site_name: Critical Manufacturing MES Project Documentation
 docs_dir: docs
+dev_addr: 0.0.0.0:7001
 theme:
   name: material
   language: en

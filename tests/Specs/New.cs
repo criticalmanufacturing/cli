@@ -343,6 +343,7 @@ namespace tests.Specs
             {
 
                 Assert.True(File.Exists("Cmf.Custom.Help/mkdocs.yml"), "MkDocs configuration is missing");
+                Assert.True(File.ReadAllText("Cmf.Custom.Help/mkdocs.yml").Contains("dev_addr: 0.0.0.0:7001"), "MkDocs development address is not configured");
                 Assert.True(File.Exists("Cmf.Custom.Help/docs/index.md"), "MkDocs home page is missing");
                 Assert.True(File.Exists($"Cmf.Custom.Help/docs/cmf/index.md"), "Tenant landing page is missing");
                 Assert.True(Directory.Exists("Cmf.Custom.Help/docs/cmf"), "Folder cmf should exist after generation");
