@@ -3,6 +3,7 @@
   "version": "<%= $CLI_PARAM_CustomPackageVersion %>",
   "description": "Cmf Custom <%= $CLI_PARAM_Tenant %> <%= $CLI_PARAM_CustomPackageName %> Package",
   "packageType": "Help",
+  "handlerVersion": 2,
   "targetLayer": "reference",
   "isInstallable": true,
   "isUniqueInstall": false,
