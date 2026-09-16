@@ -1302,6 +1302,81 @@ namespace tests.Specs
             steps.Elements().Count().Should().Be(4, "HTML package should have 4 installation steps");
         }
 
+        [Fact]
+        public void Help_v12_MkDocsPack_FailsWhenSiteWasNotBuilt()
+        {
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { "/.project-config.json", new MockFileData(@"{
+                ""MESVersion"": ""12.0.0""
+            }") },
+                { "/repo/Cmf.Custom.Help/cmfpackage.json", new MockFileData(@"{
+              ""packageId"": ""Cmf.Custom.Help"",
+              ""version"": ""1.0.0"",
+              ""packageType"": ""Help"",
+              ""contentToPack"": [
+                { ""source"": ""site/**"", ""target"": ""site"" },
+                                { ""source"": ""docs/cmf/**"", ""target"": ""docs/cmf"" }
+              ]
+            }") },
+                { "/repo/Cmf.Custom.Help/docs/requirements.txt", new MockFileData("mkdocs-material") },
+                                { "/repo/Cmf.Custom.Help/docs/cmf/index.md", new MockFileData("# Help") }
+            });
+
+            ExecutionContext.Initialize(fileSystem);
+
+            var packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(
+                fileSystem.FileInfo.New("/repo/Cmf.Custom.Help/cmfpackage.json")) as HelpMkDocsPackageTypeHandler;
+
+            var exception = Assert.Throws<CliException>(() => packageTypeHandler.Pack(
+                fileSystem.DirectoryInfo.New("/repo/package"),
+                fileSystem.DirectoryInfo.New("/repo/output")));
+
+            exception.Message.Should().Contain("Could not find MkDocs site");
+        }
+
+        [Fact]
+        public void Help_v12_MkDocsPack_SucceedsWhenSiteAndDocsExist()
+        {
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { "/.project-config.json", new MockFileData(@"{
+                ""MESVersion"": ""12.0.0""
+            }") },
+                { "/repo/Cmf.Custom.Help/cmfpackage.json", new MockFileData(@"{
+              ""packageId"": ""Cmf.Custom.Help"",
+              ""version"": ""1.0.0"",
+              ""packageType"": ""Help"",
+              ""contentToPack"": [
+                { ""source"": ""site/**"", ""target"": ""site"" },
+                                { ""source"": ""docs/cmf/**"", ""target"": ""docs/cmf"" }
+              ]
+            }") },
+                { "/repo/Cmf.Custom.Help/docs/requirements.txt", new MockFileData("mkdocs-material") },
+                                { "/repo/Cmf.Custom.Help/docs/cmf/index.md", new MockFileData("# Help") },
+                { "/repo/Cmf.Custom.Help/site/index.html", new MockFileData("<html>Help</html>") },
+                { "/repo/Cmf.Custom.Help/site/search/search_index.json", new MockFileData("{}") },
+                { "/repo/output", new MockDirectoryData() }
+            });
+
+            ExecutionContext.Initialize(fileSystem);
+
+            var packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(
+                fileSystem.FileInfo.New("/repo/Cmf.Custom.Help/cmfpackage.json")) as HelpMkDocsPackageTypeHandler;
+
+            packageTypeHandler.Pack(
+                fileSystem.DirectoryInfo.New("/repo/package"),
+                fileSystem.DirectoryInfo.New("/repo/output"));
+
+            var packageZip = fileSystem.FileInfo.New("/repo/output/Cmf.Custom.Help.1.0.0.zip");
+            packageZip.Exists.Should().BeTrue("Package zip file should be created");
+
+            using var zip = new ZipArchive(packageZip.OpenRead(), ZipArchiveMode.Read);
+            zip.GetEntry("site/index.html").Should().NotBeNull();
+            zip.GetEntry("docs/cmf/index.md").Should().NotBeNull();
+            zip.GetEntry("site/search/search_index.json").Should().NotBeNull();
+        }
+
 
         [Fact]
         public void Pack_TestPackage()

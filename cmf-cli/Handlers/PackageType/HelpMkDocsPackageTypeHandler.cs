@@ -1,6 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using Cmf.CLI.Builders;
 using Cmf.CLI.Core.Enums;
@@ -19,6 +19,25 @@ namespace Cmf.CLI.Handlers
         /// </summary>
         public HelpMkDocsPackageTypeHandler(CmfPackage cmfPackage) : base(cmfPackage)
         {
+            cmfPackage.SetDefaultValues
+            (
+                targetDirectory:
+                    "UI/Reference",
+                targetLayer:
+                    "reference",
+                steps:
+                    new List<Step>
+                    {
+                        new Step(StepType.DeployFiles)
+                        {
+                            ContentPath = "site/**",
+                            TargetDirectory = "/"
+                        }
+                    }
+            );
+
+            cmfPackage.DFPackageType = PackageType.Presentation;
+
             var packageDirectory = CmfPackage.GetFileInfo().DirectoryName;
 
             // MkDocs build must run where requirements.txt is located.
@@ -74,6 +93,23 @@ namespace Cmf.CLI.Handlers
                     WorkingDirectory = workingDirectory
                 }
             };
+        }
+
+        /// <summary>
+        /// Packs the generated MkDocs site.
+        /// </summary>
+        public override void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir, bool dryRun = false)
+        {
+            var packageDirectory = CmfPackage.GetFileInfo().Directory.FullName;
+            var siteDirectory = this.fileSystem.DirectoryInfo.New(this.fileSystem.Path.Join(packageDirectory, "site"));
+            var docsDirectory = this.fileSystem.DirectoryInfo.New(this.fileSystem.Path.Join(packageDirectory, "docs"));
+
+            if (!siteDirectory.Exists || !docsDirectory.Exists)
+            {
+                throw new CliException($"Could not find MkDocs site or documentation source at {packageDirectory}. Run 'cmf build' before packing.");
+            }
+
+            base.Pack(packageOutputDir, outputDir, dryRun);
         }
     }
 }
