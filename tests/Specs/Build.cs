@@ -878,4 +878,59 @@ public class Build
         var groupIds = items.Select(i => i.GetProperty("menuGroupId").GetString()).ToList();
         groupIds.Should().BeInAscendingOrder("menu items should be ordered by folder name alphabetically");
     }
+
+    [Fact]
+    public void HelpBuild_MesV12_UsesPythonAndMkDocsCommands()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { "/.project-config.json", new MockFileData(@"{
+                ""MESVersion"": ""12.0.0""
+            }") },
+            { "/help/cmfpackage.json", new MockFileData(@"{
+                ""packageId"": ""Cmf.Custom.Help"",
+                ""version"": ""1.0.0"",
+                ""description"": ""Help package"",
+                ""packageType"": ""Help"",
+                ""isInstallable"": true,
+                ""isUniqueInstall"": false
+            }") },
+            { "/help/requirements.txt", new MockFileData(string.Empty) }
+        });
+
+        ExecutionContext.ServiceProvider = new ServiceCollection()
+            .AddSingleton<IProjectConfigService>(new ProjectConfigService())
+            .BuildServiceProvider();
+        ExecutionContext.Initialize(fileSystem);
+
+        var package = CmfPackage.Load(fileSystem.FileInfo.New("/help/cmfpackage.json"), setDefaultValues: false);
+        var handler = PackageTypeFactory.GetPackageTypeHandler(package) as HelpMkDocsPackageTypeHandler;
+
+        handler.Should().BeOfType<HelpMkDocsPackageTypeHandler>();
+        handler.BuildSteps.Should().HaveCount(4);
+        handler.BuildSteps[0].Should().BeOfType<PythonCommand>();
+        handler.BuildSteps[1].Should().BeOfType<PythonCommand>();
+        handler.BuildSteps[2].Should().BeOfType<PythonCommand>();
+        handler.BuildSteps[3].Should().BeOfType<Cmf.CLI.Builders.MkDocsCommand>();
+
+        var createVenv = (PythonCommand)handler.BuildSteps[0];
+        createVenv.Module.Should().Be("venv");
+        createVenv.Args.Should().Equal(".venv");
+        createVenv.VirtualEnvironment.Should().BeNull();
+
+        var installMkDocs = (PythonCommand)handler.BuildSteps[1];
+        installMkDocs.Module.Should().Be("pip");
+        installMkDocs.Args.Should().Equal("install", "mkdocs");
+        installMkDocs.VirtualEnvironment.Should().Be(".venv");
+
+        var installRequirements = (PythonCommand)handler.BuildSteps[2];
+        installRequirements.Module.Should().Be("pip");
+        installRequirements.Args.Should().Equal("install", "-r", "requirements.txt");
+        installRequirements.VirtualEnvironment.Should().Be(".venv");
+
+        var buildMkDocs = (Cmf.CLI.Builders.MkDocsCommand)handler.BuildSteps[3];
+        buildMkDocs.Command.Should().Be("build");
+        buildMkDocs.VirtualEnvironment.Should().Be(".venv");
+        buildMkDocs.GetSteps().Single().Args.Should().Equal("build");
+    }
 }
