@@ -23,6 +23,37 @@ namespace tests.Specs
                 .AddSingleton<IProjectConfigService>(new ProjectConfigService())
                 .BuildServiceProvider();
         }
+
+        [Theory]
+        [InlineData("10.0.0")]
+        [InlineData("11.0.0")]
+        public void HtmlPackageTypeHandler_UsesTaggedConfigBeforeMes12(string mesVersion)
+        {
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { "/.project-config.json", new MockFileData($@"{{ ""MESVersion"": ""{mesVersion}"" }}") },
+                { "/ui/angular.json", new MockFileData(@"{
+                    ""projects"": {
+                        ""Cmf.Custom.HTML"": { ""projectType"": ""application"" }
+                    }
+                }") },
+                { "/ui/package.json", new MockFileData(@"{ ""name"": ""customization.package"" }") },
+                { "/ui/cmfpackage.json", new MockFileData(@"{
+                    ""packageId"": ""Cmf.Custom.HTML"",
+                    ""version"": ""1.1.0"",
+                    ""packageType"": ""Html""
+                }") }
+            });
+
+            ExecutionContext.Initialize(fileSystem);
+
+            var package = CmfPackage.Load(fileSystem.FileInfo.New("/ui/cmfpackage.json"), true, fileSystem);
+            PackageTypeFactory.GetPackageTypeHandler(package);
+
+            package.Steps.Should().ContainSingle(step =>
+                step.Type == StepType.TaggedFile && step.ContentPath == "assets/config.json");
+            package.Steps.Should().NotContain(step => step.Type == StepType.TransformFile);
+        }
         
         [Fact]
         public void GetContentToPack_WithNonExistentIgnoreFiles()
