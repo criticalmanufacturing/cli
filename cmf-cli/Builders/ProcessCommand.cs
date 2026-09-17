@@ -75,7 +75,11 @@ namespace Cmf.CLI.Builders
                                 ps.EnvironmentVariables.Remove(envVar.Key);
                             }
 
-                            ps.EnvironmentVariables.Add(envVar.Key, envVar.Value);
+                            // A null value means the variable should remain unset.
+                            if (envVar.Value != null)
+                            {
+                                ps.EnvironmentVariables.Add(envVar.Key, envVar.Value);
+                            }
                         }
                     }
 

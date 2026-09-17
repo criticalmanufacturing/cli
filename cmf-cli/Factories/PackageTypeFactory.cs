@@ -46,7 +46,9 @@ namespace Cmf.CLI.Factories
                 PackageType.Generic => new GenericPackageTypeHandler(cmfPackage),
                 PackageType.Business => new BusinessPackageTypeHandler(cmfPackage),
                 PackageType.HTML => new HtmlNgCliPackageTypeHandler(cmfPackage),
-                PackageType.Help => new HelpNgCliPackageTypeHandler(cmfPackage),
+                PackageType.Help => ExecutionContext.Instance?.ProjectConfig?.MESVersion?.Major >= 12
+                    ? new HelpMkDocsPackageTypeHandler(cmfPackage)
+                    : new HelpNgCliPackageTypeHandler(cmfPackage),
                 PackageType.IoT => new IoTPackageTypeHandler(cmfPackage),
                 PackageType.IoTData => cmfPackage.HandlerVersion switch
                 {
