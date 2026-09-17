@@ -10,7 +10,7 @@
   "contentToPack": [
     {
       "source": "site/**",
-      "target": ""
+      "target": "site"
     },
     {
       "source": "docs/<%= $CLI_PARAM_Tenant %>/**",
