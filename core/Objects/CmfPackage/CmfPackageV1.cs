@@ -8,6 +8,7 @@ using Cmf.CLI.Core.Interfaces;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
+using NuGet.Versioning;
 
 namespace Cmf.CLI.Core.Objects;
 
@@ -300,6 +301,9 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
         /// </summary>
         [JsonIgnore]
         public List<JObject> PackageDemands { get; internal set; }
+
+        [JsonIgnore]
+        internal NuGetVersion TargetMesVersion { get; set; }
     #endregion
 
     #region constructors

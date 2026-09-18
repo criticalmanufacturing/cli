@@ -162,6 +162,29 @@ public class CmfPackageController_FromXml
     }
 
     [Fact]
+    public void FromXml_ShouldParseTargetDirectory_FromManifestElement_ForMes11()
+    {
+        var xml = XDocument.Parse(
+            """
+            <deploymentPackage>
+              <packageId>Cmf.Custom.Data</packageId>
+              <version>1.0.0</version>
+              <targetDirectory>BusinessTier</targetDirectory>
+              <dependencies>
+                <dependency id="Cmf.Environment" version="11.0.0" />
+              </dependencies>
+            </deploymentPackage>
+            """);
+
+        var pkg = CmfPackageController.FromXml(xml);
+
+        pkg.TargetDirectory.Should().Be("BusinessTier");
+
+        var packageJson = JObject.Parse(new CmfPackageController(pkg, null).ToJson());
+        packageJson["deployment"]["targetDirectory"]!.Value<string>().Should().Be("BusinessTier");
+    }
+
+    [Fact]
     public void FromXml_ShouldParseForceRerunAfterDatabaseRestore_FromManifestElement()
     {
         var xml = XDocument.Parse(
@@ -722,6 +745,98 @@ public class CmfPackageController_FromXml
         objects.Should().HaveCount(2);
         ((JObject)objects[0]["Object"])["type"]!.Value<string>().Should().Be("udtt");
         ((JObject)objects[1]["Object"])["type"]!.Value<string>().Should().Be("function");
+    }
+
+    [Fact]
+    public void FromJson_ShouldParseTargetDirectory_FromDeploymentMetadata()
+    {
+        var json =
+            """
+            {
+              "name": "cmf.custom.data",
+              "packageName": "Custom Data",
+              "version": "1.0.0",
+              "keywords": ["cmf-deployment-package"],
+              "deployment": {
+                "packageType": "Generic",
+                "targetDirectory": "BusinessTier",
+                "targetLayer": "host",
+                "isInstallable": true,
+                "steps": []
+              },
+              "dependencies": {
+                "Cmf.Environment": "12.0.0"
+              },
+              "mandatoryDependencies": {},
+              "conditionalDependencies": {}
+            }
+            """;
+
+        var pkg = CmfPackageController.FromJson(json);
+
+        pkg.TargetDirectory.Should().BeNull();
+        pkg.TargetLayer.Should().Be("host");
+
+        JObject.Parse(new CmfPackageController(pkg, null).ToJson())["deployment"]!["targetDirectory"].Should().BeNull();
+    }
+
+    [Fact]
+    public void FromXml_ShouldIgnoreTargetDirectory_FromMes12Manifest()
+    {
+        var xml = XDocument.Parse(
+            """
+            <deploymentPackage>
+              <packageId>Cmf.Custom.Data</packageId>
+              <version>1.0.0</version>
+              <targetDirectory>BusinessTier</targetDirectory>
+              <dependencies>
+                <dependency id="Cmf.Environment" version="12.0.0" />
+              </dependencies>
+            </deploymentPackage>
+            """);
+
+        var pkg = CmfPackageController.FromXml(xml);
+
+        pkg.TargetDirectory.Should().BeNull();
+        JObject.Parse(new CmfPackageController(pkg, null).ToJson())["deployment"]!["targetDirectory"].Should().BeNull();
+    }
+
+    [Fact]
+    public void FromXml_ShouldRejectTargetDirectory_WhenMesVersionMetadataIsMissing()
+    {
+        var xml = XDocument.Parse(
+            """
+            <deploymentPackage>
+              <packageId>Cmf.Custom.Data</packageId>
+              <version>1.0.0</version>
+              <targetDirectory>BusinessTier</targetDirectory>
+            </deploymentPackage>
+            """);
+
+        Action act = () => CmfPackageController.FromXml(xml);
+
+        act.Should().Throw<CliException>()
+            .WithMessage("*Cmf.Custom.Data*manifest.xml*neither Cmf.Environment nor CriticalManufacturing.DeploymentMetadata is declared*");
+    }
+
+    [Fact]
+    public void FromJson_ShouldRejectTargetDirectory_WhenMesVersionMetadataIsInvalid()
+    {
+        var json = JObject.Parse(
+            """
+            {
+              "name": "cmf.custom.data",
+              "version": "1.0.0",
+              "keywords": ["cmf-deployment-package"],
+              "deployment": { "targetDirectory": "BusinessTier", "steps": [] },
+              "dependencies": { "Cmf.Environment": "not-a-version" }
+            }
+            """);
+
+        Action act = () => CmfPackageController.FromJson(json);
+
+        act.Should().Throw<CliException>()
+            .WithMessage("*cmf.custom.data*package.json*not-a-version*is invalid*");
     }
 
     [Fact]
