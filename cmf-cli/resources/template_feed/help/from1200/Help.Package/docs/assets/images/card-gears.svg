@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Technical">
+  <circle cx="26" cy="28" r="11" fill="#AFCDE1"/>
+  <circle cx="43" cy="43" r="8" fill="#AFCDE1"/>
+  <path d="M26 13v5M26 38v5M11 28h5M36 28h5M15.4 17.4l3.5 3.5M33.1 35.1l3.5 3.5M36.6 17.4l-3.5 3.5M18.9 35.1l-3.5 3.5" fill="none" stroke="#00558C" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="26" cy="28" r="8" fill="none" stroke="#00558C" stroke-width="4"/>
+  <path d="M43 31v4M43 51v4M31 43h4M51 43h4M34.5 34.5l2.8 2.8M48.7 48.7l2.8 2.8M51.5 34.5l-2.8 2.8M37.3 48.7l-2.8 2.8" fill="none" stroke="#00558C" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="43" cy="43" r="6" fill="none" stroke="#00558C" stroke-width="4"/>
+</svg>
