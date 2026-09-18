@@ -201,6 +201,18 @@ public class CmfPackageV1 : IEquatable<CmfPackageV1>
         /// </value>
         [JsonProperty(Order = 15)]
         public DependencyCollection TestPackages { get; set; }
+
+        /// <summary>
+        /// Declared Grafana plugin requirements for Grafana packages.
+        /// </summary>
+        [JsonProperty(Order = 24)]
+        public GrafanaPluginRequirementCollection GrafanaPlugins { get; set; }
+
+        /// <summary>
+        /// Determines whether the Grafana plugin declaration should be serialized.
+        /// </summary>
+        /// <returns><see langword="true" /> when at least one Grafana plugin is declared; otherwise, <see langword="false" />.</returns>
+        public bool ShouldSerializeGrafanaPlugins() => GrafanaPlugins?.Count > 0;
         
         /// <summary>
         /// Handler Version

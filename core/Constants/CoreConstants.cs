@@ -56,6 +56,26 @@
         /// </summary>
         public const string NpmJsUrl = "https://registry.npmjs.com";
 
+        /// <summary>
+        /// URL for downloading Grafana plugin artifacts by exact version.
+        /// </summary>
+        public const string GrafanaPluginDownloadUrl = "https://grafana.com/api/plugins";
+
+        /// <summary>
+        /// Default folder where Grafana plugin preparation artifacts are stored during restore.
+        /// </summary>
+        public const string GrafanaPluginsStateFolder = ".cmf-grafana-plugins";
+
+        /// <summary>
+        /// Folder inside package output where Grafana plugins are bundled.
+        /// </summary>
+        public const string GrafanaPluginsPackageFolder = "plugins";
+
+        /// <summary>
+        /// Name of the plugin preparation metadata file.
+        /// </summary>
+        public const string GrafanaPluginPreparationMetadataFile = "cmf-grafana-plugin.json";
+
         #endregion
 
         #region Tokens

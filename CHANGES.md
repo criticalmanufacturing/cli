@@ -2,12 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
-## [6.0.0-5](https://github.com/criticalmanufacturing/cli/compare/6.0.0-4...6.0.0-5) (2026-09-16)
-
+## 6.1.0-0 (2026-09-09)
 
 ### Features
 
-* **devcontainer:** merge csharp extensions on csdevkit (latest) ([1188ff9](https://github.com/criticalmanufacturing/cli/commit/1188ff99860ca3cb8e47d8b0616440e1f75a6677))
+* prepare manifest-declared Grafana plugins during restore and embed verified distributions during offline packing, preserving executable permissions; support `grafanaPluginsTargetPath` with a default of `/data/grafana/plugins` for image-specific deployment paths.
+
+### Bug Fixes
+
+* prevent Windows npm installation from overflowing its copy-output buffer and report failed copies instead of accepting incomplete installations.
+
+## [6.0.0-5](https://github.com/criticalmanufacturing/cli/compare/6.0.0-4...6.0.0-5) (2026-09-16)
+
+### Features
+
+* **devcontainer:** merge csharp extensions on csdevkit (latest)
 
 ## [6.0.0-4](https://github.com/criticalmanufacturing/cli/compare/6.0.0-3...6.0.0-4) (2026-09-04)
 

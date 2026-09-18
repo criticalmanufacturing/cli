@@ -523,10 +523,12 @@ namespace Cmf.CLI.Utilities
         /// <param name="filePath">The path of the resulting zip file</param>
         /// <param name="directory">The directory to zip</param>
         /// <returns></returns>
-        public static void ZipDirectory(IFileSystem fileSystem, string filePath, IDirectoryInfo directory)
+        public static void ZipDirectory(IFileSystem fileSystem, string filePath, IDirectoryInfo directory,
+            Action<ZipArchive, IDictionary<string, int>> appendEntries = null)
         {
             using (var memoryStream = new MemoryStream())
             {
+                var unixModes = new Dictionary<string, int>(StringComparer.Ordinal);
                 using (ZipArchive zipArchive = new(memoryStream, ZipArchiveMode.Create, true))
                 {
                     foreach (IFileInfo file in directory.AllFilesAndFolders().Where(o => o is IFileInfo).Cast<IFileInfo>())
@@ -539,6 +541,12 @@ namespace Cmf.CLI.Utilities
                             entryStream.Write(fileSystem.File.ReadAllBytes(file.FullName));
                         }
                     }
+                    appendEntries?.Invoke(zipArchive, unixModes);
+                }
+
+                if (unixModes.Count > 0)
+                {
+                    SetUnixZipMetadata(memoryStream, unixModes);
                 }
 
                 using (Stream zipToOpen = fileSystem.FileStream.New(filePath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 0x1000, useAsync: false))
@@ -547,6 +555,43 @@ namespace Cmf.CLI.Utilities
                     memoryStream.WriteTo(zipToOpen);
                     memoryStream.Flush();
                 }
+            }
+        }
+
+        // ExternalAttributes alone is insufficient on Windows: extractors also require
+        // the central directory's "version made by" platform to be Unix (3).
+        internal static void SetUnixZipMetadata(Stream stream, IDictionary<string, int> modes)
+        {
+            using var reader = new BinaryReader(stream, System.Text.Encoding.UTF8, true);
+            using var writer = new BinaryWriter(stream, System.Text.Encoding.UTF8, true);
+            stream.Position = stream.Length - 22;
+            if (reader.ReadUInt32() != 0x06054b50)
+                throw new InvalidDataException("Expected a ZIP without a comment.");
+            stream.Position += 6;
+            int count = reader.ReadUInt16();
+            stream.Position += 4;
+            long offset = reader.ReadUInt32();
+            if (count == ushort.MaxValue || offset == uint.MaxValue)
+                throw new InvalidDataException("Grafana payload packaging exceeds the supported ZIP size.");
+            for (int i = 0; i < count; i++)
+            {
+                stream.Position = offset;
+                if (reader.ReadUInt32() != 0x02014b50)
+                    throw new InvalidDataException("Invalid ZIP central directory.");
+                stream.Position = offset + 28;
+                int nameLength = reader.ReadUInt16();
+                int extraLength = reader.ReadUInt16();
+                int commentLength = reader.ReadUInt16();
+                stream.Position = offset + 46;
+                string name = System.Text.Encoding.UTF8.GetString(reader.ReadBytes(nameLength));
+                if (modes.TryGetValue(name, out int mode))
+                {
+                    stream.Position = offset + 5;
+                    writer.Write((byte)3);
+                    stream.Position = offset + 38;
+                    writer.Write((mode << 16) | (name.EndsWith("/") ? 0x10 : 0));
+                }
+                offset += 46 + nameLength + extraLength + commentLength;
             }
         }
 
