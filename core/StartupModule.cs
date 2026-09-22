@@ -43,6 +43,7 @@ namespace Cmf.CLI.Core
                 .AddSingleton<ITelemetryService>(new TelemetryService(packageId))
                 .AddSingleton<IProcessStartInfoCLI>(new ProcessStartInfoCLI())
                 .AddSingleton<IProjectConfigService, ProjectConfigService>()
+                .AddSingleton<Services.GrafanaPluginResolver>()
                 .AddSingleton<IMESVersionValidationService, MESVersionValidationService>();
 
             if (registerExtraServices != null)
