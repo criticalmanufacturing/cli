@@ -30,12 +30,6 @@
       "displayName": "Package Version",
       "replaces": "<%= $CLI_PARAM_CustomPackageVersion %>"
     },
-    "Tenant": {
-      "type": "parameter",
-      "datatype": "string",
-      "replaces": "<%= $CLI_PARAM_Tenant %>",
-      "fileRename": "$(tenant)"
-    },
     "ProjectName": {
       "type": "parameter",
       "datatype": "string",
