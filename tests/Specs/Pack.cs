@@ -1164,7 +1164,7 @@ namespace tests.Specs
                     {{
                         ""source"": ""{MockUnixSupport.Path("MasterData\\file2.txt").Replace("\\", "\\\\")}"",
                         ""target"": """",
-                        ""targetPlatform"": ""Framework"",
+                        ""targetPlatform"": ""AppFramework"",
                         ""contentType"": ""MasterData""
                     }}
                   ]
