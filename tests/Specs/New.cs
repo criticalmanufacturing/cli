@@ -344,7 +344,7 @@ namespace tests.Specs
             // Create .project-config.json and cmfpackage.json
             var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
             {
-                { MockUnixSupport.Path(@"c:\test\.project-config.json"), new MockFileData(@"{
+                { MockUnixSupport.Path($@"{root}\.project-config.json"), new MockFileData(@"{
                     ""ProjectName"": ""localtest"",
                     ""RepositoryType"": ""Customization"",
                     ""BaseLayer"": ""MES"",
@@ -352,7 +352,7 @@ namespace tests.Specs
                     ""MESVersion"": """ + mesVersion + @""",
                     ""NPMRegistry"": ""http://npm_registry/""
                 }") },
-                { MockUnixSupport.Path(@"c:\test\cmfpackage.json"), new MockFileData(@"{
+                { MockUnixSupport.Path($@"{root}\cmfpackage.json"), new MockFileData(@"{
                     ""packageId"": ""Cmf.Custom.Package"",
                     ""version"": ""1.0.0"",
                     ""packageType"": ""Root"",
@@ -392,8 +392,8 @@ namespace tests.Specs
             // Assertions
             Assert.True(fileSystem.File.Exists(fileSystem.Path.Join(helpDir, "mkdocs.yml")), "MkDocs configuration is missing");
             Assert.True(fileSystem.File.Exists(fileSystem.Path.Join(helpDir, "docs", "index.md")), "MkDocs home page is missing");
-            Assert.True(fileSystem.Directory.Exists(fileSystem.Path.Join(helpDir, "docs", "cmf")), "Tenant docs folder is missing");
-            Assert.True(fileSystem.File.Exists(fileSystem.Path.Join(helpDir, "docs", "cmf", "index.md")), "Tenant landing page is missing");
+            Assert.True(fileSystem.Directory.Exists(fileSystem.Path.Join(helpDir, "docs", "localtest")), "ProjectName docs folder is missing");
+            Assert.True(fileSystem.File.Exists(fileSystem.Path.Join(helpDir, "docs", "localtest", "index.md")), "ProjectName landing page is missing");
             Assert.True(fileSystem.File.Exists(fileSystem.Path.Join(helpDir, "docs", "assets", "images", "cmf-logo.png")), "Shared logo asset is missing");
             Assert.True(fileSystem.File.Exists(fileSystem.Path.Join(helpDir, "docs", "assets", "images", "favicon.ico")), "Favicon asset is missing");
             Assert.True(fileSystem.File.Exists(fileSystem.Path.Join(helpDir, "cmfpackage.json")), "Package metadata is missing");
@@ -402,8 +402,8 @@ namespace tests.Specs
 
             // Content
             Assert.True(fileSystem.File.ReadAllText(fileSystem.Path.Join(helpDir, "mkdocs.yml")).Contains("dev_addr: 0.0.0.0:7001"), "MkDocs development address is not configured");
-            Assert.True(fileSystem.File.ReadAllText(fileSystem.Path.Join(helpDir, "docs", "cmf", "index.md")).Contains("cmf"), "Tenant name is not rendered into the landing page");
-            Assert.True(fileSystem.File.ReadAllText(fileSystem.Path.Join(helpDir, "cmfpackage.json")).Contains("\"source\": \"docs/cmf/**\""), "Tenant content mapping is not rendered into the package metadata");
+            Assert.True(fileSystem.File.ReadAllText(fileSystem.Path.Join(helpDir, "docs", "localtest", "index.md")).Contains("localtest"), "ProjectName is not rendered into the landing page");
+            Assert.True(fileSystem.File.ReadAllText(fileSystem.Path.Join(helpDir, "cmfpackage.json")).Contains("\"source\": \"docs/localtest/**\""), "ProjectName content mapping is not rendered into the package metadata");
         }
 
         private void Help_internal(string mesVersion, string ngxSchematicsVersion, string scaffoldingDir = null)
@@ -1382,8 +1382,7 @@ namespace tests.Specs
             string mesVersion = "11.2.2",
             string ngxSchematicsVersion = NGX_SCHEMATICS_VERSION,
             BaseLayer baseLayer = BaseLayer.MES,
-            RepositoryType repositoryType = RepositoryType.Customization,
-            string tenant = null) where T : TemplateCommand
+            RepositoryType repositoryType = RepositoryType.Customization) where T : TemplateCommand
         {
             var dir = scaffoldingDir ?? TestUtilities.GetTmpDirectory();
 
@@ -1399,7 +1398,7 @@ namespace tests.Specs
                 // place new fixture: an init'd repository
                 if (scaffoldingDir == null)
                 {
-                    CopyNewFixture(dir, mesVersion, ngxSchematicsVersion, baseLayer, repositoryType, tenant);
+                    CopyNewFixture(dir, mesVersion, ngxSchematicsVersion, baseLayer, repositoryType);
                 }
 
                 if (File.Exists(Path.Join(dir, ".project-config.json")))
@@ -1469,8 +1468,7 @@ namespace tests.Specs
             string mesVersion = "11.2.2",
             string ngxSchematicsVersion = NGX_SCHEMATICS_VERSION,
             BaseLayer baseLayer = BaseLayer.MES,
-            RepositoryType repositoryType = RepositoryType.Customization,
-            string tenant = null)
+            RepositoryType repositoryType = RepositoryType.Customization)
         {
             TestUtilities.CopyFixture("new", new DirectoryInfo(dir));
             var projCfg = Path.Join(dir, ".project-config.json");
@@ -1486,11 +1484,6 @@ namespace tests.Specs
                     .Replace("backup_share", MockUnixSupport.Path(@"y:\backup_share").Replace(@"\", @"\\"))
                     .Replace("temp_folder", MockUnixSupport.Path(@"z:\temp_folder").Replace(@"\", @"\\"))
                 );
-                if (!string.IsNullOrEmpty(tenant))
-                {
-                    File.WriteAllText(projCfg, File.ReadAllText(projCfg)
-                        .Replace(@"""Tenant"": ""tenant""", $@"""Tenant"": ""{tenant}"""));
-                }
             }
 
             if (repositoryType == RepositoryType.App)

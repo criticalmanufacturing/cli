@@ -35,6 +35,14 @@
       "datatype": "string",
       "replaces": "<%= $CLI_PARAM_Tenant %>",
       "fileRename": "$(tenant)"
+    },
+    "ProjectName": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The name of our project",
+      "displayName": "Project Name",
+      "replaces": "<%= $CLI_PARAM_ProjectName %>",
+      "fileRename": "$(projectName)"
     }
   }
 }

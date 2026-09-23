@@ -117,7 +117,7 @@ namespace Cmf.CLI.Commands.New
                     break;
                 default:
                     this.CommandName = "help12";
-                    base.Execute(workingDir, version);
+                    base.Execute(workingDir, version, new List<string> { "--ProjectName", ExecutionContext.Instance.ProjectConfig.ProjectName }); // Execute with specific parameter needed for v12 (projectName)
                     return;
             }
 

@@ -1,7 +1,7 @@
 {
   "packageId": "<%= $CLI_PARAM_CustomPackageName %>",
   "version": "<%= $CLI_PARAM_CustomPackageVersion %>",
-  "description": "Cmf Custom <%= $CLI_PARAM_Tenant %> <%= $CLI_PARAM_CustomPackageName %> Package",
+  "description": "Cmf Custom <%= $CLI_PARAM_ProjectName %> <%= $CLI_PARAM_CustomPackageName %> Package",
   "packageType": "Help",
   "targetLayer": "reference",
   "isInstallable": true,
@@ -12,8 +12,8 @@
       "target": "site"
     },
     {
-      "source": "docs/<%= $CLI_PARAM_Tenant %>/**",
-      "target": "docs/<%= $CLI_PARAM_Tenant %>"
+      "source": "docs/<%= $CLI_PARAM_ProjectName %>/**",
+      "target": "docs/<%= $CLI_PARAM_ProjectName %>"
     }
   ]
 }
