@@ -209,7 +209,7 @@ namespace tests.Specs
 
             var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
             {
-                { MockUnixSupport.Path(@"c:\.project-config.json"), new MockFileData(@"{
+                { MockUnixSupport.Path($@"{gitRepo}\.project-config.json"), new MockFileData(@"{
                     ""ProjectName"": ""localtestrj"",
                     ""RepositoryType"": ""Customization"",
                     ""BaseLayer"": ""MES"",
@@ -226,7 +226,7 @@ namespace tests.Specs
                     ""isUniqueInstall"": false,
                     ""contentToPack"": [
                         { ""source"": ""site/**"", ""target"": ""site"" },
-                        { ""source"": ""docs/MyTenant/**"", ""target"": ""docs/MyTenant"" }
+                        { ""source"": ""docs/MyProject/**"", ""target"": ""docs/MyProject"" }
                     ],
                     ""dependencies"": [
                         { ""id"": ""Cmf.Custom.Help"", ""version"": ""1.0.0"" }
@@ -234,13 +234,13 @@ namespace tests.Specs
                 }") },
                 { $"{gitRepo}/requirements.txt", new MockFileData("mkdocs") },
                 { $"{gitRepo}/docs/other.txt", new MockFileData("original other") },
-                { $"{gitRepo}/docs/MyTenant/old-file.txt", new MockFileData("old content") },
-                { $"{gitRepo}/docs/MyTenant/index.html", new MockFileData("<html>old index</html>") },
+                { $"{gitRepo}/docs/MyProject/old-file.txt", new MockFileData("old content") },
+                { $"{gitRepo}/docs/MyProject/index.html", new MockFileData("<html>old index</html>") },
                 { $"{ciRepo}/Cmf.Custom.Help.1.0.0.zip", new MockFileData(new DFPackageBuilder()
                     .CreateEntry("manifest.xml", @"<?xml version=""1.0"" encoding=""utf-8""?><deploymentPackage><packageId>Cmf.Custom.Help</packageId><version>1.0.0</version></deploymentPackage>")
-                    .CreateEntry("docs/MyTenant/index.html", "<html>index</html>")
-                    .CreateEntry("docs/MyTenant/getting-started.html", "<html>getting started</html>")
-                    .CreateEntry("docs/MyTenant/reference.md", "# Reference")
+                    .CreateEntry("docs/MyProject/index.html", "<html>index</html>")
+                    .CreateEntry("docs/MyProject/getting-started.html", "<html>getting started</html>")
+                    .CreateEntry("docs/MyProject/reference.md", "# Reference")
                     .CreateEntry("docs/other.txt", "restored other")
                     .CreateEntry("docs/assets/icon.png", "icon data")
                     .ToByteArray()) }
@@ -262,7 +262,7 @@ namespace tests.Specs
 
             handler.RestoreDependencies(new[] { repo });
 
-            var docs = MockUnixSupport.Path(@"c:\test\docs\MyTenant");
+            var docs = MockUnixSupport.Path($@"{gitRepo}\docs\MyProject");
 
             // Verify that the restore replaced all docs tenant files and did not remove any other files
             Assert.False(fileSystem.FileInfo.New($"{docs}/old-file.txt").Exists, "Old file was not replaced");
@@ -273,9 +273,9 @@ namespace tests.Specs
             Assert.Equal("# Reference", fileSystem.FileInfo.New($"{docs}/reference.md").OpenText().ReadToEnd());
 
             // Verify files outside docs/tenant were not touched or restored
-            Assert.True(fileSystem.FileInfo.New(MockUnixSupport.Path(@"c:\test\docs\other.txt")).Exists, "File outside docs/tenant was removed");
-            Assert.Equal("original other", fileSystem.FileInfo.New(MockUnixSupport.Path(@"c:\test\docs\other.txt")).OpenText().ReadToEnd());
-            Assert.False(fileSystem.FileInfo.New(MockUnixSupport.Path(@"c:\test\docs\assets\icon.png")).Exists, "Assets folder should not be restored");
+            Assert.True(fileSystem.FileInfo.New(MockUnixSupport.Path($@"{gitRepo}\docs\other.txt")).Exists, "File outside docs/tenant was removed");
+            Assert.Equal("original other", fileSystem.FileInfo.New(MockUnixSupport.Path($@"{gitRepo}\docs\other.txt")).OpenText().ReadToEnd());
+            Assert.False(fileSystem.FileInfo.New(MockUnixSupport.Path($@"{gitRepo}\docs\assets\icon.png")).Exists, "Assets folder should not be restored");
         }
     }
 }
