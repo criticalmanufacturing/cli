@@ -4,6 +4,7 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using Cmf.CLI.Builders;
+using Cmf.CLI.Commands.restore;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
@@ -54,6 +55,15 @@ namespace Cmf.CLI.Handlers
 
             BuildSteps =
             [
+                new ExecuteCommand<RestoreCommand>()
+                {
+                    Command = new RestoreCommand(fileSystem),
+                    DisplayName = "cmf restore",
+                    Execute = command =>
+                    {
+                        command.Execute(CmfPackage.GetFileInfo().Directory, null);
+                    }
+                },
                 new PythonCommand
                 {
                     DisplayName = "Create Python virtual environment",

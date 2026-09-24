@@ -1,5 +1,6 @@
 using Cmf.CLI.Builders;
 using Cmf.CLI.Commands;
+using Cmf.CLI.Commands.restore;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Core.Utilities;
@@ -907,28 +908,30 @@ public class Build
         var handler = PackageTypeFactory.GetPackageTypeHandler(package) as HelpMkDocsPackageTypeHandler;
 
         handler.Should().BeOfType<HelpMkDocsPackageTypeHandler>();
-        handler.BuildSteps.Should().HaveCount(4);
-        handler.BuildSteps[0].Should().BeOfType<PythonCommand>();
+        handler.BuildSteps.Should().HaveCount(5);
+        handler.BuildSteps[0].Should().BeOfType<ExecuteCommand<RestoreCommand>>();
+        handler.BuildSteps[0].DisplayName.Should().Be("cmf restore");
         handler.BuildSteps[1].Should().BeOfType<PythonCommand>();
         handler.BuildSteps[2].Should().BeOfType<PythonCommand>();
-        handler.BuildSteps[3].Should().BeOfType<Cmf.CLI.Builders.MkDocsCommand>();
+        handler.BuildSteps[3].Should().BeOfType<PythonCommand>();
+        handler.BuildSteps[4].Should().BeOfType<Cmf.CLI.Builders.MkDocsCommand>();
 
-        var createVenv = (PythonCommand)handler.BuildSteps[0];
+        var createVenv = (PythonCommand)handler.BuildSteps[1];
         createVenv.Module.Should().Be("venv");
         createVenv.Args.Should().Equal(".venv");
         createVenv.VirtualEnvironment.Should().BeNull();
 
-        var installMkDocs = (PythonCommand)handler.BuildSteps[1];
+        var installMkDocs = (PythonCommand)handler.BuildSteps[2];
         installMkDocs.Module.Should().Be("pip");
         installMkDocs.Args.Should().Equal("install", "mkdocs");
         installMkDocs.VirtualEnvironment.Should().Be(".venv");
 
-        var installRequirements = (PythonCommand)handler.BuildSteps[2];
+        var installRequirements = (PythonCommand)handler.BuildSteps[3];
         installRequirements.Module.Should().Be("pip");
         installRequirements.Args.Should().Equal("install", "-r", "requirements.txt");
         installRequirements.VirtualEnvironment.Should().Be(".venv");
 
-        var buildMkDocs = (Cmf.CLI.Builders.MkDocsCommand)handler.BuildSteps[3];
+        var buildMkDocs = (Cmf.CLI.Builders.MkDocsCommand)handler.BuildSteps[4];
         buildMkDocs.Command.Should().Be("build");
         buildMkDocs.VirtualEnvironment.Should().Be(".venv");
         buildMkDocs.GetSteps().Single().Args.Should().Equal("build");
