@@ -172,7 +172,7 @@ public class Plugins
         var plugins = new Dictionary<string, PluginCommand> { { "echo", plugin } };
 
         var output = CaptureConsoleOutput(() =>
-            Program.TryExecutePlugin(plugins, ["echo", .. pluginArgs]).Should().BeTrue());
+            Program.TryExecutePlugin(CreateRootCommand(), plugins, ["echo", .. pluginArgs]).Should().BeTrue());
 
         output.Should().Be(string.Join(Environment.NewLine, pluginArgs));
     }
@@ -184,7 +184,7 @@ public class Plugins
     {
         var plugins = new Dictionary<string, PluginCommand> { { "echo", CreateEchoPlugin() } };
 
-        var output = CaptureConsoleOutput(() => Program.TryExecutePlugin(plugins, args).Should().BeFalse());
+        var output = CaptureConsoleOutput(() => Program.TryExecutePlugin(CreateRootCommand(), plugins, args).Should().BeFalse());
 
         output.Should().BeEmpty();
     }
@@ -194,9 +194,38 @@ public class Plugins
     {
         var plugins = new Dictionary<string, PluginCommand> { { "echo", CreateEchoPlugin(exitCode: 3) } };
 
-        var act = () => Program.TryExecutePlugin(plugins, ["echo", "--help"]);
+        var act = () => Program.TryExecutePlugin(CreateRootCommand(), plugins, ["echo", "--help"]);
 
         act.Should().Throw<CliException>().Where(e => (int)e.ErrorCode == 3);
+    }
+
+    [Theory]
+    [InlineData("cmf_cli_loglevel", "Debug")]
+    [InlineData("SYSTEM_DEBUG", "true")]
+    public void TryExecutePlugin_AppliesLogLevelFromEnvironment(string variable, string value)
+    {
+        var logWriter = new Logging().GetLogStringWriter();
+        var plugins = new Dictionary<string, PluginCommand> { { "echo", CreateEchoPlugin() } };
+
+        Environment.SetEnvironmentVariable(variable, value);
+        try
+        {
+            CaptureConsoleOutput(() => Program.TryExecutePlugin(CreateRootCommand(), plugins, ["echo"]));
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable(variable, null);
+            Log.Level = LogLevel.Verbose;
+        }
+
+        logWriter.ToString().Should().Contain("Child process exited with code 0");
+    }
+
+    private static RootCommand CreateRootCommand()
+    {
+        var rootCommand = new RootCommand();
+        rootCommand.Add(LoggerHelpers.LogLevelOption);
+        return rootCommand;
     }
 
     /// <summary>

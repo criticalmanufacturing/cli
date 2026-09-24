@@ -64,7 +64,7 @@ namespace Cmf.CLI
                         .Where(plugin => nonPluginCommands.All(np => np.Name != plugin.Key))
                         .ToDictionary(plugin => plugin.Key, plugin => plugin.Value);
 
-                    if (TryExecutePlugin(pluginCommands, args))
+                    if (TryExecutePlugin(rootCommand, pluginCommands, args))
                     {
                         result = 0;
                     }
@@ -106,15 +106,19 @@ namespace Cmf.CLI
         /// The remaining arguments are forwarded exactly as supplied: parsing them with the CLI would consume
         /// the options it also knows (e.g. --help), and the plugin would never receive them.
         /// </summary>
+        /// <param name="rootCommand">the CLI root command</param>
         /// <param name="plugins">the available plugins, indexed by command name</param>
         /// <param name="args">Console application input arguments</param>
         /// <returns>true if a plugin was executed</returns>
-        internal static bool TryExecutePlugin(IReadOnlyDictionary<string, PluginCommand> plugins, string[] args)
+        internal static bool TryExecutePlugin(RootCommand rootCommand, IReadOnlyDictionary<string, PluginCommand> plugins, string[] args)
         {
             if (args.Length == 0 || !plugins.TryGetValue(args[0], out var plugin))
             {
                 return false;
             }
+
+            // the parse result is not used, but parsing applies the log level (e.g. from cmf_cli_loglevel) to the CLI's own logging
+            rootCommand.Parse(args);
 
             plugin.Execute(args[1..]);
             return true;
