@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [6.0.0-8](https://github.com/criticalmanufacturing/cli/compare/6.0.0-7...6.0.0-8) (2026-09-24)
+
 ## [6.0.0-7](https://github.com/criticalmanufacturing/cli/compare/6.0.0-1...6.0.0-7) (2026-09-24)
 
 
