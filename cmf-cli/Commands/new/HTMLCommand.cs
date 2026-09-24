@@ -205,7 +205,8 @@ namespace Cmf.CLI.Commands.New
             if(mesVersion.Major >= 12)
             {
             // TODO: This should be removed after beta.2 release
-            this.fileSystem.File.WriteAllText(this.fileSystem.Path.Join(packageDir.FullName, "src/assets/build.json"), string.Empty);
+            var buildJson = "{\n  \\\"version\\\": \\\"$(Cmf.AppVersion)\\\",\n  \\\"buildDate\\\": \\\"$(Cmf.AppBuildDate)\\\"\n}";
+            this.fileSystem.File.WriteAllText(this.fileSystem.Path.Join(packageDir.FullName, "src/assets/build.json"), buildJson);
             var maints = 
 @"/// <reference types=""@angular/localize"" />
 
