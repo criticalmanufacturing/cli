@@ -1,15 +1,19 @@
 using System;
 using System.Collections.Generic;
+using System.CommandLine;
+using System.IO;
 using System.IO.Abstractions.TestingHelpers;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Cmf.CLI;
 using Cmf.CLI.Commands;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Utilities;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
@@ -136,5 +140,101 @@ public class Plugins
 
         Assert.NotEmpty(console.Out.ToString());
         Assert.NotEmpty(rootCommand.Subcommands);
+    }
+
+    [Fact]
+    public void AddPluginCommands_ReturnsDiscoveredPlugins()
+    {
+        Environment.SetEnvironmentVariable("PATH", $"{Environment.CurrentDirectory}/bin:{Environment.GetEnvironmentVariable("PATH")}");
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { MockUnixSupport.Path(OperatingSystem.IsWindows() ? "bin/cmf-pipeline.exe" : "bin/cmf-pipeline"), new MockFileData("dummy") }
+        });
+        var rootCommand = new RootCommand();
+
+        var plugins = BaseCommand.AddPluginCommands(fileSystem, rootCommand);
+
+        plugins.Should().ContainKey("pipeline");
+        rootCommand.Subcommands.Should().Contain(cmd => cmd.Name == "pipeline");
+    }
+
+    [Theory]
+    [InlineData("--help")]
+    [InlineData("-h")]
+    [InlineData("-?")]
+    [InlineData("--version")]
+    [InlineData("--loglevel", "Debug")]
+    [InlineData("build", "--help")]
+    [InlineData("--", "--help")]
+    public void TryExecutePlugin_ForwardsArgumentsVerbatim(params string[] pluginArgs)
+    {
+        var plugin = CreateEchoPlugin();
+        var plugins = new Dictionary<string, PluginCommand> { { "echo", plugin } };
+
+        var output = CaptureConsoleOutput(() =>
+            Program.TryExecutePlugin(plugins, ["echo", .. pluginArgs]).Should().BeTrue());
+
+        output.Should().Be(string.Join(Environment.NewLine, pluginArgs));
+    }
+
+    [Theory]
+    [InlineData]
+    [InlineData("build", "--help")]
+    public void TryExecutePlugin_IgnoresNonPluginCommands(params string[] args)
+    {
+        var plugins = new Dictionary<string, PluginCommand> { { "echo", CreateEchoPlugin() } };
+
+        var output = CaptureConsoleOutput(() => Program.TryExecutePlugin(plugins, args).Should().BeFalse());
+
+        output.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void TryExecutePlugin_ThrowsWhenPluginFails()
+    {
+        var plugins = new Dictionary<string, PluginCommand> { { "echo", CreateEchoPlugin(exitCode: 3) } };
+
+        var act = () => Program.TryExecutePlugin(plugins, ["echo", "--help"]);
+
+        act.Should().Throw<CliException>().Where(e => (int)e.ErrorCode == 3);
+    }
+
+    /// <summary>
+    /// Creates a plugin which prints each of its arguments on a separate line
+    /// </summary>
+    private static PluginCommand CreateEchoPlugin(int exitCode = 0)
+    {
+        var dir = Directory.CreateTempSubdirectory("cmf-plugin-tests").FullName;
+        string path;
+        if (OperatingSystem.IsWindows())
+        {
+            path = Path.Combine(dir, "cmf-echo.cmd");
+            File.WriteAllText(path, $"@echo off\r\n:loop\r\nif \"%~1\"==\"\" goto end\r\necho %~1\r\nshift\r\ngoto loop\r\n:end\r\nexit /b {exitCode}\r\n");
+        }
+        else
+        {
+            path = Path.Combine(dir, "cmf-echo");
+            File.WriteAllText(path, $"#!/bin/sh\nprintf '%s\\n' \"$@\"\nexit {exitCode}\n");
+            File.SetUnixFileMode(path, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+        }
+
+        return new PluginCommand("echo", path);
+    }
+
+    private static string CaptureConsoleOutput(Action action)
+    {
+        var originalOut = Console.Out;
+        using var writer = new StringWriter();
+        Console.SetOut(writer);
+        try
+        {
+            action();
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+        }
+
+        return writer.ToString().TrimEnd();
     }
 }
