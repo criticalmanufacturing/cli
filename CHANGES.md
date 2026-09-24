@@ -2,6 +2,48 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [6.0.0-7](https://github.com/criticalmanufacturing/cli/compare/6.0.0-1...6.0.0-7) (2026-09-24)
+
+
+### ⚠ BREAKING CHANGES
+
+* HTML config no longer overrides out-of-the-box
+config.json on deploy, now the developer should explicitly specify
+any overrides in their HTML config.
+
+### Features
+
+* add dependency version for v12 (dotnet, node, ng22) ([40243d0](https://github.com/criticalmanufacturing/cli/commit/40243d0d6b4ed244dc4a4dab008a18f75d362881))
+* add intelisense to biz scenarios scripts ([2513af9](https://github.com/criticalmanufacturing/cli/commit/2513af9349d7640889cf0d2ed280f6607be762b5))
+* add support for pre-releases ([47ac41d](https://github.com/criticalmanufacturing/cli/commit/47ac41d8e6baf59a761c3508254cde3b74c21dae))
+* adding cmf restore to mkdocs ([639f287](https://github.com/criticalmanufacturing/cli/commit/639f2871278e816a2743e13d00538049bc9185a0))
+* cmf help pack implementation and tests ([251834e](https://github.com/criticalmanufacturing/cli/commit/251834ec1e69c24891b938fdd78cce73935b6929))
+* **devcontainer:** merge csharp extensions on csdevkit (latest) ([91f8d2d](https://github.com/criticalmanufacturing/cli/commit/91f8d2d21040ca2d96e0459d2acc0f8b24e35fb9))
+* introduce ProjectConfigV2 ([4e3bc08](https://github.com/criticalmanufacturing/cli/commit/4e3bc0871dd80474c289654bfdb532ead3ede259))
+* omit legacy targetDirectory for MES v12+ packages ([fbfb8d3](https://github.com/criticalmanufacturing/cli/commit/fbfb8d3d6344a227b43413e87267367a1dbc6c77))
+* support MkDocs Help builds for MES v12 ([937d6bd](https://github.com/criticalmanufacturing/cli/commit/937d6bdb346b93c63020b8e7722d75181317d997))
+* update iot task scaffolding with new task bases ([#765](https://github.com/criticalmanufacturing/cli/issues/765)) ([6af4eaa](https://github.com/criticalmanufacturing/cli/commit/6af4eaab73962d4138039776c68cd98663449770))
+* update iot test package scaffolding to use test orchestrator ([62036e0](https://github.com/criticalmanufacturing/cli/commit/62036e075e510ff0a55c8f9144fd1499250b9430))
+* update new iot driver scaffolding to handle file access ([4cbbc48](https://github.com/criticalmanufacturing/cli/commit/4cbbc4882c2b678585b93e63743f5e0b4be248a8))
+* using mkdocs for v12 new help ([cba0abf](https://github.com/criticalmanufacturing/cli/commit/cba0abf5845f41e9479253d8840edafe99930674))
+
+
+### Bug Fixes
+
+* html package no longer overrides oob config.json on deploy ([8d7c6e7](https://github.com/criticalmanufacturing/cli/commit/8d7c6e74394de5178b7e8624fb7cd7eb8608ce2c))
+* iot tasks scaffolding handle empty choices ([8f858c1](https://github.com/criticalmanufacturing/cli/commit/8f858c117f4f885c4c8fbf34c69960e5c9f1e98b))
+* preserve master data target platform ([9e7bcbd](https://github.com/criticalmanufacturing/cli/commit/9e7bcbdcb7a5834bc1246bacc4ecea885551f3dd))
+* remove deprecated always_auth from npmrc sync ([7ee09aa](https://github.com/criticalmanufacturing/cli/commit/7ee09aa2525bb88e8aa13ffb76f95bde57c94744))
+* **scaffold:** use dynamic TargetFramework for data package Actions project ([93dbe09](https://github.com/criticalmanufacturing/cli/commit/93dbe099dc7968443e3290668f8d0aeb8aa43db9)), closes [#770](https://github.com/criticalmanufacturing/cli/issues/770)
+* update SharpCompress package version and improve TAR.GZ handling in CmfPackageController ([0a91d2c](https://github.com/criticalmanufacturing/cli/commit/0a91d2cd17213179c1c798f33178bcf3064de419))
+
+
+### Under the hood
+
+* remove outdated NPX version handling logic from NPXCommand ([ed56cc7](https://github.com/criticalmanufacturing/cli/commit/ed56cc74de8467b638b01ca6486f1ecf8c5fc53d))
+* replace Version with MesVersion for improved semantic version handling across the CLI ([38b1a29](https://github.com/criticalmanufacturing/cli/commit/38b1a295911315ceadc67670790d5480aed3a89e))
+
+
 ## [6.0.0-6](https://github.com/criticalmanufacturing/cli/compare/6.0.0-5...6.0.0-6) (2026-09-24)
 
 
