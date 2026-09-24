@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [6.0.0-6](https://github.com/criticalmanufacturing/cli/compare/6.0.0-5...6.0.0-6) (2026-09-24)
+
+
+### Features
+
+* cmf help pack implementation and tests ([34d8401](https://github.com/criticalmanufacturing/cli/commit/34d84015aec433008f97b3f00ffbc8d49e15e377))
+* support MkDocs Help builds for MES v12 ([3031cd2](https://github.com/criticalmanufacturing/cli/commit/3031cd2a5cb55651b698b80a85d684481b879911))
+
 ## [6.0.0-5](https://github.com/criticalmanufacturing/cli/compare/6.0.0-4...6.0.0-5) (2026-09-16)
 
 
