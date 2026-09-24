@@ -767,7 +767,7 @@ public class Repositories
 
       Assert.NotNull(packageJson);
       Assert.Equal("Self", (string)packageJson.deployment.steps[0].targetPlatform);
-      Assert.Equal("Framework", (string)packageJson.deployment.steps[1].targetPlatform);
+      Assert.Equal("AppFramework", (string)packageJson.deployment.steps[1].targetPlatform);
     }
     
     [Fact]
