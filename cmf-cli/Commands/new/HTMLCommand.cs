@@ -128,6 +128,15 @@ namespace Cmf.CLI.Commands.New
                 ForceColorOutput = false
             }.Exec();
 
+            // TODO: This should be removed after beta.2 release
+            if(mesVersion.Major >= 12)
+            {
+            var appConfigTsPath = this.fileSystem.Path.Join(packageDir.FullName, "src", "app", "app.config.ts");
+            var appConfigts = this.fileSystem.File.ReadAllText(appConfigTsPath);
+            appConfigts = appConfigts.Replace("import { routes } from './app.routes';", string.Empty); // Replace with actual modification logic
+            this.fileSystem.File.WriteAllText(appConfigTsPath, appConfigts);
+            }
+
             Log.Debug($"Adding @criticalmanufacturing/ngx-schematics@{schematicsVersion} to the package, which can be used to scaffold new components and libraries");
             // cd <packageName>
             // ng add --skip-confirmation @criticalmanufacturing/ngx-schematics [--npmRegistry http://npm.example/] --eslint --application <Core|MES>
@@ -202,9 +211,9 @@ namespace Cmf.CLI.Commands.New
             this.fileSystem.File.WriteAllText(rootPkgJsonPath, json);
             Log.Verbose("Updated package.json");
 
+            // TODO: This should be removed after beta.2 release
             if(mesVersion.Major >= 12)
             {
-            // TODO: This should be removed after beta.2 release
             var buildJson = "{\n  \"version\": \"$(Cmf.AppVersion)\",\n  \"buildDate\": \"$(Cmf.AppBuildDate)\"\n}";
             this.fileSystem.File.WriteAllText(this.fileSystem.Path.Join(packageDir.FullName, "src/assets/build.json"), buildJson);
             var maints = 
