@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [6.0.0-11](https://github.com/criticalmanufacturing/cli/compare/6.0.0-8...6.0.0-11) (2026-09-25)
+
+
+### Bug Fixes
+
+* call restore on mkdocs handler build ([8c5551e](https://github.com/criticalmanufacturing/cli/commit/8c5551e421338ccefa17f4224ce34e89cb9ea278))
+* serialize app framework target platform name ([aa96acd](https://github.com/criticalmanufacturing/cli/commit/aa96acdca8c6b3083b584e2a95d60c2bd75fb5f4))
+
 ## [6.0.0-10](https://github.com/criticalmanufacturing/cli/compare/6.0.0-8...6.0.0-10) (2026-09-24)
 
 
