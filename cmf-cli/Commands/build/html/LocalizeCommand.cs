@@ -95,7 +95,7 @@ public class LocalizeCommand : BaseCommand
         new NPXCommand()
         {
             DisplayName = $"ui-i18n localize",
-            Command = "ui-i18n",
+            Command = $"@criticalmanufacturing/ui-i18n@{GenericUtilities.GetNpmDistTag(ExecutionContext.Instance.ProjectConfig.MESVersion)}",
             Args = new[] { "localize", "./src/assets/i18n/messages.json", "--destination", "./src/assets/i18n", "--translations", string.Join(" ", cmfPackage.BaseLocalizationFiles), "translations" },
             WorkingDirectory = packageDirectory,
             ForceColorOutput = false
