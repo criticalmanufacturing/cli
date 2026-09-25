@@ -96,6 +96,11 @@ namespace Cmf.CLI.Commands.New
             var angularDeps = ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(mesVersion);
             var ngCliVersion = angularDeps.CLI;
             string ngCliCommand = $"@angular/cli@{ngCliVersion.Major}";
+            // TODO: This should be removed after beta.2 release
+            if(mesVersion.Major >= 12)
+            {
+                ngCliCommand = $"@angular/cli@{ngCliVersion.Major}.1";
+            }
             var packageName = base.GeneratePackageName(workingDir)!.Value.Item1;
             var packageDir = workingDir.GetDirectories(packageName).First();
 
