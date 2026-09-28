@@ -696,6 +696,46 @@ namespace tests.Specs
         }
 
         [Theory]
+        [InlineData("10.0.0")]
+        [InlineData("11.1.0")]
+        [InlineData("12.0.0")]
+        public void IoTRepositoryStepsPresentForVersion(string version)
+        {
+            var mockFS = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { MockUnixSupport.Path(@"c:\.project-config.json"), new MockFileData(
+    $@"{{
+                ""MESVersion"": ""{version}""
+                }}")
+                },
+                {
+                    MockUnixSupport.Path(@"c:\.pkg.json"), new MockFileData(
+                     $@"{{
+                        ""type"": ""IoT"",
+                        ""packageId"": ""xxxxx"",
+                        ""version"": ""1.0.0"",
+                        ""contentToPack"": [{{}}]
+                     }}")
+                },
+                { MockUnixSupport.Path("c:/src/awesome/package.json"), new MockFileData(@"{""name"": ""@awesome/package"",""version"": ""1.0.0""}")},
+                { MockUnixSupport.Path("c:/src/lessawesome/package.json"), new MockFileData(@"{""name"": ""lessawesome"",""version"": ""2.0.0""}")},
+            });
+
+            // cmfpackage file
+            ExecutionContext.Initialize(mockFS);
+            var pkg = CmfPackage.Load(mockFS.FileSystem.FileInfo.New(MockUnixSupport.Path(@"c:\.pkg.json")), true,
+                mockFS);
+            var _ = new IoTPackageTypeHandler(pkg);
+
+            // Regression test for https://github.com/criticalmanufacturing/cli/issues/800:
+            // IoT packages must include the repository copy steps
+            pkg.Steps.Any(step => step.Type == StepType.DeployRepositoryFiles).Should().BeTrue();
+            pkg.Steps.Any(step => step.Type == StepType.GenerateRepositoryIndex).Should().BeTrue();
+            var deployRepositoryStep = pkg.Steps.First(step => step.Type == StepType.DeployRepositoryFiles);
+            deployRepositoryStep.ContentPath.Should().Be("runtimePackages/**");
+        }
+
+        [Theory]
         [InlineData("10.2.7", StepType.IoTAutomationTaskLibrariesSync)]
         public void IoTATLDFStepsForVersion(string version, StepType mustHave)
         {

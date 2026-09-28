@@ -154,10 +154,11 @@ namespace Cmf.CLI.Handlers
                 new Step(StepType.GenerateRepositoryIndex)
             });
 
-            // Validate Steps
-            defaultSteps = defaultSteps.Where(step =>
-                step.Type != StepType.DeployRepositoryFiles && step.Type != StepType.GenerateRepositoryIndex
-            ).ToList();
+            // DeployRepositoryFiles and GenerateRepositoryIndex steps are always supported
+            // (minimum MES version is v10 after removal of v8/v9 support).
+            // NOTE: previously these steps were filtered out for MES < 8.3.5, but that
+            // version check is obsolete. Do NOT filter them out unconditionally, otherwise
+            // IoT packages will miss the repository copy steps (see issue #800).
 
             cmfPackage.SetDefaultValues
             (
