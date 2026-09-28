@@ -6,6 +6,7 @@ using Cmf.CLI.Utilities;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.IO;
+using NuGet.Versioning;
 
 namespace Cmf.CLI.Handlers
 {
@@ -17,6 +18,9 @@ namespace Cmf.CLI.Handlers
         /// <param name="cmfPackage"></param>
         public SecurityPortalPackageTypeHandlerV2(CmfPackage cmfPackage) : base(cmfPackage)
         {
+            var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            var configDirectory = mesVersion >= NuGetVersion.Parse("11.2.5") ? "./dist/" : "./src/";
+
             cmfPackage.SetDefaultValues
             (
                 targetDirectory:
@@ -30,7 +34,7 @@ namespace Cmf.CLI.Handlers
                         {
                             File = "config.json",
                             TagFile = true,
-                            RelativePath = "./src/"
+                            RelativePath = configDirectory
                         }
                     }
             );

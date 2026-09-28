@@ -594,8 +594,11 @@ namespace tests.Specs
             }
         }
 
-        [Fact]
-        public void Pack_SecurityPortalV2()
+        [Theory]
+        [InlineData("10.2.0", "./src/")]
+        [InlineData("11.2.5", "./dist/")]
+        [InlineData("12.0.0", "./dist/")]
+        public void Pack_SecurityPortalV2(string mesVersion, string configDirectory)
         {
             string dir = $"{TestUtilities.GetTmpDirectory()}/securityPortal";
             TestUtilities.CopyFixture("pack/securityPortalV2", new DirectoryInfo(dir));
@@ -604,6 +607,7 @@ namespace tests.Specs
             if (File.Exists(projCfg))
             {
                 File.WriteAllText(projCfg, File.ReadAllText(projCfg)
+                    .Replace("mesVersion", mesVersion)
                     .Replace("install_path", MockUnixSupport.Path(@"x:\install_path").Replace(@"\", @"\\"))
                     .Replace("backup_share", MockUnixSupport.Path(@"y:\backup_share").Replace(@"\", @"\\"))
                     .Replace("temp_folder", MockUnixSupport.Path(@"z:\temp_folder").Replace(@"\", @"\\"))
@@ -620,10 +624,10 @@ namespace tests.Specs
 
             TestConsole console = new TestConsole();
 
-            var parseResult = cmd.Parse(new string[] {});
+            var parseResult = cmd.Parse([]);
             parseResult.Invoke(console);
 
-            DirectoryInfo curDir = new DirectoryInfo(System.IO.Directory.GetCurrentDirectory());
+            DirectoryInfo curDir = new DirectoryInfo(Directory.GetCurrentDirectory());
 
             Assert.True(Directory.Exists($"{dir}/Package"), "Package folder is missing");
             Assert.True(File.Exists($"{dir}/Package/Cmf.Custom.SecurityPortal.1.0.0.zip"), "Zip package is missing");
@@ -639,7 +643,7 @@ namespace tests.Specs
 
             // validate transform file
             string manifestXMLContent = FileSystemUtilities.GetFileContentFromPackage($"{dir}/Package/Cmf.Custom.SecurityPortal.1.0.0.zip", "manifest.xml");
-            Assert.Contains("<step type=\"TransformFile\" file=\"config.json\" tagFile=\"true\" relativePath=\"./src/\" />", manifestXMLContent);
+            Assert.Contains($"<step type=\"TransformFile\" file=\"config.json\" tagFile=\"true\" relativePath=\"{configDirectory}\" />", manifestXMLContent);
         }
 
         [Theory]

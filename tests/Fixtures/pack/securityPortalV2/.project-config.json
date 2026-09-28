@@ -10,7 +10,7 @@
   "DefaultDomain": "DOMAIN",
   "RESTPort": "1234",
   "Tenant": "tenant",
-  "MESVersion": "10.2.0",
+  "MESVersion": "mesVersion",
   "DevTasksVersion": "10.1.0",
   "HTMLStarterVersion": "10.0.0",
   "YoGeneratorVersion": "10.1.0",
