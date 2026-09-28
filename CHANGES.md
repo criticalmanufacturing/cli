@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [6.0.0-12](https://github.com/criticalmanufacturing/cli/compare/6.0.0-11...6.0.0-12) (2026-09-28)
+
+
+### Bug Fixes
+
+* add missing scope to ui-i18n package on html localize command ([306bd25](https://github.com/criticalmanufacturing/cli/commit/306bd25d13fa1c15be8cf1f20102f8b72374f53f))
+* restore IoT repository copy steps in pack ([4880e6c](https://github.com/criticalmanufacturing/cli/commit/4880e6ccd452d6a2fd2589c8fb271460d6dc3ca9)), closes [#800](https://github.com/criticalmanufacturing/cli/issues/800)
+
 ## [6.0.0-11](https://github.com/criticalmanufacturing/cli/compare/6.0.0-8...6.0.0-11) (2026-09-25)
 
 
