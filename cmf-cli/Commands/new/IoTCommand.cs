@@ -96,6 +96,7 @@ namespace Cmf.CLI.Commands.New
                 "--iotpackages", $"{packageName}.Packages",
                 "--rootInnerRelativePath", relativePathToRoot,
                 "--npmRegistry", npmRegistry.OriginalString,
+                "--MESVersion", ExecutionContext.Instance.ProjectConfig.MESVersion.ToString(),
                 "--nodeVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Node(ExecutionContext.Instance.ProjectConfig.MESVersion),
                 "--repositoryType", repoType.ToString()
             });

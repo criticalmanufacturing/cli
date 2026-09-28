@@ -48,6 +48,11 @@
       "replaces": "<%= $CLI_PARAM_CustomPackageVersion %>",
       "fileRename": "%version%"
     },
+    "MESVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_MESVersion %>"
+    },
     "Tenant": {
       "type": "parameter",
       "datatype": "string",

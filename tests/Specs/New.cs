@@ -470,10 +470,16 @@ namespace tests.Specs
                 RunNew(new IoTCommand(), packageId, scaffoldingDir: dir);
             }
 
-            File.ReadAllText(Path.Join(dir, packageId, "cmfpackage.json"))
-                .Should().Contain(@"CriticalManufacturing.DeploymentMetadata");
-            File.ReadAllText(Path.Join(dir, packageId, "cmfpackage.json"))
-                .Should().Contain(@"Cmf.Environment");
+            var packageVersion = TestUtilities.GetPackageProperty("version", $"{packageId}/cmfpackage.json");
+            var tenant = ExecutionContext.Instance.ProjectConfig.Tenant;
+            var rootPackage = TestUtilities.GetPackage($"{packageId}/cmfpackage.json");
+            rootPackage.GetProperty("description").GetString().Should().Be($"Cmf Custom {tenant} {packageId} Package");
+
+            var dependencies = rootPackage.GetProperty("dependencies").EnumerateArray().ToDictionary(dependency => dependency.GetProperty("id").GetString());
+            dependencies["Cmf.Environment"].GetProperty("version").GetString().Should().Be(mesVersion);
+            dependencies["CriticalManufacturing.DeploymentMetadata"].GetProperty("version").GetString().Should().Be(mesVersion);
+            dependencies[packageIdPackages].GetProperty("version").GetString().Should().Be(packageVersion);
+            dependencies[packageIdData].GetProperty("version").GetString().Should().Be(packageVersion);
 
             Directory.Exists($"{packageId}/{packageFolderPackages}").Should().BeTrue();
             TestUtilities.GetPackageProperty("packageId", $"{packageId}/{packageFolderPackages}/cmfpackage.json").Should().Be(packageIdPackages);
