@@ -1,0 +1,22 @@
+{
+  "packageId": "<%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.Tests",
+  "version": "<%= $CLI_PARAM_CustomPackageVersion %>",
+  "description": "This package tests Critical Manufacturing MES <%= $CLI_PARAM_Tenant %> Customization",
+  "packageType": "Tests",
+  "isInstallable": false,
+  "isUniqueInstall": false,
+  "contentToPack": [
+    {
+      "source": "<%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.Performance/**",
+      "target": "<%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.Performance"
+    },
+    {
+      "source": "../Libs/LBOs/cmf-k6/**",
+      "target": "<%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.Performance/node_modules"
+    },
+    {
+      "source": "Release/**",
+      "target": ""
+    }
+  ]
+}

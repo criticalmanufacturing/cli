@@ -943,7 +943,13 @@ namespace tests.Specs
             Tests_internal(null);
         }
 
-        private void Tests_internal(string scaffoldingDir = null)
+        [Fact, Trait("TestCategory", "Integration")]
+        public void Tests_SslDisabled()
+        {
+            Tests_internal(null, isSslEnabled: false);
+        }
+
+        private void Tests_internal(string scaffoldingDir = null, bool isSslEnabled = true)
         {
             var packageId = "Cmf.Custom.Tests";
             var dir = scaffoldingDir ?? TestUtilities.GetTmpDirectory();
@@ -967,6 +973,7 @@ namespace tests.Specs
                         .Replace("install_path", MockUnixSupport.Path(@"x:\install_path").Replace(@"\", @"\\"))
                         .Replace("backup_share", MockUnixSupport.Path(@"y:\backup_share").Replace(@"\", @"\\"))
                         .Replace("temp_folder", MockUnixSupport.Path(@"z:\temp_folder").Replace(@"\", @"\\"))
+                        .Replace("\"IsSslEnabled\": \"True\"", $"\"IsSslEnabled\": \"{isSslEnabled}\"")
                     );
                 }
 
@@ -983,6 +990,8 @@ namespace tests.Specs
                 Assert.True(errors.Length == 0, $"Errors found in console: {errors}");
                 Assert.True(Directory.Exists(packageId), "Package folder is missing");
                 Assert.True(File.Exists($"{packageId}/cmfpackage.json"), "Package cmfpackage.json is missing");
+                var integrationRunsettings = File.ReadAllText(Path.Combine(packageId, "integration.runsettings"));
+                integrationRunsettings.Should().Contain($"name=\"websiteUseSSL\" value=\"{isSslEnabled}\"");
                 Assert.Equal(packageId, TestUtilities.GetPackageProperty("packageId", $"{packageId}/cmfpackage.json"), "Package Id does not match expected");
                 Assert.Equal(pkgVersion, TestUtilities.GetPackageProperty("version", $"{packageId}/cmfpackage.json"), "Package version does not match expected");
                 var pkg = TestUtilities.GetPackage("cmfpackage.json");
@@ -1053,6 +1062,44 @@ namespace tests.Specs
                 string errors = console.Error.ToString().Trim();
                 Assert.True(errors.Length == 0, $"Errors found in console: {errors}");
                 Assert.True(Directory.Exists(packageId), "Package folder is missing");
+
+                if (mesVersion.StartsWith("12.", StringComparison.Ordinal))
+                {
+                    var integrationRunsettings = File.ReadAllText(Path.Combine(packageId, "integration.runsettings"));
+                    integrationRunsettings.Should().Contain("name=\"websiteUseSSL\" value=\"true\"",
+                        "MES 12 templates should default SSL to enabled when legacy project settings are unavailable");
+                    integrationRunsettings.Should().Contain("name=\"environmentAddress\" value=\"https://");
+                    integrationRunsettings.Should().NotContain("name=\"hostAdress\"");
+                    integrationRunsettings.Should().NotContain("name=\"hostPort\"");
+
+                    var localRunsettings = File.ReadAllText(Path.Combine(packageId, "local.runsettings"));
+                    localRunsettings.Should().Contain("name=\"environmentAddress\" value=\"http://localhost:80\"");
+                    localRunsettings.Should().NotContain("name=\"hostAdress\"");
+
+                    var bizProject = File.ReadAllText(Path.Combine(packageId, "Cmf.Custom.Tests.Biz", "Cmf.Custom.Tests.Biz.csproj"));
+                    bizProject.Should().Contain("MSTest.TestAdapter\" Version=\"4.3.3\"");
+                    foreach (var projectFile in Directory.GetFiles(packageId, "*.csproj", SearchOption.AllDirectories))
+                    {
+                        var projectContent = File.ReadAllText(projectFile);
+                        projectContent.Should().NotContain("Cmf.LoadBalancing.dll", projectFile);
+                        projectContent.Should().NotContain("Cmf.MessageBus.Client.dll", projectFile);
+                        projectContent.Should().NotContain("Newtonsoft.Json.dll", projectFile);
+                        projectContent.Should().NotContain("System.Net.Http.Formatting.dll", projectFile);
+                    }
+
+                    var bizBaseContext = File.ReadAllText(Path.Combine(packageId, "Cmf.Custom.Tests.Biz", "BaseContext.cs"));
+                    bizBaseContext.Should().Contain("new DiscoveryConnection");
+                    bizBaseContext.Should().Contain("EnvironmentAddress = environmentAddress");
+                    bizBaseContext.Should().Contain("new PersonalAccessTokenAuthentication");
+                    bizBaseContext.Should().Contain("ClientTenantName = GetString(context, \"clientTenantName\")");
+                    bizBaseContext.Should().NotContain("HostAddress =");
+
+                    var iotBaseContext = File.ReadAllText(Path.Combine(packageId, "Cmf.Custom.Tests.IoT", "BaseContext.cs"));
+                    iotBaseContext.Should().Contain("new DiscoveryConnection");
+                    iotBaseContext.Should().Contain("new PersonalAccessTokenAuthentication");
+                    iotBaseContext.Should().Contain("ClientTenantName = GetString(context, \"clientTenantName\")");
+                    iotBaseContext.Should().NotContain("HostAddress =");
+                }
 
                 // Check if Performance directory exists based on MES version
                 var performanceDir = Path.Combine(packageId, $"{CliConstants.DefaultOrganization}.{CliConstants.DefaultProduct}.Tests.Performance");

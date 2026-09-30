@@ -5,10 +5,10 @@
     "cli"
   ],
   "description": "Generate a new tests package",
-  "name": "Tests Package",
-  "identity": "cmf-cli.new.tests",
-  "groupIdentity": "cmf-cli.new.tests",
-  "shortName": "tests",
+  "name": "Tests Package (> MES 10)",
+  "identity": "cmf-cli.new.tests10",
+  "groupIdentity": "cmf-cli.new.tests10",
+  "shortName": "tests10",
   // You can create the project using this short name instead of the one above.
   "tags": {
     "language": "C#",

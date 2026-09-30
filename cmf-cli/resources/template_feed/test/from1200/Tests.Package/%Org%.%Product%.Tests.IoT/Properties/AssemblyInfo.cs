@@ -1,0 +1,20 @@
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+[assembly: AssemblyTitle("<%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.Tests.IoT")]
+[assembly: AssemblyDescription("")]
+[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("<%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.Tests.IoT")]
+[assembly: AssemblyCopyright("Copyright ©  2020")]
+[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCulture("")]
+
+[assembly: ComVisible(false)]
+
+[assembly: Guid("66558bcb-05ab-4adc-a4c7-289d498e556a")]
+
+// [assembly: AssemblyVersion("1.0.*")]
+[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyFileVersion("1.0.0.0")]
