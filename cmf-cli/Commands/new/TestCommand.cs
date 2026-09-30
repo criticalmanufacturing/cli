@@ -86,7 +86,8 @@ namespace Cmf.CLI.Commands.New
             var restPort = legacyProjectConfig?.RESTPort;
             var htmlPort = legacyProjectConfig?.HTMLPort;
             var vmHostname = legacyProjectConfig?.vmHostname;
-            var isSslEnabled = legacyProjectConfig?.IsSslEnabled ?? false;
+
+            args.AddRange(new[] { "--IsSslEnabled", legacyProjectConfig?.IsSslEnabled.ToString().ToLowerInvariant() ?? "true" });
 
             args.AddRange(new[]
             {
@@ -98,7 +99,7 @@ namespace Cmf.CLI.Commands.New
                 "--Organization", organization
             });
 
-            if (vmHostname != null)
+            if (!string.IsNullOrEmpty(vmHostname))
             {
                 args.AddRange(new[] { "--vmHostname", vmHostname });
             }
@@ -112,11 +113,6 @@ namespace Cmf.CLI.Commands.New
             {
                 args.AddRange(new[] { "--HTMLPort", htmlPort.Value.ToString() });
             }
-
-            if (isSslEnabled)
-            {
-                args.Add("--IsSslEnabled");
-            }
             
             #region version-specific bits
             args.AddRange(new []{ "--targetFramework", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().DotNetTargetFramework(mesVersion) });
@@ -126,6 +122,19 @@ namespace Cmf.CLI.Commands.New
                 args.Add("--hostPerformanceTests");
             }
             #endregion
+
+            // Switch between version templates
+            // Default case is v12 so it supports v12+
+            switch (mesVersion.Major)
+            {
+                case 10:
+                case 11:
+                    this.CommandName = "tests10";
+                    break;
+                default:
+                    this.CommandName = "tests12";
+                    break;
+            }
 
             this.executedArgs = args.ToArray();
             base.RunCommand(args);

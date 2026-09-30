@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework><%= $CLI_PARAM_TargetFramework %></TargetFramework>
+    <IsTestProject>true</IsTestProject>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+  <PropertyGroup>
+    <NoWarn>NU1605</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>..\Release</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\app.config">
+      <Link>app.config</Link>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Cmf.LightBusinessObjects">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Libs\LBOs\NetStandard\Cmf.LightBusinessObjects.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\..\Libs\LBOs\NetStandard\Cmf.LightBusinessObjects.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\<%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.Tests.Biz.Common\<%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.Tests.Biz.Common.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
+    <PackageReference Include="MSTest.TestAdapter" Version="4.3.3" />
+    <PackageReference Include="MSTest.TestFramework" Version="4.3.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Cmf.Dev.Mes.TestScenarios" Version="<%= $CLI_PARAM_TestScenariosNugetVersion %>" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Cmf.ConnectIoT.TestOrchestrator.Core.LBOs" Version="*" />
+    <PackageReference Include="Cmf.ConnectIoT.TestOrchestrator.Core.Common" Version="*" />
+    <PackageReference Include="Cmf.ConnectIoT.TestOrchestrator.Core.ScenarioBuilder" Version="*" />
+    <PackageReference Include="Cmf.ConnectIoT.TestOrchestrator.Plugin.StartMode.Local" Version="*" />
+    <PackageReference Include="Cmf.ConnectIoT.TestOrchestrator.Plugin.System.MockSystem" Version="*" />
+  </ItemGroup>
+</Project>
