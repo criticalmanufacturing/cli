@@ -1,15 +1,19 @@
 using System;
 using System.Collections.Generic;
+using System.CommandLine;
+using System.IO;
 using System.IO.Abstractions.TestingHelpers;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Cmf.CLI;
 using Cmf.CLI.Commands;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Utilities;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
@@ -20,8 +24,23 @@ using ExecutionContext = Cmf.CLI.Core.Objects.ExecutionContext;
 
 namespace tests.Specs;
 
-public class Plugins
+public class Plugins : IDisposable
 {
+    private readonly LogLevel originalLevel = Log.Level;
+    private readonly Spectre.Console.IAnsiConsole originalConsole = Log.AnsiConsole;
+    private readonly string originalLogLevelVariable = Environment.GetEnvironmentVariable("cmf_cli_loglevel");
+    private readonly string originalSystemDebugVariable = Environment.GetEnvironmentVariable("SYSTEM_DEBUG");
+    private readonly List<string> tempDirectories = new();
+
+    public void Dispose()
+    {
+        Log.Level = originalLevel;
+        Log.AnsiConsole = originalConsole;
+        Environment.SetEnvironmentVariable("cmf_cli_loglevel", originalLogLevelVariable);
+        Environment.SetEnvironmentVariable("SYSTEM_DEBUG", originalSystemDebugVariable);
+        tempDirectories.ForEach(dir => Directory.Delete(dir, recursive: true));
+    }
+
     [Fact]
     public void PluginsSuccess()
     {
@@ -136,5 +155,152 @@ public class Plugins
 
         Assert.NotEmpty(console.Out.ToString());
         Assert.NotEmpty(rootCommand.Subcommands);
+    }
+
+    [Fact]
+    public void AddPluginCommands_ReturnsDiscoveredPlugins()
+    {
+        Environment.SetEnvironmentVariable("PATH", $"{Environment.CurrentDirectory}/bin:{Environment.GetEnvironmentVariable("PATH")}");
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { MockUnixSupport.Path(OperatingSystem.IsWindows() ? "bin/cmf-pipeline.exe" : "bin/cmf-pipeline"), new MockFileData("dummy") }
+        });
+        var rootCommand = new RootCommand();
+
+        var plugins = BaseCommand.AddPluginCommands(fileSystem, rootCommand);
+
+        plugins.Should().ContainKey("pipeline");
+        rootCommand.Subcommands.Should().Contain(cmd => cmd.Name == "pipeline");
+    }
+
+    [Theory]
+    [InlineData("--help")]
+    [InlineData("-h")]
+    [InlineData("-?")]
+    [InlineData("--version")]
+    [InlineData("--loglevel", "Debug")]
+    [InlineData("build", "--help")]
+    [InlineData("run", "--", "--flag")]
+    public void TryExecutePlugin_ForwardsArgumentsVerbatim(params string[] pluginArgs)
+    {
+        var plugin = CreateEchoPlugin();
+        var plugins = new Dictionary<string, PluginCommand> { { "echo", plugin } };
+
+        var output = CaptureConsoleOutput(() =>
+            Program.TryExecutePlugin(plugins, ["echo", .. pluginArgs]).Should().BeTrue());
+
+        output.Should().Be(string.Join(Environment.NewLine, pluginArgs));
+    }
+
+    [Theory]
+    [InlineData(new[] { "--", "--help" }, new[] { "--help" })]
+    [InlineData(new[] { "--", "--", "x" }, new[] { "--", "x" })]
+    [InlineData(new[] { "--" }, new string[0])]
+    public void TryExecutePlugin_DropsSeparatorAfterPluginName(string[] pluginArgs, string[] expected)
+    {
+        var plugins = new Dictionary<string, PluginCommand> { { "echo", CreateEchoPlugin() } };
+
+        var output = CaptureConsoleOutput(() =>
+            Program.TryExecutePlugin(plugins, ["echo", .. pluginArgs]).Should().BeTrue());
+
+        output.Should().Be(string.Join(Environment.NewLine, expected));
+    }
+
+    [Theory]
+    [InlineData]
+    [InlineData("build", "--help")]
+    public void TryExecutePlugin_IgnoresNonPluginCommands(params string[] args)
+    {
+        var plugins = new Dictionary<string, PluginCommand> { { "echo", CreateEchoPlugin() } };
+
+        var output = CaptureConsoleOutput(() => Program.TryExecutePlugin(plugins, args).Should().BeFalse());
+
+        output.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void TryExecutePlugin_ThrowsWhenPluginFails()
+    {
+        var plugins = new Dictionary<string, PluginCommand> { { "echo", CreateEchoPlugin(exitCode: 3) } };
+
+        var act = () => Program.TryExecutePlugin(plugins, ["echo", "--help"]);
+
+        act.Should().Throw<CliException>().Where(e => (int)e.ErrorCode == 3);
+    }
+
+    [Theory]
+    [InlineData("cmf_cli_loglevel", "Debug")]
+    [InlineData("SYSTEM_DEBUG", "true")]
+    public void TryExecutePlugin_AppliesLogLevelFromEnvironment(string variable, string value)
+    {
+        var logWriter = new Logging().GetLogStringWriter();
+        var plugins = new Dictionary<string, PluginCommand> { { "echo", CreateEchoPlugin() } };
+        ClearLogLevelVariables();
+        Log.Level = LogLevel.Information;
+
+        Environment.SetEnvironmentVariable(variable, value);
+        CaptureConsoleOutput(() => Program.TryExecutePlugin(plugins, ["echo"]));
+
+        Log.Level.Should().Be(LogLevel.Debug);
+        logWriter.ToString().Should().Contain("Child process exited with code 0");
+    }
+
+    [Fact]
+    public void TryExecutePlugin_DoesNotApplyLogLevelFromPluginArguments()
+    {
+        var plugins = new Dictionary<string, PluginCommand> { { "echo", CreateEchoPlugin() } };
+        ClearLogLevelVariables();
+        Log.Level = LogLevel.Information;
+
+        var output = CaptureConsoleOutput(() => Program.TryExecutePlugin(plugins, ["echo", "--loglevel", "Debug"]));
+
+        output.Should().Be(string.Join(Environment.NewLine, "--loglevel", "Debug"));
+        Log.Level.Should().Be(LogLevel.Verbose);
+    }
+
+    private static void ClearLogLevelVariables()
+    {
+        Environment.SetEnvironmentVariable("cmf_cli_loglevel", null);
+        Environment.SetEnvironmentVariable("SYSTEM_DEBUG", null);
+    }
+
+    /// <summary>
+    /// Creates a plugin which prints each of its arguments on a separate line
+    /// </summary>
+    private PluginCommand CreateEchoPlugin(int exitCode = 0)
+    {
+        var dir = Directory.CreateTempSubdirectory("cmf-plugin-tests").FullName;
+        tempDirectories.Add(dir);
+        string path;
+        if (OperatingSystem.IsWindows())
+        {
+            path = Path.Combine(dir, "cmf-echo.cmd");
+            File.WriteAllText(path, $"@echo off\r\n:loop\r\nif \"%~1\"==\"\" goto end\r\necho %~1\r\nshift\r\ngoto loop\r\n:end\r\nexit /b {exitCode}\r\n");
+        }
+        else
+        {
+            path = Path.Combine(dir, "cmf-echo");
+            File.WriteAllText(path, $"#!/bin/sh\nprintf '%s\\n' \"$@\"\nexit {exitCode}\n");
+            File.SetUnixFileMode(path, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+        }
+
+        return new PluginCommand("echo", path);
+    }
+
+    private static string CaptureConsoleOutput(Action action)
+    {
+        var originalOut = Console.Out;
+        using var writer = new StringWriter();
+        Console.SetOut(writer);
+        try
+        {
+            action();
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+        }
+
+        return writer.ToString().TrimEnd();
     }
 }

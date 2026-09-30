@@ -15,7 +15,7 @@ using Cmf.CLI.Core.Services;
 using Cmf.CLI.Services;
 using Cmf.CLI.Core.Repository.Credentials;
 using Cmf.CLI.Core.Utilities;
-using System.CommandLine.Invocation;
+using System.Collections.Generic;
 
 namespace Cmf.CLI
 {
@@ -60,16 +60,13 @@ namespace Cmf.CLI
                 if (rootCommand != null)
                 {
                     var nonPluginCommands = rootCommand.Subcommands.ToList();
-                    BaseCommand.AddPluginCommands(fileSystem, rootCommand);
-                    var pluginCommands =
-                        rootCommand.Subcommands.Where(cmd => nonPluginCommands.All(np => np.Name != cmd.Name)).ToList();
+                    var pluginCommands = BaseCommand.AddPluginCommands(fileSystem, rootCommand)
+                        .Where(plugin => nonPluginCommands.All(np => np.Name != plugin.Key))
+                        .ToDictionary(plugin => plugin.Key, plugin => plugin.Value);
 
-                    if (args.Length > 0 && pluginCommands.FirstOrDefault(pc => pc.Name == args[0]) is Command pluginMatch)
+                    if (TryExecutePlugin(pluginCommands, args))
                     {
-                        // we are executing a plugin: parse and invoke through System.CommandLine
-                        // which will trigger the Action set by PluginCommand.Configure()
-                        var parseResult = rootCommand.Parse(args);
-                        result = await ((AsynchronousCommandLineAction)pluginMatch.Action).InvokeAsync(parseResult);
+                        result = 0;
                     }
                     else
                     {
@@ -111,6 +108,31 @@ namespace Cmf.CLI
         /// <returns>The command's exit code; command exceptions propagate to the application's handlers.</returns>
         internal static Task<int> InvokeCommandAsync(ParseResult parseResult) => parseResult.InvokeAsync(
             new InvocationConfiguration { EnableDefaultExceptionHandler = false });
+
+        /// <summary>
+        /// Executes the plugin named by the first argument, if there is one.
+        /// The remaining arguments are forwarded exactly as supplied: parsing them with the CLI would consume
+        /// the options it also knows (e.g. --help), and the plugin would never receive them.
+        /// A single -- immediately after the plugin name is a separator and is not forwarded, so that
+        /// <c>cmf plugin -- --help</c> keeps working as it did before arguments were forwarded verbatim.
+        /// </summary>
+        /// <param name="plugins">the available plugins, indexed by command name</param>
+        /// <param name="args">Console application input arguments</param>
+        /// <returns>true if a plugin was executed</returns>
+        internal static bool TryExecutePlugin(IReadOnlyDictionary<string, PluginCommand> plugins, string[] args)
+        {
+            if (args.Length == 0 || !plugins.TryGetValue(args[0], out var plugin))
+            {
+                return false;
+            }
+
+            // the arguments belong to the plugin, so only the environment's log level applies to the CLI's own logging
+            LoggerHelpers.ApplyLogLevelFromEnvironment();
+
+            var pluginArgs = args.Length > 1 && args[1] == "--" ? args[2..] : args[1..];
+            plugin.Execute(pluginArgs);
+            return true;
+        }
 
         /// <summary>
         /// This function will validate MES Version on every command.
