@@ -44,5 +44,11 @@ namespace Cmf.CLI.Core
             DefaultValueFactory = _ => ParseLogLevel(),
             CustomParser = argResult => ParseLogLevel(argResult)
         };
+
+        /// <summary>
+        /// Applies the log level from the environment (cmf_cli_loglevel, SYSTEM_DEBUG), as the --loglevel option does when it isn't supplied
+        /// </summary>
+        /// <returns>the applied log level</returns>
+        public static LogLevel ApplyLogLevelFromEnvironment() => ParseLogLevel();
     }
 }
