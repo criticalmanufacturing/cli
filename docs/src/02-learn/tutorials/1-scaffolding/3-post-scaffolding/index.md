@@ -180,4 +180,4 @@ If possible automate your release process.
     
     The CI/CD pipelines highly depend on the technology and infrastructure being
     used for the project, and due to that, this plugin is not publicly available.
-    More information is available on [CM Internal Development Portal](https://docs.ds.criticalmanufacturing.dev).
+    More information is available on [CM Internal Development Portal](https://developerinternal-content-cd.apps.rhos.cm-mes.dev/).
