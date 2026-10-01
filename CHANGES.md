@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [6.0.0-14](https://github.com/criticalmanufacturing/cli/compare/6.0.0-12...6.0.0-14) (2026-10-01)
+
+
+### Bug Fixes
+
+* iot not replacing template vars ([9c9d85d](https://github.com/criticalmanufacturing/cli/commit/9c9d85d7f53bc399ce58f24911c4546c7973ffc4))
+* **new html:** for prerelease versions, we use version string instead of the dist-tag ([d04969a](https://github.com/criticalmanufacturing/cli/commit/d04969a23d3e6c0f522ab61a8dc1bca8fa0d03b7))
+* restore upgrade parent command so cmf upgrade base is available ([59ad84a](https://github.com/criticalmanufacturing/cli/commit/59ad84aa3aa8d016342fd2ad9ae33dcd2a12dfe8)), closes [#804](https://github.com/criticalmanufacturing/cli/issues/804)
+* security portal transform target ([2159083](https://github.com/criticalmanufacturing/cli/commit/2159083dda67e31e168bbda190ecc7a283d23ebf))
+* **template_feed:** add support to v12 custom Tests package template ([fb21916](https://github.com/criticalmanufacturing/cli/commit/fb21916d0db8ca03ec06641f1786aa4abbe7a066))
+
+
+### Under the hood
+
+* **new:** remove temporary workarounds on the v12 HTML command ([acda121](https://github.com/criticalmanufacturing/cli/commit/acda121104d6dfc10845e918657493528e13330c))
+
 ## [6.0.0-13](https://github.com/criticalmanufacturing/cli/compare/6.0.0-12...6.0.0-13) (2026-10-01)
 
 
