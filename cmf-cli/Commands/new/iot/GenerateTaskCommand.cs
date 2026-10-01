@@ -7,6 +7,7 @@ using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.TemplateEngine.Utils;
 using Newtonsoft.Json;
+using NuGet.Versioning;
 using Spectre.Console;
 using System;
 using System.Collections.Generic;
@@ -84,6 +85,8 @@ namespace Cmf.CLI.Commands.New.IoT
                 throw new CliException("This command is only valid for versions above 11.0.0");
             }
 
+            var testUtilitiesLocation = ExecutionContext.Instance.ProjectConfig.MESVersion < new NuGetVersion(11, 1, 2) ? "" : "dist/";
+
             using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
 
             var task = HandleTask(new TaskValues());
@@ -100,7 +103,7 @@ namespace Cmf.CLI.Commands.New.IoT
             task.Inputs = this.Inputs.Concat(task.Inputs).ToDictionary(pair => pair.Key, pair => pair.Value);
             task.Outputs = this.Outputs.Concat(task.Outputs).ToDictionary(pair => pair.Key, pair => pair.Value);
 
-            var args = this.GenerateArgs(workingDir, this.fileSystem.Directory.GetCurrentDirectory(), task.Name, task.ClassName, task.SettingsDefaults, task.TestSettingsDefaults, task.InputsInterface, task.OutputsInterface, task.SettingsInterface, task.IsProtocol.ToString(), task.TaskBaseClass);
+            var args = this.GenerateArgs(workingDir, this.fileSystem.Directory.GetCurrentDirectory(), task.Name, task.ClassName, task.SettingsDefaults, task.TestSettingsDefaults, task.InputsInterface, task.OutputsInterface, task.SettingsInterface, task.IsProtocol.ToString(), task.TaskBaseClass, testUtilitiesLocation);
             this.CommandName = "iot-task";
             base.RunCommand(args);
 
@@ -570,7 +573,8 @@ namespace Cmf.CLI.Commands.New.IoT
             string outputsInterface,
             string settingsInterface,
             string isProtocolSetting,
-            string taskBase)
+            string taskBase,
+            string testUtilitiesLocation)
         {
             Log.Debug($"Creating IoT Task at {packageLocation}");
 
@@ -585,7 +589,8 @@ namespace Cmf.CLI.Commands.New.IoT
                 "--outputsInterface", outputsInterface,
                 "--settingsInterface", settingsInterface,
                 "--isProtocol", isProtocolSetting,
-                "--taskBase", taskBase
+                "--taskBase", taskBase,
+                "--testUtilitiesLocation", testUtilitiesLocation
             });
 
             return args;
