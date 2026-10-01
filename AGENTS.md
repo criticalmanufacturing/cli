@@ -4,6 +4,15 @@
 
 Existing agent playbooks: `.github/agents/cmf-cli-implementer.agent.md`, `.github/agents/cmf-cli-issue-planner.agent.md`. Copilot rules in `.github/copilot-instructions.md` also apply (minimal diffs, backward compat, no breaking CLI changes without migration, no new external deps without justification, no licensing/publishing changes).
 
+## Environment: devcontainer first
+
+Host machines usually have no SDKs/tooling (dotnet, node, npm, gh); they live in the devcontainer (`.devcontainer/devcontainer.json`). This applies to all agents and subagents.
+
+- Before any command needing an SDK or tool (build, test, `dotnet`, `node`/`npm`, `cmf`), check whether you are already inside the container (`/.dockerenv` exists or `dotnet --version` works). If so, run directly.
+- Otherwise check the container is running: `docker ps --filter "label=devcontainer.local_folder=$PWD"`. If not, start it: `devcontainer up --workspace-folder .` (if the `devcontainer` CLI is missing, ask the user to reopen the folder in the container).
+- Run every SDK-dependent command inside it: `devcontainer exec --workspace-folder . <command>`. Never install SDKs on the host.
+- Read-only `git` and file operations may run on the host.
+
 ## Build / test
 
 - SDKs: CI installs .NET 8 + 10 (`pr-tests.yml`); `ci-tests.yml` also uses 6. Target framework is `net10.0`.
