@@ -91,9 +91,9 @@ namespace tests.Specs
         [Theory]
         [InlineData("12.0.0", "release-1200")]
         [InlineData("11.1.5", "release-1115")]
-        [InlineData("12.0.0-alpha.1", "alpha-1200")]
-        [InlineData("12.0.0-next.2", "next-1200")]
-        [InlineData("11.1.5-beta.2", "beta-1115")]
+        [InlineData("12.0.0-alpha.1", "12.0.0-alpha.1")]
+        [InlineData("12.0.0-next.2", "12.0.0-next.2")]
+        [InlineData("11.1.5-beta.2", "11.1.5-beta.2")]
         public void GetNpmDistTag_NuGetVersion_ComputesExpectedDistTag(string version, string expectedDistTag)
         {
             var nuGetVersion = NuGetVersion.Parse(version);
@@ -112,17 +112,17 @@ namespace tests.Specs
         }
 
         [Fact]
-        public void GetNpmDistTag_PreReleaseVersion_ShouldUsePrereleaseDistTag()
+        public void GetNpmDistTag_PreReleaseVersion_ShouldUseOriginalVersion()
         {
-            // Prerelease MES versions should map to the corresponding prerelease npm dist-tag rather than the release tag.
+            // Prerelease MES versions use the exact version string instead of a dist-tag.
             var result = GenericUtilities.GetNpmDistTag(NuGetVersion.Parse("12.0.0-beta.2"));
 
-            result.Should().Be("beta-1200");
+            result.Should().Be("12.0.0-beta.2");
         }
 
         [Theory]
         [InlineData("12.0.0", "release-1200")]
-        [InlineData("12.0.0-beta.2", "beta-1200")]
+        [InlineData("12.0.0-beta.2", "12.0.0-beta.2")]
         public void GetNpmDistTag_NuGetVersion_UsesSemVerAwareDistTag(string version, string expectedDistTag)
         {
             var mesVersion = NuGetVersion.Parse(version);

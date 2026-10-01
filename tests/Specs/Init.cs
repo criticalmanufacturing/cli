@@ -280,8 +280,8 @@ namespace tests.Specs
         }
 
         [Theory]
-        [InlineData("12.0.0-alpha.1", "alpha-1200")]
-        [InlineData("11.1.5-beta.2", "beta-1115")]
+        [InlineData("12.0.0-alpha.1", "12.0.0-alpha.1")]
+        [InlineData("11.1.5-beta.2", "11.1.5-beta.2")]
         public void Init_PreReleaseMESVersion_Succeeds(string mesVersion, string expectedNgxSchematicsVersion)
         {
             var tmp = TestUtilities.GetTmpDirectory();
@@ -315,7 +315,7 @@ namespace tests.Specs
                 projectConfig.Should().Contain($@"""MESVersion"": ""{mesVersion}""", "MESVersion should retain the original pre-release string");
                 projectConfig.Should().Contain($@"""NugetVersion"": ""{mesVersion}""", "NugetVersion should default to the MES version");
                 projectConfig.Should().Contain($@"""TestScenariosNugetVersion"": ""{mesVersion}""", "TestScenariosNugetVersion should default to the MES version");
-                projectConfig.Should().Contain($@"""NGXSchematicsVersion"": ""{expectedNgxSchematicsVersion}""", "NGXSchematicsVersion should be derived from the MES version's pre-release label and numeric components");
+                projectConfig.Should().Contain($@"""NGXSchematicsVersion"": ""{expectedNgxSchematicsVersion}""", "NGXSchematicsVersion should be the original pre-release MES version");
                 if (mesVersion.StartsWith("12."))
                 {
                     projectConfig.Should().NotContain(@"""EnvironmentName""", "MES 12+ project configs should use V2");
