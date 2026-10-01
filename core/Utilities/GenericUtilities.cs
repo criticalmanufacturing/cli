@@ -290,10 +290,8 @@ namespace Cmf.CLI.Utilities
         /// <returns>the npm dist-tag for <paramref name="version"/></returns>
         public static string GetNpmDistTag(NuGetVersion version)
         {
-            // ReleaseLabels are dot separated values from the pre-release part of the version, e.g. "alpha.1" or "beta.2".
-            // We only want the first label (e.g. "alpha" or "beta") for the dist-tag.
-            var label = version.IsPrerelease ? version.ReleaseLabels.FirstOrDefault() : null;
-            return $"{(string.IsNullOrWhiteSpace(label) ? "release" : label)}-{version.Major}{version.Minor}{version.Patch}";
+            // For prerelease versions, we use the original version string instead of the dist-tag.
+            return version.IsPrerelease ? version.OriginalVersion : $"release-{version.Major}{version.Minor}{version.Patch}";
         }
 
         #endregion Public Methods
