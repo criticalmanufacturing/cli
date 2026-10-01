@@ -96,11 +96,6 @@ namespace Cmf.CLI.Commands.New
             var angularDeps = ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Angular(mesVersion);
             var ngCliVersion = angularDeps.CLI;
             string ngCliCommand = $"@angular/cli@{ngCliVersion.Major}";
-            // TODO: This should be removed after beta.2 release
-            if(mesVersion.Major >= 12)
-            {
-                ngCliCommand = $"@angular/cli@{ngCliVersion.Major}.1";
-            }
             var packageName = base.GeneratePackageName(workingDir)!.Value.Item1;
             var packageDir = workingDir.GetDirectories(packageName).First();
 
@@ -132,15 +127,6 @@ namespace Cmf.CLI.Commands.New
                 WorkingDirectory = workingDir,
                 ForceColorOutput = false
             }.Exec();
-
-            // TODO: This should be removed after beta.2 release
-            if(mesVersion.Major >= 12)
-            {
-            var appConfigTsPath = this.fileSystem.Path.Join(packageDir.FullName, "src", "app", "app.config.ts");
-            var appConfigts = this.fileSystem.File.ReadAllText(appConfigTsPath);
-            appConfigts = appConfigts.Replace("import { routes } from './app.routes';", string.Empty); // Replace with actual modification logic
-            this.fileSystem.File.WriteAllText(appConfigTsPath, appConfigts);
-            }
 
             Log.Debug($"Adding @criticalmanufacturing/ngx-schematics@{schematicsVersion} to the package, which can be used to scaffold new components and libraries");
             // cd <packageName>
@@ -215,26 +201,6 @@ namespace Cmf.CLI.Commands.New
             json = JsonConvert.SerializeObject(rootPkgJson, Formatting.Indented);
             this.fileSystem.File.WriteAllText(rootPkgJsonPath, json);
             Log.Verbose("Updated package.json");
-
-            // TODO: This should be removed after beta.2 release
-            if(mesVersion.Major >= 12)
-            {
-            var buildJson = "{\n  \"version\": \"$(Cmf.AppVersion)\",\n  \"buildDate\": \"$(Cmf.AppBuildDate)\"\n}";
-            this.fileSystem.File.WriteAllText(this.fileSystem.Path.Join(packageDir.FullName, "src/assets/build.json"), buildJson);
-            var maints = 
-@"/// <reference types=""@angular/localize"" />
-
-import { bootstrapApplication } from '@angular/platform-browser';
-import { App } from './app/app';
-import { loadApplicationConfig } from 'cmf-core/init';
-
-loadApplicationConfig('assets/config.json', 'assets/build.json').then(() => {
-  import(/* webpackMode: ""eager"" */ './app/app.config').then(({ appConfig }) => {
-    bootstrapApplication(App, appConfig).catch((err) => console.error(err));
-  });
-});";
-            this.fileSystem.File.WriteAllText(this.fileSystem.Path.Join(packageDir.FullName, "src/main.ts"), maints);   
-            }
 
             // build
             new BuildCommand(fileSystem).Execute(packageDir);
