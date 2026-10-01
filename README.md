@@ -8,6 +8,6 @@ Consult our [documentation](https://criticalmanufacturing.github.io/cli) on how 
 
 ## Development
 
-Check [the publishing guide](./PUBLISHING.MD) for the publishing flow.
+Check [the contributing guide](./CONTRIBUTING.md) to set up the development environment, and [the publishing guide](./PUBLISHING.MD) for the publishing flow.
 
 &copy; Critical Manufacturing SA, published under [BSD-3-Clause License](./LICENSE).
