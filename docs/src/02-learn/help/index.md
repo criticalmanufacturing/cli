@@ -33,6 +33,8 @@ Follows a set of examples, to understand its usage:
 
 ## Debug-Level Messages
 
+Expected command errors (`CliException`), such as missing tenant information, normally show only the error message; use debug logging to see their stack traces. Unexpected exceptions always show full details, including stack traces and inner exceptions, regardless of the log level. Failures still return nonzero exit codes; existing telemetry handling remains in place.
+
 To enable debug-level logs on the console when running `cmf` commands, use the  `-l Debug` option before any other  parameters.
 
 Per example, to active debug messages for the `cmf build` command, use:

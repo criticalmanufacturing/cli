@@ -80,9 +80,9 @@ namespace Cmf.CLI
                         // Global validation for all CLI core commands
                         ValidateMesVersion(ExecutionContext.Instance.ProjectConfig?.MESVersion.Major);
                         
-                        // Parse and invoke using beta5 pattern
+                        // Let the application's catch blocks handle errors and debug details.
                         var parseResult = rootCommand.Parse(args);
-                        result = await parseResult.InvokeAsync();
+                        result = await InvokeCommandAsync(parseResult);
                     }
                 }
                  
@@ -103,6 +103,14 @@ namespace Cmf.CLI
                 return (int)ErrorCode.Default;
             }
         }
+
+        /// <summary>
+        /// Invokes a parsed command without the default handler that prints unfiltered stack traces.
+        /// </summary>
+        /// <param name="parseResult">The parsed command to invoke.</param>
+        /// <returns>The command's exit code; command exceptions propagate to the application's handlers.</returns>
+        internal static Task<int> InvokeCommandAsync(ParseResult parseResult) => parseResult.InvokeAsync(
+            new InvocationConfiguration { EnableDefaultExceptionHandler = false });
 
         /// <summary>
         /// This function will validate MES Version on every command.
