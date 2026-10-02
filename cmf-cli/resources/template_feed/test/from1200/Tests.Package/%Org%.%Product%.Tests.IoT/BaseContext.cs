@@ -93,6 +93,18 @@ namespace Settings
         }
 
         /// <summary>
+        /// Gets the mode of the connection.
+        /// </summary>
+        /// <value>
+        /// The mode of the connection.
+        /// </value>
+        public static string Mode
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
         /// Absolute Path to RunSettings File
         /// </summary>
         /// <value>
@@ -125,6 +137,8 @@ namespace Settings
             BaseContext.UserName = GetString(context, "userName");
             BaseContext.Password = GetString(context, "password");
             BaseContext.ClientTenantName = GetString(context, "clientTenantName");
+            BaseContext.Mode = GetString(context, "mode");
+            BaseContext.FilePath = BaseContext.Mode == "Local" ? GetString(context, "filePathLocal") : GetString(context, "filePathRemote");
 
             ClientConfigurationProvider.ConfigurationFactory = () =>
             {
