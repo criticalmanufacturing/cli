@@ -169,4 +169,28 @@
     <value>Node.js version {0} is not compatible with MES version {1}. This MES version requires Node.js v{2}.x. Please install the correct Node.js version. See https://criticalmanufacturing.github.io/cli/01-install/#nodejs-and-npm for version compatibility.</value>
     <comment>0 - Installed Node.js version; 1 - Target MES version; 2 - Required Node.js major version</comment>
   </data>
+  <data name="InitConfigDescription" xml:space="preserve">
+    <value>Optional configuration file exported from Setup. Provides tenant and legacy MES 10/11 environment settings; copied to EnvironmentConfigs.</value>
+  </data>
+  <data name="InitTenantDescription" xml:space="preserve">
+    <value>MES tenant name. Required unless supplied by --config; overrides the config file tenant.</value>
+  </data>
+  <data name="InitInfrastructureDescription" xml:space="preserve">
+    <value>Optional infrastructure JSON file. CLI registry options override this file; omitted registries use Critical Manufacturing defaults.</value>
+  </data>
+  <data name="InitRegistryDescription" xml:space="preserve">
+    <value>{0} registry that contains the MES packages. Defaults to {1} unless supplied by --infrastructure.</value>
+  </data>
+  <data name="InitLegacyHtmlStarterDescription" xml:space="preserve">
+    <value>Legacy HTML Starter version. Retained for compatibility; HTML scaffolding uses --ngxSchematicsVersion.</value>
+  </data>
+  <data name="InitLegacyDevTasksDescription" xml:space="preserve">
+    <value>Legacy dev-tasks version. Retained for compatibility with existing MES 10/11 project configurations.</value>
+  </data>
+  <data name="InitLegacyYoGeneratorDescription" xml:space="preserve">
+    <value>Legacy Yeoman generator version. Retained for compatibility; HTML scaffolding uses --ngxSchematicsVersion.</value>
+  </data>
+  <data name="InitMissingTenant" xml:space="preserve">
+    <value>Tenant information is missing. Please provide it either in the config file or through the --tenant option.</value>
+  </data>
 </root>

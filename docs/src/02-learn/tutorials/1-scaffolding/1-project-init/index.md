@@ -45,29 +45,20 @@ You can initialize a MES Customization or App project workspace using the `cmf i
 === "MES v10 or above"
 
     ```powershell
-    cmf init ExampleProject `
-        --version 1.0.0 `
-        --infra ..\config\infra.json `
-        --config ..\config\env.json `
-        --MESVersion 11.0.0 `
-        --nugetVersion 11.0.0 `
-        --testScenariosNugetVersion 11.0.0 `
-        --deploymentDir \\directory\Deployments `
-        --ISOLocation \\directory\CriticalManufacturing.iso `
-        --ngxSchematicsVersion 11.0.0
+    cmf init test --tenant test --baseVersion 12.0.0-beta.2 --ciRepo https://dev.criticalmanufacturing.io --releaseRepos https://dev.criticalmanufacturing.io
     ```
 
-    If you're using cmf-cli v6 you can:
-    ```powershell
-    cmf init ExampleProject `
-        --version 1.0.0 `
-        --infra ..\config\infra.json `
-        --config ..\config\env.json `
-        --MESVersion 11.0.0 `
-        --deploymentDir \\directory\Deployments `
-    ```
+    No JSON files are required. Provide the project name and `--baseVersion` (also known as `--MESVersion`), plus `--tenant` unless supplied by `--config`. Also provide `--ciRepo` and `--releaseRepos`, or the legacy `--deploymentDir` alternative.
+
+    The package version defaults to `1.0.0`. NuGet and test scenario versions default to the MES version; ngx-schematics uses `release-<digits>` for stable releases and the exact MES version for prereleases. Override these versions only when needed.
+
+    `--config` and `--infrastructure` (alias `--infra`) are optional. Registry URLs resolve independently from command-line options, then the infrastructure file, then the defaults: `https://criticalmanufacturing.io/repository/npm/` and `https://criticalmanufacturing.io/repository/nuget/index.json`. Use `--npmRegistry` or `--nugetRegistry` to override them; existing credential options remain supported.
+
+    For a full environment setup, add `--config ..\config\env.json`. MES v10/v11 HTML scaffolding still uses its domain and environment settings; test scaffolding uses its hostname and ports. A supplied file is copied unchanged into `EnvironmentConfigs`, including for MES v12.
 
 === "MES v9 or below"
+
+    These legacy projects require CM CLI **5.8.0 or earlier**.
 
     ```powershell
     cmf init ExampleProject `
@@ -88,19 +79,14 @@ You can initialize a MES Customization or App project workspace using the `cmf i
 
     ```powershell
     cmf init ExampleProject `
-        --version 1.0.0 `
-        --infra ..\config\infra.json `
-        --config ..\config\ExampleEnvironment.json `
-        --MESVersion 11.0.0 `
-        --nugetVersion 11.0.0 `
-        --testScenariosNugetVersion 11.0.0 `
-        --deploymentDir \\directory\Deployments `
-        --ngxSchematicsVersion 11.0.0 `
+        --tenant test `
+        --baseVersion 11.0.0 `
+        --ciRepo https://dev.criticalmanufacturing.io `
+        --releaseRepos https://dev.criticalmanufacturing.io `
         --appName "My App" `
         --appId "MyApp" `
         --appAuthor "Critical Manufacturing" `
         --appDescription "My First App" `
-        --appTargetFramework 11.0.0 `
         --appLicensedApplication "My App" `
         --repositoryType "App"
     ```
@@ -129,6 +115,7 @@ The `cmf init` command should have terminated with success and created a basic p
 
     The initial project structure may vary, depending on the CM CLI
     version and the project type selected (`--repositoryType` argument).
+    The environment JSON shown above is only copied when `--config` is supplied.
 
 ## 6. Validate `repositories.json`
 

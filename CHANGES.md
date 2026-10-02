@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## Unreleased
+
+### Features
+
+* **init:** initialize MES 10, 11, and 12 projects with `--tenant` without requiring configuration or infrastructure JSON files. Registries default to Critical Manufacturing feeds; explicit options override infrastructure files, which override defaults.
+* **init:** omit unused database/deployment metadata and empty legacy tool versions from newly generated project configs. Preserve legacy config inputs and public config properties; hide obsolete dev-tasks, HTML Starter, and Yeoman version options from help while continuing to accept them.
+
 ## [6.0.0-14](https://github.com/criticalmanufacturing/cli/compare/6.0.0-12...6.0.0-14) (2026-10-01)
 
 
