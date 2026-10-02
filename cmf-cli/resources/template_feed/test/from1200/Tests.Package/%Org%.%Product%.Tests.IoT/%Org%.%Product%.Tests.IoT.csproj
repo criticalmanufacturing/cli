@@ -40,9 +40,6 @@
     <PackageReference Include="Cmf.Dev.Mes.TestScenarios" Version="<%= $CLI_PARAM_TestScenariosNugetVersion %>" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="cmConnect.TestFramework.Common" Version="*" />
-    <PackageReference Include="cmConnect.TestFramework.ConnectIoT" Version="*" />
-    <PackageReference Include="cmConnect.TestFramework.Environment" Version="*" />
     <PackageReference Include="Cmf.ConnectIoT.TestOrchestrator.Core.LBOs" Version="*" />
     <PackageReference Include="Cmf.ConnectIoT.TestOrchestrator.Core.Common" Version="*" />
     <PackageReference Include="Cmf.ConnectIoT.TestOrchestrator.Core.ScenarioBuilder" Version="*" />
