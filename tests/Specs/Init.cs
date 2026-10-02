@@ -26,7 +26,7 @@ namespace tests.Specs
         {
                 Cmf.CLI.Core.Objects.ExecutionContext.ServiceProvider = (new ServiceCollection())
                     .AddSingleton<IVersionService>(new VersionService(CliConstants.PackageName, "5.3.0"))
-                    .AddSingleton<IDependencyVersionService, DependencyVersionService>()
+                     .AddSingleton<IDependencyVersionService, DependencyVersionService>()
                     .BuildServiceProvider();
                 
                 var newCommand = new NewCommand();
@@ -139,6 +139,14 @@ namespace tests.Specs
                     .Should().NotContain(@"""AppEnvironmentConfig""", "Customization repo initialization should not produce app scaffolding keys in .project-config.json");
                 File.ReadAllText(Path.Join(tmp, ".project-config.json"))
                     .Should().Contain(@"""DefaultDomain"": ""DOMAIN""", "Default domain is not correct");
+                var legacySettings = JObject.Parse(File.ReadAllText(".project-config.json"));
+                legacySettings["EnvironmentName"].Value<string>().Should().Be("system_name");
+                legacySettings["RESTPort"].Value<string>().Should().Be("1234");
+                legacySettings["HTMLPort"].Value<string>().Should().Be("443");
+                legacySettings["vmHostname"].Value<string>().Should().Be("app_server_address");
+                legacySettings["DevTasksVersion"].Value<string>().Should().Be("8.1.0");
+                legacySettings["HTMLStarterVersion"].Value<string>().Should().Be("8.0.0");
+                legacySettings["YoGeneratorVersion"].Value<string>().Should().Be("8.1.0");
                 File.ReadAllText(Path.Join(tmp, ".project-config.json"))
                     .Should().Contain(@"""BaseLayer"": ""MES""", "Base Layer should be MES");
                 File.ReadAllText(Path.Join(tmp, "cmfpackage.json"))
@@ -501,7 +509,7 @@ namespace tests.Specs
         }
 
         [Fact]
-        public void Init_Fail_MissingInfra()
+        public void Init_WithoutInfra_UsesDefaultRegistries()
         {
             var console = new TestConsole();
             var rnd = new Random();
@@ -523,7 +531,7 @@ namespace tests.Specs
                 {
                     projectName,
                     "-c", TestUtilities.GetFixturePath("init", "config.json"),
-                    "--MESVersion", "8.2.0",
+                    "--MESVersion", "10.2.0",
                     "--DevTasksVersion", "8.1.0",
                     "--HTMLStarterVersion", "8.0.0",
                     "--yoGeneratorVersion", "8.1.0",
@@ -532,11 +540,190 @@ namespace tests.Specs
                     "--deploymentDir", deploymentDir,
                 }, console);
 
-                Assert.Contains("Missing infrastructure options", console.Error.ToString());
+                console.Error.ToString().Should().BeEmpty();
+                var projectConfig = JObject.Parse(File.ReadAllText(".project-config.json"));
+                projectConfig["NPMRegistry"].Value<string>().Should().Be("https://criticalmanufacturing.io/repository/npm/");
+                projectConfig["NuGetRegistry"].Value<string>().Should().Be("https://criticalmanufacturing.io/repository/nuget/index.json");
             }
             finally
             {
                 Directory.SetCurrentDirectory(cur);
+                Directory.Delete(tmp, true);
+            }
+        }
+
+        [Theory]
+        [InlineData("10.2.0", DependencyVersionService.NET6SDK)]
+        [InlineData("11.0.0", DependencyVersionService.NET8SDK)]
+        [InlineData("12.0.0-beta.2", DependencyVersionService.NET10SDK)]
+        public void Init_WithoutJsonFiles_ScaffoldsSupportedVersions(string mesVersion, string expectedSdk)
+        {
+            WithInitWorkspace(tmp =>
+            {
+                InvokeInit(mesVersion, "--tenant", "test");
+
+                var projectJson = File.ReadAllText(".project-config.json");
+                var project = JObject.Parse(projectJson);
+                project["Tenant"].Value<string>().Should().Be("test");
+                project["MESVersion"].Value<string>().Should().Be(mesVersion);
+                project["NugetVersion"].Value<string>().Should().Be(mesVersion);
+                project["TestScenariosNugetVersion"].Value<string>().Should().Be(mesVersion);
+                project["NGXSchematicsVersion"].Value<string>().Should().Be(mesVersion.Contains('-') ? mesVersion : $"release-{mesVersion.Replace(".", "")}");
+                project["NPMRegistry"].Value<string>().Should().Be("https://criticalmanufacturing.io/repository/npm/");
+                project["NuGetRegistry"].Value<string>().Should().Be("https://criticalmanufacturing.io/repository/nuget/index.json");
+                project.Properties().Select(p => p.Name).Should().NotIntersectWith(new[]
+                {
+                    "DBReplica1", "DBReplica2", "DBServerOnline", "DBServerODS", "DBServerDWH",
+                    "ReportServerURI", "AlwaysOn", "InstallationPath", "DBBackupPath", "TemporaryPath",
+                    "GatewayPort", "DevTasksVersion", "HTMLStarterVersion", "YoGeneratorVersion",
+                    "EnvironmentName", "RESTPort", "HTMLPort", "vmHostname", "ReleaseEnvironmentConfig"
+                });
+                projectJson.Should().NotContain("<%=", "all template placeholders must be resolved");
+                File.ReadAllText("global.json").Should().Contain(expectedSdk);
+                File.ReadAllText("NuGet.Config").Should().Contain(project["NuGetRegistry"].Value<string>());
+                File.ReadAllText(".devcontainer/devcontainer.json").Should().Contain($"devcontainer:{NuGetVersion.Parse(mesVersion).Major}");
+                var repositories = JsonConvert.DeserializeObject<RepositoriesConfig>(File.ReadAllText("repositories.json"));
+                repositories.CIRepository.AbsoluteUri.Should().Be("https://dev.criticalmanufacturing.io/");
+                repositories.Repositories.Should().ContainSingle().Which.AbsoluteUri.Should().Be("https://dev.criticalmanufacturing.io/");
+                File.Exists("cmfpackage.json").Should().BeTrue();
+                File.Exists("EnvironmentConfigs/.gitkeep").Should().BeTrue();
+
+                var model = new ProjectConfigService().Load(new System.IO.Abstractions.FileSystem());
+                model.Tenant.Should().Be("test");
+                model.Should().BeOfType(mesVersion.StartsWith("12.") ? typeof(ProjectConfigV2) : typeof(ProjectConfigV1));
+
+                // A minimal init must remain usable by the next scaffolding command.
+                // Recreate services as a subsequent CLI invocation would (no cached pre-init config).
+                Cmf.CLI.Core.Objects.ExecutionContext.ServiceProvider = new ServiceCollection()
+                    .AddSingleton<IVersionService>(new VersionService(CliConstants.PackageName, "5.3.0"))
+                    .AddSingleton<IDependencyVersionService, DependencyVersionService>()
+                    .AddSingleton<IProjectConfigService, ProjectConfigService>()
+                    .BuildServiceProvider();
+                new Cmf.CLI.Commands.New.TestCommand().Execute("1.0.0");
+                File.Exists("Cmf.Custom.Tests/cmfpackage.json").Should().BeTrue();
+                File.ReadAllText("Cmf.Custom.Tests/integration.runsettings").Should().NotContain("<%=");
+            });
+        }
+
+        [Theory]
+        [InlineData("10.2.0", "TENANT_NAME")]
+        [InlineData("11.0.0", "Product.Tenant.Name")]
+        [InlineData("12.0.0-beta.2", "TENANT_NAME")]
+        public void Init_TenantOnlyConfig_SucceedsAndCopiesFile(string mesVersion, string tenantKey)
+        {
+            WithInitWorkspace(tmp =>
+            {
+                File.WriteAllText("tenant.json", new JObject { [tenantKey] = "file-tenant" }.ToString());
+                InvokeInit(mesVersion, "--config", "tenant.json");
+                JObject.Parse(File.ReadAllText(".project-config.json"))["Tenant"].Value<string>().Should().Be("file-tenant");
+                File.ReadAllText("EnvironmentConfigs/tenant.json").Should().Be(File.ReadAllText("tenant.json"));
+                File.Exists("EnvironmentConfigs/.gitkeep").Should().BeFalse();
+            });
+        }
+
+        [Theory]
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public void Init_RegistryPrecedence_CliThenFileThenDefaults(bool useInfra, bool useCli)
+        {
+            WithInitWorkspace(tmp =>
+            {
+                var options = new List<string> { "--tenant", "test" };
+                if (useInfra)
+                {
+                    File.WriteAllText("infra.json", @"{ ""NPMRegistry"": ""https://file.example/npm/"", ""NuGetRegistry"": ""https://file.example/nuget/index.json"" }");
+                    options.AddRange(new[] { "--infra", "infra.json" });
+                }
+                if (useCli)
+                {
+                    options.AddRange(new[] { "--npmRegistry", "https://cli.example/npm/", "--nugetRegistry", "https://cli.example/nuget/index.json" });
+                }
+                InvokeInit("12.0.0-beta.2", options.ToArray());
+                var project = JObject.Parse(File.ReadAllText(".project-config.json"));
+                var host = useCli ? "cli.example" : useInfra ? "file.example" : "criticalmanufacturing.io/repository";
+                project["NPMRegistry"].Value<string>().Should().Be($"https://{host}/npm/");
+                project["NuGetRegistry"].Value<string>().Should().Be($"https://{host}/nuget/index.json");
+                File.ReadAllText("NuGet.Config").Should().Contain($"https://{host}/nuget/index.json");
+            });
+        }
+
+        [Fact]
+        public void Init_PartialInfrastructure_UsesDefaultsForMissingRegistry()
+        {
+            WithInitWorkspace(tmp =>
+            {
+                File.WriteAllText("infra.json", @"{ ""NPMRegistry"": ""https://file.example/npm/"" }");
+                InvokeInit("11.0.0", "--tenant", "test", "--infrastructure", "infra.json");
+                var project = JObject.Parse(File.ReadAllText(".project-config.json"));
+                project["NPMRegistry"].Value<string>().Should().Be("https://file.example/npm/");
+                project["NuGetRegistry"].Value<string>().Should().Be("https://criticalmanufacturing.io/repository/nuget/index.json");
+            });
+        }
+
+        [Theory]
+        [InlineData("--npmRegistry", "NPMRegistry", "https://cli.example/npm/", "NuGetRegistry", "https://criticalmanufacturing.io/repository/nuget/index.json")]
+        [InlineData("--nugetRegistry", "NuGetRegistry", "https://cli.example/nuget/index.json", "NPMRegistry", "https://criticalmanufacturing.io/repository/npm/")]
+        public void Init_SingleRegistryOverride_DefaultsTheOtherRegistry(string option, string property, string value, string otherProperty, string otherValue)
+        {
+            WithInitWorkspace(tmp =>
+            {
+                InvokeInit("12.0.0-beta.2", "--tenant", "test", option, value);
+                var project = JObject.Parse(File.ReadAllText(".project-config.json"));
+                project[property].Value<string>().Should().Be(value);
+                project[otherProperty].Value<string>().Should().Be(otherValue);
+            });
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData("   ")]
+        public void Init_WithoutConfig_RequiresNonWhitespaceTenant(string tenant)
+        {
+            WithInitWorkspace(tmp =>
+            {
+                var options = tenant == null ? Array.Empty<string>() : new[] { "--tenant", tenant };
+                var console = InvokeInit("12.0.0-beta.2", options, expectSuccess: false);
+                console.Error.ToString().Should().Contain("Tenant information is missing");
+                File.Exists(".project-config.json").Should().BeFalse();
+            });
+        }
+
+        private static TestConsole InvokeInit(string mesVersion, params string[] options) => InvokeInit(mesVersion, options, true);
+
+        private static TestConsole InvokeInit(string mesVersion, string[] options, bool expectSuccess)
+        {
+            var command = new Command("init");
+            new InitCommand().Configure(command);
+            var console = new TestConsole();
+            var arguments = new[]
+            {
+                "test", "--baseVersion", mesVersion,
+                "--ciRepo", "https://dev.criticalmanufacturing.io",
+                "--releaseRepos", "https://dev.criticalmanufacturing.io"
+            }.Concat(options).ToArray();
+            TestUtilities.GetParser(command).Invoke(arguments, console);
+            if (expectSuccess)
+            {
+                console.Error.ToString().Should().BeEmpty();
+            }
+            return console;
+        }
+
+        private static void WithInitWorkspace(Action<string> test)
+        {
+            var tmp = TestUtilities.GetTmpDirectory();
+            var current = Directory.GetCurrentDirectory();
+            try
+            {
+                Directory.SetCurrentDirectory(tmp);
+                test(tmp);
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(current);
                 Directory.Delete(tmp, true);
             }
         }

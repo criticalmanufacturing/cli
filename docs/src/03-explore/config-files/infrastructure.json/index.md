@@ -1,13 +1,15 @@
 # Infrastructure config file
 
-The Infrastructure configuration file defines a set of your  Company infrastructure mandatory for the development of a CM MES Customization project.
+The optional infrastructure configuration file defines registry URLs and credentials for development of a CM MES project.
 
 ## Overview
 
-Currently, the infrastructure mandatory to do development of an MES Customization project is:
+Development uses these registries:
 
 1. NPM Repository - storing the NPM packages for your target MES version;
 2. NuGet repository - storing the NuGet packages for your target MES version.
+
+`cmf init` defaults to `https://criticalmanufacturing.io/repository/npm/` and `https://criticalmanufacturing.io/repository/nuget/index.json`. No infrastructure file is needed when using these feeds. For each registry, command-line options take precedence over the file; missing file values fall back to the defaults. Credential options also override credentials from the file.
 
 !!! note
 
@@ -33,12 +35,12 @@ Currently, the infrastructure mandatory to do development of an MES Customizatio
 
 ## Usage
 
-The infrastructure file must be passed to the @criticalmanufacturing/cli `init` command as an argument. e.g.:
+To override the defaults using a file, pass `--infrastructure` (alias `--infra`):
 
 ```PowerShell
-cmf init "MyProject" --infra "my_infrastructure.json" --config "my_envirionment_environment.json"
+cmf init MyProject --tenant test --baseVersion 12.0.0-beta.2 --ciRepo https://dev.criticalmanufacturing.io --releaseRepos https://dev.criticalmanufacturing.io --infra my_infrastructure.json
 ```
 
 !!! warning
 
-    Store this file on a safe location, as you may require it in the future to re-scaffold your project.
+    Store files containing credentials securely and do not commit secrets to source control.

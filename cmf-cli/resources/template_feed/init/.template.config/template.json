@@ -81,31 +81,11 @@
       "displayName": "Base Layer",
       "replaces": "<%= $CLI_PARAM_BaseLayer %>"
     },
-    "repositoryUrl": {
-      "type": "parameter",
-      "datatype": "string",
-      "replaces": "<%= $CLI_PARAM_RepositoryURL %>"
-    },
-    "repositoryName": {
-      "type": "parameter",
-      "datatype": "string",
-      "replaces": "<%= $CLI_PARAM_RepositoryName %>"
-    },
     "deploymentDir-JSON": {
       "type": "derived",
       "replaces": "\"<%= $CLI_PARAM_DeploymentDir %>\"",
       "valueSource": "deploymentDir",
       "valueTransform": "jsonEncode"
-    },
-    "ADArtifactsRepo": {
-      "type": "parameter",
-      "datatype": "string",
-      "replaces": "<%= $CLI_PARAM_ADArtifactsRepo %>"
-    },
-    "RCRepo": {
-      "type": "parameter",
-      "datatype": "string",
-      "replaces": "<%= $CLI_PARAM_RCRepo %>"
     },
     "CIRepo": {
       "type": "parameter",
@@ -292,23 +272,6 @@
       "datatype": "string",
       "replaces": "<%= $CLI_PARAM_TestScenariosNugetVersion %>"
     },
-    "pipelinesFolder": {
-      "type": "parameter",
-      "datatype": "string",
-      "replaces": "<%= $CLI_PARAM_PipelinesFolder %>",
-      "defaultValue": ""
-    },
-    "pipelinesFolderJSON-withquotes": {
-      "type": "derived",
-      "valueSource": "PipelinesFolder",
-      "valueTransform": "jsonEncode"
-    },
-    "pipelinesFolderJSON": {
-      "type": "derived",
-      "replaces": "<%= $CLI_PARAM_PipelinesFolderJSON %>",
-      "valueSource": "pipelinesFolderJSON-withquotes",
-      "valueTransform": "stripQuotes"
-    },
 
     // from infra
     "nugetRegistry": {
@@ -320,21 +283,6 @@
       "type": "parameter",
       "datatype": "string",
       "replaces": "<%= $CLI_PARAM_NPMRegistry %>"
-    },
-    "agentPool": {
-      "type": "parameter",
-      "datatype": "string",
-      "replaces": "<%= $CLI_PARAM_AgentPool %>"
-    },
-    "azureDevOpsCollectionUrl": {
-      "type": "parameter",
-      "datatype": "string",
-      "replaces": "<%= $CLI_PARAM_AzureDevopsCollectionURL %>"
-    },
-    "agentType": {
-      "type": "parameter",
-      "datatype": "string",
-      "replaces": "<%= $CLI_PARAM_AgentType %>"
     },
     "nugetRegistryUsername": {
       "type": "parameter",
@@ -359,16 +307,6 @@
       "replaces": "\"<%= $CLI_PARAM_ISOLocation_JSON %>\"",
       "valueSource": "ISOLocation",
       "valueTransform": "jsonEncode"
-    },
-    "cmfCliRepository": {
-      "type": "parameter",
-      "datatype": "string",
-      "replaces": "<%= $CLI_PARAM_CmfCliRepository %>"
-    },
-    "cmfPipelineRepository": {
-      "type": "parameter",
-      "datatype": "string",
-      "replaces": "<%= $CLI_PARAM_CmfPipelineRepository %>"
     },
 
     // from config
@@ -408,107 +346,6 @@
       "defaultValue": "",
       "replaces": "<%= $CLI_PARAM_vmHostname %>"
     },
-    "DBReplica1": {
-      "type": "parameter",
-      "datatype": "string",
-      "defaultValue": ""
-    },
-    "DBReplica1-JSON": {
-      "type": "derived",
-      "replaces": "\"<%= $CLI_PARAM_DBReplica1 %>\"",
-      "valueSource": "DBReplica1",
-      "valueTransform": "jsonEncode"
-    },
-    "DBReplica2": {
-      "type": "parameter",
-      "datatype": "string",
-      "defaultValue": ""
-    },
-    "DBReplica2-JSON": {
-      "type": "derived",
-      "replaces": "\"<%= $CLI_PARAM_DBReplica2 %>\"",
-      "valueSource": "DBReplica2",
-      "valueTransform": "jsonEncode"
-    },
-    "DBServerOnline": {
-      "type": "parameter",
-      "datatype": "string",
-      "defaultValue": ""
-    },
-    "DBServerOnline-JSON": {
-      "type": "derived",
-      "replaces": "\"<%= $CLI_PARAM_DBServerOnline %>\"",
-      "valueSource": "DBServerOnline",
-      "valueTransform": "jsonEncode"
-    },
-    "DBServerODS": {
-      "type": "parameter",
-      "datatype": "string",
-      "defaultValue": ""
-    },
-    "DBServerODS-JSON": {
-      "type": "derived",
-      "replaces": "\"<%= $CLI_PARAM_DBServerODS %>\"",
-      "valueSource": "DBServerODS",
-      "valueTransform": "jsonEncode"
-    },
-    "DBServerDWH": {
-      "type": "parameter",
-      "datatype": "string",
-      "defaultValue": ""
-    },
-    "DBServerDWH-JSON": {
-      "type": "derived",
-      "replaces": "\"<%= $CLI_PARAM_DBServerDWH %>\"",
-      "valueSource": "DBServerDWH",
-      "valueTransform": "jsonEncode"
-    },
-    "ReportServerURI": {
-      "type": "parameter",
-      "datatype": "string",
-      "defaultValue": "",
-      "replaces": "<%= $CLI_PARAM_ReportServerURI %>"
-    },
-    "AlwaysOn": {
-      "type": "parameter",
-      "datatype": "bool",
-      "defaultValue": "false",
-      "replaces": "<%= $CLI_PARAM_AlwaysOn %>"
-    },
-    "InstallationPath": {
-      "type": "parameter",
-      "datatype": "string",
-      "defaultValue": "",
-      "replaces": "<%= $CLI_PARAM_InstallationPath %>"
-    },
-    "InstallationPath-JSON": {
-      "type": "derived",
-      "replaces": "\"<%= $CLI_PARAM_InstallationPath_JSON %>\"",
-      "valueSource": "InstallationPath",
-      "valueTransform": "jsonEncode"
-    },
-    "DBBackupPath": {
-      "type": "parameter",
-      "datatype": "string",
-      "defaultValue": ""
-    },
-    "DBBackupPath-JSON": {
-      "type": "derived",
-      "replaces": "\"<%= $CLI_PARAM_DBBackupPath %>\"",
-      "valueSource": "DBBackupPath",
-      "valueTransform": "jsonEncode"
-    },
-    "TemporaryPath": {
-      "type": "parameter",
-      "datatype": "string",
-      "defaultValue": ""
-    },
-    "TemporaryPath-JSON": {
-      "type": "derived",
-      "replaces": "\"<%= $CLI_PARAM_TemporaryPath %>\"",
-      "valueSource": "TemporaryPath",
-      "valueTransform": "jsonEncode"
-    },
     "HTMLPort": {
       "type": "parameter",
       "datatype": "string",
@@ -521,47 +358,11 @@
       "defaultValue": "false",
       "replaces": "<%= $CLI_PARAM_IsSslEnabled %>"
     },
-    "GatewayPort": {
-      "type": "parameter",
-      "datatype": "string",
-      "defaultValue": "",
-      "replaces": "<%= $CLI_PARAM_GatewayPort %>"
-    },
     "ReleaseEnvironmentConfig": {
       "type": "parameter",
       "datatype": "string",
       "defaultValue": "",
       "replaces": "<%= $CLI_PARAM_ReleaseEnvironmentConfig %>"
-    },
-    "releaseCustomerEnvironment": {
-      "type": "parameter",
-      "datatype": "string",
-      "defaultValue": "",
-      "replaces": "<%= $CLI_PARAM_ReleaseCustomerEnvironment %>"
-    },
-    "releaseSite": {
-      "type": "parameter",
-      "datatype": "string",
-      "defaultValue": "",
-      "replaces": "<%= $CLI_PARAM_ReleaseSite %>"
-    },
-    "releaseDeploymentPackage": {
-      "type": "parameter",
-      "datatype": "string",
-      "defaultValue": "",
-      "replaces": "<%= $CLI_PARAM_ReleaseDeploymentPackage %>"
-    },
-    "releaseLicense": {
-      "type": "parameter",
-      "datatype": "string",
-      "defaultValue": "",
-      "replaces": "<%= $CLI_PARAM_ReleaseLicense %>"
-    },
-    "releaseDeploymentTarget": {
-      "type": "parameter",
-      "datatype": "string",
-      "defaultValue": "",
-      "replaces": "<%= $CLI_PARAM_ReleaseDeploymentTarget %>"
     },
     // versioned bits
     "dotnetSDKVersion": {
