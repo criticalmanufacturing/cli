@@ -77,7 +77,7 @@ namespace Cmf.CLI.Commands.New.IoT
 
             using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
 
-            var testUtilitiesLocation = ExecutionContext.Instance.ProjectConfig.MESVersion < new NuGetVersion(11, 1, 2) ? "" : "dist/";
+            var testUtilitiesLocation = ExecutionContext.Instance.ProjectConfig.MESVersion < new NuGetVersion(11, 1, 0) ? "" : "dist/";
 
             var converter = HandleConverter(new ConverterValues());
 

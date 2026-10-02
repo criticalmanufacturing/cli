@@ -661,8 +661,8 @@ namespace tests.Specs
         }
 
         [Theory, Trait("TestCategory", "Integration")]
-        [InlineData("11.1.0", "", false, "")]
-        [InlineData("11.1.2", "", false, "dist/")]
+        [InlineData("11.0.0", "", false, "")]
+        [InlineData("11.1.0", "", false, "dist/")]
         [InlineData("11.2.0", "testName", false, "dist/")]
         [InlineData("11.3.0", "", false, "dist/")]
         [InlineData("12.0.0", "", false, "dist/")]
@@ -739,9 +739,9 @@ namespace tests.Specs
         }
 
         [Theory, Trait("TestCategory", "Integration")]
-        [InlineData("11.1.0", null, "")]
-        [InlineData("11.1.0", null, "", true)]
-        [InlineData("11.1.2", null, "dist/")]
+        [InlineData("11.0.0", null, "")]
+        [InlineData("11.0.0", null, "", true)]
+        [InlineData("11.1.0", null, "dist/")]
         [InlineData("11.1.6", null, "dist/")]
         [InlineData("12.0.0", "TaskBase", "dist/")]
         [InlineData("12.0.0", "TaskBase", "dist/", true)]

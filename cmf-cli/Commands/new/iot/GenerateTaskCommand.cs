@@ -85,7 +85,7 @@ namespace Cmf.CLI.Commands.New.IoT
                 throw new CliException("This command is only valid for versions above 11.0.0");
             }
 
-            var testUtilitiesLocation = ExecutionContext.Instance.ProjectConfig.MESVersion < new NuGetVersion(11, 1, 2) ? "" : "dist/";
+            var testUtilitiesLocation = ExecutionContext.Instance.ProjectConfig.MESVersion < new NuGetVersion(11, 1, 0) ? "" : "dist/";
 
             using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
 
