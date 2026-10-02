@@ -69,6 +69,8 @@ namespace Cmf.CLI.Commands
     [CmfCommand("init", Id = "init", Description = "Initialize the content of a new repository for your project")]
     public class InitCommand : TemplateCommand
     {
+        private const string DefaultNuGetRegistry = "https://criticalmanufacturing.io/repository/nuget/index.json";
+        private const string DefaultNpmRegistry = "https://criticalmanufacturing.io/repository/npm/";
         private readonly INPMDistTagResolver npmDistTagResolver;
 
         /// <summary>
@@ -139,8 +141,7 @@ namespace Cmf.CLI.Commands
 
             var configOption = new Option<IFileInfo>("--config", "-c")
             {
-                Description = "Configuration file exported from Setup",
-                Required = true,
+                Description = CliMessages.InitConfigDescription,
                 CustomParser = argResult => Parse<IFileInfo>(argResult)
             };
             cmd.Add(configOption);
@@ -156,12 +157,11 @@ namespace Cmf.CLI.Commands
             var repositoryTypeOption = new Option<RepositoryType>("--repositoryType", "-t")
             {
                 Description = "The type of repository we should initialize. Are we customizing MES or creating a new Application?",
-                DefaultValueFactory = _ => CliConstants.DefaultRepositoryType,
-                Required = true
+                DefaultValueFactory = _ => CliConstants.DefaultRepositoryType
             };
             cmd.Add(repositoryTypeOption);
 
-            // template-time options. These are all mandatory
+            // Template-time options
             var baseVersionOption = new Option<string>("--baseVersion", "--MESVersion")
             {
                 Description = "Target CM framework/MES version",
@@ -171,21 +171,24 @@ namespace Cmf.CLI.Commands
 
             var devTasksVersionOption = new Option<string>("--DevTasksVersion")
             {
-                Description = "Critical Manufacturing dev-tasks version.",
+                Description = CliMessages.InitLegacyDevTasksDescription,
+                Hidden = true,
                 Required = false
             };
             cmd.Add(devTasksVersionOption);
 
             var htmlStarterVersionOption = new Option<string>("--HTMLStarterVersion")
             {
-                Description = "HTML Starter version.",
+                Description = CliMessages.InitLegacyHtmlStarterDescription,
+                Hidden = true,
                 Required = false
             };
             cmd.Add(htmlStarterVersionOption);
 
             var yoGeneratorVersionOption = new Option<string>("--yoGeneratorVersion")
             {
-                Description = "@criticalmanufacturing/html Yeoman generator version.",
+                Description = CliMessages.InitLegacyYoGeneratorDescription,
+                Hidden = true,
                 Required = false
             };
             cmd.Add(yoGeneratorVersionOption);
@@ -241,7 +244,7 @@ namespace Cmf.CLI.Commands
 
             var tenantOption = new Option<string>("--tenant")
             {
-                Description = "MES Tenant Name",
+                Description = CliMessages.InitTenantDescription,
                 Required = false
             };
             cmd.Add(tenantOption);
@@ -249,21 +252,21 @@ namespace Cmf.CLI.Commands
             // infra options
             var infrastructureOption = new Option<IFileInfo>("--infrastructure", "--infra")
             {
-                Description = "Infrastructure JSON file",
+                Description = CliMessages.InitInfrastructureDescription,
                 CustomParser = argResult => Parse<IFileInfo>(argResult)
             };
             cmd.Add(infrastructureOption);
 
             var nugetRegistryOption = new Option<Uri>("--nugetRegistry")
             {
-                Description = "NuGet registry that contains the MES packages",
+                Description = string.Format(CliMessages.InitRegistryDescription, "NuGet", DefaultNuGetRegistry),
                 CustomParser = argResult => ParseUri(argResult)
             };
             cmd.Add(nugetRegistryOption);
 
             var npmRegistryOption = new Option<Uri>("--npmRegistry")
             {
-                Description = "NPM registry that contains the MES packages",
+                Description = string.Format(CliMessages.InitRegistryDescription, "NPM", DefaultNpmRegistry),
                 CustomParser = argResult => ParseUri(argResult)
             };
             cmd.Add(npmRegistryOption);
@@ -549,11 +552,9 @@ namespace Cmf.CLI.Commands
                 }
             }
 
-            if (x.nugetRegistry == null ||
-                x.npmRegistry == null)
-            {
-                throw new CliException("Missing infrastructure options. Either specify an infrastructure file with [--infrastructure] or specify each infrastructure option separately.");
-            }
+            // Resolve defaults after the file so precedence is CLI > infrastructure > defaults.
+            x.nugetRegistry ??= new Uri(DefaultNuGetRegistry);
+            x.npmRegistry ??= new Uri(DefaultNpmRegistry);
 
             if (x.nugetRegistry != null)
             {
@@ -604,8 +605,8 @@ namespace Cmf.CLI.Commands
                 args.AddRange(ParseConfigFile(x.config));
             }
 
-            int tenantIndex = args.FindIndex(arg => arg != null && arg.StartsWith("--Tenant"));
-            if (!string.IsNullOrEmpty(x.Tenant))
+            int tenantIndex = args.IndexOf("--Tenant");
+            if (x.Tenant != null)
             {
                 // If the tenant is already in the args list, remove it
                 if (tenantIndex != -1)
@@ -619,9 +620,9 @@ namespace Cmf.CLI.Commands
             }
 
             // If the tenant is not in the args list or the value is null or empty, throw an error
-            if (tenantIndex == -1 || string.IsNullOrEmpty(args[tenantIndex + 1]))
+            if (tenantIndex == -1 || string.IsNullOrWhiteSpace(args[tenantIndex + 1]))
             {
-                throw new CliException("Tenant information is missing. Please provide it either in the config file or through the --tenant option.");
+                throw new CliException(CliMessages.InitMissingTenant);
             }
 
             if (x.appConfig != null)

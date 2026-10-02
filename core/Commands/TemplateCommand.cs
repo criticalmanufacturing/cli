@@ -260,33 +260,12 @@ namespace Cmf.CLI.Core.Commands
             if (configJson != null)
             {
                 // here we retrieve only the entries from config that are actually useful for a template
-                args.AddRange(new string[] { "--EnvironmentName", configJson["Product.SystemName"]?.Value ?? configJson["SYSTEM_NAME"]?.Value });
-                args.AddRange(new string[] { "--RESTPort", configJson["Product.ApplicationServer.Port"]?.Value ?? configJson["APPLICATION_PUBLIC_HTTP_PORT"]?.Value });
-                args.AddRange(new string[] { "--Tenant", configJson["Product.Tenant.Name"]?.Value ?? configJson["TENANT_NAME"]?.Value });
-
-                args.AddRange(new string[] { "--vmHostname", configJson["Product.ApplicationServer.Address"]?.Value ?? configJson["APPLICATION_PUBLIC_HTTP_ADDRESS"]?.Value });
-                args.AddRange(new string[] { "--DBReplica1", configJson["Package[Product.Database.Online].Database.Server"]?.Value ?? configJson["DATABASE_ONLINE_MSSQL_ADDRESS"]?.Value });
-                args.AddRange(new string[] { "--DBReplica2", configJson["Package[Product.Database.Ods].Database.Server"]?.Value ?? configJson["DATABASE_ODS_MSSQL_ADDRESS"]?.Value ?? "" });
-                args.AddRange(new string[] { "--DBServerOnline", configJson["Package[Product.Database.Online].Database.Server"]?.Value ?? configJson["DATABASE_ONLINE_MSSQL_ADDRESS"]?.Value });
-                args.AddRange(new string[] { "--DBServerODS", configJson["Package[Product.Database.Ods].Database.Server"]?.Value ?? configJson["DATABASE_ODS_MSSQL_ADDRESS"]?.Value ?? "" });
-                args.AddRange(new string[] { "--DBServerDWH", configJson["Package[Product.Database.Dwh].Database.Server"]?.Value ?? configJson["DATABASE_DWH_MSSQL_ADDRESS"]?.Value ?? "" });
-                args.AddRange(new string[] { "--ReportServerURI", configJson["Package.ReportingServices.Address"]?.Value ?? configJson["REPORTING_SSRS_WEB_PORTAL_URL"]?.Value ?? "" });
-
-                if (configJson["Packages.Root.TargetDirectory"]?.Value != null)
-                {
-                    args.AddRange(new string[] { "--InstallationPath", configJson["Packages.Root.TargetDirectory"]?.Value });
-                }
-                if (configJson["Product.Database.BackupShare"]?.Value != null)
-                {
-                    args.AddRange(new string[] { "--DBBackupPath", configJson["Product.Database.BackupShare"]?.Value });
-                }
-                if (configJson["Product.DocumentManagement.TemporaryFolder"]?.Value != null)
-                {
-                    args.AddRange(new string[] { "--TemporaryPath", configJson["Product.DocumentManagement.TemporaryFolder"]?.Value });
-                }
-                args.AddRange(new string[] { "--HTMLPort", configJson["Product.Presentation.IisConfiguration.Binding.Port"]?.Value ?? configJson["APPLICATION_PUBLIC_HTTP_PORT"]?.Value });
-
-                args.AddRange(new string[] {"--GatewayPort", configJson["Product.Gateway.Port"]?.Value ?? configJson["APPLICATION_PUBLIC_HTTP_PORT"]?.Value });
+                // Missing optional settings must not produce null template arguments.
+                AddSetting("--EnvironmentName", configJson["Product.SystemName"]?.Value ?? configJson["SYSTEM_NAME"]?.Value);
+                AddSetting("--RESTPort", configJson["Product.ApplicationServer.Port"]?.Value ?? configJson["APPLICATION_PUBLIC_HTTP_PORT"]?.Value);
+                AddSetting("--Tenant", configJson["Product.Tenant.Name"]?.Value ?? configJson["TENANT_NAME"]?.Value);
+                AddSetting("--vmHostname", configJson["Product.ApplicationServer.Address"]?.Value ?? configJson["APPLICATION_PUBLIC_HTTP_ADDRESS"]?.Value);
+                AddSetting("--HTMLPort", configJson["Product.Presentation.IisConfiguration.Binding.Port"]?.Value ?? configJson["APPLICATION_PUBLIC_HTTP_PORT"]?.Value);
 
                 var defaultDomain = configJson["Product.Security.Domain"]?.Value ??
                                     configJson["SECURITY_PORTAL_STRATEGY_LOCAL_AD_DEFAULT_DOMAIN"]?.Value;
@@ -298,6 +277,14 @@ namespace Cmf.CLI.Core.Commands
                 args.AddRange(new string[] {"--ReleaseEnvironmentConfig", configFile.Name});
             } 
             return args;
+
+            void AddSetting(string option, object value)
+            {
+                if (value != null)
+                {
+                    args.AddRange(new[] { option, value.ToString() });
+                }
+            }
         }
 
         /// <summary>
