@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## Unreleased
+
+### Bug Fixes
+
+* **logging:** show stack traces for expected command errors (`CliException`) only with debug logging enabled (`-l debug`). Unexpected exceptions always retain full details. Preserve application error-code and telemetry handling.
+
 ## [6.0.0-14](https://github.com/criticalmanufacturing/cli/compare/6.0.0-12...6.0.0-14) (2026-10-01)
 
 
