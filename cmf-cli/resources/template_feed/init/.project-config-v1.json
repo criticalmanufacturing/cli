@@ -4,36 +4,41 @@
   "BaseLayer": "<%= $CLI_PARAM_BaseLayer %>",
   "NPMRegistry": "<%= $CLI_PARAM_NPMRegistry %>",
   "NuGetRegistry": "<%= $CLI_PARAM_NuGetRegistry %>",
+//#if (EnvironmentName != null && EnvironmentName != "")
   "EnvironmentName": "<%= $CLI_PARAM_EnvironmentName %>",
+//#endif
 //#if (DefaultDomain != null)
   "DefaultDomain": "<%= $CLI_PARAM_DefaultDomain %>",
 //#else
   "DefaultDomain": null,
 //#endif
+//#if (RESTPort != null && RESTPort != "")
   "RESTPort": "<%= $CLI_PARAM_RESTPort %>",
+//#endif
   "Tenant": "<%= $CLI_PARAM_Tenant %>",
   "MESVersion": "<%= $CLI_PARAM_MESVersion %>",
+//#if (DevTasksVersion != null && DevTasksVersion != "")
   "DevTasksVersion": "<%= $CLI_PARAM_DevTasksVersion %>",
+//#endif
+//#if (HTMLStarterVersion != null && HTMLStarterVersion != "")
   "HTMLStarterVersion": "<%= $CLI_PARAM_HTMLStarterVersion %>",
+//#endif
+//#if (yoGeneratorVersion != null && yoGeneratorVersion != "")
   "YoGeneratorVersion": "<%= $CLI_PARAM_YoGeneratorVersion %>",
+//#endif
   "NGXSchematicsVersion": "<%= $CLI_PARAM_NGXSchematicsVersion %>",
   "NugetVersion": "<%= $CLI_PARAM_NugetVersion %>",
   "TestScenariosNugetVersion": "<%= $CLI_PARAM_TestScenariosNugetVersion %>",
   "IsSslEnabled": "<%= $CLI_PARAM_IsSslEnabled %>",
+//#if (vmHostname != null && vmHostname != "")
   "vmHostname": "<%= $CLI_PARAM_vmHostname %>",
-  "DBReplica1": "<%= $CLI_PARAM_DBReplica1 %>",
-  "DBReplica2": "<%= $CLI_PARAM_DBReplica2 %>",
-  "DBServerOnline": "<%= $CLI_PARAM_DBServerOnline %>",
-  "DBServerODS": "<%= $CLI_PARAM_DBServerODS %>",
-  "DBServerDWH": "<%= $CLI_PARAM_DBServerDWH %>",
-  "ReportServerURI": "<%= $CLI_PARAM_ReportServerURI %>",
-  "AlwaysOn": "<%= $CLI_PARAM_AlwaysOn %>",
-  "InstallationPath": "<%= $CLI_PARAM_InstallationPath_JSON %>",
-  "DBBackupPath": "<%= $CLI_PARAM_DBBackupPath %>",
-  "TemporaryPath": "<%= $CLI_PARAM_TemporaryPath %>",
+//#endif
+//#if (HTMLPort != null && HTMLPort != "")
   "HTMLPort": "<%= $CLI_PARAM_HTMLPort %>",
-  "GatewayPort": "<%= $CLI_PARAM_GatewayPort %>",
+//#endif
+//#if (ReleaseEnvironmentConfig != null && ReleaseEnvironmentConfig != "")
   "ReleaseEnvironmentConfig": "<%= $CLI_PARAM_ReleaseEnvironmentConfig %>",
+//#endif
 //#if (AppEnvironmentConfig != null)
   "AppEnvironmentConfig": "<%= $CLI_PARAM_AppEnvironmentConfig %>",
 //#endif

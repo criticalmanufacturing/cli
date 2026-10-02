@@ -10,58 +10,37 @@ The @criticalmanufacturing/cli allows you to create three types of projects:
 1. A custom project for MES v9 or prior versions;
 1. A MES App project.
 
+MES v9 and earlier projects require CM CLI **5.8.0 or earlier**; current CLI versions target MES v10 onwards.
+
 The type of project is defined during the execution of the `cmf init`
 command, depending on the MES version selected and the value of
 `--repositoryType` parameter.
 
 ### Using an Infrastructure Settings File
 
-The examples below assume you're using an infrastructure settings file to store development environment details. Refer to the [infrastructure config file](../../../03-explore/config-files/infrastructure.json/index.md) specification for more information.
+`--infrastructure` (alias `--infra`) is optional. Registry URLs resolve independently in this order: `--npmRegistry` / `--nugetRegistry`, infrastructure file, default. The defaults are `https://criticalmanufacturing.io/repository/npm/` and `https://criticalmanufacturing.io/repository/nuget/index.json`. Existing registry credential options remain supported. Refer to the [infrastructure config file](../../../03-explore/config-files/infrastructure.json/index.md) specification for more information.
+
+`--config` is also optional: `--tenant` allows initialization without JSON files. A configuration file remains useful for full environment setup: MES v10/v11 HTML scaffolding uses its domain and environment settings; test scaffolding uses its hostname and ports. Supplied files are copied unchanged into `EnvironmentConfigs`, including for MES v12.
+
+New configuration files omit unused database server/replica backup paths, AlwaysOn, ReportServer, Installation, Temporary, and Gateway fields. The corresponding model API properties remain available for legacy compatibility.
 
 ## MES v10 onwards
 
 For CM MES v10 and onwards customization projects, the initialization command has the following required parameters:
 
-* Customization Project Name;
-* Customization Project Version;
-* DEV Infrastructure Settings;
-* DEV Environment Settings;
-* CM MES, NuGets, test libraries version (usually the same version);
-* CM MES ISO location;
-* [CM ngx-schematics](https://github.com/criticalmanufacturing/ngx-schematics) library version;
-* Deployment Directory (the base folder for storing project installation packages).
+* Project name and MES version (`--baseVersion`, alias `--MESVersion`);
+* `--tenant`, unless supplied by `--config`;
+* `--ciRepo` and `--releaseRepos`, or the legacy `--deploymentDir` alternative.
+
+The package version defaults to `1.0.0`; `--version` is only needed to override it. `--nugetVersion` and `--testScenariosNugetVersion` default to the MES version. Supply `--ISOLocation` only when required by Windows-hosted MES components.
 
 ```PowerShell
-cmf init {{project_name}} 
-    --version {{my_project_version}} 
-    --infra   {{dev_infra_file_path}} `
-    --config  {{dev_env_file_path}} `
-    --MESVersion {{mes_version}} `
-    --nugetVersion {{mes_version}} `
-    --testScenariosNugetVersion {{mes_version}} `
-    --ISOLocation {{mes_iso_path}} `
-    --ngxSchematicsVersion {{ngx_version}} `
-    --deploymentDir {{deployment_directory_path}}
-```
-
-e.g.:
-
-```PowerShell
-cmf init ExampleProject `
-    --version 1.0.0 `
-    --infra ..\config\infra.json `
-    --config ..\config\ExampleEnvironment.json `
-    --MESVersion 11.0.0 `
-    --nugetVersion 11.0.0 `
-    --testScenariosNugetVersion 11.0.0 `
-    --ISOLocation \\directory\CriticalManufacturing.iso `
-    --ngxSchematicsVersion 11.0.0 `
-    --deploymentDir \\files\Deployments
+cmf init test --tenant test --baseVersion 12.0.0-beta.2 --ciRepo https://dev.criticalmanufacturing.io --releaseRepos https://dev.criticalmanufacturing.io
 ```
 
 ### Determining `ngx-schematics` Version
 
-To determine the correct `ngx-schematics` version for your CM MES release:
+By default, `init` selects the MES dist-tag (`release-<digits>`) for stable releases. For prereleases, it resolves the matching tag (for example, `beta-1200` for `12.0.0-beta.2`) in the configured npm registry and stores the exact ngx-schematics version returned by that tag. Use `--ngxSchematicsVersion` to override this selection and skip the lookup. To inspect a stable release's dist-tag:
 
 1. Construct the MES `dist-tag`:
 
@@ -82,8 +61,6 @@ To determine the correct `ngx-schematics` version for your CM MES release:
     npm view @criticalmanufacturing/ngx-schematics@${dist_tag} version
     ```
 
-    Replace `${dist_tag}` .
-
 Per example, for MES version `10.2.5`:
 
 * Use the MES dist-tag: `release-1025`
@@ -103,7 +80,7 @@ Per example, for MES version `10.2.5`:
 ## MES v9 or below
 
 For CM MES v9 or prior MES versions customization projects,
-the initialization command has the following required parameters:
+use CM CLI **5.8.0 or earlier**. The following legacy examples and compatibility matrix apply to those CLI versions:
 
 * Customization Project Name;
 * Customization Project Version;
@@ -191,26 +168,19 @@ To create an App, you must specify the following additional parameters on the `c
   * Application ID;
   * Application Author;
   * Application Description;
-  * Application MES Target Framework;
   * Application Licensed Name;
   * Repository Type argument must be set to App.
 
 ``` powershell
 cmf init {{project_name}} `
-    --version {{my_project_version}} ` 
-    --infra   {{dev_infra_file_path}} `
-    --config  {{dev_env_file_path}} `
-    --MESVersion {{mes_version}} `
-    --nugetVersion {{mes_version}} `
-    --testScenariosNugetVersion {{mes_version}} `
-    --ISOLocation {{mes_iso_path}} `
-    --ngxSchematicsVersion {{ngx_version}} `
-    --deploymentDir {{deployment_directory_path}} `
+    --tenant {{tenant}} `
+    --baseVersion {{mes_version}} `
+    --ciRepo {{ci_repository_url}} `
+    --releaseRepos {{release_repository_url}} `
     --appName {{app_name}} `
     --appId {{app_id}} `
     --appAuthor {{app_author}} `
     --appDescription {{app_description}} `
-    --appTargetFramework {{app_mes_target_framework}} `
     --appLicensedApplication {{app_licensed_application_name}} `
     --repositoryType "App"
 ```
@@ -219,19 +189,14 @@ e.g.:
 
 ``` powershell
 cmf init ExampleProject `
-    --version 1.0.0 `
-    --infra ..\config\infra.json `
-    --config ..\config\ExampleEnvironment.json `
-    --MESVersion 11.0.0 `
-    --ngxSchematicsVersion 11.0.0 `
-    --nugetVersion 11.0.0 `
-    --testScenariosNugetVersion 11.0.0 `
-    --deploymentDir \\directory\Deployments `
+    --tenant test `
+    --baseVersion 11.0.0 `
+    --ciRepo https://dev.criticalmanufacturing.io `
+    --releaseRepos https://dev.criticalmanufacturing.io `
     --appName "My App" `
     --appId "MyApp" `
     --appAuthor "Critical Manufacturing" `
     --appDescription "My First App" `
-    --appTargetFramework 11.0.0 `
     --appLicensedApplication "My App" `
     --repositoryType "App"
 ```
