@@ -116,6 +116,13 @@
     "isSystemRequestReplyTaskBase": {
       "type": "computed",
       "value": "(taskBase == \"SystemRequestReplyTaskBase\")"
+    },
+    "testUtilitiesLocation": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "Test Utilities Location",
+      "displayName": "Test Utilities Location",
+      "replaces": "<%= $CLI_PARAM_TestUtilitiesLocation %>"
     }
   }
 }

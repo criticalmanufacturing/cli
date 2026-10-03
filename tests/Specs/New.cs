@@ -661,11 +661,13 @@ namespace tests.Specs
         }
 
         [Theory, Trait("TestCategory", "Integration")]
-        [InlineData("11.2.0", "testName", false)]
-        [InlineData("11.3.0", "", false)]
-        [InlineData("12.0.0", "", false)]
-        [InlineData("12.0.0", "testWithParameters", true)]
-        public void IoTConverter(string mesVersion, string converterName, bool requireParameters)
+        [InlineData("11.0.0", "", false, "")]
+        [InlineData("11.1.0", "", false, "dist/")]
+        [InlineData("11.2.0", "testName", false, "dist/")]
+        [InlineData("11.3.0", "", false, "dist/")]
+        [InlineData("12.0.0", "", false, "dist/")]
+        [InlineData("12.0.0", "testWithParameters", true, "dist/")]
+        public void IoTConverter(string mesVersion, string converterName, bool requireParameters, string expectedTestUtilitiesLocation)
         {
             string dir = TestUtilities.GetTmpDirectory();
             string packageId = "Cmf.Custom.IoT";
@@ -724,6 +726,10 @@ namespace tests.Specs
                 {
                     File.ReadAllText(Path.GetFullPath($"src/converters/{effectiveConverterName}/{effectiveConverterName}.converter.ts")).Should().Contain("parameters: {}");
                 }
+
+                var converterTestFile = Path.GetFullPath($"test/unit/converters/{effectiveConverterName}/{effectiveConverterName}.converter.test.ts");
+                File.Exists(converterTestFile).Should().BeTrue();
+                File.ReadAllText(converterTestFile).Should().Contain($"import EngineTestSuite from \"@criticalmanufacturing/connect-iot-controller-engine/{expectedTestUtilitiesLocation}test\";");
             }
             finally
             {
@@ -733,16 +739,20 @@ namespace tests.Specs
         }
 
         [Theory, Trait("TestCategory", "Integration")]
-        [InlineData("11.1.6", null)]
-        [InlineData("12.0.0", "TaskBase")]
-        [InlineData("12.0.0", "AutoActivatedTaskBase")]
-        [InlineData("12.0.0", "DriverTriggeredTaskBase")]
-        [InlineData("12.0.0", "RequestReplyAnswerTaskBase")]
-        [InlineData("12.0.0", "RequestReplyListenerTaskBase")]
-        [InlineData("12.0.0", "SystemOperationTaskBase")]
-        [InlineData("12.0.0", "SystemRequestListenerTaskBase")]
-        [InlineData("12.0.0", "SystemRequestReplyTaskBase")]
-        public void IoTTask(string mesVersion, string taskBaseClass)
+        [InlineData("11.0.0", null, "")]
+        [InlineData("11.0.0", null, "", true)]
+        [InlineData("11.1.0", null, "dist/")]
+        [InlineData("11.1.6", null, "dist/")]
+        [InlineData("12.0.0", "TaskBase", "dist/")]
+        [InlineData("12.0.0", "TaskBase", "dist/", true)]
+        [InlineData("12.0.0", "AutoActivatedTaskBase", "dist/")]
+        [InlineData("12.0.0", "DriverTriggeredTaskBase", "dist/")]
+        [InlineData("12.0.0", "RequestReplyAnswerTaskBase", "dist/")]
+        [InlineData("12.0.0", "RequestReplyListenerTaskBase", "dist/")]
+        [InlineData("12.0.0", "SystemOperationTaskBase", "dist/")]
+        [InlineData("12.0.0", "SystemRequestListenerTaskBase", "dist/")]
+        [InlineData("12.0.0", "SystemRequestReplyTaskBase", "dist/")]
+        public void IoTTask(string mesVersion, string taskBaseClass, string expectedTestUtilitiesLocation, bool isProtocol = false)
         {
             string dir = TestUtilities.GetTmpDirectory();
             string packageId = "Cmf.Custom.IoT";
@@ -790,7 +800,11 @@ namespace tests.Specs
                 consoleTask.Input.PushTextWithEnter(""); // task name: blackBox (default)
                 consoleTask.Input.PushTextWithEnter(""); // task title: Black Box (default)
                 consoleTask.Input.PushTextWithEnter(""); // icon class name (default)
-                consoleTask.Input.PushTextWithEnter(""); // isProtocol: No (default false)
+                consoleTask.Input.PushTextWithEnter(isProtocol ? "y" : ""); // isProtocol (default No)
+                if (isProtocol)
+                {
+                    consoleTask.Input.PushTextWithEnter(""); // isController: Yes (default true)
+                }
                 consoleTask.Input.PushTextWithEnter(""); // lifecycle: Productive (first selection prompt option)
                 // dependsOnProtocol is skipped: task library has no protocols (empty list from library setup)
                 consoleTask.Input.PushTextWithEnter(""); // dependsOnScope MultiSelect (library has ["ConnectIoT"]): no selection + confirm
@@ -890,6 +904,21 @@ namespace tests.Specs
 
                 // Task template JSON created
                 File.Exists(Path.GetFullPath($"templates/task_{taskName}.json")).Should().BeTrue("Task template JSON should be created");
+
+                // Test file imports the engine test utilities from the location matching the MES version
+                var taskTestFile = Path.GetFullPath($"test/unit/tasks/{taskName}/{taskName}.task.test.ts");
+                File.Exists(taskTestFile).Should().BeTrue("Task test file should be generated");
+                var taskTest = File.ReadAllText(taskTestFile);
+                taskTest.Should().Contain($"import EngineTestSuite from \"@criticalmanufacturing/connect-iot-controller-engine/{expectedTestUtilitiesLocation}test\";");
+
+                if (isProtocol)
+                {
+                    taskTest.Should().Contain($"import {{ DriverProxyMock }} from \"@criticalmanufacturing/connect-iot-controller-engine/{expectedTestUtilitiesLocation}test/mocks/driver-proxy.mock\";");
+                }
+                else
+                {
+                    taskTest.Should().NotContain("DriverProxyMock");
+                }
             }
             finally
             {
