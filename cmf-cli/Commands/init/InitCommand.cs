@@ -69,6 +69,8 @@ namespace Cmf.CLI.Commands
     [CmfCommand("init", Id = "init", Description = "Initialize the content of a new repository for your project")]
     public class InitCommand : TemplateCommand
     {
+        private readonly INPMDistTagResolver npmDistTagResolver;
+
         /// <summary>
         /// constructor
         /// </summary>
@@ -82,6 +84,14 @@ namespace Cmf.CLI.Commands
         /// <param name="fileSystem"></param>
         public InitCommand(IFileSystem fileSystem) : base("init", fileSystem)
         {
+        }
+
+        /// <summary>Creates the command with an npm dist-tag resolver.</summary>
+        /// <param name="fileSystem">The file system abstraction.</param>
+        /// <param name="npmDistTagResolver">The client used to resolve prerelease ngx-schematics tags.</param>
+        public InitCommand(IFileSystem fileSystem, INPMDistTagResolver npmDistTagResolver) : base("init", fileSystem)
+        {
+            this.npmDistTagResolver = npmDistTagResolver;
         }
 
         /// <summary>
@@ -514,16 +524,6 @@ namespace Cmf.CLI.Commands
             args.AddRange(new [] {"--HTMLStarterVersion", x.HTMLStarterVersion ?? ""});
             args.AddRange(new [] {"--yoGeneratorVersion", x.yoGeneratorVersion ?? ""});
 
-            if (string.IsNullOrWhiteSpace(x.ngxSchematicsVersion))
-            {
-                var mesVer = NuGetVersion.Parse(x.BaseVersion);
-                x.ngxSchematicsVersion = GenericUtilities.GetNpmDistTag(mesVer);
-            }
-
-            Log.Information($"Using ngx-schematics version: {x.ngxSchematicsVersion}");
-
-            args.AddRange(new [] {"--ngxSchematicsVersion", x.ngxSchematicsVersion});
-
             args.AddRange(new [] {"--nugetVersion", x.nugetVersion});
             
             args.AddRange(new [] {"--testScenariosNugetVersion", x.testScenariosNugetVersion});
@@ -576,9 +576,18 @@ namespace Cmf.CLI.Commands
                 args.AddRange(new[] { "--nugetRegistryPassword", x.nugetRegistryPassword });
             }          
 
-            #endregion           
+            #endregion
 
             #region version-specific bits
+
+            if (string.IsNullOrWhiteSpace(x.ngxSchematicsVersion))
+            {
+                var mesVer = NuGetVersion.Parse(x.BaseVersion);
+                x.ngxSchematicsVersion = GenericUtilities.GetNgxSchematicsVersion(mesVer, x.npmRegistry.AbsoluteUri, this.npmDistTagResolver);
+            }
+
+            Log.Information($"Using ngx-schematics version: {x.ngxSchematicsVersion}");
+            args.AddRange(new [] {"--ngxSchematicsVersion", x.ngxSchematicsVersion});
 
             var version = new NuGetVersion(x.BaseVersion);
             args.AddRange(new []{ "--dotnetSDKVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().DotNetSdk(version) });

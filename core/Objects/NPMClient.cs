@@ -46,6 +46,18 @@ namespace Cmf.CLI.Core.Objects
         IPackage[] FindPlugins(Uri[] registries);
     }
 
+    /// <summary>
+    /// Resolves npm distribution tags to exact package versions.
+    /// </summary>
+    public interface INPMDistTagResolver
+    {
+        /// <summary>Gets the package version referenced by a distribution tag.</summary>
+        /// <param name="packageName">The npm package name.</param>
+        /// <param name="distTag">The distribution tag to resolve.</param>
+        /// <returns>The exact package version referenced by the tag.</returns>
+        Task<string> ResolveDistTag(string packageName, string distTag);
+    }
+
     public interface INPMClientEx : INPMClient
     {
         Task<List<string>> SearchPackages(string query);
@@ -76,7 +88,7 @@ namespace Cmf.CLI.Core.Objects
     /// <summary>
     /// A live implementation of the NPM Registry client
     /// </summary>
-    public class NPMClient : INPMClientEx
+    public class NPMClient : INPMClientEx, INPMDistTagResolver
     {
         private readonly HttpClient client;
         private readonly string baseUrl;
@@ -198,6 +210,23 @@ namespace Cmf.CLI.Core.Objects
             return searchResult.Objects.Select(package => package.Package.Name).ToList();
         }
         
+        /// <inheritdoc />
+        public async Task<string> ResolveDistTag(string packageName, string distTag)
+        {
+            using var response = await this.client.GetAsync($"{this.baseUrl}/{packageName}").ConfigureAwait(false);
+            response.EnsureSuccessStatusCode();
+            var body = await response.Content.ReadFromJsonAsync<JsonElement>().ConfigureAwait(false);
+            if (!body.TryGetProperty("dist-tags", out var tags) ||
+                !tags.TryGetProperty(distTag, out var version) ||
+                version.ValueKind != JsonValueKind.String ||
+                string.IsNullOrWhiteSpace(version.GetString()))
+            {
+                throw new CliException($"Could not resolve npm dist-tag '{distTag}' for {packageName} from {this.baseUrl}.");
+            }
+
+            return version.GetString();
+        }
+
         public async Task<NpmPackageVersion> FetchPackageInfo(string packageName, string version)
         {
             var client = this.client;

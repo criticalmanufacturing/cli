@@ -68,6 +68,14 @@ To determine the correct `ngx-schematics` version for your CM MES release:
     * ***Format:*** `release-{{MES_VERSION}}` 
     * ***`{{MES_VERSION}}`:*** Concatenation of MES major, minor, and patch versions without separators.
 
+    For prerelease MES versions, use the first prerelease label instead of `release`:
+    `12.0.0-beta.2` maps to `beta-1200`. During `cmf init`, when no explicit
+    `ngxSchematicsVersion` is supplied, the CLI queries the configured npm registry for
+    `@criticalmanufacturing/ngx-schematics` and saves the exact version referenced by that
+    tag in `.project-config.json`. Stable versions continue to save the
+    `release-{{MES_VERSION}}` tag without this lookup. Subsequent HTML, Help, and IoT
+    commands use `NGXSchematicsVersion` from the project configuration without resolving it again.
+
 2. Use the `npm view` command (Replace `${dist_tag}` by the proper value):
 
     ```bash

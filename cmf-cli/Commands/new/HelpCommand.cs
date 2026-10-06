@@ -99,11 +99,7 @@ namespace Cmf.CLI.Commands.New
         public void Execute(IDirectoryInfo workingDir, string version)
         {
             int majorVersion = ExecutionContext.Instance.ProjectConfig.MESVersion.Major;
-            var ngxSchematicsVersion = ExecutionContext.Instance.ProjectConfig.NGXSchematicsVersion;
-
-            var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
-
-            this.schematicsVersion = !string.IsNullOrEmpty(ngxSchematicsVersion?.ToString()) ? ngxSchematicsVersion.ToString() : GenericUtilities.GetNpmDistTag(mesVersion);
+            this.schematicsVersion = ExecutionContext.Instance.ProjectConfig.NGXSchematicsVersion;
 
             // Switch between version templates
             // Default case is v12 so it supports v12+

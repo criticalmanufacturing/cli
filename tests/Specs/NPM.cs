@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Core.Repository.Credentials;
+using Cmf.CLI.Utilities;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
@@ -22,6 +23,60 @@ namespace tests.Specs;
 
 public class NPM
 {
+    [Fact]
+    public async Task ResolveDistTag_ReturnsExactVersionFromConfiguredRegistry()
+    {
+        Setup();
+        var handler = new Mock<HttpMessageHandler>();
+        handler.Protected().Setup<Task<HttpResponseMessage>>("SendAsync",
+                ItExpr.Is<HttpRequestMessage>(request => request.RequestUri.ToString() == "https://registry.example/npm/@criticalmanufacturing/ngx-schematics"),
+                ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage(System.Net.HttpStatusCode.OK)
+            {
+                Content = new StringContent("{\"dist-tags\":{\"beta-1200\":\"12.0.0-beta.99\"}}", Encoding.UTF8, "application/json")
+            });
+        var client = new NPMClient("https://registry.example/npm/", new HttpClient(handler.Object));
+
+        var result = await client.ResolveDistTag("@criticalmanufacturing/ngx-schematics", "beta-1200");
+
+        result.Should().Be("12.0.0-beta.99");
+        handler.VerifyAll();
+    }
+
+    [Theory]
+    [InlineData("{\"dist-tags\":{}}")]
+    [InlineData("{}")]
+    [InlineData("{\"dist-tags\":{\"beta-1200\":\"\"}}")]
+    public async Task ResolveDistTag_MissingTag_Throws(string responseBody)
+    {
+        Setup();
+        var handler = new Mock<HttpMessageHandler>();
+        handler.Protected().Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage(System.Net.HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseBody, Encoding.UTF8, "application/json")
+            });
+        var client = new NPMClient("https://registry.example", new HttpClient(handler.Object));
+
+        Func<Task> resolve = () => client.ResolveDistTag("@criticalmanufacturing/ngx-schematics", "beta-1200");
+
+        await resolve.Should().ThrowAsync<CliException>().WithMessage("*beta-1200*ngx-schematics*");
+    }
+
+    [Fact]
+    public async Task ResolveDistTag_RegistryError_Throws()
+    {
+        Setup();
+        var handler = new Mock<HttpMessageHandler>();
+        handler.Protected().Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage(System.Net.HttpStatusCode.Unauthorized));
+        var client = new NPMClient("https://registry.example", new HttpClient(handler.Object));
+
+        Func<Task> resolve = () => client.ResolveDistTag("@criticalmanufacturing/ngx-schematics", "beta-1200");
+
+        await resolve.Should().ThrowAsync<HttpRequestException>();
+    }
+
     protected void Setup()
     {
         var repositoryAuthStoreMock = new Mock<IRepositoryAuthStore>();

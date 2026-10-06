@@ -177,8 +177,7 @@ namespace Cmf.CLI.Commands.New
             }
             
             var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
-            var ngxSchematicsVersion = ExecutionContext.Instance.ProjectConfig.NGXSchematicsVersion;
-            var schematicsVersion = !string.IsNullOrEmpty(ngxSchematicsVersion?.ToString()) ? ngxSchematicsVersion.ToString() : GenericUtilities.GetNpmDistTag(mesVersion);
+            var schematicsVersion = ExecutionContext.Instance.ProjectConfig.NGXSchematicsVersion;
 
             IDirectoryInfo htmlPackageDir = fileSystem.DirectoryInfo.New(htmlPackageLocation);
 

@@ -337,6 +337,7 @@ namespace tests.Specs
 
         [Theory, Trait("TestCategory", "Integration")]
         [InlineData("12.0.0")]
+        [InlineData("12.0.0-beta.2")]
         public void Help_v12(string mesVersion)
         {
             var root = MockUnixSupport.Path(@"c:\test");

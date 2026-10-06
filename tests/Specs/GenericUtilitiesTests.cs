@@ -1,7 +1,9 @@
 using System;
+using System.Threading.Tasks;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 using FluentAssertions;
+using Moq;
 using NuGet.Versioning;
 using Xunit;
 
@@ -91,9 +93,10 @@ namespace tests.Specs
         [Theory]
         [InlineData("12.0.0", "release-1200")]
         [InlineData("11.1.5", "release-1115")]
-        [InlineData("12.0.0-alpha.1", "12.0.0-alpha.1")]
-        [InlineData("12.0.0-next.2", "12.0.0-next.2")]
-        [InlineData("11.1.5-beta.2", "11.1.5-beta.2")]
+        [InlineData("12.0.0-alpha.1", "alpha-1200")]
+        [InlineData("12.0.0-next.2", "next-1200")]
+        [InlineData("11.1.5-beta.2", "beta-1115")]
+        [InlineData("11.1.5-rc.2+build.123", "rc-1115")]
         public void GetNpmDistTag_NuGetVersion_ComputesExpectedDistTag(string version, string expectedDistTag)
         {
             var nuGetVersion = NuGetVersion.Parse(version);
@@ -112,17 +115,17 @@ namespace tests.Specs
         }
 
         [Fact]
-        public void GetNpmDistTag_PreReleaseVersion_ShouldUseOriginalVersion()
+        public void GetNpmDistTag_PreReleaseVersion_ShouldUsePrereleaseDistTag()
         {
-            // Prerelease MES versions use the exact version string instead of a dist-tag.
+            // Prerelease MES versions map to the corresponding prerelease npm dist-tag.
             var result = GenericUtilities.GetNpmDistTag(NuGetVersion.Parse("12.0.0-beta.2"));
 
-            result.Should().Be("12.0.0-beta.2");
+            result.Should().Be("beta-1200");
         }
 
         [Theory]
         [InlineData("12.0.0", "release-1200")]
-        [InlineData("12.0.0-beta.2", "12.0.0-beta.2")]
+        [InlineData("12.0.0-beta.2", "beta-1200")]
         public void GetNpmDistTag_NuGetVersion_UsesSemVerAwareDistTag(string version, string expectedDistTag)
         {
             var mesVersion = NuGetVersion.Parse(version);
@@ -143,6 +146,48 @@ namespace tests.Specs
             var rightVersion = new NuGetVersion(right);
 
             (leftVersion < rightVersion).Should().Be(leftIsLessThanRight);
+        }
+
+        [Theory]
+        [InlineData("12.0.0-alpha.1", "alpha-1200")]
+        [InlineData("12.0.0-beta.2", "beta-1200")]
+        [InlineData("12.0.0-next.2", "next-1200")]
+        [InlineData("11.1.5-rc.2+build.123", "rc-1115")]
+        public void GetNgxSchematicsVersion_Prerelease_UsesVersionFromRegistry(string version, string distTag)
+        {
+            var resolver = new Mock<INPMDistTagResolver>(MockBehavior.Strict);
+            resolver.Setup(x => x.ResolveDistTag("@criticalmanufacturing/ngx-schematics", distTag))
+                .ReturnsAsync("12.0.0-beta.99");
+
+            var result = GenericUtilities.GetNgxSchematicsVersion(NuGetVersion.Parse(version), "https://registry.example", resolver.Object);
+
+            result.Should().Be("12.0.0-beta.99");
+            resolver.VerifyAll();
+        }
+
+        [Theory]
+        [InlineData("12.0.0", "release-1200")]
+        [InlineData("11.1.5", "release-1115")]
+        public void GetNgxSchematicsVersion_Stable_DoesNotQueryRegistry(string version, string expectedTag)
+        {
+            var resolver = new Mock<INPMDistTagResolver>(MockBehavior.Strict);
+
+            var result = GenericUtilities.GetNgxSchematicsVersion(NuGetVersion.Parse(version), null, resolver.Object);
+
+            result.Should().Be(expectedTag);
+            resolver.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public void GetNgxSchematicsVersion_RegistryFailure_DoesNotFallBackToInputVersion()
+        {
+            var resolver = new Mock<INPMDistTagResolver>();
+            resolver.Setup(x => x.ResolveDistTag(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(Task.FromException<string>(new InvalidOperationException("Registry unavailable")));
+
+            Action resolve = () => GenericUtilities.GetNgxSchematicsVersion(NuGetVersion.Parse("12.0.0-beta.2"), "https://registry.example", resolver.Object);
+
+            resolve.Should().Throw<InvalidOperationException>().WithMessage("Registry unavailable");
         }
     }
 }
