@@ -477,8 +477,8 @@ namespace tests.Specs
             rootPackage.GetProperty("description").GetString().Should().Be($"Cmf Custom {tenant} {packageId} Package");
 
             var dependencies = rootPackage.GetProperty("dependencies").EnumerateArray().ToDictionary(dependency => dependency.GetProperty("id").GetString());
-            dependencies["Cmf.Environment"].GetProperty("version").GetString().Should().Be(mesVersion);
-            dependencies["CriticalManufacturing.DeploymentMetadata"].GetProperty("version").GetString().Should().Be(mesVersion);
+            dependencies.Should().NotContainKey("Cmf.Environment");
+            dependencies.Should().NotContainKey("CriticalManufacturing.DeploymentMetadata");
             dependencies[packageIdPackages].GetProperty("version").GetString().Should().Be(packageVersion);
             dependencies[packageIdData].GetProperty("version").GetString().Should().Be(packageVersion);
 
