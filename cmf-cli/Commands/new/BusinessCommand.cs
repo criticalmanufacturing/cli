@@ -113,18 +113,11 @@ namespace Cmf.CLI.Commands.New
                         workingDir.FullName,
                         this.fileSystem.Path.Join(projectRoot.FullName, "LocalEnvironment"))
                 );
-            var relativePathToDeploymentMetadata =
-                this.fileSystem.Path.Join("..", //always one levels deep, this is the depth of the business solution cmfpackage.json
-                    this.fileSystem.Path.GetRelativePath(
-                        workingDir.FullName,
-                        this.fileSystem.Path.Join(projectRoot.FullName, "DeploymentMetadata"))
-                ).Replace("\\", "/");
 
             args.AddRange(new []
             {
                 "--MESVersion", mesVersion.ToString(),
                 "--localEnvRelativePath", relativePathToLocalEnv,
-                "--deploymentMetadataRelativePath", relativePathToDeploymentMetadata,
                 "--includeMESNugets", includeMESNugets.ToString()
             });
             return args;
