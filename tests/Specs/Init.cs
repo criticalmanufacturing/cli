@@ -236,13 +236,14 @@ namespace tests.Specs
             }
         }
 
-        [Fact]
-        public void Init_NgxSchematicsVersionUsesProvidedValueOverDefault()
+        [Theory]
+        [InlineData("11.1.5")]
+        [InlineData("11.1.5-beta.2")]
+        public void Init_NgxSchematicsVersionUsesProvidedValueOverDefault(string mesVersion)
         {
             var tmp = TestUtilities.GetTmpDirectory();
             var projectName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
             var deploymentDir = "\\\\share\\deployment_dir";
-            var mesVersion = "11.1.5";
             var customSchematicsVersion = "my-custom-schematics-tag";
 
             var cur = Directory.GetCurrentDirectory();
@@ -280,13 +281,17 @@ namespace tests.Specs
         }
 
         [Theory]
-        [InlineData("12.0.0-alpha.1", "12.0.0-alpha.1")]
-        [InlineData("11.1.5-beta.2", "11.1.5-beta.2")]
-        public void Init_PreReleaseMESVersion_Succeeds(string mesVersion, string expectedNgxSchematicsVersion)
+        [InlineData("12.0.0-alpha.1", "alpha-1200", "12.0.0-alpha.99")]
+        [InlineData("11.1.5-beta.2", "beta-1115", "11.1.5-beta.99")]
+        public void Init_PreReleaseMESVersion_Succeeds(string mesVersion, string distTag, string expectedNgxSchematicsVersion)
         {
             var tmp = TestUtilities.GetTmpDirectory();
             var projectName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
             var deploymentDir = "\\\\share\\deployment_dir";
+
+            var resolver = new Mock<INPMDistTagResolver>(MockBehavior.Strict);
+            resolver.Setup(x => x.ResolveDistTag("@criticalmanufacturing/ngx-schematics", distTag))
+                .ReturnsAsync(expectedNgxSchematicsVersion);
 
             var cur = Directory.GetCurrentDirectory();
             try
@@ -294,7 +299,7 @@ namespace tests.Specs
                 var console = new TestConsole();
                 Directory.SetCurrentDirectory(tmp);
 
-                var initCommand = new InitCommand();
+                var initCommand = new InitCommand(new System.IO.Abstractions.FileSystem(), resolver.Object);
                 var cmd = new Command("x");
                 initCommand.Configure(cmd);
 
@@ -315,7 +320,8 @@ namespace tests.Specs
                 projectConfig.Should().Contain($@"""MESVersion"": ""{mesVersion}""", "MESVersion should retain the original pre-release string");
                 projectConfig.Should().Contain($@"""NugetVersion"": ""{mesVersion}""", "NugetVersion should default to the MES version");
                 projectConfig.Should().Contain($@"""TestScenariosNugetVersion"": ""{mesVersion}""", "TestScenariosNugetVersion should default to the MES version");
-                projectConfig.Should().Contain($@"""NGXSchematicsVersion"": ""{expectedNgxSchematicsVersion}""", "NGXSchematicsVersion should be the original pre-release MES version");
+                projectConfig.Should().Contain($@"""NGXSchematicsVersion"": ""{expectedNgxSchematicsVersion}""", "NGXSchematicsVersion should be resolved from the registry dist-tag");
+                resolver.VerifyAll();
                 if (mesVersion.StartsWith("12."))
                 {
                     projectConfig.Should().NotContain(@"""EnvironmentName""", "MES 12+ project configs should use V2");

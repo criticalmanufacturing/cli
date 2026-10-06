@@ -80,7 +80,7 @@ namespace Cmf.CLI.Commands.New
         public void Execute(IDirectoryInfo workingDir, string version)
         {
             CommandUtilities.ThrowIfNoProjectConfig(ExecutionContext.Instance);
-            var ngxSchematicsVersion = ExecutionContext.Instance.ProjectConfig.NGXSchematicsVersion;
+            var schematicsVersion = ExecutionContext.Instance.ProjectConfig.NGXSchematicsVersion;
 
             var baseLayer = ExecutionContext.Instance.ProjectConfig.BaseLayer ?? CliConstants.DefaultBaseLayer;
             this.baseWebPackage = baseLayer == BaseLayer.MES
@@ -98,8 +98,6 @@ namespace Cmf.CLI.Commands.New
             string ngCliCommand = $"@angular/cli@{ngCliVersion.Major}";
             var packageName = base.GeneratePackageName(workingDir)!.Value.Item1;
             var packageDir = workingDir.GetDirectories(packageName).First();
-
-            var schematicsVersion = !string.IsNullOrEmpty(ngxSchematicsVersion?.ToString()) ? ngxSchematicsVersion.ToString() : GenericUtilities.GetNpmDistTag(mesVersion);
 
             //After v11 we use Angular default routing
             var routing = mesVersion.Major >= 11 ? "true" : "false";
