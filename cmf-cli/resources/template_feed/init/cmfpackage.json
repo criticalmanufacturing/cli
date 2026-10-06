@@ -5,19 +5,5 @@
   "packageType": "Root",
   "isInstallable": true,
   "isUniqueInstall": false,
-  "dependencies": [
-    {
-      "id": "Cmf.Environment",
-      "version": "<%= $CLI_PARAM_MESVersion %>",
-      "mandatory": false
-    } 
-//#if (repositoryType == "Customization") {
-    ,
-    {
-      "id": "CriticalManufacturing.DeploymentMetadata",
-      "version": "<%= $CLI_PARAM_MESVersion %>",
-      "mandatory": false
-    }
-//#endif
-  ]
+  "dependencies": []
 }

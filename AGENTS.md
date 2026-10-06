@@ -35,7 +35,7 @@ Host machines usually have no SDKs/tooling (dotnet, node, npm, gh); they live in
 ## Tests / docs conventions
 
 - Stack is **xunit** + FluentAssertions + Moq + `Spectre.Console.Testing` (not MSTest). Specs in `tests/Specs/`, fixtures in `tests/Fixtures/`.
-- Docs are MkDocs under `docs/src/` (`01-install`, `02-learn`, `03-explore`). Update docs + `CHANGES.md` when adding/changing commands, options, config files, or plugin behavior. `docs/gen-cmds.js` regenerates command pages from `cmf -h` output — don't hand-edit the `<!-- BEGIN USAGE -->` blocks.
+- Docs are MkDocs under `docs/src/` (`01-install`, `02-learn`, `03-explore`). Update docs when adding/changing commands, options, config files, or plugin behavior. Do not edit `CHANGES.md`; it is updated by the version bump process. `docs/gen-cmds.js` regenerates command pages from `cmf -h` output — don't hand-edit the `<!-- BEGIN USAGE -->` blocks.
 
 ## Commits / releases
 

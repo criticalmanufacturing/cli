@@ -1052,7 +1052,7 @@ namespace tests.Specs
         }
 
         [Fact]
-        public void Root_WithoutMandatoryDependencies()
+        public void Root_WithoutEnvironmentDependencies()
         {
             KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.1.0");
             KeyValuePair<string, string> packageDep1 = new("Cmf.Custom.Business", "1.1.0");
@@ -1079,18 +1079,13 @@ namespace tests.Specs
             ExecutionContext.Initialize(fileSystem);
             IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"repo/{CliConstants.CmfPackageFileName}");
 
-            string message = string.Empty;
-            try
-            {
-                var packCommand = new PackCommand(fileSystem);
-                packCommand.Execute(cmfpackageFile.Directory, fileSystem.DirectoryInfo.New("output"), false);
-            }
-            catch (Exception ex)
-            {
-                message = ex.Message;
-            }
+            var packCommand = new PackCommand(fileSystem);
+            packCommand.Execute(cmfpackageFile.Directory, fileSystem.DirectoryInfo.New("output"), false);
 
-            Assert.Equal("Mandatory Dependency criticalmanufacturing.deploymentmetadata and cmf.environment. not found", message);
+            var archive = fileSystem.FileInfo.New($"output/{packageRoot.Key}.{packageRoot.Value}.zip");
+            archive.Exists.Should().BeTrue("root environment dependencies are no longer required in the source package");
+            var manifest = FileSystemUtilities.GetManifestFromPackage(archive.FullName, fileSystem);
+            manifest.Descendants("dependency").Should().ContainSingle(d => (string)d.Attribute("id") == packageDep1.Key);
         }
 
         [Fact]

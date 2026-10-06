@@ -150,9 +150,9 @@ namespace tests.Specs
                 File.ReadAllText(Path.Join(tmp, ".project-config.json"))
                     .Should().Contain(@"""BaseLayer"": ""MES""", "Base Layer should be MES");
                 File.ReadAllText(Path.Join(tmp, "cmfpackage.json"))
-                    .Should().Contain(@"CriticalManufacturing.DeploymentMetadata", "VM Dependency should be included in root package");
+                    .Should().NotContain(@"CriticalManufacturing.DeploymentMetadata", "VM Dependency is added during packing");
                 File.ReadAllText(Path.Join(tmp, "cmfpackage.json"))
-                    .Should().Contain(@"Cmf.Environment", "Container Dependency should be included in root package");
+                    .Should().NotContain(@"Cmf.Environment", "Container Dependency is added during packing");
                 File.ReadAllText(Path.Join(tmp, "global.json"))
                     .Should().Contain(dotnetSDKVersion, "wrong .NET SDK version");
             }
