@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [6.0.0-17](https://github.com/criticalmanufacturing/cli/compare/6.0.0-15...6.0.0-17) (2026-10-06)
+
+
+### Features
+
+* **init:** simplify project initialization inputs ([bc1cd39](https://github.com/criticalmanufacturing/cli/commit/bc1cd39da605f2aca90d6fa50575545141343918))
+
+
+### Bug Fixes
+
+* **logging:** show expected error stack traces only in debug mode ([5bb9871](https://github.com/criticalmanufacturing/cli/commit/5bb98711412e6231a6cadf2e9c9b162b03f9496c))
+* resolve ngx-schematics prereleases during initialization ([d957c54](https://github.com/criticalmanufacturing/cli/commit/d957c54fa5d81290d7bf5312e4c217c985610b8c))
+
 ## [6.0.0-16](https://github.com/criticalmanufacturing/cli/compare/6.0.0-15...6.0.0-16) (2026-10-06)
 
 
