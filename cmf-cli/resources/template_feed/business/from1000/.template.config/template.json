@@ -5,7 +5,7 @@
     "cli"
   ],
   "description": "Generate a new business package",
-  "name": "Business Package (> MES 9)",
+  "name": "Business Package (> MES 10)",
   "identity": "cmf-cli.new.business10",
   "groupIdentity": "cmf-cli.new.business10",
   "shortName": "business10",
@@ -66,11 +66,6 @@
       "type": "parameter",
       "datatype": "string",
       "replaces": "<%= $CLI_PARAM_localEnvRelativePath %>"
-    },
-    "deploymentMetadataRelativePath": {
-      "type": "parameter",
-      "datatype": "string",
-      "replaces": "<%= $CLI_PARAM_deploymentMetadataRelativePath %>"
     },
     "includeMESNugets": {
       "type": "parameter",
