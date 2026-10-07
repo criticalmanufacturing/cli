@@ -1,19 +1,24 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Core.Repository.Credentials;
+using Cmf.CLI.Core.Services;
 using Cmf.CLI.Utilities;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Moq.Protected;
+using Newtonsoft.Json.Linq;
 using tests.Mocks;
 using tests.Objects;
 using Xunit;
@@ -77,14 +82,18 @@ public class NPM
         await resolve.Should().ThrowAsync<HttpRequestException>();
     }
 
-    protected void Setup()
+    protected void Setup(bool streaming = false)
     {
         var repositoryAuthStoreMock = new Mock<IRepositoryAuthStore>();
         repositoryAuthStoreMock.Setup(x => x.GetOrLoad()).Returns(Task.FromResult(new CmfAuthFile()));
 
+        var features = new Mock<IFeaturesService>();
+        features.SetupGet(x => x.UseStreamingPublish).Returns(streaming);
+
         ExecutionContext.ServiceProvider = (new ServiceCollection())
             .AddSingleton<IVersionService, MockVersionService>()
             .AddSingleton(repositoryAuthStoreMock.Object)
+            .AddSingleton(features.Object)
             .BuildServiceProvider();
     }
 
@@ -306,5 +315,93 @@ public class NPM
                                                  req.Headers.Authorization == null),
             ItExpr.IsAny<CancellationToken>()
         );
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Upload_SendsCompletePayloadAndDisposesContent(bool streaming)
+    {
+        Setup(streaming);
+        var package = CreatePublishPackage();
+        var bytes = package.FileSystem.File.ReadAllBytes(package.FullName);
+        using var handler = new UploadHandler();
+        using var httpClient = new HttpClient(handler);
+        var client = new NPMClient("https://registry.example", httpClient);
+
+        // Reuse the client just as publishing a directory of packages does.
+        await client.PublishPackage(package);
+        await client.PublishPackage(package);
+
+        handler.RequestCount.Should().Be(2);
+        var body = JObject.Parse(handler.Payload);
+        var attachment = body["_attachments"]["cmf.custom.test-1.0.0.tgz"];
+        Convert.FromBase64String(attachment["data"].Value<string>()).Should().Equal(bytes);
+        attachment["length"].Value<long>().Should().Be(bytes.Length);
+        body["versions"]["1.0.0"]["dist"]["integrity"].Value<string>()
+            .Should().Be("sha512-" + Convert.ToBase64String(SHA512.HashData(bytes)));
+        handler.ContentLength.Should().Be(System.Text.Encoding.UTF8.GetByteCount(handler.Payload));
+        Func<Task> readDisposedContent = () => handler.Content.ReadAsStringAsync();
+        await readDisposedContent.Should().ThrowAsync<ObjectDisposedException>();
+        Func<Task> readDisposedResponse = () => handler.Response.Content.ReadAsStringAsync();
+        await readDisposedResponse.Should().ThrowAsync<ObjectDisposedException>();
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task UploadFailure_PreservesUnderlyingExceptionAndDisposesContent(bool streaming)
+    {
+        Setup(streaming);
+        var rootCause = new IOException("Connection reset by peer");
+        var failure = new HttpRequestException("Error while copying content to a stream.", rootCause);
+        using var handler = new UploadHandler { Failure = failure };
+        using var httpClient = new HttpClient(handler);
+        var client = new NPMClient("https://registry.example", httpClient);
+
+        Func<Task> publish = () => client.PublishPackage(CreatePublishPackage());
+
+        var exception = await publish.Should().ThrowAsync<CliException>()
+            .WithMessage("*Cmf.Custom.Test*Connection reset by peer*");
+        exception.Which.InnerException.Should().BeSameAs(failure);
+        Func<Task> readDisposedContent = () => handler.Content.ReadAsStringAsync();
+        await readDisposedContent.Should().ThrowAsync<ObjectDisposedException>();
+    }
+
+    private static System.IO.Abstractions.IFileInfo CreatePublishPackage()
+    {
+        using var builder = new DFTGZPackageBuilder();
+        var data = builder.CreateManifest("Cmf.Custom.Test", "1.0.0")
+            .CreateEntry("content.txt", new string('a', 100000)).ToMockFileData();
+        var fs = new MockFileSystem();
+        fs.AddFile("/repo/test.tgz", data);
+        return fs.FileInfo.New("/repo/test.tgz");
+    }
+
+    private sealed class UploadHandler : HttpMessageHandler
+    {
+        public int RequestCount { get; private set; }
+        public string Payload { get; private set; }
+        public long? ContentLength { get; private set; }
+        public HttpContent Content { get; private set; }
+        public HttpResponseMessage Response { get; private set; }
+        public Exception Failure { get; init; }
+
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            RequestCount++;
+            Content = request.Content;
+            ContentLength = Content.Headers.ContentLength;
+            // Unlike a handler that just returns OK, consume the actual upload stream.
+            using var output = new MemoryStream();
+            await Content.CopyToAsync(output, cancellationToken);
+            Payload = System.Text.Encoding.UTF8.GetString(output.ToArray());
+            if (Failure != null)
+            {
+                throw Failure;
+            }
+            Response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("{}") };
+            return Response;
+        }
     }
 }
