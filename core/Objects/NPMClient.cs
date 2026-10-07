@@ -341,6 +341,7 @@ namespace Cmf.CLI.Core.Objects
                 throw new CliException($"Could not publish package {ctrlr.CmfPackage.PackageAtRef}!", ex);
             }
 
+            using var publishContent = content;
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             Log.Debug($"PUTing package to {this.baseUrl}...");
             try
@@ -354,7 +355,7 @@ namespace Cmf.CLI.Core.Objects
                 {
                     httpClient.Timeout = TimeSpan.FromMinutes(timeoutMinutes);
                 }
-                var response = await httpClient.PutAsync($"{this.baseUrl}/{name}", content);
+                using var response = await httpClient.PutAsync($"{this.baseUrl}/{name}", content);
                 if (!response.IsSuccessStatusCode)
                 {
                     Log.Debug($"Failed to publish the package: {(int)response.StatusCode} {response.ReasonPhrase}");
@@ -365,9 +366,10 @@ namespace Cmf.CLI.Core.Objects
             }
             catch (Exception e)
             {
-                Log.Debug($"Failed to publish the package: {e.Message}{Environment.NewLine}{e.StackTrace}");
+                Log.Debug($"Failed to publish the package: {e}");
                 throw new CliException(
-                    $"Failed to publish package: {e.Message}");
+                    string.Format(CoreMessages.PublishPackageFailed, ctrlr.CmfPackage.PackageAtRef,
+                        e.GetBaseException().Message), e);
             }
         }
 
@@ -431,8 +433,6 @@ namespace Cmf.CLI.Core.Objects
                 sha512Hash = $"sha512-{sha512_64}";
             }
 
-            var payloadData = package.OpenRead();
-
             // Create the JSON string with a dummy placeholder in the data field. Because the real data can be quite big sometimes (packages with hundreds of MBs)
             // it is better to send the data as a stream than to hold it all in memory at the same time while performing JSON operations on it
             var payload = GetPublicManifest(package, ctrlr, name, tgz, manifest, JSON_DATA_PLACEHOLDER, sha1Hash, sha512Hash);
@@ -441,11 +441,15 @@ namespace Cmf.CLI.Core.Objects
 
             var stream = new ConcatStreams([
                 new MemoryStream(Encoding.UTF8.GetBytes(payloadPrefix)),
-                new CryptoStream(payloadData, new ToBase64Transform(), CryptoStreamMode.Read),
+                new CryptoStream(package.OpenRead(), new ToBase64Transform(), CryptoStreamMode.Read),
                 new MemoryStream(Encoding.UTF8.GetBytes(payloadSuffix)),
             ]);
 
             var content = new StreamContent(stream);
+            // The encoded length is known even though CryptoStream cannot seek. Avoid chunked uploads.
+            content.Headers.ContentLength = Encoding.UTF8.GetByteCount(payloadPrefix)
+                + 4 * ((package.Length + 2) / 3)
+                + Encoding.UTF8.GetByteCount(payloadSuffix);
 
             return content;
         }

@@ -54,9 +54,10 @@ public class ConcatStreams : Stream
 
     public override int Read(byte[] buffer, int offset, int count)
     {
+        ValidateBufferArguments(buffer, offset, count);
         int bytesRead = 0;
 
-        while (currentSource < sources.Length && offset + bytesRead < buffer.Length)
+        while (currentSource < sources.Length && bytesRead < count)
         {
             // Number of bytes we can still fit into the buffer while respecting
             // the requested byte counts

@@ -55,4 +55,8 @@
     <value>Handler for Package Type {0} not implemented!</value>
     <comment>0 - Package Type Name</comment>
   </data>
+  <data name="PublishPackageFailed" xml:space="preserve">
+    <value>Failed to publish package {0}: {1}</value>
+    <comment>0 - Package reference; 1 - Underlying error</comment>
+  </data>
 </root>

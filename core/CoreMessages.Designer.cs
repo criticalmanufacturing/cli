@@ -115,6 +115,15 @@ namespace Cmf.CLI.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed to publish package {0}: {1}.
+        /// </summary>
+        public static string PublishPackageFailed {
+            get {
+                return ResourceManager.GetString("PublishPackageFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Cannot find package root. Are you in a valid package directory?.
         /// </summary>
         public static string PackageRootNotFound {
