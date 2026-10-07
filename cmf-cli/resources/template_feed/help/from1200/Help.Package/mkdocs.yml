@@ -44,9 +44,9 @@ theme:
     - icon: material/code-tags
       link: https://developer.criticalmanufacturing.com
       name: Critical Manufacturing Developer Portal
-    - icon: material/text-box
-      link: https://devblog.criticalmanufacturing.com
-      name: Critical Manufacturing Developer Blog
+    - icon: fontawesome/solid/people-group
+      link: https://community.criticalmanufacturing.com
+      name: CM Community
     - icon: material/server
       link: https://portal.criticalmanufacturing.com
       name: Critical Manufacturing Customer Portal
