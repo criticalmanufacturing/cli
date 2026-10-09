@@ -157,22 +157,19 @@ public class CmfPackageController
             Log.Debug("File is a DF package in TAR.GZ format");
             using Stream zipToOpen = file.OpenRead();
             using GZipStream gzipStream = new GZipStream(zipToOpen, CompressionMode.Decompress);
-            using var decompressedStream = new MemoryStream();
-            gzipStream.CopyTo(decompressedStream);
-            decompressedStream.Position = 0;
             var foundManifest = false;
 
-            using var tarReader = SharpCompress.Readers.Tar.TarReader.OpenReader(decompressedStream, new SharpCompress.Readers.ReaderOptions { });
-            while (tarReader.MoveToNextEntry())
+            // Read entries directly from the decompressor rather than buffering the
+            // entire archive. XML manifests retain precedence over JSON manifests.
+            using var tarReader = new TarReader(gzipStream);
+            while (tarReader.GetNextEntry() is { } entry)
             {
-                var entry = tarReader.Entry;
-
                 // Check if this is the file you're looking for
-                if ((entry.Key == CoreConstants.DeploymentFrameworkManifestFileName || entry.Key == $"package/{CoreConstants.DeploymentFrameworkManifestFileName}") && !entry.IsDirectory)
+                if ((entry.Name == CoreConstants.DeploymentFrameworkManifestFileName || entry.Name == $"package/{CoreConstants.DeploymentFrameworkManifestFileName}") && entry.EntryType != TarEntryType.Directory)
                 {
                     foundManifest = true;
                     // Read the content of the file inside the TAR
-                    using var reader = new StreamReader(tarReader.OpenEntryStream());
+                    using var reader = new StreamReader(entry.DataStream);
 
                     // TODO: make sure this is ok
                     // this.package = CmfPackageController.FromXmlManifest(reader.ReadToEnd(), setDefaultValues: true);
@@ -185,21 +182,16 @@ public class CmfPackageController
             {
                 using Stream zipToOpen2 = file.OpenRead();
                 using GZipStream gzipStream2 = new GZipStream(zipToOpen2, CompressionMode.Decompress);
-                using var decompressedStream2 = new MemoryStream();
-                gzipStream2.CopyTo(decompressedStream2);
-                decompressedStream2.Position = 0;
-                using var tarReader2 = SharpCompress.Readers.Tar.TarReader.OpenReader(decompressedStream2, new SharpCompress.Readers.ReaderOptions { });
+                using var tarReader2 = new TarReader(gzipStream2);
 
-                while (tarReader2.MoveToNextEntry())
+                while (tarReader2.GetNextEntry() is { } entry)
                 {
-                    var entry = tarReader2.Entry;
-
                     // Check if this is the file you're looking for
-                    if ((entry.Key == CoreConstants.PackageJson || entry.Key == $"package/{CoreConstants.PackageJson}" ) && !entry.IsDirectory)
+                    if ((entry.Name == CoreConstants.PackageJson || entry.Name == $"package/{CoreConstants.PackageJson}" ) && entry.EntryType != TarEntryType.Directory)
                     {
                         foundManifest = true;
                         // Read the content of the file inside the TAR
-                        using var reader = new StreamReader(tarReader2.OpenEntryStream());
+                        using var reader = new StreamReader(entry.DataStream);
                    
                         // TODO: make sure this is ok
                         // this.package = CmfPackageController.FromXmlManifest(reader.ReadToEnd(), setDefaultValues: true);
@@ -1405,15 +1397,9 @@ public class CmfPackageController
                         }
                         else
                         {
-                            // Add the file content to the Tar archive
-                            using (MemoryStream tarEntryStream = new MemoryStream())
-                            {
-                                zipEntryStream.CopyTo(tarEntryStream);
-                                tarEntryStream.Seek(0, SeekOrigin.Begin);
-
-                                // Create a tar entry in the Tar archive
-                                tarWriter.Write("package/" + entryName, tarEntryStream, zipEntry.LastWriteTime.DateTime);
-                            }
+                            // ZIP entry streams cannot seek. Supply the uncompressed length so
+                            // TarWriter can stream files larger than MemoryStream's 2 GiB limit.
+                            tarWriter.Write("package/" + entryName, zipEntryStream, zipEntry.LastWriteTime.DateTime, zipEntry.Length);
                         }
                     }
                 }
