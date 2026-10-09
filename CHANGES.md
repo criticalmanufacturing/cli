@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## Unreleased
+
+### Documentation
+
+* **portal:** document the Portal SDK verb–noun commands, positional names and paths, scoped package syntax, and the required SDK release candidate. Add regression coverage for plugin discovery and argument forwarding; the existing Portal login and plugin dispatcher already support the new SDK.
+
 ## [6.0.0-18](https://github.com/criticalmanufacturing/cli/compare/6.0.0-15...6.0.0-18) (2026-10-06)
 
 

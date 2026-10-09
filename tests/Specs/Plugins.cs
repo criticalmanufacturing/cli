@@ -193,6 +193,49 @@ public class Plugins : IDisposable
     }
 
     [Theory]
+    [InlineData("login", "--help")]
+    [InlineData("deploy", "env", "MES Demo", "--package=@criticalmanufacturing/mes:11.0.0", "--license", "License 1,License 2", "--replace-tokens", "A=1", "B=two words")]
+    [InlineData("deploy", "agent", "My Agent", "--help")]
+    [InlineData("deploy", "app", "My App", "-ce", "MES Demo", "-av", "1.0.0", "-lic", "My License")]
+    [InlineData("undeploy", "env", "MES Demo", "--force")]
+    [InlineData("undeploy", "app", "My App", "-ce", "MES Demo", "--removeVolumes")]
+    [InlineData("create", "infrastructure", "My Infrastructure", "--customer", "My Customer")]
+    [InlineData("healthcheck", "agent", "-ce", "MES Demo")]
+    [InlineData("publish", "deploymentpackage", "manifests with spaces", "--replace-tokens", "A=1", "B=two words")]
+    [InlineData("publish", "installationpackage", "packages/My Package.zip", "--datagroup", "My Group")]
+    [InlineData("download", "artifacts", "MES Demo", "--output", "artifacts with spaces")]
+    [InlineData("deploy", "environment", "MES Demo", "--help")]
+    [InlineData("deploy", "application", "My App", "--help")]
+    [InlineData("undeploy", "environment", "MES Demo", "--help")]
+    [InlineData("undeploy", "application", "My App", "--help")]
+    [InlineData("create", "infra", "My Infrastructure", "--help")]
+    [InlineData("publish-package", "--path", "packages/My Package.zip")]
+    public void PortalPlugin_DiscoveryAndExecution_PreserveSdkArguments(params string[] portalArgs)
+    {
+        CreateEchoPlugin(commandName: "portal");
+        var fileSystem = new System.IO.Abstractions.FileSystem();
+        var rootCommand = new RootCommand();
+        var originalPath = Environment.GetEnvironmentVariable("PATH");
+
+        try
+        {
+            Environment.SetEnvironmentVariable("PATH", tempDirectories[^1]);
+            var plugins = BaseCommand.AddPluginCommands(fileSystem, rootCommand);
+
+            plugins.Should().ContainKey("portal");
+            rootCommand.Subcommands.Should().Contain(cmd => cmd.Name == "portal");
+            var output = CaptureConsoleOutput(() =>
+                Program.TryExecutePlugin(plugins, ["portal", .. portalArgs]).Should().BeTrue());
+
+            output.Should().Be(string.Join(Environment.NewLine, portalArgs));
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("PATH", originalPath);
+        }
+    }
+
+    [Theory]
     [InlineData(new[] { "--", "--help" }, new[] { "--help" })]
     [InlineData(new[] { "--", "--", "x" }, new[] { "--", "x" })]
     [InlineData(new[] { "--" }, new string[0])]
@@ -267,24 +310,24 @@ public class Plugins : IDisposable
     /// <summary>
     /// Creates a plugin which prints each of its arguments on a separate line
     /// </summary>
-    private PluginCommand CreateEchoPlugin(int exitCode = 0)
+    private PluginCommand CreateEchoPlugin(int exitCode = 0, string commandName = "echo")
     {
         var dir = Directory.CreateTempSubdirectory("cmf-plugin-tests").FullName;
         tempDirectories.Add(dir);
         string path;
         if (OperatingSystem.IsWindows())
         {
-            path = Path.Combine(dir, "cmf-echo.cmd");
+            path = Path.Combine(dir, $"cmf-{commandName}.cmd");
             File.WriteAllText(path, $"@echo off\r\n:loop\r\nif \"%~1\"==\"\" goto end\r\necho %~1\r\nshift\r\ngoto loop\r\n:end\r\nexit /b {exitCode}\r\n");
         }
         else
         {
-            path = Path.Combine(dir, "cmf-echo");
+            path = Path.Combine(dir, $"cmf-{commandName}");
             File.WriteAllText(path, $"#!/bin/sh\nprintf '%s\\n' \"$@\"\nexit {exitCode}\n");
             File.SetUnixFileMode(path, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
         }
 
-        return new PluginCommand("echo", path);
+        return new PluginCommand(commandName, path);
     }
 
     private static string CaptureConsoleOutput(Action action)
