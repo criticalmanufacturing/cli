@@ -770,6 +770,77 @@ public class Repositories
       Assert.Equal("AppFramework", (string)packageJson.deployment.steps[1].targetPlatform);
     }
     
+    [Theory]
+    [InlineData(0)]
+    [InlineData(131073)]
+    public void ConvertZipToTgz_StreamsFileEntries(long length)
+    {
+      AssertStreamedZipConversion(length);
+    }
+
+    [Fact]
+    [Trait("TestCategory", "LongRunning")]
+    public void ConvertZipToTgz_StreamsFileLargerThanTwoGiB()
+    {
+      AssertStreamedZipConversion((long)int.MaxValue + 1);
+    }
+
+    private static void AssertStreamedZipConversion(long length)
+    {
+      var fs = new FileSystem();
+      var directory = fs.Directory.CreateTempSubdirectory("cmf-streaming-");
+      try
+      {
+        var zipFile = fs.FileInfo.New(fs.Path.Combine(directory.FullName, "backup.zip"));
+        var tgzFile = fs.FileInfo.New(fs.Path.Combine(directory.FullName, "backup.tgz"));
+        var timestamp = new DateTimeOffset(2025, 1, 2, 3, 4, 6, TimeSpan.Zero);
+        var buffer = new byte[128 * 1024];
+        using (var archive = new ZipArchive(zipFile.Create(), ZipArchiveMode.Create))
+        {
+          archive.CreateEntry("folder/");
+          var entry = archive.CreateEntry("folder/online.bak", CompressionLevel.Fastest);
+          entry.LastWriteTime = timestamp;
+          using (var output = entry.Open())
+          {
+            for (long remaining = length; remaining > 0;)
+            {
+              var count = (int)Math.Min(buffer.Length, remaining);
+              output.Write(buffer, 0, count);
+              remaining -= count;
+            }
+          }
+          using var writer = new StreamWriter(archive.CreateEntry("tail.txt").Open());
+          writer.Write("complete");
+        }
+
+        CmfPackageController.ConvertZipToTarGz(zipFile, tgzFile);
+
+        using var gzip = new GZipStream(tgzFile.OpenRead(), CompressionMode.Decompress);
+        using var tar = new TarReader(gzip);
+        var backup = tar.GetNextEntry();
+        backup.Name.Should().Be("package/folder/online.bak");
+        backup.Length.Should().Be(length);
+        backup.ModificationTime.DateTime.Should().Be(timestamp.DateTime);
+        long received = 0;
+        int read;
+        while (backup.DataStream != null && (read = backup.DataStream.Read(buffer, 0, buffer.Length)) > 0)
+        {
+          buffer.AsSpan(0, read).IndexOfAnyExcept((byte)0).Should().Be(-1);
+          received += read;
+        }
+        received.Should().Be(length);
+        var tail = tar.GetNextEntry();
+        tail.Name.Should().Be("package/tail.txt");
+        using var reader = new StreamReader(tail.DataStream);
+        reader.ReadToEnd().Should().Be("complete");
+        tar.GetNextEntry().Should().BeNull();
+      }
+      finally
+      {
+        directory.Delete(true);
+      }
+    }
+
     [Fact]
     public void ConvertZipToTgz_WithPackageJson()
     {

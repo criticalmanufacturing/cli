@@ -1,6 +1,7 @@
 using System.IO.Abstractions.TestingHelpers;
 using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Services;
+using Cmf.CLI.Utilities;
 using FluentAssertions;
 using tests.Objects;
 using Xunit;
@@ -9,6 +10,34 @@ namespace tests.Specs;
 
 public class CmfPackageController_FromTgz
 {
+    [Fact]
+    public void Constructor_ShouldPreferXmlManifest_AfterJsonManifest()
+    {
+        var fileSystem = new MockFileSystem();
+        using var builder = new DFTGZPackageBuilder();
+        fileSystem.AddFile("/repo/package.tgz", builder
+            .CreateEntry("package/package.json", "invalid JSON, ignored when XML exists")
+            .CreateEntry("payload.txt", "content before XML")
+            .CreateEntry("package/manifest.xml", "<deploymentPackage><packageId>Cmf.Custom.Xml</packageId><version>1.2.3</version></deploymentPackage>")
+            .ToMockFileData());
+
+        var controller = new CmfPackageController(fileSystem.FileInfo.New("/repo/package.tgz"), fileSystem);
+
+        controller.CmfPackage.PackageId.Should().Be("Cmf.Custom.Xml");
+    }
+
+    [Fact]
+    public void Constructor_ShouldRejectArchiveWithoutManifest()
+    {
+        var fileSystem = new MockFileSystem();
+        using var builder = new DFTGZPackageBuilder();
+        fileSystem.AddFile("/repo/package.tgz", builder.CreateEntry("payload.txt", "content").ToMockFileData());
+
+        var construct = () => new CmfPackageController(fileSystem.FileInfo.New("/repo/package.tgz"), fileSystem);
+
+        construct.Should().Throw<CliException>().WithMessage("*does not contain a valid manifest*");
+    }
+
     [Fact]
     public void Constructor_ShouldReadXmlManifest_FromPackageFolderInTgz()
     {
