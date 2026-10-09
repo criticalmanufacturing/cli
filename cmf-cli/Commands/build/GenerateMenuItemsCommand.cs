@@ -74,7 +74,7 @@ namespace Cmf.CLI.Commands
 
             if (project == null)
             {
-                throw new ArgumentException("Can't find project name, is your repository correctly configured?");
+                throw new CliException("Can't find project name, is your repository correctly configured?");
             }
             if (helpRoot == null)
             {

@@ -59,4 +59,7 @@
     <value>Failed to publish package {0}: {1}</value>
     <comment>0 - Package reference; 1 - Underlying error</comment>
   </data>
+  <data name="InvalidJwtPayload" xml:space="preserve">
+    <value>Invalid format JWT token, payload is missing or invalid.</value>
+  </data>
 </root>

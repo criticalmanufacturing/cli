@@ -27,6 +27,7 @@ using System.Xml.XPath;
 using tests.Extensions;
 using tests.Mocks;
 using Xunit;
+using Cmf.CLI.Utilities;
 
 namespace tests.Specs;
 
@@ -446,7 +447,7 @@ public class RepositoryCredentials
             var exception = authStore.Invoking(x => x.GetCredentialsFor(RepositoryCredentialsType.Docker, new CmfAuthFile(), "registry.docker.io"));
 
             // Assert
-            exception.Should().Throw<Exception>().WithMessage("Invalid auth type*");
+            exception.Should().Throw<CliException>().WithMessage("Invalid auth type*");
         }
         finally
         {

@@ -3,10 +3,12 @@ using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Utilities;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using System.Xml;
 
 namespace Cmf.CLI.Core.Repository.Credentials
 {
@@ -47,7 +49,7 @@ namespace Cmf.CLI.Core.Repository.Credentials
             {
                 if (string.IsNullOrEmpty(credential.Key))
                 {
-                    throw new Exception($"Missing mandatory \"key\" value for {RepositoryType} repository \"{credential.Repository}\"");
+                    throw new CliException($"Missing mandatory \"key\" value for {RepositoryType} repository \"{credential.Repository}\"");
                 }
 
                 if (credential is not BasicCredential)
@@ -168,9 +170,9 @@ namespace Cmf.CLI.Core.Repository.Credentials
 
                 await SaveConfig(nugetConfigFile, config);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or XmlException or UriFormatException)
             {
-                throw new Exception($"Failed to sync credentials into NuGet config file: {nugetConfigFile?.FullName}", ex);
+                throw new CliException($"Failed to sync credentials into NuGet config file: {nugetConfigFile?.FullName}", ex);
             }
         }
 

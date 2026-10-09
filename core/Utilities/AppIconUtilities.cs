@@ -15,9 +15,8 @@ namespace Cmf.CLI.Core.Utilities
         /// </summary>
         /// <param name="path">The file path of the icon image to validate.</param>
         /// <returns>True if the icon is valid; otherwise, false.</returns>
-        /// <exception cref="FileNotFoundException">Thrown when the specified file path does not exist.</exception>
         /// <exception cref="CliException">
-        /// Thrown when the icon is not in PNG format or when it is not square shaped.
+        /// Thrown when the icon does not exist, is not in PNG format or is not square shaped.
         /// </exception>
         public static bool IsIconValid(string path)
         {
@@ -25,7 +24,7 @@ namespace Cmf.CLI.Core.Utilities
 
             if (!File.Exists(path))
             {
-                throw new FileNotFoundException("File not found.", path);
+                throw new CliException("File not found.");
             }
 
             using SixLabors.ImageSharp.Image image = SixLabors.ImageSharp.Image.Load(path);

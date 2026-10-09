@@ -4,6 +4,7 @@ using Cmf.CLI.Utilities;
 using PeanutButter.INI;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Abstractions;
 using System.Text;
 using System.Threading.Tasks;
@@ -86,9 +87,9 @@ namespace Cmf.CLI.Core.Repository.Credentials
 
                 SaveConfig(npmrcFile, config);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or UriFormatException)
             {
-                throw new Exception($"Failed to sync credentials into NPM config file: {npmrcFile?.FullName}", ex);
+                throw new CliException($"Failed to sync credentials into NPM config file: {npmrcFile?.FullName}", ex);
             }
         }
 

@@ -71,7 +71,7 @@ namespace Cmf.CLI.Commands
             using var process = System.Diagnostics.Process.Start(ps);
             if (process == null)
             {
-                throw new Exception("Could not spawn child command");
+                throw new CliException("Could not spawn child command");
             }
             
             process.ErrorDataReceived += (sender, args) => errorHandler(args.Data);

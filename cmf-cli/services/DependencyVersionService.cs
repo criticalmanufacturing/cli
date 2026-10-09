@@ -1,5 +1,6 @@
 using System;
 using NuGet.Versioning;
+using Cmf.CLI.Utilities;
 
 namespace Cmf.CLI.Services;
 
@@ -136,7 +137,7 @@ public class DependencyVersionService : IDependencyVersionService
                 ESLint = NG22_ESLINT,
                 TSESLint = NG22_TSESLINT
             },
-            _ => throw new NotSupportedException($"No Angular dependencies defined for MES version {productVersion}")
+            _ => throw new CliException($"No Angular dependencies defined for MES version {productVersion}")
         };
 
     public string AngularCLI(SemanticVersion productVersion) => this.Angular(productVersion).CLI.Major.ToString();
