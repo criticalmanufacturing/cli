@@ -95,7 +95,7 @@ namespace Cmf.CLI.Core.Repository.Credentials
 
             if (!tokenFile.Exists)
             {
-                throw new Exception($"Failed to login in CMF Customer Portal with \"cmf portal login\", no auth token was retrieved.");
+                throw new CliException($"Failed to login in CMF Customer Portal with \"cmf portal login\", no auth token was retrieved.");
             }
 
             var token = await _fileSystem.File.ReadAllTextAsync(tokenFile.FullName);
@@ -255,24 +255,32 @@ namespace Cmf.CLI.Core.Repository.Credentials
         {
             if (token == null)
             {
-                throw new ArgumentNullException(token);
+                throw new ArgumentNullException(nameof(token));
             }
 
             var parts = token.Split('.');
 
             if (parts.Length != 3)
             {
-                throw new Exception($"Invalid format JWT token, expected 2 dots \".\", but found {parts.Length - 1} instead.");
+                throw new CliException($"Invalid format JWT token, expected 2 dots \".\", but found {parts.Length - 1} instead.");
             }
 
             // Add padding in case the string does not have the correct length (the padding equal signs are frequently ommitted in JWTs)
             var payloadBase64 = parts[1];
             while (payloadBase64.Length % 4 != 0) payloadBase64 += "=";
 
-            var payloadBytes = Convert.FromBase64String(payloadBase64);
-            var payloadString = Encoding.UTF8.GetString(payloadBytes);
+            try
+            {
+                var payloadBytes = Convert.FromBase64String(payloadBase64);
+                var payloadString = Encoding.UTF8.GetString(payloadBytes);
 
-            return JsonConvert.DeserializeObject<JWTPayload>(payloadString);
+                return JsonConvert.DeserializeObject<JWTPayload>(payloadString)
+                    ?? throw new CliException(CoreMessages.InvalidJwtPayload);
+            }
+            catch (Exception ex) when (ex is FormatException or JsonException)
+            {
+                throw new CliException(CoreMessages.InvalidJwtPayload, ex);
+            }
         }
 
         protected virtual HttpClient CreateHttpClient()

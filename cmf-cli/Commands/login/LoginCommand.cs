@@ -238,7 +238,7 @@ namespace Cmf.CLI.Commands
         {
             if (noPrompt)
             {
-                throw new Exception($"Missing command argument for \"{label}\"");
+                throw new CliException($"Missing command argument for \"{label}\"");
             }
 
             Console.Write(label + ": ");

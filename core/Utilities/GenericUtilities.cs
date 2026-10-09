@@ -273,7 +273,7 @@ namespace Cmf.CLI.Utilities
             }
             else if (requirement == PropertyRequirement.Mandatory && string.IsNullOrEmpty(value))
             {
-                throw new Exception($"Missing mandatory {fieldName}.");
+                throw new CliException($"Missing mandatory {fieldName}.");
             }
         }
 

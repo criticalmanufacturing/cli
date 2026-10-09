@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
+using Cmf.CLI.Utilities;
 
 namespace Cmf.CLI.Core.Objects
 {
@@ -122,7 +123,7 @@ namespace Cmf.CLI.Core.Objects
             var packageJsonFile = _Cwd.GetFiles(packageJsonPath).FirstOrDefault();
             if (packageJsonFile == null)
             {
-                throw new Exception($"No package.json found at {packageJsonPath}");
+                throw new CliException($"No package.json found at {packageJsonPath}");
             }
             PackageJson = new PackageJson(packageJsonFile);
 

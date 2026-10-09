@@ -1078,7 +1078,7 @@ public class CmfPackageController
 
         if (duplicateDependencies.Count > 0)
         {
-            throw new Exception($"Invalid Package {package.PackageAtRef}: the following dependencies are declared more than once - {string.Join(", ", duplicateDependencies)}");
+            throw new CliException($"Invalid Package {package.PackageAtRef}: the following dependencies are declared more than once - {string.Join(", ", duplicateDependencies)}");
         }
 
         // Collection of PackageIds that appear more than once in this list of dependencies (with different versions)

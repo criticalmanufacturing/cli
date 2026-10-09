@@ -124,6 +124,15 @@ namespace Cmf.CLI.Core {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Invalid format JWT token, payload is missing or invalid.
+        /// </summary>
+        public static string InvalidJwtPayload {
+            get {
+                return ResourceManager.GetString("InvalidJwtPayload", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Cannot find package root. Are you in a valid package directory?.
         /// </summary>
         public static string PackageRootNotFound {

@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Threading.Tasks;
@@ -33,7 +34,7 @@ namespace Cmf.CLI.Core.Services
 
             if (folder == null)
             {
-                throw new Exception($"Could not create CMF Authfile folder to store file \"{_authFile}\"");
+                throw new CliException($"Could not create CMF Authfile folder to store file \"{_authFile}\"");
             }
 
             if (!folder.Exists)
@@ -120,14 +121,14 @@ namespace Cmf.CLI.Core.Services
                     Password = GetEnvironmentVariable($"{envVarPrefix}__PASSWORD", PropertyRequirement.Mandatory),
                 },
                 "" or null => null,
-                _ => throw new Exception($"Invalid authentication type \"{type}\" specified in environment variable \"{envVarPrefix}__AUTH_TYPE\"")
+                _ => throw new CliException($"Invalid authentication type \"{type}\" specified in environment variable \"{envVarPrefix}__AUTH_TYPE\"")
             };
 
             if (credentials != null && Array.IndexOf(repositoryType.SupportedAuthTypes, credentials.AuthType) == -1)
             {
                 var supportedAuthTypeNames = string.Join(", ", repositoryType.SupportedAuthTypes);
 
-                throw new Exception($"Invalid auth type \"{credentials.AuthType}\" for repository type \"{repositoryType.RepositoryType}\", supported values are: {supportedAuthTypeNames}.");
+                throw new CliException($"Invalid auth type \"{credentials.AuthType}\" for repository type \"{repositoryType.RepositoryType}\", supported values are: {supportedAuthTypeNames}.");
             }
 
             return credentials;
@@ -322,9 +323,9 @@ namespace Cmf.CLI.Core.Services
 
                 return authFile;
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException)
             {
-                throw new Exception($"Failed to load credentials from CMF Auth File {_authFile.FullName}", ex);
+                throw new CliException($"Failed to load credentials from CMF Auth File {_authFile.FullName}", ex);
             }
         }
 
@@ -445,9 +446,9 @@ namespace Cmf.CLI.Core.Services
 
                 await WriteFile(authFile);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException)
             {
-                throw new Exception($"Failed to store credentials into CMF Auth File {_authFile.FullName}", ex);
+                throw new CliException($"Failed to store credentials into CMF Auth File {_authFile.FullName}", ex);
             }
 
             return authFile;

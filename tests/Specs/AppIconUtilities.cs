@@ -52,9 +52,9 @@ namespace tests.Specs
         }
 
         [Fact]
-        public void NonExistentIcon_ThrowsFileNotFoundException()
+        public void NonExistentIcon_ThrowsCliException()
         {
-            Assert.Throws<FileNotFoundException>(() => Cmf.CLI.Core.Utilities.AppIconUtilities.IsIconValid("nonexistent.png"));
+            Assert.Throws<CliException>(() => Cmf.CLI.Core.Utilities.AppIconUtilities.IsIconValid("nonexistent.png"));
         }
 
         [Fact]

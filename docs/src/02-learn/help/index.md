@@ -35,6 +35,8 @@ Follows a set of examples, to understand its usage:
 
 Expected command errors (`CliException`), such as missing tenant information, normally show only the error message; use debug logging to see their stack traces. Unexpected exceptions always show full details, including stack traces and inner exceptions, regardless of the log level. Failures still return nonzero exit codes; existing telemetry handling remains in place.
 
+Controlled errors also include missing non-interactive login arguments, invalid credential configuration or portal tokens, credential-file access failures, duplicate package dependencies, missing workspace files, unsupported MES dependency versions, and SMB file operation failures. These retain their existing exit codes. Programming errors and cancellation are not converted into controlled credential errors.
+
 To enable debug-level logs on the console when running `cmf` commands, use the  `-l Debug` option before any other  parameters.
 
 Per example, to active debug messages for the `cmf build` command, use:
