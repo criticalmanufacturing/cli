@@ -340,6 +340,33 @@ namespace tests.Specs
         [InlineData("12.0.0-beta.2")]
         public void Help_v12(string mesVersion)
         {
+            var previousServiceProvider = ExecutionContext.ServiceProvider;
+            try
+            {
+                Help_v12_internal(mesVersion);
+            }
+            finally
+            {
+                // The fixture's services are shared by all tests in this class.
+                ExecutionContext.ServiceProvider = previousServiceProvider;
+            }
+        }
+
+        [Theory, Trait("TestCategory", "Integration")]
+        [InlineData("12.0.0")]
+        [InlineData("12.0.0-beta.2")]
+        public void Help_v12_PreservesFixtureServices(string mesVersion)
+        {
+            var serviceProvider = ExecutionContext.ServiceProvider;
+
+            Help_v12(mesVersion);
+
+            ExecutionContext.ServiceProvider.Should().BeSameAs(serviceProvider);
+            ExecutionContext.ServiceProvider.GetService<IProcessStartInfoCLI>().Should().NotBeNull();
+        }
+
+        private void Help_v12_internal(string mesVersion)
+        {
             var root = MockUnixSupport.Path(@"c:\test");
             
             // Create .project-config.json and cmfpackage.json
@@ -372,13 +399,14 @@ namespace tests.Specs
                 }
             }
 
-            ExecutionContext.ServiceProvider = new ServiceCollection()
+            using var serviceProvider = new ServiceCollection()
                 .AddSingleton<IProjectConfigService>(new ProjectConfigService())
                 .AddSingleton<IVersionService>(new VersionService(CliConstants.PackageName))
                 .AddSingleton<IRepositoryLocator, RepositoryLocator>()
                 .AddSingleton<IDependencyVersionService, DependencyVersionService>()
                 .BuildServiceProvider();
 
+            ExecutionContext.ServiceProvider = serviceProvider;
             fileSystem.Directory.SetCurrentDirectory(root);
             ExecutionContext.Initialize(fileSystem);
 
