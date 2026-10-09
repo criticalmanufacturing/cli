@@ -396,7 +396,8 @@ namespace Cmf.CLI.Commands
                 "--projectName", x.projectName,
                 "--repositoryType", x.repositoryType.ToString(),
                 "--baseLayer", x.repositoryType == RepositoryType.App ? BaseLayer.Core.ToString() : BaseLayer.MES.ToString(),
-                "--CLIVersion", ExecutionContext.CurrentVersion
+                "--CLIVersion", ExecutionContext.CurrentVersion,
+                "--DevContainerTagSuffix", NuGetVersion.TryParse(ExecutionContext.CurrentVersion, out var cliVersion) && cliVersion.IsPrerelease ? "-next" : ""
             };
 
             if (x.repositoryType == RepositoryType.App)

@@ -235,6 +235,12 @@
       "datatype": "string",
       "replaces": "<%= $CLI_PARAM_CLIVersion %>"
     },
+    "DevContainerTagSuffix": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "",
+      "replaces": "<%= $CLI_PARAM_DevContainerTagSuffix %>"
+    },
     "CLIVersion-MajorRange": {
       "type": "derived",
       "datatype": "string",

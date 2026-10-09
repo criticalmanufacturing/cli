@@ -1,5 +1,5 @@
 {
-    "image": "criticalmanufacturing.io/criticalmanufacturing/devcontainer:<%= $CLI_PARAM_MESVersion-Major %>",
+    "image": "criticalmanufacturing.io/criticalmanufacturing/devcontainer:<%= $CLI_PARAM_MESVersion-Major %><%= $CLI_PARAM_DevContainerTagSuffix %>",
     "runArgs": [],
     "features": {
         "ghcr.io/criticalmanufacturing/cli/install:1": {
@@ -61,5 +61,5 @@
     "forwardPorts": [
         80
     ],
-    "initializeCommand": "docker pull criticalmanufacturing.io/criticalmanufacturing/devcontainer:<%= $CLI_PARAM_MESVersion-Major %>"
+    "initializeCommand": "docker pull criticalmanufacturing.io/criticalmanufacturing/devcontainer:<%= $CLI_PARAM_MESVersion-Major %><%= $CLI_PARAM_DevContainerTagSuffix %>"
 }
