@@ -559,6 +559,38 @@ namespace tests.Specs
         }
 
         [Theory]
+        [InlineData("6.0.0", "11.0.0", "11")]
+        [InlineData("6.0.0", "12.0.0-beta.2", "12")]
+        [InlineData("6.0.0+build-with-hyphens", "12.0.0-beta.2", "12")]
+        [InlineData("6.0.0-beta.1", "11.0.0", "11-next")]
+        [InlineData("6.0.0-rc.1+build.123", "12.0.0-beta.2", "12-next")]
+        public void Init_DevContainerTag_UsesRunningCliReleaseChannel(string cliVersion, string mesVersion, string expectedTag)
+        {
+            var context = Cmf.CLI.Core.Objects.ExecutionContext.ServiceProvider;
+            try
+            {
+                Cmf.CLI.Core.Objects.ExecutionContext.ServiceProvider = new ServiceCollection()
+                    .AddSingleton<IVersionService>(new VersionService(CliConstants.PackageName, cliVersion))
+                    .AddSingleton<IDependencyVersionService, DependencyVersionService>()
+                    .BuildServiceProvider();
+
+                WithInitWorkspace(tmp =>
+                {
+                    InvokeInit(mesVersion, "--tenant", "test");
+
+                    var devContainer = JObject.Parse(File.ReadAllText(".devcontainer/devcontainer.json"));
+                    var expectedImage = $"criticalmanufacturing.io/criticalmanufacturing/devcontainer:{expectedTag}";
+                    devContainer["image"].Value<string>().Should().Be(expectedImage);
+                    devContainer["initializeCommand"].Value<string>().Should().Be($"docker pull {expectedImage}");
+                });
+            }
+            finally
+            {
+                Cmf.CLI.Core.Objects.ExecutionContext.ServiceProvider = context;
+            }
+        }
+
+        [Theory]
         [InlineData("10.2.0", DependencyVersionService.NET6SDK)]
         [InlineData("11.0.0", DependencyVersionService.NET8SDK)]
         [InlineData("12.0.0-beta.2", DependencyVersionService.NET10SDK)]
