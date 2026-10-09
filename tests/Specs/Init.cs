@@ -559,12 +559,12 @@ namespace tests.Specs
         }
 
         [Theory]
-        [InlineData("6.0.0", "11.0.0", "11")]
-        [InlineData("6.0.0", "12.0.0-beta.2", "12")]
-        [InlineData("6.0.0+build-with-hyphens", "12.0.0-beta.2", "12")]
-        [InlineData("6.0.0-beta.1", "11.0.0", "11-next")]
-        [InlineData("6.0.0-rc.1+build.123", "12.0.0-beta.2", "12-next")]
-        public void Init_DevContainerTag_UsesRunningCliReleaseChannel(string cliVersion, string mesVersion, string expectedTag)
+        [InlineData("6.0.0", "11.0.0", "11", "6.x.x")]
+        [InlineData("7.1.2", "12.0.0-beta.2", "12", "7.x.x")]
+        [InlineData("6.0.0+build-with-hyphens", "12.0.0-beta.2", "12", "6.x.x")]
+        [InlineData("6.0.0-beta.1", "11.0.0", "11-next", "next")]
+        [InlineData("6.0.0-rc.1+build.123", "12.0.0-beta.2", "12-next", "next")]
+        public void Init_DevContainer_UsesRunningCliReleaseChannel(string cliVersion, string mesVersion, string expectedTag, string expectedFeatureVersion)
         {
             var context = Cmf.CLI.Core.Objects.ExecutionContext.ServiceProvider;
             try
@@ -582,6 +582,8 @@ namespace tests.Specs
                     var expectedImage = $"criticalmanufacturing.io/criticalmanufacturing/devcontainer:{expectedTag}";
                     devContainer["image"].Value<string>().Should().Be(expectedImage);
                     devContainer["initializeCommand"].Value<string>().Should().Be($"docker pull {expectedImage}");
+                    devContainer["features"]["ghcr.io/criticalmanufacturing/cli/install:1"]["version"]
+                        .Value<string>().Should().Be(expectedFeatureVersion);
                 });
             }
             finally

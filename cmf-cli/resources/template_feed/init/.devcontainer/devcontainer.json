@@ -3,7 +3,11 @@
     "runArgs": [],
     "features": {
         "ghcr.io/criticalmanufacturing/cli/install:1": {
+//#if (DevContainerTagSuffix == "-next")
+            "version": "next"
+//#else
             "version": "<%= $CLI_PARAM_CLIVersion-MajorRange %>"
+//#endif
         },
         "ghcr.io/criticalmanufacturing/portal-sdk/install:1": {},
         "ghcr.io/devcontainers/features/docker-in-docker": {
