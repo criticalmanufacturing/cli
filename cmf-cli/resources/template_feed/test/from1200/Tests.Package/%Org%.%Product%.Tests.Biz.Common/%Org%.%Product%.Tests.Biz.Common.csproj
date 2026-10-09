@@ -18,17 +18,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Cmf.LightBusinessObjects">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Libs\LBOs\NetStandard\Cmf.LightBusinessObjects.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="..\..\Libs\LBOs\NetStandard\Cmf.LightBusinessObjects.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
+    <PackageReference Include="Cmf.LightBusinessObjects" Version="<%= $CLI_PARAM_TestScenariosNugetVersion %>" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
     <PackageReference Include="MSTest.TestAdapter" Version="4.3.3" />
     <PackageReference Include="MSTest.TestFramework" Version="4.3.3" />
