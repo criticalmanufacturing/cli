@@ -33,7 +33,9 @@ system dependencies.
 ## Docker
 
 Docker with Buildx can build, preview, or export the site without installing
-Python or Node.js on the host.
+Python or Node.js on the host. The root devcontainer includes Docker-in-Docker
+and Buildx, so these commands also work inside it. Rebuild the devcontainer after
+changing its configuration to install the feature.
 
 For a live preview with automatic reload:
 
