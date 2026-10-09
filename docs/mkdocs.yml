@@ -1,10 +1,12 @@
 site_name: "@criticalmanufacturing/cli Documentation"
+site_url: https://criticalmanufacturing.github.io/cli/
 site_author: Critical Manufacturing SA
 copyright: 2009-present Critical Manufacturing SA
 extra_css:
   - stylesheets/extra.css
 docs_dir: src
-site_dir: book
+exclude_docs: |
+  !/.nojekyll
 theme:
   name: material
   logo: assets/cmf-logo.png
@@ -27,6 +29,7 @@ theme:
         name: Switch to light mode
   features:
     - navigation.instant
+    - navigation.indexes
     - navigation.tracking
     - navigation.tabs
     - navigation.top
@@ -36,16 +39,10 @@ theme:
     - content.code.copy
 repo_url: https://github.com/criticalmanufacturing/cli
 repo_name: criticalmanufacturing/cli
-edit_uri: edit/documentation/src
+edit_uri: edit/development/docs/src
 plugins:
   - search
-  - mermaid2
   - awesome-pages
-  - section-index
-  - with-pdf:
-      enabled_if_env: ENABLE_PDF_EXPORT
-      output_path: /output/cmf-cli.pdf
-      cover_subtitle: ""
 markdown_extensions:
   - toc:
       toc_depth: 3
@@ -54,6 +51,6 @@ markdown_extensions:
       custom_fences:
           - name: mermaid
             class: mermaid
-            format: !!python/name:mermaid2.fence_mermaid
+            format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.tabbed:
       alternate_style: true
