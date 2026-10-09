@@ -18,21 +18,11 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Cmf.LightBusinessObjects">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Libs\LBOs\NetStandard\Cmf.LightBusinessObjects.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="..\..\Libs\LBOs\NetStandard\Cmf.LightBusinessObjects.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\<%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.Tests.Biz.Common\<%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.Tests.Biz.Common.csproj" />
     <ProjectReference Include="..\<%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.Tests.GUI.PageObjects\<%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.Tests.GUI.PageObjects.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Cmf.LightBusinessObjects" Version="<%= $CLI_PARAM_TestScenariosNugetVersion %>" />
     <PackageReference Include="Cmf.Dev.Core.TestUtilities" Version="<%= $CLI_PARAM_MESVersion %>"/>
     <PackageReference Include="Cmf.Core.Business.Controls.PageObjects" Version="<%= $CLI_PARAM_MESVersion %>" />
     <PackageReference Include="Cmf.Core.Shell.PageObjects" Version="<%= $CLI_PARAM_MESVersion %>" />
