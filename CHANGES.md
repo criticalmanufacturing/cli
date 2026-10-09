@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [6.0.0-19](https://github.com/criticalmanufacturing/cli/compare/6.0.0-18...6.0.0-19) (2026-10-09)
+
+
+### Features
+
+* replace devblog by CM community ([64ff383](https://github.com/criticalmanufacturing/cli/commit/64ff383ff29197628be3e782405bba293ada30ef))
+
+
+### Bug Fixes
+
+* **auth:** report invalid portal tokens as controlled CLI errors ([b487623](https://github.com/criticalmanufacturing/cli/commit/b4876239f383419fe81cbd1a43e4758c1ab276bb))
+* **errors:** report expected CLI failures without stack traces ([b74c64f](https://github.com/criticalmanufacturing/cli/commit/b74c64fd04a625371b0a53da086f2a0f752842b0))
+* forward plugin arguments verbatim so plugins can display help ([e9b957b](https://github.com/criticalmanufacturing/cli/commit/e9b957bd040c2c888a81772727b2811509e71021))
+* **publish:** preserve upload errors and correct streaming reads ([c396a17](https://github.com/criticalmanufacturing/cli/commit/c396a1755e6b9def220002524b0c47bb1f09f3e1))
+* resolve IoT engine test utilities import path by MES version ([b01ac1b](https://github.com/criticalmanufacturing/cli/commit/b01ac1b609e4765e032babd2d505d1507ae1bc43))
+* **templates:** correct k6 performance test packaging ([fe549a3](https://github.com/criticalmanufacturing/cli/commit/fe549a3eb24d74a57a9cfb7cb3f09a3047589c51))
+* **tests:** restore shared services after MES 12 help tests ([c382176](https://github.com/criticalmanufacturing/cli/commit/c38217649d15ef862ade6201b6e0da23b725c4b5))
+
+
+### Under the hood
+
+* **pack:** populate virtual root package dependencies ([a03ec3a](https://github.com/criticalmanufacturing/cli/commit/a03ec3a38e3ac28d4af59e98b4883cfc8e197150))
+
 ## [6.0.0-18](https://github.com/criticalmanufacturing/cli/compare/6.0.0-15...6.0.0-18) (2026-10-06)
 
 
