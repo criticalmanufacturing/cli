@@ -34,10 +34,10 @@ jobs:
         with:
           node-version: '20.x'
 
-      - name: Setup .NET 8
+      - name: Setup .NET 10
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '10.0.x'
 
       - name: Install dependencies
         run: npm ci
@@ -71,6 +71,11 @@ jobs:
           - mes-major: 11
             node-version: '20.x'
             dotnet-version: '8.0.x'
+            packages-to-build: "Cmf.Custom.Business Cmf.Custom.Data Cmf.Custom.HTML Cmf.Custom.Help Cmf.Custom.Test"
+            packages-to-pack: "Cmf.Custom.Business Cmf.Custom.Data Cmf.Custom.HTML Cmf.Custom.Help Cmf.Custom.Grafana Cmf.Custom.IoT Cmf.Custom.SecurityPortal Cmf.Custom.Database/Pre Cmf.Custom.Database/Post Cmf.Custom.Help Cmf.Custom.Reporting Cmf.Custom.IoT Cmf.Custom.Test"
+          - mes-major: 12
+            node-version: '24.x'
+            dotnet-version: '10.0.x'
             packages-to-build: "Cmf.Custom.Business Cmf.Custom.Data Cmf.Custom.HTML Cmf.Custom.Help Cmf.Custom.Test"
             packages-to-pack: "Cmf.Custom.Business Cmf.Custom.Data Cmf.Custom.HTML Cmf.Custom.Help Cmf.Custom.Grafana Cmf.Custom.IoT Cmf.Custom.SecurityPortal Cmf.Custom.Database/Pre Cmf.Custom.Database/Post Cmf.Custom.Help Cmf.Custom.Reporting Cmf.Custom.IoT Cmf.Custom.Test"
 
