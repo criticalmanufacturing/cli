@@ -1,0 +1,1920 @@
+{
+  "_type": "https://in-toto.io/Statement/v1",
+  "predicateType": "https://slsa.dev/provenance/v1",
+  "subject": [
+    {
+      "name": ".nojekyll",
+      "digest": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "01-install/index.html",
+      "digest": {
+        "sha256": "4408e59d90b04db46b3ca5f23dea46672bc8143e78b16c85aca6e7e63f09bc71"
+      }
+    },
+    {
+      "name": "02-learn/concepts/index.html",
+      "digest": {
+        "sha256": "0aaa2fca177efa33087541f32dacce4fdf367368bd5daab313c34cae173051dc"
+      }
+    },
+    {
+      "name": "02-learn/concepts/layers-packages/index.html",
+      "digest": {
+        "sha256": "411b3fed9737a4ca5b6e28ef953e8abddacee573db71d2b4fbd34a5bb3ce5ca7"
+      }
+    },
+    {
+      "name": "02-learn/concepts/project-scaffold/index.html",
+      "digest": {
+        "sha256": "d4b64423b197ec4b32dd5122eb16e903235dc93300221eea5a19d5d78240884d"
+      }
+    },
+    {
+      "name": "02-learn/concepts/project-scaffold/traditional.gif",
+      "digest": {
+        "sha256": "4706957f25dfd34d4de71be52a52e63f3724e8186903c22512b0780bcd6a44da"
+      }
+    },
+    {
+      "name": "02-learn/concepts/project-types/index.html",
+      "digest": {
+        "sha256": "bb1785e5a67d3600ba93ef476fb8310fb361a530e21a31ab1d94b328763c5e64"
+      }
+    },
+    {
+      "name": "02-learn/concepts/release-process/index.html",
+      "digest": {
+        "sha256": "08f4a7c25034e02aef071debedc38a0407d62957ded55cecbecade06eb39da22"
+      }
+    },
+    {
+      "name": "02-learn/help/index.html",
+      "digest": {
+        "sha256": "1d18bc20aea7febed1b1e6b7047e3075df870327a9db0d856e618c13c7b8fd6a"
+      }
+    },
+    {
+      "name": "02-learn/index.html",
+      "digest": {
+        "sha256": "ce622e74691855812377e52310fde24efd4927493af7f52efbe2b247deb62326"
+      }
+    },
+    {
+      "name": "02-learn/migration/index.html",
+      "digest": {
+        "sha256": "5bcfb9e9c460b35f34b10afb722ee99de38d77e777225070e45903ab9d6a9ed2"
+      }
+    },
+    {
+      "name": "02-learn/migration/migration-v3/index.html",
+      "digest": {
+        "sha256": "ef4fe527931e74650d13fba378f799fd6086d9ec663066c4e1a759563d75c259"
+      }
+    },
+    {
+      "name": "02-learn/tutorials/1-scaffolding/1-project-init/index.html",
+      "digest": {
+        "sha256": "ac8e7aff433e9b9b7fc3806b15c656c1eef9596764563037e6d2b68eadd6fb66"
+      }
+    },
+    {
+      "name": "02-learn/tutorials/1-scaffolding/2-project-scaffold/index.html",
+      "digest": {
+        "sha256": "9824f57c034ff9a807b36807e7c5d4c7262dfda14495f7d1605961b3fab26b24"
+      }
+    },
+    {
+      "name": "02-learn/tutorials/1-scaffolding/3-post-scaffolding/index.html",
+      "digest": {
+        "sha256": "00be5eef839994ed0f14358b3a997f218d885dd9d415b7e093956ff591cec8d4"
+      }
+    },
+    {
+      "name": "02-learn/tutorials/1-scaffolding/index.html",
+      "digest": {
+        "sha256": "b3f0ec0c70dd228d81d00d8feb07394e2c57a435128202e9bf242cc8eeb64a26"
+      }
+    },
+    {
+      "name": "02-learn/tutorials/2-building-and-release/index.html",
+      "digest": {
+        "sha256": "c96761db205ee73e68ef99a1f4bf51e976bfac73c456418440b214c1395601d3"
+      }
+    },
+    {
+      "name": "02-learn/tutorials/index.html",
+      "digest": {
+        "sha256": "0da09ec9b603dc118690dd36f15f318cd471fd2205faf81ef7a31fde014c174f"
+      }
+    },
+    {
+      "name": "03-explore/commands/assemble/index.html",
+      "digest": {
+        "sha256": "68731db5731ac012d35da13022de1c35e0efb47215bde39fe785c09b6e298bdf"
+      }
+    },
+    {
+      "name": "03-explore/commands/build/index.html",
+      "digest": {
+        "sha256": "d8dea90502bf2b01c16a5ea196d99a96bfe4cb8ad19876d00d2b205defc34721"
+      }
+    },
+    {
+      "name": "03-explore/commands/build_help/index.html",
+      "digest": {
+        "sha256": "6febe6b6ccf9f1793cf7b5bd54e2c2e55e7ce24cde7b0c3464b34f42644405b8"
+      }
+    },
+    {
+      "name": "03-explore/commands/build_help_generateBasedOnTemplates/index.html",
+      "digest": {
+        "sha256": "63ffde25d20aa20d1ed6c96a05e690cc7d387f7f1f8a053a9865d39334b7bc9e"
+      }
+    },
+    {
+      "name": "03-explore/commands/build_help_generateMenuItems/index.html",
+      "digest": {
+        "sha256": "4c8f43326381b55f9a7d0c3ccb09e637a810013b89a0076163633d5484c89ae5"
+      }
+    },
+    {
+      "name": "03-explore/commands/bump/index.html",
+      "digest": {
+        "sha256": "1d5896908abdc0007d134c7137a4e6cd9fa7d68d0e179d3f7ed13807dc7f19b2"
+      }
+    },
+    {
+      "name": "03-explore/commands/bump_iot/index.html",
+      "digest": {
+        "sha256": "c941758818adfa17b80d1509f112866aa83c9ee09b7e5ea3531565061950b7bf"
+      }
+    },
+    {
+      "name": "03-explore/commands/bump_iot_configuration/index.html",
+      "digest": {
+        "sha256": "950118095997f43a82043ffc465d4a793f29fe75b24ef2f3b0644d8d37b530eb"
+      }
+    },
+    {
+      "name": "03-explore/commands/bump_iot_customization/index.html",
+      "digest": {
+        "sha256": "cfe7961bff07cc39a35c0a5cfe558b6a900fee312c6dfa3779c54c0ad32f7924"
+      }
+    },
+    {
+      "name": "03-explore/commands/init/index.html",
+      "digest": {
+        "sha256": "c1a3808226a47dfeb55ed4f01f8049b81a127617cafbff9356559d55073acf10"
+      }
+    },
+    {
+      "name": "03-explore/commands/login/index.html",
+      "digest": {
+        "sha256": "d5e590357de2bae28e86a7a82e20d694dbd26ff19af6521623385653eb4db76d"
+      }
+    },
+    {
+      "name": "03-explore/commands/login_sync/index.html",
+      "digest": {
+        "sha256": "31719ec9c8b851e81a4ae55e8d25af3e05977c9a632ef6d9f1a4da63b54cae87"
+      }
+    },
+    {
+      "name": "03-explore/commands/ls/index.html",
+      "digest": {
+        "sha256": "f8889f4c62183006eb2e99ce74e50e17a9f0b1c6d344ae2f193a9b3722c4b08e"
+      }
+    },
+    {
+      "name": "03-explore/commands/new/index.html",
+      "digest": {
+        "sha256": "d17f116bbedd30d5ac3545f377e6fd7ca59f9eeeb3f8f090539a3d8cedcf3446"
+      }
+    },
+    {
+      "name": "03-explore/commands/new_business/index.html",
+      "digest": {
+        "sha256": "e9b93dbf7682ebea6f74d0ba817be798f7691edffd00bfaaefc82ecd3f638e9b"
+      }
+    },
+    {
+      "name": "03-explore/commands/new_data/index.html",
+      "digest": {
+        "sha256": "f5f13a9b065d43a8771fbd51369c0c30d92850d6f66698f879fdff8c6351794e"
+      }
+    },
+    {
+      "name": "03-explore/commands/new_database/index.html",
+      "digest": {
+        "sha256": "b02c5ae60b9fa4952743b34795dde7cd047b9dabce72a1c63319100fc1fa4ca0"
+      }
+    },
+    {
+      "name": "03-explore/commands/new_feature/index.html",
+      "digest": {
+        "sha256": "452f1c21ab8de0d26f6fd149ea5ed4e29a32e03897cd180134cc33e5456f8ae1"
+      }
+    },
+    {
+      "name": "03-explore/commands/new_help/index.html",
+      "digest": {
+        "sha256": "b0ca8ebee727e5f0ccee49707348ede2291dba366c7fab948cd3946ca8b1f780"
+      }
+    },
+    {
+      "name": "03-explore/commands/new_html/index.html",
+      "digest": {
+        "sha256": "695046d6d0c27de1310c2c98f3f1fd4493a5918450e13375a28d88927cdb5124"
+      }
+    },
+    {
+      "name": "03-explore/commands/new_iot/index.html",
+      "digest": {
+        "sha256": "8be01bd9ea8c7cea5e03a81fde3760ea0651846cd74f0614bcc84ec4f10f1bff"
+      }
+    },
+    {
+      "name": "03-explore/commands/new_iot_businessScenario/index.html",
+      "digest": {
+        "sha256": "d1c2ec04617fafc288d31d6c77a708247b530a7b5764df96de291e367b7925a1"
+      }
+    },
+    {
+      "name": "03-explore/commands/new_iot_converter/index.html",
+      "digest": {
+        "sha256": "9d3b8f7931891da99d67874270e7372c0169a6a2837b6cdc674a13bf63fd3424"
+      }
+    },
+    {
+      "name": "03-explore/commands/new_iot_driver/index.html",
+      "digest": {
+        "sha256": "6be7183d3563282a205c07a9696dd51d433eaa5e3a12bf8915bdec760d5f6432"
+      }
+    },
+    {
+      "name": "03-explore/commands/new_iot_task/index.html",
+      "digest": {
+        "sha256": "6d8ab65f3d338c3a46f108b7ed33fa12c380713297c64e9e676ee905a8232e45"
+      }
+    },
+    {
+      "name": "03-explore/commands/new_iot_taskLibrary/index.html",
+      "digest": {
+        "sha256": "3633dbd4b40684266912a6a30e41da8dd5f23fb50ab5314a610caddde39ccf1c"
+      }
+    },
+    {
+      "name": "03-explore/commands/new_test/index.html",
+      "digest": {
+        "sha256": "e0b205d3d5b47ed52695f270bd2101d4ac94f847d23043cd5ac00497bf71b885"
+      }
+    },
+    {
+      "name": "03-explore/commands/pack/index.html",
+      "digest": {
+        "sha256": "090848b4a9afe0d4304ee3d7e57e8b8c19534ab3feec87ce884b4520fa7d227c"
+      }
+    },
+    {
+      "name": "03-explore/commands/restore/index.html",
+      "digest": {
+        "sha256": "f8b8e6be2dfb12634076a9e5419507d1f2bf3dae548825510712d84c80768748"
+      }
+    },
+    {
+      "name": "03-explore/config-files/cmfpackage.json/contenttype/index.html",
+      "digest": {
+        "sha256": "339376c00dc9d0e8cba99c91d5973fb4ec3b30528736dc781b87f3b72792648b"
+      }
+    },
+    {
+      "name": "03-explore/config-files/cmfpackage.json/defaultcontenttoignore/index.html",
+      "digest": {
+        "sha256": "d9ab3b2b7e0b0d59c7da91bfe9bfd1e3c02afdf508b0b8d8747660c306084c81"
+      }
+    },
+    {
+      "name": "03-explore/config-files/cmfpackage.json/html-transformations/index.html",
+      "digest": {
+        "sha256": "b69657f168a8df95a2e9d554cb76537f7389ff8c97ff7896f2aba2e5c72bc2c9"
+      }
+    },
+    {
+      "name": "03-explore/config-files/cmfpackage.json/index.html",
+      "digest": {
+        "sha256": "06f4ec41b4640d1f9be57634175195358ad2162c4e94f8890f637e523da639c1"
+      }
+    },
+    {
+      "name": "03-explore/config-files/cmfpackage.json/packaction/index.html",
+      "digest": {
+        "sha256": "e21c2248049a8ca2687b35c945f16d3eff7b36415a3d79a444edccc00a658aba"
+      }
+    },
+    {
+      "name": "03-explore/config-files/cmfpackage.json/packagetype/index.html",
+      "digest": {
+        "sha256": "c231c0b3b756fb84c437365b61bc2c015d37a4cd14968ab6a93b7ca954c86f6e"
+      }
+    },
+    {
+      "name": "03-explore/config-files/infrastructure.json/index.html",
+      "digest": {
+        "sha256": "7bc793f8806219a981a012c43c423f5c40a061febd75c78de97cf556b8aa378d"
+      }
+    },
+    {
+      "name": "03-explore/config-files/repositories.json/index.html",
+      "digest": {
+        "sha256": "248a0076463cd7d1f5d649c94b986f398520fd066f3ec5aaaec43997af7c5613"
+      }
+    },
+    {
+      "name": "03-explore/guides/IoT-on-MES-v10/cmf_new_iot.gif",
+      "digest": {
+        "sha256": "f855aa2510360299a7195cb9650fe13b19a67c02b9ee8dc9c460071817a031e4"
+      }
+    },
+    {
+      "name": "03-explore/guides/IoT-on-MES-v10/generate_tasklibrary.gif",
+      "digest": {
+        "sha256": "aa5a3143890b0342eb0d9e5f2d27edb0923feaa2a34bde295479415a21675154"
+      }
+    },
+    {
+      "name": "03-explore/guides/IoT-on-MES-v11/cmf_new_iot.gif",
+      "digest": {
+        "sha256": "998301004c4b3ac0759d81caf328e2188e56047bc3ab9bc0c1fc2f005298b251"
+      }
+    },
+    {
+      "name": "03-explore/guides/IoT-on-MES-v11/cmf_new_iot_businessScenario.gif",
+      "digest": {
+        "sha256": "503a9eba7b0173f7ed34f8301c3453d73b27b9d814c7a7bc3b85643a87ca8095"
+      }
+    },
+    {
+      "name": "03-explore/guides/IoT-on-MES-v11/cmf_new_iot_converter.gif",
+      "digest": {
+        "sha256": "08a077023289a01324cfbfe324e786071f0b5ce8336b552c550c51932c9e3882"
+      }
+    },
+    {
+      "name": "03-explore/guides/IoT-on-MES-v11/cmf_new_iot_driver.gif",
+      "digest": {
+        "sha256": "acc1329982635a4b4cfd27a3f6fae17dcabd5dd830233ec73eadd9ebd408630c"
+      }
+    },
+    {
+      "name": "03-explore/guides/IoT-on-MES-v11/cmf_new_iot_task.gif",
+      "digest": {
+        "sha256": "14035e0a054952d3ed25a0544b7c4c40d04fcd8db0566205f561ee18e8914bff"
+      }
+    },
+    {
+      "name": "03-explore/guides/IoT-on-MES-v11/cmf_new_iot_taskLibrary.gif",
+      "digest": {
+        "sha256": "a8d3a27334db4cdd8de0f37a12165a4451e3b579e2f21370d2dbefdf045a0597"
+      }
+    },
+    {
+      "name": "03-explore/guides/iot-scaffolding/index.html",
+      "digest": {
+        "sha256": "753426d9bdead2be1fbb0b25e8ebd39c603087ffb223b40cd01e6f76178f24f9"
+      }
+    },
+    {
+      "name": "03-explore/index.html",
+      "digest": {
+        "sha256": "045746698dd9675a9a7eac44490e0d33a3159d85fc270383c233ed20a6da5ff0"
+      }
+    },
+    {
+      "name": "03-explore/plugins/index.html",
+      "digest": {
+        "sha256": "4466f0fe3f076883f1c0a42a38956107ba6b01660efbed40232caa5eb05e1993"
+      }
+    },
+    {
+      "name": "03-explore/telemetry/index.html",
+      "digest": {
+        "sha256": "4b4c5f56b933edf78f2be4e947760ec1ed881dbc23d2aae4311a8c69e98dadd9"
+      }
+    },
+    {
+      "name": "404.html",
+      "digest": {
+        "sha256": "9fb4949ac24b8e6d6cb901ccf7fec7de7bec483aacbe85e83e921f67327ba152"
+      }
+    },
+    {
+      "name": "assets/cmf-logo.png",
+      "digest": {
+        "sha256": "f956ec4eab922f519c2b722cd5d98cbff0b695b3fc738c668b0a41327e2b903a"
+      }
+    },
+    {
+      "name": "assets/favicon.ico",
+      "digest": {
+        "sha256": "11407c425c4162c6059f39270df8bf2995f78a28f6e39fe655bed6a120e0ba3b"
+      }
+    },
+    {
+      "name": "assets/images/favicon.png",
+      "digest": {
+        "sha256": "023854c43fc4b25b795ee4951c8019e3de0593ffeb6f918b5d1f2a9b47a57cfe"
+      }
+    },
+    {
+      "name": "assets/javascripts/bundle.d7400e89.min.js",
+      "digest": {
+        "sha256": "f288ab99e197c406766aea4581ba6e902d7d0e28c013bdd3cd3fab6cc77fb7c8"
+      }
+    },
+    {
+      "name": "assets/javascripts/bundle.d7400e89.min.js.map",
+      "digest": {
+        "sha256": "dcfd5eb85b43e975773ecf102220197ef3f985f45abbbee4a5286e137f8097ba"
+      }
+    },
+    {
+      "name": "assets/javascripts/lunr/min/lunr.ar.min.js",
+      "digest": {
+        "sha256": "89a1dcb094a8491d968c151ab254a03195c87ff2adaa2408c769928284847125"
+      }
+    },
+    {
+      "name": "assets/javascripts/lunr/min/lunr.da.min.js",
+      "digest": {
+        "sha256": "2a12734048eae74e0a05e5c108fdf24c2b71dfcd8da712336ca9e3d27ab92956"
+      }
+    },
+    {
+      "name": "assets/javascripts/lunr/min/lunr.de.min.js",
+      "digest": {
+        "sha256": "bcaa7c5c19bc730c05bb91e22ae0e386e1ac4a0580c42b7d94f9b8757aadadab"
+      }
+    },
+    {
+      "name": "assets/javascripts/lunr/min/lunr.du.min.js",
+      "digest": {
+        "sha256": "452da04fe449b9c65c61384fec582dc63824bd4e559fae2c3926a7790b68e976"
+      }
+    },
+    {
+      "name": "assets/javascripts/lunr/min/lunr.el.min.js",
+      "digest": {
+        "sha256": "a6fd5cbbb21d127407bc31c6c4298bf92ec7e1496a1ea83d5e4add14325a0c21"
+      }
+    },
+    {
+      "name": "assets/javascripts/lunr/min/lunr.es.min.js",
+      "digest": {
+        "sha256": "dec4ec90bd6f478ca3e65636a8e3fedf512b23d01a51a01d7e7822f67ebbaaf8"
+      }
+    },
+    {
+      "name": "assets/javascripts/lunr/min/lunr.fi.min.js",
+      "digest": {
+        "sha256": "681541fcf5b1987ad8b00766e9c06389ecf99c3d7ae817fa891f923f691b8668"
+      }
+    },
+    {
+      "name": "assets/javascripts/lunr/min/lunr.fr.min.js",
+      "digest": {
+        "sha256": "4dd56aa2551e770ad26ef4b85092cd31447671e0e84b39514278547f54177377"
+      }
+    },
+    {
+      "name": "assets/javascripts/lunr/min/lunr.he.min.js",
+      "digest": {
+        "sha256": "3f7d5c28ada94d78c9bc8041e271c355800ba36dbab98ad95d57b6bc25993621"
+      }
+    },
+    {
+      "name": "assets/javascripts/lunr/min/lunr.hi.min.js",
+      "digest": {
+        "sha256": "631fff52e3623f2dfba35af076c6b8b5a450eeffe30a5cfac7458dab77cbe0a6"
+      }
+    },
+    {
+      "name": "assets/javascripts/lunr/min/lunr.hu.min.js",
+      "digest": {
+        "sha256": "876c969bbf4a2b84738f4e0a14922ee331cb7c2193a621f65db7f836fdd33a38"
+      }
+    },
+    {
+      "name": "assets/javascripts/lunr/min/lunr.hy.min.js",
+      "digest": {
+        "sha256": "0efbcb902bdb7ec0dddffa5e2ba347b74c49ffc5f43fd73ffed83528eba12e95"
+      }
+    },
+    {
+      "name": "assets/javascripts/lunr/min/lunr.it.min.js",
+      "digest": {
+        "sha256": "00a5073df2e922e5fded1c5a4d4011aec02472ab9d9182a7c6508d60b625c453"
+      }
+    },
+    {
+      "name": "assets/javascripts/lunr/min/lunr.ja.min.js",
+      "digest": {
+        "sha256": "c4fded308f633681a6ed53b6c10d8ca5916fdfd50f6b82ec914d725be0cb8bd6"
+      }
+    },
+    {
+      "name": "assets/javascripts/lunr/min/lunr.jp.min.js",
+      "digest": {
+        "sha256": "04114edc36dc114edce5afbb3c7f795f45c77d8673c1edcdca5675ddab5d5199"
+      }
+    },
+    {
+      "name": "assets/javascripts/lunr/min/lunr.kn.min.js",
+      "digest": {
+        "sha256": "a064d0d7438334957a442b626140fb72f4ede8ebe17eb5c4e25682d87c88bbf8"
+      }
+    },
+    {
+      "name": "assets/javascripts/lunr/min/lunr.ko.min.js",
+      "digest": {
+        "sha256": "73d1bdb1de4aef6c5920f516924c5ab1c440db50a6f5c6126bd0fb7cf5d37664"
+      }
+    },
+    {
+      "name": "assets/javascripts/lunr/min/lunr.multi.min.js",
+      "digest": {
+        "sha256": "9761f475ae79f36420ff714df9950efb264effcf9230efd55b511a0de899e979"
+      }
+    },
+    {
+      "name": "assets/javascripts/lunr/min/lunr.nl.min.js",
+      "digest": {
+        "sha256": "399ef26d61ed2d5806f58ea723dfaca09f4a7c9b51e315bdd17482c8e3013a3e"
+      }
+    },
+    {
+      "name": "assets/javascripts/lunr/min/lunr.no.min.js",
+      "digest": {
+        "sha256": "57f9db9290f9ed36080755f53ee342a04f55a5954e4add915d1c301a37464573"
+      }
+    },
+    {
+      "name": "assets/javascripts/lunr/min/lunr.pt.min.js",
+      "digest": {
+        "sha256": "3a25d2abaa23063cf13fc56c19ae4cc5050cb6215115e9d08f4a6f4b78780067"
+      }
+    },
+    {
+      "name": "assets/javascripts/lunr/min/lunr.ro.min.js",
+      "digest": {
+        "sha256": "cfa26a8ea4293d81e8547ba2321d703a0fe9881f0721fca5f33a3f80bf156ee9"
+      }
+    },
+    {
+      "name": "assets/javascripts/lunr/min/lunr.ru.min.js",
+      "digest": {
+        "sha256": "50ef3c0fab4a3f2d260e8973c63363aa0dcf02b559ea9d11d5f02b6197585c17"
+      }
+    },
+    {
+      "name": "assets/javascripts/lunr/min/lunr.sa.min.js",
+      "digest": {
+        "sha256": "41c558a4355c3eae8f0a27ae870712738f14b0bd88038042ac8ab8b411e5817f"
+      }
+    },
+    {
+      "name": "assets/javascripts/lunr/min/lunr.stemmer.support.min.js",
+      "digest": {
+        "sha256": "2e7213605846a18014ec750910cb18a8a4c60bb23200103b3fad9ef27b10c705"
+      }
+    },
+    {
+      "name": "assets/javascripts/lunr/min/lunr.sv.min.js",
+      "digest": {
+        "sha256": "942b165bcc8218e3246fc4735af9b1c2f66514366d0000be051bf1bb896d413e"
+      }
+    },
+    {
+      "name": "assets/javascripts/lunr/min/lunr.ta.min.js",
+      "digest": {
+        "sha256": "17a32dc49c27c9d27945625a7e8d066d42f64ea1ce5a5b34de427723fbf9ae2a"
+      }
+    },
+    {
+      "name": "assets/javascripts/lunr/min/lunr.te.min.js",
+      "digest": {
+        "sha256": "079c8fcf028aeef388e98ec8607c8ea50ba9660c46797c8a119d05f8f8205838"
+      }
+    },
+    {
+      "name": "assets/javascripts/lunr/min/lunr.th.min.js",
+      "digest": {
+        "sha256": "348461266843e316b26820004a96d3fd87a1579829d244ce510c17293eef0439"
+      }
+    },
+    {
+      "name": "assets/javascripts/lunr/min/lunr.tr.min.js",
+      "digest": {
+        "sha256": "e8bf57b1033b8bd92ea04a94c533015aa1a7f0a8d6830194b974e94e1e4aca3c"
+      }
+    },
+    {
+      "name": "assets/javascripts/lunr/min/lunr.vi.min.js",
+      "digest": {
+        "sha256": "2e39c3fd7305f6e66fc0424796a7696cb8e36dc0f5c3a83ea1bc44dfe3fecb56"
+      }
+    },
+    {
+      "name": "assets/javascripts/lunr/min/lunr.zh.min.js",
+      "digest": {
+        "sha256": "d8c5b72c36ec9c3197602546e9ba5b57ada3f725d564a551bf16eabafb548e88"
+      }
+    },
+    {
+      "name": "assets/javascripts/lunr/tinyseg.js",
+      "digest": {
+        "sha256": "1b044c239610ef65fceff6039567442bb1692d413f5ee8686fee81b1a3067761"
+      }
+    },
+    {
+      "name": "assets/javascripts/lunr/wordcut.js",
+      "digest": {
+        "sha256": "3d38fde68af348915288e45eeb338af8256c8611fa2cfef307e6ab95808b3567"
+      }
+    },
+    {
+      "name": "assets/javascripts/workers/search.2c215733.min.js",
+      "digest": {
+        "sha256": "cfb35333fafd6d2eb148eba21452849fb7fbde32fdfbf986836573f963106188"
+      }
+    },
+    {
+      "name": "assets/javascripts/workers/search.2c215733.min.js.map",
+      "digest": {
+        "sha256": "780dccece24891aa19da6285715e2c7d0cd884237a87a3a9be6684823584921f"
+      }
+    },
+    {
+      "name": "assets/stylesheets/main.ec1eaa64.min.css",
+      "digest": {
+        "sha256": "ec1eaa640ab3790ea234d5a09da26015eb070222da8185a1e532d99cb022d68d"
+      }
+    },
+    {
+      "name": "assets/stylesheets/main.ec1eaa64.min.css.map",
+      "digest": {
+        "sha256": "0202466a8ddb51487b325e6df1b6e3a704d7506cf5762617301e5d4bff3a0f54"
+      }
+    },
+    {
+      "name": "assets/stylesheets/palette.ab4e12ef.min.css",
+      "digest": {
+        "sha256": "ab4e12ef511f9c36de818455892c5c57cc3f98a8c86c36fa609601a88a720da2"
+      }
+    },
+    {
+      "name": "assets/stylesheets/palette.ab4e12ef.min.css.map",
+      "digest": {
+        "sha256": "bcf19de0132bed966de2c46b3b56b69f4bf720b2fe35e8dca22b568a017ee3f9"
+      }
+    },
+    {
+      "name": "images/pipelines/branch_policies.png",
+      "digest": {
+        "sha256": "f7265d5feee8dcedce10cf7cfb05acda54f1a5f3b075c75313d1f89b6a1d19a9"
+      }
+    },
+    {
+      "name": "images/pipelines/classic_editor.png",
+      "digest": {
+        "sha256": "eb50b03651e4c6d331be7d41250a1451f4a5d87bcc21e1d46dd9e86bc54176d8"
+      }
+    },
+    {
+      "name": "images/pipelines/pipeline_clean.png",
+      "digest": {
+        "sha256": "581e18c77baf49a96f9bdf2be7f564a9719542900c65770fdbdd7d9c04654634"
+      }
+    },
+    {
+      "name": "images/pipelines/pipeline_config.png",
+      "digest": {
+        "sha256": "ea04b124532a26bc5787885063bcae89340a09dbc3319416e3f4fee2222f4b52"
+      }
+    },
+    {
+      "name": "images/pipelines/pipeline_list.png",
+      "digest": {
+        "sha256": "fd1842917e41f348fea436c69d4edd6755096d9044d93b1987856ff9d31b3b81"
+      }
+    },
+    {
+      "name": "images/pipelines/pipeline_new.png",
+      "digest": {
+        "sha256": "c1ff45579588290fef282fcb62ce376b969d1de810d473a64efe8977dca8c528"
+      }
+    },
+    {
+      "name": "images/pipelines/pipeline_yaml.png",
+      "digest": {
+        "sha256": "5ee590ab7b409d403e24209b39f2b5af79710262b90b0cb162e85f85b504ce61"
+      }
+    },
+    {
+      "name": "images/pipelines/pipeline_yaml_select.png",
+      "digest": {
+        "sha256": "c15bef4644509f753557c4abbf3910ea1f5f8c92c7fc158c2afc3aa3163bd541"
+      }
+    },
+    {
+      "name": "images/pipelines/policy_build_validation.png",
+      "digest": {
+        "sha256": "b27f37993ff54bcf6b5e5689676d823a8b9aacf16f604056f7dbe31ab5c0a4d4"
+      }
+    },
+    {
+      "name": "images/pipelines/policy_options.png",
+      "digest": {
+        "sha256": "cad2d74c6f98db9c688a80ea0ef8ac66d979ab5bc17793e62156c2a1254afd07"
+      }
+    },
+    {
+      "name": "images/pipelines/variable-group.png",
+      "digest": {
+        "sha256": "6287351e39260c39720154d6eaf9ea6ad2370251252f062b98b1317424605d70"
+      }
+    },
+    {
+      "name": "index.html",
+      "digest": {
+        "sha256": "dd402d0912791f756c4b50de6d099bb5678f9d649acaeb72e4d131aade2f42dd"
+      }
+    },
+    {
+      "name": "search/search_index.json",
+      "digest": {
+        "sha256": "d0949cf236fe1ee590bcd6cc15590c586b811052f275540614109d4b54507757"
+      }
+    },
+    {
+      "name": "sitemap.xml",
+      "digest": {
+        "sha256": "0d79c30036769034e158bcae44d31db50406634a2872ebbf7892012f0e1b7ec6"
+      }
+    },
+    {
+      "name": "sitemap.xml.gz",
+      "digest": {
+        "sha256": "6443e388640f9958d52a9a6ac1985adfea4c32510115e9f1530985459a1f63ad"
+      }
+    },
+    {
+      "name": "stylesheets/extra.css",
+      "digest": {
+        "sha256": "5380bcfc15476ae35e5ab3edb110e9faf7e37f5310b967f9fee64cde235bdd2c"
+      }
+    }
+  ],
+  "predicate": {
+    "buildDefinition": {
+      "buildType": "https://github.com/moby/buildkit/blob/master/docs/attestations/slsa-definitions.md",
+      "resolvedDependencies": [
+        {
+          "uri": "pkg:docker/docker/dockerfile@1",
+          "digest": {
+            "sha256": "4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e"
+          }
+        },
+        {
+          "uri": "pkg:docker/python@3.13-slim-trixie?platform=linux%2Famd64",
+          "digest": {
+            "sha256": "70729b46c69b4f1e97c4822c1af3df53a1476cf5ddc6c087c0c10bc3a5678c2f"
+          }
+        }
+      ],
+      "externalParameters": {
+        "configSource": {
+          "path": "Dockerfile"
+        },
+        "request": {
+          "frontend": "gateway.v0",
+          "args": {
+            "cmdline": "docker/dockerfile:1",
+            "source": "docker/dockerfile:1",
+            "target": "export"
+          },
+          "locals": [
+            {
+              "name": "context"
+            },
+            {
+              "name": "dockerfile"
+            }
+          ],
+          "root": {
+            "configSource": {
+              "path": "Dockerfile"
+            },
+            "request": {
+              "args": {
+                "target": "export",
+                "vcs:localdir:context": "docs",
+                "vcs:localdir:dockerfile": "docs",
+                "vcs:revision": "1d8652d708f2f7dec8ee2bf8063ea16d10bf2bbf",
+                "vcs:source": "https://github.com/criticalmanufacturing/cli"
+              }
+            }
+          },
+          "compatibilityVersion": 30
+        }
+      },
+      "internalParameters": {
+        "buildConfig": {
+          "digestMapping": {
+            "sha256:088ccdf84f4bfc5256cc0837eee74da02adcac23cc9c03be4a684acfdd515225": "step1",
+            "sha256:231952c9d0e4b4fc7ce55df674243d3ec39670cfb4a13d37f9bbcd213c40b082": "step9",
+            "sha256:29d3313cb419d0bfdc40f40f78d926b58142661cb21f9728bb2be1d917efbb18": "step4",
+            "sha256:3fd3dd35ebb941c3a4ed0bd341fb7f036a0d0d43647f4ec00000601abdbec659": "step8",
+            "sha256:683ecdb8478e61a59e90816c1bb04f8dd2de8176e6255fe876d5edb87606f121": "step2",
+            "sha256:78401eeaa610bfdb55a01aadd09b4f221cf210f5e4b0d731b10857c1a3d5b651": "step5",
+            "sha256:938bdf540394604496aaea0f368fdebbab08350979e2aeead7df71234c981d70": "step3",
+            "sha256:9a88d3cdf8e6cf7a4d911098e4b01b782c3c29a06b2e961977f6982d1c82dbc4": "step6",
+            "sha256:dd3cc5ffe3eb1e7d838afcd94380f0a7230cb4815e5387da4e5c92edfa518687": "step7",
+            "sha256:fb4fe5334d4fd04b7603bf3d0adca9e6240b46456c4ff7088ceb7edb7367dcf7": "step0"
+          },
+          "llbDefinition": [
+            {
+              "id": "step0",
+              "op": {
+                "Op": {
+                  "source": {
+                    "identifier": "docker-image://docker.io/library/python:3.13-slim-trixie@sha256:70729b46c69b4f1e97c4822c1af3df53a1476cf5ddc6c087c0c10bc3a5678c2f"
+                  }
+                },
+                "constraints": {},
+                "platform": {
+                  "Architecture": "amd64",
+                  "OS": "linux"
+                }
+              }
+            },
+            {
+              "id": "step1",
+              "inputs": [
+                "step0:0"
+              ],
+              "op": {
+                "Op": {
+                  "file": {
+                    "actions": [
+                      {
+                        "Action": {
+                          "mkdir": {
+                            "makeParents": true,
+                            "mode": 493,
+                            "path": "/docs",
+                            "timestamp": -1
+                          }
+                        },
+                        "input": 0,
+                        "output": 0,
+                        "secondaryInput": -1
+                      }
+                    ]
+                  }
+                },
+                "constraints": {}
+              }
+            },
+            {
+              "id": "step2",
+              "op": {
+                "Op": {
+                  "source": {
+                    "attrs": {
+                      "local.excludepatterns": "[\"*\",\"!Dockerfile\",\"!requirements.txt\",\"!mkdocs.yml\",\"!src\",\"!src/**\"]",
+                      "local.followpaths": "[\"mkdocs.yml\",\"requirements.txt\",\"src\"]",
+                      "local.sharedkeyhint": "context"
+                    },
+                    "identifier": "local://context"
+                  }
+                },
+                "constraints": {}
+              }
+            },
+            {
+              "id": "step3",
+              "inputs": [
+                "step1:0",
+                "step2:0"
+              ],
+              "op": {
+                "Op": {
+                  "file": {
+                    "actions": [
+                      {
+                        "Action": {
+                          "copy": {
+                            "allowEmptyWildcard": true,
+                            "allowWildcard": true,
+                            "createDestPath": true,
+                            "dest": "/docs/",
+                            "dirCopyContents": true,
+                            "followSymlink": true,
+                            "mode": -1,
+                            "src": "/requirements.txt",
+                            "timestamp": -1
+                          }
+                        },
+                        "input": 0,
+                        "output": 0,
+                        "secondaryInput": 1
+                      }
+                    ]
+                  }
+                },
+                "constraints": {}
+              }
+            },
+            {
+              "id": "step4",
+              "inputs": [
+                "step3:0"
+              ],
+              "op": {
+                "Op": {
+                  "exec": {
+                    "meta": {
+                      "args": [
+                        "/bin/sh",
+                        "-c",
+                        "pip install --no-cache-dir -r requirements.txt"
+                      ],
+                      "cwd": "/docs",
+                      "env": [
+                        "PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                        "GPG_KEY=7169605F62C751356D054A26A821E680E5FA6305",
+                        "PYTHON_VERSION=3.13.16",
+                        "PYTHON_SHA256=f4b1bfb3c79b5bb11b8d228a12504163b4c0dab4d679828d8f5f26b6cb6ab35d"
+                      ],
+                      "removeMountStubsRecursive": true
+                    },
+                    "mounts": [
+                      {
+                        "dest": "/"
+                      }
+                    ]
+                  }
+                },
+                "constraints": {},
+                "platform": {
+                  "Architecture": "amd64",
+                  "OS": "linux"
+                }
+              }
+            },
+            {
+              "id": "step5",
+              "inputs": [
+                "step4:0",
+                "step2:0"
+              ],
+              "op": {
+                "Op": {
+                  "file": {
+                    "actions": [
+                      {
+                        "Action": {
+                          "copy": {
+                            "allowEmptyWildcard": true,
+                            "allowWildcard": true,
+                            "createDestPath": true,
+                            "dest": "/docs/",
+                            "dirCopyContents": true,
+                            "followSymlink": true,
+                            "mode": -1,
+                            "src": "/mkdocs.yml",
+                            "timestamp": -1
+                          }
+                        },
+                        "input": 0,
+                        "output": 0,
+                        "secondaryInput": 1
+                      }
+                    ]
+                  }
+                },
+                "constraints": {}
+              }
+            },
+            {
+              "id": "step6",
+              "inputs": [
+                "step5:0",
+                "step2:0"
+              ],
+              "op": {
+                "Op": {
+                  "file": {
+                    "actions": [
+                      {
+                        "Action": {
+                          "copy": {
+                            "allowEmptyWildcard": true,
+                            "allowWildcard": true,
+                            "createDestPath": true,
+                            "dest": "/docs/src/",
+                            "dirCopyContents": true,
+                            "followSymlink": true,
+                            "mode": -1,
+                            "src": "/src",
+                            "timestamp": -1
+                          }
+                        },
+                        "input": 0,
+                        "output": 0,
+                        "secondaryInput": 1
+                      }
+                    ]
+                  }
+                },
+                "constraints": {}
+              }
+            },
+            {
+              "id": "step7",
+              "inputs": [
+                "step6:0"
+              ],
+              "op": {
+                "Op": {
+                  "exec": {
+                    "meta": {
+                      "args": [
+                        "/bin/sh",
+                        "-c",
+                        "mkdocs build --strict"
+                      ],
+                      "cwd": "/docs",
+                      "env": [
+                        "PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                        "GPG_KEY=7169605F62C751356D054A26A821E680E5FA6305",
+                        "PYTHON_VERSION=3.13.16",
+                        "PYTHON_SHA256=f4b1bfb3c79b5bb11b8d228a12504163b4c0dab4d679828d8f5f26b6cb6ab35d"
+                      ],
+                      "removeMountStubsRecursive": true
+                    },
+                    "mounts": [
+                      {
+                        "dest": "/"
+                      }
+                    ]
+                  }
+                },
+                "constraints": {},
+                "platform": {
+                  "Architecture": "amd64",
+                  "OS": "linux"
+                }
+              }
+            },
+            {
+              "id": "step8",
+              "inputs": [
+                "step7:0"
+              ],
+              "op": {
+                "Op": {
+                  "file": {
+                    "actions": [
+                      {
+                        "Action": {
+                          "copy": {
+                            "allowEmptyWildcard": true,
+                            "allowWildcard": true,
+                            "createDestPath": true,
+                            "dest": "/",
+                            "dirCopyContents": true,
+                            "followSymlink": true,
+                            "mode": -1,
+                            "src": "/docs/site",
+                            "timestamp": -1
+                          }
+                        },
+                        "input": -1,
+                        "output": 0,
+                        "secondaryInput": 0
+                      }
+                    ]
+                  }
+                },
+                "constraints": {}
+              }
+            },
+            {
+              "id": "step9",
+              "inputs": [
+                "step8:0"
+              ],
+              "op": {
+                "Op": {}
+              }
+            }
+          ]
+        },
+        "builderPlatform": "linux/amd64",
+        "github_actor": "pedroapap",
+        "github_actor_id": "9829242",
+        "github_event_name": "push",
+        "github_event_payload": {
+          "after": "1d8652d708f2f7dec8ee2bf8063ea16d10bf2bbf",
+          "base_ref": null,
+          "before": "0890f61d13dc8bd8f70cc7949348036c24f53af6",
+          "commits": [
+            {
+              "author": {
+                "email": "AlbertoPonces@criticalmanufacturing.com",
+                "name": "Alberto Ponces",
+                "username": "ponces"
+              },
+              "committer": {
+                "email": "4687488+ponces@users.noreply.github.com",
+                "name": "Alberto Ponces",
+                "username": "ponces"
+              },
+              "distinct": false,
+              "id": "e3994607ad637cda2fb1eabb6a0717412d1322e1",
+              "message": "chore: bump to 6.0.0-18",
+              "timestamp": "2026-10-06T15:49:40+01:00",
+              "tree_id": "aa2573279873a0568e2f67e4b8e953c64bb0f2b2",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/e3994607ad637cda2fb1eabb6a0717412d1322e1"
+            },
+            {
+              "author": {
+                "email": "mail@jpsmoreira.com",
+                "name": "João Moreira",
+                "username": "jpsmoreira-com"
+              },
+              "committer": {
+                "email": "3718704+joaoopereira@users.noreply.github.com",
+                "name": "João Octávio Pereira",
+                "username": "joaoopereira"
+              },
+              "distinct": false,
+              "id": "64ff383ff29197628be3e782405bba293ada30ef",
+              "message": "feat: replace devblog by CM community\n\nDevblog is deprecated all its functionality are now integrated on CM community.",
+              "timestamp": "2026-10-07T14:03:04+01:00",
+              "tree_id": "9c564a5dcb27caa37bdb33707353190b314b679d",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/64ff383ff29197628be3e782405bba293ada30ef"
+            },
+            {
+              "author": {
+                "email": "PedroPinho@criticalmanufacturing.com",
+                "name": "Pedro Pinho"
+              },
+              "committer": {
+                "email": "pedro1998pinho@gmail.com",
+                "name": "Pedro Xavier Pinho",
+                "username": "Rockdell"
+              },
+              "distinct": false,
+              "id": "c396a1755e6b9def220002524b0c47bb1f09f3e1",
+              "message": "fix(publish): preserve upload errors and correct streaming reads",
+              "timestamp": "2026-10-07T19:25:06+01:00",
+              "tree_id": "59c5e6410bf125ebee45bd4d8fcd728e505a3ba2",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/c396a1755e6b9def220002524b0c47bb1f09f3e1"
+            },
+            {
+              "author": {
+                "email": "JoaoMagalhaes@criticalmanufacturing.com",
+                "name": "João Magalhães",
+                "username": "JoaoMagalhaesCrit"
+              },
+              "committer": {
+                "email": "pedro1998pinho@gmail.com",
+                "name": "Pedro Xavier Pinho",
+                "username": "Rockdell"
+              },
+              "distinct": false,
+              "id": "b01ac1b609e4765e032babd2d505d1507ae1bc43",
+              "message": "fix: resolve IoT engine test utilities import path by MES version\n\nfix: use dist test utilities path from MES 11.1.0",
+              "timestamp": "2026-10-08T11:27:39+01:00",
+              "tree_id": "a6994394771d91cda1a7a17d18c5e518a9e4d884",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/b01ac1b609e4765e032babd2d505d1507ae1bc43"
+            },
+            {
+              "author": {
+                "email": "JoaoMagalhaes@criticalmanufacturing.com",
+                "name": "João Magalhães",
+                "username": "JoaoMagalhaesCrit"
+              },
+              "committer": {
+                "email": "pedro1998pinho@gmail.com",
+                "name": "Pedro Xavier Pinho",
+                "username": "Rockdell"
+              },
+              "distinct": false,
+              "id": "58da136112c2de0d73ad58584c8a6620e7ce4f2e",
+              "message": "docs: add contributing guide with dev container setup and troubleshooting",
+              "timestamp": "2026-10-08T11:27:39+01:00",
+              "tree_id": "6abf588a7e1791fbc5259b68307a56672907688f",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/58da136112c2de0d73ad58584c8a6620e7ce4f2e"
+            },
+            {
+              "author": {
+                "email": "albertoponces@criticalmanufacturing.com",
+                "name": "Alberto Ponces",
+                "username": "ponces"
+              },
+              "committer": {
+                "email": "3718704+joaoopereira@users.noreply.github.com",
+                "name": "João Octávio Pereira",
+                "username": "joaoopereira"
+              },
+              "distinct": false,
+              "id": "fe549a3eb24d74a57a9cfb7cb3f09a3047589c51",
+              "message": "fix(templates): correct k6 performance test packaging",
+              "timestamp": "2026-10-09T09:16:24+01:00",
+              "tree_id": "20972f5053ec6ed0703af958399ddfc4b56c2fb9",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/fe549a3eb24d74a57a9cfb7cb3f09a3047589c51"
+            },
+            {
+              "author": {
+                "email": "AntonioPereira@criticalmanufacturing.com",
+                "name": "pedroapap"
+              },
+              "committer": {
+                "email": "3718704+joaoopereira@users.noreply.github.com",
+                "name": "João Octávio Pereira",
+                "username": "joaoopereira"
+              },
+              "distinct": false,
+              "id": "e9b957bd040c2c888a81772727b2811509e71021",
+              "message": "fix: forward plugin arguments verbatim so plugins can display help\n\nPlugin arguments were parsed by the CLI's own parser and only the\nunmatched tokens were forwarded, so options the CLI also knows\n(-h, -?, --help, and the -- separator) never reached the plugin.\nThe arguments after the plugin name are now passed through as typed.\n\nA single -- immediately after the plugin name is still treated as a\nseparator and not forwarded, so `cmf \u003cplugin\u003e -- --help` keeps working\nas before; a -- anywhere else is passed to the plugin.\n\nThe CLI no longer parses the plugin's arguments at all. The log level\ndefault (cmf_cli_loglevel, SYSTEM_DEBUG) is applied to the CLI's own\nlogging around the plugin explicitly, through the new\nLoggerHelpers.ApplyLogLevelFromEnvironment.\n\nCo-Authored-By: Claude Opus 5.5 \u003cnoreply@anthropic.com\u003e",
+              "timestamp": "2026-10-09T09:37:24+01:00",
+              "tree_id": "f27beac89c16019efbb7c6676164f7e496c5460e",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/e9b957bd040c2c888a81772727b2811509e71021"
+            },
+            {
+              "author": {
+                "email": "joaopereira@criticalmanufacturing.com",
+                "name": "João Octávio Pereira",
+                "username": "joaoopereira"
+              },
+              "committer": {
+                "email": "3718704+joaoopereira@users.noreply.github.com",
+                "name": "João Octávio Pereira",
+                "username": "joaoopereira"
+              },
+              "distinct": false,
+              "id": "a03ec3a38e3ac28d4af59e98b4883cfc8e197150",
+              "message": "refactor(pack): populate virtual root package dependencies\n\nReplace hardcoded root template dependencies with in-memory dependencies during packing.\nInclude deployment metadata only for MES 10 and earlier, excluding App repositories.\nUse normal manifest serialization without rewriting source packages.\n\nCover virtual dependencies, repeated packing, dry runs, and missing dependency collections.\nDocument that changelog updates belong to version bumps.",
+              "timestamp": "2026-10-09T09:39:48+01:00",
+              "tree_id": "de70f3b4a1f3dc116434fc3012d7ba0cd8e7c6da",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/a03ec3a38e3ac28d4af59e98b4883cfc8e197150"
+            },
+            {
+              "author": {
+                "email": "joaopereira@criticalmanufacturing.com",
+                "name": "João Octávio Pereira",
+                "username": "joaoopereira"
+              },
+              "committer": {
+                "email": "3718704+joaoopereira@users.noreply.github.com",
+                "name": "João Octávio Pereira",
+                "username": "joaoopereira"
+              },
+              "distinct": false,
+              "id": "b74c64fd04a625371b0a53da086f2a0f752842b0",
+              "message": "fix(errors): report expected CLI failures without stack traces\n\nUse CliException for expected validation, credential, and repository failures\nwhile preserving messages and exit codes. Narrow credential wrappers so\ncontrolled errors, cancellation, and programming errors retain their handling.\n\nHandle malformed portal JWT payloads consistently and add regression coverage\nand help documentation. Leave CHANGES.md and internal-state guards unchanged.",
+              "timestamp": "2026-10-09T09:47:27+01:00",
+              "tree_id": "1f330f372af569c7c23bfcea1af0c01b36969fb6",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/b74c64fd04a625371b0a53da086f2a0f752842b0"
+            },
+            {
+              "author": {
+                "email": "joaopereira@criticalmanufacturing.com",
+                "name": "João Octávio Pereira",
+                "username": "joaoopereira"
+              },
+              "committer": {
+                "email": "3718704+joaoopereira@users.noreply.github.com",
+                "name": "João Octávio Pereira",
+                "username": "joaoopereira"
+              },
+              "distinct": false,
+              "id": "c38217649d15ef862ade6201b6e0da23b725c4b5",
+              "message": "fix(tests): restore shared services after MES 12 help tests",
+              "timestamp": "2026-10-09T10:26:38+01:00",
+              "tree_id": "f871801e081c65f6b8e3a5c32f785d630b64012d",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/c38217649d15ef862ade6201b6e0da23b725c4b5"
+            },
+            {
+              "author": {
+                "email": "MarcoSilva@criticalmanufacturing.com",
+                "name": "Marco Silva",
+                "username": "m-s-"
+              },
+              "committer": {
+                "email": "3718704+joaoopereira@users.noreply.github.com",
+                "name": "João Octávio Pereira",
+                "username": "joaoopereira"
+              },
+              "distinct": false,
+              "id": "b4876239f383419fe81cbd1a43e4758c1ab276bb",
+              "message": "fix(auth): report invalid portal tokens as controlled CLI errors",
+              "timestamp": "2026-10-09T10:36:17+01:00",
+              "tree_id": "645b52d6ceca8813c1bf309ae57bb256426062ba",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/b4876239f383419fe81cbd1a43e4758c1ab276bb"
+            },
+            {
+              "author": {
+                "email": "joaopereira@criticalmanufacturing.com",
+                "name": "João Octávio Pereira",
+                "username": "joaoopereira"
+              },
+              "committer": {
+                "email": "3718704+joaoopereira@users.noreply.github.com",
+                "name": "João Octávio Pereira",
+                "username": "joaoopereira"
+              },
+              "distinct": false,
+              "id": "fd19103bd7272ba1a6d6e6b3ff7cd01bdba1f2d2",
+              "message": "fix(init): use next devcontainer tags for prerelease CLI versions",
+              "timestamp": "2026-10-09T11:56:20+01:00",
+              "tree_id": "1f5f1eafbd4ff3b47245fdab514cf3517e9385f4",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/fd19103bd7272ba1a6d6e6b3ff7cd01bdba1f2d2"
+            },
+            {
+              "author": {
+                "email": "joaopereira@criticalmanufacturing.com",
+                "name": "João Octávio Pereira",
+                "username": "joaoopereira"
+              },
+              "committer": {
+                "email": "3718704+joaoopereira@users.noreply.github.com",
+                "name": "João Octávio Pereira",
+                "username": "joaoopereira"
+              },
+              "distinct": false,
+              "id": "83c7da89a98e3940eb2d787081a5e058f142aae1",
+              "message": "build(docs): replace Earthly with Docker and standardize MkDocs",
+              "timestamp": "2026-10-09T11:57:45+01:00",
+              "tree_id": "ba0db70ffac5999dbf24131cfb4d23d7c4366bad",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/83c7da89a98e3940eb2d787081a5e058f142aae1"
+            },
+            {
+              "author": {
+                "email": "joaopereira@criticalmanufacturing.com",
+                "name": "João Octávio Pereira",
+                "username": "joaoopereira"
+              },
+              "committer": {
+                "email": "3718704+joaoopereira@users.noreply.github.com",
+                "name": "João Octávio Pereira",
+                "username": "joaoopereira"
+              },
+              "distinct": false,
+              "id": "4c00fc31b47e24533f611ed0264fdcd24101ee1f",
+              "message": "build(devcontainer): add Docker-in-Docker for docs development",
+              "timestamp": "2026-10-09T11:57:45+01:00",
+              "tree_id": "51171b0e04b062f5dadf4b979be0644a50c63dfa",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/4c00fc31b47e24533f611ed0264fdcd24101ee1f"
+            },
+            {
+              "author": {
+                "email": "MarcoSilva@criticalmanufacturing.com",
+                "name": "Marco Silva",
+                "username": "m-s-"
+              },
+              "committer": {
+                "email": "3718704+joaoopereira@users.noreply.github.com",
+                "name": "João Octávio Pereira",
+                "username": "joaoopereira"
+              },
+              "distinct": false,
+              "id": "dbe7c75f08620db0637365a0c6e455cc3fd7d06b",
+              "message": "chore!: enable streaming publish and repository clients by default",
+              "timestamp": "2026-10-09T16:03:21+01:00",
+              "tree_id": "c427668eef6bb090d13bff588f89897230933baa",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/dbe7c75f08620db0637365a0c6e455cc3fd7d06b"
+            },
+            {
+              "author": {
+                "email": "albertoponces@criticalmanufacturing.com",
+                "name": "Alberto Ponces",
+                "username": "ponces"
+              },
+              "committer": {
+                "email": "3718704+joaoopereira@users.noreply.github.com",
+                "name": "João Octávio Pereira",
+                "username": "joaoopereira"
+              },
+              "distinct": false,
+              "id": "eb4316a41e28ce2d6ed1650b97bb47355050cfce",
+              "message": "fix(publish): stream large backup conversion and manifest discovery\n\nStream ZIP entries directly into TGZ archives and discover TGZ manifests without buffering the full decompressed archive. Preserve XML-manifest precedence and JSON fallback.\n\nCover complete publishing with backup entries larger than 2 GiB for XML and JSON-only packages, alongside empty entries, manifest precedence, missing manifests, and streaming upload regressions.",
+              "timestamp": "2026-10-09T16:03:21+01:00",
+              "tree_id": "2431a3edffa7bdae1a2fda3f372d73ce583fee5b",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/eb4316a41e28ce2d6ed1650b97bb47355050cfce"
+            },
+            {
+              "author": {
+                "email": "joaopereira@criticalmanufacturing.com",
+                "name": "João Octávio Pereira",
+                "username": "joaoopereira"
+              },
+              "committer": {
+                "email": "3718704+joaoopereira@users.noreply.github.com",
+                "name": "João Octávio Pereira",
+                "username": "joaoopereira"
+              },
+              "distinct": false,
+              "id": "d0187969ac5791f73988cc4304e794cbaa7c3167",
+              "message": "fix(init): install next CLI feature for prerelease versions",
+              "timestamp": "2026-10-09T16:08:49+01:00",
+              "tree_id": "d4ada3ff7d8acef63697928f90a3154f1cd965b3",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/d0187969ac5791f73988cc4304e794cbaa7c3167"
+            },
+            {
+              "author": {
+                "email": "joaopereira@criticalmanufacturing.com",
+                "name": "João Octávio Pereira",
+                "username": "joaoopereira"
+              },
+              "committer": {
+                "email": "joaopereira@criticalmanufacturing.com",
+                "name": "João Octávio Pereira",
+                "username": "joaoopereira"
+              },
+              "distinct": false,
+              "id": "4f689520bbecbfcdc297887150aea4e3c206b50c",
+              "message": "chore: bump to 6.0.0-19",
+              "timestamp": "2026-10-09T15:11:28Z",
+              "tree_id": "33d5b7254e80216103d2ca341961a3c254559999",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/4f689520bbecbfcdc297887150aea4e3c206b50c"
+            },
+            {
+              "author": {
+                "email": "JoaoRoque@criticalmanufacturing.com",
+                "name": "João Roque"
+              },
+              "committer": {
+                "email": "3718704+joaoopereira@users.noreply.github.com",
+                "name": "João Octávio Pereira",
+                "username": "joaoopereira"
+              },
+              "distinct": false,
+              "id": "36144cf2dfe56337356174d9a71bc402574eba7e",
+              "message": "build(discourse): announcements",
+              "timestamp": "2026-10-12T15:48:46+01:00",
+              "tree_id": "18d5b9e97f5571b2a6341ffc8ddb4da336e9d797",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/36144cf2dfe56337356174d9a71bc402574eba7e"
+            },
+            {
+              "author": {
+                "email": "pedro.apap@gmail.com",
+                "name": "pedroapap",
+                "username": "pedroapap"
+              },
+              "committer": {
+                "email": "noreply@github.com",
+                "name": "GitHub",
+                "username": "web-flow"
+              },
+              "distinct": true,
+              "id": "1d8652d708f2f7dec8ee2bf8063ea16d10bf2bbf",
+              "message": "chore: prepare for cli v6 release\n\nmerge to main",
+              "timestamp": "2026-10-12T17:19:42+01:00",
+              "tree_id": "18d5b9e97f5571b2a6341ffc8ddb4da336e9d797",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/1d8652d708f2f7dec8ee2bf8063ea16d10bf2bbf"
+            }
+          ],
+          "compare": "https://github.com/criticalmanufacturing/cli/compare/0890f61d13dc...1d8652d708f2",
+          "created": false,
+          "deleted": false,
+          "forced": false,
+          "head_commit": {
+            "author": {
+              "email": "pedro.apap@gmail.com",
+              "name": "pedroapap",
+              "username": "pedroapap"
+            },
+            "committer": {
+              "email": "noreply@github.com",
+              "name": "GitHub",
+              "username": "web-flow"
+            },
+            "distinct": true,
+            "id": "1d8652d708f2f7dec8ee2bf8063ea16d10bf2bbf",
+            "message": "chore: prepare for cli v6 release\n\nmerge to main",
+            "timestamp": "2026-10-12T17:19:42+01:00",
+            "tree_id": "18d5b9e97f5571b2a6341ffc8ddb4da336e9d797",
+            "url": "https://github.com/criticalmanufacturing/cli/commit/1d8652d708f2f7dec8ee2bf8063ea16d10bf2bbf"
+          },
+          "organization": {
+            "avatar_url": "https://avatars.githubusercontent.com/u/24794861?v=4",
+            "description": "",
+            "events_url": "https://api.github.com/orgs/criticalmanufacturing/events",
+            "hooks_url": "https://api.github.com/orgs/criticalmanufacturing/hooks",
+            "id": 24794861,
+            "issues_url": "https://api.github.com/orgs/criticalmanufacturing/issues",
+            "login": "criticalmanufacturing",
+            "members_url": "https://api.github.com/orgs/criticalmanufacturing/members{/member}",
+            "node_id": "MDEyOk9yZ2FuaXphdGlvbjI0Nzk0ODYx",
+            "public_members_url": "https://api.github.com/orgs/criticalmanufacturing/public_members{/member}",
+            "repos_url": "https://api.github.com/orgs/criticalmanufacturing/repos",
+            "url": "https://api.github.com/orgs/criticalmanufacturing"
+          },
+          "pusher": {
+            "email": "pedro.apap@gmail.com",
+            "name": "pedroapap"
+          },
+          "ref": "refs/heads/main",
+          "repository": {
+            "allow_forking": true,
+            "archive_url": "https://api.github.com/repos/criticalmanufacturing/cli/{archive_format}{/ref}",
+            "archived": false,
+            "assignees_url": "https://api.github.com/repos/criticalmanufacturing/cli/assignees{/user}",
+            "blobs_url": "https://api.github.com/repos/criticalmanufacturing/cli/git/blobs{/sha}",
+            "branches_url": "https://api.github.com/repos/criticalmanufacturing/cli/branches{/branch}",
+            "clone_url": "https://github.com/criticalmanufacturing/cli.git",
+            "collaborators_url": "https://api.github.com/repos/criticalmanufacturing/cli/collaborators{/collaborator}",
+            "comments_url": "https://api.github.com/repos/criticalmanufacturing/cli/comments{/number}",
+            "commits_url": "https://api.github.com/repos/criticalmanufacturing/cli/commits{/sha}",
+            "compare_url": "https://api.github.com/repos/criticalmanufacturing/cli/compare/{base}...{head}",
+            "contents_url": "https://api.github.com/repos/criticalmanufacturing/cli/contents/{+path}",
+            "contributors_url": "https://api.github.com/repos/criticalmanufacturing/cli/contributors",
+            "created_at": 1619025103,
+            "custom_properties": {},
+            "default_branch": "main",
+            "deployments_url": "https://api.github.com/repos/criticalmanufacturing/cli/deployments",
+            "description": "Critical Manufacturing Projects Command Line Tool",
+            "disabled": false,
+            "downloads_url": "https://api.github.com/repos/criticalmanufacturing/cli/downloads",
+            "events_url": "https://api.github.com/repos/criticalmanufacturing/cli/events",
+            "fork": false,
+            "forks": 53,
+            "forks_count": 53,
+            "forks_url": "https://api.github.com/repos/criticalmanufacturing/cli/forks",
+            "full_name": "criticalmanufacturing/cli",
+            "git_commits_url": "https://api.github.com/repos/criticalmanufacturing/cli/git/commits{/sha}",
+            "git_refs_url": "https://api.github.com/repos/criticalmanufacturing/cli/git/refs{/sha}",
+            "git_tags_url": "https://api.github.com/repos/criticalmanufacturing/cli/git/tags{/sha}",
+            "git_url": "git://github.com/criticalmanufacturing/cli.git",
+            "has_discussions": false,
+            "has_downloads": true,
+            "has_issues": true,
+            "has_pages": true,
+            "has_projects": true,
+            "has_pull_requests": true,
+            "has_wiki": false,
+            "homepage": "https://criticalmanufacturing.github.io/cli/",
+            "hooks_url": "https://api.github.com/repos/criticalmanufacturing/cli/hooks",
+            "html_url": "https://github.com/criticalmanufacturing/cli",
+            "id": 360248317,
+            "is_template": false,
+            "issue_comment_url": "https://api.github.com/repos/criticalmanufacturing/cli/issues/comments{/number}",
+            "issue_events_url": "https://api.github.com/repos/criticalmanufacturing/cli/issues/events{/number}",
+            "issues_url": "https://api.github.com/repos/criticalmanufacturing/cli/issues{/number}",
+            "keys_url": "https://api.github.com/repos/criticalmanufacturing/cli/keys{/key_id}",
+            "labels_url": "https://api.github.com/repos/criticalmanufacturing/cli/labels{/name}",
+            "language": "C#",
+            "languages_url": "https://api.github.com/repos/criticalmanufacturing/cli/languages",
+            "license": {
+              "key": "bsd-3-clause",
+              "name": "BSD 3-Clause \"New\" or \"Revised\" License",
+              "node_id": "MDc6TGljZW5zZTU=",
+              "spdx_id": "BSD-3-Clause",
+              "url": "https://api.github.com/licenses/bsd-3-clause"
+            },
+            "master_branch": "main",
+            "merges_url": "https://api.github.com/repos/criticalmanufacturing/cli/merges",
+            "milestones_url": "https://api.github.com/repos/criticalmanufacturing/cli/milestones{/number}",
+            "mirror_url": null,
+            "name": "cli",
+            "node_id": "MDEwOlJlcG9zaXRvcnkzNjAyNDgzMTc=",
+            "notifications_url": "https://api.github.com/repos/criticalmanufacturing/cli/notifications{?since,all,participating}",
+            "open_issues": 60,
+            "open_issues_count": 60,
+            "organization": "criticalmanufacturing",
+            "owner": {
+              "avatar_url": "https://avatars.githubusercontent.com/u/24794861?v=4",
+              "email": "contact@criticalmanufacturing.com",
+              "events_url": "https://api.github.com/users/criticalmanufacturing/events{/privacy}",
+              "followers_url": "https://api.github.com/users/criticalmanufacturing/followers",
+              "following_url": "https://api.github.com/users/criticalmanufacturing/following{/other_user}",
+              "gists_url": "https://api.github.com/users/criticalmanufacturing/gists{/gist_id}",
+              "gravatar_id": "",
+              "html_url": "https://github.com/criticalmanufacturing",
+              "id": 24794861,
+              "login": "criticalmanufacturing",
+              "name": "criticalmanufacturing",
+              "node_id": "MDEyOk9yZ2FuaXphdGlvbjI0Nzk0ODYx",
+              "organizations_url": "https://api.github.com/users/criticalmanufacturing/orgs",
+              "received_events_url": "https://api.github.com/users/criticalmanufacturing/received_events",
+              "repos_url": "https://api.github.com/users/criticalmanufacturing/repos",
+              "site_admin": false,
+              "starred_url": "https://api.github.com/users/criticalmanufacturing/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/criticalmanufacturing/subscriptions",
+              "type": "Organization",
+              "url": "https://api.github.com/users/criticalmanufacturing",
+              "user_view_type": "public"
+            },
+            "private": false,
+            "pull_request_creation_policy": "all",
+            "pulls_url": "https://api.github.com/repos/criticalmanufacturing/cli/pulls{/number}",
+            "pushed_at": 1791821983,
+            "releases_url": "https://api.github.com/repos/criticalmanufacturing/cli/releases{/id}",
+            "size": 58625,
+            "ssh_url": "git@github.com:criticalmanufacturing/cli.git",
+            "stargazers": 11,
+            "stargazers_count": 11,
+            "stargazers_url": "https://api.github.com/repos/criticalmanufacturing/cli/stargazers",
+            "statuses_url": "https://api.github.com/repos/criticalmanufacturing/cli/statuses/{sha}",
+            "subscribers_url": "https://api.github.com/repos/criticalmanufacturing/cli/subscribers",
+            "subscription_url": "https://api.github.com/repos/criticalmanufacturing/cli/subscription",
+            "svn_url": "https://github.com/criticalmanufacturing/cli",
+            "tags_url": "https://api.github.com/repos/criticalmanufacturing/cli/tags",
+            "teams_url": "https://api.github.com/repos/criticalmanufacturing/cli/teams",
+            "topics": [
+              "cli"
+            ],
+            "trees_url": "https://api.github.com/repos/criticalmanufacturing/cli/git/trees{/sha}",
+            "updated_at": "2026-05-19T12:17:54Z",
+            "url": "https://api.github.com/repos/criticalmanufacturing/cli",
+            "visibility": "public",
+            "watchers": 11,
+            "watchers_count": 11,
+            "web_commit_signoff_required": false
+          },
+          "sender": {
+            "avatar_url": "https://avatars.githubusercontent.com/u/9829242?v=4",
+            "events_url": "https://api.github.com/users/pedroapap/events{/privacy}",
+            "followers_url": "https://api.github.com/users/pedroapap/followers",
+            "following_url": "https://api.github.com/users/pedroapap/following{/other_user}",
+            "gists_url": "https://api.github.com/users/pedroapap/gists{/gist_id}",
+            "gravatar_id": "",
+            "html_url": "https://github.com/pedroapap",
+            "id": 9829242,
+            "login": "pedroapap",
+            "node_id": "MDQ6VXNlcjk4MjkyNDI=",
+            "organizations_url": "https://api.github.com/users/pedroapap/orgs",
+            "received_events_url": "https://api.github.com/users/pedroapap/received_events",
+            "repos_url": "https://api.github.com/users/pedroapap/repos",
+            "site_admin": false,
+            "starred_url": "https://api.github.com/users/pedroapap/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/pedroapap/subscriptions",
+            "type": "User",
+            "url": "https://api.github.com/users/pedroapap",
+            "user_view_type": "public"
+          }
+        },
+        "github_job": "build",
+        "github_ref": "refs/heads/main",
+        "github_ref_name": "main",
+        "github_ref_protected": "true",
+        "github_ref_type": "branch",
+        "github_repository": "criticalmanufacturing/cli",
+        "github_repository_id": "360248317",
+        "github_repository_owner": "criticalmanufacturing",
+        "github_repository_owner_id": "24794861",
+        "github_run_attempt": "1",
+        "github_run_id": "38276630092",
+        "github_run_number": "246",
+        "github_runner_arch": "X64",
+        "github_runner_environment": "github-hosted",
+        "github_runner_image_os": "ubuntu24",
+        "github_runner_image_version": "20261004.327.1",
+        "github_runner_name": "GitHub Actions 1000011660",
+        "github_runner_os": "Linux",
+        "github_runner_tracking_id": "github_2ff9e6b3-97b2-457c-9214-d8b91881d2c9",
+        "github_server_url": "https://github.com",
+        "github_triggering_actor": "pedroapap",
+        "github_workflow": "GitHub Pages",
+        "github_workflow_ref": "criticalmanufacturing/cli/.github/workflows/gh-pages.yml@refs/heads/main",
+        "github_workflow_sha": "1d8652d708f2f7dec8ee2bf8063ea16d10bf2bbf"
+      }
+    },
+    "runDetails": {
+      "builder": {
+        "id": "https://github.com/criticalmanufacturing/cli/actions/runs/38276630092/attempts/1"
+      },
+      "metadata": {
+        "invocationId": "m1a5qwnz8fbtk1tqjh9yi39uq",
+        "startedOn": "2026-10-12T16:20:09.264598549Z",
+        "finishedOn": "2026-10-12T16:20:24.440289233Z",
+        "buildkit_metadata": {
+          "vcs": {
+            "localdir:context": "docs",
+            "localdir:dockerfile": "docs",
+            "revision": "1d8652d708f2f7dec8ee2bf8063ea16d10bf2bbf",
+            "source": "https://github.com/criticalmanufacturing/cli"
+          },
+          "source": {
+            "locations": {
+              "step0": {
+                "locations": [
+                  {
+                    "ranges": [
+                      {
+                        "start": {
+                          "line": 2
+                        },
+                        "end": {
+                          "line": 2
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              "step1": {
+                "locations": [
+                  {
+                    "ranges": [
+                      {
+                        "start": {
+                          "line": 3
+                        },
+                        "end": {
+                          "line": 3
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              "step2": {},
+              "step3": {
+                "locations": [
+                  {
+                    "ranges": [
+                      {
+                        "start": {
+                          "line": 4
+                        },
+                        "end": {
+                          "line": 4
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              "step4": {
+                "locations": [
+                  {
+                    "ranges": [
+                      {
+                        "start": {
+                          "line": 5
+                        },
+                        "end": {
+                          "line": 5
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              "step5": {
+                "locations": [
+                  {
+                    "ranges": [
+                      {
+                        "start": {
+                          "line": 6
+                        },
+                        "end": {
+                          "line": 6
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              "step6": {
+                "locations": [
+                  {
+                    "ranges": [
+                      {
+                        "start": {
+                          "line": 7
+                        },
+                        "end": {
+                          "line": 7
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              "step7": {
+                "locations": [
+                  {
+                    "ranges": [
+                      {
+                        "start": {
+                          "line": 12
+                        },
+                        "end": {
+                          "line": 12
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              "step8": {
+                "locations": [
+                  {
+                    "ranges": [
+                      {
+                        "start": {
+                          "line": 16
+                        },
+                        "end": {
+                          "line": 16
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "infos": [
+              {
+                "filename": "Dockerfile",
+                "language": "Dockerfile",
+                "data": "IyBzeW50YXg9ZG9ja2VyL2RvY2tlcmZpbGU6MQpGUk9NIHB5dGhvbjozLjEzLXNsaW0tdHJpeGllIEFTIG1rZG9jcwpXT1JLRElSIC9kb2NzCkNPUFkgcmVxdWlyZW1lbnRzLnR4dCAuClJVTiBwaXAgaW5zdGFsbCAtLW5vLWNhY2hlLWRpciAtciByZXF1aXJlbWVudHMudHh0CkNPUFkgbWtkb2NzLnltbCAuCkNPUFkgc3JjLyBzcmMvCkVYUE9TRSA4MDAwCkNNRCBbIm1rZG9jcyIsICJzZXJ2ZSIsICItLWRldi1hZGRyPTAuMC4wLjA6ODAwMCJdCgpGUk9NIG1rZG9jcyBBUyBidWlsZGVyClJVTiBta2RvY3MgYnVpbGQgLS1zdHJpY3QKCiMgRXhwb3J0IHRoZSBzdGF0aWMgc2l0ZSB3aXRob3V0IGNyZWF0aW5nIG9yIHN0YXJ0aW5nIGEgY29udGFpbmVyLgpGUk9NIHNjcmF0Y2ggQVMgZXhwb3J0CkNPUFkgLS1mcm9tPWJ1aWxkZXIgL2RvY3Mvc2l0ZS8gLwoKRlJPTSBuZ2lueDpzdGFibGUtYWxwaW5lIEFTIHdlYgpDT1BZIC0tZnJvbT1idWlsZGVyIC9kb2NzL3NpdGUvIC91c3Ivc2hhcmUvbmdpbngvaHRtbC8KRVhQT1NFIDgwCg==",
+                "llbDefinition": [
+                  {
+                    "id": "step0",
+                    "op": {
+                      "Op": {
+                        "source": {
+                          "identifier": "local://dockerfile",
+                          "attrs": {
+                            "local.differ": "none",
+                            "local.followpaths": "[\"Dockerfile\",\"Dockerfile.dockerignore\",\"dockerfile\"]",
+                            "local.sharedkeyhint": "dockerfile"
+                          }
+                        }
+                      },
+                      "constraints": {}
+                    }
+                  },
+                  {
+                    "id": "step1",
+                    "op": {
+                      "Op": {}
+                    },
+                    "inputs": [
+                      "step0:0"
+                    ]
+                  }
+                ],
+                "digestMapping": {
+                  "sha256:2611a43d57cf08412cd34bea711679b8a38a540e1efc08dd0f80ae0eafbfb23c": "step0",
+                  "sha256:c310d033025528c00ce3eb0058f3bac973405c2c18d49b5f8c8758310e93e5c9": "step1"
+                }
+              }
+            ]
+          },
+          "layers": {
+            "step0:0": [
+              [
+                {
+                  "mediaType": "application/vnd.oci.image.layer.v1.tar+gzip",
+                  "digest": "sha256:ecc510c1e359bdc007b39802570bb7e4dec7d6ebccf357c3201a74299113e05e",
+                  "size": 29843350
+                },
+                {
+                  "mediaType": "application/vnd.oci.image.layer.v1.tar+gzip",
+                  "digest": "sha256:65a67aec859c5fafe6ca38c2ed07825c97acf3febdcf62b79441a1bfca4f3a4a",
+                  "size": 1294038
+                },
+                {
+                  "mediaType": "application/vnd.oci.image.layer.v1.tar+gzip",
+                  "digest": "sha256:3a5db7051419a594a866378c5d2c422e3d282d69e6792b3213772cb1349da446",
+                  "size": 11923091
+                },
+                {
+                  "mediaType": "application/vnd.oci.image.layer.v1.tar+gzip",
+                  "digest": "sha256:2f5b06adfd9138ef928aaf8b34f3fecf122b137a537133dfe421509dd57b4a47",
+                  "size": 250
+                }
+              ]
+            ]
+          }
+        },
+        "buildkit_completeness": {
+          "request": true,
+          "resolvedDependencies": false
+        }
+      }
+    }
+  }
+}
