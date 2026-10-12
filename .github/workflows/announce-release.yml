@@ -1,0 +1,95 @@
+name: Announce release on Discourse
+
+on:
+  release:
+    types: [released]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to announce (empty uses the latest release)
+        required: false
+        type: string
+      dry_run:
+        description: Only print the payload, don't post to Discourse
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  announce:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/templates
+      - uses: actions/github-script@v8
+        env:
+          DISCOURSE_URL: ${{ secrets.DISCOURSE_URL }}
+          DISCOURSE_CATEGORY_ID: ${{ secrets.DISCOURSE_CATEGORY_ID }}
+          DISCOURSE_API_USERNAME: ${{ secrets.DISCOURSE_API_USERNAME }}
+          DISCOURSE_API_KEY: ${{ secrets.DISCOURSE_API_KEY }}
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const isManual = context.eventName === 'workflow_dispatch';
+            const inputs = context.payload.inputs ?? {};
+            const dryRun = isManual && inputs.dry_run === 'true';
+
+            const release = isManual
+              ? inputs.tag
+                ? (await github.rest.repos.getReleaseByTag({ owner, repo, tag: inputs.tag })).data
+                : (await github.rest.repos.getLatestRelease({ owner, repo })).data
+              : context.payload.release;
+
+            const isPreReleaseTag = /-(rc|alpha|beta|preview)\b/i.test(release.tag_name);
+            if (release.prerelease || release.draft || isPreReleaseTag) {
+              core.notice(`Skipping ${release.tag_name}, it is a draft or pre-release`);
+              return;
+            }
+
+            const notes = release.body?.trim() || '_No release notes provided._';
+            const version = release.name || release.tag_name;
+            const repoUrl = `https://github.com/${owner}/${repo}`;
+            const values = { version, owner, repo, repoUrl, notes, releaseUrl: release.html_url };
+            const template = require('fs').readFileSync(
+              `${process.env.GITHUB_WORKSPACE}/.github/templates/discourse-release-announcement.md`,
+              'utf8',
+            );
+            // Single pass, so placeholders inside the release notes are left untouched
+            const raw = template
+              .replace(/\{\{(\w+)\}\}/g, (match, key) => values[key] ?? match)
+              .trim();
+
+            const payload = {
+              title: `CM CLI ${version} released`,
+              raw,
+              category: Number(process.env.DISCOURSE_CATEGORY_ID),
+              external_id: `${repo}-release-${release.id}`,
+            };
+
+            if (dryRun) {
+              core.notice('Dry run, nothing was posted');
+              core.info(JSON.stringify(payload, null, 2));
+              return;
+            }
+
+            const response = await fetch(`${process.env.DISCOURSE_URL}/posts.json`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Api-Key': process.env.DISCOURSE_API_KEY,
+                'Api-Username': process.env.DISCOURSE_API_USERNAME,
+              },
+              body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+              core.setFailed(`Discourse returned ${response.status}: ${await response.text()}`);
+              return;
+            }
+
+            const post = await response.json();
+            core.notice(`Created ${process.env.DISCOURSE_URL}/t/${post.topic_slug}/${post.topic_id}`);
