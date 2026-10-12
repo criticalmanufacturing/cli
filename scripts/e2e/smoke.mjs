@@ -15,7 +15,7 @@ async function executable(file, source) {
   await writeFile(file, `#!/usr/bin/env node\n${source}`, { mode: 0o755 });
 }
 
-test('full flow uses the candidate, authenticates, packs all packages, and stops serve', { timeout: 90000 }, async () => {
+test('full flow uses the candidate, authenticates, packs all packages, and stops serve', { timeout: 180000 }, async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), 'cmf-flow-smoke-'));
   let loginCount = 0;
   let requireReset = true;
@@ -81,6 +81,10 @@ test('full flow uses the candidate, authenticates, packs all packages, and stops
       fs.appendFileSync(process.env.FIXTURE_COMMANDS, JSON.stringify({args,cwd:process.cwd(),exe:process.argv[1]})+'\\n');
       const write = (file, value) => fs.writeFileSync(file, JSON.stringify(value));
       if (args[0] === '--version') console.log('fixture-cli-1.0.0');
+      else if (args[0] === 'portal' && args[1] === 'login') {
+        fs.mkdirSync(path.join(process.env.XDG_CONFIG_HOME,'cmfportal'),{recursive:true});
+        fs.writeFileSync(path.join(process.env.XDG_CONFIG_HOME,'cmfportal/cmfportaltoken'),'fixture-secret-token');
+      }
       else if (args[0] === 'init') {
         fs.mkdirSync('.devcontainer'); write('.devcontainer/devcontainer.json', {image:'fixture'});
         write('cmfpackage.json', {packageId:'Root',version:'1.0.0',packageType:'Root'});
@@ -98,19 +102,20 @@ test('full flow uses the candidate, authenticates, packs all packages, and stops
         fs.writeFileSync('Libs/LBOs/NetStandard/Cmf.LightBusinessObjects.dll','fixture library');
         write('Libs/LBOs/TypeScript/package.json', {name:'cmf-lbos'});
       }
+      else if (args.includes('down') && process.env.FIXTURE_FAIL_DOWN) process.exit(24);
       else if (args[0] === 'build' && process.env.FIXTURE_FAIL_BUILD) process.exit(23);
       else if (args[0] === 'pack') {
         fs.mkdirSync(args[2],{recursive:true}); fs.writeFileSync(path.join(args[2],'fixture.zip'),'archive');
       }
     `);
-    async function run(name, fail = false, failUi = false, failPreflight = false, existing = false, resume = false) {
+    async function run(name, fail = false, failUi = false, failPreflight = false, existing = false, resume = false, failDown = false) {
       const workspace = path.join(root, name);
       if (existing) {
         await mkdir(workspace);
         await writeFile(path.join(workspace,'keep.txt'),'existing project');
       }
       const configFile = path.join(root, `${name}.json`);
-      await writeFile(configFile, JSON.stringify({ mesVersion: '11.0.0', licenseId: '123',
+      await writeFile(configFile, JSON.stringify({ mesVersion: '11.0.0', licenseId: '123', portalPat:'fixture-secret-pat',
         ciRepo:'https://example.invalid/npm-ci/',
         releaseRepos:['https://example.invalid/releases-one/', 'https://example.invalid/releases-two/'],
         workspace, cliBundle:bundle,
@@ -124,7 +129,8 @@ test('full flow uses the candidate, authenticates, packs all packages, and stops
           cwd: import.meta.dirname, env:{...process.env, PATH:`${bin}:${process.env.PATH}`,
             FIXTURE_COMMANDS:path.join(root,`${name}-commands.jsonl`), FIXTURE_SERVE_PORT:String(servePort),
             FIXTURE_FAIL_BUILD:fail ? '1' : '', FIXTURE_FAIL_PREFLIGHT:failPreflight ? '1' : '',
-            CMF_E2E_PORTAL_TOKEN:'fixture-secret-token'},
+            XDG_CONFIG_HOME:path.join(root,'config'), CMF_E2E_PORTAL_TOKEN:'', CMF_E2E_PORTAL_PAT:'',
+            FIXTURE_FAIL_DOWN:failDown ? '1' : ''},
           stdio:['ignore','pipe','pipe'],
         });
         child.stdout.on('data',chunk => {output+=chunk;}); child.stderr.on('data',chunk => {output+=chunk;});
@@ -165,6 +171,10 @@ test('full flow uses the candidate, authenticates, packs all packages, and stops
     assert.match(commandLog, /\$ .*cmf new business/);
     assert.match(commandLog, /\$ devcontainer --version/);
     assert.match(await readFile(path.join(success.workspace,'.e2e/serve.log'),'utf8'), /\$ npm run serve \(background\)/);
+    const portalLogin = commands.find(command => command.args[0] === 'portal');
+    assert.deepEqual(portalLogin.args, ['portal', 'login', '--pat', 'fixture-secret-pat']);
+    for (const artifact of [success.output, commandLog, JSON.stringify(success.report)])
+      assert.ok(!artifact.includes('fixture-secret-pat'));
     assert.ok(!success.output.includes('fixture-secret-token'));
     assert.ok(!commandLog.includes('fixture-secret-token'));
     assert.ok(!JSON.stringify(success.report).includes('fixture-secret-token'));
@@ -179,14 +189,21 @@ test('full flow uses the candidate, authenticates, packs all packages, and stops
     assert.equal(stackArgs[stackArgs.indexOf('--licenseId') + 1], '123');
     const builds = commands.filter(command => command.args[0] === 'build');
     const lbosIndex = commands.findIndex(command => command.args.includes('lbos'));
-    assert.ok(lbosIndex >= 0 && lbosIndex < commands.findIndex(command => command.args[0] === 'build'));
+    assert.ok(lbosIndex >= 0 && lbosIndex < commands.findIndex(command => command.args[0] === 'build' && command.cwd.endsWith('Tests')));
     assert.equal(builds.length, 6);
     assert.ok(builds.every(command => command.exe.startsWith(path.join(success.workspace,'.e2e/cli'))));
     assert.ok(builds.every(command => path.basename(command.cwd).startsWith('Cmf.Custom.')));
+    assert.equal(success.report.steps.at(-1).name, 'stack-down');
+    assert.deepEqual(commands.at(-1).args, ['dev', 'local', 'stack', 'down', '--remove-volumes']);
+    for (const command of success.report.commands.filter(command => command.context === 'devcontainer')) {
+      if (command.command.includes('cmf new ')) assert.ok(command.step.startsWith('scaffold-'));
+      if (command.command.includes('cmf build')) assert.ok(command.step.startsWith('build-'));
+      if (command.command.includes('cmf pack')) assert.ok(command.step.startsWith('pack-'));
+    }
     const failure = await run('failure', true);
     assert.equal(failure.code, 1);
-    assert.equal(failure.report.steps.at(-1).name, 'build-business');
-    assert.equal(failure.report.steps.at(-1).status, 'failed');
+    assert.equal(failure.report.steps.find(step => step.name === 'build-business').status, 'failed');
+    assert.ok(!failure.report.steps.some(step => step.name === 'ui-login' || step.name === 'stack-down'));
     assert.equal(loginCount, 2, 'failed build must prevent login and packaging');
     const resumed = await run('failure', false, false, false, false, true);
     assert.equal(resumed.code, 0, resumed.output);
@@ -201,11 +218,16 @@ test('full flow uses the candidate, authenticates, packs all packages, and stops
     assert.deepEqual(failedUi.report.cleanup, ['Serve process stopped']);
     await readFile(path.join(failedUi.workspace,'.e2e/ui-failure.png'));
     await assert.rejects(fetch(`http://127.0.0.1:${servePort}`));
+    const failedDown = await run('failed-down', false, false, false, false, false, true);
+    assert.equal(failedDown.code, 1);
+    assert.equal(failedDown.report.steps.at(-1).name, 'stack-down');
+    assert.equal(failedDown.report.steps.at(-1).status, 'failed');
+    assert.equal(failedDown.report.steps.filter(step => step.name.startsWith('pack-') && step.status === 'passed').length, 6);
     rejectScopes = true;
     const failedAuth = await run('failed-auth');
     assert.equal(failedAuth.code, 1);
     assert.match(failedAuth.report.error, /MES rejected login:.*required scopes/);
-    assert.ok(!failedAuth.report.steps.some(step => step.name.startsWith('pack-')));
+    assert.ok(!failedAuth.report.steps.some(step => step.name === 'stack-down'));
     assert.deepEqual(failedAuth.report.cleanup, ['Serve process stopped']);
     await readFile(path.join(failedAuth.workspace,'.e2e/ui-failure.png'));
   } finally {

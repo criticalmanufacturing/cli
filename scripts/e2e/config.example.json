@@ -1,22 +1,5 @@
 {
   "mesVersion": "11.0.0",
   "licenseId": "",
-  "ciRepo": "https://example.invalid/npm-ci/",
-  "releaseRepos": ["https://example.invalid/npm-releases/"],
-  "workspace": "./artifacts/user-flow/test",
-  "projectName": "test",
-  "tenant": "test",
-  "cliBundle": "./npm/dist/linux-x64",
-  "commandTimeoutSeconds": 1800,
-  "installationTimeoutSeconds": 3600,
-  "uiTimeoutSeconds": 600,
-  "deploymentUrl": "http://localhost:80/deployment/status",
-  "uiUrl": "http://localhost:80",
-  "serveUrl": "http://localhost:7000",
-  "login": {
-    "usernameSelector": "input[name='username']",
-    "passwordSelector": "input[name='password']",
-    "submitSelector": "button:has-text('Login')",
-    "sidebarSelector": ".menu-sub-menu"
-  }
+  "portalPat": ""
 }

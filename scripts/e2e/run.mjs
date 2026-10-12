@@ -1,3 +1,6 @@
+import { AsyncLocalStorage } from 'node:async_hooks';
+import { resolveConfig } from './config.mjs';
+import { runFlow } from './flow.mjs';
 import { spawn } from 'node:child_process';
 import { cp, mkdir, readFile, readdir, writeFile, access, appendFile } from 'node:fs/promises';
 import { constants, createWriteStream } from 'node:fs';
@@ -12,8 +15,8 @@ import { formatCommand } from './command-log.mjs';
 async function main() {
   const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
   if (process.argv.includes('--help')) {
-    console.log('Usage: node scripts/e2e/run.mjs --config <file.json> [--resume]\n' +
-      'Runs login, init, devcontainer, scaffolding, local stack, build, UI login, and pack.\n' +
+    console.log('Usage: node scripts/e2e/run.mjs --config <file.json> [--mes-version <version>] [--resume]\n' +
+      'Runs login, init, devcontainer, parallel packages/stack, UI login, and stack teardown.\n' +
       'CMF_E2E_LICENSE_ID overrides licenseId. See README.md for prerequisites.');
     process.exit(0);
   }
@@ -22,11 +25,17 @@ async function main() {
       'Inside the CLI devcontainer, run "nvm use 20", then retry. The MES project can still use its own Node version.');
   const resume = process.argv.includes('--resume');
   const args = process.argv.slice(2).filter(arg => arg !== '--resume');
+  const versionIndex = args.indexOf('--mes-version');
+  const mesVersion = versionIndex < 0 ? undefined : args.splice(versionIndex, 2)[1];
+  if (versionIndex >= 0 && !mesVersion) throw new Error('Expected --mes-version <version>');
   if (args.length !== 2 || args[0] !== '--config') {
     console.error('Expected --config <file.json>; use --help for usage.');
     process.exit(1);
   }
-  const config = JSON.parse(await readFile(path.resolve(args[1]), 'utf8'));
+  const config = resolveConfig(JSON.parse(await readFile(path.resolve(args[1]), 'utf8')), mesVersion);
+  const portalPat = process.env.CMF_E2E_PORTAL_PAT || config.portalPat;
+  let portalToken = process.env.CMF_E2E_PORTAL_TOKEN;
+  if (!portalPat && !portalToken) throw new Error('Set portalPat, CMF_E2E_PORTAL_PAT, or CMF_E2E_PORTAL_TOKEN');
   for (const field of ['mesVersion', 'ciRepo', 'workspace', 'cliBundle']) {
     if (typeof config[field] !== 'string' || !config[field].trim()) throw new Error(`Missing ${field}`);
   }
@@ -89,14 +98,17 @@ async function main() {
     delete report.finishedAt;
     (report.resumedAt ||= []).push(new Date().toISOString());
   }
-  let activeStep;
+  const stepContext = new AsyncLocalStorage();
+  let reportWrites = Promise.resolve();
   let containerWorkspace;
   let serveStarted = false;
   let cancelled = false;
-  let active;
+  const active = new Set();
   let activeBrowser;
   const onSignal = () => {
-    cancelled = true; active?.kill('SIGTERM');
+    if (cancelled) return;
+    cancelled = true;
+    for (const child of active) child.kill('SIGTERM');
     activeBrowser?.close().catch(() => {});
   };
   process.on('SIGINT', onSignal);
@@ -104,38 +116,41 @@ async function main() {
 
   async function saveReport() {
     if (!workspaceReady) return;
-    await writeFile(path.join(state, 'report.json'), JSON.stringify(report, null, 2), { mode: 0o600 });
+    const snapshot = JSON.stringify(report, null, 2);
+    reportWrites = reportWrites.then(() => writeFile(path.join(state, 'report.json'), snapshot, { mode: 0o600 }));
+    await reportWrites;
   }
 
   async function step(name, action) {
     if (cancelled) throw new Error('Run interrupted');
     const completed = previous?.steps.findLast(item => item.name === name)?.status === 'passed';
-    if (completed && !['preflight', 'login', 'devcontainer', 'container-login-sync', 'installation', 'serve', 'ui-login', 'stop-serve'].includes(name)) {
+    if (completed && !['preflight', 'login', 'devcontainer', 'container-login-sync', 'stack-up', 'installation', 'serve', 'ui-login', 'stop-serve', 'stack-down'].includes(name)) {
       console.log(`\n[${name}] already passed; resuming`);
       return;
     }
     const result = { name, status: 'running', startedAt: new Date().toISOString() };
-    activeStep = name;
     report.steps.push(result);
     console.log(`\n[${name}]`);
     await saveReport();
-    try { await action(); result.status = 'passed'; }
+    try { await stepContext.run(name, action); result.status = 'passed'; }
     catch (error) { result.status = 'failed'; result.error = error.message; throw error; }
     finally { result.finishedAt = new Date().toISOString(); await saveReport(); }
   }
 
   async function run(command, argv, { cwd = workspaceReady ? workspace : process.cwd(), interactive = false, label = command,
-    timeout = commandTimeout, display = { command, argv, cwd, context: 'runner' } } = {}) {
+    timeout = commandTimeout, allowCancelled = false, display = { command, argv, cwd, context: 'runner' } } = {}) {
+    if (cancelled && !allowCancelled) throw new Error('Run interrupted');
+    const commandStep = stepContext.getStore();
     const logFile = path.join(state, `${label.replace(/[^a-z0-9-]/gi, '-')}.log`);
     const log = interactive || !workspaceReady ? null : createWriteStream(logFile, { flags: 'a', mode: 0o600 });
     const printableCommand = formatCommand(display.command, display.argv, [
-      process.env.CMF_E2E_PORTAL_TOKEN, process.env.CMF_E2E_UI_PASSWORD,
+      portalPat, portalToken, process.env.CMF_E2E_UI_PASSWORD,
     ]);
     const header = `[${display.context}] cwd: ${display.cwd}\n$ ${printableCommand}\n`;
     console.log(header.trimEnd());
     log?.write(header);
     if (workspaceReady) await appendFile(path.join(state, 'commands.log'), header, { mode: 0o600 });
-    const record = { step: activeStep, context: display.context, workingDirectory: display.cwd,
+    const record = { step: commandStep, context: display.context, workingDirectory: display.cwd,
       command: printableCommand, startedAt: new Date().toISOString(), status: 'running' };
     report.commands.push(record);
     await saveReport();
@@ -147,7 +162,7 @@ async function main() {
           env: { ...process.env, NG_CLI_ANALYTICS: 'false',
             DOCKER_CONFIG: dockerConfig,
             PATH: `${bundle}:${process.env.PATH}:${path.join(scriptDirectory, 'node_modules', '.bin')}` } });
-        active = child;
+        active.add(child);
         const timer = setTimeout(() => { timedOut = true; child.kill('SIGTERM'); }, timeout * 1000);
         const forceTimer = setTimeout(() => child.kill('SIGKILL'), (timeout + 10) * 1000);
         for (const stream of [child.stdout, child.stderr].filter(Boolean)) stream.on('data', chunk => {
@@ -156,14 +171,14 @@ async function main() {
           process.stdout.write(chunk);
         });
         function done(error) {
-          clearTimeout(timer); clearTimeout(forceTimer); active = null; log?.end();
+          clearTimeout(timer); clearTimeout(forceTimer); active.delete(child); log?.end();
           error ? reject(error) : resolve();
         }
         child.once('error', error => done(error.code === 'ENOENT' ? new Error(
           `${command} is unavailable. ` + (command === 'devcontainer' ?
             'Run "npm --prefix scripts/e2e ci" inside the CLI devcontainer to install the helper tools.' :
             'Install it inside the runner container or add it to PATH.')) : error));
-        child.once('close', (code, signal) => done(code === 0 && !timedOut && !cancelled ? null :
+        child.once('close', (code, signal) => done(code === 0 && !timedOut && (!cancelled || allowCancelled) ? null :
           new Error(`${label} failed (${timedOut ? 'timeout' : signal || `exit ${code}`})` +
             (workspaceReady ? `; see ${logFile}` : '; see the output above'))));
       });
@@ -179,7 +194,7 @@ async function main() {
     return run('devcontainer', ['exec', '--workspace-folder', devcontainerFolder, '--override-config', overridePath,
       ...containerLabels,
       'node', remotePath('.e2e/exec.mjs'), cwd, String(commandTimeout),
-      JSON.stringify([command, ...argv]), remotePath('.e2e/cli'), remotePath('.e2e/command.pid')],
+      JSON.stringify([command, ...argv]), remotePath('.e2e/cli'), remotePath(`.e2e/command-${randomUUID()}.pid`)],
       { label, timeout: commandTimeout + 60, display: { command, argv, cwd, context: 'devcontainer' } });
   }
   async function cli(argv, directory = containerWorkspace, label = argv.join('-')) {
@@ -188,6 +203,15 @@ async function main() {
   const serve = action => inside('node', [remotePath('.e2e/serve.mjs'), action,
     remotePath('.e2e'), remotePath(path.relative(workspace, directories.html))], containerWorkspace, `serve-${action}`);
   const directories = {};
+
+  async function stopCommands() {
+    if (!containerWorkspace) return;
+    try {
+      await run('devcontainer', ['exec', '--workspace-folder', devcontainerFolder, '--override-config', overridePath,
+        ...containerLabels, 'node', remotePath('.e2e/serve.mjs'), 'stop-command', remotePath('.e2e')],
+        { label: 'stop-command', timeout: 30, allowCancelled: true });
+    } catch (error) { report.cleanup.push(error.message); }
+  }
 
   try {
     await step('preflight', async () => {
@@ -225,10 +249,16 @@ async function main() {
         `[${record.context}] cwd: ${record.workingDirectory}\n$ ${record.command}\n`).join(''), { mode: 0o600 });
     }
     await saveReport();
-    await step('login', () => {
-      const token = process.env.CMF_E2E_PORTAL_TOKEN;
-      const argv = token ? ['login', 'Portal', '--auth-type', 'Bearer', '--token', token, '--no-prompt'] : ['login'];
-      return run(path.join(bundle, 'cmf'), argv, { interactive: true, label: 'login' });
+    await step('login', async () => {
+      if (portalPat) {
+        // The portal plugin caches the supplied PAT for subsequent CLI authentication.
+        await run(path.join(bundle, 'cmf'), ['portal', 'login', '--pat', portalPat], { label: 'portal-login' });
+        portalToken = (await readFile(path.join(process.env.XDG_CONFIG_HOME || path.join(os.homedir(), '.config'),
+          'cmfportal', 'cmfportaltoken'), 'utf8')).trim();
+        if (!portalToken) throw new Error('Portal login did not cache a token');
+      }
+      await run(path.join(bundle, 'cmf'), ['login', 'Portal', '--auth-type', 'Bearer', '--token', portalToken,
+        '--no-prompt'], { label: 'login' });
     });
     await step('init', async () => {
       await run(path.join(bundle, 'cmf'), ['init', config.projectName || 'test', '--tenant', config.tenant || 'test',
@@ -278,118 +308,131 @@ async function main() {
       await cli(['dev', 'local', 'stack', '--help'], containerWorkspace, 'plugin-check');
     });
     await step('container-login-sync', () => cli(['login', 'sync'], containerWorkspace, 'container-login-sync'));
-    for (const type of types) {
-      await step(`scaffold-${type}`, async () => {
-        const extra = type === 'data' ? ['--businessPackage', remotePath(path.relative(workspace, directories.business))] :
-          type === 'iot' ? ['--htmlPackageLocation', remotePath(path.relative(workspace, directories.html))] : [];
-        const scaffoldAlreadyRan = resume && report.commands.some(record =>
-          record.step === `scaffold-${type}` && record.status === 'passed');
-        if (!scaffoldAlreadyRan) await cli(['new', type, ...extra]);
+    await runFlow({
+      types,
+      cancel: async () => { onSignal(); await stopCommands(); },
+      scaffold: async type => {
+        await step(`scaffold-${type}`, async () => {
+          const extra = type === 'data' ? ['--businessPackage', remotePath(path.relative(workspace, directories.business))] :
+            type === 'iot' ? ['--htmlPackageLocation', remotePath(path.relative(workspace, directories.html))] : [];
+          const scaffoldAlreadyRan = resume && report.commands.some(record =>
+            record.step === `scaffold-${type}` && record.status === 'passed');
+          if (!scaffoldAlreadyRan) await cli(['new', type, ...extra]);
+          directories[type] = await packageDirectory(workspace, type);
+        });
         directories[type] = await packageDirectory(workspace, type);
-      });
-      directories[type] = await packageDirectory(workspace, type);
-    }
-    await step('stack-init', async () => {
-      await cli(['dev', 'local', 'stack', 'init']);
-      await nonemptyFile(path.join(workspace, 'compose.local.yaml'));
-    });
-    await step('stack-up', () => cli(['dev', 'local', 'stack', 'up', '--licenseId', String(licenseId), '--nobackup']));
-    await step('installation', () => waitForHttp(config.deploymentUrl || 'http://localhost:80/deployment/status', {
-      timeoutMs: installationTimeout, deployment: true,
-      check: async () => { if (cancelled) throw new Error('Run interrupted'); },
-      onStatus: status => console.log(status),
-    }));
-    await step('generate-lbos', async () => {
-      await cli(['dev', 'local', 'lbos']);
-      await nonemptyFile(path.join(workspace, 'Libs/LBOs/NetStandard/Cmf.LightBusinessObjects.dll'));
-      await nonemptyFile(path.join(workspace, 'Libs/LBOs/TypeScript/package.json'));
-    });
-    for (const type of types) await step(`build-${type}`, () =>
-      cli(['build'], remotePath(path.relative(workspace, directories[type])), `build-${type}`));
-    await step('serve', async () => {
-      // Refuse to accidentally validate a previously running development server.
-      try {
-        await fetch(config.serveUrl || 'http://localhost:7000', { signal: AbortSignal.timeout(2000) });
-        throw new Error('serveUrl already responds; stop the existing development server first');
-      } catch (error) { if (error.message.startsWith('serveUrl')) throw error; }
-      serveStarted = true;
-      await serve('start');
-      await waitForHttp(config.serveUrl || 'http://localhost:7000', {
-        timeoutMs: uiTimeout, check: async () => {
-          if (cancelled) throw new Error('Run interrupted');
-          await serve('check');
-        },
-      });
-    });
-    await step('ui-login', async () => {
-      const { chromium } = await import('playwright');
-      const browser = await chromium.launch({ headless: true, channel: 'chromium' });
-      activeBrowser = browser;
-      let page;
-      try {
-        page = await browser.newPage();
-        page.setDefaultTimeout(uiTimeout);
-        page.on('pageerror', error => console.log(`Browser error: ${error.message}`));
-        const response = await page.goto(config.uiUrl || 'http://localhost:80', { timeout: uiTimeout });
-        if (!response?.ok()) throw new Error(`UI returned HTTP ${response?.status()}`);
-        const login = config.login || {};
-        // SecurityPortal submits full-page forms. Inspect the new document, not
-        // the login form that remains visible while its request is in flight.
-        const submitForm = async selector => {
-          await Promise.all([
-            page.waitForEvent('framenavigated', { predicate: frame => frame === page.mainFrame() }),
-            page.locator(selector).click(),
-          ]);
-          await page.waitForLoadState('domcontentloaded');
-        };
-        console.log('UI: login page opened');
-        await page.locator(login.usernameSelector || "input[name='username']").fill(process.env.CMF_E2E_UI_USER || 'admin');
-        await page.locator(login.passwordSelector || "input[name='password']").fill(process.env.CMF_E2E_UI_PASSWORD || 'admin');
-        await submitForm(login.submitSelector || "button:has-text('Login')");
-        console.log('UI: credentials submitted');
-        const sidebar = page.locator(login.sidebarSelector || '.menu-sub-menu');
-        const username = page.locator(login.usernameSelector || "input[name='username']");
-        // Fresh local MES backups can require an initial password confirmation.
-        const confirmation = page.locator(login.resetConfirmationSelector || "input[name='password_confirmation']");
-        await sidebar.or(confirmation).or(username).first().waitFor({ state: 'visible' });
-        if (await confirmation.isVisible()) {
-          await page.locator(login.resetPasswordSelector || "input[name='password']")
-            .fill(process.env.CMF_E2E_UI_PASSWORD || 'admin');
-          await confirmation.fill(process.env.CMF_E2E_UI_PASSWORD || 'admin');
-          await submitForm(login.resetSubmitSelector || "button:has-text('Reset')");
-          console.log('UI: initial password confirmation completed');
+      },
+      install: async () => {
+        await step('stack-init', async () => {
+          await cli(['dev', 'local', 'stack', 'init']);
+          await nonemptyFile(path.join(workspace, 'compose.local.yaml'));
+        });
+        await step('stack-up', () => cli(['dev', 'local', 'stack', 'up', '--licenseId', String(licenseId), '--nobackup']));
+        await step('installation', () => waitForHttp(config.deploymentUrl || 'http://localhost:80/deployment/status', {
+          timeoutMs: installationTimeout, deployment: true,
+          check: async () => { if (cancelled) throw new Error('Run interrupted'); },
+          onStatus: status => console.log(status),
+        }));
+      },
+      generateLbos: () => step('generate-lbos', async () => {
+        await cli(['dev', 'local', 'lbos']);
+        await nonemptyFile(path.join(workspace, 'Libs/LBOs/NetStandard/Cmf.LightBusinessObjects.dll'));
+        await nonemptyFile(path.join(workspace, 'Libs/LBOs/TypeScript/package.json'));
+      }),
+      build: type => step(`build-${type}`, () =>
+        cli(['build'], remotePath(path.relative(workspace, directories[type])), `build-${type}`)),
+      serve: () => step('serve', async () => {
+        if (resume) {
+          try {
+            await access(path.join(state, 'serve.pid'));
+            await serve('stop');
+          } catch (error) { if (error.code !== 'ENOENT') throw error; }
         }
-        await sidebar.or(username).first().waitFor({ state: 'visible' });
-        if (await username.isVisible()) {
-          const scopeError = "The user doesn't have all the required scopes.";
-          if (await page.getByText(scopeError, { exact: true }).isVisible())
-            throw new Error(`MES rejected login: ${scopeError} Check the local stack's OAuth scope roles.`);
-          await username.fill(process.env.CMF_E2E_UI_USER || 'admin');
-          await page.locator(login.passwordSelector || "input[name='password']")
-            .fill(process.env.CMF_E2E_UI_PASSWORD || 'admin');
+        // Refuse to accidentally validate a previously running development server.
+        try {
+          await fetch(config.serveUrl || 'http://localhost:7000', { signal: AbortSignal.timeout(2000) });
+          throw new Error('serveUrl already responds; stop the existing development server first');
+        } catch (error) { if (error.message.startsWith('serveUrl')) throw error; }
+        serveStarted = true;
+        await serve('start');
+        await waitForHttp(config.serveUrl || 'http://localhost:7000', {
+          timeoutMs: uiTimeout, check: async () => {
+            if (cancelled) throw new Error('Run interrupted');
+            await serve('check');
+          },
+        });
+      }),
+      login: () => step('ui-login', async () => {
+        const { chromium } = await import('playwright');
+        const browser = await chromium.launch({ headless: true, channel: 'chromium' });
+        activeBrowser = browser;
+        let page;
+        try {
+          page = await browser.newPage();
+          page.setDefaultTimeout(uiTimeout);
+          page.on('pageerror', error => console.log(`Browser error: ${error.message}`));
+          const response = await page.goto(config.uiUrl || 'http://localhost:80', { timeout: uiTimeout });
+          if (!response?.ok()) throw new Error(`UI returned HTTP ${response?.status()}`);
+          const login = config.login || {};
+          // SecurityPortal submits full-page forms. Inspect the new document, not
+          // the login form that remains visible while its request is in flight.
+          const submitForm = async selector => {
+            await Promise.all([
+              page.waitForEvent('framenavigated', { predicate: frame => frame === page.mainFrame() }),
+              page.locator(selector).click(),
+            ]);
+            await page.waitForLoadState('domcontentloaded');
+          };
+          console.log('UI: login page opened');
+          await page.locator(login.usernameSelector || "input[name='username']").fill(process.env.CMF_E2E_UI_USER || 'admin');
+          await page.locator(login.passwordSelector || "input[name='password']").fill(process.env.CMF_E2E_UI_PASSWORD || 'admin');
           await submitForm(login.submitSelector || "button:has-text('Login')");
-          console.log('UI: additional sign-in submitted');
+          console.log('UI: credentials submitted');
+          const sidebar = page.locator(login.sidebarSelector || '.menu-sub-menu').filter({ visible: true });
+          const username = page.locator(login.usernameSelector || "input[name='username']").filter({ visible: true });
+          // Fresh local MES backups can require an initial password confirmation.
+          const confirmation = page.locator(login.resetConfirmationSelector || "input[name='password_confirmation']").filter({ visible: true });
+          await sidebar.or(confirmation).or(username).first().waitFor({ state: 'visible' });
+          if (await confirmation.isVisible()) {
+            await page.locator(login.resetPasswordSelector || "input[name='password']")
+              .fill(process.env.CMF_E2E_UI_PASSWORD || 'admin');
+            await confirmation.fill(process.env.CMF_E2E_UI_PASSWORD || 'admin');
+            await submitForm(login.resetSubmitSelector || "button:has-text('Reset')");
+            console.log('UI: initial password confirmation completed');
+          }
           await sidebar.or(username).first().waitFor({ state: 'visible' });
-          if (await username.isVisible()) throw new Error('Login returned to the login form after the additional sign-in');
-        }
-        for (const text of ['Administration', 'Business Data']) await sidebar.getByText(text, { exact: true }).first()
-          .waitFor({ state: 'visible' });
-        console.log('UI: homepage sidebar verified');
-        await page.screenshot({ path: path.join(state, 'homepage.png'), fullPage: true });
-      } catch (error) {
-        if (page) await page.screenshot({ path: path.join(state, 'ui-failure.png'), fullPage: true }).catch(() => {});
-        throw error;
-      } finally { await browser.close(); activeBrowser = null; }
+          if (await username.isVisible()) {
+            const scopeError = "The user doesn't have all the required scopes.";
+            if (await page.getByText(scopeError, { exact: true }).isVisible())
+              throw new Error(`MES rejected login: ${scopeError} Check the local stack's OAuth scope roles.`);
+            await username.fill(process.env.CMF_E2E_UI_USER || 'admin');
+            await page.locator(login.passwordSelector || "input[name='password']")
+              .fill(process.env.CMF_E2E_UI_PASSWORD || 'admin');
+            await submitForm(login.submitSelector || "button:has-text('Login')");
+            console.log('UI: additional sign-in submitted');
+            await sidebar.or(username).first().waitFor({ state: 'visible' });
+            if (await username.isVisible()) throw new Error('Login returned to the login form after the additional sign-in');
+          }
+          for (const text of ['Administration', 'Business Data']) await sidebar.getByText(text, { exact: true }).first()
+            .waitFor({ state: 'visible' });
+          console.log('UI: homepage sidebar verified');
+          await page.screenshot({ path: path.join(state, 'homepage.png'), fullPage: true });
+        } catch (error) {
+          if (page) await page.screenshot({ path: path.join(state, 'ui-failure.png'), fullPage: true }).catch(() => {});
+          throw error;
+        } finally { await browser.close(); activeBrowser = null; }
+      }),
+      stopServe: () => step('stop-serve', async () => { await serve('stop'); serveStarted = false; }),
+      pack: type => step(`pack-${type}`, async () => {
+        const output = remotePath(`.e2e/packages/${type}`);
+        await cli(['pack', '--outputDir', output], remotePath(path.relative(workspace, directories[type])), `pack-${type}`);
+        const files = await readdir(path.join(state, 'packages', type));
+        const archives = files.filter(file => file.endsWith('.zip'));
+        if (!archives.length) throw new Error(`No archive produced for ${type}`);
+        for (const archive of archives) await nonemptyFile(path.join(state, 'packages', type, archive));
+      }),
     });
-    await step('stop-serve', async () => { await serve('stop'); serveStarted = false; });
-    for (const type of types) await step(`pack-${type}`, async () => {
-      const output = remotePath(`.e2e/packages/${type}`);
-      await cli(['pack', '--outputDir', output], remotePath(path.relative(workspace, directories[type])), `pack-${type}`);
-      const files = await readdir(path.join(state, 'packages', type));
-      const archives = files.filter(file => file.endsWith('.zip'));
-      if (!archives.length) throw new Error(`No archive produced for ${type}`);
-      for (const archive of archives) await nonemptyFile(path.join(state, 'packages', type, archive));
-    });
+    await step('stack-down', () => cli(['dev', 'local', 'stack', 'down', '--remove-volumes']));
     report.status = 'passed';
   } catch (error) {
     report.status = 'failed'; report.error = error.message; process.exitCode = 1;
@@ -398,13 +441,7 @@ async function main() {
     // Cancellation fails the flow, but must not reject successful cleanup commands.
     const interrupted = cancelled;
     cancelled = false;
-    if (interrupted && containerWorkspace) {
-      try {
-        await run('devcontainer', ['exec', '--workspace-folder', devcontainerFolder, '--override-config', overridePath,
-          ...containerLabels,
-          'node', remotePath('.e2e/serve.mjs'), 'stop-command', remotePath('.e2e')], { label: 'stop-command', timeout: 30 });
-      } catch (error) { report.cleanup.push(error.message); }
-    }
+    if (interrupted && containerWorkspace) await stopCommands();
     if (serveStarted && containerWorkspace) {
       try { await serve('stop'); report.cleanup.push('Serve process stopped'); }
       catch (error) { report.cleanup.push(error.message); report.status = 'failed'; process.exitCode = 1; }
@@ -413,7 +450,9 @@ async function main() {
     await saveReport();
     console.log(`\nResult: ${report.status}.` + (workspaceReady ? ` Report: ${path.join(state, 'report.json')}` :
       ' No workspace was created; fix the prerequisites and retry.'));
-    if (workspaceReady) console.log('Project and artifacts retained for inspection; any started containers remain running.');
+    if (workspaceReady) console.log(report.status === 'passed' ?
+      'Project and artifacts retained; local stack and volumes removed.' :
+      'Project and artifacts retained for inspection; any started containers remain running.');
     process.off('SIGINT', onSignal); process.off('SIGTERM', onSignal);
   }
 }
