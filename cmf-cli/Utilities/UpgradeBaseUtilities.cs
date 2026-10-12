@@ -2,15 +2,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Objects;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using Cmf.CLI.Core.Enums;
-using System.Text.Json.Nodes;
 using System.Runtime.CompilerServices;
+using NuGet.Versioning;
 
 [assembly: InternalsVisibleTo("tests")]
 namespace Cmf.CLI.Utilities
@@ -54,12 +53,14 @@ namespace Cmf.CLI.Utilities
         {
             // package.json files
             string[] filesToUpdate = fileSystem.Directory.GetFiles(cmfPackage.GetFileInfo().DirectoryName, "package.json", SearchOption.AllDirectories);
-            string pattern = @"release-\d+";
+            // matches any npm dist-tag in the "{label}-{version}" convention (e.g. "release-1200", "alpha-1200", "next-1200")
+            string pattern = @"(?:release|alpha|beta|rc|next|canary|preview)-\d+";
+            string newDistTag = GenericUtilities.GetNpmDistTag(NuGetVersion.Parse(version));
 
             foreach (string filePath in filesToUpdate.Where(path => !path.Contains("node_modules") && !path.Contains("dist")))
             {
                 string text = fileSystem.File.ReadAllText(filePath);
-                text = Regex.Replace(text, pattern, $"release-{version.Replace(".", "")}", RegexOptions.IgnoreCase);
+                text = Regex.Replace(text, pattern, newDistTag, RegexOptions.IgnoreCase);
 
                 fileSystem.File.WriteAllText(filePath, text);
             }
@@ -81,7 +82,7 @@ namespace Cmf.CLI.Utilities
         /// <param name="version">The new Base version.</param>
         /// <param name="strictMatching">
         ///     If true, only references to Cmf.Navigo, Cmf.Foundation, Cmf.MessageBus and Cmf.Common.CustomActionUtilities packages will be updated.
-        ///     If false, all packages starting with Cmf. will be updated, (excluding Cmf.Common.TestUtilities and Cmf.Common.TestFramework.ConnectIoT).
+        ///     If false, all packages starting with Cmf. will be updated.
         /// </param>
         public static void UpdateCSharpProject(IFileSystem fileSystem, CmfPackage cmfPackage, string version, bool strictMatching)
         {
@@ -95,8 +96,8 @@ namespace Cmf.CLI.Utilities
             }
             else
             {
-                // Only update Cmf.* references (excluding Cmf.Common.TestUtilities and Cmf.Common.TestFramework.ConnectIoT)
-                pattern = @"(Include=""Cmf\.(?!Common\.TestUtilities|Common\.TestFramework\.ConnectIoT)[^""]*""\s+Version="")(.*?)(""[\s/>])";
+                // Only update Cmf.* references
+                pattern = @"(Include=""Cmf\.[^""]*""\s+Version="")(.*?)(""[\s/>])";
             }
 
             foreach (string filePath in filesToUpdate)

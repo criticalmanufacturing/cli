@@ -5,10 +5,11 @@ using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
-using System.Linq;
-using System;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Cmf.CLI.Services;
+using NuGet.Versioning;
 
 namespace Cmf.CLI.Commands.New
 {
@@ -31,12 +32,19 @@ namespace Cmf.CLI.Commands.New
         /// <inheritdoc />
         public override void Configure(Command cmd)
         {
-            cmd.AddOption(new Option<string>(
-                aliases: new[] { "--version" },
-                description: "Package Version",
-                getDefaultValue: () => "1.0.0"
-            ));
-            cmd.Handler = CommandHandler.Create<string>(Execute);
+            var versionOption = new Option<string>("--version")
+            {
+                Description = "Package Version",
+                DefaultValueFactory = _ => "1.0.0"
+            };
+            cmd.Add(versionOption);
+
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                var version = parseResult.GetValue(versionOption);
+                Execute(version);
+                return Task.FromResult(0);
+            });
         }
 
         /// <inheritdoc />
@@ -72,39 +80,61 @@ namespace Cmf.CLI.Commands.New
             };
 
             var projectName = projectConfig.ProjectName;
-            var restPort = projectConfig.RESTPort;
             var mesVersion = projectConfig.MESVersion;
-            var htmlPort = projectConfig.HTMLPort;
-            var vmHostname = projectConfig.vmHostname;
             var testScenariosNugetVersion = projectConfig.TestScenariosNugetVersion;
-            var isSslEnabled = projectConfig.IsSslEnabled;
+            var legacyProjectConfig = projectConfig as ProjectConfigV1;
+            var restPort = legacyProjectConfig?.RESTPort;
+            var htmlPort = legacyProjectConfig?.HTMLPort;
+            var vmHostname = legacyProjectConfig?.vmHostname;
+
+            args.AddRange(new[] { "--IsSslEnabled", legacyProjectConfig?.IsSslEnabled.ToString().ToLowerInvariant() ?? "true" });
 
             args.AddRange(new[]
             {
                 "--projectName", projectName,
                 "--repositoryType", repoType.ToString(),
-                "--vmHostname", vmHostname,
-                "--RESTPort", restPort.ToString(),
                 "--testScenariosNugetVersion", testScenariosNugetVersion.ToString(),
-                "--HTMLPort", htmlPort.ToString(),
                 "--MESVersion", mesVersion.ToString(),
                 "--Product", product,
                 "--Organization", organization
             });
 
-            if (isSslEnabled)
+            if (!string.IsNullOrEmpty(vmHostname))
             {
-                args.Add("--IsSslEnabled");
+                args.AddRange(new[] { "--vmHostname", vmHostname });
+            }
+
+            if (restPort.HasValue)
+            {
+                args.AddRange(new[] { "--RESTPort", restPort.Value.ToString() });
+            }
+
+            if (htmlPort.HasValue)
+            {
+                args.AddRange(new[] { "--HTMLPort", htmlPort.Value.ToString() });
             }
             
             #region version-specific bits
-            args.AddRange(new []{ "--targetFramework", mesVersion.Major > 8 ? mesVersion.Major >= 11 ? "net8.0" : "net6.0" : "netcoreapp3.1" });
+            args.AddRange(new []{ "--targetFramework", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().DotNetTargetFramework(mesVersion) });
 
-            if (mesVersion >= new Version(11, 2, 3))
+            if (mesVersion >= new NuGetVersion(11, 2, 3))
             {
                 args.Add("--hostPerformanceTests");
             }
             #endregion
+
+            // Switch between version templates
+            // Default case is v12 so it supports v12+
+            switch (mesVersion.Major)
+            {
+                case 10:
+                case 11:
+                    this.CommandName = "tests10";
+                    break;
+                default:
+                    this.CommandName = "tests12";
+                    break;
+            }
 
             this.executedArgs = args.ToArray();
             base.RunCommand(args);

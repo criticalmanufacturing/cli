@@ -5,6 +5,8 @@
   "packageType": "IoT",
   "isInstallable": true,
   "isUniqueInstall": false,
+  "isToForceInstall": true,
+  "forceRerunAfterDatabaseRestore": true,
   "contentToPack": [
     {
       "source": "projects/*",

@@ -1,0 +1,5 @@
+nav:
+    - Home: index.md
+    - ... | **/*
+    - Documentation Portal &#8599;: https://help.criticalmanufacturing.com
+order: asc

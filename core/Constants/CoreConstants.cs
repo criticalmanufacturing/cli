@@ -5,15 +5,6 @@
     /// </summary>
     public static class CoreConstants
     {
-        #region Folders
-
-        /// <summary>
-        /// The folder install dependencies
-        /// </summary>
-        public const string FolderInstallDependencies = "installDependencies";
-
-        #endregion
-
         #region Files
 
         /// <summary>
@@ -78,7 +69,16 @@
         /// The token end element
         /// </summary>
         public const string TokenEndElement = ")";
-        
+
+        #endregion
+
+        #region Versions
+
+        /// <summary>
+        /// Version in which TargetDirectory is no longer needed
+        /// </summary>
+        public const int TargetDirectoryRemovalMesMajorVersion = 12;
+
         #endregion
     }
 }

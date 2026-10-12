@@ -112,7 +112,7 @@ namespace Cmf.CLI.Core.Objects
             }
 
             // connect and load shares for all UNC repositories
-            if (!RunningOnWindows && RepositoriesConfig.Repositories.HasAny())
+            if (!RunningOnWindows && ServiceProvider != null && RepositoriesConfig.Repositories.HasAny())
             {
                 CIFSClients = RepositoriesConfig?.Repositories
                     .Where(uri => uri.IsUnc)

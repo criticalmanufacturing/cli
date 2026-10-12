@@ -6,13 +6,14 @@ using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using NuGet.Versioning;
 using Spectre.Console;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Cmf.CLI.Commands.New.IoT
 {
@@ -45,16 +46,20 @@ namespace Cmf.CLI.Commands.New.IoT
                 this.fileSystem
             );
 
-            cmd.AddArgument(new Argument<IDirectoryInfo>(
-                name: "workingDir",
-                parse: (argResult) => Parse<IDirectoryInfo>(argResult, nearestIoTPackage?.FullName),
-                isDefault: true
-            )
+            var workingDirArgument = new Argument<IDirectoryInfo>("workingDir")
             {
-                Description = "Working Directory"
-            });
+                Description = "Working Directory",
+                CustomParser = argResult => Parse<IDirectoryInfo>(argResult, nearestIoTPackage?.FullName),
+                DefaultValueFactory = _ => Parse<IDirectoryInfo>(null, nearestIoTPackage?.FullName)
+            };
+            cmd.Add(workingDirArgument);
 
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo>(this.Execute);
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                var workingDir = parseResult.GetValue(workingDirArgument);
+                Execute(workingDir);
+                return Task.FromResult(0);
+            });
         }
 
         /// <summary>
@@ -72,6 +77,8 @@ namespace Cmf.CLI.Commands.New.IoT
 
             using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
 
+            var testUtilitiesLocation = ExecutionContext.Instance.ProjectConfig.MESVersion < new NuGetVersion(11, 1, 0) ? "" : "dist/";
+
             var converter = HandleConverter(new ConverterValues());
 
             var args = this.GenerateArgs(
@@ -82,7 +89,8 @@ namespace Cmf.CLI.Commands.New.IoT
                 converter.Title,
                 converter.InputAsJS,
                 converter.OutputAsJS,
-                converter.ParametersAsJS
+                converter.ParametersAsJS,
+                testUtilitiesLocation
             );
             this.CommandName = "iot-converter";
             base.RunCommand(args);
@@ -179,7 +187,8 @@ namespace Cmf.CLI.Commands.New.IoT
             string title,
             string inputAsJS,
             string outputAsJS,
-            string parametersAsJS)
+            string parametersAsJS,
+            string testUtilitiesLocation)
         {
             Log.Debug($"Creating IoT Converter at {packageLocation}");
 
@@ -191,7 +200,8 @@ namespace Cmf.CLI.Commands.New.IoT
                 "--title", title,
                 "--inputAsJS", inputAsJS,
                 "--outputAsJS", outputAsJS,
-                "--parametersAsJS", parametersAsJS
+                "--parametersAsJS", parametersAsJS,
+                "--testUtilitiesLocation", testUtilitiesLocation
             });
 
             return args;

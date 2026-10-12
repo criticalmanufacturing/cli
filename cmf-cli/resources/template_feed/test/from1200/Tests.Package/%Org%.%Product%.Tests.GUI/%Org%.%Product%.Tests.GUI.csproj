@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework><%= $CLI_PARAM_TargetFramework %></TargetFramework>
+    <IsTestProject>true</IsTestProject>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>..\Release</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup>
+    <NoWarn>NU1605</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+  <None Include="..\app.config">
+      <Link>app.config</Link>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Cmf.LightBusinessObjects">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Libs\LBOs\NetStandard\Cmf.LightBusinessObjects.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\..\Libs\LBOs\NetStandard\Cmf.LightBusinessObjects.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\<%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.Tests.Biz.Common\<%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.Tests.Biz.Common.csproj" />
+    <ProjectReference Include="..\<%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.Tests.GUI.PageObjects\<%= $CLI_PARAM_Organization %>.<%= $CLI_PARAM_Product %>.Tests.GUI.PageObjects.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Cmf.Dev.Core.TestUtilities" Version="<%= $CLI_PARAM_MESVersion %>"/>
+    <PackageReference Include="Cmf.Core.Business.Controls.PageObjects" Version="<%= $CLI_PARAM_MESVersion %>" />
+    <PackageReference Include="Cmf.Core.Shell.PageObjects" Version="<%= $CLI_PARAM_MESVersion %>" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
+    <PackageReference Include="MSTest.TestAdapter" Version="4.3.3" />
+    <PackageReference Include="MSTest.TestFramework" Version="4.3.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Cmf.Core.PageObjects" Version="<%= $CLI_PARAM_MESVersion %>"/>
+    <PackageReference Include="Cmf.MES.PageObjects" Version="<%= $CLI_PARAM_MESVersion %>"/>
+    <PackageReference Include="Cmf.Dev.Mes.TestScenarios" Version="<%= $CLI_PARAM_TestScenariosNugetVersion %>"/>
+    <PackageReference Include="Selenium.Support" Version="4.29.0" />
+    <PackageReference Include="Selenium.WebDriver" Version="4.29.0" />
+    <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="147.0.7727.5600" />
+  </ItemGroup>
+</Project>

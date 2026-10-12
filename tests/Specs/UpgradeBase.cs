@@ -771,8 +771,6 @@ public class UpgradeBase
                             <PackageReference Include=""MSTest.TestFramework"" Version=""2.2.3"" />
                           </ItemGroup>
                           <ItemGroup>
-                            <PackageReference Include=""Cmf.Common.TestUtilities"" Version=""2.3.157590"" />
-                            <PackageReference Include=""Cmf.Common.TestFramework.ConnectIoT"" Version=""1.0.131717"" />
                             <PackageReference Include=""Cmf.Dev.Mes.TestScenarios"" Version=""11.1.5"" />
                           </ItemGroup>
                         </Project>
@@ -786,11 +784,9 @@ public class UpgradeBase
         cmd.Execute(fileSystem.DirectoryInfo.New("/"), version, null, []);
 
         string csprojContents = fileSystem.File.ReadAllText("/Common/a.b.c.csproj");
-        csprojContents.Should().ContainAll([
-            $@"<PackageReference Include=""Cmf.Common.TestUtilities"" Version=""2.3.157590"" />", // Shouldn't be changed
-            $@"<PackageReference Include=""Cmf.Common.TestFramework.ConnectIoT"" Version=""1.0.131717"" />", // Shouldn't be changed
-            $@"<PackageReference Include=""Cmf.Dev.Mes.TestScenarios"" Version=""{version}"" />",
-        ]);
+        csprojContents.Should().Contain(
+            $@"<PackageReference Include=""Cmf.Dev.Mes.TestScenarios"" Version=""{version}"" />"
+        );
         Assert.Single(Regex.Matches(csprojContents, version.Replace(".", "\\.")));
     }
 }

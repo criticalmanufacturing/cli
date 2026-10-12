@@ -36,6 +36,10 @@ Boolean value *(default false)*. A value of true indicates that the package is o
 
 Boolean value *(default false)*. A value of true indicates that package installation should be forced by Deployment Framework.
 
+### forceRerunAfterDatabaseRestore
+
+Boolean value *(default false)*. A value of true indicates that package installation should be forced by Deployment Framework after a database restore.
+
 ### isToSetDefaultSteps
 
 Boolean value *(default true)*. A value of true indicates that a set of predefined steps (each packageType has a set of steps) will be used.
@@ -56,6 +60,7 @@ Example:
     "packageType": "Data",
     "isInstallable": true,
     "isToForceInstall": false,
+    "forceRerunAfterDatabaseRestore": false,
     "isUniqueInstall": true,
     "steps": [
     {
@@ -85,6 +90,8 @@ Properties:
 | action      | Action that will occur during the packing. Defined via an Enum, check all the valid values [here](packaction.md). |
 
 The properties **source** and **target** have support for token replacement of any property of the cmfpackage.
+
+`Transform` is currently only available for HTML packages, specificaly to add or change custom properties in a UI `config.json`. See [HTML package config transformations](html-transformations.md) for the source-file format, deployment behavior, and examples.
 
 Example:
 

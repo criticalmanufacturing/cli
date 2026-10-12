@@ -4,13 +4,11 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Cmf.CLI.Builders;
 using Cmf.CLI.Commands.html;
 using Cmf.CLI.Commands.restore;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
-using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
@@ -59,7 +57,7 @@ namespace Cmf.CLI.Handlers
                     {
                         new Step(StepType.DeployFiles)
                         {
-                            ContentPath = "**" // TODO: remove assets/config.json from the deployed files, should only apply transform
+                            ContentPath = "**"
                         },
                         new Step(StepType.TaggedFile)
                         {
@@ -71,13 +69,17 @@ namespace Cmf.CLI.Handlers
                             ContentPath = "ngsw.json",
                             TagFile = true
                         },
-                        new Step(StepType.TaggedFile)
+                        new Step(StepType.TransformFile)
                         {
-                            ContentPath = "assets/config.json",
-                            TagFile = true
+                            File = "config.json",
+                            TagFile = true,
+                            RelativePath = "assets",
                         }
                     }
             );
+
+            // Exclude built assets/config.json from copied content
+            DefaultContentToIgnore.Add(CliConstants.CmfPackagePresentationConfig);
 
             var projectRoot = FileSystemUtilities.GetProjectRoot(this.fileSystem);
             var tsLBOsPath = this.fileSystem.Path.Join(projectRoot.FullName, "Libs", "LBOs", "TypeScript");
@@ -205,54 +207,31 @@ namespace Cmf.CLI.Handlers
             }
         }
 
-        // TODO: enable this when we can transform config.json
-        // public override void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir)
-        // {
-        //     var filesToPack = GetContentToPack(packageOutputDir);
-        //     if (CmfPackage.ContentToPack.HasAny() && !filesToPack.HasAny())
-        //     {
-        //         throw new CliException(string.Format(CoreMessages.ContentToPackNotFound, CmfPackage.PackageId, CmfPackage.Version));
-        //     }
-        //
-        //     if (filesToPack != null)
-        //     {
-        //         FilesToPack.AddRange(filesToPack);
-        //
-        //         FilesToPack.ForEach(fileToPack =>
-        //         {
-        //             Log.Debug($"Packing '{fileToPack.Source.FullName} to {fileToPack.Target.FullName} by contentToPack rule (Action: {fileToPack.ContentToPack.Action.ToString()}, Source: {fileToPack.ContentToPack.Source}, Target: {fileToPack.ContentToPack.Target})");
-        //             IDirectoryInfo _targetFolder = this.fileSystem.DirectoryInfo.New(fileToPack.Target.Directory.FullName);
-        //             if (!_targetFolder.Exists)
-        //             {
-        //                 _targetFolder.Create();
-        //             }
-        //         });
-        //     }
-        //
-        //     // TODO: replace this with an ignore entry in the ContentToPack of the template cmfpackage.json
-        //     FilesToPack = FilesToPack.Where(ftp => !ftp.Source.FullName.EndsWith($"assets{this.fileSystem.Path.DirectorySeparatorChar}config.json")).ToList();
-        //     GeneratePresentationConfigFile(packageOutputDir);
-        //
-        //     GenerateDeploymentFrameworkManifest(packageOutputDir);
-        //
-        //     FinalArchive(packageOutputDir, outputDir);
-        //
-        //     Log.Information($"{outputDir.FullName}/{CmfPackage.ZipPackageName} created");
-        //     
-        // }
-        
         /// <summary>
-        /// Generates the presentation configuration file.
+        /// This function will pack the html package. It will also generate the config.json file in the root of the zip.
         /// </summary>
-        /// <param name="packageOutputDir">The package output dir.</param>
+        public override void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir, bool dryRun = false)
+        {
+            if (!dryRun)
+            {
+                GeneratePresentationConfigFile(packageOutputDir);
+            }
+            base.Pack(packageOutputDir, outputDir, dryRun);
+        }
+
+        /// <summary>
+        /// This function will generated the config.json using the html template.
+        /// This file is packed and included in the root of the zip file, which will then be applied transformation within the target environment config.json (located at /assets/config.json).
+        /// </summary>
         private void GeneratePresentationConfigFile(IDirectoryInfo packageOutputDir)
         {
             Log.Debug("Generating Presentation config.json");
-            string path = $"{packageOutputDir.FullName}/assets/{CliConstants.CmfPackagePresentationConfig}";
-            
-            List<string> transformInjections = new();
+
+            string path = this.fileSystem.Path.Join(packageOutputDir.FullName, CliConstants.CmfPackagePresentationConfig);
+            string fileContent = ResourceUtilities.GetEmbeddedResourceContent($"{CliConstants.FolderTemplates}/{CmfPackage.PackageType}/config.ng.json");
 
             IDirectoryInfo cmfPackageDirectory = CmfPackage.GetFileInfo().Directory;
+            List<string> transformInjections = new();
 
             foreach (ContentToPack contentToPack in CmfPackage.ContentToPack)
             {
@@ -262,20 +241,17 @@ namespace Cmf.CLI.Handlers
                 }
             }
 
-            // Get Template
-            string fileContent = ResourceUtilities.GetEmbeddedResourceContent($"{CliConstants.FolderTemplates}/{CmfPackage.PackageType}/config.ng.json");
-
             fileContent = fileContent.Replace(CliConstants.TokenVersion, CmfPackage.Version);
 
             string injection = string.Empty;
             if (transformInjections.HasAny())
             {
-                // we actually want a trailing comma here, because the inject token is in the middle of the document. If this changes we need to put more logic here.
+                // Trailing commas are required because the injection token is not the last property.
                 var injections = transformInjections.Select(injection => this.fileSystem.File.ReadAllText($"{cmfPackageDirectory}/{injection}") + ",");
                 injection = string.Join(System.Environment.NewLine, injections);
             }
+
             fileContent = fileContent.Replace(CliConstants.TokenJDTInjection, injection);
-            fileContent = fileContent.Replace(CliConstants.CacheId, DateTime.Now.ToString("yyyyMMddHHmmss"));
 
             this.fileSystem.File.WriteAllText(path, fileContent);
         }

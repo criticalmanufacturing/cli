@@ -1,5 +1,6 @@
 *
-!src
-!book.toml
-!mkdocs
+!Dockerfile
+!requirements.txt
 !mkdocs.yml
+!src/
+!src/**

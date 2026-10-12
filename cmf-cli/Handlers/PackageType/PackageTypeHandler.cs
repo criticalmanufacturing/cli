@@ -21,7 +21,6 @@ using System.Xml.Serialization;
 using Cmf.CLI.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
-using SharpCompress.Common;
 
 [assembly: InternalsVisibleTo("tests")]
 
@@ -213,6 +212,14 @@ namespace Cmf.CLI.Handlers
                 }
 
                 object propertyValue = CmfPackage.GetPropertyValueFromTokenName(token);
+
+                if (element.Name.LocalName.Equals("targetDirectory", StringComparison.OrdinalIgnoreCase)
+                    && ExecutionContext.Instance?.ProjectConfig?.MESVersion?.Major >= 12)
+                {
+                    // targetDirectory is not valid for MES v12+ packages.
+                    elementsToRemove.Add(element);
+                    continue;
+                }
 
                 // If a Property with the same name of the token was not found
                 // We need to remove that element from the final xml file
@@ -474,18 +481,6 @@ namespace Cmf.CLI.Handlers
 
         #endregion Private Methods
 
-        #region Protected Methods
-
-        /// <summary>
-        /// Copies the install dependencies.
-        /// </summary>
-        /// <param name="packageOutputDir">The package output dir.</param>
-        protected virtual void CopyInstallDependencies(IDirectoryInfo packageOutputDir)
-        {
-        }
-
-        #endregion Protected Methods
-
         #region Public Methods
 
         /// <summary>
@@ -632,9 +627,6 @@ namespace Cmf.CLI.Handlers
             // Only perform actual packing operations if not in dry-run mode
             if (!dryRun)
             {
-                // TODO: To be removed? Install dependencies
-                CopyInstallDependencies(packageOutputDir);
-
                 GenerateDeploymentFrameworkManifest(packageOutputDir);
 
                 FinalArchive(packageOutputDir, outputDir);

@@ -60,6 +60,30 @@ namespace Cmf.CLI {
             }
         }
         
+        /// <summary>Optional Setup configuration help.</summary>
+        internal static string InitConfigDescription => ResourceManager.GetString("InitConfigDescription", resourceCulture);
+
+        /// <summary>Tenant option help.</summary>
+        internal static string InitTenantDescription => ResourceManager.GetString("InitTenantDescription", resourceCulture);
+
+        /// <summary>Optional infrastructure file help.</summary>
+        internal static string InitInfrastructureDescription => ResourceManager.GetString("InitInfrastructureDescription", resourceCulture);
+
+        /// <summary>Registry option help, including its default.</summary>
+        internal static string InitRegistryDescription => ResourceManager.GetString("InitRegistryDescription", resourceCulture);
+
+        /// <summary>Legacy HTML Starter option help.</summary>
+        internal static string InitLegacyHtmlStarterDescription => ResourceManager.GetString("InitLegacyHtmlStarterDescription", resourceCulture);
+
+        /// <summary>Legacy dev-tasks option help.</summary>
+        internal static string InitLegacyDevTasksDescription => ResourceManager.GetString("InitLegacyDevTasksDescription", resourceCulture);
+
+        /// <summary>Legacy Yeoman option help.</summary>
+        internal static string InitLegacyYoGeneratorDescription => ResourceManager.GetString("InitLegacyYoGeneratorDescription", resourceCulture);
+
+        /// <summary>Missing tenant error.</summary>
+        internal static string InitMissingTenant => ResourceManager.GetString("InitMissingTenant", resourceCulture);
+
         /// <summary>
         ///   Looks up a localized string similar to Command is only valid for Packages of Type IoT.
         /// </summary>

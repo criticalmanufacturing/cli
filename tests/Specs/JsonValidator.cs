@@ -1,7 +1,6 @@
 using Cmf.CLI.Commands;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.IO;
 using System.IO.Abstractions.TestingHelpers;
 using tests.Objects;
 using Xunit;
@@ -72,10 +71,10 @@ namespace tests.Specs
             buildCommand.Configure(cmd);
 
             var console = new TestConsole();
-            cmd.Invoke(new string[] {
+            var parseResult = cmd.Parse(new string[] {
                 "test/Data/"
-            }, console);
-
+            });
+            parseResult.Invoke(console);
             Assert.True(console.Error == null || string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator failed {console.Error.ToString()}");
 
         }
@@ -141,9 +140,10 @@ namespace tests.Specs
             buildCommand.Configure(cmd);
 
             var console = new TestConsole();
-            cmd.Invoke(new string[] {
+	        var parseResult = cmd.Parse(new string[] {
                 "test/Data/"
-            }, console);
+            });
+            parseResult.Invoke(console);
 
             Assert.True(console.Error != null && !string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator failed for Data Package: {console.Error.ToString()}");
         }
@@ -248,9 +248,10 @@ namespace tests.Specs
             buildCommand.Configure(cmd);
 
             var console = new TestConsole();
-            cmd.Invoke(new string[] {
+            var parseResult = cmd.Parse(new string[] {
                 "test/Data/"
-            }, console);
+            });
+            parseResult.Invoke(console);
 
             Assert.True(console.Error != null && !string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator failed for IoT Data Package: {console.Error.ToString()}");
         }
@@ -355,9 +356,10 @@ namespace tests.Specs
             buildCommand.Configure(cmd);
 
             var console = new TestConsole();
-            cmd.Invoke(new string[] {
+            var parseResult = cmd.Parse(new string[] {
                 "test/Data/"
-            }, console);
+            });
+            parseResult.Invoke(console);
 
             Assert.True(!string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator failed for IoT Data Workflow Package: {console.Error.ToString()}");
         }
@@ -434,9 +436,10 @@ namespace tests.Specs
             buildCommand.Configure(cmd);
 
             var console = new TestConsole();
-            cmd.Invoke(new string[] {
+            var parseResult = cmd.Parse(new string[] {
                 "test/Data/"
-            }, console);
+            });
+            parseResult.Invoke(console);
 
             Assert.True(console.Error == null || string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator failed {console.Error.ToString()}");
         }
@@ -513,9 +516,10 @@ namespace tests.Specs
             buildCommand.Configure(cmd);
 
             var console = new TestConsole();
-            cmd.Invoke(new string[] {
+            var parseResult = cmd.Parse(new string[] {
                 "test/Data/"
-            }, console);
+            });
+            parseResult.Invoke(console);
 
             Assert.True(!string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator did not fail for IoT Data Workflow Package: {console.Error.ToString()}");
             Assert.True(console.Error.ToString().Contains("Please normalize all slashes to be forward slashes"), $"Json Validator did not fail for IoT Data Workflow Package: {console.Error.ToString()}");
@@ -1021,9 +1025,10 @@ namespace tests.Specs
             buildCommand.Configure(cmd);
 
             var console = new TestConsole();
-            cmd.Invoke(new string[] {
+            var parseResult = cmd.Parse(new string[] {
                 "test/Data/"
-            }, console);
+            });
+            parseResult.Invoke(console);
 
             Assert.True(console.Error == null || string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator failed {console.Error.ToString()}");
         }
@@ -1528,9 +1533,10 @@ namespace tests.Specs
             buildCommand.Configure(cmd);
 
             var console = new TestConsole();
-            cmd.Invoke(new string[] {
+            var parseResult = cmd.Parse(new string[] {
                 "test/Data/"
-            }, console);
+            });
+            parseResult.Invoke(console);
 
             Assert.True(!string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator did not fail for IoT Data Workflow Package: {console.Error.ToString()}");
             Assert.True(console.Error.ToString().Contains("Could not find the path Error for the Workflow"), $"Json Validator did not fail for IoT Data Workflow Package: {console.Error.ToString()}");
@@ -2036,9 +2042,10 @@ namespace tests.Specs
             buildCommand.Configure(cmd);
 
             var console = new TestConsole();
-            cmd.Invoke(new string[] {
+            var parseResult = cmd.Parse(new string[] {
                 "test/Data/"
-            }, console);
+            });
+            parseResult.Invoke(console);
 
             Assert.True(!string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator did not fail for IoT Data Workflow Package: {console.Error.ToString()}");
             Assert.True(console.Error.ToString().Contains("The subworkflow Error is mentioned but there is no workflow declared with that name"), $"Json Validator did not fail for IoT Data Workflow Package: {console.Error.ToString()}");
@@ -2114,9 +2121,10 @@ namespace tests.Specs
             buildCommand.Configure(cmd);
 
             var console = new TestConsole();
-            cmd.Invoke(new string[] {
+            var parseResult = cmd.Parse(new string[] {
                 "test/Data/"
-            }, console);
+            });
+            parseResult.Invoke(console);
 
             Assert.True(console.Error == null || string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator failed with empty IsFile: {console.Error?.ToString()}");
         }
@@ -2250,9 +2258,10 @@ namespace tests.Specs
             buildCommand.Configure(cmd);
 
             var console = new TestConsole();
-            cmd.Invoke(new string[] {
+            var parseResult = cmd.Parse(new string[] {
                 "test/"
-            }, console);
+            });
+            parseResult.Invoke(console);
 
             Assert.True(console.Error == null || string.IsNullOrEmpty(console.Error.ToString()), $"Json Validator failed with repeated keys on different levels in arrays: {console.Error?.ToString()}");
         }

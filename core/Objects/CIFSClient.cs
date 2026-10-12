@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.TemplateEngine.Utils;
 using SMBLibrary;
 using SMBLibrary.Client;
+using Cmf.CLI.Utilities;
 
 namespace Core.Objects
 {
@@ -29,10 +30,17 @@ namespace Core.Objects
 
         public CIFSClient(Uri uri, ISMBClient smbClient = null)
         {
-            var authStore = ExecutionContext.ServiceProvider.GetService<IRepositoryAuthStore>();
+            var authStore = ExecutionContext.ServiceProvider?.GetService<IRepositoryAuthStore>();
 
             Server = uri.Host;
             _smbClient = smbClient ?? new SMB2Client();
+
+            if (authStore == null)
+            {
+                Log.Debug("Repository auth store is not available. Skipping CIFS authentication setup.");
+                return;
+            }
+
             _credentials = authStore.GetCredentialsFor<CIFSRepositoryCredentials>(authStore.GetOrLoad().GetAwaiter().GetResult(), uri.AbsoluteUri);
 
             if (_credentials == null)
@@ -126,7 +134,7 @@ namespace Core.Objects
         {
             if (!Exists)
             {
-                throw new InvalidOperationException("Cannot perform actions in a non-existent shared folder.");
+                throw new CliException("Cannot perform actions in a non-existent shared folder.");
             }
 
             Tuple<Uri, Stream> fileStream = null;
@@ -141,7 +149,7 @@ namespace Core.Objects
                     status = _smbFileStore.ReadFile(out byte[] data, fileHandle, bytesRead, (int)_client.MaxReadSize);
                     if (status != NTStatus.STATUS_SUCCESS && status != NTStatus.STATUS_END_OF_FILE)
                     {
-                        throw new Exception($"Failed to read file {filepath}");
+                        throw new CliException($"Failed to read file {filepath}");
                     }
 
                     if (status == NTStatus.STATUS_END_OF_FILE || data.Length == 0)
@@ -174,12 +182,12 @@ namespace Core.Objects
         {
             if (!Exists)
             {
-                throw new InvalidOperationException("Cannot perform actions in a non-existent shared folder.");
+                throw new CliException("Cannot perform actions in a non-existent shared folder.");
             }
 
             if (!_fileSystem.File.Exists(localFilePath))
             {
-                throw new FileNotFoundException($"The file {localFilePath} does not exist.");
+                throw new CliException($"The file {localFilePath} does not exist.");
             }
 
             var remoteShareFilePath = String.IsNullOrEmpty(_path) ? remoteFilePath : $"{_path}/{remoteFilePath}";
@@ -198,7 +206,7 @@ namespace Core.Objects
 
             if (status != NTStatus.STATUS_SUCCESS)
             {
-                throw new Exception($"Failed to create or open file {remoteShareFilePath} on the shared folder. Error: {status}.");
+                throw new CliException($"Failed to create or open file {remoteShareFilePath} on the shared folder. Error: {status}.");
             }
 
             try
@@ -214,7 +222,7 @@ namespace Core.Objects
                         status = _smbFileStore.WriteFile(out int numberOfBytesWritten, fileHandle, offset, buffer.AsSpan(0, bytesRead).ToArray());
                         if (status != NTStatus.STATUS_SUCCESS)
                         {
-                            throw new Exception($"Failed to write to file {remoteShareFilePath} on the shared folder. Error: {status}.");
+                            throw new CliException($"Failed to write to file {remoteShareFilePath} on the shared folder. Error: {status}.");
                         }
                         offset += numberOfBytesWritten;
                     }

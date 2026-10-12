@@ -164,6 +164,12 @@ namespace Cmf.CLI.Utilities
 
         [JsonIgnore]
         public bool HasTemplates { get; set; }
+
+        [JsonIgnore]
+        public string DriverBaseClass { get; set; } = "DeviceDriverBase";
+
+        [JsonIgnore]
+        public string DriverBasePackage { get; set; } = "@criticalmanufacturing/connect-iot-driver";
     }
 
     [JsonObject]
@@ -299,6 +305,8 @@ namespace Cmf.CLI.Utilities
         public string SettingsDefaults { get; set; } = "";
         [JsonIgnore]
         public string TestSettingsDefaults { get; set; } = "";
+        [JsonIgnore]
+        public string TaskBaseClass { get; set; } = "";
     }
 
     [JsonObject]
@@ -465,5 +473,55 @@ namespace Cmf.CLI.Utilities
         FactoryAutomation,
         EnterpriseIntegration,
         DataPlatform
+    }
+
+    public static class TaskBases
+    {
+        public static readonly Dictionary<string, string> All = new()
+        {
+            { "TaskBase",                      "(Default): Has no enable/disable lifecycle and requires full implementation control." },
+            { "AutoActivatedTaskBase",         "Automatically activated. Intended as the starting point of an execution flow (for example, \"On Timer\" task)." },
+            { "DriverTriggeredTaskBase",       "Triggered by equipment or protocol driver events. Intended as the starting point of an execution flow (for example, \"Subscribe in Driver\" task)." },
+            { "RequestReplyAnswerTaskBase",    "Exclusive to Data Flow. Sends replies to a RequestReplyListenerTaskBase (for example, \"Send Message Bus Reply\" task)." },
+            { "RequestReplyListenerTaskBase",  "Receives requests through the Message Bus and prepares the corresponding reply (for example, \"Message Bus Listener\" task)." },
+            { "SystemOperationTaskBase",       "Provides reliable execution of system operations by sending requests to the MES with enhanced delivery guarantees (for example, \"Execute Service Call\" task)." },
+            { "SystemRequestListenerTaskBase", "Receives MES system requests and prepares the corresponding reply (for example, \"System Action Listener\" task)." },
+            { "SystemRequestReplyTaskBase",    "Exclusive to Data Flow. Sends replies to a SystemRequestListenerTaskBase (for example, \"Send System Action Reply\" task)." },
+        };
+    }
+
+    public class DriverBaseMetadata
+    {
+        public string Description { get; set; }
+        public string PackageName { get; set; }
+    }
+
+    public static class DriverBases
+    {
+        public static readonly Dictionary<string, DriverBaseMetadata> All = new()
+        {
+            {
+                "DeviceDriverBase", new DriverBaseMetadata
+                {
+                    Description = "(Default): Base class for standard driver operations.",
+                    PackageName = "@criticalmanufacturing/connect-iot-driver"
+                }
+            },
+            {
+                "DeviceFileDriverBase", new DriverBaseMetadata
+                {
+                    Description = "Extends standard driver behavior with file-based operations.",
+                    PackageName = "@criticalmanufacturing/connect-iot-base-file-driver"
+                }
+            },
+        };
+
+        public static string GetPackageName(string driverBaseClass)
+        {
+            return !string.IsNullOrWhiteSpace(driverBaseClass)
+                && All.TryGetValue(driverBaseClass, out var metadata)
+                ? metadata.PackageName
+                : "@criticalmanufacturing/connect-iot-driver";
+        }
     }
 }

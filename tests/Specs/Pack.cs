@@ -16,8 +16,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.IO;
-using System.CommandLine.NamingConventionBinder;
+using System.Threading.Tasks;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
@@ -28,6 +27,7 @@ using System.Xml.Linq;
 using Cmf.CLI.Core.Constants;
 using tests.Objects;
 using Xunit;
+
 
 namespace tests.Specs
 {
@@ -55,18 +55,24 @@ namespace tests.Specs
             var cmd = new Command("pack");
             packCommand.Configure(cmd);
 
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, IDirectoryInfo, string, bool, bool>(
-            (workingDir, outputDir, repo, force, skipDependencies) =>
+            // Get the arguments/options that were configured
+            var workingDirArg = cmd.Arguments.FirstOrDefault(a => a.Name == "workingDir") as Argument<IDirectoryInfo>;
+            var outputDirOpt = cmd.Options.FirstOrDefault(o => o.Name == "outputDir" || o.Aliases.Any(a => a == "--outputDir" || a == "-o")) as Option<IDirectoryInfo>;
+            var forceOpt = cmd.Options.FirstOrDefault(o => o.Name == "force" || o.Aliases.Any(a => a == "--force" || a == "-f")) as Option<bool>;
+
+            cmd.SetAction((parseResult, cancellationToken) =>
             {
-                _workingDir = workingDir.Name;
-                _outputDir = outputDir.Name;
-                _force = force;
+                _workingDir = parseResult.GetValue(workingDirArg)?.Name;
+                _outputDir = parseResult.GetValue(outputDirOpt)?.Name;
+                _force = parseResult.GetValue(forceOpt);
+                return Task.FromResult(0);
             });
 
             var console = new TestConsole();
-            cmd.Invoke(new[] {
+            var parseResult = cmd.Parse(new string[] {
                 "-o", "test_package_dir", "working_dir"
-            }, console);
+            });
+            parseResult.Invoke(console);
 
             Assert.Equal("working_dir", _workingDir);
             Assert.Equal("test_package_dir", _outputDir);
@@ -85,18 +91,23 @@ namespace tests.Specs
             var cmd = new Command("pack");
             packCommand.Configure(cmd);
 
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, IDirectoryInfo, string, bool, bool>(
-            (workingDir, outputDir, repo, force, skipDependencies) =>
+            var workingDirArg = cmd.Arguments.FirstOrDefault(a => a.Name == "workingDir") as Argument<IDirectoryInfo>;
+            var outputDirOpt = cmd.Options.FirstOrDefault(o => o.Name == "outputDir" || o.Aliases.Any(a => a == "--outputDir" || a == "-o")) as Option<IDirectoryInfo>;
+            var forceOpt = cmd.Options.FirstOrDefault(o => o.Name == "force" || o.Aliases.Any(a => a == "--force" || a == "-f")) as Option<bool>;
+
+            cmd.SetAction((parseResult, cancellationToken) =>
             {
-                _workingDir = workingDir.Name;
-                _outputDir = outputDir.Name;
-                _force = force;
+                _workingDir = parseResult.GetValue(workingDirArg)?.Name;
+                _outputDir = parseResult.GetValue(outputDirOpt)?.Name;
+                _force = parseResult.GetValue(forceOpt);
+                return Task.FromResult(0);
             });
 
             var console = new TestConsole();
-            cmd.Invoke(new[] {
-                "working_dir"
-            }, console);
+            var parseResult = cmd.Parse(new string[] {
+               "working_dir"
+            });
+            parseResult.Invoke(console);
 
             Assert.Equal("working_dir", _workingDir);
             Assert.Equal("Package", _outputDir);
@@ -115,18 +126,23 @@ namespace tests.Specs
             var cmd = new Command("pack");
             packCommand.Configure(cmd);
 
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, IDirectoryInfo, string, bool, bool>(
-            (workingDir, outputDir, repo, force, skipDependencies) =>
+            var workingDirArg = cmd.Arguments.FirstOrDefault(a => a.Name == "workingDir") as Argument<IDirectoryInfo>;
+            var outputDirOpt = cmd.Options.FirstOrDefault(o => o.Name == "outputDir" || o.Aliases.Any(a => a == "--outputDir" || a == "-o")) as Option<IDirectoryInfo>;
+            var forceOpt = cmd.Options.FirstOrDefault(o => o.Name == "force" || o.Aliases.Any(a => a == "--force" || a == "-f")) as Option<bool>;
+
+            cmd.SetAction((parseResult, cancellationToken) =>
             {
-                _workingDir = workingDir.Name;
-                _outputDir = outputDir.Name;
-                _force = force;
+                _workingDir = parseResult.GetValue(workingDirArg)?.Name;
+                _outputDir = parseResult.GetValue(outputDirOpt)?.Name;
+                _force = parseResult.GetValue(forceOpt);
+                return Task.FromResult(0);
             });
 
             var console = new TestConsole();
-            cmd.Invoke(new[] {
-                "-o", "test_package_dir"
-            }, console);
+            var parseResult = cmd.Parse(new string[] {
+               "-o", "test_package_dir"
+            });
+            parseResult.Invoke(console);
 
             var curDir = new DirectoryInfo(System.IO.Directory.GetCurrentDirectory());
             Assert.Equal(curDir.Name, _workingDir);
@@ -146,18 +162,22 @@ namespace tests.Specs
             var cmd = new Command("pack");
             packCommand.Configure(cmd);
 
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, IDirectoryInfo, string, bool, bool>(
-            (workingDir, outputDir, repo, force, skipDependencies) =>
+            var workingDirArg = cmd.Arguments.FirstOrDefault(a => a.Name == "workingDir") as Argument<IDirectoryInfo>;
+            var outputDirOpt = cmd.Options.FirstOrDefault(o => o.Name == "outputDir" || o.Aliases.Any(a => a == "--outputDir" || a == "-o")) as Option<IDirectoryInfo>;
+            var forceOpt = cmd.Options.FirstOrDefault(o => o.Name == "force" || o.Aliases.Any(a => a == "--force" || a == "-f")) as Option<bool>;
+
+            cmd.SetAction((parseResult, cancellationToken) =>
             {
-                _workingDir = workingDir.Name;
-                _outputDir = outputDir.Name;
-                _force = force;
+                _workingDir = parseResult.GetValue(workingDirArg)?.Name;
+                _outputDir = parseResult.GetValue(outputDirOpt)?.Name;
+                _force = parseResult.GetValue(forceOpt);
+                return Task.FromResult(0);
             });
 
-            var console = new TestConsole();
-            cmd.Invoke(new string[] {
-            }, console);
 
+            var console = new TestConsole();
+            var parseResult = cmd.Parse(new string[]{});
+            parseResult.Invoke(console);
             var curDir = new DirectoryInfo(System.IO.Directory.GetCurrentDirectory());
 
             Assert.Equal(curDir.Name, _workingDir);
@@ -273,8 +293,8 @@ namespace tests.Specs
 
                     List<string> expectedFiles = new()
                     {
-                        "config.json",
                         "manifest.xml",
+                        "config.json",
                         "node_modules/customization.package/package.json",
                         "node_modules/customization.package/customization.common.js"
                     };
@@ -282,6 +302,27 @@ namespace tests.Specs
                     foreach (var expectedFile in expectedFiles)
                     {
                         Assert.NotNull(entriesToExtract.FirstOrDefault(x => x.Item2.Equals(expectedFile)));
+                    }
+
+                    Assert.Null(entriesToExtract.FirstOrDefault(x => x.Item2.Equals("assets/config.json")));
+
+                    var manifestEntry = zip.GetEntry("manifest.xml");
+                    Assert.NotNull(manifestEntry);
+                    using (var manifestStream = manifestEntry.Open())
+                    using (var manifestReader = new StreamReader(manifestStream))
+                    {
+                        var manifestXmlContent = manifestReader.ReadToEnd();
+                        Assert.Contains("<step type=\"TransformFile\" file=\"config.json\" tagFile=\"true\" relativePath=\"assets\" />", manifestXmlContent);
+                    }
+
+                    var configEntry = zip.GetEntry("config.json");
+                    Assert.NotNull(configEntry);
+                    using (var configStream = configEntry.Open())
+                    using (var configReader = new StreamReader(configStream))
+                    {
+                        var configJsonContent = configReader.ReadToEnd();
+                        Assert.Contains("\"customizationVersion\": \"1.1.0\"", configJsonContent);
+                        Assert.Contains("\"jdttest\": true", configJsonContent);
                     }
                 }
             }
@@ -337,10 +378,11 @@ namespace tests.Specs
             var fileSystem = MockPackage.Html;
             var outputDir = fileSystem.DirectoryInfo.New("output");
 
-            var packCommand = new PackCommand(fileSystem);
-            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), outputDir, false, false);
+            var firstPackCommand = new PackCommand(fileSystem);
+            firstPackCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), outputDir, false, false);
             IEnumerable<IFileInfo> assembledFiles = fileSystem.DirectoryInfo.New("output").EnumerateFiles("Cmf.Custom.HTML.1.1.0.zip").ToList();
-            packCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), outputDir, false, false);
+            var secondPackCommand = new PackCommand(fileSystem);
+            secondPackCommand.Execute(fileSystem.DirectoryInfo.New(MockUnixSupport.Path("c:\\ui")), outputDir, false, false);
 
             IEnumerable<IFileInfo> assembledFilesOnSecondRun = fileSystem.DirectoryInfo.New("output").EnumerateFiles("Cmf.Custom.HTML.1.1.0.zip").ToList();
             assembledFilesOnSecondRun.Should().HaveCount(1);
@@ -392,9 +434,8 @@ namespace tests.Specs
             packCommand.Configure(cmd);
 
             TestConsole console = new TestConsole();
-            cmd.Invoke(new string[] {
-            }, console);
-
+            var parseResult = cmd.Parse(new string[]{});
+            parseResult.Invoke(console);
             DirectoryInfo curDir = new DirectoryInfo(System.IO.Directory.GetCurrentDirectory());
 
             Assert.True(Directory.Exists($"{dir}/Package"), "Package folder is missing");
@@ -440,8 +481,8 @@ namespace tests.Specs
                 packCommand.Configure(cmd);
 
                 TestConsole console = new();
-                cmd.Invoke(Array.Empty<string>(), console);
-
+                var parseResult = cmd.Parse(Array.Empty<string>());
+                parseResult.Invoke(console);
                 DirectoryInfo curDir = new(System.IO.Directory.GetCurrentDirectory());
 
                 Assert.True(Directory.Exists($"{dir}/Package"), "Package folder is missing");
@@ -528,7 +569,8 @@ namespace tests.Specs
                 packCommand.Configure(cmd);
 
                 TestConsole console = new();
-                cmd.Invoke(Array.Empty<string>(), console);
+                var parseResult = cmd.Parse(Array.Empty<string>());
+                parseResult.Invoke(console);
 
                 DirectoryInfo curDir = new(System.IO.Directory.GetCurrentDirectory());
 
@@ -552,8 +594,11 @@ namespace tests.Specs
             }
         }
 
-        [Fact]
-        public void Pack_SecurityPortalV2()
+        [Theory]
+        [InlineData("10.2.0", "./src/")]
+        [InlineData("11.2.5", "./dist/")]
+        [InlineData("12.0.0", "./dist/")]
+        public void Pack_SecurityPortalV2(string mesVersion, string configDirectory)
         {
             string dir = $"{TestUtilities.GetTmpDirectory()}/securityPortal";
             TestUtilities.CopyFixture("pack/securityPortalV2", new DirectoryInfo(dir));
@@ -562,6 +607,7 @@ namespace tests.Specs
             if (File.Exists(projCfg))
             {
                 File.WriteAllText(projCfg, File.ReadAllText(projCfg)
+                    .Replace("mesVersion", mesVersion)
                     .Replace("install_path", MockUnixSupport.Path(@"x:\install_path").Replace(@"\", @"\\"))
                     .Replace("backup_share", MockUnixSupport.Path(@"y:\backup_share").Replace(@"\", @"\\"))
                     .Replace("temp_folder", MockUnixSupport.Path(@"z:\temp_folder").Replace(@"\", @"\\"))
@@ -577,10 +623,11 @@ namespace tests.Specs
             packCommand.Configure(cmd);
 
             TestConsole console = new TestConsole();
-            cmd.Invoke(new string[] {
-            }, console);
 
-            DirectoryInfo curDir = new DirectoryInfo(System.IO.Directory.GetCurrentDirectory());
+            var parseResult = cmd.Parse([]);
+            parseResult.Invoke(console);
+
+            DirectoryInfo curDir = new DirectoryInfo(Directory.GetCurrentDirectory());
 
             Assert.True(Directory.Exists($"{dir}/Package"), "Package folder is missing");
             Assert.True(File.Exists($"{dir}/Package/Cmf.Custom.SecurityPortal.1.0.0.zip"), "Zip package is missing");
@@ -596,36 +643,7 @@ namespace tests.Specs
 
             // validate transform file
             string manifestXMLContent = FileSystemUtilities.GetFileContentFromPackage($"{dir}/Package/Cmf.Custom.SecurityPortal.1.0.0.zip", "manifest.xml");
-            Assert.Contains("<step type=\"TransformFile\" file=\"config.json\" tagFile=\"true\" relativePath=\"./src/\" />", manifestXMLContent);
-        }
-
-        [Theory]
-        [InlineData("8.1.0", new[] { StepType.DeployRepositoryFiles, StepType.GenerateRepositoryIndex })]
-        [InlineData("9.1.0", new StepType[0])]
-        public void IoTDFStepsForVersion(string version, StepType[] forbiddenStepTypes)
-        {
-            var mockFS = new MockFileSystem(new Dictionary<string, MockFileData>
-            {{ MockUnixSupport.Path(@"c:\.project-config.json"), new MockFileData(
-    $@"{{
-                ""MESVersion"": ""{version}""
-                }}")
-            }, {
-                MockUnixSupport.Path(@"c:\.pkg.json"), new MockFileData(
-                    $@"{{
-                ""type"": ""{PackageType.IoT}"",
-                ""packageId"": ""xxxxx"",
-                ""version"": ""9.9.9"",
-                ""contentToPack"": [{{}}]
-                }}")
-            }});
-
-            ExecutionContext.Initialize(mockFS);
-            var pkg = CmfPackage.Load(mockFS.FileSystem.FileInfo.New(MockUnixSupport.Path(@"c:\.pkg.json")), true,
-                mockFS);
-            var _ = new IoTPackageTypeHandler(pkg);
-
-            pkg.Steps.Any(step => forbiddenStepTypes.ToList().Contains(step.Type ?? StepType.Generic)).Should()
-                .BeFalse();
+            Assert.Contains($"<step type=\"TransformFile\" file=\"config.json\" tagFile=\"true\" relativePath=\"{configDirectory}\" />", manifestXMLContent);
         }
 
         [Theory]
@@ -648,6 +666,8 @@ namespace tests.Specs
                       ""packageType"": ""IoT"",
                       ""isInstallable"": true,
                       ""isUniqueInstall"": false,
+                      ""isToForceInstall"": true,
+                      ""forceRerunAfterDatabaseRestore"": true,
                       ""contentToPack"": [
                         {{
                           ""source"": ""src/*"",
@@ -680,6 +700,46 @@ namespace tests.Specs
         }
 
         [Theory]
+        [InlineData("10.0.0")]
+        [InlineData("11.1.0")]
+        [InlineData("12.0.0")]
+        public void IoTRepositoryStepsPresentForVersion(string version)
+        {
+            var mockFS = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { MockUnixSupport.Path(@"c:\.project-config.json"), new MockFileData(
+    $@"{{
+                ""MESVersion"": ""{version}""
+                }}")
+                },
+                {
+                    MockUnixSupport.Path(@"c:\.pkg.json"), new MockFileData(
+                     $@"{{
+                        ""type"": ""IoT"",
+                        ""packageId"": ""xxxxx"",
+                        ""version"": ""1.0.0"",
+                        ""contentToPack"": [{{}}]
+                     }}")
+                },
+                { MockUnixSupport.Path("c:/src/awesome/package.json"), new MockFileData(@"{""name"": ""@awesome/package"",""version"": ""1.0.0""}")},
+                { MockUnixSupport.Path("c:/src/lessawesome/package.json"), new MockFileData(@"{""name"": ""lessawesome"",""version"": ""2.0.0""}")},
+            });
+
+            // cmfpackage file
+            ExecutionContext.Initialize(mockFS);
+            var pkg = CmfPackage.Load(mockFS.FileSystem.FileInfo.New(MockUnixSupport.Path(@"c:\.pkg.json")), true,
+                mockFS);
+            var _ = new IoTPackageTypeHandler(pkg);
+
+            // Regression test for https://github.com/criticalmanufacturing/cli/issues/800:
+            // IoT packages must include the repository copy steps
+            pkg.Steps.Any(step => step.Type == StepType.DeployRepositoryFiles).Should().BeTrue();
+            pkg.Steps.Any(step => step.Type == StepType.GenerateRepositoryIndex).Should().BeTrue();
+            var deployRepositoryStep = pkg.Steps.First(step => step.Type == StepType.DeployRepositoryFiles);
+            deployRepositoryStep.ContentPath.Should().Be("runtimePackages/**");
+        }
+
+        [Theory]
         [InlineData("10.2.7", StepType.IoTAutomationTaskLibrariesSync)]
         public void IoTATLDFStepsForVersion(string version, StepType mustHave)
         {
@@ -699,6 +759,8 @@ namespace tests.Specs
                       ""packageType"": ""IoT"",
                       ""isInstallable"": true,
                       ""isUniqueInstall"": false,
+                      ""isToForceInstall"": true,
+                      ""forceRerunAfterDatabaseRestore"": true,
                       ""contentToPack"": [
                         {{
                           ""source"": ""src/*"",
@@ -754,6 +816,8 @@ namespace tests.Specs
                       ""packageType"": ""IoT"",
                       ""isInstallable"": true,
                       ""isUniqueInstall"": false,
+                      ""isToForceInstall"": true,
+                      ""forceRerunAfterDatabaseRestore"": true,
                       ""contentToPack"": [
                         {{
                           ""source"": ""src/*"",
@@ -809,6 +873,8 @@ namespace tests.Specs
                       ""packageType"": ""IoT"",
                       ""isInstallable"": true,
                       ""isUniqueInstall"": false,
+                      ""isToForceInstall"": true,
+                      ""forceRerunAfterDatabaseRestore"": true,
                       ""contentToPack"": [
                         {{
                           ""source"": ""src/*"",
@@ -851,7 +917,6 @@ namespace tests.Specs
         }
 
         [Theory]
-        [InlineData("Html", "1.1.0")]
         [InlineData("IoT", null)]
         public void GeneratePresentationConfigFile(string packageType, string version)
         {
@@ -859,10 +924,11 @@ namespace tests.Specs
 
             var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
             {
+                { $"output/assets", new MockDirectoryData() },
                 // project config file
                 { ".project-config.json", new MockFileData(
                     @$"{{
-                        ""MESVersion"": ""9.0.0""
+                        ""MESVersion"": ""10.0.0""
                     }}")},
 
                 // root cmfpackage file
@@ -899,6 +965,27 @@ namespace tests.Specs
                   ]
                 }}")},
 
+                // angular file (html case)
+                { $"Cmf.Custom.{packageType}/angular.json", new MockFileData(
+                  $@"{{
+                      ""$schema"": ""./node_modules/@angular/cli/lib/config/schema.json"",
+                      ""version"": 1,
+                      ""newProjectRoot"": ""projects"",
+                      ""projects"": {{
+                          ""Cmf.Custom.HTML"": {{
+                              ""projectType"": ""application"",
+                              ""schematics"": {{
+                                  ""@schematics/angular:component"": {{
+                                      ""style"": ""less""
+                                  }}
+                              }},
+                              ""root"": """",
+                              ""sourceRoot"": ""src"",
+                          }}
+                      }}
+                  }}")
+                },
+
                 // js package
                 { $"Cmf.Custom.{packageType}/src/packages/customization.common/package.json", new MockFileData(@"{""name"": ""customization.package""}")},
                 { $"Cmf.Custom.{packageType}/src/packages/customization.common/customization.common.js", new MockFileData("")},
@@ -911,11 +998,16 @@ namespace tests.Specs
             ExecutionContext.Initialize(fileSystem);
 
             IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"Cmf.Custom.{packageType}/cmfpackage.json");
-            PresentationPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile, true) as PresentationPackageTypeHandler;
+            Cmf.CLI.Handlers.IoTPackageTypeHandler packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(cmfpackageFile, true) as Cmf.CLI.Handlers.IoTPackageTypeHandler;
 
             packageTypeHandler.GeneratePresentationConfigFile(fileSystem.DirectoryInfo.New("output"));
 
+            string htmlPath = MockUnixSupport.Path(@"output\\assets\\config.json").Replace("\\", "\\\\");
             IFileInfo configJsonFile = fileSystem.FileInfo.New(MockUnixSupport.Path(@"output\\config.json").Replace("\\", "\\\\"));
+            if(packageType.Equals("Html")) 
+            {
+                configJsonFile = fileSystem.FileInfo.New(htmlPath);
+            }
             dynamic configJsonFileContent = JsonConvert.DeserializeObject(fileSystem.File.ReadAllText(configJsonFile.FullName));
 
             string customizationVersion = configJsonFileContent.customizationVersion?.ToString();
@@ -960,7 +1052,7 @@ namespace tests.Specs
         }
 
         [Fact]
-        public void Root_WithoutMandatoryDependencies()
+        public void Root_WithoutEnvironmentDependencies()
         {
             KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.1.0");
             KeyValuePair<string, string> packageDep1 = new("Cmf.Custom.Business", "1.1.0");
@@ -987,18 +1079,13 @@ namespace tests.Specs
             ExecutionContext.Initialize(fileSystem);
             IFileInfo cmfpackageFile = fileSystem.FileInfo.New($"repo/{CliConstants.CmfPackageFileName}");
 
-            string message = string.Empty;
-            try
-            {
-                var packCommand = new PackCommand(fileSystem);
-                packCommand.Execute(cmfpackageFile.Directory, fileSystem.DirectoryInfo.New("output"), false);
-            }
-            catch (Exception ex)
-            {
-                message = ex.Message;
-            }
+            var packCommand = new PackCommand(fileSystem);
+            packCommand.Execute(cmfpackageFile.Directory, fileSystem.DirectoryInfo.New("output"), false);
 
-            Assert.Equal("Mandatory Dependency criticalmanufacturing.deploymentmetadata and cmf.environment. not found", message);
+            var archive = fileSystem.FileInfo.New($"output/{packageRoot.Key}.{packageRoot.Value}.zip");
+            archive.Exists.Should().BeTrue("root environment dependencies are no longer required in the source package");
+            var manifest = FileSystemUtilities.GetManifestFromPackage(archive.FullName, fileSystem);
+            manifest.Descendants("dependency").Should().ContainSingle(d => (string)d.Attribute("id") == packageDep1.Key);
         }
 
         [Fact]
@@ -1116,7 +1203,7 @@ namespace tests.Specs
                     {{
                         ""source"": ""{MockUnixSupport.Path("MasterData\\file2.txt").Replace("\\", "\\\\")}"",
                         ""target"": """",
-                        ""targetPlatform"": ""Framework"",
+                        ""targetPlatform"": ""AppFramework"",
                         ""contentType"": ""MasterData""
                     }}
                   ]
@@ -1252,6 +1339,81 @@ namespace tests.Specs
             var steps = rootNode.Elements().FirstOrDefault(e => e.Name.LocalName == "steps");
             Assert.NotNull(steps);
             steps.Elements().Count().Should().Be(4, "HTML package should have 4 installation steps");
+        }
+
+        [Fact]
+        public void Help_v12_MkDocsPack_FailsWhenSiteWasNotBuilt()
+        {
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { "/.project-config.json", new MockFileData(@"{
+                ""MESVersion"": ""12.0.0""
+            }") },
+                { "/repo/Cmf.Custom.Help/cmfpackage.json", new MockFileData(@"{
+              ""packageId"": ""Cmf.Custom.Help"",
+              ""version"": ""1.0.0"",
+              ""packageType"": ""Help"",
+              ""contentToPack"": [
+                { ""source"": ""site/**"", ""target"": ""site"" },
+                                { ""source"": ""docs/cmf/**"", ""target"": ""docs/cmf"" }
+              ]
+            }") },
+                { "/repo/Cmf.Custom.Help/docs/requirements.txt", new MockFileData("mkdocs-material") },
+                                { "/repo/Cmf.Custom.Help/docs/cmf/index.md", new MockFileData("# Help") }
+            });
+
+            ExecutionContext.Initialize(fileSystem);
+
+            var packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(
+                fileSystem.FileInfo.New("/repo/Cmf.Custom.Help/cmfpackage.json")) as HelpMkDocsPackageTypeHandler;
+
+            var exception = Assert.Throws<CliException>(() => packageTypeHandler.Pack(
+                fileSystem.DirectoryInfo.New("/repo/package"),
+                fileSystem.DirectoryInfo.New("/repo/output")));
+
+            exception.Message.Should().Contain("Could not find MkDocs site");
+        }
+
+        [Fact]
+        public void Help_v12_MkDocsPack_SucceedsWhenSiteAndDocsExist()
+        {
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { "/.project-config.json", new MockFileData(@"{
+                ""MESVersion"": ""12.0.0""
+            }") },
+                { "/repo/Cmf.Custom.Help/cmfpackage.json", new MockFileData(@"{
+              ""packageId"": ""Cmf.Custom.Help"",
+              ""version"": ""1.0.0"",
+              ""packageType"": ""Help"",
+              ""contentToPack"": [
+                { ""source"": ""site/**"", ""target"": ""site"" },
+                                { ""source"": ""docs/cmf/**"", ""target"": ""docs/cmf"" }
+              ]
+            }") },
+                { "/repo/Cmf.Custom.Help/docs/requirements.txt", new MockFileData("mkdocs-material") },
+                                { "/repo/Cmf.Custom.Help/docs/cmf/index.md", new MockFileData("# Help") },
+                { "/repo/Cmf.Custom.Help/site/index.html", new MockFileData("<html>Help</html>") },
+                { "/repo/Cmf.Custom.Help/site/search/search_index.json", new MockFileData("{}") },
+                { "/repo/output", new MockDirectoryData() }
+            });
+
+            ExecutionContext.Initialize(fileSystem);
+
+            var packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(
+                fileSystem.FileInfo.New("/repo/Cmf.Custom.Help/cmfpackage.json")) as HelpMkDocsPackageTypeHandler;
+
+            packageTypeHandler.Pack(
+                fileSystem.DirectoryInfo.New("/repo/package"),
+                fileSystem.DirectoryInfo.New("/repo/output"));
+
+            var packageZip = fileSystem.FileInfo.New("/repo/output/Cmf.Custom.Help.1.0.0.zip");
+            packageZip.Exists.Should().BeTrue("Package zip file should be created");
+
+            using var zip = new ZipArchive(packageZip.OpenRead(), ZipArchiveMode.Read);
+            zip.GetEntry("site/index.html").Should().NotBeNull();
+            zip.GetEntry("docs/cmf/index.md").Should().NotBeNull();
+            zip.GetEntry("site/search/search_index.json").Should().NotBeNull();
         }
 
 
@@ -1478,14 +1640,11 @@ namespace tests.Specs
             var cmd = new Command("pack");
             packCommand.Configure(cmd);
 
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, IDirectoryInfo, bool, bool>(
-            (workingDir, outputDir, force, dryRun) =>
-            {
-                _dryRun = dryRun;
-            });
-
-            var console = new TestConsole();
-            cmd.Invoke(new[] { "--dry-run" }, console);
+            var dryRunOption = cmd.Options
+                .OfType<Option<bool>>()
+                .Single(o => !o.Aliases.Contains("--force") && !o.Aliases.Contains("-f"));
+            var parseResult = cmd.Parse(new[] { "--dry-run" });
+            _dryRun = parseResult.GetValue(dryRunOption);
 
             Assert.NotNull(_dryRun);
             Assert.True(_dryRun ?? false);
@@ -1494,7 +1653,6 @@ namespace tests.Specs
         [Fact]
         public void DryRun_Html_DoesNotCreatePackage()
         {
-            // Arrange: Html package (MES 9.x → HtmlGulpPackageTypeHandler) with a JS sub-package
             // Use a fresh MockFileSystem (not the shared static) to avoid state pollution from other tests
             var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
             {
@@ -1518,6 +1676,25 @@ namespace tests.Specs
                     }}
                   ]
                 }}") },
+                 { MockUnixSupport.Path(@"c:\ui\angular.json"), new MockFileData(
+                  $@"{{
+                      ""$schema"": ""./node_modules/@angular/cli/lib/config/schema.json"",
+                      ""version"": 1,
+                      ""newProjectRoot"": ""projects"",
+                      ""projects"": {{
+                          ""Cmf.Custom.HTML"": {{
+                              ""projectType"": ""application"",
+                              ""schematics"": {{
+                                  ""@schematics/angular:component"": {{
+                                      ""style"": ""less""
+                                  }}
+                              }},
+                              ""root"": """",
+                              ""sourceRoot"": ""src"",
+                          }}
+                      }}
+                  }}")
+                },
             });
             var packCommand = new PackCommand(fileSystem);
             var outputDir = fileSystem.DirectoryInfo.New("output");

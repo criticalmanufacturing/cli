@@ -2,6 +2,8 @@ using System.IO.Abstractions;
 using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Utilities;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using NuGet.Versioning;
 
 namespace Cmf.CLI.Core.Objects;
 
@@ -31,7 +33,14 @@ public class ProjectConfigService : IProjectConfigService
                 }
                 Log.Debug($"Loading .project-config.json");
                 var json = fileSystem.File.ReadAllText(projectCfg);
-                this.ProjectConfig = JsonConvert.DeserializeObject<ProjectConfig>(json);
+                var jsonObject = JObject.Parse(json);
+                var mesVersion = NuGetVersion.TryParse(jsonObject.Value<string>("MESVersion"), out var parsedVersion)
+                    ? parsedVersion
+                    : null;
+                var projectConfigType = mesVersion != null && mesVersion.Major >= 12
+                    ? typeof(ProjectConfigV2)
+                    : typeof(ProjectConfigV1);
+                this.ProjectConfig = (ProjectConfig)JsonConvert.DeserializeObject(json, projectConfigType);
                 Log.Debug($"Loaded .project-config.json");
                 isInsideProject = true;
             }

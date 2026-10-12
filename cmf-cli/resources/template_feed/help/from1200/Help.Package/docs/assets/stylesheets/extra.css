@@ -1,0 +1,82 @@
+:root > * {
+    --md-primary-fg-color:        #00558C;
+    --md-primary-fg-color--light: #AFCDE1;
+    --md-primary-fg-color--dark:  #00558C;
+  }
+
+.md-grid {
+  max-width: 1600px;
+}
+
+.search-tips {
+  font-size: .50rem;
+  line-height: 1.0rem;
+  padding: .3rem;
+}
+
+.table-wrapper {
+  overflow-x: scroll;
+}
+
+.md-tabs__link--active .md-nav__link--active {
+  font-weight: 600 
+}
+.md-nav__item .md-nav__link--active, .md-nav__item .md-nav__link--active code {
+  color: var(--md-typeset-a-color);
+  font-weight: 600;
+}
+
+table.dataTable tbody td {
+  font-size: 0.8em; /* Make cell content slightly smaller */
+  width: auto !important;
+}
+
+/* applying colors and styles to mes and other icons */
+.green-icon {  
+  color: #50b450;
+}
+
+.grey-icon {  
+  color: #d0d0d0;
+}
+
+.blue-icon {  
+  color: #0066a1;
+}
+
+.red-icon {  
+  color: #B83128;
+}
+
+.processed-icon {  
+  color: #000000;
+  opacity: 70%;
+}
+
+.transparent-icon {  
+  color: #000000;
+  opacity: 30%;
+}
+.yellow-icon {  
+  color: #C89F27;
+}
+
+.small-icon {  
+  font-size: 10px;
+  margin-top: 5px !important;
+}
+
+.medium-icon {  
+  font-size: 20px;
+}
+
+.nt-card-icon {
+  text-align: center;
+  padding: 0.9rem 0 0.1rem;
+}
+
+.nt-card-icon .icon {
+  width: 3.2rem;
+  height: 3.2rem;
+  object-fit: contain;
+}

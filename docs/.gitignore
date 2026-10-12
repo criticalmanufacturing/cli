@@ -1,5 +1,5 @@
-book
-cli-docs*
-help2md
-dist
-.history
+site/
+.venv/
+__pycache__/
+help2md/
+.history/

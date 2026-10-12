@@ -25,12 +25,12 @@ namespace Cmf.CLI.Commands
         {
         }
         
-        
         /// <summary>
         /// Adds the plugin commands.
         /// </summary>
         /// <param name="command">The command.</param>
-        public static void AddPluginCommands(Command command)
+        /// <returns>the added plugins, indexed by command name</returns>
+        public static IReadOnlyDictionary<string, PluginCommand> AddPluginCommands(IFileSystem fileSystem, Command command)
         {
             const string pluginsPrefix = "cmf-";
             var UNIX = new string[] { "", ".sh", ".ps1" };
@@ -55,10 +55,10 @@ namespace Cmf.CLI.Commands
             foreach (string test in paths)
             {
                 string path = test.Trim();
-                DirectoryInfo d = new(path);
+                IDirectoryInfo d = fileSystem.DirectoryInfo.New(path);
                 if (d.Exists) // we may have some trash in PATH
                 {
-                    FileInfo[] commands = null;
+                    IFileInfo[] commands = null;
                     try
                     {
                         commands = d.GetFiles($"{pluginsPrefix}*");
@@ -103,13 +103,17 @@ namespace Cmf.CLI.Commands
                 }
             }
 
+            var pluginCommands = new Dictionary<string, PluginCommand>();
             foreach (var commandPlugin in plugins)
             {
                 var cmdInstance = new Command(commandPlugin.Key);
                 var commandHandler = new PluginCommand(commandPlugin.Key, commandPlugin.Value);
                 commandHandler.Configure(cmdInstance);
-                command.AddCommand(cmdInstance);
+                command.Add(cmdInstance);
+                pluginCommands.Add(commandPlugin.Key, commandHandler);
             }
+
+            return pluginCommands;
         }
     }
 }

@@ -83,8 +83,7 @@ namespace tests.Objects
         /// <returns></returns>
         public byte[] ToByteArray()
         {
-            // Flush ZipArchive
-            // gzArchive.Flush();
+            tarArchive.Dispose();
             gzArchive.Dispose();
             byte[] result = memoryStream.ToArray();
 

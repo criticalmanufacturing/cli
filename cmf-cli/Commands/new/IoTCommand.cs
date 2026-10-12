@@ -7,12 +7,12 @@ using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Services;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-using System;
+using NuGet.Versioning;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Cmf.CLI.Commands.New
 {
@@ -41,25 +41,37 @@ namespace Cmf.CLI.Commands.New
 
         public override void Configure(Command cmd)
         {
-            base.GetBaseCommandConfig(cmd);
+            var (workingDirArg, versionOpt) = base.GetBaseCommandConfig(cmd);
 
-            cmd.AddOption(new Option<string>(
-                aliases: new[] { "--htmlPackageLocation" },
-                description: "Location of the HTML Package"
-            ));
+            var htmlPackageLocationOption = new Option<string>("--htmlPackageLocation")
+            {
+                Description = "Location of the HTML Package"
+            };
+            cmd.Add(htmlPackageLocationOption);
 
-            cmd.AddOption(new Option<bool>(
-                aliases: new[] { "--isAngularPackage" },
-                description: "Customization package with angular"
-            ));
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, string, string, bool>(this.Execute);
+            var isAngularPackageOption = new Option<bool>("--isAngularPackage")
+            {
+                Description = "Customization package with angular"
+            };
+            cmd.Add(isAngularPackageOption);
+
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                var workingDir = parseResult.GetValue(workingDirArg);
+                var version = parseResult.GetValue(versionOpt);
+                var htmlPackageLocation = parseResult.GetValue(htmlPackageLocationOption);
+                var isAngularPackage = parseResult.GetValue(isAngularPackageOption);
+
+                Execute(workingDir, version, htmlPackageLocation, isAngularPackage);
+                return Task.FromResult(0);
+            });
         }
 
         /// <inheritdoc />
         protected override List<string> GenerateArgs(IDirectoryInfo projectRoot, IDirectoryInfo workingDir, List<string> args)
         {
             var npmRegistry = ExecutionContext.Instance.ProjectConfig.NPMRegistry;
-            var devTasksVersion = ExecutionContext.Instance.ProjectConfig.DevTasksVersion;
+            var devTasksVersion = (ExecutionContext.Instance.ProjectConfig as ProjectConfigV1)?.DevTasksVersion;
             var repoType = ExecutionContext.Instance.ProjectConfig.RepositoryType ?? CliConstants.DefaultRepositoryType;
             Log.Debug($"Creating IoT Package at {workingDir} for repo type {repoType} using registry {npmRegistry}");
 
@@ -84,6 +96,7 @@ namespace Cmf.CLI.Commands.New
                 "--iotpackages", $"{packageName}.Packages",
                 "--rootInnerRelativePath", relativePathToRoot,
                 "--npmRegistry", npmRegistry.OriginalString,
+                "--MESVersion", ExecutionContext.Instance.ProjectConfig.MESVersion.ToString(),
                 "--nodeVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Node(ExecutionContext.Instance.ProjectConfig.MESVersion),
                 "--repositoryType", repoType.ToString()
             });
@@ -100,32 +113,24 @@ namespace Cmf.CLI.Commands.New
         public void Execute(IDirectoryInfo workingDir, string version, string htmlPackageLocation, bool isAngularPackage)
         {
             var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
-            if (mesVersion.Major > 9)
+            // (ATL) Automation Task Library Package
+            // only introduced in v10.2.7
+            var executeV10ATL = !isAngularPackage && mesVersion >= new NuGetVersion(10, 2, 7) && mesVersion < new NuGetVersion(11, 0, 0);
+
+            // only introduced in v11
+            var executeV11ATL = !isAngularPackage && mesVersion >= new NuGetVersion(11, 0, 0);
+
+            if (executeV10ATL)
             {
-                // (ATL) Automation Task Library Package
-                // only introduced in v10.2.7
-                var executeV10ATL = !isAngularPackage && mesVersion >= new Version(10, 2, 7) && mesVersion < new Version(11, 0, 0);
-
-                // only introduced in v11
-                var executeV11ATL = !isAngularPackage && mesVersion >= new Version(11, 0, 0);
-
-                if (executeV10ATL)
-                {
-                    this.ExecuteV10ATL(workingDir, version);
-                }
-                else if (executeV11ATL)
-                {
-                    this.ExecuteV11ATL(workingDir, version);
-                }
-                else
-                {
-                    this.ExecuteV10AngularPackage(workingDir, version, htmlPackageLocation);
-                }
+                this.ExecuteV10ATL(workingDir, version);
+            }
+            else if (executeV11ATL)
+            {
+                this.ExecuteV11ATL(workingDir, version);
             }
             else
             {
-                this.CommandName = "iot-upto9x";
-                base.Execute(workingDir, version);
+                this.ExecuteV10AngularPackage(workingDir, version, htmlPackageLocation);
             }
         }
 
@@ -156,7 +161,6 @@ namespace Cmf.CLI.Commands.New
             }
 
             var iotCustomPackageWorkDir = iotCustomPackage.GetFileInfo().Directory;
-            var iotCustomPackageName = base.GeneratePackageName(iotCustomPackageWorkDir)!.Value.Item1;
 
             var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
 
@@ -171,13 +175,9 @@ namespace Cmf.CLI.Commands.New
             {
                 throw new CliException(CliMessages.IoTV10HTMLPackageMustBeProvided);
             }
-
-            var ngxSchematicsVersion = ExecutionContext.Instance.ProjectConfig.NGXSchematicsVersion;
-
-            if (ngxSchematicsVersion == null)
-            {
-                throw new CliException("Seems like the repository scaffolding was run on a previous version of MES. Please re-init for versions 10+.");
-            }
+            
+            var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            var schematicsVersion = ExecutionContext.Instance.ProjectConfig.NGXSchematicsVersion;
 
             IDirectoryInfo htmlPackageDir = fileSystem.DirectoryInfo.New(htmlPackageLocation);
 
@@ -209,11 +209,6 @@ namespace Cmf.CLI.Commands.New
             }
 
             var iotCustomPackageWorkDir = iotCustomPackage.GetFileInfo().Directory;
-            var iotCustomPackageName = base.GeneratePackageName(iotCustomPackageWorkDir)!.Value.Item1;
-
-            var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
-
-            var schematicsVersion = ngxSchematicsVersion.ToString() ?? $"@release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}";
 
             Log.Debug($"Creating new IoT Workspace {packageName}");
 
@@ -257,7 +252,7 @@ namespace Cmf.CLI.Commands.New
                                                  "--skip-confirmation", $"@criticalmanufacturing/ngx-iot-schematics@{schematicsVersion}",
                                                  "--lint",
                                                  "--base-app", baseLayer.ToString(),
-                                                 "--version", $"release-{mesVersion.Major}{mesVersion.Minor}{mesVersion.Build}" },
+                                                 "--version", GenericUtilities.GetNpmDistTag(mesVersion) },
                 WorkingDirectory = iotCustomPackageWorkDir,
                 ForceColorOutput = false
             }.Exec();
@@ -277,7 +272,7 @@ namespace Cmf.CLI.Commands.New
             #endregion Link To HTML Package
         }
 
-        private static void InstallYoeman(IDirectoryInfo iotCustomPackageWorkDir, Version mesVersion)
+        private static void InstallYoeman(IDirectoryInfo iotCustomPackageWorkDir, NuGetVersion mesVersion)
         {
             Log.Debug($"Installing Yeoman");
 

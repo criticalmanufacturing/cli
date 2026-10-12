@@ -45,6 +45,8 @@ namespace Cmf.CLI.Handlers
         /// <param name="dryRun">if set to <c>true</c> list the package structure without creating files.</param>
         public override void Pack(IDirectoryInfo packageOutputDir, IDirectoryInfo outputDir, bool dryRun = false)
         {
+            CmfPackage.SetVirtualDependencies();
+
             if (ExecutionContext.Instance.ProjectConfig?.RepositoryType == RepositoryType.App)
             {
                 GenerateAppFiles(packageOutputDir, outputDir);

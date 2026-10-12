@@ -1,4 +1,6 @@
 using System;
+using Cmf.CLI.Utilities;
+using NuGet.Versioning;
 
 namespace Cmf.CLI.Core.Objects
 {
@@ -43,9 +45,9 @@ namespace Cmf.CLI.Core.Objects
                 return; // No validation needed if no minimum version is specified
             }
 
-            if (!Version.TryParse(minimumVersion, out Version minVersion))
+            if (!NuGetVersion.TryParse(minimumVersion, out NuGetVersion minVersion))
             {
-                throw new ArgumentException($"Invalid minimum version format: {minimumVersion}. Expected format: 'Major.Minor.Build' (e.g., '11.0.0')");
+                throw new ArgumentException($"Invalid minimum version format: {minimumVersion}.");
             }
 
             var currentVersion = ExecutionContext.Instance?.ProjectConfig?.MESVersion;
@@ -68,7 +70,7 @@ namespace Cmf.CLI.Core.Objects
                 return true; // No minimum version requirement
             }
 
-            if (!Version.TryParse(minimumVersion, out Version minVersion))
+            if (!NuGetVersion.TryParse(minimumVersion, out var minVersion))
             {
                 return false;
             }

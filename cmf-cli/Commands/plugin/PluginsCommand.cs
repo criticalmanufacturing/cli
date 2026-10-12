@@ -1,6 +1,6 @@
 using System;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
+using System.Threading.Tasks;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Objects;
@@ -14,10 +14,18 @@ public class PluginsCommand : BaseCommand
 {
     public override void Configure(Command cmd)
     {
-        cmd.AddOption(new Option<Uri[]>(
-            aliases: new [] { "-r", "--registry" },
-            description: "Registries to query for plugins. If unspecified, uses the default NPMJS registry."));
-        cmd.Handler = CommandHandler.Create<Uri[]>(Execute);
+        var registryOption = new Option<Uri[]>("--registry", "-r")
+        {
+            Description = "Registries to query for plugins. If unspecified, uses the default NPMJS registry."
+        };
+        cmd.Add(registryOption);
+
+        cmd.SetAction((parseResult, cancellationToken) =>
+        {
+            var registry = parseResult.GetValue(registryOption);
+            Execute(registry);
+            return Task.FromResult(0);
+        });
     }
 
     public void Execute(Uri[] registry)

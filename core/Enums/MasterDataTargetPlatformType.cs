@@ -1,6 +1,4 @@
-﻿using System.Runtime.Serialization;
-
-namespace Cmf.CLI.Core.Enums
+﻿namespace Cmf.CLI.Core.Enums
 {
     public enum MasterDataTargetPlatformType
     {
@@ -11,7 +9,6 @@ namespace Cmf.CLI.Core.Enums
         /// <summary>
         /// App framework system (base platform).
         /// </summary>
-        [EnumMember(Value = "Framework")]
         AppFramework = 1
     }
 }

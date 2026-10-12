@@ -28,7 +28,7 @@ Name | Description
 
 ## Overview
 
-This command reads the authentication from the [`.cmf-auth.json`](../login#cmf-auth-file), and syncs it into NPM, Docker, NuGet.
+This command reads the authentication from the [`.cmf-auth.json`](login.md#cmf-auth-file), and syncs it into NPM, Docker, NuGet.
 
 By default, the command also checks if the official CM Portal token is missing, is expired or is expiring soon (with a 5 days threshold), and if so, it will perform the login (equivalent to running `cmf login --store-only`). 
 

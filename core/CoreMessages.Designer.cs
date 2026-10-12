@@ -115,6 +115,24 @@ namespace Cmf.CLI.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed to publish package {0}: {1}.
+        /// </summary>
+        public static string PublishPackageFailed {
+            get {
+                return ResourceManager.GetString("PublishPackageFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid format JWT token, payload is missing or invalid.
+        /// </summary>
+        public static string InvalidJwtPayload {
+            get {
+                return ResourceManager.GetString("InvalidJwtPayload", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Cannot find package root. Are you in a valid package directory?.
         /// </summary>
         public static string PackageRootNotFound {
@@ -149,5 +167,41 @@ namespace Cmf.CLI.Core {
                 return ResourceManager.GetString("VersionFailedConsistencyCheck", resourceCulture);
             }
         }
+        /// <summary>
+        ///   Looks up a localized credential validation message.
+        /// </summary>
+        public static string PortalTokenInvalidJwt {
+            get {
+                return ResourceManager.GetString("PortalTokenInvalidJwt", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized credential validation message.
+        /// </summary>
+        public static string PortalTokenMissingSubject {
+            get {
+                return ResourceManager.GetString("PortalTokenMissingSubject", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized credential validation message.
+        /// </summary>
+        public static string NuGetMissingUsername {
+            get {
+                return ResourceManager.GetString("NuGetMissingUsername", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized credential validation message.
+        /// </summary>
+        public static string NuGetMissingPassword {
+            get {
+                return ResourceManager.GetString("NuGetMissingPassword", resourceCulture);
+            }
+        }
+
     }
 }

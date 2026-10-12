@@ -23,8 +23,7 @@ using TarWriter = System.Formats.Tar.TarWriter;
 namespace Cmf.CLI.Core.Services;
 
 public class CmfPackageController
-{
-    
+{   
     private const string NPMAliasPrefix = "npm:"; 
         
     private static List<CmfPackageV1> loadedPackages = new();
@@ -39,10 +38,39 @@ public class CmfPackageController
         "title",
         "onExecute",
         "contentPath",
+        "content",
+        "file",
         "tagFile",
         "targetDatabase",
+        "messageType",
         "filePath",
-        "oldSystemName"
+        "oldSystemName",
+        "targetDirectory",
+        "targetFile",
+        "runInMaster",
+        "targetAll",
+        "deeBasePath",
+        "importXMLObjectPath",
+        "automationWorkflowFileBasePath",
+        "createInCollection",
+        "targetPlatform",
+        "userKey",
+        "quota",
+        "id",
+        "useMachineName",
+        "account",
+        "onInitialize",
+        "onPrepare",
+        "scriptHandler",
+        "patchId",
+        "replaceTokens",
+        "sourcePackages",
+        "targetDb",
+        "conditionPath",
+        "patchDescription",
+        "databaseType",
+        "configPath",
+        "value"
     ];
     
     public CmfPackageController(CmfPackageV1 package, IFileSystem fileSystem)
@@ -131,17 +159,17 @@ public class CmfPackageController
             using GZipStream gzipStream = new GZipStream(zipToOpen, CompressionMode.Decompress);
             var foundManifest = false;
 
-            using var tarReader = SharpCompress.Readers.Tar.TarReader.Open(gzipStream, new SharpCompress.Readers.ReaderOptions { });
-            while (tarReader.MoveToNextEntry())
+            // Read entries directly from the decompressor rather than buffering the
+            // entire archive. XML manifests retain precedence over JSON manifests.
+            using var tarReader = new TarReader(gzipStream);
+            while (tarReader.GetNextEntry() is { } entry)
             {
-                var entry = tarReader.Entry;
-
                 // Check if this is the file you're looking for
-                if ((entry.Key == CoreConstants.DeploymentFrameworkManifestFileName || entry.Key == $"package/{CoreConstants.DeploymentFrameworkManifestFileName}") && !entry.IsDirectory)
+                if ((entry.Name == CoreConstants.DeploymentFrameworkManifestFileName || entry.Name == $"package/{CoreConstants.DeploymentFrameworkManifestFileName}") && entry.EntryType != TarEntryType.Directory)
                 {
                     foundManifest = true;
                     // Read the content of the file inside the TAR
-                    using var reader = new StreamReader(tarReader.OpenEntryStream());
+                    using var reader = new StreamReader(entry.DataStream);
 
                     // TODO: make sure this is ok
                     // this.package = CmfPackageController.FromXmlManifest(reader.ReadToEnd(), setDefaultValues: true);
@@ -154,18 +182,16 @@ public class CmfPackageController
             {
                 using Stream zipToOpen2 = file.OpenRead();
                 using GZipStream gzipStream2 = new GZipStream(zipToOpen2, CompressionMode.Decompress);
-                using var tarReader2 = SharpCompress.Readers.Tar.TarReader.Open(gzipStream2, new SharpCompress.Readers.ReaderOptions { });
+                using var tarReader2 = new TarReader(gzipStream2);
 
-                while (tarReader2.MoveToNextEntry())
+                while (tarReader2.GetNextEntry() is { } entry)
                 {
-                    var entry = tarReader2.Entry;
-
                     // Check if this is the file you're looking for
-                    if ((entry.Key == CoreConstants.PackageJson || entry.Key == $"package/{CoreConstants.PackageJson}" ) && !entry.IsDirectory)
+                    if ((entry.Name == CoreConstants.PackageJson || entry.Name == $"package/{CoreConstants.PackageJson}" ) && entry.EntryType != TarEntryType.Directory)
                     {
                         foundManifest = true;
                         // Read the content of the file inside the TAR
-                        using var reader = new StreamReader(tarReader2.OpenEntryStream());
+                        using var reader = new StreamReader(entry.DataStream);
                    
                         // TODO: make sure this is ok
                         // this.package = CmfPackageController.FromXmlManifest(reader.ReadToEnd(), setDefaultValues: true);
@@ -246,16 +272,30 @@ public class CmfPackageController
     }
     
     
-    private static void LogUnknownAttributes(XElement element, IEnumerable<string> knownAttributes = null)
+    private static List<string> CheckForUnknownAttributes(XElement element, IEnumerable<string> knownAttributes = null)
     {
         knownAttributes ??= [];
         var allAttributes = element.Attributes().Select(a => a.Name.LocalName);
+        return allAttributes.Except(knownAttributes).ToList();
+    }
 
-        var unknownAttributes = allAttributes.Except(knownAttributes).ToList();
-        if (unknownAttributes.Count > 0)
+    private static TEnum? ParseStepEnumAttribute<TEnum>(XElement element, string attributeName, bool strictStepParsing, ref bool hasParsingErrors) where TEnum : struct, Enum
+    {
+        var rawValue = element.Attribute(attributeName)?.Value;
+        if (rawValue == null)
         {
-            Log.Debug($"Step (type: {element.Attribute("type")?.Value}) has unknown attributes. Attributes: {string.Join(", ", unknownAttributes)}");
+            return null;
         }
+
+        if (Enum.TryParse<TEnum>(rawValue, out var parsedValue))
+        {
+            return parsedValue;
+        }
+
+        hasParsingErrors = true;
+        var logMsg = $"Step attribute '{attributeName}' could not be parsed as {typeof(TEnum).Name}: '{rawValue}'";
+        if (strictStepParsing) Log.Error(logMsg); else Log.Debug(logMsg);
+        return null;
     }
     
     private static CmfPackageV1 FromXmlManifest(string manifest, bool setDefaultValues = false)
@@ -314,6 +354,7 @@ public class CmfPackageController
             false,
             false,
             tokens.ContainsKey("istoforceinstall") ? bool.Parse(tokens["istoforceinstall"]) : false,
+            tokens.ContainsKey("forcererunafterdatabaserestore") ? bool.Parse(tokens["forcererunafterdatabaserestore"]) : false,
             tokens.ContainsKey("keywords") ? tokens["keywords"] : null,
             true,
             deps,
@@ -348,19 +389,22 @@ public class CmfPackageController
                 throw new CliException("Invalid manifest");
             }
 
-            // if (rootNode.Element("systemName", true) != null)
-            // {
-            //     package.AddMetadata(MetadataKey.ApplicationName, rootNode.Element("systemName", true).Value);
-            //
-            //     var targetSystemVersionText = rootNode.Element("systemVersion", true)?.Value;
-            //     if (!string.IsNullOrWhiteSpace(targetSystemVersionText))
-            //     {
-            //         package.AddMetadata(MetadataKey.ApplicationVersion, targetSystemVersionText);
-            //     }
-            // }
+            Log.Debug($"Parsing '{rootNode.Element("packageId", true)?.Value}@{rootNode.Element("version", true)?.Value}' package's XML manifest.");
+
+            var strictStepParsing = Environment.GetEnvironmentVariable("cmf_cli_internal_strict_step_parsing") != null;
+            bool hasParsingErrors = false;
 
             PackageType cliPackageType = PackageType.Generic;
-            Enum.TryParse(rootNode.Element("clipackagetype", true)?.Value, out cliPackageType);
+            if (!Enum.TryParse<PackageType>(rootNode.Element("clipackagetype", true)?.Value, out cliPackageType))
+            {
+                if (!Enum.TryParse<PackageType>(rootNode.Element("packageType", true)?.Value, out cliPackageType))
+                {
+                    var logMsg = $"Unknown packageType: '{rootNode.Element("packageType", true)?.Value}'";
+                    hasParsingErrors = true;
+                    if (strictStepParsing) Log.Error(logMsg); else Log.Debug(logMsg);
+                }
+
+            }
 
             var steps = new List<Step>();
             var stepsElements = rootNode.Element("steps", true)?.Elements("step", true);
@@ -368,65 +412,85 @@ public class CmfPackageController
             {
                 foreach (var element in stepsElements)
                 {
-                    LogUnknownAttributes(element, KnownStepAttributes);
-                    
-                    Step step = new Step(
-                        type: Enum.Parse(typeof(StepType), element.Attribute("type")?.Value) is StepType
-                            ? (StepType)Enum.Parse(typeof(StepType), element.Attribute("type")?.Value)
-                            : StepType.Generic,
-                        title: element.Attribute("title")?.Value,
-                        onExecute: element.Attribute("onExecute")?.Value,
-                        contentPath: element.Attribute("contentPath")?.Value,
-                        file: null,
-                        tagFile: element.Attribute("tagFile")?.Value != null ? bool.Parse(element.Attribute("tagFile")?.Value) : null,
-                        targetDatabase: element.Attribute("targetDatabase")?.Value,
-                        messageType: element.Attribute("messageType") != null && Enum.TryParse(element.Attribute("messageType").Value, out MessageType messageType) ? messageType : null,
-                        relativePath: null,
-                        filePath: element.Attribute("filePath")?.Value,
-                        oldSystemName: element.Attribute("oldSystemName")?.Value,
-                        targetDirectory: element.Attribute("targetDirectory")?.Value,
-                        targetFile: element.Attribute("targetFile")?.Value
-                    );
+                    var unknownAttributes = CheckForUnknownAttributes(element, KnownStepAttributes);
+                    var typeAttributeValue = element.Attribute("type")?.Value;
+                    var typeParsed = Enum.TryParse<StepType>(typeAttributeValue, out var parsedStepType);
 
-                    step.DeeBasePath = element.Attribute("deeBasePath")?.Value;
-                    step.ImportXMLObjectPath = element.Attribute("importXMLObjectPath")?.Value;
-                    step.AutomationWorkflowFileBasePath = element.Attribute("automationWorkflowFileBasePath")?.Value;
+                    if (!typeParsed)
+                    {
+                        var logMsg = $"Step has an unknown type: {typeAttributeValue}";
+                        hasParsingErrors = true;
+                        if (strictStepParsing) Log.Error(logMsg); else Log.Debug(logMsg);
+                    }
 
-                // // Create an XmlSerializer for the Person type
-                // XmlSerializer serializer = new XmlSerializer(typeof(Step));
-                //
-                // // Use StringReader to read the XML string
-                // using var reader = element.CreateReader();
-                // // Deserialize the XML string into a Person object
-                // Step s = (Step)serializer.Deserialize(reader);
-                steps.Add(step);
+                    if (unknownAttributes.Count > 0)
+                    {
+                        var logMsg = $"Step (type: {typeAttributeValue}) has unknown attributes. Attributes: {string.Join(", ", unknownAttributes)}";
+                        hasParsingErrors = true;
+                        if (strictStepParsing) Log.Error(logMsg); else Log.Debug(logMsg);
+                    }
+
+                    Step step = new Step {
+                        Type = typeParsed ? parsedStepType : StepType.Generic,
+                        Title = element.Attribute("title")?.Value,
+                        OnExecute = element.Attribute("onExecute")?.Value,
+                        ContentPath = element.Attribute("contentPath")?.Value,
+                        Content = element.Attribute("content")?.Value,
+                        File = element.Attribute("file")?.Value,
+                        TagFile = bool.TryParse(element.Attribute("tagFile")?.Value, out bool tagFile) ? tagFile : null,
+                        TargetDatabase = element.Attribute("targetDatabase")?.Value,
+                        MessageType = ParseStepEnumAttribute<MessageType>(element, "messageType", strictStepParsing, ref hasParsingErrors),
+                        RelativePath = null,
+                        FilePath = element.Attribute("filePath")?.Value,
+                        OldSystemName = element.Attribute("oldSystemName")?.Value,
+                        TargetDirectory = element.Attribute("targetDirectory")?.Value,
+                        TargetFile = element.Attribute("targetFile")?.Value,
+                        RunInMaster = bool.TryParse(element.Attribute("runInMaster")?.Value, out bool runInMaster) ? runInMaster : null,
+                        TargetAll = bool.TryParse(element.Attribute("targetAll")?.Value, out bool targetAll) ? targetAll : null,
+                        DeeBasePath = element.Attribute("deeBasePath")?.Value,
+                        ImportXMLObjectPath = element.Attribute("importXMLObjectPath")?.Value,
+                        AutomationWorkflowFileBasePath = element.Attribute("automationWorkflowFileBasePath")?.Value,
+                        CreateInCollection = bool.TryParse(element.Attribute("createInCollection")?.Value, out bool createInCollection) ? createInCollection : null,
+                        TargetPlatform = ParseStepEnumAttribute<MasterDataTargetPlatformType>(element, "targetPlatform", strictStepParsing, ref hasParsingErrors),
+                        UserKey = element.Attribute("userKey")?.Value,
+                        Quota = element.Attribute("quota")?.Value,
+                        Id = element.Attribute("id")?.Value,
+                        UseMachineName = bool.TryParse(element.Attribute("useMachineName")?.Value, out bool useMachineName) ? useMachineName : null,
+                        Account = element.Attribute("account")?.Value,
+                        OnInitialize = element.Attribute("onInitialize")?.Value,
+                        OnPrepare = element.Attribute("onPrepare")?.Value,
+                        ScriptHandler = element.Attribute("scriptHandler")?.Value,
+                        PatchId = element.Attribute("patchId")?.Value,
+                        ReplaceTokens = bool.TryParse(element.Attribute("replaceTokens")?.Value, out bool replaceTokens) ? replaceTokens : null,
+                        SourcePackages = element.Attribute("sourcePackages")?.Value,
+                        TargetDb = element.Attribute("targetDb")?.Value,
+                        ConditionPath = element.Attribute("conditionPath")?.Value,
+                        PatchDescription = element.Attribute("patchDescription")?.Value,
+                        DatabaseType = element.Attribute("databaseType")?.Value,
+                        ConfigPath = element.Attribute("configPath")?.Value,
+                        Value = element.Attribute("value")?.Value,
+                    };
+
+                    // // Create an XmlSerializer for the Person type
+                    // XmlSerializer serializer = new XmlSerializer(typeof(Step));
+                    //
+                    // // Use StringReader to read the XML string
+                    // using var reader = element.CreateReader();
+                    // // Deserialize the XML string into a Person object
+                    // Step s = (Step)serializer.Deserialize(reader);
+                    foreach (var innerElement in element.Elements())
+                    {
+                        step.AddElement(innerElement);
+                    }
+
+                    steps.Add(step);
                 }
             }
 
-            // #region PackageDemands Parsing
-            //
-            // var packageDemands = rootNode.Element("packageDemands", true)?.Elements("packageDemand", true);
-            // if (packageDemands != null)
-            // {
-            //     foreach (var item in packageDemands)
-            //     {
-            //         PackageDemand packageDemand = ParseDemand(item);
-            //
-            //         package.AddDemand(packageDemand);
-            //     }
-            // }
-            //
-            // #endregion
-
-            // var variables = rootNode.Element("variables", true)?.Elements("variable", true);
-            // if (variables != null)
-            // {
-            //     foreach (var element in variables)
-            //     {
-            //         var variable = ParseVariable(element);
-            //         package.AddVariable(variable);
-            //     }
-            // }
+            if (strictStepParsing && hasParsingErrors)
+            {
+                throw new CliException($"CLI encountered unknown metadata when parsing '{rootNode.Element("packageId", true)?.Value}@{rootNode.Element("version", true)?.Value}' package's manifest.xml! Check error messages for details.");
+            }
 
             DependencyCollection deps = new();
             DependencyCollection testPackages = new();
@@ -493,51 +557,21 @@ public class CmfPackageController
                 }
             }
 
-            // var uiElements = rootNode.Element("ui", true)?.Elements("wizardStep", true);
-            // if (uiElements != null)
-            // {
-            //     foreach (var uiElement in uiElements)
-            //     {
-            //         var step = (PackageWizardStep)ParseGroup(uiElement, new PackageWizardStep());
-            //         step.Id = uiElement.Attribute("id")?.Value;
-            //         package.UserInterface.AddStep(step);
-            //     }
-            // }
+            var targetDirectoryElement = rootNode.Element("targetDirectory", true);
+            var mesVersion = ExecutionContext.Instance?.ProjectConfig?.MESVersion;
 
-            // var metadataElements = rootNode.Element("metadata", true)?.Elements();
-            // if (metadataElements != null)
-            // {
-            //     foreach (var element in metadataElements)
-            //     {
-            //         package.AddMetadata(element.Name.LocalName, element.Value);
-            //     }
-            // }
-
-            // string manifestVersionString = rootNode.Element("manifestVersion", true)?.Value;
-            // int manifestVersion = -1;
-            // Int32.TryParse(manifestVersionString, out manifestVersion);
-            // package.ManifestVersion = manifestVersion;
-            //
-            // string minSqlCompatibilityString = rootNode.Element("minSqlCompatibility", true)?.Value;
-            // int minSqlCompatibility = -1;
-            // Int32.TryParse(minSqlCompatibilityString, out minSqlCompatibility);
-            // package.MinSqlCompatibility = minSqlCompatibility;
-            // package.TargetLayerDirectory = rootNode.Element("targetLayerDirectory", true)?.Value;
-            // package.IsToForceInstall = rootNode.Element("IsToForceInstall", true)?.Value != null ? bool.Parse(rootNode.Element("IsToForceInstall", true).Value) : false;
-            // package.BuildDate = rootNode.Element("buildDate", true)?.Value != null ? DateTime.ParseExact(rootNode.Element("buildDate", true).Value, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) : (DateTime?)null;
-            // package.IsRootPackage = (rootNode.Element("keywords", true)?.Value.Split(',').Any(k => k.Contains("cmf-root-package")) ?? false);
-            // package.ForceRerunAfterDatabaseRestore = bool.Parse(rootNode.Element("forceRerunAfterDatabaseRestore", true)?.Value ?? "false");
             var cmfPackage = new CmfPackageV1(
                 rootNode.Element("name", true)?.Value,
                 rootNode.Element("packageId", true)?.Value,
                 rootNode.Element("version", true)?.Value,
                 rootNode.Element("description", true)?.Value,
                 cliPackageType,
-                rootNode.Element("targetDirectory", true)?.Value,
+                mesVersion?.Major >= CoreConstants.TargetDirectoryRemovalMesMajorVersion ? null : targetDirectoryElement?.Value,
                 rootNode.Element("targetLayer", true)?.Value,
                 bool.Parse(rootNode.Element("isInstallable", true)?.Value ?? "false"),
                 rootNode.Element("isUniqueInstall", true)?.Value != null ? bool.Parse(rootNode.Element("isUniqueInstall", true).Value) : false,
                 rootNode.Element("IsToForceInstall", true)?.Value != null ? bool.Parse(rootNode.Element("IsToForceInstall", true).Value) : false,
+                rootNode.Element("forceRerunAfterDatabaseRestore", true)?.Value != null ? bool.Parse(rootNode.Element("forceRerunAfterDatabaseRestore", true).Value) : false,
                 rootNode.Element("keywords", true)?.Value,
                 true,
                 deps,
@@ -547,7 +581,74 @@ public class CmfPackageController
                 waitForIntegrationEntries: false,
                 testPackages
             );
-            
+
+            // Additional Deployment Framework metadata. These fields are not part of the source
+            // cmfpackage.json, but they are required to achieve package.json parity with Environment
+            // Manager when converting a DF package (manifest.xml) to its npm (package.json) representation.
+            cmfPackage.ManifestVersion = int.TryParse(rootNode.Element("manifestVersion", true)?.Value, out var manifestVersion) ? manifestVersion : 0;
+            cmfPackage.MinSqlCompatibility = int.TryParse(rootNode.Element("minSqlCompatibility", true)?.Value, out var minSqlCompatibility) ? minSqlCompatibility : 0;
+            cmfPackage.TargetLayerDirectory = rootNode.Element("targetLayerDirectory", true)?.Value;
+            cmfPackage.BuildDate = rootNode.Element("buildDate", true)?.Value != null
+                ? DateTime.ParseExact(rootNode.Element("buildDate", true).Value, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture)
+                : null;
+            cmfPackage.UpgradeStrategy = rootNode.Element("upgradeStrategy", true)?.Value;
+
+            // Extended metadata: target application info plus any custom <metadata> entries.
+            var extendedMetadata = new Dictionary<string, string>();
+            var systemNameElement = rootNode.Element("systemName", true);
+            if (systemNameElement != null)
+            {
+                extendedMetadata["ApplicationName"] = systemNameElement.Value;
+                var systemVersion = rootNode.Element("systemVersion", true)?.Value;
+                if (!string.IsNullOrWhiteSpace(systemVersion))
+                {
+                    extendedMetadata["ApplicationVersion"] = systemVersion;
+                }
+            }
+            var metadataElements = rootNode.Element("metadata", true)?.Elements();
+            if (metadataElements != null)
+            {
+                foreach (var element in metadataElements)
+                {
+                    extendedMetadata[element.Name.LocalName] = element.Value;
+                }
+            }
+            cmfPackage.ExtendedMetadata = extendedMetadata;
+
+            // Package demands: each <packageDemand> element is parsed to a JObject with all its
+            // XML attributes as properties and any inner child elements grouped as named arrays
+            // (parity with Environment Manager's PackageManifestReader).
+            var parsedDemands = new List<JObject>();
+            var packageDemandsElements = rootNode.Element("packageDemands", true)?.Elements("packageDemand", true);
+            if (packageDemandsElements != null)
+            {
+                foreach (var element in packageDemandsElements)
+                {
+                    var demandObject = new JObject();
+                    foreach (var attr in element.Attributes())
+                    {
+                        demandObject[attr.Name.LocalName] = attr.Value;
+                    }
+                    var childGroups = element.Elements().GroupBy(e => e.Name.LocalName);
+                    foreach (var group in childGroups)
+                    {
+                        var childArray = new JArray();
+                        foreach (var child in group)
+                        {
+                            var childObj = new JObject();
+                            foreach (var attr in child.Attributes())
+                            {
+                                childObj[attr.Name.LocalName] = attr.Value;
+                            }
+                            childArray.Add(childObj);
+                        }
+                        demandObject[group.Key] = childArray;
+                    }
+                    parsedDemands.Add(demandObject);
+                }
+            }
+            cmfPackage.PackageDemands = parsedDemands;
+
             return cmfPackage;
         }
 
@@ -606,6 +707,7 @@ public class CmfPackageController
                 PackageType.Tests,
                 null,
                 null,
+                false,
                 false,
                 false,
                 false,
@@ -680,9 +782,9 @@ public class CmfPackageController
 
         var auxArr = (JObject)rootNode.Value;
         var steps = new List<Step>();
-        if (auxArr.Property("steps").Value.Type == JTokenType.Array)
+        var stepsProperty = auxArr.Property("steps");
+        if (stepsProperty?.Value is JArray stepsEl)
         {
-            var stepsEl = (JArray)auxArr.Property("steps").Value;
 
             if (stepsEl != null)
             {
@@ -706,6 +808,15 @@ public class CmfPackageController
                             relativePath: null,
                             filePath: elem.Property("filePath")?.Value.ToString()
                         );
+
+                        foreach (var innerElement in elem.Children())
+                        {
+                            if (innerElement.Type == JTokenType.Object)
+                            {
+                                step.AddElement((JObject)innerElement);
+                            }
+                        }
+
                         steps.Add(step);
                     }
                 }
@@ -820,6 +931,9 @@ public class CmfPackageController
         
         PackageType cliPackageType = PackageType.Generic;
         Enum.TryParse(packageType, out cliPackageType);
+
+        var targetDirectoryToken = json.Property("targetDirectory")?.Value?.ToString();
+        var mesVersion = ExecutionContext.Instance?.ProjectConfig?.MESVersion;
         
         // package.IsRootPackage = keywords.Any(s => s.Equals(JSONPackageKeywordIsRootPackage)) ? true : false;
         //
@@ -843,11 +957,12 @@ public class CmfPackageController
             json.Property("version")?.Value.ToString(),
             json.Property("description")?.Value?.ToString(),
             cliPackageType,
-            json.Property("targetDirectory")?.Value.ToString(),
-            json.Property("targetLayer")?.Value.ToString(),
+            mesVersion?.Major >= CoreConstants.TargetDirectoryRemovalMesMajorVersion ? null : targetDirectoryToken,
+            json.Property("targetLayer")?.Value?.ToString(),
             bool.Parse(json.Property("isInstallable")?.Value.ToString() ?? "false"),
             bool.Parse(json.Property("isUniqueInstall")?.Value.ToString() ?? "false"),
             bool.Parse(json.Property("isToForceInstall")?.Value.ToString() ?? "false"),
+            bool.Parse(json.Property("forceRerunAfterDatabaseRestore")?.Value.ToString() ?? "false"),
             keywords: string.Join(", ", keywords),
             true,
             deps,
@@ -884,20 +999,13 @@ public class CmfPackageController
         foreach (var step in package.Steps ?? Array.Empty<Step>().ToList())
         {
             var stepObject = JObject.FromObject(step, jsonSerializer);
-            // foreach (var attributeName in step.AttributeNames)
-            // {
-            //     if (stepObject[attributeName] == null)
-            //     {
-            //         stepObject.Add(attributeName, step.GetAttribute(attributeName));
-            //     }
-            // }
-            //
-            // var elementTypes = step.Elements.ToLookup(x => x.Name.LocalName);
-            //
-            // foreach (var element in elementTypes)
-            // {
-            //     stepObject.Add(element.Key, JArray.FromObject(element.ToArray(), jsonSerializer));
-            // }
+
+            var elementTypes = (step.Elements ?? Enumerable.Empty<XElement>()).ToLookup(x => x.Name.LocalName);
+
+            foreach (var element in elementTypes)
+            {
+                stepObject.Add(element.Key, JArray.FromObject(element.ToArray(), jsonSerializer));
+            }
 
             stepsArray.Add(stepObject);
         }
@@ -947,33 +1055,6 @@ public class CmfPackageController
         JObject j = new JObject(new JProperty("steps", stepsArray));
         #endregion
 
-        #region assemble wizardSteps
-        JArray uiArray = new JArray();
-        JArray variablesArray = new JArray();
-
-        var jsonSerializerSettingsUI = new JsonSerializerSettings()
-        {
-            NullValueHandling = NullValueHandling.Ignore,
-            ContractResolver = new CamelCasePropertyNamesContractResolver(),
-            PreserveReferencesHandling = PreserveReferencesHandling.None,
-        };
-
-        // var jsonSerializerUI = JsonSerializer.Create(jsonSerializerSettingsUI);
-        //
-        // foreach (var wizardStep in package.UserInterface.Steps)
-        // {
-        //     var wizardStepObject = JObject.FromObject(wizardStep, jsonSerializerUI);
-        //     uiArray.Add(wizardStepObject);
-        // }
-        //
-        // foreach (var variable in package.Variables)
-        // {
-        //     var variablesObject = JObject.FromObject(variable, jsonSerializerUI);
-        //     variablesArray.Add(variablesObject);
-        // }
-
-        #endregion
-
         #region assemble dependencies
         var dependecies = new JObject();
         var mandatoryDependecies = new JObject();
@@ -989,7 +1070,7 @@ public class CmfPackageController
 
         if (duplicateDependencies.Count > 0)
         {
-            throw new Exception($"Invalid Package {package.PackageAtRef}: the following dependencies are declared more than once - {string.Join(", ", duplicateDependencies)}");
+            throw new CliException($"Invalid Package {package.PackageAtRef}: the following dependencies are declared more than once - {string.Join(", ", duplicateDependencies)}");
         }
 
         // Collection of PackageIds that appear more than once in this list of dependencies (with different versions)
@@ -1047,11 +1128,13 @@ public class CmfPackageController
 
         #region assemble metadata
         var metadata = new JObject();
-        // foreach (var meta in package.extendedMetadata)
-        // {
-        //     var property = new JProperty(meta.Key, meta.Value);
-        //     metadata.Add(property);
-        // }
+        if (package.ExtendedMetadata != null)
+        {
+            foreach (var meta in package.ExtendedMetadata)
+            {
+                metadata.Add(new JProperty(meta.Key, meta.Value));
+            }
+        }
         #endregion
 
         #region assemble keywords 
@@ -1066,10 +1149,15 @@ public class CmfPackageController
         {
             keywordsList.Add(JSONPackageKeywordIsInstallable);
         }
-        // if (package.IsRootPackage)
-        // {
-        //     keywordsList.Add(JSONPackageKeywordIsRootPackage);
-        // }
+
+        // Mark root packages so they can be discovered on a package registry
+        var isRootPackage = package.Keywords?
+            .Split(',')
+            .Any(k => k.Contains(CoreConstants.RootPackageDefaultKeyword)) ?? false;
+        if (isRootPackage)
+        {
+            keywordsList.Add(JSONPackageKeywordIsRootPackage);
+        }
 
         var keywords = JArray.FromObject(keywordsList);
 
@@ -1079,66 +1167,39 @@ public class CmfPackageController
 
         JArray demandsArray = new JArray();
 
-        // foreach (var demand in package.Demands)
-        // {
-        //     var demandObject = JObject.FromObject(demand, jsonSerializer);
-        //     foreach (var attributeName in demand.AttributeNames)
-        //     {
-        //         demandObject.Add(attributeName, demand.GetAttribute(attributeName));
-        //     }
-        //
-        //     var elementTypes = demand.Elements.ToLookup(x => x.Name.LocalName);
-        //
-        //     foreach (var element in elementTypes)
-        //     {
-        //         demandObject.Add(element.Key, JArray.FromObject(element.ToArray(), jsonSerializer));
-        //     }
-        //
-        //     demandsArray.Add(demandObject);
-        // }
-
-
-        foreach (JObject desc in demandsArray)
+        if (package.PackageDemands != null)
         {
-            var children = desc.Value<JObject>();
-
-            if (children.Properties() != null)
+            foreach (var demand in package.PackageDemands)
             {
-                var values = children.Value<JObject>();
-                foreach (var value in values)
-                {
-                    if (value.Value.Type == JTokenType.Array)
-                    {
-                        var entityTypes = value.Value;
-                        var entities = entityTypes.Values<JObject>();
-                        foreach (var entity in entities)
-                        {
-                            var entityValueAux = entity.Value<JObject>();
-                            var entityValues = entityValueAux.Value<JObject>();
-                            foreach (var entityValue in entityValues)
-                            {
-                                var final = entityValue.Value.Value<JObject>();
-                                foreach (var finalElement in final)
-                                {
-                                    if (finalElement.Key.StartsWith("@"))
-                                    {
-                                        var newValue = finalElement.Key.Replace("@", "");
-                                        JProperty newProperty = new JProperty(newValue, finalElement.Value);
-                                        jObject.Add(newProperty);
-                                    }
-                                }
-                                final.RemoveAll();
-                                final.Add(jObject.Properties());
-                                jObject.RemoveAll();
-                            }
-                        }
-                    }
-                }
+                demandsArray.Add(demand);
             }
-
         }
 
         #endregion
+
+        // manifestVersion is always present in the deployment object (parity with Environment Manager).
+        // Prefer the value declared in the manifest.xml; when it is absent, fall back to the CLI default
+        // if the caller requested it (preserving previous behavior), otherwise keep the parsed value.
+        var manifestVersion = package.ManifestVersion > 0
+            ? package.ManifestVersion
+            : (addManifestVersion ? CoreConstants.ManifestVersion : package.ManifestVersion);
+
+        JObject deploymentObject = new JObject(
+            new JProperty("manifestVersion", manifestVersion),
+            new JProperty("isInstallable", package.IsInstallable),
+            new JProperty("packageType", Enum.GetName<PackageType>(package.PackageType)),
+            new JProperty("targetLayerDirectory", !String.IsNullOrEmpty(package.TargetLayerDirectory) ? package.TargetLayerDirectory : ""),
+            new JProperty("targetLayer", !String.IsNullOrEmpty(package.TargetLayer) ? package.TargetLayer : ""),
+            new JProperty("buildDate", package.BuildDate?.ToString()),
+            new JProperty("steps", stepsArray),
+            new JProperty("packageDemands", demandsArray));
+
+        var mesVersion = ExecutionContext.Instance?.ProjectConfig?.MESVersion;
+        if ((mesVersion == null || mesVersion.Major < CoreConstants.TargetDirectoryRemovalMesMajorVersion)
+            && !String.IsNullOrEmpty(package.TargetDirectory))
+        {
+            deploymentObject.Add("targetDirectory", package.TargetDirectory);
+        }
 
         JObject jsonObject = new JObject(
                                 new JProperty("name", lowercase ? package.PackageId.ToLowerInvariant() : package.PackageId),
@@ -1149,48 +1210,19 @@ public class CmfPackageController
                                 new JProperty("keywords", keywords),
                                 new JProperty("isToForceInstall", package.IsToForceInstall),
                                 new JProperty("isUniqueInstall", package.IsUniqueInstall),
-                                // new JProperty("forceRerunAfterDatabaseRestore", package.ForceRerunAfterDatabaseRestore),
-                                new JProperty("deployment", new JObject(
-                                                                // new JProperty("manifestVersion", package.ManifestVersion),
-                                                                new JProperty("isInstallable", package.IsInstallable),
-                                                                new JProperty("packageType", package.PackageType),
-                                                                new JProperty("targetDirectory", !String.IsNullOrEmpty(package.TargetDirectory) ? package.TargetDirectory : ""),
-                                                                // new JProperty("targetLayerDirectory", !String.IsNullOrEmpty(package.TargetLayerDirectory) ? package.TargetLayerDirectory : ""),
-                                                                new JProperty("targetLayer", !String.IsNullOrEmpty(package.TargetLayer) ? package.TargetLayer : ""),
-                                                                // new JProperty("buildDate", package.BuildDate?.ToString()),
-                                                                new JProperty("steps", stepsArray),
-                                                                new JProperty("packageDemands", demandsArray))),
+                                new JProperty("forceRerunAfterDatabaseRestore", package.ForceRerunAfterDatabaseRestore ?? false),
+                                new JProperty("upgradeStrategy", package.UpgradeStrategy ?? string.Empty),
+                                 new JProperty("deployment", deploymentObject),
                                 new JProperty("dependencies", dependecies),
                                 new JProperty("mandatoryDependencies", mandatoryDependecies),
                                 new JProperty("conditionalDependencies", conditionalDependencies),
                                 new JProperty("_originalPackageId", package.PackageId));
 
-        if (addManifestVersion)
+        if (package.MinSqlCompatibility > 0)
         {
-            jsonObject.SelectToken("deployment")?.Value<JObject>()?.AddFirst(new JProperty("manifestVersion", CoreConstants.ManifestVersion));
+            jsonObject["deployment"]["minSqlCompatibility"] = package.MinSqlCompatibility;
         }
 
-        // if (package.MinSqlCompatibility > 0)
-        // {
-        //     jsonObject["deployment"]["minSqlCompatibility"] = package.MinSqlCompatibility;
-        // }
-
-        if (uiArray.Count > 0)
-        {
-            var uiProperty = new JProperty("ui", uiArray);
-            var jsonFinal = (JObject)jsonObject.Property("deployment").Value;
-            jsonFinal.Add(uiProperty);
-            jsonObject.Property("deployment").Value = jsonFinal;
-
-
-        }
-        if (variablesArray.Count > 0)
-        {
-            var varProperty = new JProperty("variables", variablesArray);
-            var jsonFinal = (JObject)jsonObject.Property("deployment").Value;
-            jsonFinal.Add(varProperty);
-            jsonObject.Property("deployment").Value = jsonFinal;
-        }
         if (metadata.HasValues)
         {
             var metadataProperty = new JProperty("metadata", metadata);
@@ -1203,243 +1235,6 @@ public class CmfPackageController
     }
     
     #region utils
-    // private static PackageWizardStepGroup ParseGroup(JObject uiElement, PackageWizardStepGroup result = null)
-    //     {
-    //         result = result ?? new PackageWizardStepGroup();
-    //
-    //         result.Id = uiElement.Property("id")?.Value.ToString();
-    //         result.Order = int.Parse(uiElement.Property("order")?.Value.ToString() ?? "0");
-    //         result.Title = uiElement.Property("title")?.Value.ToString();
-    //         result.Type = uiElement.Property("type")?.Value.ToString();
-    //         result.RequiresValidation = bool.Parse(uiElement.Property("requiresValidation")?.Value.ToString() ?? "false");
-    //         result.IsAdvanced = bool.Parse(uiElement.Property("isAdvanced")?.Value.ToString() ?? "false");
-    //         result.Condition = uiElement.Property("condition")?.Value.ToString();
-    //
-    //         var groupElements = uiElement.Property("groups")?.Value;
-    //         if (groupElements?.Type == JTokenType.Array)
-    //         {
-    //             var groupArray = (JArray)groupElements;
-    //             if (groupArray != null)
-    //             {
-    //                 foreach (JObject groupElement in groupArray)
-    //                 {
-    //                     var group = ParseGroup(groupElement);
-    //                     result.Groups.Add(group);
-    //                 }
-    //             }
-    //         }
-    //
-    //         var variableElements = uiElement.Property("variables")?.Value;
-    //         if (variableElements?.Type == JTokenType.Array)
-    //         {
-    //             var variablesArray = (JArray)variableElements;
-    //             if (variablesArray != null)
-    //             {
-    //                 foreach (JObject variableElement in variablesArray)
-    //                 {
-    //                     var variable = ParseVariable(variableElement);
-    //                     result.Variables.Add(variable);
-    //                 }
-    //             }
-    //         }
-    //
-    //         return result;
-    //     }
-    //
-    //     private static VariableDefinition ParseVariable(XElement element)
-    //     {
-    //         var result = new VariableDefinition
-    //         {
-    //             Name = element.Attribute("name")?.Value,
-    //             ValueType = element.Attribute("valueType")?.Value,
-    //             IsRequired = bool.Parse(element.Attribute("isRequired")?.Value ?? "false"),
-    //             GroupName = element.Attribute("groupName")?.Value,
-    //             Label = element.Attribute("label")?.Value,
-    //             ReadOnly = bool.Parse(element.Attribute("readOnly")?.Value ?? "false"),
-    //             ValidationConfiguration = element.Attribute("validationConfiguration")?.Value,
-    //             Placeholder = element.Attribute("placeholder")?.Value,
-    //             Default = element.Attribute("default")?.Value,
-    //             IsToValidate = bool.Parse(element.Attribute("isToValidate")?.Value ?? "true"),
-    //         };
-    //
-    //         return result;
-    //     }
-    //
-    //     private static VariableDefinition ParseVariable(JObject element)
-    //     {
-    //         var result = new VariableDefinition
-    //         {
-    //             Name = element.Property("name")?.Value.ToString(),
-    //             ValueType = element.Property("valueType")?.Value.ToString(),
-    //             IsRequired = bool.Parse(element.Property("isRequired")?.Value.ToString() ?? "false"),
-    //             GroupName = element.Property("groupName")?.Value.ToString(),
-    //             Label = element.Property("label")?.Value.ToString(),
-    //             ReadOnly = bool.Parse(element.Property("readOnly")?.Value.ToString() ?? "false"),
-    //             ValidationConfiguration = element.Property("validationConfiguration")?.Value.ToString(),
-    //             Placeholder = element.Property("placeholder")?.Value.ToString(),
-    //             Default = element.Property("default")?.Value.ToString(),
-    //             IsToValidate = bool.Parse(element.Property("isToValidate")?.Value.ToString() ?? "true"),
-    //         };
-    //
-    //         return result;
-    //     }
-    //
-    //
-    //     private static PackageStep ParseStep(JObject element)
-    //     {
-    //         var coreAttributes = new string[]
-    //         {
-    //             "type",
-    //             "id",
-    //             "title",
-    //             "onInitialize",
-    //             "onAquire",
-    //             "onValidate",
-    //             "onPrepare",
-    //             "onExecute",
-    //             "onComplete",
-    //             "onCleanup",
-    //             "packageIds",
-    //             "contentPath"
-    //         };
-    //
-    //         PackageStep step;
-    //
-    //         if (element.Property("reevaluatePlan") != null || element.Property("packageId") != null)
-    //         {
-    //             var packageDeploymentStep = new PackageDeploymentStep();
-    //
-    //             packageDeploymentStep.ReevaluatePlan = bool.Parse(element.Property("reevaluatePlan")?.Value.ToString() ?? "false");
-    //             packageDeploymentStep.PackageId = element.Property("packageId")?.Value.ToString();
-    //             step = packageDeploymentStep;
-    //         }
-    //         else
-    //         {
-    //             step = new PackageStep();
-    //         }
-    //
-    //         step.Type = element.Property("type")?.Value.ToString();
-    //         step.Id = element.Property("id")?.Value.ToString();
-    //         step.Title = element.Property("title")?.Value.ToString();
-    //         step.ContentPath = element.Property("contentPath")?.Value.ToString();
-    //         step.OnInitialize = element.Property("onInitialize")?.Value.ToString();
-    //         step.OnAquire = element.Property("onAquire")?.Value.ToString();
-    //         step.OnValidate = element.Property("onValidate")?.Value.ToString();
-    //         step.OnPrepare = element.Property("onPrepare")?.Value.ToString();
-    //         step.OnExecute = element.Property("onExecute")?.Value.ToString();
-    //         step.OnComplete = element.Property("onComplete")?.Value.ToString();
-    //         step.OnCleanup = element.Property("onCleanup")?.Value.ToString();
-    //
-    //         var extraAttributes = element.Properties().Where(a => !coreAttributes.Contains(a.Name)).ToList();
-    //         foreach (var a in extraAttributes)
-    //         {
-    //             step.AddAttribute(a.Name, a.Value.ToString());
-    //         }
-    //
-    //         foreach (var innerElement in element.Children())
-    //         {
-    //             if (innerElement.Type == JTokenType.Object)
-    //             {
-    //                 var elem = (JObject)innerElement;
-    //                 step.AddElement(elem);
-    //             }
-    //         }
-    //
-    //         return step;
-    //     }
-        
-        
-        // /// <summary>
-        // /// Parse PackageDemand elements from a XElement.
-        // /// </summary>
-        // /// <param name="element">Element to be parsed.</param>
-        // /// <returns></returns>
-        // private static PackageDemand ParseDemand(XElement element)
-        // {
-        //     var coreAttributes = new string[]
-        //     {
-        //         "type",
-        //         "id",
-        //         "title",
-        //         "value",
-        //         "onInitialize",
-        //         "onAquire",
-        //         "onValidate",
-        //         "onPrepare",
-        //         "onExecute",
-        //         "onComplete",
-        //         "onCleanup",
-        //         "packageIds"
-        //     };
-        //
-        //     PackageDemand demand = new PackageDemand();
-        //
-        //     demand.Type = (PackageDemandType)Enum.Parse(typeof(PackageDemandType), element.Attribute("type")?.Value);
-        //     demand.Id = element.Attribute("id")?.Value;
-        //     demand.Title = element.Attribute("title")?.Value;
-        //     demand.Value = element.Attribute("value")?.Value;
-        //
-        //     var extraAttributes = element.Attributes().Where(a => !coreAttributes.Contains(a.Name.LocalName)).ToList();
-        //     foreach (var a in extraAttributes)
-        //     {
-        //         demand.AddAttribute(a.Name.LocalName, a.Value);
-        //     }
-        //
-        //     foreach (var innerElement in element.Elements())
-        //     {
-        //         demand.AddElement(innerElement);
-        //     }
-        //
-        //     return demand;
-        // }
-        //
-        // /// <summary>
-        // /// Parse PackageDemand elements from a JObject.
-        // /// </summary>
-        // /// <param name="element">Element to be parsed.</param>
-        // /// <returns></returns>
-        // private static PackageDemand ParseDemand(JObject element)
-        // {
-        //     var coreAttributes = new string[]
-        //     {
-        //         "type",
-        //         "id",
-        //         "title",
-        //         "value",
-        //         "onInitialize",
-        //         "onAquire",
-        //         "onValidate",
-        //         "onPrepare",
-        //         "onExecute",
-        //         "onComplete",
-        //         "onCleanup",
-        //         "packageIds"
-        //     };
-        //
-        //     PackageDemand demand = new PackageDemand();
-        //
-        //     demand.Type = (PackageDemandType)Enum.Parse(typeof(PackageDemandType), element.Property("type")?.Value.ToString());
-        //     demand.Id = element.Property("id")?.Value.ToString();
-        //     demand.Title = element.Property("title")?.Value.ToString();
-        //     demand.Value = element.Property("value")?.Value.ToString();
-        //
-        //     var extraAttributes = element.Properties().Where(a => !coreAttributes.Contains(a.Name)).ToList();
-        //     foreach (var a in extraAttributes)
-        //     {
-        //         demand.AddAttribute(a.Name, a.Value.ToString());
-        //     }
-        //
-        //     foreach (var innerElement in element.Children())
-        //     {
-        //         if (innerElement.Type == JTokenType.Object)
-        //         {
-        //             var elem = (JObject)innerElement;
-        //             demand.AddElement(elem);
-        //         }
-        //     }
-        //
-        //     return demand;
-        // }
         
         /// <summary>
         /// Convert json array of dependecies to list
@@ -1602,15 +1397,9 @@ public class CmfPackageController
                         }
                         else
                         {
-                            // Add the file content to the Tar archive
-                            using (MemoryStream tarEntryStream = new MemoryStream())
-                            {
-                                zipEntryStream.CopyTo(tarEntryStream);
-                                tarEntryStream.Seek(0, SeekOrigin.Begin);
-
-                                // Create a tar entry in the Tar archive
-                                tarWriter.Write("package/" + entryName, tarEntryStream, zipEntry.LastWriteTime.DateTime);
-                            }
+                            // ZIP entry streams cannot seek. Supply the uncompressed length so
+                            // TarWriter can stream files larger than MemoryStream's 2 GiB limit.
+                            tarWriter.Write("package/" + entryName, zipEntryStream, zipEntry.LastWriteTime.DateTime, zipEntry.Length);
                         }
                     }
                 }

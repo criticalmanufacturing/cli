@@ -1,7 +1,6 @@
 using Cmf.CLI.Utilities;
-using Cmf.CLI.Core;
-using System;
 using Xunit;
+using NuGet.Versioning;
 
 namespace tests.Specs
 {
@@ -22,15 +21,13 @@ namespace tests.Specs
         }
 
         [Theory]
-        [InlineData("8.0.0", "12")]  // MES v8.x requires Node.js v12
-        [InlineData("9.0.0", "12")]  // MES v9.x requires Node.js v12
         [InlineData("10.0.0", "18")] // MES v10.x requires Node.js v18
         [InlineData("11.0.0", "20")] // MES v11.x requires Node.js v20
         [InlineData("12.0.0", "20")] // MES v12.x and later require Node.js v20
         public void ValidateNodeVersion_ThrowsException_WhenNodeNotInstalled(string mesVersionString, string requiredNodeVersion)
         {
             // Arrange
-            var mesVersion = new Version(mesVersionString);
+            var mesVersion = new NuGetVersion(mesVersionString);
             
             // Act & Assert
             // This test assumes Node.js is either not installed or the version doesn't match
@@ -64,20 +61,20 @@ namespace tests.Specs
             if (installedVersion != null)
             {
                 // Determine the MES version based on the installed Node.js version
-                Version mesVersion;
+                NuGetVersion mesVersion;
                 string requiredNodeVersion = installedVersion.Major.ToString();
                 
                 switch (installedVersion.Major)
                 {
                     case 12:
-                        mesVersion = new Version("8.0.0");
+                        mesVersion = new NuGetVersion(8, 0, 0);
                         break;
                     case 18:
-                        mesVersion = new Version("10.0.0");
+                        mesVersion = new NuGetVersion(10, 0, 0);
                         break;
                     case 20:
                     default:
-                        mesVersion = new Version("11.0.0");
+                        mesVersion = new NuGetVersion(11, 0, 0);
                         break;
                 }
                 

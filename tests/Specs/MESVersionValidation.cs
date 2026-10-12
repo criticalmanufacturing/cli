@@ -1,9 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;
 using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Utilities;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using NuGet.Versioning;
 using Xunit;
 
 namespace tests.Specs;
@@ -17,6 +18,7 @@ public class MESVersionValidation
           ""RepositoryURL"": ""https://example.com/repo"",
           ""Tenant"": ""ExampleClient"",
           ""MESVersion"": ""{MES_VERSION}"",
+          ""NGXSchematicsVersion"": ""{NGX_SCHEMATICS_VERSION}"",
           ""DevTasksVersion"": ""1.0.0"",
           ""HTMLStarterVersion"": ""8.0.0"",
           ""DefaultDomain"": ""AD"",
@@ -164,14 +166,110 @@ public class MESVersionValidation
         result.Should().BeFalse();
     }
 
-    private void SetupExecutionContext(string mesVersion)
+    [Theory]
+    [InlineData("12.0.0-alpha.1", "11.0.0", true)] // pre-release, current version higher
+    [InlineData("12.0.0-alpha.1", "12.0.0", false)] // pre-release is still below the release build
+    [InlineData("12.0.0-alpha.1", "13.0.0", false)] // pre-release, current version lower
+    public void ProjectConfig_WithPreReleaseMESVersion_LoadsAndComparesCorrectly(string currentVersion, string minimumVersion, bool expectedResult)
     {
-        var projConfig = projCfgTemplate.Replace("{MES_VERSION}", mesVersion);
-        
-        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
-        {
-            { "/.project-config.json", new MockFileData(projConfig)}
-        });
+        // Arrange - this exercises loading a .project-config.json (as produced by `cmf init`) whose
+        // MESVersion contains a semantic versioning pre-release label (e.g. "12.0.0-alpha.1")
+        SetupExecutionContext(currentVersion);
+        var service = new MESVersionValidationService();
+
+        // Act
+        var result = service.IsVersionCompatible(minimumVersion);
+
+        // Assert
+        result.Should().Be(expectedResult);
+        ExecutionContext.Instance.ProjectConfig.MESVersion.ToString().Should().Be(currentVersion);
+    }
+
+    [Fact]
+    public void IsVersionCompatible_PreReleaseCurrentVersion_BelowReleaseMinimum_ShouldReturnFalse()
+    {
+        // SemVer rule: 12.0.0-alpha.1 is lower than 12.0.0.
+        SetupExecutionContext("12.0.0-alpha.1");
+        var service = new MESVersionValidationService();
+
+        service.IsVersionCompatible("12.0.0").Should().BeFalse();
+    }
+
+    [Fact]
+    public void ValidateMinimumVersion_PrereleaseMinimumVersion_ShouldAcceptSemVerMinimum()
+    {
+        // The API should accept prerelease minimums like 12.0.0-beta.1 instead of rejecting them as invalid.
+        SetupExecutionContext("12.0.0-beta.2");
+        var service = new MESVersionValidationService();
+
+        service.Invoking(x => x.ValidateMinimumVersion("12.0.0-beta.1"))
+            .Should().NotThrow();
+    }
+
+    [Fact]
+    public void IsVersionCompatible_PrereleaseMinimumVersion_ShouldCompareUsingSemVerRules()
+    {
+        // A minimum of 12.0.0-beta.1 should be considered lower than the current 12.0.0-beta.2 version.
+        SetupExecutionContext("12.0.0-beta.2");
+        var service = new MESVersionValidationService();
+
+        service.IsVersionCompatible("12.0.0-beta.1").Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData("11.0.0", typeof(ProjectConfigV1))]
+    [InlineData("12.0.0-alpha.1", typeof(ProjectConfigV2))]
+    public void ProjectConfig_LoadsVersionSpecificModel(string mesVersion, Type expectedType)
+    {
+        SetupExecutionContext(mesVersion);
+
+        ExecutionContext.Instance.ProjectConfig.GetType().Should().Be(expectedType);
+    }
+
+    [Fact]
+    public void ProjectConfigV2_DoesNotExposeLegacyProperties()
+    {
+        typeof(ProjectConfigV2).GetProperty(nameof(ProjectConfigV1.EnvironmentName))
+            .Should().BeNull();
+        typeof(ProjectConfigV2).GetProperty(nameof(ProjectConfigV1.DeploymentDir))
+            .Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData("12.0.0")]
+    [InlineData("12.0.0-beta.1")]
+    public void ProjectConfig_WithReleaseOrPrereleaseMESVersion_ShouldRoundTripWithoutLosingSemVer(string mesVersion)
+    {
+        // The config must preserve the original SemVer identity, including prerelease labels,
+        // while still exposing the normalized form used for comparisons.
+        SetupExecutionContext(mesVersion);
+
+        ExecutionContext.Instance.ProjectConfig.MESVersion.ToString().Should().Be(mesVersion);
+        ExecutionContext.Instance.ProjectConfig.MESVersion.ToNormalizedString().Should().Be(NuGetVersion.Parse(mesVersion).ToNormalizedString());
+    }
+
+    [Fact]
+    public void ProjectConfig_NgxSchematicsVersion_AllowsNpmDistTag()
+    {
+        // Arrange
+        SetupExecutionContext("12.0.0-alpha.2", "alpha-1200");
+
+        // Act
+        var schematicsVersion = ExecutionContext.Instance.ProjectConfig.NGXSchematicsVersion;
+
+        // Assert
+        schematicsVersion.Should().Be("alpha-1200");
+    }
+
+    private void SetupExecutionContext(string mesVersion, string ngxSchematicsVersion = "10.0.0")
+    {
+        var projConfig = projCfgTemplate
+            .Replace("{MES_VERSION}", mesVersion)
+            .Replace("{NGX_SCHEMATICS_VERSION}", ngxSchematicsVersion);
+
+        var fileSystem = new MockFileSystem();
+        var projectConfigPath = fileSystem.Path.Join(fileSystem.Directory.GetCurrentDirectory(), ".project-config.json");
+        fileSystem.AddFile(projectConfigPath, new MockFileData(projConfig));
 
         // First set up the service provider with ProjectConfigService
         var serviceCollection = new Microsoft.Extensions.DependencyInjection.ServiceCollection()

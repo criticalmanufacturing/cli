@@ -4,6 +4,7 @@ using Cmf.CLI.Utilities;
 using PeanutButter.INI;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Abstractions;
 using System.Text;
 using System.Threading.Tasks;
@@ -63,7 +64,6 @@ namespace Cmf.CLI.Core.Repository.Credentials
                         var auth = Convert.ToBase64String(authBytes);
 
                         config.SetValue("", $"//{repoUri}:_auth", auth);
-                        config.SetValue("", $"//{repoUri}:always_auth", "true");
 
                         // Make sure we unset any potential conflicting properties
                         config.RemoveValue("", $"//{repoUri}:_authToken");
@@ -73,7 +73,6 @@ namespace Cmf.CLI.Core.Repository.Credentials
                     else if (cred is BearerCredential bearerCredential)
                     {
                         config.SetValue("", $"//{repoUri}:_authToken", bearerCredential.Token);
-                        config.SetValue("", $"//{repoUri}:always_auth", "true");
 
                         // Make sure we unset any potential conflicting properties
                         config.RemoveValue("", $"//{repoUri}:_auth");
@@ -88,9 +87,9 @@ namespace Cmf.CLI.Core.Repository.Credentials
 
                 SaveConfig(npmrcFile, config);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or UriFormatException)
             {
-                throw new Exception($"Failed to sync credentials into NPM config file: {npmrcFile?.FullName}", ex);
+                throw new CliException($"Failed to sync credentials into NPM config file: {npmrcFile?.FullName}", ex);
             }
         }
 

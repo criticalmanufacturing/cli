@@ -619,6 +619,9 @@ public class Repositories
                                                      <dependencies>
                                                        <dependency id="Inner.Package" version="0.0.1" mandatory="true" isMissing="true" />
                                                      </dependencies>
+                                                     <steps>
+                                                       <step type="TransformFile" file="assets/config.json" tagFile="true" />
+                                                     </steps>
                                                    </deploymentPackage>
                                """;
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
@@ -626,11 +629,36 @@ public class Repositories
             { $"{repo}/{packageId}.{version}.zip", new MockFileData(new DFPackageBuilder().CreateEntry("manifest.xml", manifestContent).ToByteArray()) }
         });
 
-        CmfPackageController.ConvertZipToTarGz(fileSystem.FileInfo.New($"{repo}/{packageId}.{version}.zip"), fileSystem.FileInfo.New($"{repo}/{packageId}.{version}.tgz"));
-        CmfPackageController.ConvertTarGzToZip(fileSystem.FileInfo.New($"{repo}/{packageId}.{version}.tgz"), fileSystem.FileInfo.New($"{repo}/{packageId}.{version}.zip"));
+        IFileInfo tgzPackageFile = fileSystem.FileInfo.New($"{repo}/{packageId}.{version}.tgz");
+        IFileInfo zipPackageFile = fileSystem.FileInfo.New($"{repo}/{packageId}.{version}.zip");
+
+        CmfPackageController.ConvertZipToTarGz(fileSystem.FileInfo.New($"{repo}/{packageId}.{version}.zip"), tgzPackageFile);
+        CmfPackageController.ConvertTarGzToZip(fileSystem.FileInfo.New($"{repo}/{packageId}.{version}.tgz"), zipPackageFile);
         // var ctrlr = new CmfPackageController(fileSystem.FileInfo.New($"{repo}/{packageId}.{version}.zip"));
         string newManifestContent = FileSystemUtilities.GetFileContentFromPackage($"{repo}/{packageId}.{version}.zip", "manifest.xml", fileSystem);
         newManifestContent.Should().Be(manifestContent);
+
+        // get tgz info for assertion
+        using GZipStream gzipStream = new GZipStream(tgzPackageFile.OpenRead(), CompressionMode.Decompress);
+        using TarReader tarReader = new(gzipStream);
+        dynamic packageJson = null;
+        while (tarReader.GetNextEntry() is { } entry)
+        {
+          if (entry.Name == "package/package.json")
+          {
+            using MemoryStream ms = new();
+            entry.DataStream.CopyTo(ms);
+            packageJson = JsonConvert.DeserializeObject(Encoding.UTF8.GetString(ms.ToArray()));
+          }
+        }
+
+        Assert.NotNull(packageJson);
+        Assert.NotNull(packageJson.deployment);
+        Assert.NotNull(packageJson.deployment.steps);
+        Assert.Equal(1, (int)packageJson.deployment.steps.Count);
+        Assert.NotNull(packageJson.deployment.steps[0].type);
+        Assert.NotNull(packageJson.deployment.steps[0].file);
+        Assert.NotNull(packageJson.deployment.steps[0].tagFile);
     }
 
     [Fact]
@@ -654,8 +682,8 @@ public class Repositories
               <dependency id=""Cmf.Environment"" version=""11.0.0"" mandatory=""false"" isIgnorable=""true"" />
             </dependencies>
             <steps>
-              <step type=""MasterData"" title=""Master Data"" filePath=""MasterData/001-MD01.json"" createInCollection=""false"" importXMLObjectPath=""ExportedObjects"" targetPlatform=""Self"" />
-              <step type=""MasterData"" title=""Master Data"" filePath=""MasterData/002-MD02.json"" createInCollection=""false"" importXMLObjectPath=""ExportedObjects"" targetPlatform=""Self"" />
+              <step type=""MasterData"" title=""Master Data"" filePath=""MasterData/001-MD01.json"" createInCollection=""false"" deeBasePath=""DeeRules"" importXMLObjectPath=""ExportedObjects"" targetPlatform=""Self"" />
+              <step type=""MasterData"" title=""Master Data"" filePath=""MasterData/002-MD02.json"" createInCollection=""false"" deeBasePath=""DeeRules"" importXMLObjectPath=""ExportedObjects"" targetPlatform=""Self"" />
             </steps>
         </deploymentPackage>";
 
@@ -691,8 +719,128 @@ public class Repositories
       Assert.NotNull(packageJson.deployment);
       Assert.NotNull(packageJson.deployment.steps);
       Assert.Equal(2, (int)packageJson.deployment.steps.Count);
+      Assert.NotNull(packageJson.deployment.steps[0].createInCollection);
+      Assert.NotNull(packageJson.deployment.steps[0].deeBasePath);
+      Assert.NotNull(packageJson.deployment.steps[0].importXMLObjectPath);
+      Assert.NotNull(packageJson.deployment.steps[0].targetPlatform);
+    }
+
+    [Fact]
+    public void ConvertZipToTgz_ConvertsMasterDataTargetPlatform()
+    {
+      KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.0.0");
+
+      string manifestContent =
+        @$"<deploymentPackage>
+            <packageId>{packageRoot.Key}</packageId>
+            <name>Critical Manufacturing Customization</name>
+            <packageType>Generic</packageType>
+            <cliPackageType>Root</cliPackageType>
+            <version>{packageRoot.Value}</version>
+            <steps>
+              <step type=""MasterData"" title=""Master Data"" filePath=""MasterData/001-MD01.json"" targetPlatform=""Self"" />
+              <step type=""MasterData"" title=""Master Data"" filePath=""MasterData/002-MD02.json"" targetPlatform=""AppFramework"" />
+            </steps>
+        </deploymentPackage>";
+
+      var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+      {
+          { $"repo/{packageRoot.Key}.{packageRoot.Value}.zip", new MockFileData(new DFPackageBuilder().CreateEntry("manifest.xml", manifestContent).ToByteArray()) }
+      });
+      ExecutionContext.Initialize(fileSystem);
+
+      IFileInfo tgzPackageFile = fileSystem.FileInfo.New($"repo/{packageRoot.Key}.{packageRoot.Value}.tgz");
+      CmfPackageController.ConvertZipToTarGz(fileSystem.FileInfo.New($"repo/{packageRoot.Key}.{packageRoot.Value}.zip"), tgzPackageFile);
+
+      using GZipStream gzipStream = new(tgzPackageFile.OpenRead(), CompressionMode.Decompress);
+      using TarReader tarReader = new(gzipStream);
+      dynamic packageJson = null;
+      while (tarReader.GetNextEntry() is { } entry)
+      {
+        if (entry.Name == "package/package.json")
+        {
+          using MemoryStream ms = new();
+          entry.DataStream.CopyTo(ms);
+          packageJson = JsonConvert.DeserializeObject(Encoding.UTF8.GetString(ms.ToArray()));
+        }
+      }
+
+      Assert.NotNull(packageJson);
+      Assert.Equal("Self", (string)packageJson.deployment.steps[0].targetPlatform);
+      Assert.Equal("AppFramework", (string)packageJson.deployment.steps[1].targetPlatform);
     }
     
+    [Theory]
+    [InlineData(0)]
+    [InlineData(131073)]
+    public void ConvertZipToTgz_StreamsFileEntries(long length)
+    {
+      AssertStreamedZipConversion(length);
+    }
+
+    [Fact]
+    [Trait("TestCategory", "LongRunning")]
+    public void ConvertZipToTgz_StreamsFileLargerThanTwoGiB()
+    {
+      AssertStreamedZipConversion((long)int.MaxValue + 1);
+    }
+
+    private static void AssertStreamedZipConversion(long length)
+    {
+      var fs = new FileSystem();
+      var directory = fs.Directory.CreateTempSubdirectory("cmf-streaming-");
+      try
+      {
+        var zipFile = fs.FileInfo.New(fs.Path.Combine(directory.FullName, "backup.zip"));
+        var tgzFile = fs.FileInfo.New(fs.Path.Combine(directory.FullName, "backup.tgz"));
+        var timestamp = new DateTimeOffset(2025, 1, 2, 3, 4, 6, TimeSpan.Zero);
+        var buffer = new byte[128 * 1024];
+        using (var archive = new ZipArchive(zipFile.Create(), ZipArchiveMode.Create))
+        {
+          archive.CreateEntry("folder/");
+          var entry = archive.CreateEntry("folder/online.bak", CompressionLevel.Fastest);
+          entry.LastWriteTime = timestamp;
+          using (var output = entry.Open())
+          {
+            for (long remaining = length; remaining > 0;)
+            {
+              var count = (int)Math.Min(buffer.Length, remaining);
+              output.Write(buffer, 0, count);
+              remaining -= count;
+            }
+          }
+          using var writer = new StreamWriter(archive.CreateEntry("tail.txt").Open());
+          writer.Write("complete");
+        }
+
+        CmfPackageController.ConvertZipToTarGz(zipFile, tgzFile);
+
+        using var gzip = new GZipStream(tgzFile.OpenRead(), CompressionMode.Decompress);
+        using var tar = new TarReader(gzip);
+        var backup = tar.GetNextEntry();
+        backup.Name.Should().Be("package/folder/online.bak");
+        backup.Length.Should().Be(length);
+        backup.ModificationTime.DateTime.Should().Be(timestamp.DateTime);
+        long received = 0;
+        int read;
+        while (backup.DataStream != null && (read = backup.DataStream.Read(buffer, 0, buffer.Length)) > 0)
+        {
+          buffer.AsSpan(0, read).IndexOfAnyExcept((byte)0).Should().Be(-1);
+          received += read;
+        }
+        received.Should().Be(length);
+        var tail = tar.GetNextEntry();
+        tail.Name.Should().Be("package/tail.txt");
+        using var reader = new StreamReader(tail.DataStream);
+        reader.ReadToEnd().Should().Be("complete");
+        tar.GetNextEntry().Should().BeNull();
+      }
+      finally
+      {
+        directory.Delete(true);
+      }
+    }
+
     [Fact]
     public void ConvertZipToTgz_WithPackageJson()
     {
@@ -772,8 +920,97 @@ public class Repositories
       Assert.NotNull(packageJson.deployment.steps);
       Assert.Equal(1, (int)packageJson.deployment.steps.Count);
       Assert.False((bool)packageJson.isToForceInstall);
+      Assert.False((bool)packageJson.forceRerunAfterDatabaseRestore);
       Assert.Equal(packageRoot.Key.ToLowerInvariant(), packageJson.name.ToString());
       Assert.Equal(packageRoot.Key, packageJson._originalPackageId.ToString());
+    }
+
+    [Fact]
+    public void ConvertZipToTgz_ShouldIncludeDeploymentMetadata_FromManifest()
+    {
+      KeyValuePair<string, string> package = new("Cmf.Database.Runtime", "12.0.0");
+
+      string manifestContent =
+        @$"<deploymentPackage>
+            <packageId>{package.Key}</packageId>
+            <name>Critical Manufacturing Database Server Runtime</name>
+            <packageType>ProductDatabase</packageType>
+            <description>This package deploys Critical Manufacturing MES Database Server Runtime</description>
+            <manifestVersion>1</manifestVersion>
+            <minSqlCompatibility>150</minSqlCompatibility>
+            <version>{package.Value}</version>
+            <isInstallable>true</isInstallable>
+            <isUniqueInstall>true</isUniqueInstall>
+            <targetLayerDirectory>db/runtime</targetLayerDirectory>
+            <buildDate>25/12/2024</buildDate>
+            <keywords>cmf-root-package</keywords>
+            <forceRerunAfterDatabaseRestore>true</forceRerunAfterDatabaseRestore>
+            <upgradeStrategy>CumulativeByMinor</upgradeStrategy>
+            <systemName>MyApp</systemName>
+            <systemVersion>11.1.0</systemVersion>
+            <metadata>
+              <customKey>customValue</customKey>
+            </metadata>
+            <packageDemands>
+              <packageDemand type=""SQLServer"" version=""14.0.1000.169"" description=""Microsoft SQL Server 2017""/>
+            </packageDemands>
+            <steps>
+              <step type=""RunSql"" contentPath=""*.sql"" />
+            </steps>
+        </deploymentPackage>";
+
+      var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+      {
+          { $"repo/{package.Key}.{package.Value}.zip", new MockFileData(new DFPackageBuilder().CreateEntry("manifest.xml", manifestContent).ToByteArray()) }
+      });
+      ExecutionContext.Initialize(fileSystem);
+
+      IFileInfo tgzPackageFile = fileSystem.FileInfo.New($"repo/{package.Key}.{package.Value}.tgz");
+
+      // test conversion zip->tgz
+      CmfPackageController.ConvertZipToTarGz(fileSystem.FileInfo.New($"repo/{package.Key}.{package.Value}.zip"), tgzPackageFile);
+
+      // get tgz info for assertion
+      using GZipStream gzipStream = new GZipStream(tgzPackageFile.OpenRead(), CompressionMode.Decompress);
+      using TarReader tarReader = new(gzipStream);
+      dynamic packageJson = null;
+      while (tarReader.GetNextEntry() is { } entry)
+      {
+        if (entry.Name == "package/package.json")
+        {
+          using MemoryStream ms = new();
+          entry.DataStream.CopyTo(ms);
+          packageJson = JsonConvert.DeserializeObject(Encoding.UTF8.GetString(ms.ToArray()));
+        }
+      }
+
+      Assert.NotNull(packageJson);
+
+      // top-level deployment metadata
+      Assert.True((bool)packageJson.forceRerunAfterDatabaseRestore);
+      Assert.Equal("CumulativeByMinor", (string)packageJson.upgradeStrategy);
+
+      // deployment object metadata
+      Assert.Equal(1, (int)packageJson.deployment.manifestVersion);
+      Assert.Equal(150, (int)packageJson.deployment.minSqlCompatibility);
+      Assert.Equal("db/runtime", (string)packageJson.deployment.targetLayerDirectory);
+      Assert.False(string.IsNullOrEmpty((string)packageJson.deployment.buildDate));
+
+      // extended metadata
+      Assert.Equal("MyApp", (string)packageJson.deployment.metadata.ApplicationName);
+      Assert.Equal("11.1.0", (string)packageJson.deployment.metadata.ApplicationVersion);
+      Assert.Equal("customValue", (string)packageJson.deployment.metadata.customKey);
+
+      // package demands
+      Assert.Equal(1, (int)packageJson.deployment.packageDemands.Count);
+      Assert.Equal("SQLServer", (string)packageJson.deployment.packageDemands[0].type);
+      Assert.Equal("14.0.1000.169", (string)packageJson.deployment.packageDemands[0].version);
+      Assert.Equal("Microsoft SQL Server 2017", (string)packageJson.deployment.packageDemands[0].description);
+
+      // root package keyword
+      string keywords = packageJson.keywords.ToString();
+      keywords.Should().Contain("cmf-deployment-package");
+      keywords.Should().Contain("cmf-deployment-rootPackage");
     }
 
     [Fact]

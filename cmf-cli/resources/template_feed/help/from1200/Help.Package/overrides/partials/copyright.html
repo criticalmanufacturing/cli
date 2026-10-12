@@ -1,0 +1,16 @@
+
+<!-- Copyright and theme information -->
+<div class="md-copyright">
+  <div class="md-copyright__highlight">
+    Copyright &copy; {{ build_date_utc.strftime('%Y') }} Critical Manufacturing
+  </div>
+  {% if not config.extra.generator == false %}
+    Made with
+    <a
+      href="https://squidfunk.github.io/mkdocs-material/"
+      target="_blank" rel="noopener"
+    >
+      Material for MkDocs
+    </a>
+  {% endif %}
+</div>

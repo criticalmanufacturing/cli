@@ -7,13 +7,14 @@ using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.TemplateEngine.Utils;
 using Newtonsoft.Json;
+using NuGet.Versioning;
 using Spectre.Console;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Cmf.CLI.Commands.New.IoT
 {
@@ -50,16 +51,20 @@ namespace Cmf.CLI.Commands.New.IoT
                 this.fileSystem
             );
 
-            cmd.AddArgument(new Argument<IDirectoryInfo>(
-                name: "workingDir",
-                parse: (argResult) => Parse<IDirectoryInfo>(argResult, nearestIoTPackage?.FullName),
-                isDefault: true
-            )
+            var workingDirArgument = new Argument<IDirectoryInfo>("workingDir")
             {
-                Description = "Working Directory"
-            });
+                Description = "Working Directory",
+                CustomParser = argResult => Parse<IDirectoryInfo>(argResult, nearestIoTPackage?.FullName),
+                DefaultValueFactory = _ => Parse<IDirectoryInfo>(null, nearestIoTPackage?.FullName)
+            };
+            cmd.Add(workingDirArgument);
 
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo>(this.Execute);
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                var workingDir = parseResult.GetValue(workingDirArgument);
+                Execute(workingDir);
+                return Task.FromResult(0);
+            });
         }
 
         /// <summary>
@@ -80,6 +85,8 @@ namespace Cmf.CLI.Commands.New.IoT
                 throw new CliException("This command is only valid for versions above 11.0.0");
             }
 
+            var testUtilitiesLocation = ExecutionContext.Instance.ProjectConfig.MESVersion < new NuGetVersion(11, 1, 0) ? "" : "dist/";
+
             using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
 
             var task = HandleTask(new TaskValues());
@@ -96,7 +103,7 @@ namespace Cmf.CLI.Commands.New.IoT
             task.Inputs = this.Inputs.Concat(task.Inputs).ToDictionary(pair => pair.Key, pair => pair.Value);
             task.Outputs = this.Outputs.Concat(task.Outputs).ToDictionary(pair => pair.Key, pair => pair.Value);
 
-            var args = this.GenerateArgs(workingDir, this.fileSystem.Directory.GetCurrentDirectory(), task.Name, task.ClassName, task.SettingsDefaults, task.TestSettingsDefaults, task.InputsInterface, task.OutputsInterface, task.SettingsInterface, task.IsProtocol.ToString());
+            var args = this.GenerateArgs(workingDir, this.fileSystem.Directory.GetCurrentDirectory(), task.Name, task.ClassName, task.SettingsDefaults, task.TestSettingsDefaults, task.InputsInterface, task.OutputsInterface, task.SettingsInterface, task.IsProtocol.ToString(), task.TaskBaseClass, testUtilitiesLocation);
             this.CommandName = "iot-task";
             base.RunCommand(args);
 
@@ -146,17 +153,37 @@ namespace Cmf.CLI.Commands.New.IoT
             string[] taskLibraryDependsOnProtocols = taskLibraryPkgJson.criticalManufacturing.tasksLibrary.dependsOnProtocol.ToObject<string[]>();
             string[] taskLibraryDependsOnScope = taskLibraryPkgJson.criticalManufacturing.tasksLibrary.dependsOnScope.ToObject<string[]>();
 
-            task.DependsOnProtocol = AnsiConsole.Prompt(
-                new MultiSelectionPrompt<string>()
-                    .Title("Is this task specific for any protocol?")
-                    .NotRequired()
-                    .AddChoices(taskLibraryDependsOnProtocols));
+            if (taskLibraryDependsOnProtocols.Length > 0)
+            {
+                task.DependsOnProtocol = AnsiConsole.Prompt(
+                    new MultiSelectionPrompt<string>()
+                        .Title("Is this task specific for any protocol?")
+                        .NotRequired()
+                        .AddChoices(taskLibraryDependsOnProtocols));
+            }
 
-            task.DependsOnScope = AnsiConsole.Prompt(
-                new MultiSelectionPrompt<string>()
-                    .Title("On which scopes this library can be used")
-                    .NotRequired()
-                    .AddChoices(taskLibraryDependsOnScope));
+            if (taskLibraryDependsOnScope.Length > 0)
+            {
+                task.DependsOnScope = AnsiConsole.Prompt(
+                    new MultiSelectionPrompt<string>()
+                        .Title("On which scopes this library can be used")
+                        .NotRequired()
+                        .AddChoices(taskLibraryDependsOnScope));
+            }
+
+            if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major >= 12)
+            {
+                var taskBaseChoices = new[] { "TaskBase" }
+                    .Concat(TaskBases.All.Keys.Where(n => n != "TaskBase"));
+                task.TaskBaseClass = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .Title("Which task base class does this task extend?")
+                        .UseConverter(name => TaskBases.All.TryGetValue(name, out var desc)
+                            ? $"{name} - {desc}"
+                            : name)
+                        .AddChoices(taskBaseChoices));
+            }        
+
             return task;
         }
 
@@ -545,7 +572,9 @@ namespace Cmf.CLI.Commands.New.IoT
             string inputsInterface,
             string outputsInterface,
             string settingsInterface,
-            string isProtocolSetting)
+            string isProtocolSetting,
+            string taskBase,
+            string testUtilitiesLocation)
         {
             Log.Debug($"Creating IoT Task at {packageLocation}");
 
@@ -559,7 +588,9 @@ namespace Cmf.CLI.Commands.New.IoT
                 "--inputsInterface", inputsInterface,
                 "--outputsInterface", outputsInterface,
                 "--settingsInterface", settingsInterface,
-                "--isProtocol", isProtocolSetting
+                "--isProtocol", isProtocolSetting,
+                "--taskBase", taskBase,
+                "--testUtilitiesLocation", testUtilitiesLocation
             });
 
             return args;

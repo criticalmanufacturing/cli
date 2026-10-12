@@ -1,32 +1,35 @@
 {
-    "compilerOptions": {
-        "module": "commonjs",
-        "target": "es6",
-        "lib": [
-            "es2017",
-            "dom"
-        ],
-        "sourceMap": true,
-        "forceConsistentCasingInFileNames": true,
-        "noImplicitReturns": false,
-        "declaration": true,
-        "pretty": true,
-        "emitDecoratorMetadata": true,
-        "experimentalDecorators": true,
-        "moduleResolution": "node",
-        "skipLibCheck": true,
-        "allowSyntheticDefaultImports": true,
-        // strict rules:
-        "noImplicitAny": false,
-        "noImplicitThis": false,
-        "alwaysStrict": true,
-        "strictBindCallApply": false,
-        "strictNullChecks": false,
-        "strictFunctionTypes": false,
-        "strictPropertyInitialization": false
-    },
-    "exclude": [
-        "node_modules",
-        "scenarios"
-    ]
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es6",
+    "lib": [
+      "es2017",
+      "dom"
+    ],
+    "sourceMap": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitReturns": false,
+    "declaration": true,
+    "pretty": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "moduleResolution": "node",
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    // strict rules:
+    "noImplicitAny": false,
+    "noImplicitThis": false,
+    "alwaysStrict": true,
+    "strictBindCallApply": false,
+    "strictNullChecks": false,
+    "strictFunctionTypes": false,
+    "strictPropertyInitialization": false
+  },
+  "exclude": [
+    "node_modules"
+  ],
+  "include": [
+    "scenarios/scripts/**/*.ts",
+    "scenarios/scripts/**/*.d.ts"
+  ]
 }

@@ -1,14 +1,14 @@
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.Diagnostics;
 using System.IO.Abstractions;
+using System.Threading.Tasks;
 using Cmf.CLI.Builders;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 using System.Linq;
-using System;
+using NuGet.Versioning;
 
 namespace Cmf.CLI.Commands.html;
 
@@ -21,7 +21,7 @@ public class LocalizeCommand : BaseCommand
     /// <summary>
     /// The minimum MES Version that supports this command
     /// </summary>
-    private readonly Version MIN_MES_VERSION = new Version(11, 2, 0);
+    private readonly NuGetVersion MIN_MES_VERSION = new NuGetVersion(11, 2, 0);
 
     public override void Configure(Command cmd)
     {
@@ -31,16 +31,21 @@ public class LocalizeCommand : BaseCommand
         {
             packagePath = this.fileSystem.Path.GetRelativePath(this.fileSystem.Directory.GetCurrentDirectory(), packageRoot.FullName);
         }
-        var arg = new Argument<IDirectoryInfo>(
-            name: "packagePath",
-            parse: (argResult) => Parse<IDirectoryInfo>(argResult, packagePath),
-            isDefault: true)
-        {
-            Description = "Package Path"
-        };
 
-        cmd.AddArgument(arg);
-        cmd.Handler = CommandHandler.Create(this.Execute);
+        var packagePathArgument = new Argument<IDirectoryInfo>("packagePath")
+        {
+            Description = "Package Path",
+            CustomParser = argResult => Parse<IDirectoryInfo>(argResult, packagePath),
+            DefaultValueFactory = _ => Parse<IDirectoryInfo>(null, packagePath)
+        };
+        cmd.Add(packagePathArgument);
+
+        cmd.SetAction((parseResult, cancellationToken) =>
+        {
+            var pkgPath = parseResult.GetValue(packagePathArgument);
+            Execute(pkgPath);
+            return Task.FromResult(0);
+        });
     }
 
     /// <summary>
@@ -90,7 +95,7 @@ public class LocalizeCommand : BaseCommand
         new NPXCommand()
         {
             DisplayName = $"ui-i18n localize",
-            Command = "ui-i18n",
+            Command = $"@criticalmanufacturing/ui-i18n@{GenericUtilities.GetNpmDistTag(ExecutionContext.Instance.ProjectConfig.MESVersion)}",
             Args = new[] { "localize", "./src/assets/i18n/messages.json", "--destination", "./src/assets/i18n", "--translations", string.Join(" ", cmfPackage.BaseLocalizationFiles), "translations" },
             WorkingDirectory = packageDirectory,
             ForceColorOutput = false

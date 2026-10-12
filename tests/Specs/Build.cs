@@ -1,5 +1,6 @@
 using Cmf.CLI.Builders;
 using Cmf.CLI.Commands;
+using Cmf.CLI.Commands.restore;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Core.Utilities;
@@ -24,6 +25,10 @@ namespace tests.Specs;
 
 public class Build
 {
+    private const string ProjectConfigJson = @"{
+            ""MESVersion"": ""11.0.0""
+        }";
+
     [Fact]
     public void AbstractionsDirectoryConverter_SerializeDirectoryPath()
     {
@@ -207,7 +212,7 @@ public class Build
                       ""DefaultDomain"": ""DOMAIN"",
                       ""RESTPort"": ""1234"",
                       ""Tenant"": ""tenant"",
-                      ""MESVersion"": ""8.2.0"",
+                      ""MESVersion"": ""10.2.0"",
                       ""DevTasksVersion"": ""8.1.0"",
                       ""HTMLStarterVersion"": ""8.0.0"",
                       ""YoGeneratorVersion"": ""8.1.0"",
@@ -305,7 +310,7 @@ public class Build
                       ""DefaultDomain"": ""DOMAIN"",
                       ""RESTPort"": ""1234"",
                       ""Tenant"": ""tenant"",
-                      ""MESVersion"": ""8.2.0"",
+                      ""MESVersion"": ""10.2.0"",
                       ""DevTasksVersion"": ""8.1.0"",
                       ""HTMLStarterVersion"": ""8.0.0"",
                       ""YoGeneratorVersion"": ""8.1.0"",
@@ -403,7 +408,7 @@ public class Build
                       ""DefaultDomain"": ""DOMAIN"",
                       ""RESTPort"": ""1234"",
                       ""Tenant"": ""tenant"",
-                      ""MESVersion"": ""8.2.0"",
+                      ""MESVersion"": ""10.2.0"",
                       ""DevTasksVersion"": ""8.1.0"",
                       ""HTMLStarterVersion"": ""8.0.0"",
                       ""YoGeneratorVersion"": ""8.1.0"",
@@ -470,7 +475,7 @@ public class Build
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
             // project config file
-            { ".project-config.json", new MockFileData("")},
+            { ".project-config.json", ProjectConfigJson},
 
             // root cmfpackage file
             { $"cmfpackage.json", new MockFileData(
@@ -765,14 +770,11 @@ public class Build
 
     [Theory]
     [InlineData("10.0.0")]  // MES version > 9: uses projects/cmf-docs-area-* layout
-    [InlineData("9.0.0")]   // MES version <= 9: uses src/packages/cmf.docs.area.* layout
     public void GenerateMenuItems_FilesAreOrderedAlphabetically(string mesVersion)
     {
-        bool isNewLayout = new Version(mesVersion).Major > 9;
-
         // Build the package directory prefix based on MES version layout
-        string packageDirName = isNewLayout ? "cmf-docs-area-cmf-custom-help" : "cmf.docs.area.cmf.custom.help";
-        string packagesRoot = isNewLayout ? "/help/projects" : "/help/src/packages";
+        string packageDirName = "cmf-docs-area-cmf-custom-help";
+        string packagesRoot = "/help/projects";
         string packageDir = $"{packagesRoot}/{packageDirName}";
         string assetsDir = $"{packageDir}/assets";
         string topicDir = $"{assetsDir}/equipment";
@@ -825,13 +827,10 @@ public class Build
 
     [Theory]
     [InlineData("10.0.0")]  // MES version > 9: uses projects/cmf-docs-area-* layout
-    [InlineData("9.0.0")]   // MES version <= 9: uses src/packages/cmf.docs.area.* layout
     public void GenerateMenuItems_FoldersAreOrderedAlphabetically(string mesVersion)
     {
-        bool isNewLayout = new Version(mesVersion).Major > 9;
-
-        string packageDirName = isNewLayout ? "cmf-docs-area-cmf-custom-help" : "cmf.docs.area.cmf.custom.help";
-        string packagesRoot = isNewLayout ? "/help/projects" : "/help/src/packages";
+        string packageDirName = "cmf-docs-area-cmf-custom-help";
+        string packagesRoot = "/help/projects";
         string packageDir = $"{packagesRoot}/{packageDirName}";
         string assetsDir = $"{packageDir}/assets";
 
@@ -879,5 +878,62 @@ public class Build
         // menuGroupId reflects the parent folder name; verify they are emitted in alphabetical folder order
         var groupIds = items.Select(i => i.GetProperty("menuGroupId").GetString()).ToList();
         groupIds.Should().BeInAscendingOrder("menu items should be ordered by folder name alphabetically");
+    }
+
+    [Fact]
+    public void HelpBuild_MesV12_UsesPythonAndMkDocsCommands()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { "/.project-config.json", new MockFileData(@"{
+                ""MESVersion"": ""12.0.0""
+            }") },
+            { "/help/cmfpackage.json", new MockFileData(@"{
+                ""packageId"": ""Cmf.Custom.Help"",
+                ""version"": ""1.0.0"",
+                ""description"": ""Help package"",
+                ""packageType"": ""Help"",
+                ""isInstallable"": true,
+                ""isUniqueInstall"": false
+            }") },
+            { "/help/requirements.txt", new MockFileData(string.Empty) }
+        });
+
+        ExecutionContext.ServiceProvider = new ServiceCollection()
+            .AddSingleton<IProjectConfigService>(new ProjectConfigService())
+            .BuildServiceProvider();
+        ExecutionContext.Initialize(fileSystem);
+
+        var package = CmfPackage.Load(fileSystem.FileInfo.New("/help/cmfpackage.json"), setDefaultValues: false);
+        var handler = PackageTypeFactory.GetPackageTypeHandler(package) as HelpMkDocsPackageTypeHandler;
+
+        handler.Should().BeOfType<HelpMkDocsPackageTypeHandler>();
+        handler.BuildSteps.Should().HaveCount(5);
+        handler.BuildSteps[0].Should().BeOfType<ExecuteCommand<RestoreCommand>>();
+        handler.BuildSteps[0].DisplayName.Should().Be("cmf restore");
+        handler.BuildSteps[1].Should().BeOfType<PythonCommand>();
+        handler.BuildSteps[2].Should().BeOfType<PythonCommand>();
+        handler.BuildSteps[3].Should().BeOfType<PythonCommand>();
+        handler.BuildSteps[4].Should().BeOfType<Cmf.CLI.Builders.MkDocsCommand>();
+
+        var createVenv = (PythonCommand)handler.BuildSteps[1];
+        createVenv.Module.Should().Be("venv");
+        createVenv.Args.Should().Equal(".venv");
+        createVenv.VirtualEnvironment.Should().BeNull();
+
+        var installMkDocs = (PythonCommand)handler.BuildSteps[2];
+        installMkDocs.Module.Should().Be("pip");
+        installMkDocs.Args.Should().Equal("install", "mkdocs");
+        installMkDocs.VirtualEnvironment.Should().Be(".venv");
+
+        var installRequirements = (PythonCommand)handler.BuildSteps[3];
+        installRequirements.Module.Should().Be("pip");
+        installRequirements.Args.Should().Equal("install", "-r", "requirements.txt");
+        installRequirements.VirtualEnvironment.Should().Be(".venv");
+
+        var buildMkDocs = (Cmf.CLI.Builders.MkDocsCommand)handler.BuildSteps[4];
+        buildMkDocs.Command.Should().Be("build");
+        buildMkDocs.VirtualEnvironment.Should().Be(".venv");
+        buildMkDocs.GetSteps().Single().Args.Should().Equal("build");
     }
 }

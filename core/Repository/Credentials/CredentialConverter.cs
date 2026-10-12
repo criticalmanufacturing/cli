@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Serialization;
+using Cmf.CLI.Utilities;
 
 namespace Cmf.CLI.Core.Repository.Credentials
 {
@@ -50,7 +51,7 @@ namespace Cmf.CLI.Core.Repository.Credentials
             else if (string.Equals(authType, AuthType.Bearer.ToString(), StringComparison.InvariantCultureIgnoreCase)) credential = new BearerCredential();
             else
             {
-                throw new Exception($"Invalid \"authType\" property value of \"{authType}\" when attempting to deserialize {reader.Path}, expected one of: {AuthType.Basic.ToString()}, {AuthType.Bearer.ToString()}.");
+                throw new CliException($"Invalid \"authType\" property value of \"{authType}\" when attempting to deserialize {reader.Path}, expected one of: {AuthType.Basic.ToString()}, {AuthType.Bearer.ToString()}.");
             }
 
             // We need to create a new reader here, instead of using the local `reader` variable,

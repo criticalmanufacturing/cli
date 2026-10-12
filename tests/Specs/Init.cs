@@ -8,14 +8,15 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.IO;
-using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
 using Cmf.CLI.Services;
 using Xunit;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Text.RegularExpressions;
 using Assert = tests.AssertWithMessage;
+using NuGet.Versioning;
 
 namespace tests.Specs
 {
@@ -25,7 +26,7 @@ namespace tests.Specs
         {
                 Cmf.CLI.Core.Objects.ExecutionContext.ServiceProvider = (new ServiceCollection())
                     .AddSingleton<IVersionService>(new VersionService(CliConstants.PackageName, "5.3.0"))
-                    .AddSingleton<IDependencyVersionService, DependencyVersionService>()
+                     .AddSingleton<IDependencyVersionService, DependencyVersionService>()
                     .BuildServiceProvider();
                 
                 var newCommand = new NewCommand();
@@ -33,13 +34,32 @@ namespace tests.Specs
                 newCommand.Configure(cmd);
 
                 var console = new TestConsole();
-                cmd.Invoke(new[] {
+                var parseResult = cmd.Parse(new[] {
                     "--reset"
-                }, console);
+                });
+                parseResult.Invoke(console);
         }
 
         [Theory]
-        [InlineData("8.2.0", DependencyVersionService.NET3SDK)]
+        [InlineData("10.2.0", "10", "10.x.x", "10.2.x")]
+        [InlineData("11.1.5", "11", "11.x.x", "11.1.x")]
+        [InlineData("12.0.0-beta.2", "12", "12.x.x", "12.0.x")]
+        public void Template_VersionTransforms_MatchTheConfiguredRegexes(string version, string expectedMajor, string expectedMajorRange, string expectedFeature)
+        {
+            var templatePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "cmf-cli", "resources", "template_feed", "init", ".template.config", "template.json"));
+            var template = JObject.Parse(File.ReadAllText(templatePath));
+            var forms = (JObject)template["forms"]!;
+
+            var major = Transform(forms["versionToMajor"]!, version);
+            var majorRange = Transform(forms["versionToMajorRange"]!, version);
+            var feature = Transform(forms["versionToFeature"]!, version);
+
+            major.Should().Be(expectedMajor, $"versionToMajor should reduce '{version}' to its major segment");
+            majorRange.Should().Be(expectedMajorRange, $"versionToMajorRange should produce a major-only range from '{version}'");
+            feature.Should().Be(expectedFeature, $"versionToFeature should produce the feature segment from '{version}'");
+        }
+
+        [Theory]
         [InlineData("10.2.0", DependencyVersionService.NET6SDK)]
         [InlineData("11.0.0", DependencyVersionService.NET8SDK)]
         public void Init_(string baseVersionStr, string dotnetSDKVersion)
@@ -84,9 +104,9 @@ namespace tests.Specs
                 var extractFileName = new Func<string, string>(s => s.Split(Path.DirectorySeparatorChar).LastOrDefault());
 
                 // For v10 and above, the devcontainer should be created
-                var baseVersion = new Version(baseVersionStr);
+                var baseVersion = new NuGetVersion(baseVersionStr);
 
-                if (baseVersion >= new Version(10, 0)) 
+                if (baseVersion >= new NuGetVersion(10, 0, 0)) 
                 {
                     var devContainerFile = File.ReadAllText(Path.Join(tmp, ".devcontainer/devcontainer.json"));
 
@@ -119,12 +139,20 @@ namespace tests.Specs
                     .Should().NotContain(@"""AppEnvironmentConfig""", "Customization repo initialization should not produce app scaffolding keys in .project-config.json");
                 File.ReadAllText(Path.Join(tmp, ".project-config.json"))
                     .Should().Contain(@"""DefaultDomain"": ""DOMAIN""", "Default domain is not correct");
+                var legacySettings = JObject.Parse(File.ReadAllText(".project-config.json"));
+                legacySettings["EnvironmentName"].Value<string>().Should().Be("system_name");
+                legacySettings["RESTPort"].Value<string>().Should().Be("1234");
+                legacySettings["HTMLPort"].Value<string>().Should().Be("443");
+                legacySettings["vmHostname"].Value<string>().Should().Be("app_server_address");
+                legacySettings["DevTasksVersion"].Value<string>().Should().Be("8.1.0");
+                legacySettings["HTMLStarterVersion"].Value<string>().Should().Be("8.0.0");
+                legacySettings["YoGeneratorVersion"].Value<string>().Should().Be("8.1.0");
                 File.ReadAllText(Path.Join(tmp, ".project-config.json"))
                     .Should().Contain(@"""BaseLayer"": ""MES""", "Base Layer should be MES");
                 File.ReadAllText(Path.Join(tmp, "cmfpackage.json"))
-                    .Should().Contain(@"CriticalManufacturing.DeploymentMetadata", "VM Dependency should be included in root package");
+                    .Should().NotContain(@"CriticalManufacturing.DeploymentMetadata", "VM Dependency is added during packing");
                 File.ReadAllText(Path.Join(tmp, "cmfpackage.json"))
-                    .Should().Contain(@"Cmf.Environment", "Container Dependency should be included in root package");
+                    .Should().NotContain(@"Cmf.Environment", "Container Dependency is added during packing");
                 File.ReadAllText(Path.Join(tmp, "global.json"))
                     .Should().Contain(dotnetSDKVersion, "wrong .NET SDK version");
             }
@@ -133,6 +161,27 @@ namespace tests.Specs
                 Directory.SetCurrentDirectory(cur);
                 Directory.Delete(tmp, true);
             }
+        }
+
+        private static string Transform(JToken form, string value)
+        {
+            var pattern = (string)form["pattern"]!;
+            var replacement = (string)form["replacement"]!;
+            return Regex.Replace(value, pattern, replacement);
+        }
+
+        [Fact]
+        public void Init_Fail_InvalidProjectName_WithDot()
+        {
+            var console = new TestConsole();
+
+            var initCommand = new InitCommand();
+            var cmd = new Command("x");
+            initCommand.Configure(cmd);
+
+            TestUtilities.GetParser(cmd).Invoke(new[] { "My.Project" }, console);
+
+            Assert.Contains("'My.Project' is not a valid project name.", console.Error.ToString());
         }
 
         [Fact]
@@ -147,17 +196,159 @@ namespace tests.Specs
             TestUtilities.GetParser(cmd).Invoke(Array.Empty<string>(), console);
 
             Assert.Contains("Required argument missing for command: 'x'", console.Error.ToString());
-            foreach (var optionName in new[]
-                 {
-                     "baseVersion", "nugetVersion", "testScenariosNugetVersion"
-                 })
+            Assert.Contains("Option '--baseVersion' is required.", console.Error.ToString());
+            Assert.DoesNotContain("Option '--nugetVersion' is required.", console.Error.ToString());
+            Assert.DoesNotContain("Option '--testScenariosNugetVersion' is required.", console.Error.ToString());
+        }
+
+        [Fact]
+        public void Init_VersionSettingsDefaultToMESVersionWhenNotSpecified()
+        {
+            var tmp = TestUtilities.GetTmpDirectory();
+            var projectName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
+            var deploymentDir = "\\\\share\\deployment_dir";
+            var mesVersion = "11.1.5";
+
+            var cur = Directory.GetCurrentDirectory();
+            try
             {
-                Assert.Contains($"Option '--{optionName}' is required.", console.Error.ToString());
+                var console = new TestConsole();
+                Directory.SetCurrentDirectory(tmp);
+
+                var initCommand = new InitCommand();
+                var cmd = new Command("x");
+                initCommand.Configure(cmd);
+
+                TestUtilities.GetParser(cmd).Invoke(new[]
+                {
+                    projectName,
+                    "--infra", TestUtilities.GetFixturePath("init", "infrastructure.json"),
+                    "-c", TestUtilities.GetFixturePath("init", "config.json"),
+                    "--MESVersion", mesVersion,
+                    // --nugetVersion, --testScenariosNugetVersion and --ngxSchematicsVersion are intentionally omitted
+                    "--deploymentDir", deploymentDir,
+                }, console);
+
+                console.Error.ToString().Should().BeEmpty("command should succeed when version options are omitted");
+                Assert.True(File.Exists("cmfpackage.json"), "root cmfpackage is missing");
+
+                var projectConfig = File.ReadAllText(Path.Join(tmp, ".project-config.json"));
+                projectConfig.Should().Contain(@"""NugetVersion"": ""11.1.5""", "NugetVersion should default to the MES version");
+                projectConfig.Should().Contain(@"""TestScenariosNugetVersion"": ""11.1.5""", "TestScenariosNugetVersion should default to the MES version");
+                projectConfig.Should().Contain(@"""NGXSchematicsVersion"": ""release-1115""", "NGXSchematicsVersion should default to the MES dist-tag");
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                Directory.Delete(tmp, true);
+            }
+        }
+
+        [Theory]
+        [InlineData("11.1.5")]
+        [InlineData("11.1.5-beta.2")]
+        public void Init_NgxSchematicsVersionUsesProvidedValueOverDefault(string mesVersion)
+        {
+            var tmp = TestUtilities.GetTmpDirectory();
+            var projectName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
+            var deploymentDir = "\\\\share\\deployment_dir";
+            var customSchematicsVersion = "my-custom-schematics-tag";
+
+            var cur = Directory.GetCurrentDirectory();
+            try
+            {
+                var console = new TestConsole();
+                Directory.SetCurrentDirectory(tmp);
+
+                var initCommand = new InitCommand();
+                var cmd = new Command("x");
+                initCommand.Configure(cmd);
+
+                TestUtilities.GetParser(cmd).Invoke(new[]
+                {
+                    projectName,
+                    "--infra", TestUtilities.GetFixturePath("init", "infrastructure.json"),
+                    "-c", TestUtilities.GetFixturePath("init", "config.json"),
+                    "--MESVersion", mesVersion,
+                    "--ngxSchematicsVersion", customSchematicsVersion,
+                    "--deploymentDir", deploymentDir,
+                }, console);
+
+                console.Error.ToString().Should().BeEmpty("command should succeed with explicit --ngxSchematicsVersion");
+                Assert.True(File.Exists("cmfpackage.json"), "root cmfpackage is missing");
+
+                File.ReadAllText(Path.Join(tmp, ".project-config.json"))
+                    .Should().Contain($@"""NGXSchematicsVersion"": ""{customSchematicsVersion}""",
+                        "NGXSchematicsVersion should use the provided value, not the MES dist-tag");
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                Directory.Delete(tmp, true);
+            }
+        }
+
+        [Theory]
+        [InlineData("12.0.0-alpha.1", "alpha-1200", "12.0.0-alpha.99")]
+        [InlineData("11.1.5-beta.2", "beta-1115", "11.1.5-beta.99")]
+        public void Init_PreReleaseMESVersion_Succeeds(string mesVersion, string distTag, string expectedNgxSchematicsVersion)
+        {
+            var tmp = TestUtilities.GetTmpDirectory();
+            var projectName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
+            var deploymentDir = "\\\\share\\deployment_dir";
+
+            var resolver = new Mock<INPMDistTagResolver>(MockBehavior.Strict);
+            resolver.Setup(x => x.ResolveDistTag("@criticalmanufacturing/ngx-schematics", distTag))
+                .ReturnsAsync(expectedNgxSchematicsVersion);
+
+            var cur = Directory.GetCurrentDirectory();
+            try
+            {
+                var console = new TestConsole();
+                Directory.SetCurrentDirectory(tmp);
+
+                var initCommand = new InitCommand(new System.IO.Abstractions.FileSystem(), resolver.Object);
+                var cmd = new Command("x");
+                initCommand.Configure(cmd);
+
+                TestUtilities.GetParser(cmd).Invoke(new[]
+                {
+                    projectName,
+                    "--infra", TestUtilities.GetFixturePath("init", "infrastructure.json"),
+                    "-c", TestUtilities.GetFixturePath("init", "config.json"),
+                    "--MESVersion", mesVersion,
+                    // --nugetVersion, --testScenariosNugetVersion and --ngxSchematicsVersion are intentionally omitted
+                    "--deploymentDir", deploymentDir,
+                }, console);
+
+                console.Error.ToString().Should().BeEmpty("command should succeed with a pre-release MES version");
+                Assert.True(File.Exists("cmfpackage.json"), "root cmfpackage is missing");
+
+                var projectConfig = File.ReadAllText(Path.Join(tmp, ".project-config.json"));
+                projectConfig.Should().Contain($@"""MESVersion"": ""{mesVersion}""", "MESVersion should retain the original pre-release string");
+                projectConfig.Should().Contain($@"""NugetVersion"": ""{mesVersion}""", "NugetVersion should default to the MES version");
+                projectConfig.Should().Contain($@"""TestScenariosNugetVersion"": ""{mesVersion}""", "TestScenariosNugetVersion should default to the MES version");
+                projectConfig.Should().Contain($@"""NGXSchematicsVersion"": ""{expectedNgxSchematicsVersion}""", "NGXSchematicsVersion should be resolved from the registry dist-tag");
+                resolver.VerifyAll();
+                if (mesVersion.StartsWith("12."))
+                {
+                    projectConfig.Should().NotContain(@"""EnvironmentName""", "MES 12+ project configs should use V2");
+                    projectConfig.Should().NotContain(@"""DeploymentDir""", "MES 12+ project configs should omit legacy fields");
+                }
+                else
+                {
+                    projectConfig.Should().Contain(@"""EnvironmentName""", "MES 11 project configs should use V1");
+                }
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                Directory.Delete(tmp, true);
             }
         }
 
         [Fact]
-        public void Init_Fail_MissingOptionsForLTv10()
+        public void Init_Fail_ForLTv10()
         {
             var console = new TestConsole();
             var tmp = TestUtilities.GetTmpDirectory();
@@ -184,13 +375,53 @@ namespace tests.Specs
                     "--nugetRegistry", "http://nuget.example/feed",
                     "--npmRegistry", "http://npm.example/feed",
                     "--ISOLocation", "dummy",
+                    "--ngxSchematicsVersion", "1.3.7",
                     "--deploymentDir", deploymentDir,
                 }, console);
 
-                Assert.Contains("DevTasksVersion is required", console.Error.ToString());
-                Assert.Contains("HTMLStarterVersion is required", console.Error.ToString());
-                Assert.Contains("yoGeneratorVersion is required", console.Error.ToString());
-                console.Error.ToString().Should().NotContain("ngxSchematicsVersion is required");
+                console.Error.ToString().Should().Contain("MES Versions under 10 are no longer supported with the newest version of the CLI. Please use cmf-cli 5.8.0 or lower.");
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                Directory.Delete(tmp, true);
+            }
+        }
+
+        [Fact]
+        public void Init_Fail_ForLTv10_WithPreReleaseVersion()
+        {
+            var console = new TestConsole();
+            var tmp = TestUtilities.GetTmpDirectory();
+
+            var projectName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
+            var deploymentDir = "\\\\share\\deployment_dir";
+
+            var cur = Directory.GetCurrentDirectory();
+            try
+            {
+                Directory.SetCurrentDirectory(tmp);
+
+                var initCommand = new InitCommand();
+                var cmd = new Command("x"); // this is the command name used in help text
+                initCommand.Configure(cmd);
+
+                TestUtilities.GetParser(cmd).Invoke(new[]
+                {
+                    projectName,
+                    "-c", TestUtilities.GetFixturePath("init", "config.json"),
+                    "--MESVersion", "8.2.0-alpha.1",
+                    "--nugetVersion", "8.2.0-alpha.1",
+                    "--testScenariosNugetVersion", "8.2.0-alpha.1",
+                    "--nugetRegistry", "http://nuget.example/feed",
+                    "--npmRegistry", "http://npm.example/feed",
+                    "--ISOLocation", "dummy",
+                    "--ngxSchematicsVersion", "1.3.7",
+                    "--deploymentDir", deploymentDir,
+                }, console);
+
+                // the pre-release label should not stop the numeric comparison from being evaluated correctly
+                console.Error.ToString().Should().Contain("MES Versions under 10 are no longer supported with the newest version of the CLI. Please use cmf-cli 5.8.0 or lower.");
             }
             finally
             {
@@ -230,7 +461,7 @@ namespace tests.Specs
                     "--deploymentDir", deploymentDir,
                 }, console);
 
-                Assert.Contains("ngxSchematicsVersion is required", console.Error.ToString());
+                // ngxSchematicsVersion is now auto-resolved from npm when omitted
                 console.Error.ToString().Should().NotContain("DevTasksVersion is required");
                 console.Error.ToString().Should().NotContain("HTMLStarterVersion is required");
                 console.Error.ToString().Should().NotContain("yoGeneratorVersion is required");
@@ -284,7 +515,7 @@ namespace tests.Specs
         }
 
         [Fact]
-        public void Init_Fail_MissingInfra()
+        public void Init_WithoutInfra_UsesDefaultRegistries()
         {
             var console = new TestConsole();
             var rnd = new Random();
@@ -306,7 +537,7 @@ namespace tests.Specs
                 {
                     projectName,
                     "-c", TestUtilities.GetFixturePath("init", "config.json"),
-                    "--MESVersion", "8.2.0",
+                    "--MESVersion", "10.2.0",
                     "--DevTasksVersion", "8.1.0",
                     "--HTMLStarterVersion", "8.0.0",
                     "--yoGeneratorVersion", "8.1.0",
@@ -315,11 +546,232 @@ namespace tests.Specs
                     "--deploymentDir", deploymentDir,
                 }, console);
 
-                Assert.Contains("Missing infrastructure options", console.Error.ToString());
+                console.Error.ToString().Should().BeEmpty();
+                var projectConfig = JObject.Parse(File.ReadAllText(".project-config.json"));
+                projectConfig["NPMRegistry"].Value<string>().Should().Be("https://criticalmanufacturing.io/repository/npm/");
+                projectConfig["NuGetRegistry"].Value<string>().Should().Be("https://criticalmanufacturing.io/repository/nuget/index.json");
             }
             finally
             {
                 Directory.SetCurrentDirectory(cur);
+                Directory.Delete(tmp, true);
+            }
+        }
+
+        [Theory]
+        [InlineData("6.0.0", "11.0.0", "11", "6.x.x")]
+        [InlineData("7.1.2", "12.0.0-beta.2", "12", "7.x.x")]
+        [InlineData("6.0.0+build-with-hyphens", "12.0.0-beta.2", "12", "6.x.x")]
+        [InlineData("6.0.0-beta.1", "11.0.0", "11-next", "next")]
+        [InlineData("6.0.0-rc.1+build.123", "12.0.0-beta.2", "12-next", "next")]
+        public void Init_DevContainer_UsesRunningCliReleaseChannel(string cliVersion, string mesVersion, string expectedTag, string expectedFeatureVersion)
+        {
+            var context = Cmf.CLI.Core.Objects.ExecutionContext.ServiceProvider;
+            try
+            {
+                Cmf.CLI.Core.Objects.ExecutionContext.ServiceProvider = new ServiceCollection()
+                    .AddSingleton<IVersionService>(new VersionService(CliConstants.PackageName, cliVersion))
+                    .AddSingleton<IDependencyVersionService, DependencyVersionService>()
+                    .BuildServiceProvider();
+
+                WithInitWorkspace(tmp =>
+                {
+                    InvokeInit(mesVersion, "--tenant", "test");
+
+                    var devContainer = JObject.Parse(File.ReadAllText(".devcontainer/devcontainer.json"));
+                    var expectedImage = $"criticalmanufacturing.io/criticalmanufacturing/devcontainer:{expectedTag}";
+                    devContainer["image"].Value<string>().Should().Be(expectedImage);
+                    devContainer["initializeCommand"].Value<string>().Should().Be($"docker pull {expectedImage}");
+                    devContainer["features"]["ghcr.io/criticalmanufacturing/cli/install:1"]["version"]
+                        .Value<string>().Should().Be(expectedFeatureVersion);
+                });
+            }
+            finally
+            {
+                Cmf.CLI.Core.Objects.ExecutionContext.ServiceProvider = context;
+            }
+        }
+
+        [Theory]
+        [InlineData("10.2.0", DependencyVersionService.NET6SDK)]
+        [InlineData("11.0.0", DependencyVersionService.NET8SDK)]
+        [InlineData("12.0.0-beta.2", DependencyVersionService.NET10SDK)]
+        public void Init_WithoutJsonFiles_ScaffoldsSupportedVersions(string mesVersion, string expectedSdk)
+        {
+            WithInitWorkspace(tmp =>
+            {
+                InvokeInit(mesVersion, "--tenant", "test");
+
+                var projectJson = File.ReadAllText(".project-config.json");
+                var project = JObject.Parse(projectJson);
+                project["Tenant"].Value<string>().Should().Be("test");
+                project["MESVersion"].Value<string>().Should().Be(mesVersion);
+                project["NugetVersion"].Value<string>().Should().Be(mesVersion);
+                project["TestScenariosNugetVersion"].Value<string>().Should().Be(mesVersion);
+                project["NGXSchematicsVersion"].Value<string>().Should().Be(mesVersion.Contains('-') ? "12.0.0-beta.99" : $"release-{mesVersion.Replace(".", "")}");
+                project["NPMRegistry"].Value<string>().Should().Be("https://criticalmanufacturing.io/repository/npm/");
+                project["NuGetRegistry"].Value<string>().Should().Be("https://criticalmanufacturing.io/repository/nuget/index.json");
+                project.Properties().Select(p => p.Name).Should().NotIntersectWith(new[]
+                {
+                    "DBReplica1", "DBReplica2", "DBServerOnline", "DBServerODS", "DBServerDWH",
+                    "ReportServerURI", "AlwaysOn", "InstallationPath", "DBBackupPath", "TemporaryPath",
+                    "GatewayPort", "DevTasksVersion", "HTMLStarterVersion", "YoGeneratorVersion",
+                    "EnvironmentName", "RESTPort", "HTMLPort", "vmHostname", "ReleaseEnvironmentConfig"
+                });
+                projectJson.Should().NotContain("<%=", "all template placeholders must be resolved");
+                File.ReadAllText("global.json").Should().Contain(expectedSdk);
+                File.ReadAllText("NuGet.Config").Should().Contain(project["NuGetRegistry"].Value<string>());
+                File.ReadAllText(".devcontainer/devcontainer.json").Should().Contain($"devcontainer:{NuGetVersion.Parse(mesVersion).Major}");
+                var repositories = JsonConvert.DeserializeObject<RepositoriesConfig>(File.ReadAllText("repositories.json"));
+                repositories.CIRepository.AbsoluteUri.Should().Be("https://dev.criticalmanufacturing.io/");
+                repositories.Repositories.Should().ContainSingle().Which.AbsoluteUri.Should().Be("https://dev.criticalmanufacturing.io/");
+                File.Exists("cmfpackage.json").Should().BeTrue();
+                File.Exists("EnvironmentConfigs/.gitkeep").Should().BeTrue();
+
+                var model = new ProjectConfigService().Load(new System.IO.Abstractions.FileSystem());
+                model.Tenant.Should().Be("test");
+                model.Should().BeOfType(mesVersion.StartsWith("12.") ? typeof(ProjectConfigV2) : typeof(ProjectConfigV1));
+
+                // A minimal init must remain usable by the next scaffolding command.
+                // Recreate services as a subsequent CLI invocation would (no cached pre-init config).
+                Cmf.CLI.Core.Objects.ExecutionContext.ServiceProvider = new ServiceCollection()
+                    .AddSingleton<IVersionService>(new VersionService(CliConstants.PackageName, "5.3.0"))
+                    .AddSingleton<IDependencyVersionService, DependencyVersionService>()
+                    .AddSingleton<IProjectConfigService, ProjectConfigService>()
+                    .BuildServiceProvider();
+                new Cmf.CLI.Commands.New.TestCommand().Execute("1.0.0");
+                File.Exists("Cmf.Custom.Tests/cmfpackage.json").Should().BeTrue();
+                File.ReadAllText("Cmf.Custom.Tests/integration.runsettings").Should().NotContain("<%=");
+            });
+        }
+
+        [Theory]
+        [InlineData("10.2.0", "TENANT_NAME")]
+        [InlineData("11.0.0", "Product.Tenant.Name")]
+        [InlineData("12.0.0-beta.2", "TENANT_NAME")]
+        public void Init_TenantOnlyConfig_SucceedsAndCopiesFile(string mesVersion, string tenantKey)
+        {
+            WithInitWorkspace(tmp =>
+            {
+                File.WriteAllText("tenant.json", new JObject { [tenantKey] = "file-tenant" }.ToString());
+                InvokeInit(mesVersion, "--config", "tenant.json");
+                JObject.Parse(File.ReadAllText(".project-config.json"))["Tenant"].Value<string>().Should().Be("file-tenant");
+                File.ReadAllText("EnvironmentConfigs/tenant.json").Should().Be(File.ReadAllText("tenant.json"));
+                File.Exists("EnvironmentConfigs/.gitkeep").Should().BeFalse();
+            });
+        }
+
+        [Theory]
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public void Init_RegistryPrecedence_CliThenFileThenDefaults(bool useInfra, bool useCli)
+        {
+            WithInitWorkspace(tmp =>
+            {
+                var options = new List<string> { "--tenant", "test" };
+                if (useInfra)
+                {
+                    File.WriteAllText("infra.json", @"{ ""NPMRegistry"": ""https://file.example/npm/"", ""NuGetRegistry"": ""https://file.example/nuget/index.json"" }");
+                    options.AddRange(new[] { "--infra", "infra.json" });
+                }
+                if (useCli)
+                {
+                    options.AddRange(new[] { "--npmRegistry", "https://cli.example/npm/", "--nugetRegistry", "https://cli.example/nuget/index.json" });
+                }
+                InvokeInit("12.0.0-beta.2", options.ToArray());
+                var project = JObject.Parse(File.ReadAllText(".project-config.json"));
+                var host = useCli ? "cli.example" : useInfra ? "file.example" : "criticalmanufacturing.io/repository";
+                project["NPMRegistry"].Value<string>().Should().Be($"https://{host}/npm/");
+                project["NuGetRegistry"].Value<string>().Should().Be($"https://{host}/nuget/index.json");
+                File.ReadAllText("NuGet.Config").Should().Contain($"https://{host}/nuget/index.json");
+            });
+        }
+
+        [Fact]
+        public void Init_PartialInfrastructure_UsesDefaultsForMissingRegistry()
+        {
+            WithInitWorkspace(tmp =>
+            {
+                File.WriteAllText("infra.json", @"{ ""NPMRegistry"": ""https://file.example/npm/"" }");
+                InvokeInit("11.0.0", "--tenant", "test", "--infrastructure", "infra.json");
+                var project = JObject.Parse(File.ReadAllText(".project-config.json"));
+                project["NPMRegistry"].Value<string>().Should().Be("https://file.example/npm/");
+                project["NuGetRegistry"].Value<string>().Should().Be("https://criticalmanufacturing.io/repository/nuget/index.json");
+            });
+        }
+
+        [Theory]
+        [InlineData("--npmRegistry", "NPMRegistry", "https://cli.example/npm/", "NuGetRegistry", "https://criticalmanufacturing.io/repository/nuget/index.json")]
+        [InlineData("--nugetRegistry", "NuGetRegistry", "https://cli.example/nuget/index.json", "NPMRegistry", "https://criticalmanufacturing.io/repository/npm/")]
+        public void Init_SingleRegistryOverride_DefaultsTheOtherRegistry(string option, string property, string value, string otherProperty, string otherValue)
+        {
+            WithInitWorkspace(tmp =>
+            {
+                InvokeInit("12.0.0-beta.2", "--tenant", "test", option, value);
+                var project = JObject.Parse(File.ReadAllText(".project-config.json"));
+                project[property].Value<string>().Should().Be(value);
+                project[otherProperty].Value<string>().Should().Be(otherValue);
+            });
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData("   ")]
+        public void Init_WithoutConfig_RequiresNonWhitespaceTenant(string tenant)
+        {
+            WithInitWorkspace(tmp =>
+            {
+                var options = tenant == null ? Array.Empty<string>() : new[] { "--tenant", tenant };
+                var console = InvokeInit("12.0.0-beta.2", options, expectSuccess: false);
+                console.Error.ToString().Should().Contain("Tenant information is missing");
+                File.Exists(".project-config.json").Should().BeFalse();
+            });
+        }
+
+        private static TestConsole InvokeInit(string mesVersion, params string[] options) => InvokeInit(mesVersion, options, true);
+
+        private static TestConsole InvokeInit(string mesVersion, string[] options, bool expectSuccess)
+        {
+            var resolver = new Mock<INPMDistTagResolver>(MockBehavior.Strict);
+            var version = NuGetVersion.Parse(mesVersion);
+            if (version.IsPrerelease)
+            {
+                resolver.Setup(x => x.ResolveDistTag("@criticalmanufacturing/ngx-schematics", Cmf.CLI.Utilities.GenericUtilities.GetNpmDistTag(version)))
+                    .ReturnsAsync("12.0.0-beta.99");
+            }
+            var command = new Command("init");
+            new InitCommand(new System.IO.Abstractions.FileSystem(), resolver.Object).Configure(command);
+            var console = new TestConsole();
+            var arguments = new[]
+            {
+                "test", "--baseVersion", mesVersion,
+                "--ciRepo", "https://dev.criticalmanufacturing.io",
+                "--releaseRepos", "https://dev.criticalmanufacturing.io"
+            }.Concat(options).ToArray();
+            TestUtilities.GetParser(command).Invoke(arguments, console);
+            if (expectSuccess)
+            {
+                console.Error.ToString().Should().BeEmpty();
+            }
+            resolver.VerifyAll();
+            return console;
+        }
+
+        private static void WithInitWorkspace(Action<string> test)
+        {
+            var tmp = TestUtilities.GetTmpDirectory();
+            var current = Directory.GetCurrentDirectory();
+            try
+            {
+                Directory.SetCurrentDirectory(tmp);
+                test(tmp);
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(current);
                 Directory.Delete(tmp, true);
             }
         }
@@ -559,16 +1011,17 @@ namespace tests.Specs
                     projectName,
                     "--infra", TestUtilities.GetFixturePath("init", "infrastructure.json"),
                     "-c", TestUtilities.GetFixturePath("init", "config.json"),
-                    "--MESVersion", "8.2.0",
-                    "--DevTasksVersion", "8.1.0",
-                    "--HTMLStarterVersion", "8.0.0",
-                    "--yoGeneratorVersion", "8.1.0",
-                    "--nugetVersion", "8.2.0",
-                    "--testScenariosNugetVersion", "8.2.0",
+                    "--MESVersion", "10.2.0",
+                    "--DevTasksVersion", "10.2.0",
+                    "--HTMLStarterVersion", "10.2.0",
+                    "--yoGeneratorVersion", "10.2.0",
+                    "--nugetVersion", "10.2.0",
+                    "--testScenariosNugetVersion", "10.2.0",
                     "--deploymentDir", deploymentDir,
                     "--ISOLocation", isoLocation,
                     "--version", pkgVersion,
-                    "--UnknownOption", "RandomValue"
+                    "--UnknownOption", "RandomValue",
+                    "--ngxSchematicsVersion", "10.2.0"
                 }, console);
 
                 console.Error.ToString().Should().BeEmpty();
@@ -607,15 +1060,16 @@ namespace tests.Specs
                     projectName,
                     "--infra", TestUtilities.GetFixturePath("init", "infrastructure.json"),
                     "-c", TestUtilities.GetFixturePath("init", "config_no_AD.json"),
-                    "--MESVersion", "8.2.0",
-                    "--DevTasksVersion", "8.1.0",
-                    "--HTMLStarterVersion", "8.0.0",
-                    "--yoGeneratorVersion", "8.1.0",
-                    "--nugetVersion", "8.2.0",
-                    "--testScenariosNugetVersion", "8.2.0",
+                    "--MESVersion", "10.2.0",
+                    "--DevTasksVersion", "10.2.0",
+                    "--HTMLStarterVersion", "10.0.0",
+                    "--yoGeneratorVersion", "10.1.0",
+                    "--nugetVersion", "10.2.0",
+                    "--testScenariosNugetVersion", "10.2.0",
                     "--deploymentDir", deploymentDir,
                     "--ISOLocation", isoLocation,
                     "--version", pkgVersion,
+                    "--ngxSchematicsVersion", "10.2.0",
                     "Cmf.Custom.Package",
                     tmp
                 }, console);

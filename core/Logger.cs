@@ -68,7 +68,7 @@ namespace Cmf.CLI.Core
         }
 
         /// <summary>
-        /// Log the Exception
+        /// Log the exception with full details regardless of verbosity.
         /// </summary>
         /// <param name="e">an exception</param>
         public static void Exception(Exception e)

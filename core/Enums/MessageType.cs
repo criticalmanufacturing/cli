@@ -5,9 +5,7 @@
     /// </summary>
     public enum MessageType
     {
-        /// <summary>
-        /// The import object
-        /// </summary>
-        ImportObject = 0
+        ImportObject = 0,
+        ExecuteActionCode = 1
     }
 }

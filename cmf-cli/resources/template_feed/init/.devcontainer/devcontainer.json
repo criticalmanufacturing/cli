@@ -1,14 +1,18 @@
 {
-    "image": "criticalmanufacturing.io/criticalmanufacturing/devcontainer:<%= $CLI_PARAM_MESVersion-Major %>",
+    "image": "criticalmanufacturing.io/criticalmanufacturing/devcontainer:<%= $CLI_PARAM_MESVersion-Major %><%= $CLI_PARAM_DevContainerTagSuffix %>",
     "runArgs": [],
     "features": {
         "ghcr.io/criticalmanufacturing/cli/install:1": {
+//#if (DevContainerTagSuffix == "-next")
+            "version": "next"
+//#else
             "version": "<%= $CLI_PARAM_CLIVersion-MajorRange %>"
+//#endif
         },
         "ghcr.io/criticalmanufacturing/portal-sdk/install:1": {},
         "ghcr.io/devcontainers/features/docker-in-docker": {
             "version": "28.5.2",
-            "dockerDefaultAddressPool":"base=10.250.0.0/16,size=24"
+            "dockerDefaultAddressPool": "base=10.250.0.0/16,size=24"
         },
         "ghcr.io/kreemer/features/chrometesting": {}
     },
@@ -24,10 +28,7 @@
             "extensions": [
                 "formulahendry.docker-explorer",
                 "ms-azuretools.vscode-docker",
-                "ms-dotnettools.csdevkit@1.9.55",
-                "ms-dotnettools.csharp@2.39.29",
-                "ms-dotnettools.vscode-dotnet-runtime",
-                "ms-dotnettools.vscodeintellicode-csharp",
+                "ms-dotnettools.csdevkit",
                 "FullStackSpider.visual-nuget",
                 "actboy168.tasks"
             ],
@@ -64,5 +65,5 @@
     "forwardPorts": [
         80
     ],
-    "initializeCommand": "docker pull criticalmanufacturing.io/criticalmanufacturing/devcontainer:<%= $CLI_PARAM_MESVersion-Major %>"
+    "initializeCommand": "docker pull criticalmanufacturing.io/criticalmanufacturing/devcontainer:<%= $CLI_PARAM_MESVersion-Major %><%= $CLI_PARAM_DevContainerTagSuffix %>"
 }

@@ -7,6 +7,7 @@ using Cmf.CLI.Core;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Core.Repository.Credentials;
+using NuGet.Versioning;
 using Spectre.Console;
 
 namespace Cmf.CLI.Utilities
@@ -183,6 +184,7 @@ namespace Cmf.CLI.Utilities
         {
             return string.IsNullOrEmpty(value?.Value) ? null : new Uri(value!.Value);
         }
+#nullable disable
 
         /// <summary>
         /// Builds a tree representation of a CmfPackage dependency tree
@@ -271,7 +273,7 @@ namespace Cmf.CLI.Utilities
             }
             else if (requirement == PropertyRequirement.Mandatory && string.IsNullOrEmpty(value))
             {
-                throw new Exception($"Missing mandatory {fieldName}.");
+                throw new CliException($"Missing mandatory {fieldName}.");
             }
         }
 
@@ -279,6 +281,39 @@ namespace Cmf.CLI.Utilities
         {
             char[] strip = ['/', '.', '-'];
             return repositoryType.ToString().ToLower() + "__" + new string(baseUri.Select(ch => strip.Contains(ch) ? '_' : ch).ToArray());
+        }
+
+        /// <summary>
+        /// Computes the npm dist-tag for a full SemVer value, preserving the prerelease label when present.
+        /// </summary>
+        /// <param name="version">the parsed NuGet version to convert</param>
+        /// <returns>the npm dist-tag for <paramref name="version"/></returns>
+        public static string GetNpmDistTag(NuGetVersion version)
+        {
+            // ReleaseLabels are dot separated values from the pre-release part of the version, e.g. "alpha.1" or "beta.2".
+            // We only want the first label (e.g. "alpha" or "beta") for the dist-tag.
+            var label = version.IsPrerelease ? version.ReleaseLabels.FirstOrDefault() : null;
+            return $"{(string.IsNullOrWhiteSpace(label) ? "release" : label)}-{version.Major}{version.Minor}{version.Patch}";
+        }
+
+        /// <summary>
+        /// Gets the ngx-schematics version, resolving prerelease dist-tags through the npm registry.
+        /// Stable versions retain their release dist-tag without a registry lookup.
+        /// </summary>
+        /// <param name="version">The target MES version.</param>
+        /// <param name="registryUrl">The configured npm registry URL.</param>
+        /// <param name="resolver">An optional registry client used to resolve prerelease tags.</param>
+        /// <returns>The exact prerelease package version, or the stable release dist-tag.</returns>
+        public static string GetNgxSchematicsVersion(NuGetVersion version, string registryUrl, INPMDistTagResolver resolver = null)
+        {
+            if (!version.IsPrerelease)
+            {
+                return GetNpmDistTag(version);
+            }
+
+            var distTag = GetNpmDistTag(version);
+            return (resolver ?? new NPMClient(registryUrl))
+                .ResolveDistTag("@criticalmanufacturing/ngx-schematics", distTag).GetAwaiter().GetResult();
         }
 
         #endregion Public Methods

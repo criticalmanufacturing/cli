@@ -1,21 +1,6 @@
-using Cmf.CLI.Constants;
-using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
-using Cmf.CLI.Core.Constants;
-using Cmf.CLI.Core.Interfaces;
-using Cmf.CLI.Core.Objects;
-using Cmf.CLI.Factories;
-using Cmf.CLI.Utilities;
-using Microsoft.Extensions.DependencyInjection;
-using SharpCompress.Common;
-using System;
-using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
-using System.IO;
 using System.IO.Abstractions;
-using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace Cmf.CLI.Commands
 {
@@ -48,10 +33,6 @@ namespace Cmf.CLI.Commands
         /// <param name="cmd"></param>
         public override void Configure(Command cmd)
         {
-            // Add the handler
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo>(Execute);
         }
-
-        public void Execute(IDirectoryInfo packagePath) {}
     }
 }

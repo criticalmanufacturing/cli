@@ -11,8 +11,6 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.IO;
-using System.CommandLine.Parsing;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
@@ -30,6 +28,8 @@ using Spectre.Console;
 using Cmf.CLI.Core;
 using Cmf.CLI.Commands.New.IoT;
 using TestingConsole = Spectre.Console.Testing;
+using Xunit.Sdk;
+using NuGet.Versioning;
 
 namespace tests.Specs
 {
@@ -37,7 +37,7 @@ namespace tests.Specs
     {
         internal const string NPM_USER_ENV_VAR = "CRITICALMANUFACTURING_IO_USER";
         internal const string NPM_TOKEN_ENV_VAR = "CRITICALMANUFACTURING_IO_TOKEN";
-        internal static string NPM_REGISTRY => System.Environment.GetEnvironmentVariable("CRITICALMANUFACTURING_NPM_REGISTRY") ?? "https://dev.criticalmanufacturing.io/repository/npm-public/";
+        internal static string NPM_REGISTRY => Environment.GetEnvironmentVariable("CRITICALMANUFACTURING_NPM_REGISTRY") ?? "https://dev.criticalmanufacturing.io/repository/npm-public/";
 
         public Task InitializeAsync()
         {
@@ -53,7 +53,7 @@ namespace tests.Specs
         private void NpmLogin()
         {
             // Set log level to default to print any npm command logs
-            LoggerHelpers.LogLevelOption.Parse("");
+            Log.Level = LogLevel.Verbose;
 
             Spectre.Console.AnsiConsole.Console.MarkupLine("Building service provider...");
 
@@ -69,23 +69,23 @@ namespace tests.Specs
                 .AddSingleton<IRepositoryAuthStore>(RepositoryAuthStore.FromEnvironmentConfig(fs))
                 .BuildServiceProvider();
 
-            Spectre.Console.AnsiConsole.Console.MarkupLine("Finished building tests' service provider.");
+            AnsiConsole.Console.MarkupLine("Finished building tests' service provider.");
 
-            var npmUser = System.Environment.GetEnvironmentVariable(NPM_USER_ENV_VAR);
-            var npmToken = System.Environment.GetEnvironmentVariable(NPM_TOKEN_ENV_VAR);
+            var npmUser = Environment.GetEnvironmentVariable(NPM_USER_ENV_VAR);
+            var npmToken = Environment.GetEnvironmentVariable(NPM_TOKEN_ENV_VAR);
 
             if (!NPM_REGISTRY.IsNullOrEmpty() && !npmUser.IsNullOrEmpty() && !npmToken.IsNullOrEmpty()) {
-                Spectre.Console.AnsiConsole.Console.MarkupLine($"Running cmf login command for '{NPM_REGISTRY}'...");
+                AnsiConsole.Console.MarkupLine($"Running cmf login command for '{NPM_REGISTRY}'...");
 
                 // We just want to login into NPM
                 // If we log onto Portal then the command will attempt to login into all the derived credentials as well
                 var loginCmd = new LoginCommand();
                 loginCmd.Execute(
-                    Cmf.CLI.Core.Repository.Credentials.RepositoryCredentialsType.NPM, NPM_REGISTRY,
-                    Cmf.CLI.Core.Repository.Credentials.AuthType.Basic, null,
+                    RepositoryCredentialsType.NPM, NPM_REGISTRY,
+                    AuthType.Basic, null,
                     npmUser, npmToken, null, null, false, true);
                     
-                Spectre.Console.AnsiConsole.Console.MarkupLine($"Successfully logged in on '{NPM_REGISTRY}'.");
+                AnsiConsole.Console.MarkupLine($"Successfully logged in on '{NPM_REGISTRY}'.");
             }
         }
     }
@@ -96,16 +96,30 @@ namespace tests.Specs
 
         public New(NpmLoginFixture npmLoginFixture)
         {
-            System.Environment.SetEnvironmentVariable("cmf_cli_internal_disable_projectconfig_cache", "1");
+            Environment.SetEnvironmentVariable("cmf_cli_internal_disable_projectconfig_cache", "1");
+            Environment.SetEnvironmentVariable("NPM_CONFIG_YES", "true");
 
             var newCommand = new NewCommand();
             var cmd = new Command("x");
             newCommand.Configure(cmd);
 
             var console = new TestConsole();
-            cmd.Invoke(new[] {
+            var parseResult = cmd.Parse(new string[] {
                 "--reset"
-            }, console);
+            });
+            parseResult.Invoke(console);
+
+        }
+
+        private static void EnsureNodeMajorOrSkip(int requiredMajor, string testName)
+        {
+            var installedNodeVersion = NodeVersionUtilities.GetInstalledNodeVersion();
+            if (installedNodeVersion == null || installedNodeVersion.Major != requiredMajor)
+            {
+                var reason = $"Skipping {testName}: requires Node.js {requiredMajor}.x, found {(installedNodeVersion == null ? "none" : installedNodeVersion.ToString())}.";
+                Console.WriteLine(reason);
+                throw SkipException.ForSkip(reason);
+            }
         }
 
         [Theory, Trait("TestCategory", "Integration")]
@@ -119,7 +133,7 @@ namespace tests.Specs
             RunNew(new BusinessCommand(), 
                 "Cmf.Custom.Business", 
                 repositoryType: repositoryType, 
-                mesVersion: "9.1.0", 
+                mesVersion: "10.2.5", 
                 baseLayer: layer,  
                 extraArguments: appContext ? new[] { "--addApplicationVersionAssembly" } : null,
                 extraAsserts: args =>
@@ -195,6 +209,35 @@ namespace tests.Specs
             RunNew(new DataCommand(), "Cmf.Custom.Data");
         }
 
+        [Fact, Trait("TestCategory", "Integration")]
+        public void Data_TargetFramework_Net8_For_MES11()
+        {
+            RunNew(new DataCommand(), "Cmf.Custom.Data",
+                extraAsserts: args =>
+                {
+                    var (_, dir) = args;
+                    var actionsCsproj = Path.Combine(dir, "Cmf.Custom.Data", "DEEs", "Cmf.Custom.tenant.Actions.csproj");
+                    File.Exists(actionsCsproj).Should().BeTrue();
+                    var content = File.ReadAllText(actionsCsproj);
+                    content.Should().Contain("<TargetFramework>net8.0</TargetFramework>");
+                });
+        }
+
+        [Fact, Trait("TestCategory", "Integration")]
+        public void Data_TargetFramework_Net6_For_MES10()
+        {
+            RunNew(new DataCommand(), "Cmf.Custom.Data",
+                mesVersion: "10.2.0",
+                extraAsserts: args =>
+                {
+                    var (_, dir) = args;
+                    var actionsCsproj = Path.Combine(dir, "Cmf.Custom.Data", "DEEs", "Cmf.Custom.tenant.Actions.csproj");
+                    File.Exists(actionsCsproj).Should().BeTrue();
+                    var content = File.ReadAllText(actionsCsproj);
+                    content.Should().Contain("<TargetFramework>net6.0</TargetFramework>");
+                });
+        }
+
         [Fact, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Integration")]
         public void Data_WithBusiness()
         {
@@ -225,22 +268,29 @@ namespace tests.Specs
                 });
         }
 
-        [Theory, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node12"), Trait("TestCategory", "Integration")]
-        [InlineData(BaseLayer.MES)]
-        [InlineData(BaseLayer.Core)]
-        public void UI(BaseLayer layer)
+        [Theory, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node18"), Trait("TestCategory", "Integration")]
+        [InlineData(BaseLayer.MES, "10.2.10", "1.3.7")]
+        [InlineData(BaseLayer.Core, "10.2.10", "1.3.7")]
+        public void UI_v10(BaseLayer layer, string mesVersion, string ngxSchematicsVersion)
         {
-            UI_internal(null, layer);
+            EnsureNodeMajorOrSkip(18, nameof(UI_v10));
+            UI_internal(null, layer, mesVersion, ngxSchematicsVersion);
         }
 
-        private void UI_internal(string scaffoldingDir, BaseLayer layer)
+        [Theory, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node20"), Trait("TestCategory", "Integration")]
+        [InlineData(BaseLayer.MES, "11.2.5", "11.0.14")]
+        [InlineData(BaseLayer.Core, "11.2.5", "11.0.14")]
+        public void UI_v11(BaseLayer layer, string mesVersion, string ngxSchematicsVersion)
         {
-            RunNew(new HTMLCommand(), "Cmf.Custom.HTML", scaffoldingDir: scaffoldingDir, baseLayer: layer, extraArguments: new string[]
+            EnsureNodeMajorOrSkip(20, nameof(UI_v11));
+            UI_internal(null, layer, mesVersion, ngxSchematicsVersion);
+        }
+
+        private void UI_internal(string scaffoldingDir, BaseLayer layer, string mesVersion, string ngxSchematicsVersion)
+        {
+            RunNew(new HTMLCommand(), "Cmf.Custom.HTML", scaffoldingDir: scaffoldingDir, mesVersion: mesVersion, ngxSchematicsVersion: ngxSchematicsVersion, baseLayer: layer, extraAsserts: args =>
             {
-                "--htmlPkg", TestUtilities.GetFixturePath("prodPkg", "Cmf.Presentation.HTML.9.9.9.zip"),
-            }, extraAsserts: args =>
-            {
-                var configJson = File.ReadAllText("Cmf.Custom.HTML/apps/customization.web/config.json");
+                var configJson = File.ReadAllText("Cmf.Custom.HTML/src/assets/config.json");
                 try
                 {
                     JsonConvert.DeserializeObject(configJson);
@@ -249,124 +299,166 @@ namespace tests.Specs
                 {
                     Assert.Fail($"config.json is malformed: {e.Message}");
                 }
-                Assert.True(File.Exists($"Cmf.Custom.HTML/.dev-tasks.json"), "dev-tasks file is missing or has wrong name. Was cloning HTML-starter unsuccessful?");
-                Assert.True(File.ReadAllText("Cmf.Custom.HTML/.dev-tasks.json").Contains("\"isWebAppCompilable\": true"), "Web app is not compilable");
-                Assert.True(Directory.Exists($"Cmf.Custom.HTML/apps/customization.web"), "WebApp dir is missing or has wrong name. Was running the application generator unsuccessful?");
-                Assert.True(File.Exists($"Cmf.Custom.HTML/apps/customization.web/config.json"), "Config file is missing or has wrong name");
-                Assert.True(configJson.Contains("test.package"), "Product package is not in config.json");
-                Assert.True(File.Exists($"Cmf.Custom.HTML/apps/customization.web/index.html"), "Index file is missing or has wrong name");
+                Assert.True(Directory.Exists($"Cmf.Custom.HTML/src/app"), "WebApp dir is missing or has wrong name. Was running the application generator unsuccessful?");
+                Assert.True(File.Exists($"Cmf.Custom.HTML/src/assets/config.json"), "Config file is missing or has wrong name");
+                Assert.True(File.ReadAllText("Cmf.Custom.HTML/src/assets/config.json").Contains(mesVersion), $"Version {mesVersion} is not in config.json");
+                Assert.True(File.Exists($"Cmf.Custom.HTML/src/index.html"), "Index file is missing or has wrong name");
+                Assert.True(File.ReadAllText("Cmf.Custom.HTML/src/index.html").Contains("MES"), "Index content is not expected");
+                Assert.True(File.ReadAllText("Cmf.Custom.HTML/src/index.html").Contains("<base href=\"/\">"), "Index base path was not changed correctly");
+                if(new NuGetVersion(mesVersion) < new NuGetVersion(11,0,0)) 
+                {
                 if (layer == BaseLayer.Core)
-                {
-                    configJson
-                        .Should().Contain("core-ui-web", "wrong base package in config.json");
-                    File.ReadAllText($"Cmf.Custom.HTML/apps/customization.web/package.json").Should()
-                        .Contain("@criticalmanufacturing/core-ui-web");
-                    File.ReadAllText($"Cmf.Custom.HTML/cmfpackage.json").Should()
-                        .Contain("node_modules/@criticalmanufacturing/core-ui-web/bundles");
-                    configJson
-                        .Should().NotContain("cmf.mes", "config.json should not have any MES packages");
-                }
-                else
-                {
-                    configJson
-                        .Should().Contain("mes-ui-web", "wrong base package in config.json");
-                    File.ReadAllText($"Cmf.Custom.HTML/apps/customization.web/package.json").Should()
-                        .Contain("@criticalmanufacturing/mes-ui-web");
-                    File.ReadAllText($"Cmf.Custom.HTML/cmfpackage.json").Should()
-                        .Contain("node_modules/@criticalmanufacturing/mes-ui-web/bundles");
-                    configJson
-                        .Should().Contain("cmf.mes", "config.json should not have a MES packages");
+                    {
+                        File.ReadAllText($"Cmf.Custom.HTML/src/app/app.module.ts").Should()
+                            .Contain("import { CoreUIModule } from 'cmf-core-ui';");
+                    }
+                    else
+                    {
+                        File.ReadAllText($"Cmf.Custom.HTML/src/app/app.module.ts").Should()
+                            .Contain("import { MesUIModule } from 'cmf-mes-ui';");
+                    }
                 }
             });
         }
 
-        [Theory, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node12"), Trait("TestCategory", "Integration")]
-        [InlineData("8.2.0", false)]
-        [InlineData("9.1.0", true)]
-        public void UI_WithAppsPackage(string mesVersion, bool isCoreAppPresent)
+        [Theory, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node18"), Trait("TestCategory", "Integration")]
+        [InlineData("10.2.10", "1.3.7")]
+        public void Help_v10(string mesVersion, string ngxSchematicsVersion)
         {
-            RunNew(new HTMLCommand(), "Cmf.Custom.HTML", mesVersion: mesVersion, extraArguments: new string[]
+            Help_internal(mesVersion: mesVersion, ngxSchematicsVersion: ngxSchematicsVersion);
+        }
+
+        [Theory, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node20"), Trait("TestCategory", "Integration")]
+        [InlineData("11.2.5", "11.0.14")]
+        public void Help_v11(string mesVersion, string ngxSchematicsVersion)
+        {
+            Help_internal(mesVersion: mesVersion, ngxSchematicsVersion: ngxSchematicsVersion);
+        }
+
+        [Theory, Trait("TestCategory", "Integration")]
+        [InlineData("12.0.0")]
+        [InlineData("12.0.0-beta.2")]
+        public void Help_v12(string mesVersion)
+        {
+            var previousServiceProvider = ExecutionContext.ServiceProvider;
+            try
             {
-                "--htmlPkg", TestUtilities.GetFixturePath("prodPkg", "Cmf.Presentation.HTML.9.9.9.zip"),
-            }, extraAsserts: args =>
+                Help_v12_internal(mesVersion);
+            }
+            finally
             {
-                Assert.True(File.Exists($"Cmf.Custom.HTML/.dev-tasks.json"), "dev-tasks file is missing or has wrong name. Was cloning HTML-starter unsuccessful?");
-                Assert.True(File.ReadAllText("Cmf.Custom.HTML/.dev-tasks.json").Contains("\"isWebAppCompilable\": true"), "Web app is not compilable");
-                Assert.True(Directory.Exists($"Cmf.Custom.HTML/apps/customization.web"), "WebApp dir is missing or has wrong name. Was running the application generator unsuccessful?");
-                Assert.True(File.Exists($"Cmf.Custom.HTML/apps/customization.web/config.json"), "Config file is missing or has wrong name");
-                Assert.True(File.ReadAllText("Cmf.Custom.HTML/apps/customization.web/config.json").Contains("test.package"), "Product package is not in config.json");
-                File.ReadAllText("Cmf.Custom.HTML/apps/customization.web/config.json").Contains("cmf.core.app").Should()
-                    .Be(isCoreAppPresent, $"Apps package {(isCoreAppPresent ? "is not" : "is")} in config.json even though we are targeting {mesVersion}");
-                Assert.True(File.Exists($"Cmf.Custom.HTML/apps/customization.web/index.html"), "Index file is missing or has wrong name");
+                // The fixture's services are shared by all tests in this class.
+                ExecutionContext.ServiceProvider = previousServiceProvider;
+            }
+        }
+
+        [Theory, Trait("TestCategory", "Integration")]
+        [InlineData("12.0.0")]
+        [InlineData("12.0.0-beta.2")]
+        public void Help_v12_PreservesFixtureServices(string mesVersion)
+        {
+            var serviceProvider = ExecutionContext.ServiceProvider;
+
+            Help_v12(mesVersion);
+
+            ExecutionContext.ServiceProvider.Should().BeSameAs(serviceProvider);
+            ExecutionContext.ServiceProvider.GetService<IProcessStartInfoCLI>().Should().NotBeNull();
+        }
+
+        private void Help_v12_internal(string mesVersion)
+        {
+            var root = MockUnixSupport.Path(@"c:\test");
+            
+            // Create .project-config.json and cmfpackage.json
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                { MockUnixSupport.Path($@"{root}\.project-config.json"), new MockFileData(@"{
+                    ""ProjectName"": ""localtest"",
+                    ""RepositoryType"": ""Customization"",
+                    ""BaseLayer"": ""MES"",
+                    ""Tenant"": ""cmf"",
+                    ""MESVersion"": """ + mesVersion + @""",
+                    ""NPMRegistry"": ""http://npm_registry/""
+                }") },
+                { MockUnixSupport.Path($@"{root}\cmfpackage.json"), new MockFileData(@"{
+                    ""packageId"": ""Cmf.Custom.Package"",
+                    ""version"": ""1.0.0"",
+                    ""packageType"": ""Root"",
+                    ""isInstallable"": true,
+                    ""isUniqueInstall"": false
+                }") }
+            });
+
+            // Place template feed in the temporary memory
+            var templateFeedSource = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "resources", "template_feed"));
+            if (Directory.Exists(templateFeedSource))
+            {
+                foreach (var file in Directory.GetFiles(templateFeedSource, "*", SearchOption.AllDirectories))
+                {
+                    fileSystem.AddFile(file, new MockFileData(File.ReadAllBytes(file)));
+                }
+            }
+
+            using var serviceProvider = new ServiceCollection()
+                .AddSingleton<IProjectConfigService>(new ProjectConfigService())
+                .AddSingleton<IVersionService>(new VersionService(CliConstants.PackageName))
+                .AddSingleton<IRepositoryLocator, RepositoryLocator>()
+                .AddSingleton<IDependencyVersionService, DependencyVersionService>()
+                .BuildServiceProvider();
+
+            ExecutionContext.ServiceProvider = serviceProvider;
+            fileSystem.Directory.SetCurrentDirectory(root);
+            ExecutionContext.Initialize(fileSystem);
+
+            // Execute new help inside the folder
+            var cmd = new Command("help");
+            var helpCommand = new Cmf.CLI.Commands.New.HelpCommand(fileSystem);
+            helpCommand.Configure(cmd);
+            TestUtilities.GetParser(cmd).Invoke(new string[] { "--version", "1.0.0", root }, new TestConsole());
+
+            var helpDir = fileSystem.Path.Join(root, "Cmf.Custom.Help");
+            
+            // Assertions
+            Assert.True(fileSystem.File.Exists(fileSystem.Path.Join(helpDir, "mkdocs.yml")), "MkDocs configuration is missing");
+            Assert.True(fileSystem.File.Exists(fileSystem.Path.Join(helpDir, "docs", "index.md")), "MkDocs home page is missing");
+            Assert.True(fileSystem.Directory.Exists(fileSystem.Path.Join(helpDir, "docs", "localtest")), "ProjectName docs folder is missing");
+            Assert.True(fileSystem.File.Exists(fileSystem.Path.Join(helpDir, "docs", "localtest", "index.md")), "ProjectName landing page is missing");
+            Assert.True(fileSystem.File.Exists(fileSystem.Path.Join(helpDir, "docs", "assets", "images", "cmf-logo.png")), "Shared logo asset is missing");
+            Assert.True(fileSystem.File.Exists(fileSystem.Path.Join(helpDir, "docs", "assets", "images", "favicon.ico")), "Favicon asset is missing");
+            Assert.True(fileSystem.File.Exists(fileSystem.Path.Join(helpDir, "cmfpackage.json")), "Package metadata is missing");
+            Assert.False(fileSystem.File.Exists(fileSystem.Path.Join(helpDir, "package.json")), "NPM project should not be created for MES 12 Help packages");
+            Assert.False(fileSystem.File.Exists(fileSystem.Path.Join(helpDir, "angular.json")), "Angular workspace should not be created for MES 12 Help packages");
+
+            // Content
+            Assert.True(fileSystem.File.ReadAllText(fileSystem.Path.Join(helpDir, "mkdocs.yml")).Contains("dev_addr: 0.0.0.0:7001"), "MkDocs development address is not configured");
+            Assert.True(fileSystem.File.ReadAllText(fileSystem.Path.Join(helpDir, "docs", "localtest", "index.md")).Contains("localtest"), "ProjectName is not rendered into the landing page");
+            Assert.True(fileSystem.File.ReadAllText(fileSystem.Path.Join(helpDir, "cmfpackage.json")).Contains("\"source\": \"docs/localtest/**\""), "ProjectName content mapping is not rendered into the package metadata");
+        }
+
+        private void Help_internal(string mesVersion, string ngxSchematicsVersion, string scaffoldingDir = null)
+        {
+            RunNew(new Cmf.CLI.Commands.New.HelpCommand(), "Cmf.Custom.Help", scaffoldingDir: scaffoldingDir, mesVersion: mesVersion, ngxSchematicsVersion: ngxSchematicsVersion, extraAsserts: args =>
+            {
+                Assert.True(Directory.Exists($"Cmf.Custom.Help/src/app"), "WebApp dir is missing or has wrong name. Was running the application generator unsuccessful?");
+                Assert.True(File.Exists($"Cmf.Custom.Help/src/assets/config.json"), "Config file is missing or has wrong name");
+                Assert.True(File.ReadAllText("Cmf.Custom.Help/src/assets/config.json").Contains(mesVersion), $"Version {mesVersion} is not in config.json");
+                Assert.True(File.Exists($"Cmf.Custom.Help/src/index.html"), "Index file is missing or has wrong name");
+                Assert.True(File.ReadAllText("Cmf.Custom.Help/src/index.html").Contains("DocumentationPortal"), "Index content is not expected");
+                Assert.True(File.ReadAllText("Cmf.Custom.Help/src/index.html").Contains("<base href=\"/\">"), "Index base path was not changed correctly");
             });
         }
 
         [Theory, Trait("TestCategory", "Integration")]
-        [InlineData("9.0.0", true)]
-        [InlineData("10.0.0", false), Trait("TestCategory", "LongRunning")]
-        public void UI_FailNoPackage(string mesVersion, bool shouldDisplayError)
-        {
-            var console = RunNew(new HTMLCommand(), "Cmf.Custom.HTML", defaultAsserts: false, mesVersion: mesVersion);
-            var stderr = console.Error.ToString();
-            if (shouldDisplayError)
-            {
-                (stderr ?? "").Trim()
-                    .Should().Contain("--htmlPkg option is required for MES versions up to 9.x",
-                        "Should exit with missing package error");
-            }
-            else
-            {
-                (stderr ?? "").Trim()
-                    .Should().NotContain("--htmlPkg option is required for MES versions up to 9.x",
-                        "Should exit with missing package error");
-            }
-        }
-
-        [Fact, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node12"), Trait("TestCategory", "Integration")]
-        public void Help()
-        {
-            Help_internal();
-        }
-
-        private void Help_internal(string scaffoldingDir = null)
-        {
-            RunNew(new Cmf.CLI.Commands.New.HelpCommand(), "Cmf.Custom.Help", scaffoldingDir: scaffoldingDir, extraArguments: new string[] {
-                "--docPkg", TestUtilities.GetFixturePath("prodPkg", "Cmf.Documentation.9.9.9.zip"),
-            }, extraAsserts: args =>
-            {
-                Assert.True(File.Exists($"Cmf.Custom.Help/.dev-tasks.json"), "dev-tasks file is missing or has wrong name. Was cloning HTML-starter unsuccessful?");
-                Assert.True(Directory.Exists($"Cmf.Custom.Help/apps/cmf.docs.area.web"), "WebApp dir is missing or has wrong name. Was running the application generator unsuccessful?");
-                Assert.True(File.Exists($"Cmf.Custom.Help/apps/cmf.docs.area.web/config.json"), "Config file is missing or has wrong name");
-                Assert.True(File.ReadAllText("Cmf.Custom.Help/apps/cmf.docs.area.web/config.json").Contains("test.package"), "Product package is not in config.json");
-                Assert.True(File.Exists($"Cmf.Custom.Help/apps/cmf.docs.area.web/index.html"), "Index file is missing or has wrong name");
-                Assert.True(File.ReadAllText("Cmf.Custom.Help/apps/cmf.docs.area.web/index.html").Contains("Documentation website"), "Index content is not expected");
-                Assert.True(File.ReadAllText("Cmf.Custom.Help/apps/cmf.docs.area.web/index.html").Contains("<base href=\"/\">"), "Index base path was not changed correctly");
-            });
-        }
-
-        [Theory, Trait("TestCategory", "Integration")]
-        [InlineData("9.0.0", true)]
-        [InlineData("10.0.0", false), Trait("TestCategory", "LongRunning")]
-        public void Help_FailNoPackage(string mesVersion, bool shouldDisplayError)
+        [InlineData("10.2.10"), Trait("TestCategory", "LongRunning")]
+        public void Help_FailNoPackage(string mesVersion)
         {
             var console = RunNew(new Cmf.CLI.Commands.New.HelpCommand(), "Cmf.Custom.Help", defaultAsserts: false, mesVersion: mesVersion);
             var stderr = console.Error.ToString();
-            if (shouldDisplayError)
-            {
-                (stderr ?? "").Trim()
-                    .Should().Contain("--docPkg option is required for MES versions up to 9.x",
-                        "Should exit with missing package error");
-            }
-            else
-            {
-                (stderr ?? "").Trim()
-                    .Should().NotContain("--docPkg option is required for MES versions up to 9.x",
-                        "Should exit with missing package error");
-            }
+            (stderr ?? "").Trim()
+                .Should().BeEmpty();
         }
 
         [Theory, Trait("TestCategory", "Integration")]
-        [InlineData("9.0.0")]
         [InlineData("10.2.5", true), Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node18")]
         [InlineData("10.2.5", true, true), Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node18")]
         [InlineData("10.2.7", true, true), Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node18")]
@@ -377,20 +469,16 @@ namespace tests.Specs
             string packageId = "Cmf.Custom.IoT";
 
             string packageIdPackages = "Cmf.Custom.IoT.Packages";
-            string packageFolderPackages = mesVersion == "9.0.0" ? "IoTPackages" : packageIdPackages;
+            string packageFolderPackages = packageIdPackages;
 
             string packageIdData = "Cmf.Custom.IoT.Data";
-            string packageFolderData = mesVersion == "9.0.0" ? "IoTData" : packageIdData;
+            string packageFolderData = packageIdData;
 
             // Before v10.2.7, all packages were Angular packages, even if the flag was not passed explicitly
-            bool isAngularPackage = isAngularPackageFlag || Version.Parse(mesVersion) < new Version(10, 2, 7);
+            bool isAngularPackage = isAngularPackageFlag || NuGetVersion.Parse(mesVersion) < new NuGetVersion(10, 2, 7);
 
             CopyNewFixture(dir, mesVersion: mesVersion);
-            if (mesVersion == "9.0.0")
-            {
-                RunNew(new IoTCommand(), packageId, scaffoldingDir: dir);
-            }
-            else if (isAngularPackage)
+            if (isAngularPackage)
             {
                 var htmlPackageName = "Cmf.Custom.HTML";
                 var targetDir = new DirectoryInfo(dir);
@@ -411,10 +499,16 @@ namespace tests.Specs
                 RunNew(new IoTCommand(), packageId, scaffoldingDir: dir);
             }
 
-            File.ReadAllText(Path.Join(dir, packageId, "cmfpackage.json"))
-                .Should().Contain(@"CriticalManufacturing.DeploymentMetadata");
-            File.ReadAllText(Path.Join(dir, packageId, "cmfpackage.json"))
-                .Should().Contain(@"Cmf.Environment");
+            var packageVersion = TestUtilities.GetPackageProperty("version", $"{packageId}/cmfpackage.json");
+            var tenant = ExecutionContext.Instance.ProjectConfig.Tenant;
+            var rootPackage = TestUtilities.GetPackage($"{packageId}/cmfpackage.json");
+            rootPackage.GetProperty("description").GetString().Should().Be($"Cmf Custom {tenant} {packageId} Package");
+
+            var dependencies = rootPackage.GetProperty("dependencies").EnumerateArray().ToDictionary(dependency => dependency.GetProperty("id").GetString());
+            dependencies.Should().NotContainKey("Cmf.Environment");
+            dependencies.Should().NotContainKey("CriticalManufacturing.DeploymentMetadata");
+            dependencies[packageIdPackages].GetProperty("version").GetString().Should().Be(packageVersion);
+            dependencies[packageIdData].GetProperty("version").GetString().Should().Be(packageVersion);
 
             Directory.Exists($"{packageId}/{packageFolderPackages}").Should().BeTrue();
             TestUtilities.GetPackageProperty("packageId", $"{packageId}/{packageFolderPackages}/cmfpackage.json").Should().Be(packageIdPackages);
@@ -427,36 +521,28 @@ namespace tests.Specs
             Directory.Exists($"{packageId}/{packageFolderData}/MasterData").Should().BeTrue();
             Directory.Exists($"{packageId}/{packageFolderData}/AutomationWorkFlows").Should().BeTrue();
 
-            if (mesVersion == "9.0.0")
+            Directory.Exists($"{packageId}/{packageFolderPackages}/.vscode").Should().BeTrue();
+            File.Exists($"{packageId}/{packageFolderPackages}/.vscode/extensions.json").Should().BeTrue();
+            File.Exists($"{packageId}/{packageFolderPackages}/.vscode/launch.json").Should().BeTrue();
+            File.Exists($"{packageId}/{packageFolderPackages}/.vscode/settings.json").Should().BeTrue();
+            File.Exists($"{packageId}/{packageFolderPackages}/.vscode/tasks.json").Should().BeTrue();
+
+            if (isAngularPackage)
             {
-                File.Exists($"{packageId}/{packageFolderPackages}/.dev-tasks.json").Should().BeTrue();
-                Directory.Exists($"{packageId}/{packageFolderPackages}/src").Should().BeTrue();
+                var relatedPackages = TestUtilities.GetPackage($"{packageId}/{packageFolderPackages}/cmfpackage.json").GetProperty("relatedPackages")[0];
+                relatedPackages.GetProperty("path").GetString().Should().Be(MockUnixSupport.Path("..\\..\\Cmf.Custom.HTML"));
+                relatedPackages.GetProperty("preBuild").GetBoolean().Should().BeFalse();
+                relatedPackages.GetProperty("postBuild").GetBoolean().Should().BeTrue();
+                relatedPackages.GetProperty("prePack").GetBoolean().Should().BeFalse();
+                relatedPackages.GetProperty("postPack").GetBoolean().Should().BeTrue();
+
+                File.Exists($"{packageId}/{packageFolderPackages}/angular.json").Should().BeTrue();
             }
-            else {
-                Directory.Exists($"{packageId}/{packageFolderPackages}/.vscode").Should().BeTrue();
-                File.Exists($"{packageId}/{packageFolderPackages}/.vscode/extensions.json").Should().BeTrue();
-                File.Exists($"{packageId}/{packageFolderPackages}/.vscode/launch.json").Should().BeTrue();
-                File.Exists($"{packageId}/{packageFolderPackages}/.vscode/settings.json").Should().BeTrue();
-                File.Exists($"{packageId}/{packageFolderPackages}/.vscode/tasks.json").Should().BeTrue();
-                File.Exists($"{packageId}/{packageFolderPackages}/.gitattributes").Should().BeTrue();
-
-                if (isAngularPackage)
-                {
-                    var relatedPackages = TestUtilities.GetPackage($"{packageId}/{packageFolderPackages}/cmfpackage.json").GetProperty("relatedPackages")[0];
-                    relatedPackages.GetProperty("path").GetString().Should().Be(MockUnixSupport.Path("..\\..\\Cmf.Custom.HTML"));
-                    relatedPackages.GetProperty("preBuild").GetBoolean().Should().BeFalse();
-                    relatedPackages.GetProperty("postBuild").GetBoolean().Should().BeTrue();
-                    relatedPackages.GetProperty("prePack").GetBoolean().Should().BeFalse();
-                    relatedPackages.GetProperty("postPack").GetBoolean().Should().BeTrue();
-
-                    File.Exists($"{packageId}/{packageFolderPackages}/angular.json").Should().BeTrue();
-                }
-                else
-                {
-                    File.Exists($"{packageId}/{packageFolderPackages}/angular.json").Should().BeFalse();
-                    File.Exists($"{packageId}/{packageFolderPackages}/.eslintrc.json").Should().BeTrue();
-                    File.Exists($"{packageId}/{packageFolderPackages}/ui.xml").Should().BeTrue();
-                }
+            else
+            {
+                File.Exists($"{packageId}/{packageFolderPackages}/angular.json").Should().BeFalse();
+                File.Exists($"{packageId}/{packageFolderPackages}/.eslintrc.json").Should().BeTrue();
+                File.Exists($"{packageId}/{packageFolderPackages}/ui.xml").Should().BeTrue();
             }
         }
 
@@ -472,7 +558,7 @@ namespace tests.Specs
 
             string packageFolderPackages = "Cmf.Custom.IoT.Packages";
 
-            bool isGreaterOrEqualThan1120 = Version.Parse(mesVersion) >= new Version(11, 2, 0);
+            bool isGreaterOrEqualThan1120 = NuGetVersion.Parse(mesVersion) >= new NuGetVersion(11, 2, 0);
             var cur = Directory.GetCurrentDirectory();
 
             try
@@ -490,6 +576,10 @@ namespace tests.Specs
                 console.Input.PushTextWithEnter(""); // Identifier
                 console.Input.PushTextWithEnter(""); // HasCommands
                 console.Input.PushTextWithEnter(""); // HasTemplates
+                if (Version.Parse(mesVersion).Major >= 12)
+                {
+                    console.Input.PushTextWithEnter(""); // DriverBaseClass: DeviceDriverBase (default)
+                }
 
                 AnsiConsole.Console = console; // so that the prompts asked by the command use this console instance
 
@@ -519,11 +609,94 @@ namespace tests.Specs
         }
 
         [Theory, Trait("TestCategory", "Integration")]
-        [InlineData("11.2.0", "testName", false)]
-        [InlineData("11.3.0", "", false)]
-        [InlineData("12.0.0", "", false)]
-        [InlineData("12.0.0", "testWithParameters", true)]
-        public void IoTConverter(string mesVersion, string converterName, bool requireParameters)
+        [InlineData("12.0.0", "DeviceDriverBase")]
+        [InlineData("12.0.0", "DeviceFileDriverBase")]
+        public void IoTDriverBase(string mesVersion, string driverBaseClass)
+        {
+            string dir = TestUtilities.GetTmpDirectory();
+            string packageId = "Cmf.Custom.IoT";
+            string packageFolderPackages = "Cmf.Custom.IoT.Packages";
+
+            var cur = Directory.GetCurrentDirectory();
+
+            try
+            {
+                CopyNewFixture(dir, mesVersion: mesVersion);
+                RunNew(new IoTCommand(), packageId, dir);
+
+                Directory.SetCurrentDirectory($"{dir}/{packageId}/{packageFolderPackages}");
+
+                TestingConsole.TestConsole console = new();
+                console.Profile.Capabilities.Interactive = true;
+                console.Input.PushTextWithEnter(""); // directory name: driver-sample (default)
+                console.Input.PushTextWithEnter(""); // package scope (default)
+                console.Input.PushTextWithEnter(""); // package name (default)
+                console.Input.PushTextWithEnter(""); // package version (default)
+                console.Input.PushTextWithEnter(""); // identifier: SampleDriver (default)
+                console.Input.PushTextWithEnter(""); // HasCommands: No (default false)
+                console.Input.PushTextWithEnter(""); // HasTemplates: No (default false)
+
+                var driverBaseChoices = new[] { "DeviceDriverBase", "DeviceFileDriverBase" };
+                int driverBaseIndex = Array.IndexOf(driverBaseChoices, driverBaseClass);
+                for (int i = 0; i < driverBaseIndex; i++)
+                {
+                    console.Input.PushKey(ConsoleKey.DownArrow);
+                }
+                console.Input.PushTextWithEnter(""); // confirm driver base selection
+
+                AnsiConsole.Console = console;
+
+                var cmd = new Command("x");
+                var newCommand = new GenerateDriverCommand();
+                newCommand.Configure(cmd);
+                TestUtilities.GetParser(cmd).Invoke("");
+
+                Directory.Exists(Path.GetFullPath("src/driver-sample")).Should().BeTrue("Driver folder should be generated");
+
+                var driverImpl = File.ReadAllText(Path.GetFullPath("src/driver-sample/src/driverImplementation.ts"));
+                var inversifyConfig = File.ReadAllText(Path.GetFullPath("src/driver-sample/src/inversify.config.ts"));
+                var packageJson = File.ReadAllText(Path.GetFullPath("src/driver-sample/package.json"));
+
+                if (driverBaseClass == "DeviceFileDriverBase")
+                {
+                    driverImpl.Should().Contain("DeviceFileDriverBase",
+                        "Driver should import DeviceFileDriverBase when needsFileAccess is true");
+                    driverImpl.Should().NotContain("DeviceDriverBase",
+                        "Driver should not import DeviceDriverBase when needsFileAccess is true");   
+                    driverImpl.Should().Contain("extends DeviceFileDriverBase",
+                        "Driver class should extend DeviceFileDriverBase when needsFileAccess is true");
+                    inversifyConfig.Should().Contain("FileHandler",
+                        "inversify.config should bind FileHandler when needsFileAccess is true");
+                    packageJson.Should().Contain("connect-iot-base-file-driver",
+                        "package.json should include connect-iot-base-file-driver when needsFileAccess is true");
+                }
+                else
+                {
+                    driverImpl.Should().NotContain("DeviceFileDriverBase",
+                        "Driver should not reference DeviceFileDriverBase when needsFileAccess is false");
+                    driverImpl.Should().Contain("extends DeviceDriverBase",
+                        "Driver class should extend DeviceDriverBase when needsFileAccess is false");
+                    inversifyConfig.Should().NotContain("FileHandler",
+                        "inversify.config should not bind FileHandler when needsFileAccess is false");
+                    packageJson.Should().NotContain("connect-iot-base-file-driver",
+                        "package.json should not include connect-iot-base-file-driver when needsFileAccess is false");
+                }
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                Directory.Delete(dir, true);
+            }
+        }
+
+        [Theory, Trait("TestCategory", "Integration")]
+        [InlineData("11.0.0", "", false, "")]
+        [InlineData("11.1.0", "", false, "dist/")]
+        [InlineData("11.2.0", "testName", false, "dist/")]
+        [InlineData("11.3.0", "", false, "dist/")]
+        [InlineData("12.0.0", "", false, "dist/")]
+        [InlineData("12.0.0", "testWithParameters", true, "dist/")]
+        public void IoTConverter(string mesVersion, string converterName, bool requireParameters, string expectedTestUtilitiesLocation)
         {
             string dir = TestUtilities.GetTmpDirectory();
             string packageId = "Cmf.Custom.IoT";
@@ -581,6 +754,199 @@ namespace tests.Specs
                 else
                 {
                     File.ReadAllText(Path.GetFullPath($"src/converters/{effectiveConverterName}/{effectiveConverterName}.converter.ts")).Should().Contain("parameters: {}");
+                }
+
+                var converterTestFile = Path.GetFullPath($"test/unit/converters/{effectiveConverterName}/{effectiveConverterName}.converter.test.ts");
+                File.Exists(converterTestFile).Should().BeTrue();
+                File.ReadAllText(converterTestFile).Should().Contain($"import EngineTestSuite from \"@criticalmanufacturing/connect-iot-controller-engine/{expectedTestUtilitiesLocation}test\";");
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                Directory.Delete(dir, true);
+            }
+        }
+
+        [Theory, Trait("TestCategory", "Integration")]
+        [InlineData("11.0.0", null, "")]
+        [InlineData("11.0.0", null, "", true)]
+        [InlineData("11.1.0", null, "dist/")]
+        [InlineData("11.1.6", null, "dist/")]
+        [InlineData("12.0.0", "TaskBase", "dist/")]
+        [InlineData("12.0.0", "TaskBase", "dist/", true)]
+        [InlineData("12.0.0", "AutoActivatedTaskBase", "dist/")]
+        [InlineData("12.0.0", "DriverTriggeredTaskBase", "dist/")]
+        [InlineData("12.0.0", "RequestReplyAnswerTaskBase", "dist/")]
+        [InlineData("12.0.0", "RequestReplyListenerTaskBase", "dist/")]
+        [InlineData("12.0.0", "SystemOperationTaskBase", "dist/")]
+        [InlineData("12.0.0", "SystemRequestListenerTaskBase", "dist/")]
+        [InlineData("12.0.0", "SystemRequestReplyTaskBase", "dist/")]
+        public void IoTTask(string mesVersion, string taskBaseClass, string expectedTestUtilitiesLocation, bool isProtocol = false)
+        {
+            string dir = TestUtilities.GetTmpDirectory();
+            string packageId = "Cmf.Custom.IoT";
+            string packageFolderPackages = "Cmf.Custom.IoT.Packages";
+            string taskLibraryDir = "controller-engine-custom-tasks";
+            string taskName = "blackBox";
+            string taskClassName = "BlackBox";
+            bool isMesV12 = taskBaseClass != null;
+
+            var cur = Directory.GetCurrentDirectory();
+
+            try
+            {
+                CopyNewFixture(dir, mesVersion: mesVersion);
+                RunNew(new IoTCommand(), packageId, dir);
+
+                // Step 1: Create the task library in the IoT packages folder
+                Directory.SetCurrentDirectory($"{dir}/{packageId}/{packageFolderPackages}");
+
+                var consoleLib = new TestingConsole.TestConsole();
+                consoleLib.Profile.Capabilities.Interactive = true;
+                consoleLib.Input.PushTextWithEnter(""); // dirName: controller-engine-custom-tasks (default)
+                consoleLib.Input.PushTextWithEnter(""); // packageScope: @criticalmanufacturing (default)
+                consoleLib.Input.PushTextWithEnter(""); // packageName: connect-iot-controller-engine-custom-tasks (default)
+                consoleLib.Input.PushTextWithEnter(""); // packageVersion: 0.0.0 (default)
+                consoleLib.Input.PushTextWithEnter(""); // identifier: My Tasks Library (default)
+                consoleLib.Input.PushTextWithEnter(" "); // dependsOnScope: select ConnectIoT (Space) + confirm (Enter)
+                consoleLib.Input.PushTextWithEnter(""); // mandatoryForScope: no selection + confirm
+                consoleLib.Input.PushTextWithEnter(""); // dependsOnProtocol: ""
+                consoleLib.Input.PushTextWithEnter(""); // mandatoryForProtocol: null (default)
+
+                AnsiConsole.Console = consoleLib;
+                var cmdLib = new Command("lib");
+                var newTaskLibCmd = new GenerateTaskLibraryCommand();
+                newTaskLibCmd.Configure(cmdLib);
+                TestUtilities.GetParser(cmdLib).Invoke("");
+
+                Directory.Exists(Path.GetFullPath($"src/{taskLibraryDir}")).Should().BeTrue("Task library folder should be generated");
+
+                // Step 2: Create the task inside the task library
+                Directory.SetCurrentDirectory(Path.GetFullPath($"src/{taskLibraryDir}"));
+
+                var consoleTask = new TestingConsole.TestConsole();
+                consoleTask.Profile.Capabilities.Interactive = true;
+                consoleTask.Input.PushTextWithEnter(""); // task name: blackBox (default)
+                consoleTask.Input.PushTextWithEnter(""); // task title: Black Box (default)
+                consoleTask.Input.PushTextWithEnter(""); // icon class name (default)
+                consoleTask.Input.PushTextWithEnter(isProtocol ? "y" : ""); // isProtocol (default No)
+                if (isProtocol)
+                {
+                    consoleTask.Input.PushTextWithEnter(""); // isController: Yes (default true)
+                }
+                consoleTask.Input.PushTextWithEnter(""); // lifecycle: Productive (first selection prompt option)
+                // dependsOnProtocol is skipped: task library has no protocols (empty list from library setup)
+                consoleTask.Input.PushTextWithEnter(""); // dependsOnScope MultiSelect (library has ["ConnectIoT"]): no selection + confirm
+
+                if (isMesV12)
+                {
+                    // Navigate the taskBase SelectionPrompt to the desired option.
+                    // Order mirrors the runtime choice list: TaskBase first, then remaining enum values.
+                    var taskBaseChoices = new[]
+                    {
+                        "TaskBase", "AutoActivatedTaskBase", "DriverTriggeredTaskBase",
+                        "RequestReplyAnswerTaskBase", "RequestReplyListenerTaskBase",
+                        "SystemOperationTaskBase", "SystemRequestListenerTaskBase",
+                        "SystemRequestReplyTaskBase"
+                    };
+                    int taskBaseIndex = Array.IndexOf(taskBaseChoices, taskBaseClass);
+                    for (int i = 0; i < taskBaseIndex; i++)
+                    {
+                        consoleTask.Input.PushKey(ConsoleKey.DownArrow);
+                    }
+                    consoleTask.Input.PushTextWithEnter(""); // confirm taskBase selection
+                }
+
+                consoleTask.Input.PushTextWithEnter(""); // HandleInputs: Done (first selection prompt option)
+                consoleTask.Input.PushTextWithEnter(""); // HandleOutputs: Done (first selection prompt option)
+                consoleTask.Input.PushTextWithEnter(""); // HandleSettings: Done (first selection prompt option)
+
+                AnsiConsole.Console = consoleTask;
+                var cmdTask = new Command("task");
+                var newTaskCmd = new GenerateTaskCommand();
+                newTaskCmd.Configure(cmdTask);
+                TestUtilities.GetParser(cmdTask).Invoke("");
+
+                // Assertions: task file is generated
+                var taskFilePath = Path.GetFullPath($"src/tasks/{taskName}/{taskName}.task.ts");
+                File.Exists(taskFilePath).Should().BeTrue($"Task file should be generated at {taskFilePath}");
+
+                var taskContent = File.ReadAllText(taskFilePath);
+                string expectedBase = taskBaseClass ?? "TaskBase";
+
+                taskContent.Should().Contain($"extends {expectedBase}", $"Task should extend {expectedBase}");
+                taskContent.Should().Contain(expectedBase,
+                    $"Task file should reference {expectedBase} from connect-iot-controller-engine");
+
+                // Variant-specific structural assertions
+                switch (taskBaseClass)
+                {
+                    case null:
+                        // v11 legacy template: uses onChanges hook
+                        taskContent.Should().Contain("onChanges");
+                        break;
+
+                    case "TaskBase":
+                        // v12 TaskBase: uses onActivate, not the legacy onChanges
+                        taskContent.Should().Contain("onActivate");
+                        taskContent.Should().NotContain("onChanges");
+                        break;
+
+                    case "AutoActivatedTaskBase":
+                        taskContent.Should().Contain("autoActivate: true");
+                        taskContent.Should().Contain("activateListenerCallback");
+                        break;
+
+                    case "DriverTriggeredTaskBase":
+                        taskContent.Should().Contain("autoActivate: true");
+                        taskContent.Should().Contain("subscribeHandler");
+                        taskContent.Should().Contain("unsubscribeHandler");
+                        break;
+
+                    case "RequestReplyAnswerTaskBase":
+                        taskContent.Should().Contain("defaultReply: {}");
+                        taskContent.Should().Contain("sendReplyMessage");
+                        break;
+
+                    case "RequestReplyListenerTaskBase":
+                        taskContent.Should().Contain("subjectToSubscribe");
+                        taskContent.Should().Contain("replyTimeout");
+                        break;
+
+                    case "SystemOperationTaskBase":
+                        taskContent.Should().Contain("systemRetries");
+                        break;
+
+                    case "SystemRequestListenerTaskBase":
+                        taskContent.Should().Contain("_handleRequest");
+                        break;
+
+                    case "SystemRequestReplyTaskBase":
+                        taskContent.Should().Contain("defaultReply");
+                        taskContent.Should().Contain("reply: object");
+                        break;
+                }
+
+                // Task export added to index.ts
+                var indexContent = File.ReadAllText(Path.GetFullPath("src/index.ts"));
+                indexContent.Should().Contain($"{taskClassName}Task");
+
+                // Task template JSON created
+                File.Exists(Path.GetFullPath($"templates/task_{taskName}.json")).Should().BeTrue("Task template JSON should be created");
+
+                // Test file imports the engine test utilities from the location matching the MES version
+                var taskTestFile = Path.GetFullPath($"test/unit/tasks/{taskName}/{taskName}.task.test.ts");
+                File.Exists(taskTestFile).Should().BeTrue("Task test file should be generated");
+                var taskTest = File.ReadAllText(taskTestFile);
+                taskTest.Should().Contain($"import EngineTestSuite from \"@criticalmanufacturing/connect-iot-controller-engine/{expectedTestUtilitiesLocation}test\";");
+
+                if (isProtocol)
+                {
+                    taskTest.Should().Contain($"import {{ DriverProxyMock }} from \"@criticalmanufacturing/connect-iot-controller-engine/{expectedTestUtilitiesLocation}test/mocks/driver-proxy.mock\";");
+                }
+                else
+                {
+                    taskTest.Should().NotContain("DriverProxyMock");
                 }
             }
             finally
@@ -641,7 +1007,13 @@ namespace tests.Specs
             Tests_internal(null);
         }
 
-        private void Tests_internal(string scaffoldingDir = null)
+        [Fact, Trait("TestCategory", "Integration")]
+        public void Tests_SslDisabled()
+        {
+            Tests_internal(null, isSslEnabled: false);
+        }
+
+        private void Tests_internal(string scaffoldingDir = null, bool isSslEnabled = true)
         {
             var packageId = "Cmf.Custom.Tests";
             var dir = scaffoldingDir ?? TestUtilities.GetTmpDirectory();
@@ -665,6 +1037,7 @@ namespace tests.Specs
                         .Replace("install_path", MockUnixSupport.Path(@"x:\install_path").Replace(@"\", @"\\"))
                         .Replace("backup_share", MockUnixSupport.Path(@"y:\backup_share").Replace(@"\", @"\\"))
                         .Replace("temp_folder", MockUnixSupport.Path(@"z:\temp_folder").Replace(@"\", @"\\"))
+                        .Replace("\"IsSslEnabled\": \"True\"", $"\"IsSslEnabled\": \"{isSslEnabled}\"")
                     );
                 }
 
@@ -681,6 +1054,8 @@ namespace tests.Specs
                 Assert.True(errors.Length == 0, $"Errors found in console: {errors}");
                 Assert.True(Directory.Exists(packageId), "Package folder is missing");
                 Assert.True(File.Exists($"{packageId}/cmfpackage.json"), "Package cmfpackage.json is missing");
+                var integrationRunsettings = File.ReadAllText(Path.Combine(packageId, "integration.runsettings"));
+                integrationRunsettings.Should().Contain($"name=\"websiteUseSSL\" value=\"{isSslEnabled}\"");
                 Assert.Equal(packageId, TestUtilities.GetPackageProperty("packageId", $"{packageId}/cmfpackage.json"), "Package Id does not match expected");
                 Assert.Equal(pkgVersion, TestUtilities.GetPackageProperty("version", $"{packageId}/cmfpackage.json"), "Package version does not match expected");
                 var pkg = TestUtilities.GetPackage("cmfpackage.json");
@@ -751,6 +1126,44 @@ namespace tests.Specs
                 string errors = console.Error.ToString().Trim();
                 Assert.True(errors.Length == 0, $"Errors found in console: {errors}");
                 Assert.True(Directory.Exists(packageId), "Package folder is missing");
+
+                if (mesVersion.StartsWith("12.", StringComparison.Ordinal))
+                {
+                    var integrationRunsettings = File.ReadAllText(Path.Combine(packageId, "integration.runsettings"));
+                    integrationRunsettings.Should().Contain("name=\"websiteUseSSL\" value=\"true\"",
+                        "MES 12 templates should default SSL to enabled when legacy project settings are unavailable");
+                    integrationRunsettings.Should().Contain("name=\"environmentAddress\" value=\"https://");
+                    integrationRunsettings.Should().NotContain("name=\"hostAdress\"");
+                    integrationRunsettings.Should().NotContain("name=\"hostPort\"");
+
+                    var localRunsettings = File.ReadAllText(Path.Combine(packageId, "local.runsettings"));
+                    localRunsettings.Should().Contain("name=\"environmentAddress\" value=\"http://localhost:80\"");
+                    localRunsettings.Should().NotContain("name=\"hostAdress\"");
+
+                    var bizProject = File.ReadAllText(Path.Combine(packageId, "Cmf.Custom.Tests.Biz", "Cmf.Custom.Tests.Biz.csproj"));
+                    bizProject.Should().Contain("MSTest.TestAdapter\" Version=\"4.3.3\"");
+                    foreach (var projectFile in Directory.GetFiles(packageId, "*.csproj", SearchOption.AllDirectories))
+                    {
+                        var projectContent = File.ReadAllText(projectFile);
+                        projectContent.Should().NotContain("Cmf.LoadBalancing.dll", projectFile);
+                        projectContent.Should().NotContain("Cmf.MessageBus.Client.dll", projectFile);
+                        projectContent.Should().NotContain("Newtonsoft.Json.dll", projectFile);
+                        projectContent.Should().NotContain("System.Net.Http.Formatting.dll", projectFile);
+                    }
+
+                    var bizBaseContext = File.ReadAllText(Path.Combine(packageId, "Cmf.Custom.Tests.Biz", "BaseContext.cs"));
+                    bizBaseContext.Should().Contain("new DiscoveryConnection");
+                    bizBaseContext.Should().Contain("EnvironmentAddress = environmentAddress");
+                    bizBaseContext.Should().Contain("new PersonalAccessTokenAuthentication");
+                    bizBaseContext.Should().Contain("ClientTenantName = GetString(context, \"clientTenantName\")");
+                    bizBaseContext.Should().NotContain("HostAddress =");
+
+                    var iotBaseContext = File.ReadAllText(Path.Combine(packageId, "Cmf.Custom.Tests.IoT", "BaseContext.cs"));
+                    iotBaseContext.Should().Contain("new DiscoveryConnection");
+                    iotBaseContext.Should().Contain("new PersonalAccessTokenAuthentication");
+                    iotBaseContext.Should().Contain("ClientTenantName = GetString(context, \"clientTenantName\")");
+                    iotBaseContext.Should().NotContain("HostAddress =");
+                }
 
                 // Check if Performance directory exists based on MES version
                 var performanceDir = Path.Combine(packageId, $"{CliConstants.DefaultOrganization}.{CliConstants.DefaultProduct}.Tests.Performance");
@@ -884,7 +1297,7 @@ namespace tests.Specs
                 }
 
                 RunFeature_WithoutPrefix(scaffoldingDir: dir);
-                var console = RunNew(new BusinessCommand(), "Cmf.Custom.Business", scaffoldingDir: dir, defaultAsserts: false);
+                RunNew(new BusinessCommand(), "Cmf.Custom.Business", scaffoldingDir: dir, defaultAsserts: false);
                 // TODO: logger isn't using IConsole. This means we can only catch errors coming from Exception, which is not the case here
                 //string errors = console.Error.ToString().Trim();
                 //Assert.True(errors.Contains("Cannot create a root-level layer package when features already exist."), "Expected to find specific error in console but instead found: {0}", errors);
@@ -926,7 +1339,7 @@ namespace tests.Specs
 
                 var pkgDir = Path.Join(dir, "Features", "TestFeature");
                 const string packageId = "Cmf.Custom.TestFeature.Business";
-                var console = RunNew(new BusinessCommand(), packageId, scaffoldingDir: pkgDir, extraAsserts: args =>
+                var console = RunNew(new BusinessCommand(), packageId, scaffoldingDir: pkgDir, mesVersion: "10.2.10", extraAsserts: args =>
                 {
                     var (pkgVersion, _) = args;
                     Assert.True(File.Exists(Path.Join(dir, "Features/TestFeature", $"{packageId}/Cmf.Custom.Common/tenantConstants.cs")), "Constants file is missing or has wrong name");
@@ -944,7 +1357,7 @@ namespace tests.Specs
             }
         }
 
-        [Fact, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node12"), Trait("TestCategory", "Integration")]
+        [Fact, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node18"), Trait("TestCategory", "Integration")]
         public void Features_Help()
         {
             var dir = TestUtilities.GetTmpDirectory();
@@ -960,6 +1373,7 @@ namespace tests.Specs
                 TestUtilities.CopyFixture("new", new DirectoryInfo(dir));
                 TestUtilities.CopyFixture("featureBase", new DirectoryInfo(dir));
 
+                ReplaceConfigForFeaturesTest(dir, mesVersion: "10.2.10");
                 var projCfg = Path.Join(dir, ".project-config.json");
                 if (File.Exists(projCfg))
                 {
@@ -972,12 +1386,10 @@ namespace tests.Specs
 
                 var pkgDir = Path.Join(dir, "Features", "TestFeature");
                 const string packageId = "Cmf.Custom.TestFeature.Help";
-                var console = RunNew(new Cmf.CLI.Commands.New.HelpCommand(), packageId, extraArguments: new string[] {
-                    "--docPkg", TestUtilities.GetFixturePath("prodPkg", "Cmf.Documentation.9.9.9.zip"),
-                }, scaffoldingDir: pkgDir, extraAsserts: args =>
+                var console = RunNew(new Cmf.CLI.Commands.New.HelpCommand(), packageId, scaffoldingDir: pkgDir, mesVersion: "10.2.10", extraAsserts: args =>
                 {
                     var (pkgVersion, _) = args;
-                    Assert.True(Directory.Exists(Path.Join(dir, "Features/TestFeature", $"{packageId}/src/packages/cmf.docs.area.{packageId.ToLowerInvariant()}")), "Help package is missing or has wrong name");
+                    Assert.True(Directory.Exists(Path.Join(dir, "Features/TestFeature", $"{packageId}/projects/cmf-docs-area-cmf-custom-testfeature-help")), "Help package is missing or has wrong name");
                 });
             }
             finally
@@ -999,7 +1411,7 @@ namespace tests.Specs
             }
         }
 
-        [Fact, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node12"), Trait("TestCategory", "Integration")]
+        [Fact, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Node18"), Trait("TestCategory", "Integration")]
         public void Features_UI()
         {
             var dir = TestUtilities.GetTmpDirectory();
@@ -1014,6 +1426,8 @@ namespace tests.Specs
                 Directory.SetCurrentDirectory(dir);
                 TestUtilities.CopyFixture("new", new DirectoryInfo(dir));
                 TestUtilities.CopyFixture("featureBase", new DirectoryInfo(dir));
+
+                ReplaceConfigForFeaturesTest(dir, mesVersion: "10.2.10");
                 var projCfg = Path.Join(dir, ".project-config.json");
                 if (File.Exists(projCfg))
                 {
@@ -1026,9 +1440,7 @@ namespace tests.Specs
 
                 var pkgDir = Path.Join(dir, "Features", "TestFeature");
                 const string packageId = "Cmf.Custom.TestFeature.HTML";
-                var console = RunNew(new Cmf.CLI.Commands.New.HTMLCommand(), packageId, extraArguments: new string[] {
-                    "--htmlPkg", TestUtilities.GetFixturePath("prodPkg", "Cmf.Presentation.HTML.9.9.9.zip"),
-                }, scaffoldingDir: pkgDir);
+                RunNew(new HTMLCommand(), packageId, scaffoldingDir: pkgDir, mesVersion: "10.2.10");
             }
             finally
             {
@@ -1076,31 +1488,9 @@ namespace tests.Specs
             Assert.True(File.Exists($"{dir}/Cmf.Custom.SecurityPortal/config.json"), "Package config.json is missing");
         }
 
-        [Fact, Trait("TestCategory", "LongRunning"), Trait("TestCategory", "Integration"), Trait("TestCategory", "Node18")]
-        public void UI_v10()
-        {
-            UI_internal_v10();
-        }
-
-        private void UI_internal_v10()
-        {
-            RunNew(new HTMLCommand(), "Cmf.Custom.HTML", mesVersion: "10.1.2", extraAsserts: args =>
-            {
-                var configJson = File.ReadAllText("Cmf.Custom.HTML/src/assets/config.json");
-                try
-                {
-                    JsonConvert.DeserializeObject(configJson);
-                }
-                catch (Exception e)
-                {
-                    Assert.Fail($"config.json is malformed: {e.Message}");
-                }
-            });
-        }
-
         private TestConsole RunNew<T>(T newCommand, string packageId, string scaffoldingDir = null,
             string[] extraArguments = null, bool defaultAsserts = true, Action<(string, string)> extraAsserts = null,
-            string mesVersion = "8.2.0",
+            string mesVersion = "11.2.2",
             string ngxSchematicsVersion = NGX_SCHEMATICS_VERSION,
             BaseLayer baseLayer = BaseLayer.MES,
             RepositoryType repositoryType = RepositoryType.Customization) where T : TemplateCommand
@@ -1120,6 +1510,13 @@ namespace tests.Specs
                 if (scaffoldingDir == null)
                 {
                     CopyNewFixture(dir, mesVersion, ngxSchematicsVersion, baseLayer, repositoryType);
+                }
+
+                if (File.Exists(Path.Join(dir, ".project-config.json")))
+                {
+                    var projectConfigPath = Path.Join(dir, ".project-config.json");
+                    var projectConfigContent = File.ReadAllText(projectConfigPath);
+                    Console.WriteLine(projectConfigContent);
                 }
 
                 ExecutionContext.Initialize(new FileSystem());
@@ -1179,7 +1576,7 @@ namespace tests.Specs
         }
 
         private void CopyNewFixture(string dir,
-            string mesVersion = "8.2.0",
+            string mesVersion = "11.2.2",
             string ngxSchematicsVersion = NGX_SCHEMATICS_VERSION,
             BaseLayer baseLayer = BaseLayer.MES,
             RepositoryType repositoryType = RepositoryType.Customization)
@@ -1189,7 +1586,7 @@ namespace tests.Specs
             if (File.Exists(projCfg))
             {
                 File.WriteAllText(projCfg, File.ReadAllText(projCfg)
-                    .Replace(@"""MESVersion"": ""8.2.0""", $@"""MESVersion"": ""{mesVersion}""")
+                    .Replace(@"""MESVersion"": ""11.2.2""", $@"""MESVersion"": ""{mesVersion}""")
                     .Replace(@"""BaseLayer"": ""MES""", $@"""BaseLayer"": ""{baseLayer}""")
                     .Replace(@"""RepositoryType"": ""Customization""", $@"""RepositoryType"": ""{repositoryType}""")
                     .Replace(@"""NGXSchematicsVersion"": ""10.0.0""", $@"""NGXSchematicsVersion"": ""{ngxSchematicsVersion}""")
@@ -1203,6 +1600,19 @@ namespace tests.Specs
             if (repositoryType == RepositoryType.App)
             {
                 TestUtilities.CopyFixture("app", new DirectoryInfo(dir));
+            }
+        }
+
+        private void ReplaceConfigForFeaturesTest(string dir, string mesVersion, string ngxSchematicsVersion = NGX_SCHEMATICS_VERSION)
+        {
+            var projCfg = Path.Join(dir, ".project-config.json");
+            if (File.Exists(projCfg))
+            {
+                File.WriteAllText(projCfg, File.ReadAllText(projCfg)
+                    .Replace(@"""MESVersion"": ""11.2.2""", $@"""MESVersion"": ""{mesVersion}""")
+                    .Replace(@"""NPMRegistry"": ""http://npm_registry/""", $@"""NPMRegistry"": ""{NpmLoginFixture.NPM_REGISTRY}""")
+                    .Replace(@"""NGXSchematicsVersion"": ""10.0.0""", $@"""NGXSchematicsVersion"": ""{ngxSchematicsVersion}""")
+                );
             }
         }
     }

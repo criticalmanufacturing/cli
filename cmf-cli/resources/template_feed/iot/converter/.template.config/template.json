@@ -65,6 +65,13 @@
       "type": "computed",
       "datatype": "bool",
       "value": "parametersAsJS != \"\""
+    },
+    "testUtilitiesLocation": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "Test Utilities Location",
+      "displayName": "Test Utilities Location",
+      "replaces": "<%= $CLI_PARAM_TestUtilitiesLocation %>"
     }
   }
 }

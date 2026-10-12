@@ -7,8 +7,8 @@ using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.IO.Abstractions;
+using System.Threading.Tasks;
 
 namespace Cmf.CLI.Commands.restore
 {
@@ -39,9 +39,11 @@ namespace Cmf.CLI.Commands.restore
         /// <param name="cmd"></param>
         public override void Configure(Command cmd)
         {
-            cmd.AddOption(new Option<Uri[]>(
-                aliases: new string[] { "-r", "--repos", "--repo" },
-                description: "Repositories where dependencies are located (folder)"));
+            var reposOption = new Option<Uri[]>("--repos", "-r", "--repo")
+            {
+                Description = "Repositories where dependencies are located (folder)"
+            };
+            cmd.Add(reposOption);
 
             var packageRoot = FileSystemUtilities.GetPackageRoot(this.fileSystem);
             var packagePath = ".";
@@ -49,13 +51,23 @@ namespace Cmf.CLI.Commands.restore
             {
                 packagePath = this.fileSystem.Path.GetRelativePath(this.fileSystem.Directory.GetCurrentDirectory(), packageRoot.FullName);
             }
-            var arg = new Argument<IDirectoryInfo>(
-                name: "packagePath",
-                parse: (argResult) => Parse<IDirectoryInfo>(argResult, packagePath),
-                isDefault: true,
-                description: "Package path");
-            cmd.AddArgument(arg);
-            cmd.Handler = CommandHandler.Create<IDirectoryInfo, Uri[]>(Execute);
+
+            var packagePathArgument = new Argument<IDirectoryInfo>("packagePath")
+            {
+                Description = "Package path",
+                CustomParser = argResult => Parse<IDirectoryInfo>(argResult, packagePath),
+                DefaultValueFactory = _ => Parse<IDirectoryInfo>(null, packagePath)
+            };
+            cmd.Add(packagePathArgument);
+
+            cmd.SetAction((parseResult, cancellationToken) =>
+            {
+                var pkgPath = parseResult.GetValue(packagePathArgument);
+                var repos = parseResult.GetValue(reposOption);
+
+                Execute(pkgPath, repos);
+                return Task.FromResult(0);
+            });
         }
 
         /// <summary>

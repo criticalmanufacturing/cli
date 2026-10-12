@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace tests.Objects
 {
@@ -13,14 +9,34 @@ namespace tests.Objects
         {
             { MockUnixSupport.Path(@"c:\.project-config.json"), new MockFileData(
             @"{
-              ""MESVersion"": ""9.0.0""
+              ""MESVersion"": ""10.0.0""
             }")
+            },
+            { MockUnixSupport.Path(@"c:\ui\angular.json"), new MockFileData(
+                  $@"{{
+                      ""$schema"": ""./node_modules/@angular/cli/lib/config/schema.json"",
+                      ""version"": 1,
+                      ""newProjectRoot"": ""projects"",
+                      ""projects"": {{
+                          ""Cmf.Custom.HTML"": {{
+                              ""projectType"": ""application"",
+                              ""schematics"": {{
+                                  ""@schematics/angular:component"": {{
+                                      ""style"": ""less""
+                                  }}
+                              }},
+                              ""root"": """",
+                              ""sourceRoot"": ""src"",
+                          }}
+                      }}
+                  }}")
             },
             { MockUnixSupport.Path(@"c:\ui\src\packages\customization.common\package.json"), new MockFileData(
             @"{
               ""name"": ""customization.package""
             }")},
             { MockUnixSupport.Path(@"c:\ui\src\packages\customization.common\customization.common.js"), new MockFileData(string.Empty)},
+            { MockUnixSupport.Path(@"c:\ui\transform\my-config-patch.json"), new MockFileData("\"jdttest\": true")}, // adding jdtinjection file
             { MockUnixSupport.Path(@"c:\ui\package.json"), new MockFileData(
             @"{
               ""name"": ""customization.package""
@@ -40,6 +56,10 @@ namespace tests.Objects
                   ""ignoreFiles"": [
                     "".npmignore""
                   ]
+                }},
+                {{
+                  ""source"": ""{MockUnixSupport.Path("transform\\my-config-patch.json").Replace("\\", "\\\\")}"",
+                  ""action"": ""Transform""
                 }}
               ]
             }}")}});
@@ -53,7 +73,7 @@ namespace tests.Objects
             }")},
           { MockUnixSupport.Path(@"c:\.project-config.json"), new MockFileData(
             @"{
-              ""MESVersion"": ""9.0.0""
+              ""MESVersion"": ""10.0.0""
             }")
           },
           { MockUnixSupport.Path(@"c:\ui\package.json"), new MockFileData(
@@ -95,7 +115,7 @@ namespace tests.Objects
         {
           { MockUnixSupport.Path(@"c:\.project-config.json"), new MockFileData(
             @"{
-              ""MESVersion"": ""9.0.0""
+              ""MESVersion"": ""10.0.0""
             }")
           },
           { MockUnixSupport.Path(@"c:\ui\package.json"), new MockFileData(
@@ -121,7 +141,24 @@ namespace tests.Objects
                 }}
               ]
            }}")
-          }
+          },
+          { MockUnixSupport.Path(@"c:\ui\angular.json"), new MockFileData(
+                $@"{{
+                    ""$schema"": ""./node_modules/@angular/cli/lib/config/schema.json"",
+                    ""version"": 1,
+                    ""newProjectRoot"": ""projects"",
+                    ""projects"": {{
+                        ""Cmf.Custom.HTML"": {{
+                            ""projectType"": ""application"",
+                            ""schematics"": {{
+                                ""@schematics/angular:component"": {{
+                                    ""style"": ""less""
+                                }}
+                            }}
+                        }}
+                    }}
+                }}")
+          },
         });
 
         internal static readonly MockFileSystem Html_EmptyContentToPack = new MockFileSystem(new Dictionary<string, MockFileData>

@@ -1,7 +1,7 @@
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.Diagnostics;
 using System.IO.Abstractions;
+using System.Threading.Tasks;
 using Cmf.CLI.Builders;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core;
@@ -25,16 +25,21 @@ public class LinkLBOsCommand : BaseCommand
         {
             packagePath = this.fileSystem.Path.GetRelativePath(this.fileSystem.Directory.GetCurrentDirectory(), packageRoot.FullName);
         }
-        var arg = new Argument<IDirectoryInfo>(
-            name: "packagePath",
-            parse: (argResult) => Parse<IDirectoryInfo>(argResult, packagePath),
-            isDefault: true)
-        {
-            Description = "Package Path"
-        };
 
-        cmd.AddArgument(arg);
-        cmd.Handler = CommandHandler.Create(this.Execute);
+        var packagePathArgument = new Argument<IDirectoryInfo>("packagePath")
+        {
+            Description = "Package Path",
+            CustomParser = argResult => Parse<IDirectoryInfo>(argResult, packagePath),
+            DefaultValueFactory = _ => Parse<IDirectoryInfo>(null, packagePath)
+        };
+        cmd.Add(packagePathArgument);
+
+        cmd.SetAction((parseResult, cancellationToken) =>
+        {
+            var pkgPath = parseResult.GetValue(packagePathArgument);
+            Execute(pkgPath);
+            return Task.FromResult(0);
+        });
     }
 
     /// <summary>

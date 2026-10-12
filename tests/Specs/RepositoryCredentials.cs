@@ -27,6 +27,7 @@ using System.Xml.XPath;
 using tests.Extensions;
 using tests.Mocks;
 using Xunit;
+using Cmf.CLI.Utilities;
 
 namespace tests.Specs;
 
@@ -446,7 +447,7 @@ public class RepositoryCredentials
             var exception = authStore.Invoking(x => x.GetCredentialsFor(RepositoryCredentialsType.Docker, new CmfAuthFile(), "registry.docker.io"));
 
             // Assert
-            exception.Should().Throw<Exception>().WithMessage("Invalid auth type*");
+            exception.Should().Throw<CliException>().WithMessage("Invalid auth type*");
         }
         finally
         {
@@ -721,6 +722,68 @@ public class RepositoryCredentials
         ]);
     }
 
+    [Theory]
+    [InlineData("{}")]
+    [InlineData("{\"sub\": null}")]
+    [InlineData("{\"sub\": \"\"}")]
+    [InlineData("{\"sub\": \"   \"}")]
+    public void PortalRepositoryCredentials_GetDerivedCredentials_MissingSub_ShouldThrow(string payload)
+    {
+        // Arrange - token with valid 3-part structure but payload missing 'sub' claim
+        var portal = new PortalRepositoryCredentials(new MockFileSystem());
+        var payloadNoSub = Convert.ToBase64String(Encoding.UTF8.GetBytes(payload));
+        var tokenNoSub = $"header.{payloadNoSub}.sig";
+
+        ExecutionContext.Initialize(new MockFileSystem());
+
+        // Act
+        var act = () => portal.GetDerivedCredentials([
+            new BearerCredential
+            {
+                Token = tokenNoSub,
+                RepositoryType = RepositoryCredentialsType.Portal,
+                Repository = CmfAuthConstants.PortalRepository,
+            }
+        ]).ToList();
+
+        // Assert - should surface clear error about missing 'sub' instead of downstream NuGet ArgumentNullException
+        act.Should().ThrowExactly<CliException>()
+            .WithMessage("*sub*")
+            .WithMessage("*Failed to derive credentials from Portal token*");
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("not-a-jwt")]
+    [InlineData("header.!.sig")]
+    [InlineData("header.bm90LWpzb24=.sig")]
+    [InlineData("header.bnVsbA==.sig")]
+    public void PortalRepositoryCredentials_GetDerivedCredentials_InvalidJwtFormat_ShouldThrow(string badToken)
+    {
+        // Arrange - missing token, opaque PAT, or malformed JWT payload
+        var portal = new PortalRepositoryCredentials(new MockFileSystem());
+
+        ExecutionContext.Initialize(new MockFileSystem());
+
+        // Act
+        var act = () => portal.GetDerivedCredentials([
+            new BearerCredential
+            {
+                Token = badToken,
+                RepositoryType = RepositoryCredentialsType.Portal,
+                Repository = CmfAuthConstants.PortalRepository,
+            }
+        ]).ToList();
+
+        // Assert - should surface valid-JWT hint, preserving inner format error
+        var ex = act.Should().ThrowExactly<CliException>()
+            .WithMessage("*not a valid JWT*")
+            .WithMessage("*Failed to derive credentials from Portal token*");
+        ex.Which.InnerException.Should().NotBeNull();
+        ex.Which.InnerException.Should().Match<Exception>(inner => inner is CliException || inner is ArgumentNullException);
+    }
+
     [Fact]
     public async Task NPMRepositoryCredentials_SyncCredentials_NoFileExists()
     {
@@ -768,7 +831,6 @@ public class RepositoryCredentials
                 registry="https://criticalmanufacturing.io/repository/npm/"
                 //registry.npmjs.org/:_auth="V2h5V291bGQ6WW91RG9UaGF0"
                 //criticalmanufacturing.io/repository/npm/:_authToken="header.payload.signature"
-                //criticalmanufacturing.io/repository/npm/:always_auth="true"
                 """
             ) }
         });
@@ -800,9 +862,7 @@ public class RepositoryCredentials
             registry="https://criticalmanufacturing.io/repository/npm/"
             //registry.npmjs.org/:_auth="V2h5V291bGQ6WW91RG9UaGF0"
             //custom-registry.com/:_authToken="A.B.C"
-            //criticalmanufacturing.io/repository/npm/:always_auth="true"
             //criticalmanufacturing.io/repository/npm/:_auth="{expectedAuth}"
-            //custom-registry.com/:always_auth="true"
             """
         );
     }
@@ -929,6 +989,89 @@ public class RepositoryCredentials
             </configuration>
             """
         );
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void NuGetRepositoryCredentials_ValidateCredentials_MissingUsername_ShouldThrow(string username)
+    {
+        // Arrange
+        var nuget = new NuGetRepositoryCredentials(new MockFileSystem());
+        var creds = new List<ICredential>
+        {
+            new BasicCredential
+            {
+                RepositoryType = RepositoryCredentialsType.NuGet,
+                Repository = CmfAuthConstants.NuGetRepository,
+                Key = CmfAuthConstants.NuGetKey,
+                Username = username,
+                Password = "pass"
+            }
+        };
+
+        // Act
+        var act = () => nuget.ValidateCredentials(creds);
+
+        // Assert - clear message, not ArgumentNullException from XAttribute
+        act.Should().ThrowExactly<CliException>().WithMessage("*username*");
+    }
+
+    [Fact]
+    public void NuGetRepositoryCredentials_ValidateCredentials_MissingPassword_ShouldThrow()
+    {
+        // Arrange
+        var nuget = new NuGetRepositoryCredentials(new MockFileSystem());
+        var creds = new List<ICredential>
+        {
+            new BasicCredential
+            {
+                RepositoryType = RepositoryCredentialsType.NuGet,
+                Repository = CmfAuthConstants.NuGetRepository,
+                Key = CmfAuthConstants.NuGetKey,
+                Username = "user",
+                Password = null
+            }
+        };
+
+        // Act
+        var act = () => nuget.ValidateCredentials(creds);
+
+        // Assert
+        act.Should().ThrowExactly<CliException>().WithMessage("*password*");
+    }
+
+    [Theory]
+    [InlineData(null, "pass", "username")]
+    [InlineData("", "pass", "username")]
+    [InlineData("   ", "pass", "username")]
+    [InlineData("user", null, "password")]
+    public async Task NuGetRepositoryCredentials_SyncCredentials_InvalidCredentials_ShouldThrowClearError(string username, string password, string missingProperty)
+    {
+        // Arrange - mirrors regression: derived Portal token without 'sub' would previously crash with ArgumentNullException inside XAttribute
+        var fileSystem = new MockFileSystem();
+        var nuget = new NuGetRepositoryCredentials(fileSystem);
+        var creds = new List<ICredential>
+        {
+            new BasicCredential
+            {
+                RepositoryType = RepositoryCredentialsType.NuGet,
+                Repository = CmfAuthConstants.NuGetRepository,
+                Key = CmfAuthConstants.NuGetKey,
+                Username = username,
+                Password = password
+            }
+        };
+
+        // Act
+        var act = async () => await nuget.SyncCredentials(creds);
+
+        // Assert - validation errors are surfaced directly, before accessing NuGet config.
+        var ex = (await act.Should().ThrowExactlyAsync<CliException>()).Which;
+        ex.Message.Should().Contain(missingProperty);
+        ex.InnerException.Should().BeNull();
+        fileSystem.AllFiles.Should().BeEmpty();
     }
 
     [Theory]

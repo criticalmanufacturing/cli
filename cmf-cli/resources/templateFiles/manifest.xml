@@ -11,6 +11,7 @@
   <isInstallable>$(isInstallable)</isInstallable>
   <isUniqueInstall>$(isUniqueInstall)</isUniqueInstall>
   <IsToForceInstall>$(isToForceInstall)</IsToForceInstall>
+  <forceRerunAfterDatabaseRestore>$(forceRerunAfterDatabaseRestore)</forceRerunAfterDatabaseRestore>
   <waitForIntegrationEntries>$(waitForIntegrationEntries)</waitForIntegrationEntries>
   <keywords>$(keywords)</keywords>
   <dependencies>

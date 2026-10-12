@@ -1,18 +1,27 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
+using System.IO.Compression;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Core.Repository;
 using Cmf.CLI.Core.Repository.Credentials;
+using Cmf.CLI.Core.Services;
+using Cmf.CLI.Utilities;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Moq.Protected;
+using Newtonsoft.Json.Linq;
 using tests.Mocks;
 using tests.Objects;
 using Xunit;
@@ -22,14 +31,75 @@ namespace tests.Specs;
 
 public class NPM
 {
-    protected void Setup()
+    [Fact]
+    public async Task ResolveDistTag_ReturnsExactVersionFromConfiguredRegistry()
+    {
+        Setup();
+        var handler = new Mock<HttpMessageHandler>();
+        handler.Protected().Setup<Task<HttpResponseMessage>>("SendAsync",
+                ItExpr.Is<HttpRequestMessage>(request => request.RequestUri.ToString() == "https://registry.example/npm/@criticalmanufacturing/ngx-schematics"),
+                ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage(System.Net.HttpStatusCode.OK)
+            {
+                Content = new StringContent("{\"dist-tags\":{\"beta-1200\":\"12.0.0-beta.99\"}}", Encoding.UTF8, "application/json")
+            });
+        var client = new NPMClient("https://registry.example/npm/", new HttpClient(handler.Object));
+
+        var result = await client.ResolveDistTag("@criticalmanufacturing/ngx-schematics", "beta-1200");
+
+        result.Should().Be("12.0.0-beta.99");
+        handler.VerifyAll();
+    }
+
+    [Theory]
+    [InlineData("{\"dist-tags\":{}}")]
+    [InlineData("{}")]
+    [InlineData("{\"dist-tags\":{\"beta-1200\":\"\"}}")]
+    public async Task ResolveDistTag_MissingTag_Throws(string responseBody)
+    {
+        Setup();
+        var handler = new Mock<HttpMessageHandler>();
+        handler.Protected().Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage(System.Net.HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseBody, Encoding.UTF8, "application/json")
+            });
+        var client = new NPMClient("https://registry.example", new HttpClient(handler.Object));
+
+        Func<Task> resolve = () => client.ResolveDistTag("@criticalmanufacturing/ngx-schematics", "beta-1200");
+
+        await resolve.Should().ThrowAsync<CliException>().WithMessage("*beta-1200*ngx-schematics*");
+    }
+
+    [Fact]
+    public async Task ResolveDistTag_RegistryError_Throws()
+    {
+        Setup();
+        var handler = new Mock<HttpMessageHandler>();
+        handler.Protected().Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage(System.Net.HttpStatusCode.Unauthorized));
+        var client = new NPMClient("https://registry.example", new HttpClient(handler.Object));
+
+        Func<Task> resolve = () => client.ResolveDistTag("@criticalmanufacturing/ngx-schematics", "beta-1200");
+
+        await resolve.Should().ThrowAsync<HttpRequestException>();
+    }
+
+    protected void Setup(bool? streaming = false)
     {
         var repositoryAuthStoreMock = new Mock<IRepositoryAuthStore>();
         repositoryAuthStoreMock.Setup(x => x.GetOrLoad()).Returns(Task.FromResult(new CmfAuthFile()));
 
+        var features = new Mock<IFeaturesService>();
+        features.SetupGet(x => x.UseStreamingPublish).Returns(streaming ?? true);
+        IFeaturesService featureService = streaming.HasValue
+            ? features.Object
+            : new FeaturesService("cmf_cli_test_upload");
+
         ExecutionContext.ServiceProvider = (new ServiceCollection())
             .AddSingleton<IVersionService, MockVersionService>()
             .AddSingleton(repositoryAuthStoreMock.Object)
+            .AddSingleton(featureService)
             .BuildServiceProvider();
     }
 
@@ -251,5 +321,187 @@ public class NPM
                                                  req.Headers.Authorization == null),
             ItExpr.IsAny<CancellationToken>()
         );
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    [InlineData(null)]
+    public async Task Upload_SendsCompletePayloadAndDisposesContent(bool? streaming)
+    {
+        Setup(streaming);
+        var package = CreatePublishPackage();
+        var bytes = package.FileSystem.File.ReadAllBytes(package.FullName);
+        using var handler = new UploadHandler();
+        using var httpClient = new HttpClient(handler);
+        var client = new NPMClient("https://registry.example", httpClient);
+
+        // Reuse the client just as publishing a directory of packages does.
+        await client.PublishPackage(package);
+        await client.PublishPackage(package);
+
+        handler.RequestCount.Should().Be(2);
+        if (!streaming.HasValue)
+        {
+            handler.Content.Should().NotBeOfType<StringContent>("publishing streams by default");
+        }
+        var body = JObject.Parse(handler.Payload);
+        var attachment = body["_attachments"]["cmf.custom.test-1.0.0.tgz"];
+        Convert.FromBase64String(attachment["data"].Value<string>()).Should().Equal(bytes);
+        attachment["length"].Value<long>().Should().Be(bytes.Length);
+        body["versions"]["1.0.0"]["dist"]["integrity"].Value<string>()
+            .Should().Be("sha512-" + Convert.ToBase64String(SHA512.HashData(bytes)));
+        handler.ContentLength.Should().Be(System.Text.Encoding.UTF8.GetByteCount(handler.Payload));
+        Func<Task> readDisposedContent = () => handler.Content.ReadAsStringAsync();
+        await readDisposedContent.Should().ThrowAsync<ObjectDisposedException>();
+        Func<Task> readDisposedResponse = () => handler.Response.Content.ReadAsStringAsync();
+        await readDisposedResponse.Should().ThrowAsync<ObjectDisposedException>();
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task UploadFailure_PreservesUnderlyingExceptionAndDisposesContent(bool streaming)
+    {
+        Setup(streaming);
+        var rootCause = new IOException("Connection reset by peer");
+        var failure = new HttpRequestException("Error while copying content to a stream.", rootCause);
+        using var handler = new UploadHandler { Failure = failure };
+        using var httpClient = new HttpClient(handler);
+        var client = new NPMClient("https://registry.example", httpClient);
+
+        Func<Task> publish = () => client.PublishPackage(CreatePublishPackage());
+
+        var exception = await publish.Should().ThrowAsync<CliException>()
+            .WithMessage("*Cmf.Custom.Test*Connection reset by peer*");
+        exception.Which.InnerException.Should().BeSameAs(failure);
+        Func<Task> readDisposedContent = () => handler.Content.ReadAsStringAsync();
+        await readDisposedContent.Should().ThrowAsync<ObjectDisposedException>();
+    }
+
+    [Theory]
+    [Trait("TestCategory", "LongRunning")]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Upload_ZipWithBackupLargerThanTwoGiB_StreamsConversionManifestAndUpload(bool includeXml)
+    {
+        Setup(streaming: null);
+        var fs = new FileSystem();
+        var directory = fs.Directory.CreateTempSubdirectory("cmf-large-publish-");
+        try
+        {
+            var zipFile = fs.FileInfo.New(fs.Path.Combine(directory.FullName, "backup.zip"));
+            using (var archive = new ZipArchive(zipFile.Create(), ZipArchiveMode.Create))
+            {
+                using (var backup = archive.CreateEntry("online.bak", CompressionLevel.Fastest).Open())
+                {
+                    var buffer = new byte[128 * 1024];
+                    for (long remaining = (long)int.MaxValue + 1; remaining > 0;)
+                    {
+                        var count = (int)Math.Min(buffer.Length, remaining);
+                        backup.Write(buffer, 0, count);
+                        remaining -= count;
+                    }
+                }
+                // Put the manifests after the large entry so discovery must stream past it.
+                using (var writer = new StreamWriter(archive.CreateEntry("package.json").Open()))
+                {
+                    writer.Write("""{"name":"Cmf.Custom.Json","version":"1.0.0","keywords":["cmf-deployment-package"],"deployment":{"packageType":"Generic"}}""");
+                }
+                if (includeXml)
+                {
+                    using var writer = new StreamWriter(archive.CreateEntry("manifest.xml").Open());
+                    writer.Write("<deploymentPackage><packageId>Cmf.Custom.Xml</packageId><version>1.0.0</version></deploymentPackage>");
+                }
+            }
+            var source = new ArchiveRepositoryClient(zipFile.FullName, fs);
+            var packageId = includeXml ? "Cmf.Custom.Xml" : "Cmf.Custom.Json";
+            var package = await source.Find(packageId, "1.0.0");
+            using var handler = new DiscardingUploadHandler();
+            using var httpClient = new HttpClient(handler);
+            var repository = new NPMRepositoryClient("https://registry.example", fs,
+                new NPMClient("https://registry.example", httpClient));
+
+            await repository.Put(package);
+
+            handler.RequestUri.AbsoluteUri.Should().Be("https://registry.example/" + packageId.ToLowerInvariant());
+            handler.Transferred.Should().Be(handler.ContentLength);
+            var tgzFile = fs.FileInfo.New(fs.Path.ChangeExtension(zipFile.FullName, "tgz"));
+            handler.Transferred.Should().BeGreaterThan(4 * ((tgzFile.Length + 2) / 3));
+            using var gzip = new GZipStream(tgzFile.OpenRead(), CompressionMode.Decompress);
+            using var tar = new System.Formats.Tar.TarReader(gzip);
+            var backupEntry = tar.GetNextEntry();
+            backupEntry.Name.Should().Be("package/online.bak");
+            backupEntry.Length.Should().Be((long)int.MaxValue + 1);
+            tar.GetNextEntry().Name.Should().Be("package/package.json");
+            if (includeXml)
+            {
+                tar.GetNextEntry().Name.Should().Be("package/manifest.xml");
+            }
+            tar.GetNextEntry().Should().BeNull();
+        }
+        finally
+        {
+            directory.Delete(true);
+        }
+    }
+
+    private static System.IO.Abstractions.IFileInfo CreatePublishPackage()
+    {
+        using var builder = new DFTGZPackageBuilder();
+        var data = builder.CreateManifest("Cmf.Custom.Test", "1.0.0")
+            .CreateEntry("content.txt", new string('a', 100000)).ToMockFileData();
+        var fs = new MockFileSystem();
+        fs.AddFile("/repo/test.tgz", data);
+        return fs.FileInfo.New("/repo/test.tgz");
+    }
+
+    private sealed class DiscardingUploadHandler : HttpMessageHandler
+    {
+        public Uri RequestUri { get; private set; }
+        public long? ContentLength { get; private set; }
+        public long Transferred { get; private set; }
+
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            request.Content.Should().BeOfType<StreamContent>();
+            RequestUri = request.RequestUri;
+            ContentLength = request.Content.Headers.ContentLength;
+            using var stream = await request.Content.ReadAsStreamAsync(cancellationToken);
+            var buffer = new byte[128 * 1024];
+            int read;
+            while ((read = await stream.ReadAsync(buffer, cancellationToken)) > 0)
+            {
+                Transferred += read;
+            }
+            return new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("{}") };
+        }
+    }
+
+    private sealed class UploadHandler : HttpMessageHandler
+    {
+        public int RequestCount { get; private set; }
+        public string Payload { get; private set; }
+        public long? ContentLength { get; private set; }
+        public HttpContent Content { get; private set; }
+        public HttpResponseMessage Response { get; private set; }
+        public Exception Failure { get; init; }
+
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            RequestCount++;
+            Content = request.Content;
+            ContentLength = Content.Headers.ContentLength;
+            // Unlike a handler that just returns OK, consume the actual upload stream.
+            using var output = new MemoryStream();
+            await Content.CopyToAsync(output, cancellationToken);
+            Payload = System.Text.Encoding.UTF8.GetString(output.ToArray());
+            if (Failure != null)
+            {
+                throw Failure;
+            }
+            Response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("{}") };
+            return Response;
+        }
     }
 }

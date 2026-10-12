@@ -159,6 +159,12 @@ namespace Cmf.CLI.Core.Objects
         public bool? IsToForceInstall { get; private set; }
 
         /// <summary>
+        /// Gets or sets whether package installation should be forced by Deployment Framework after a database restore.
+        /// </summary>
+        [JsonProperty(Order = 17)]
+        public bool? ForceRerunAfterDatabaseRestore { get; private set; }
+
+        /// <summary>
         /// Gets or sets the is root package.
         /// </summary>
         /// <value>
@@ -314,6 +320,7 @@ namespace Cmf.CLI.Core.Objects
         /// <param name="isInstallable">The is installable.</param>
         /// <param name="isUniqueInstall">The is unique install.</param>
         /// <param name="isToForceInstall">The is to force install.</param>
+        /// <param name="forceRerunAfterDatabaseRestore">The force rerun after database restore.</param>
         /// <param name="keywords">The keywords.</param>
         /// <param name="isToSetDefaultSteps">The is to set default steps.</param>
         /// <param name="dependencies">The dependencies.</param>
@@ -324,9 +331,10 @@ namespace Cmf.CLI.Core.Objects
         /// <param name="testPackages">The test Packages.</param>
         [JsonConstructor]
         public CmfPackage(string name, string packageId, string version, string description, PackageType packageType,
-                  string targetDirectory, string targetLayer, bool? isInstallable, bool? isUniqueInstall, bool? isToForceInstall, string keywords,
-                          bool? isToSetDefaultSteps, DependencyCollection dependencies, List<Step> steps,
-                          List<ContentToPack> contentToPack, List<string> xmlInjection, bool? waitForIntegrationEntries, List<string> baseLocalizationFiles, DependencyCollection testPackages = null) : this()
+                          string targetDirectory, string targetLayer, bool? isInstallable, bool? isUniqueInstall, bool? isToForceInstall,
+                          bool? forceRerunAfterDatabaseRestore, string keywords, bool? isToSetDefaultSteps, DependencyCollection dependencies,
+                          List<Step> steps, List<ContentToPack> contentToPack, List<string> xmlInjection, bool? waitForIntegrationEntries,
+                          List<string> baseLocalizationFiles, DependencyCollection testPackages = null) : this()
         {
             Name = name;
             PackageId = packageId ?? throw new ArgumentNullException(nameof(packageId));
@@ -338,6 +346,7 @@ namespace Cmf.CLI.Core.Objects
             IsInstallable = isInstallable ?? true;
             IsUniqueInstall = isUniqueInstall ?? false;
             IsToForceInstall = isToForceInstall;
+            ForceRerunAfterDatabaseRestore = forceRerunAfterDatabaseRestore;
             Keywords = keywords;
             IsToSetDefaultSteps = isToSetDefaultSteps ?? true;
             Dependencies = dependencies;
@@ -405,12 +414,7 @@ namespace Cmf.CLI.Core.Objects
                 throw new CliException(string.Format(CoreMessages.InvalidValue, this.GetType(), "IsUniqueInstall", true));
             }
 
-            // criticalmanufacturing.deploymentmetadata and cmf.environment should be part of the dependencies in a package of Type Root
-            if (PackageType.Equals(PackageType.Root) &&
-                !Dependencies.Contains(Dependency.DefaultDependenciesToIgnore[0]) && !Dependencies.Contains(Dependency.DefaultDependenciesToIgnore[1]))
-            {
-                throw new CliException(string.Format(CoreMessages.MissingMandatoryDependency, $"{Dependency.DefaultDependenciesToIgnore[0]} and {Dependency.DefaultDependenciesToIgnore[1]}", string.Empty));
-            }
+            // Root environment dependencies are generated during packing, not required in the source package.
 
             // When is fixed by the product team, this can be uncommented
             //// cmf.connectiot.packages should be part of the dependencies in a package of Type IoT
@@ -440,6 +444,7 @@ namespace Cmf.CLI.Core.Objects
                    IsInstallable == other.IsInstallable &&
                    IsUniqueInstall == other.IsUniqueInstall &&
                    IsToForceInstall == other.IsToForceInstall &&
+                   ForceRerunAfterDatabaseRestore == other.ForceRerunAfterDatabaseRestore &&
                    Keywords.IgnoreCaseEquals(other.Keywords) &&
                    XmlInjection.Equals(other.XmlInjection) &&
                    EqualityComparer<DependencyCollection>.Default.Equals(Dependencies, other.Dependencies) &&
@@ -495,7 +500,13 @@ namespace Cmf.CLI.Core.Objects
             {
                 Name = string.IsNullOrEmpty(Name) ? string.IsNullOrEmpty(name) ? $"{PackageId.Replace(".", " ")}" : name : Name;
 
-                TargetDirectory = string.IsNullOrEmpty(TargetDirectory) ? targetDirectory : TargetDirectory;
+                // MES v12+ uses the package's target layer and no longer ignores targetDirectory.
+                // Do not inject the legacy default for those projects.
+                var mesVersion = ExecutionContext.Instance?.ProjectConfig?.MESVersion;
+                if (mesVersion == null || mesVersion.Major < CoreConstants.TargetDirectoryRemovalMesMajorVersion)
+                {
+                    TargetDirectory = string.IsNullOrEmpty(TargetDirectory) ? targetDirectory : TargetDirectory;
+                }
 
                 TargetLayer = string.IsNullOrEmpty(TargetLayer) ? targetLayer : TargetLayer;
 
@@ -526,6 +537,40 @@ namespace Cmf.CLI.Core.Objects
 
                     Steps = stepsToAdd;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Sets virtual root dependencies in memory for the configured MES version before packing.
+        /// Existing applicable dependencies are preserved and the source package file is not rewritten.
+        /// </summary>
+        public void SetVirtualDependencies()
+        {
+            var projectConfig = ExecutionContext.Instance?.ProjectConfig;
+            var mesVersion = projectConfig?.MESVersion;
+            if (PackageType != PackageType.Root || mesVersion == null)
+            {
+                return;
+            }
+
+            Dependencies ??= new DependencyCollection();
+            const string environmentId = "Cmf.Environment";
+            const string metadataId = "CriticalManufacturing.DeploymentMetadata";
+            var environmentDependency = Dependencies.FirstOrDefault(d => d.Id.IgnoreCaseEquals(environmentId));
+            if (environmentDependency == null)
+            {
+                environmentDependency = new Dependency(environmentId, mesVersion.ToString()) { Mandatory = false };
+                Dependencies.Insert(0, environmentDependency);
+            }
+
+            if (mesVersion.Major > 10 || projectConfig.RepositoryType == RepositoryType.App)
+            {
+                Dependencies.RemoveAll(d => d.Id.IgnoreCaseEquals(metadataId));
+            }
+            else if (!Dependencies.Contains(metadataId))
+            {
+                Dependencies.Insert(Dependencies.IndexOf(environmentDependency) + 1,
+                    new Dependency(metadataId, mesVersion.ToString()) { Mandatory = false });
             }
         }
 
@@ -892,6 +937,7 @@ namespace Cmf.CLI.Core.Objects
                 false,
                 false,
                 tokens.ContainsKey("istoforceinstall") ? bool.Parse(tokens["istoforceinstall"]) : null,
+                tokens.ContainsKey("forcererunafterdatabaserestore") ? bool.Parse(tokens["forcererunafterdatabaserestore"]) : null,
                 tokens.ContainsKey("keywords") ? tokens["keywords"] : null,
                 true,
                 deps,

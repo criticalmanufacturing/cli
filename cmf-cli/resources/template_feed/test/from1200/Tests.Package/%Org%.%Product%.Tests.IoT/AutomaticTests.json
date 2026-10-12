@@ -1,0 +1,53 @@
+{
+    "id": "REPLACE_IN_COMMANDLINE",
+    "cache": "%TEST_DATA_LOCATION%/Packages",
+    "monitorApplication": "C:/path/Monitor@7.0.1-71391/src/index.js",
+    "repository": {
+      "type": "Npm",
+      "settings": {
+        "url": "http://registry:4873"
+      }
+    },
+    "system": {
+      "tenantName": "",
+      "address": "localhost",
+      "port": "6183",
+      "timeout": 60000,
+      "useSSL": "false",
+      "authentication": {
+        "domain": "",
+        "mode": "Password",
+        "password": "",
+        "username": ""
+      }
+    },
+    "storage": {
+      "type": "Directory",
+      "settings": {
+        "path": "%TEST_DATA_LOCATION%/Persistency",
+        "retentionTime": 3600
+      }
+    },
+    "logging": [
+      {
+        "type": "Console",
+        "options": {
+          "level": "debug",
+          "prettyPrint": false
+        },
+        "applications": [
+          "*"
+        ]
+      },
+      {
+        "id": "fileTestLogger",
+        "type": "File",
+        "options": {
+          "dirname": "%TEST_DATA_LOCATION%/TESTLogs/${applicationName}/${entityName}/${componentId}/",
+          "filename": "info_${date}.log",
+          "timestampFormat": "HH:mm:ss.SSSSS",
+          "level": "debug"
+        }
+      }
+    ]
+  }

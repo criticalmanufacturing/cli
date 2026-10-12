@@ -1,6 +1,7 @@
 import { injectable, inject, Container } from "inversify";
 import { CommunicationState, PropertyValuePair } from "@criticalmanufacturing/connect-iot-driver";
-import { Property, EventOccurrence, PropertyValue, Command, Event as EquipmentEvent, DeviceDriverBase, CommandParameter } from "@criticalmanufacturing/connect-iot-driver";
+import { Property, EventOccurrence, PropertyValue, Command, Event as EquipmentEvent, CommandParameter } from "@criticalmanufacturing/connect-iot-driver";
+import { <%= $CLI_PARAM_DriverBaseClass %> } from "<%= $CLI_PARAM_DriverBasePackage %>";
 import { <%= $CLI_PARAM_Identifier %>CommunicationSettings, <%= $CLI_PARAM_IdentifierCamel %>DefaultCommunicationSettings, validateCommunicationParameters } from "./communicationSettings";
 import { validateProperties, validateEvents, validateEventProperties, validateCommands, validateCommandParameters } from "./extendedData/index";
 import { Utils } from "@criticalmanufacturing/connect-iot-common";
@@ -10,7 +11,7 @@ import { ExtensionHandler } from "./extensions";
 //#endif
 
 @injectable()
-export class <%= $CLI_PARAM_Identifier %>DeviceDriver extends DeviceDriverBase {
+export class <%= $CLI_PARAM_Identifier %>DeviceDriver extends <%= $CLI_PARAM_DriverBaseClass %> {
     private _communicationSettings: <%= $CLI_PARAM_Identifier %>CommunicationSettings;
     private _container: Container;
 

@@ -27,7 +27,7 @@
     "mermaid": "9.1.3"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^<%= $CLI_PARAM_ngVersion %>", 
+    "@angular-devkit/build-angular": "^<%= $CLI_PARAM_ngVersion %>",
     "@angular-eslint/schematics": "<%= $CLI_PARAM_ngVersion %>",
     "@angular/compiler-cli": "^<%= $CLI_PARAM_ngVersion %>",
     "@criticalmanufacturing/ngx-schematics": "<%= $CLI_PARAM_NGXSchematicsVersion %>",

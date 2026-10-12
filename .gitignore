@@ -368,3 +368,9 @@ npm/*.tgz
 !**/vendors/**
 
 .DS_Store
+
+.env
+
+*.lscache
+dotnet/
+repo/
