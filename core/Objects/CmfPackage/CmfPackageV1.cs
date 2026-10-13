@@ -12,6 +12,7 @@ using Newtonsoft.Json.Linq;
 namespace Cmf.CLI.Core.Objects;
 
 [JsonObject]
+[Obsolete("Use CmfPackage instead.")]
 public class CmfPackageV1 : IEquatable<CmfPackageV1>
 {
     /// <summary>
