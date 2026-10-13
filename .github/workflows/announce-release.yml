@@ -27,9 +27,9 @@ jobs:
           sparse-checkout: .github/templates
       - uses: actions/github-script@v8
         env:
-          DISCOURSE_URL: ${{ secrets.DISCOURSE_URL }}
-          DISCOURSE_CATEGORY_ID: ${{ secrets.DISCOURSE_CATEGORY_ID }}
-          DISCOURSE_API_USERNAME: ${{ secrets.DISCOURSE_API_USERNAME }}
+          DISCOURSE_URL: ${{ vars.DISCOURSE_URL }}
+          DISCOURSE_CATEGORY_ID: ${{ vars.DISCOURSE_CATEGORY_ID }}
+          DISCOURSE_API_USERNAME: ${{ vars.DISCOURSE_API_USERNAME }}
           DISCOURSE_API_KEY: ${{ secrets.DISCOURSE_API_KEY }}
         with:
           script: |
