@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [6.0.0-20](https://github.com/criticalmanufacturing/cli/compare/6.0.0-19...6.0.0-20) (2026-10-13)
+
+
+### Bug Fixes
+
+* **iot:** avoid changing bundled Yeoman permissions during pack ([effc481](https://github.com/criticalmanufacturing/cli/commit/effc48120555684f6c2618366ad8260e3a056749))
+
+
+### Under the hood
+
+* **core:** mark CmfPackageV1 obsolete ([bf7a3b2](https://github.com/criticalmanufacturing/cli/commit/bf7a3b2551090f196f481bb065825437ffca2268))
+
 ## [6.0.0-19](https://github.com/criticalmanufacturing/cli/compare/6.0.0-18...6.0.0-19) (2026-10-09)
 
 
