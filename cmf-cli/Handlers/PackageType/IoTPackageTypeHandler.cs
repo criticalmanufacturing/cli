@@ -288,13 +288,10 @@ namespace Cmf.CLI.Handlers
                                 { "NO_UPDATE_NOTIFIER", "1" },
                             };
 
-                            IFileInfo yo = this.fileSystem.FileInfo.New($"{AppContext.BaseDirectory}resources/vendors/yo/node_modules/.bin/yo");
+                            // Run the JavaScript entry point directly so globally installed files need no permission changes.
+                            IFileInfo yo = this.fileSystem.FileInfo.New($"{AppContext.BaseDirectory}resources/vendors/yo/node_modules/yo/lib/cli.js");
                             if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())
                             {
-                                Log.Debug("Setting execute permissions on yo binary");
-                                FileSystemUtilities.SetUnixFilePermissions(this.fileSystem, yo, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
-                                                                                               UnixFileMode.GroupRead | UnixFileMode.GroupExecute |
-                                                                                               UnixFileMode.OtherRead | UnixFileMode.OtherExecute);
                                 if (Environment.IsPrivilegedProcess)
                                 {
                                     IDirectoryInfo dist = this.fileSystem.DirectoryInfo.New($"{packDirectory.Parent.Parent.FullName}/dist/{packDirectory.Name}");
@@ -317,12 +314,15 @@ namespace Cmf.CLI.Handlers
                                 }
                             }
 
-                            CmdCommand cmdCommand = new CmdCommand()
+                            SingleStepCommand cmdCommand = new SingleStepCommand()
                             {
-                                DisplayName = "yo @criticalmanufacturing/iot:packagePacker",
-                                Args = new string[] { "\"", $"{yo} @criticalmanufacturing/iot:packagePacker", debugFlag, $"-i \"{inputDirPath.FullName}\"", $"-o \"{outputDirPath.FullName}\"", "\"" },
                                 WorkingDirectory = packDirectory,
-                                EnvironmentVariables = environmentVariables
+                                BuildStep = new ProcessBuildStep()
+                                {
+                                    Command = "node",
+                                    Args = new string[] { $"\"{yo.FullName}\"", "@criticalmanufacturing/iot:packagePacker", debugFlag, $"-i \"{inputDirPath.FullName}\"", $"-o \"{outputDirPath.FullName}\"" },
+                                    EnvironmentVariables = environmentVariables
+                                }
                             };
 
                             cmdCommand.Exec();
