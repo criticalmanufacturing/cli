@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Objects;
@@ -9,6 +10,7 @@ using Cmf.CLI.Utilities;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using NuGet.Versioning;
 using Xunit;
 
 namespace tests.Specs;
@@ -50,18 +52,28 @@ public class IoTPackagePacking
                 fileSystem.AddFile(runtimePackage, new MockFileData("packed runtime"));
             }
         });
+        // Build-command constructors reinitialize the context using the real filesystem.
+        // Keep MES v10 even when earlier integration tests disable the project-config cache.
+        var projectConfig = new ProjectConfigV1 { MESVersion = NuGetVersion.Parse("10.2.16") };
+        var projectConfigService = new Mock<IProjectConfigService>();
+        projectConfigService.Setup(p => p.Load(It.IsAny<IFileSystem>())).Returns(projectConfig);
+        projectConfigService.SetupGet(p => p.ProjectConfig).Returns(projectConfig);
         using var services = new ServiceCollection()
-            .AddSingleton<IProjectConfigService, ProjectConfigService>()
+            .AddSingleton(projectConfigService.Object)
             .AddSingleton(process.Object)
             .BuildServiceProvider();
-        ExecutionContext.ServiceProvider = services;
-        ExecutionContext.Initialize(fileSystem);
-        var package = CmfPackage.Load(fileSystem.FileInfo.New("/repo/IoT Packages/cmfpackage.json"));
-        var handler = new IoTPackageTypeHandler(package);
+        var previousServices = ExecutionContext.ServiceProvider;
+        var previousFileSystem = ExecutionContext.Instance?.FileSystem;
         var previousLogLevel = Log.Level;
+        var previousCacheSetting = Environment.GetEnvironmentVariable("cmf_cli_internal_disable_projectconfig_cache");
 
         try
         {
+            Environment.SetEnvironmentVariable("cmf_cli_internal_disable_projectconfig_cache", "1");
+            ExecutionContext.ServiceProvider = services;
+            ExecutionContext.Initialize(fileSystem);
+            var package = CmfPackage.Load(fileSystem.FileInfo.New("/repo/IoT Packages/cmfpackage.json"));
+            var handler = new IoTPackageTypeHandler(package);
             Log.Level = logLevel;
             Action pack = () => handler.Pack(fileSystem.DirectoryInfo.New("/repo/packed output"),
                 fileSystem.DirectoryInfo.New("/repo"));
@@ -89,6 +101,12 @@ public class IoTPackagePacking
         finally
         {
             Log.Level = previousLogLevel;
+            Environment.SetEnvironmentVariable("cmf_cli_internal_disable_projectconfig_cache", previousCacheSetting);
+            ExecutionContext.ServiceProvider = previousServices;
+            if (previousFileSystem != null)
+            {
+                ExecutionContext.Initialize(previousFileSystem);
+            }
         }
     }
 }
