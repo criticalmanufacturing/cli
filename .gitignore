@@ -365,9 +365,6 @@ report/
 
 npm/*.tgz
 
-#vendors
-!**/vendors/**
-
 .DS_Store
 
 .env

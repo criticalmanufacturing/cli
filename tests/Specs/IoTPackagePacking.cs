@@ -18,10 +18,15 @@ namespace tests.Specs;
 public class IoTPackagePacking
 {
     [Theory]
-    [InlineData(LogLevel.Debug, true)]
-    [InlineData(LogLevel.Information, true)]
-    [InlineData(LogLevel.Debug, false)]
-    public void Pack_Mes10RunsBundledYeomanThroughNode(LogLevel logLevel, bool createsOutput)
+    [InlineData(LogLevel.Debug, true, "/repo/IoT Packages/node_modules/@criticalmanufacturing/generator-iot", false)]
+    [InlineData(LogLevel.Information, true, "/repo/IoT Packages/node_modules/@criticalmanufacturing/generator-iot", false)]
+    [InlineData(LogLevel.Debug, false, "/repo/IoT Packages/node_modules/@criticalmanufacturing/generator-iot", false)]
+    [InlineData(LogLevel.Debug, true, "/repo/IoT Packages/projects/custom tasks/node_modules/@criticalmanufacturing/generator-iot", false)]
+    [InlineData(LogLevel.Debug, true, "/repo/node_modules/@criticalmanufacturing/generator-iot", false)]
+    [InlineData(LogLevel.Debug, false, null, false)]
+    [InlineData(LogLevel.Debug, false, null, true)]
+    public void Pack_Mes10UsesStandalonePackerOrReportsRequiredUpgrade(LogLevel logLevel, bool createsOutput,
+        string generatorDirectory, bool legacyGenerator)
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
@@ -41,6 +46,16 @@ public class IoTPackagePacking
             ["/repo/IoT Packages/projects/custom tasks/packConfig.json"] = new("{}"),
             ["/repo/IoT Packages/projects/custom tasks/index.js"] = new("module.exports = {};")
         }, "/repo/IoT Packages");
+        var standaloneEntry = generatorDirectory == null ? null : $"{generatorDirectory}/generators/packagePacker/cli.js";
+        if (standaloneEntry != null)
+        {
+            fileSystem.AddFile(standaloneEntry, new MockFileData("// standalone entry point"));
+        }
+        if (legacyGenerator)
+        {
+            fileSystem.AddFile("/repo/IoT Packages/node_modules/@criticalmanufacturing/generator-iot/generators/packagePacker/index.js",
+                new MockFileData("// legacy Yeoman generator without a standalone entry point"));
+        }
         const string runtimePackage = "/repo/packed output/runtimePackages/custom-tasks.tgz";
         var process = new Mock<IProcessStartInfoCLI>();
         process.SetupAllProperties();
@@ -77,6 +92,13 @@ public class IoTPackagePacking
             Log.Level = logLevel;
             Action pack = () => handler.Pack(fileSystem.DirectoryInfo.New("/repo/packed output"),
                 fileSystem.DirectoryInfo.New("/repo"));
+            if (standaloneEntry == null)
+            {
+                pack.Should().Throw<CliException>().WithMessage("*generator-iot*cmf-iot-pack*Update*reinstall*");
+                process.Verify(p => p.Start(), Times.Never);
+                fileSystem.File.Exists("/repo/Cmf.Custom.IoT.Packages.1.0.0.zip").Should().BeFalse();
+                return;
+            }
             if (createsOutput)
             {
                 pack.Should().NotThrow();
@@ -88,14 +110,12 @@ public class IoTPackagePacking
                 pack.Should().Throw<CliException>().WithMessage("Package Packer did not create the expected output file at *");
             }
 
-            var yoEntryPoint = fileSystem.Path.Combine(AppContext.BaseDirectory,
-                "resources", "vendors", "yo", "node_modules", "yo", "lib", "cli.js");
+            var entryPoint = fileSystem.Path.GetFullPath(standaloneEntry);
             process.Object.FileName.Should().Be("node");
-            process.Object.Arguments.Should().Be($"\"{yoEntryPoint}\" @criticalmanufacturing/iot:packagePacker " +
+            process.Object.Arguments.Should().Be($"\"{entryPoint}\" " +
                 $"{(logLevel == LogLevel.Debug ? "-d" : "")} -i \"{fileSystem.Path.GetFullPath("/repo/IoT Packages/projects/custom tasks")}\" " +
                 $"-o \"{fileSystem.Path.GetFullPath("/repo/packed output/runtimePackages")}\"");
             process.Object.WorkingDirectory.Should().Be(fileSystem.Path.GetFullPath("/repo/IoT Packages/projects/custom tasks"));
-            process.Object.EnvironmentVariables["NO_UPDATE_NOTIFIER"].Should().Be("1");
             process.Verify(p => p.Start(), Times.Once);
         }
         finally

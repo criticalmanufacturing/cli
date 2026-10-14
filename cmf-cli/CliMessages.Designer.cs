@@ -81,6 +81,9 @@ namespace Cmf.CLI {
         /// <summary>Legacy Yeoman option help.</summary>
         internal static string InitLegacyYoGeneratorDescription => ResourceManager.GetString("InitLegacyYoGeneratorDescription", resourceCulture);
 
+        /// <summary>MES v10 IoT standalone packer dependency error.</summary>
+        internal static string IoTStandalonePackerRequired => ResourceManager.GetString("IoTStandalonePackerRequired", resourceCulture);
+
         /// <summary>Missing tenant error.</summary>
         internal static string InitMissingTenant => ResourceManager.GetString("InitMissingTenant", resourceCulture);
 
