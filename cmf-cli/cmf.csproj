@@ -65,14 +65,6 @@
         </None>
     </ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Remove="resources\vendors\**" />
-    <Compile Remove="resources\vendors\**" />
-    <None Include="resources\vendors\**">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
     <ItemGroup>
         <Folder Include="Properties\" />
     </ItemGroup>

@@ -18,7 +18,11 @@ When the cmf pack is executed it will search in the working directory, for a `cm
 
 ### IoT packages on MES v10
 
-For MES v10, `cmf pack` runs the bundled Yeoman package packer through Node.js. Packing does not require changing permissions on files in the CLI installation, so a global CLI installation can be used by a regular user. Node.js must be available on `PATH`, and the package and output directories must be writable.
+For MES v10, `cmf pack` requires a version of `@criticalmanufacturing/generator-iot` that exposes the standalone `cmf-iot-pack` command. The generator must be installed in the package or an ancestor's `node_modules` directory. Node.js must be available on `PATH`.
+
+The CLI runs the packing engine directly under the same user as the CLI, including root. The source, temporary, and output directories must be writable by that user. The CLI no longer bundles Yeoman for packing.
+
+To migrate an existing project, update its `@criticalmanufacturing/generator-iot` dependency to a release for your MES version that includes `cmf-iot-pack`, update the lockfile, and reinstall dependencies in the IoT package directory. In CI, install these dependencies before running `cmf pack`. A missing standalone command produces an error explaining the required upgrade.
 
 ### Root package dependencies
 
