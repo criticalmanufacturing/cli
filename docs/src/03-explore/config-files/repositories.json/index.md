@@ -12,6 +12,8 @@ Path that points to a folder that contain packages that are treat as Continuous 
 
 Array of paths that point to folders that contain package that are treat as official (i.e. upstream dependencies or already releases packages).
 
+When publishing packages to an NPM feed, CLI v6 uses streaming uploads by default to reduce memory usage. Set the environment variable `cmf_cli_feature__use_streaming_publish` to `false` or `0` to disable streaming publishing.
+
 ## Example
 
 Follows an example of `repositories.json` file.

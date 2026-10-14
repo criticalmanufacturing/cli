@@ -143,7 +143,7 @@ To set it in the debugger, add it to `env` in `launch.json`.
 | `cmf_cli_loglevel`                             | Default log level (see above)                                        |
 | `cmf_cli_skip_version_check=true`              | Skips the check for newer CLI versions at startup                    |
 | `cmf_cli_feature__use_repository_clients=true` | Enables the repository clients feature (set by default in `launch.json`) |
-| `cmf_cli_feature__use_streaming_publish=true`  | Enables streaming publish                                            |
+| `cmf_cli_feature__use_streaming_publish`       | Streaming publish is enabled by default in v6; set to `false` or `0` to disable it |
 | `cmf_cli_internal_disable_projectconfig_cache=1` | Re-reads the project configuration on every access instead of caching it |
 | `cmf_cli_enable_telemetry` / `cmf_cli_enable_extended_telemetry` | Turn telemetry on or off                          |
 
