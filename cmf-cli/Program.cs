@@ -43,6 +43,7 @@ namespace Cmf.CLI
                     registerExtraServices: collection =>
                     {
                         collection.AddSingleton<IDependencyVersionService, DependencyVersionService>();
+                        collection.AddSingleton<IGrafanaPluginResolver, GrafanaPluginResolver>();
                         collection.AddSingleton<IRepositoryLocator, RepositoryLocator>();
                         collection.AddSingleton<IFeaturesService>(new FeaturesService("cmf_cli"));
                         collection.AddSingleton<IRepositoryCredentials>(new PortalRepositoryCredentials(fileSystem));
