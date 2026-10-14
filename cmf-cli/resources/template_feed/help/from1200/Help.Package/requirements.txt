@@ -8,4 +8,4 @@ mkdocs-macros-plugin==1.5.0
 neoteroi-mkdocs==1.2.0
 Markdown==3.4.4
 Pygments==2.16.1
-pymdown-extensions==10.3
+pymdown-extensions==11.0.1
