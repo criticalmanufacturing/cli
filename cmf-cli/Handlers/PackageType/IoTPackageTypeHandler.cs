@@ -283,36 +283,8 @@ namespace Cmf.CLI.Handlers
                         
                         if (ExecutionContext.Instance.ProjectConfig.MESVersion.Major < 11)
                         {
-                            var environmentVariables = new Dictionary<string, string>()
-                            {
-                                { "NO_UPDATE_NOTIFIER", "1" },
-                            };
-
-                            // Run the JavaScript entry point directly so globally installed files need no permission changes.
-                            IFileInfo yo = this.fileSystem.FileInfo.New($"{AppContext.BaseDirectory}resources/vendors/yo/node_modules/yo/lib/cli.js");
-                            if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())
-                            {
-                                if (Environment.IsPrivilegedProcess)
-                                {
-                                    IDirectoryInfo dist = this.fileSystem.DirectoryInfo.New($"{packDirectory.Parent.Parent.FullName}/dist/{packDirectory.Name}");
-                                    if (dist.Exists)
-                                    {
-                                        Log.Debug("Setting group permissions on the package dist folder");
-                                        FileSystemUtilities.SetUnixDirectoryPermissions(this.fileSystem, dist, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
-                                                                                                              UnixFileMode.GroupRead | UnixFileMode.GroupWrite | UnixFileMode.GroupExecute |
-                                                                                                              UnixFileMode.OtherRead | UnixFileMode.OtherWrite | UnixFileMode.OtherExecute, true);
-                                    }
-
-                                    Log.Debug("Setting group permissions on the package output folder");
-                                    FileSystemUtilities.SetUnixDirectoryPermissions(this.fileSystem, outputDirPath, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
-                                                                                                                   UnixFileMode.GroupRead | UnixFileMode.GroupWrite | UnixFileMode.GroupExecute |
-                                                                                                                   UnixFileMode.OtherRead | UnixFileMode.OtherWrite | UnixFileMode.OtherExecute, true);
-
-                                    string tempPath = this.fileSystem.Path.GetTempPath();
-                                    Log.Debug($"Using {tempPath} for npm cache to avoid permission issues");
-                                    environmentVariables.Add("npm_config_cache", $"{tempPath}/.npm-cache");
-                                }
-                            }
+                            IFileInfo packer = FindStandalonePacker(packDirectory)
+                                ?? throw new CliException(CliMessages.IoTStandalonePackerRequired);
 
                             SingleStepCommand cmdCommand = new SingleStepCommand()
                             {
@@ -320,8 +292,7 @@ namespace Cmf.CLI.Handlers
                                 BuildStep = new ProcessBuildStep()
                                 {
                                     Command = "node",
-                                    Args = new string[] { $"\"{yo.FullName}\"", "@criticalmanufacturing/iot:packagePacker", debugFlag, $"-i \"{inputDirPath.FullName}\"", $"-o \"{outputDirPath.FullName}\"" },
-                                    EnvironmentVariables = environmentVariables
+                                    Args = new[] { $"\"{packer.FullName}\"", debugFlag, $"-i \"{inputDirPath.FullName}\"", $"-o \"{outputDirPath.FullName}\"" }
                                 }
                             };
 
@@ -371,6 +342,20 @@ namespace Cmf.CLI.Handlers
 
             GeneratePresentationConfigFile(packageOutputDir);
             base.Pack(packageOutputDir, outputDir, dryRun);
+        }
+
+        private IFileInfo FindStandalonePacker(IDirectoryInfo packageDirectory)
+        {
+            for (var directory = packageDirectory; directory != null; directory = directory.Parent)
+            {
+                var entryPoint = this.fileSystem.FileInfo.New(this.fileSystem.Path.Combine(directory.FullName,
+                    "node_modules", "@criticalmanufacturing", "generator-iot", "generators", "packagePacker", "cli.js"));
+                if (entryPoint.Exists)
+                {
+                    return entryPoint;
+                }
+            }
+            return null;
         }
 
         private List<string> GetPackagesWithBusinessScenarios(List<IFileInfo> packageJsons)
