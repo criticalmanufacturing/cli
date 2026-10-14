@@ -7,6 +7,9 @@ version: 2
 updates:
   - package-ecosystem: npm
     directory: /npm
+    commit-message:
+      include: scope
+      prefix: chore
     schedule:
       interval: weekly
   - package-ecosystem: nuget
