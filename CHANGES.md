@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [6.0.0-21](https://github.com/criticalmanufacturing/cli/compare/6.0.0-20...6.0.0-21) (2026-10-14)
+
+
+### Features
+
+* **grafana:** bundle manifest-declared plugins for offline deployment ([2602753](https://github.com/criticalmanufacturing/cli/commit/2602753bf2140340628e9bcfa40311365575b625))
+
+
+### Bug Fixes
+
+* **publish:** default to streaming when feature service is unavailable ([da5253a](https://github.com/criticalmanufacturing/cli/commit/da5253a5df1818f99a7402bb2345157ad7709ba1))
+
 ## [6.0.0-20](https://github.com/criticalmanufacturing/cli/compare/6.0.0-19...6.0.0-20) (2026-10-13)
 
 
