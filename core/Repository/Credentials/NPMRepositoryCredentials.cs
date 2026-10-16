@@ -56,7 +56,7 @@ namespace Cmf.CLI.Core.Repository.Credentials
                     var repoUriBuilder = new UriBuilder(cred.Repository);
                     repoUriBuilder.Scheme = null;
                     repoUriBuilder.Port = -1;
-                    var repoUri = repoUriBuilder.ToString().TrimEnd('/') + "/";
+                    var repoUri = repoUriBuilder.ToString();
 
                     if (cred is BasicCredential basicCred)
                     {
