@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [6.0.0-22](https://github.com/criticalmanufacturing/cli/compare/6.0.0-21...6.0.0-22) (2026-10-16)
+
+### Bug Fixes
+
+* **dependencies:** update brace-expansion and handlebars to latest versions ([c1a3fd6](https://github.com/criticalmanufacturing/cli/commit/c1a3fd63bf74861eb9bac3748fa23fa4e8115d41))
+* **plugins:** console inheritance ([31f9f62](https://github.com/criticalmanufacturing/cli/commit/31f9f62924b2e8f1cabcaddb30098dee30c31a19))
+
 ## [6.0.0-21](https://github.com/criticalmanufacturing/cli/compare/6.0.0-20...6.0.0-21) (2026-10-14)
 
 
