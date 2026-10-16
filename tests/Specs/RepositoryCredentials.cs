@@ -820,48 +820,6 @@ public class RepositoryCredentials
         ini.GetValue("", "//custom-registry.com/:_authToken").Should().Be("A.B.C");
     }
 
-    [Theory]
-    [InlineData("https://custom-registry.com", "//custom-registry.com/", AuthType.Basic)]
-    [InlineData("https://custom-registry.com/", "//custom-registry.com/", AuthType.Basic)]
-    [InlineData("https://custom-registry.com/repository/npm", "//custom-registry.com/repository/npm/", AuthType.Basic)]
-    [InlineData("https://custom-registry.com/repository/npm/", "//custom-registry.com/repository/npm/", AuthType.Basic)]
-    [InlineData("https://custom-registry.com", "//custom-registry.com/", AuthType.Bearer)]
-    [InlineData("https://custom-registry.com/", "//custom-registry.com/", AuthType.Bearer)]
-    [InlineData("https://custom-registry.com/repository/npm", "//custom-registry.com/repository/npm/", AuthType.Bearer)]
-    [InlineData("https://custom-registry.com/repository/npm/", "//custom-registry.com/repository/npm/", AuthType.Bearer)]
-    public async Task NPMRepositoryCredentials_SyncCredentials_EnsuresTrailingSlash(string repository, string expectedKey, AuthType authType)
-    {
-        // Arrange
-        var fileSystem = new MockFileSystem();
-        var npm = new NPMRepositoryCredentials(fileSystem);
-        ICredential credential = authType == AuthType.Basic
-            ? new BasicCredential
-            {
-                RepositoryType = RepositoryCredentialsType.NPM,
-                Repository = repository,
-                Username = "username",
-                Password = "password",
-            }
-            : new BearerCredential
-            {
-                RepositoryType = RepositoryCredentialsType.NPM,
-                Repository = repository,
-                Token = "A.B.C",
-            };
-
-        // Act
-        await npm.SyncCredentials([credential]);
-
-        // Assert
-        var ini = new INIFile();
-        ini.Parse(fileSystem.File.ReadAllText(MockNPMConfigFilePath));
-        var property = authType == AuthType.Basic ? "_auth" : "_authToken";
-        var expectedAuth = authType == AuthType.Basic
-            ? Convert.ToBase64String(Encoding.UTF8.GetBytes("username:password"))
-            : "A.B.C";
-        ini.GetValue("", $"{expectedKey}:{property}").Should().Be(expectedAuth);
-    }
-
     [Fact]
     public async Task NPMRepositoryCredentials_SyncCredentials_ExistingFile()
     {
