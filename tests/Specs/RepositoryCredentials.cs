@@ -868,6 +868,51 @@ public class RepositoryCredentials
     }
 
     [Theory]
+    [InlineData("https://dev.criticalmanufacturing.io/repository/npm-releases", "dev.criticalmanufacturing.io/repository/")]
+    [InlineData("https://dev.criticalmanufacturing.io/repository/npm-releases/", "dev.criticalmanufacturing.io/repository/npm-releases/")]
+    [InlineData("https://registry.example.com:8443/npm/", "registry.example.com:8443/npm/")]
+    [InlineData("https://registry.example.com:8443/npm", "registry.example.com:8443/")]
+    [InlineData("https://registry.example.com", "registry.example.com/")]
+    [InlineData("https://registry.example.com:443/npm/", "registry.example.com/npm/")]
+    [InlineData("https://registry.example.com/npm/?query=value#fragment", "registry.example.com/npm/")]
+    [InlineData("https://registry.example.com/npm?query=value#fragment", "registry.example.com/")]
+    public async Task NPMRepositoryCredentials_SyncCredentials_MatchesNpmScope(string repository, string scope)
+    {
+        var fileSystem = new MockFileSystem();
+        var npm = new NPMRepositoryCredentials(fileSystem);
+        var ini = new INIFile();
+
+        await npm.SyncCredentials([
+            new BasicCredential
+            {
+                RepositoryType = RepositoryCredentialsType.NPM,
+                Repository = repository,
+                Username = "user",
+                Password = "password",
+            }
+        ]);
+
+        ini.Parse(fileSystem.File.ReadAllText(MockNPMConfigFilePath));
+        ini.GetValue("", $"//{scope}:_auth").Should().Be(
+            Convert.ToBase64String(Encoding.UTF8.GetBytes("user:password")));
+
+        await npm.SyncCredentials([
+            new BearerCredential
+            {
+                RepositoryType = RepositoryCredentialsType.NPM,
+                Repository = repository,
+                Token = "test-token",
+            }
+        ]);
+
+        var tokenConfig = fileSystem.File.ReadAllText(MockNPMConfigFilePath);
+        ini = new INIFile();
+        ini.Parse(tokenConfig);
+        ini.GetValue("", $"//{scope}:_authToken").Should().Be("test-token");
+        tokenConfig.Should().NotContain(":_auth=");
+    }
+
+    [Theory]
     [InlineData("http://registry.npmjs.org/", "npm__registry_npmjs_org")]
     [InlineData("http://custom.registry.com/npm-group/", "npm__custom_registry_com_npm_group")]
     public void NPMRepositoryCredentials_GetEnvironmentVariablePrefix(string repository, string envVarPrefix)

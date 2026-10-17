@@ -47,3 +47,12 @@ Repository Type | Method      | Details
 **NuGet**       | File        | **Windows** `{ApplicationData}/NuGet/NuGet.config`<br />**Linux** `{HOME}/.nuget/NuGet/NuGet.config`
 **Docker**      | Command     | `docker login <repoUrl> -u <username> -p <password>`
 **CIFS**        | N/A         | _CIFS authentication is only used internally by the cmf cli itself and thus needs no synchronization_
+
+### NPM credential scope
+
+NPM credentials use the same URL scoping rules as `npm login`: the scheme is omitted, non-default ports are preserved, and the URL is resolved to its directory. A trailing slash therefore matters:
+
+- `https://criticalmanufacturing.io/repository/npm` stores credentials under `//criticalmanufacturing.io/repository/`.
+- `https://criticalmanufacturing.io/repository/npm/` stores credentials under `//criticalmanufacturing.io/repository/npm/`.
+
+Include the trailing slash to restrict credentials to that registry path. Existing entries under other scopes are not removed automatically.
