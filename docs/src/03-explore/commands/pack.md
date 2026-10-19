@@ -16,6 +16,14 @@ cmf pack comes with preconfigured [Steps](https://github.com/criticalmanufacturi
 
 When the cmf pack is executed it will search in the working directory, for a `cmfpackage.json` file, that then is serialized to the [CmfPackage](https://github.com/criticalmanufacturing/cli/blob/development/docs/cmf/Cmf_Common_Cli_Objects.md#cmfpackage-class) this will guarantee that the `cmfpackage.json` has all the valid and needed fields. Then it will get which is the [PackageType](https://github.com/criticalmanufacturing/cli/blob/development/docs/cmf/Cmf_Common_Cli_Enums.md#Cmf_Common_Cli_Enums_PackageType), and based on that will generate the package.
 
+### IoT packages on MES v10
+
+For MES v10, `cmf pack` requires a version of `@criticalmanufacturing/generator-iot` that exposes the standalone `cmf-iot-pack` command. The generator must be installed in the package or an ancestor's `node_modules` directory. Node.js must be available on `PATH`.
+
+The CLI runs the packing engine directly under the same user as the CLI, including root. The source, temporary, and output directories must be writable by that user. The CLI no longer bundles Yeoman for packing.
+
+To migrate an existing project, update its `@criticalmanufacturing/generator-iot` dependency to a release for your MES version that includes `cmf-iot-pack`, update the lockfile, and reinstall dependencies in the IoT package directory. In CI, install these dependencies before running `cmf pack`. A missing standalone command produces an error explaining the required upgrade.
+
 ### Root package dependencies
 
 For cmfpackagev2 root packages (including feature and IoT roots), `cmf pack` populates virtual environment dependencies in the in-memory `CmfPackage.Dependencies` collection using `MESVersion` from `.project-config.json`. These dependencies are available throughout packing and are serialized by the normal deployment manifest generator:

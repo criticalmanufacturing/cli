@@ -328,7 +328,7 @@ namespace Cmf.CLI.Core.Objects
 
             try
             {
-                bool useStreamingPublish = ExecutionContext.ServiceProvider?.GetService<IFeaturesService>()?.UseStreamingPublish ?? false;
+                bool useStreamingPublish = ExecutionContext.ServiceProvider?.GetService<IFeaturesService>()?.UseStreamingPublish ?? true;
 
                 Log.Debug($"Load package content (streaming mode {(useStreamingPublish ? "enabled" : "disabled")})...");
 

@@ -14,9 +14,9 @@
 		<OutputPath>..\Release</OutputPath>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Cmf.Foundation.BusinessObjects" Version="<%= $CLI_PARAM_MESVersion %>"/>
+		<PackageReference Include="Cmf.Foundation.BusinessObjects" Version="<%= $CLI_PARAM_MESVersion %>" />
 <!--#if (includeMESNugets) { -->
-		<PackageReference Include="Cmf.Navigo.BusinessObjects" Version="<%= $CLI_PARAM_MESVersion %>"/>
+		<PackageReference Include="Cmf.Navigo.BusinessObjects" Version="<%= $CLI_PARAM_MESVersion %>" />
 <!--//#endif -->
 	</ItemGroup>
 <!--#if (includeMESNugets) { -->

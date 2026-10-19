@@ -1,10 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions.TestingHelpers;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Cmf.CLI;
@@ -228,6 +232,44 @@ public class Plugins : IDisposable
         act.Should().Throw<CliException>().Where(e => (int)e.ErrorCode == 3);
     }
 
+    [Fact]
+    public void TryExecutePlugin_InheritedConsole_DoesNotRelayOutput()
+    {
+        // the plugin writes straight to the process' stdout, so nothing goes through Console.Out
+        var plugins = new Dictionary<string, PluginCommand> { { "echo", CreateEchoPlugin(inheritConsoleOutput: true) } };
+
+        var output = CaptureConsoleOutput(() =>
+            Program.TryExecutePlugin(plugins, ["echo", "hello"]).Should().BeTrue());
+
+        output.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void TryExecutePlugin_InheritedConsole_ThrowsWhenPluginFails()
+    {
+        var plugins = new Dictionary<string, PluginCommand> { { "echo", CreateEchoPlugin(exitCode: 3, inheritConsoleOutput: true) } };
+
+        var act = () => Program.TryExecutePlugin(plugins, ["echo", "--help"]);
+
+        act.Should().Throw<CliException>().Where(e => (int)e.ErrorCode == 3);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void TryExecutePlugin_LogsConsoleMode(bool inheritConsoleOutput)
+    {
+        var logWriter = new Logging().GetLogStringWriter();
+        var plugins = new Dictionary<string, PluginCommand> { { "echo", CreateEchoPlugin(inheritConsoleOutput: inheritConsoleOutput) } };
+        ClearLogLevelVariables();
+        Environment.SetEnvironmentVariable("cmf_cli_loglevel", "Debug");
+
+        CaptureConsoleOutput(() => Program.TryExecutePlugin(plugins, ["echo"]));
+
+        var mode = inheritConsoleOutput ? "inherited" : "relayed";
+        logWriter.ToString().Should().Contain($"stdout {mode}, stderr {mode}");
+    }
+
     [Theory]
     [InlineData("cmf_cli_loglevel", "Debug")]
     [InlineData("SYSTEM_DEBUG", "true")]
@@ -258,6 +300,155 @@ public class Plugins : IDisposable
         Log.Level.Should().Be(LogLevel.Verbose);
     }
 
+    [Fact, Trait("TestCategory", "Integration")]
+    public void Execute_InTerminal_PluginCanUseSpectreMultiSelectionPrompt()
+    {
+        if (!CanRunInTerminal())
+        {
+            return;
+        }
+        var pluginDir = CreateSpectreMultiSelectPlugin();
+
+        // select Apple, move down twice, select Cherry, submit
+        var output = RunInTerminal($"exec '{CmfExecutable}' multiselect", pluginDir,
+            waitFor: "Pick fruits", " ", "\u001b[B", "\u001b[B", " ", "\r");
+
+        output.Should().Contain("Interactive: True");
+        output.Should().Contain("Selected: Apple, Cherry");
+    }
+
+    [Fact, Trait("TestCategory", "Integration")]
+    public void Execute_WithRedirectedOutput_PluginIsNotInteractive()
+    {
+        if (!CanRunInTerminal())
+        {
+            return;
+        }
+        var pluginDir = CreateSpectreMultiSelectPlugin();
+
+        // cmf's stdout is a pipe, so the plugin's stdout is relayed and Spectre.Console can't prompt
+        var output = RunInTerminal($"'{CmfExecutable}' multiselect | cat", pluginDir);
+
+        output.Should().Contain("Interactive: False");
+        output.Should().NotContain("Selected:");
+    }
+
+    private static string CmfExecutable => Path.Combine(AppContext.BaseDirectory, "cmf");
+
+    /// <summary>
+    /// The terminal tests need a pseudo-terminal, which is provided by util-linux's script
+    /// </summary>
+    private static bool CanRunInTerminal() =>
+        OperatingSystem.IsLinux() && File.Exists(CmfExecutable) &&
+        (Environment.GetEnvironmentVariable("PATH") ?? "").Split(Path.PathSeparator).Any(dir => File.Exists(Path.Combine(dir, "script")));
+
+    /// <summary>
+    /// Builds a cmf-multiselect plugin which reports whether its console is interactive and shows a Spectre.Console MultiSelectionPrompt
+    /// </summary>
+    /// <returns>the directory containing the plugin launcher</returns>
+    private string CreateSpectreMultiSelectPlugin()
+    {
+        var dir = Directory.CreateTempSubdirectory("cmf-plugin-tests").FullName;
+        tempDirectories.Add(dir);
+        var projectDir = Directory.CreateDirectory(Path.Combine(dir, "src")).FullName;
+        var outputDir = Path.Combine(dir, "out");
+        var spectreVersion = typeof(Spectre.Console.AnsiConsole).Assembly
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion.Split('+')[0];
+
+        File.WriteAllText(Path.Combine(projectDir, "multiselect.csproj"), $"""
+            <Project Sdk="Microsoft.NET.Sdk">
+              <PropertyGroup>
+                <OutputType>Exe</OutputType>
+                <TargetFramework>net{Environment.Version.Major}.0</TargetFramework>
+                <ImplicitUsings>enable</ImplicitUsings>
+              </PropertyGroup>
+              <ItemGroup>
+                <PackageReference Include="Spectre.Console" Version="{spectreVersion}" />
+              </ItemGroup>
+            </Project>
+            """);
+        File.WriteAllText(Path.Combine(projectDir, "Program.cs"), """
+            using Spectre.Console;
+
+            AnsiConsole.WriteLine($"Interactive: {AnsiConsole.Console.Profile.Capabilities.Interactive}");
+            var selected = AnsiConsole.Prompt(new MultiSelectionPrompt<string>()
+                .Title("Pick fruits")
+                .AddChoices("Apple", "Banana", "Cherry"));
+            AnsiConsole.WriteLine($"Selected: {string.Join(", ", selected)}");
+            """);
+
+        var build = new ProcessStartInfo("dotnet") { RedirectStandardOutput = true, RedirectStandardError = true };
+        new[] { "build", projectDir, "--configuration", "Release", "--output", outputDir, "--nologo" }.ToList().ForEach(build.ArgumentList.Add);
+        using (var process = Process.Start(build)!)
+        {
+            var buildOutput = process.StandardOutput.ReadToEndAsync();
+            var buildError = process.StandardError.ReadToEndAsync();
+            process.WaitForExit();
+            process.ExitCode.Should().Be(0, $"the test plugin should build: {buildOutput.Result}{buildError.Result}");
+        }
+
+        var pluginDir = Directory.CreateDirectory(Path.Combine(dir, "bin")).FullName;
+        var launcher = Path.Combine(pluginDir, "cmf-multiselect");
+        File.WriteAllText(launcher, $"#!/bin/sh\nexec dotnet '{Path.Combine(outputDir, "multiselect.dll")}' \"$@\"\n");
+        File.SetUnixFileMode(launcher, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+        return pluginDir;
+    }
+
+    /// <summary>
+    /// Runs a shell command in a pseudo-terminal, optionally typing keys once some text is shown
+    /// </summary>
+    /// <returns>everything written to the terminal</returns>
+    private static string RunInTerminal(string command, string pluginDir, string waitFor = null, params string[] keys)
+    {
+        var ps = new ProcessStartInfo("script") { RedirectStandardInput = true, RedirectStandardOutput = true };
+        new[] { "--quiet", "--return", "--command", command, "/dev/null" }.ToList().ForEach(ps.ArgumentList.Add);
+        ps.Environment["PATH"] = $"{pluginDir}{Path.PathSeparator}{Environment.GetEnvironmentVariable("PATH")}";
+        ps.Environment["TERM"] = "xterm-256color";
+        // Spectre disables interaction on GitHub Actions even when attached to a pseudo-terminal.
+        ps.Environment.Remove("GITHUB_ACTIONS");
+        ps.Environment["cmf_cli_skip_version_check"] = "true";
+
+        using var process = Process.Start(ps)!;
+        var output = new StringBuilder();
+        string Output() { lock (output) { return output.ToString(); } }
+        var reader = Task.Run(async () =>
+        {
+            var buffer = new char[1024];
+            int read;
+            while ((read = await process.StandardOutput.ReadAsync(buffer)) > 0)
+            {
+                lock (output) { output.Append(buffer, 0, read); }
+            }
+        });
+
+        try
+        {
+            if (waitFor != null)
+            {
+                SpinWait.SpinUntil(() => Output().Contains(waitFor) || process.HasExited, TimeSpan.FromSeconds(60));
+                Output().Should().Contain(waitFor);
+                foreach (var key in keys)
+                {
+                    // give the prompt time to switch the terminal to raw mode and handle the previous key
+                    Thread.Sleep(500);
+                    process.StandardInput.Write(key);
+                    process.StandardInput.Flush();
+                }
+            }
+
+            process.WaitForExit(TimeSpan.FromSeconds(60)).Should().BeTrue($"the command should finish, got: {Output()}");
+            reader.Wait(TimeSpan.FromSeconds(10));
+            return Output();
+        }
+        finally
+        {
+            if (!process.HasExited)
+            {
+                process.Kill(entireProcessTree: true);
+            }
+        }
+    }
+
     private static void ClearLogLevelVariables()
     {
         Environment.SetEnvironmentVariable("cmf_cli_loglevel", null);
@@ -267,7 +458,7 @@ public class Plugins : IDisposable
     /// <summary>
     /// Creates a plugin which prints each of its arguments on a separate line
     /// </summary>
-    private PluginCommand CreateEchoPlugin(int exitCode = 0)
+    private PluginCommand CreateEchoPlugin(int exitCode = 0, bool inheritConsoleOutput = false)
     {
         var dir = Directory.CreateTempSubdirectory("cmf-plugin-tests").FullName;
         tempDirectories.Add(dir);
@@ -284,7 +475,7 @@ public class Plugins : IDisposable
             File.SetUnixFileMode(path, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
         }
 
-        return new PluginCommand("echo", path);
+        return new PluginCommand("echo", path) { InheritConsoleOutput = inheritConsoleOutput };
     }
 
     private static string CaptureConsoleOutput(Action action)

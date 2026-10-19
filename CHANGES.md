@@ -2,6 +2,56 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [6.0.0](https://github.com/criticalmanufacturing/cli/compare/6.0.0-23...6.0.0) (2026-10-19)
+
+
+### Bug Fixes
+
+* **devcontainer:** add NG_CLI_ANALYTICS environment variable ([8399180](https://github.com/criticalmanufacturing/cli/commit/83991805a1fdb7733975f0a2dc3874b900251cff))
+
+## [6.0.0-23](https://github.com/criticalmanufacturing/cli/compare/6.0.0-22...6.0.0-23) (2026-10-19)
+
+
+### Features
+
+* **new test:** update Cmf.LightBusinessObjects project references to nuget ([21bc413](https://github.com/criticalmanufacturing/cli/commit/21bc413e2593b8fd1ccf87926d705b8a86351773))
+
+
+### Bug Fixes
+
+* **templates:** preserve LBO NetStandard packages directory ([79a6e0a](https://github.com/criticalmanufacturing/cli/commit/79a6e0a68795204c2088d35cc8f6291e9c8277c3))
+
+## [6.0.0-22](https://github.com/criticalmanufacturing/cli/compare/6.0.0-21...6.0.0-22) (2026-10-16)
+
+### Bug Fixes
+
+* **dependencies:** update brace-expansion and handlebars to latest versions ([c1a3fd6](https://github.com/criticalmanufacturing/cli/commit/c1a3fd63bf74861eb9bac3748fa23fa4e8115d41))
+* **plugins:** console inheritance ([31f9f62](https://github.com/criticalmanufacturing/cli/commit/31f9f62924b2e8f1cabcaddb30098dee30c31a19))
+
+## [6.0.0-21](https://github.com/criticalmanufacturing/cli/compare/6.0.0-20...6.0.0-21) (2026-10-14)
+
+
+### Features
+
+* **grafana:** bundle manifest-declared plugins for offline deployment ([2602753](https://github.com/criticalmanufacturing/cli/commit/2602753bf2140340628e9bcfa40311365575b625))
+
+
+### Bug Fixes
+
+* **publish:** default to streaming when feature service is unavailable ([da5253a](https://github.com/criticalmanufacturing/cli/commit/da5253a5df1818f99a7402bb2345157ad7709ba1))
+
+## [6.0.0-20](https://github.com/criticalmanufacturing/cli/compare/6.0.0-19...6.0.0-20) (2026-10-13)
+
+
+### Bug Fixes
+
+* **iot:** avoid changing bundled Yeoman permissions during pack ([effc481](https://github.com/criticalmanufacturing/cli/commit/effc48120555684f6c2618366ad8260e3a056749))
+
+
+### Under the hood
+
+* **core:** mark CmfPackageV1 obsolete ([bf7a3b2](https://github.com/criticalmanufacturing/cli/commit/bf7a3b2551090f196f481bb065825437ffca2268))
+
 ## [6.0.0-19](https://github.com/criticalmanufacturing/cli/compare/6.0.0-18...6.0.0-19) (2026-10-09)
 
 

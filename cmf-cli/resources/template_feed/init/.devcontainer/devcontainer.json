@@ -21,7 +21,8 @@
     ],
     "containerEnv": {
         "DOCKER_REGISTRY": "docker.io",
-        "CM_DOCKER_REGISTRY": "criticalmanufacturing.io"
+        "CM_DOCKER_REGISTRY": "criticalmanufacturing.io",
+        "NG_CLI_ANALYTICS": "false"
     },
     "customizations": {
         "vscode": {

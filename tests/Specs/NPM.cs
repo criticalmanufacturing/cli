@@ -358,6 +358,34 @@ public class NPM
         await readDisposedResponse.Should().ThrowAsync<ObjectDisposedException>();
     }
 
+    [Fact]
+    public async Task Upload_StreamsByDefaultWhenFeaturesServiceIsUnavailable()
+    {
+        Setup();
+        var package = CreatePublishPackage();
+        using var handler = new UploadHandler();
+        using var httpClient = new HttpClient(handler);
+        var client = new NPMClient("https://registry.example", httpClient);
+        var previousServiceProvider = ExecutionContext.ServiceProvider;
+        using var serviceProvider = new ServiceCollection()
+            .AddSingleton<IVersionService, MockVersionService>()
+            .BuildServiceProvider();
+        ExecutionContext.ServiceProvider = serviceProvider;
+        try
+        {
+            await client.PublishPackage(package);
+
+            handler.Content.Should().BeOfType<StreamContent>();
+            var attachment = JObject.Parse(handler.Payload)["_attachments"]["cmf.custom.test-1.0.0.tgz"];
+            Convert.FromBase64String(attachment["data"].Value<string>())
+                .Should().Equal(package.FileSystem.File.ReadAllBytes(package.FullName));
+        }
+        finally
+        {
+            ExecutionContext.ServiceProvider = previousServiceProvider;
+        }
+    }
+
     [Theory]
     [InlineData(false)]
     [InlineData(true)]

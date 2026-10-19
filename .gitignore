@@ -4,6 +4,7 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 # User-specific files
+.cmf-grafana-plugins/
 *.rsuser
 *.suo
 *.user
@@ -363,9 +364,6 @@ launchSettings.json
 report/
 
 npm/*.tgz
-
-#vendors
-!**/vendors/**
 
 .DS_Store
 
