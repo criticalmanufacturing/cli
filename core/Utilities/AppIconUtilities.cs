@@ -1,7 +1,6 @@
 ﻿using Cmf.CLI.Utilities;
-using System;
 using System.IO;
-using System.Linq;
+using SkiaSharp;
 
 namespace Cmf.CLI.Core.Utilities
 {
@@ -20,18 +19,19 @@ namespace Cmf.CLI.Core.Utilities
         /// </exception>
         public static bool IsIconValid(string path)
         {
-            const string PNG_EXTENSION = "png";
-
             if (!File.Exists(path))
             {
                 throw new CliException("File not found.");
             }
 
-            using SixLabors.ImageSharp.Image image = SixLabors.ImageSharp.Image.Load(path);
+            using SKCodec codec = SKCodec.Create(path);
+            if (codec == null || codec.EncodedFormat != SKEncodedImageFormat.Png)
+            {
+                throw new CliException("The icon provided is not PNG");
+            }
 
-            bool isPNG = image.Metadata.DecodedImageFormat.FileExtensions.Contains(PNG_EXTENSION);
-
-            if (!isPNG)
+            using SKBitmap image = SKBitmap.Decode(codec);
+            if (image == null)
             {
                 throw new CliException("The icon provided is not PNG");
             }
