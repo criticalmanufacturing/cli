@@ -125,22 +125,31 @@ namespace Cmf.CLI.Utilities
         {
             List<string> args = [];
             string workflowsFolder = null;
+            string mdFilePath = null;
+
             foreach (ContentToPack contentToPack in cmfPackage.ContentToPack ?? [])
             {
-                if (contentToPack.Source?.Contains(@"$(version)") ?? false)
+                string contentToPackSource = contentToPack.Source;
+
+                if (contentToPackSource?.Contains(@"$(version)") ?? false)
                 {
-                    Log.Warning("Source paths with \"$(version)\" in cmf packages will be ignored");
-                    continue;
+                    contentToPackSource = contentToPackSource.Replace(@"$(version)", cmfPackage.Version);
                 }
 
-                if (contentToPack.ContentType == ContentType.MasterData)
+                if (contentToPack.ContentType == ContentType.MasterData
+                    && string.IsNullOrWhiteSpace(mdFilePath))
                 {
-                    var mdFilePath = fileSystem.Path.GetFullPath(fileSystem.Path.Combine(cmfPackage.GetFileInfo().DirectoryName, contentToPack.Source)).Replace("*", "");
-                    args.Add(mdFilePath);
-                } else if (contentToPack.ContentType == ContentType.AutomationWorkFlows)
+                    mdFilePath = fileSystem.Path.GetFullPath(fileSystem.Path.Combine(cmfPackage.GetFileInfo().DirectoryName, contentToPackSource)).Replace("*", "");
+                } else if (contentToPack.ContentType == ContentType.AutomationWorkFlows
+                    && string.IsNullOrWhiteSpace(workflowsFolder))
                 {
-                    workflowsFolder = fileSystem.Path.GetFullPath(fileSystem.Path.Combine(cmfPackage.GetFileInfo().DirectoryName, contentToPack.Source)).Replace("*", "");
+                    workflowsFolder = fileSystem.Path.GetFullPath(fileSystem.Path.Combine(cmfPackage.GetFileInfo().DirectoryName, contentToPackSource)).Replace("*", "");
                 }
+            }
+
+            if (!string.IsNullOrEmpty(mdFilePath))
+            {
+                args.Add(mdFilePath);
             }
 
             if (!string.IsNullOrEmpty(workflowsFolder))
@@ -158,7 +167,7 @@ namespace Cmf.CLI.Utilities
 
             var npxCommand = new NPXCommand
             {
-                Command = "workflow-migration-tool",
+                Command = "@criticalmanufacturing/connect-iot-workflow-migration-tool",
                 Args = [.. args],
                 ForceColorOutput = true,
                 DisplayName = "Workflow Migration Tool",
