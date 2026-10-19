@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [6.0.0](https://github.com/criticalmanufacturing/cli/compare/6.0.0-23...6.0.0) (2026-10-19)
+
+
+### Bug Fixes
+
+* **devcontainer:** add NG_CLI_ANALYTICS environment variable ([8399180](https://github.com/criticalmanufacturing/cli/commit/83991805a1fdb7733975f0a2dc3874b900251cff))
+
 ## [6.0.0-23](https://github.com/criticalmanufacturing/cli/compare/6.0.0-22...6.0.0-23) (2026-10-19)
 
 
