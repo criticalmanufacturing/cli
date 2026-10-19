@@ -212,15 +212,15 @@ The following images demo the scaffolding procedures for IoT ATL custom library 
 5. Generate a custom Task (if needed):
 
     ```powershell
-    cd {{project_or_feature_root_dir}}/Cmf.Custom.IoT/Cmf.Custom.IoT.Packages/projects/{{library_name}}
-    npx @angular/cli generate @criticalmanufacturing/ngx-iot-schematics:task {{task_name}}
+    cd {{project_or_feature_root_dir}}/Cmf.Custom.IoT/Cmf.Custom.IoT.Packages
+    npx @angular/cli generate @criticalmanufacturing/ngx-iot-schematics:task {{task_name}} --project {{library_name}}
     ```
 
 6. Generate a custom Converter (if needed):
 
     ```powershell
-    cd {{project_or_feature_root_dir}}/Cmf.Custom.IoT/Cmf.Custom.IoT.Packages/projects/{{library_name}}
-    npx @angular/cli generate @criticalmanufacturing/ngx-iot-schematics:converter {{converter_name}}
+    cd {{project_or_feature_root_dir}}/Cmf.Custom.IoT/Cmf.Custom.IoT.Packages
+    npx @angular/cli generate @criticalmanufacturing/ngx-iot-schematics:converter {{converter_name}} --project {{library_name}}
     ```
 
 #### Post-Scaffolding
