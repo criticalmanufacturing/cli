@@ -404,6 +404,8 @@ public class Plugins : IDisposable
         new[] { "--quiet", "--return", "--command", command, "/dev/null" }.ToList().ForEach(ps.ArgumentList.Add);
         ps.Environment["PATH"] = $"{pluginDir}{Path.PathSeparator}{Environment.GetEnvironmentVariable("PATH")}";
         ps.Environment["TERM"] = "xterm-256color";
+        // Spectre disables interaction on GitHub Actions even when attached to a pseudo-terminal.
+        ps.Environment.Remove("GITHUB_ACTIONS");
         ps.Environment["cmf_cli_skip_version_check"] = "true";
 
         using var process = Process.Start(ps)!;
