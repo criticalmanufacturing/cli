@@ -59,6 +59,7 @@ namespace Cmf.CLI.Commands.New
         /// <param name="version">the package version</param>
         public void Execute(string version)
         {
+            CommandUtilities.ThrowIfNoProjectConfig(ExecutionContext.Instance);
             var (organization, product) = GetOrganizationAndProductFromProjectConfig();
 
             var packageName = $"{organization}.{product}.Tests";

@@ -66,6 +66,7 @@ namespace Cmf.CLI.Commands.New.IoT
         /// <param name="htmlPackageLocation">location of html package</param>
         public void Execute(IDirectoryInfo workingDir)
         {
+            CommandUtilities.ThrowIfNoProjectConfig(ExecutionContext.Instance);
             if (workingDir == null)
             {
                 throw new CliException("This command needs to run inside an iot project. Run `cmf new iot` to create a new project.");

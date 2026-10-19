@@ -196,4 +196,7 @@
   <data name="InitMissingTenant" xml:space="preserve">
     <value>Tenant information is missing. Please provide it either in the config file or through the --tenant option.</value>
   </data>
+  <data name="ProjectContextRequired" xml:space="preserve">
+    <value>This command needs to run inside a project. Run `cmf init` to create a new project.</value>
+  </data>
 </root>

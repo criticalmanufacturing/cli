@@ -98,6 +98,7 @@ namespace Cmf.CLI.Commands.New
         /// <param name="version">package version</param>
         public void Execute(IDirectoryInfo workingDir, string version)
         {
+            CommandUtilities.ThrowIfNoProjectConfig(ExecutionContext.Instance);
             int majorVersion = ExecutionContext.Instance.ProjectConfig.MESVersion.Major;
             this.schematicsVersion = ExecutionContext.Instance.ProjectConfig.NGXSchematicsVersion;
 
