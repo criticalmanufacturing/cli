@@ -12,7 +12,10 @@
             // If you have changed target frameworks, make sure to update the program path.
             "program": "${workspaceFolder}/cmf-cli/bin/Debug/cmf",
             "args": [
-                "ls"
+                "upgrade",
+                "base",
+                "./__project/Cmf.Custom.IoT",
+                "12.0.0"
             ],
             "env": {
                 "cmf_cli_feature__use_repository_clients": "true"

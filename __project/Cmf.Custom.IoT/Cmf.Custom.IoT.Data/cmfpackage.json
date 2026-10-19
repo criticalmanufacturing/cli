@@ -1,0 +1,25 @@
+{
+  "packageId": "Cmf.Custom.IoT.Data",
+  "version": "1.0.0",
+  "description": "Cmf Custom test Cmf.Custom.IoT.Data Package",
+  "packageType": "IoTData",
+  "isInstallable": true,
+  "isUniqueInstall": true,
+  "contentToPack": [
+    {
+      "source": "MasterData/$(version)/*",
+      "target": "MasterData/$(version)",
+      "contentType": "MasterData"
+    },
+    {
+      "source": "MasterData/1.0.0/*",
+      "target": "MasterData/1.0.0",
+      "contentType": "MasterData"
+    },
+    {
+      "source": "AutomationWorkFlows/*",
+      "target": "AutomationWorkFlows",
+      "contentType": "AutomationWorkFlows"
+    }
+  ]
+}
