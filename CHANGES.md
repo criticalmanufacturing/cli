@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [6.0.0-23](https://github.com/criticalmanufacturing/cli/compare/6.0.0-22...6.0.0-23) (2026-10-19)
+
+
+### Features
+
+* **new test:** update Cmf.LightBusinessObjects project references to nuget ([21bc413](https://github.com/criticalmanufacturing/cli/commit/21bc413e2593b8fd1ccf87926d705b8a86351773))
+
+
+### Bug Fixes
+
+* **templates:** preserve LBO NetStandard packages directory ([79a6e0a](https://github.com/criticalmanufacturing/cli/commit/79a6e0a68795204c2088d35cc8f6291e9c8277c3))
+
 ## [6.0.0-22](https://github.com/criticalmanufacturing/cli/compare/6.0.0-21...6.0.0-22) (2026-10-16)
 
 ### Bug Fixes
