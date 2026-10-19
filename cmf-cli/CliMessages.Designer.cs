@@ -60,6 +60,9 @@ namespace Cmf.CLI {
             }
         }
         
+        /// <summary>Explains how to initialize a project before scaffolding packages.</summary>
+        internal static string ProjectContextRequired => ResourceManager.GetString("ProjectContextRequired", resourceCulture);
+
         /// <summary>Optional Setup configuration help.</summary>
         internal static string InitConfigDescription => ResourceManager.GetString("InitConfigDescription", resourceCulture);
 
