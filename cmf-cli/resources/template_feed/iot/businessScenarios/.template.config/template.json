@@ -17,6 +17,11 @@
   "sourceName": "IoT.Package",
   "preferNameDirectory": true,
   "symbols": {
+    "nodeVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_nodeVersion %>"
+    },
     "directoryName": {
       "type": "parameter",
       "datatype": "string",
