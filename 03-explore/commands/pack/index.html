@@ -2387,6 +2387,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#iot-packages-on-mes-v10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IoT packages on MES v10
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#root-package-dependencies" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2866,6 +2877,8 @@
       
         
       
+        
+      
     
     
     
@@ -2961,6 +2974,34 @@
     
   
     DefaultContentToIgnore
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../config-files/cmfpackage.json/grafana-plugins/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Grafana plugins for offline deployment
   
 
     
@@ -3367,6 +3408,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#iot-packages-on-mes-v10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IoT packages on MES v10
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#root-package-dependencies" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3445,6 +3497,10 @@
 <p>cmf pack comes with preconfigured <a href="https://github.com/criticalmanufacturing/cli/blob/development/docs/cmf/Cmf_Common_Cli_Objects.md#Cmf_Common_Cli_Objects_Step">Steps</a> per <a href="https://github.com/criticalmanufacturing/cli/blob/development/docs/cmf/Cmf_Common_Cli_Enums.md#Cmf_Common_Cli_Enums_PackageType">PackageType</a> to run during the installation. This pre defined steps are assuming a restrict structure during the installation, this can be disabled using the flag <code>isToSetDefaultSteps:false</code> in your <code>cmfpackage.json</code>.</p>
 <h3 id="how-it-works">How it works</h3>
 <p>When the cmf pack is executed it will search in the working directory, for a <code>cmfpackage.json</code> file, that then is serialized to the <a href="https://github.com/criticalmanufacturing/cli/blob/development/docs/cmf/Cmf_Common_Cli_Objects.md#cmfpackage-class">CmfPackage</a> this will guarantee that the <code>cmfpackage.json</code> has all the valid and needed fields. Then it will get which is the <a href="https://github.com/criticalmanufacturing/cli/blob/development/docs/cmf/Cmf_Common_Cli_Enums.md#Cmf_Common_Cli_Enums_PackageType">PackageType</a>, and based on that will generate the package.</p>
+<h3 id="iot-packages-on-mes-v10">IoT packages on MES v10</h3>
+<p>For MES v10, <code>cmf pack</code> requires a version of <code>@criticalmanufacturing/generator-iot</code> that exposes the standalone <code>cmf-iot-pack</code> command. The generator must be installed in the package or an ancestor's <code>node_modules</code> directory. Node.js must be available on <code>PATH</code>.</p>
+<p>The CLI runs the packing engine directly under the same user as the CLI, including root. The source, temporary, and output directories must be writable by that user. The CLI no longer bundles Yeoman for packing.</p>
+<p>To migrate an existing project, update its <code>@criticalmanufacturing/generator-iot</code> dependency to a release for your MES version that includes <code>cmf-iot-pack</code>, update the lockfile, and reinstall dependencies in the IoT package directory. In CI, install these dependencies before running <code>cmf pack</code>. A missing standalone command produces an error explaining the required upgrade.</p>
 <h3 id="root-package-dependencies">Root package dependencies</h3>
 <p>For cmfpackagev2 root packages (including feature and IoT roots), <code>cmf pack</code> populates virtual environment dependencies in the in-memory <code>CmfPackage.Dependencies</code> collection using <code>MESVersion</code> from <code>.project-config.json</code>. These dependencies are available throughout packing and are serialized by the normal deployment manifest generator:</p>
 <ul>

@@ -2,234 +2,238 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/01-install/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/02-learn/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/02-learn/concepts/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/02-learn/concepts/layers-packages/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/02-learn/concepts/project-scaffold/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/02-learn/concepts/project-types/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/02-learn/concepts/release-process/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/02-learn/help/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/02-learn/migration/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/02-learn/migration/migration-v3/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/02-learn/tutorials/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/02-learn/tutorials/1-scaffolding/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/02-learn/tutorials/1-scaffolding/1-project-init/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/02-learn/tutorials/1-scaffolding/2-project-scaffold/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/02-learn/tutorials/1-scaffolding/3-post-scaffolding/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/02-learn/tutorials/2-building-and-release/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/commands/assemble/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/commands/build/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/commands/build_help/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/commands/build_help_generateBasedOnTemplates/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/commands/build_help_generateMenuItems/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/commands/bump/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/commands/bump_iot/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/commands/bump_iot_configuration/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/commands/bump_iot_customization/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/commands/init/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/commands/login/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/commands/login_sync/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/commands/ls/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/commands/new/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/commands/new_business/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/commands/new_data/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/commands/new_database/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/commands/new_feature/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/commands/new_help/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/commands/new_html/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/commands/new_iot/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/commands/new_iot_businessScenario/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/commands/new_iot_converter/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/commands/new_iot_driver/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/commands/new_iot_task/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/commands/new_iot_taskLibrary/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/commands/new_test/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/commands/pack/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/commands/restore/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/config-files/cmfpackage.json/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/config-files/cmfpackage.json/contenttype/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/config-files/cmfpackage.json/defaultcontenttoignore/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
+    </url>
+    <url>
+         <loc>https://criticalmanufacturing.github.io/cli/03-explore/config-files/cmfpackage.json/grafana-plugins/</loc>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/config-files/cmfpackage.json/html-transformations/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/config-files/cmfpackage.json/packaction/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/config-files/cmfpackage.json/packagetype/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/config-files/infrastructure.json/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/config-files/repositories.json/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/guides/iot-scaffolding/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/plugins/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
     <url>
          <loc>https://criticalmanufacturing.github.io/cli/03-explore/telemetry/</loc>
-         <lastmod>2026-10-12</lastmod>
+         <lastmod>2026-10-19</lastmod>
     </url>
 </urlset>

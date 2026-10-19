@@ -2738,6 +2738,8 @@
       
         
       
+        
+      
     
     
     
@@ -2833,6 +2835,34 @@
     
   
     DefaultContentToIgnore
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cmfpackage.json/grafana-plugins/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Grafana plugins for offline deployment
   
 
     
@@ -3282,6 +3312,7 @@
 <p>Path that points to a folder that contain packages that are treat as Continuous Integration packages.</p>
 <h3 id="repositories">Repositories</h3>
 <p>Array of paths that point to folders that contain package that are treat as official (i.e. upstream dependencies or already releases packages).</p>
+<p>When publishing packages to an NPM feed, CLI v6 uses streaming uploads by default to reduce memory usage. Set the environment variable <code>cmf_cli_feature__use_streaming_publish</code> to <code>false</code> or <code>0</code> to disable streaming publishing.</p>
 <h2 id="example">Example</h2>
 <p>Follows an example of <code>repositories.json</code> file.</p>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
