@@ -1,3 +1,4 @@
+using Cmf.CLI.Services;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Commands;
@@ -130,6 +131,7 @@ namespace Cmf.CLI.Commands.New.IoT
                 "--packageName", packageName,
                 "--packageVersion", packageVersion,
                 "--npmRegistry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.ToString(),
+                "--nodeVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Node(ExecutionContext.Instance.ProjectConfig.MESVersion),
                 "--hasCommands", hasCommands.ToString(),
                 "--hasTemplates", hasTemplates.ToString()
             });
