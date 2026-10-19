@@ -51,12 +51,11 @@ namespace Cmf.CLI.Core.Repository.Credentials
 
                 foreach (var cred in credentials)
                 {
-                    // The format of the repo when used as a key in .npmrc does not contain protocol nor ports,
-                    // so we need to make sure we strip them
-                    var repoUriBuilder = new UriBuilder(cred.Repository);
-                    repoUriBuilder.Scheme = null;
-                    repoUriBuilder.Port = -1;
-                    var repoUri = repoUriBuilder.ToString();
+                    // Match npm's credential scope: resolve the directory, omit the scheme,
+                    // and preserve non-default ports. A trailing slash keeps the final segment.
+                    var registry = new Uri(cred.Repository);
+                    var directory = new Uri(new Uri(registry.GetLeftPart(UriPartial.Path)), ".");
+                    var repoUri = $"{directory.Authority}{directory.AbsolutePath}";
 
                     if (cred is BasicCredential basicCred)
                     {
