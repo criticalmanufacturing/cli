@@ -26,7 +26,8 @@
       <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.15.3" />
       <PackageReference Include="PeanutButter.INI" Version="3.0.418" />
       <PackageReference Include="SharpCompress" Version="0.50.4" />
-      <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
+      <PackageReference Include="SkiaSharp" Version="4.153.1" />
+      <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="4.153.1" />
       <PackageReference Include="SMBLibrary" Version="1.5.7" />
       <PackageReference Include="Spectre.Console" Version="0.55.2" />
       <PackageReference Include="System.IO.Abstractions" Version="22.1.1" />
@@ -35,6 +36,8 @@
       <PackageReference Include="Microsoft.TemplateEngine.IDE" Version="10.0.203" />
       <PackageReference Include="Microsoft.TemplateEngine.Orchestrator.RunnableProjects" Version="10.0.203" />
       <PackageReference Include="NuGet.Packaging" Version="7.3.1" />
+      <!-- NuGet.Packaging and the template engine otherwise resolve a vulnerable Pkcs version. -->
+      <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
     </ItemGroup>
 
     <ItemGroup>
