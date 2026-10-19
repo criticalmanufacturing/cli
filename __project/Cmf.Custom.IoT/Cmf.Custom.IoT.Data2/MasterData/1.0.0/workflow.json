@@ -1,0 +1,802 @@
+{
+    "<DM>AutomationProtocol": {
+        "1": {
+            "Name": "fileraw [A.1]",
+            "IsTemplate": "No",
+            "Type": "General",
+            "Package": "@criticalmanufacturing/connect-iot-driver-fileraw",
+            "PackageVersion": "12.0.1-dev",
+            "HasCommands": "Yes",
+            "HasEvents": "Yes",
+            "HasProperties": "Yes"
+        }
+    },
+    "AutomationProtocolParameter": {
+        "1": {
+            "AutomationProtocol": "fileraw [A.1]",
+            "Name": "path",
+            "Description": "Path of the location to monitor for changes on the files. If no value is provided, no watcher is created, so no events will be triggered.",
+            "DataType": "String",
+            "IsMandatory": "No",
+            "IsTemplate": "No",
+            "Label": "Path",
+            "ReferenceType": "None"
+        },
+        "2": {
+            "AutomationProtocol": "fileraw [A.1]",
+            "Name": "fileMask",
+            "Description": "Glob pattern to use for the watcher to identify the files to handle. Use a tool like https://globster.xyz/ to try a valid value to use.",
+            "DataType": "String",
+            "DefaultValue": "**/*",
+            "IsMandatory": "No",
+            "IsTemplate": "No",
+            "Label": "FileMask",
+            "ReferenceType": "None"
+        },
+        "3": {
+            "AutomationProtocol": "fileraw [A.1]",
+            "Name": "archivePath",
+            "Description": "Directory planned to use for archiving the files after processing. This value can later be used as a variable in the available operations to execute.",
+            "DataType": "String",
+            "IsMandatory": "No",
+            "IsTemplate": "No",
+            "Label": "Archive Path",
+            "ReferenceType": "None"
+        },
+        "4": {
+            "AutomationProtocol": "fileraw [A.1]",
+            "Name": "watcherType",
+            "Description": "Type of watcher to use. Depending on the selection, different settings are necessary. Chokidar is the best overall option, but CPU and Memory heavy and slower to start when many files are present. NSFW is better other scenarios. Test both to determine the best option.",
+            "DataType": "String",
+            "DefaultValue": "Chokidar",
+            "IsMandatory": "No",
+            "IsTemplate": "No",
+            "EnumValues": ["Chokidar", "NSFW"],
+            "Label": "Watcher Type",
+            "ReferenceType": "Enum"
+        },
+        "5": {
+            "AutomationProtocol": "fileraw [A.1]",
+            "Name": "ignoreInitial",
+            "Description": "(Type=Chokidar|NSFW) Flag to define if, during startup/restart, the files that were created, changed, deleted should be processed or ignored",
+            "DataType": "Boolean",
+            "DefaultValue": "False",
+            "IsMandatory": "No",
+            "IsTemplate": "No",
+            "Label": "Ignore Existing Files",
+            "ReferenceType": "None"
+        },
+        "6": {
+            "AutomationProtocol": "fileraw [A.1]",
+            "Name": "watcherMode",
+            "Description": "(Type=Chokidar) To successfully watch files over a network (and in other non-standard situations), it is typically necessary to use Polling, however it could lead to high CPU utilization. FileSystemEvents is the most efficient method for monitoring local files.",
+            "DataType": "String",
+            "DefaultValue": "Polling",
+            "IsMandatory": "No",
+            "IsTemplate": "No",
+            "EnumValues": ["FileSystemEvents", "Polling"],
+            "Label": "File Watcher Mode",
+            "ReferenceType": "Enum"
+        },
+        "7": {
+            "AutomationProtocol": "fileraw [A.1]",
+            "Name": "pollingInterval",
+            "Description": "(Type=Chokidar|NSFW) Interval of file system polling (in milliseconds)",
+            "DataType": "Integer",
+            "DefaultValue": "100",
+            "IsMandatory": "No",
+            "IsTemplate": "No",
+            "Label": "Polling Interval (ms)",
+            "ReferenceType": "None"
+        },
+        "8": {
+            "AutomationProtocol": "fileraw [A.1]",
+            "Name": "pollingBinaryInterval",
+            "Description": "(Type=Chokidar) Interval of file system polling for binary files (in milliseconds)",
+            "DataType": "Integer",
+            "DefaultValue": "300",
+            "IsMandatory": "No",
+            "IsTemplate": "No",
+            "Label": "Binary Files Polling Interval (ms)",
+            "ReferenceType": "None"
+        },
+        "9": {
+            "AutomationProtocol": "fileraw [A.1]",
+            "Name": "alwaysStat",
+            "Description": "(Type=Chokidar|NSFW) Always get additional attributes (size, timestamps, etc) of the file that was identified by the watcher. Will require additional operating system resources.",
+            "DataType": "Boolean",
+            "DefaultValue": "True",
+            "IsMandatory": "No",
+            "IsTemplate": "No",
+            "Label": "Always Stat",
+            "ReferenceType": "None"
+        },
+        "10": {
+            "AutomationProtocol": "fileraw [A.1]",
+            "Name": "depth",
+            "Description": "(Type=Chokidar|NSFW) Number of sub directories to watch. The higher the number, more memory/cpu/time will be required for watchers.",
+            "DataType": "Integer",
+            "DefaultValue": "0",
+            "IsMandatory": "No",
+            "IsTemplate": "No",
+            "Label": "Subdirectory Depth",
+            "ReferenceType": "None"
+        },
+        "11": {
+            "AutomationProtocol": "fileraw [A.1]",
+            "Name": "awaitWriteFinish",
+            "Description": "(Type=Chokidar|NSFW) Trigger watcher events only when the file finishes writing.",
+            "DataType": "Boolean",
+            "DefaultValue": "True",
+            "IsMandatory": "No",
+            "IsTemplate": "No",
+            "Label": "Await Write Finish",
+            "ReferenceType": "None"
+        },
+        "12": {
+            "AutomationProtocol": "fileraw [A.1]",
+            "Name": "awaitWriteFinishStabilityThreshold",
+            "Description": "(Type=Chokidar|NSFW) Amount of time in milliseconds for a file size to remain constant before emitting its event.",
+            "DataType": "Integer",
+            "DefaultValue": "2000",
+            "IsMandatory": "No",
+            "IsTemplate": "No",
+            "Label": "Await Write Finish Stability (ms)",
+            "ReferenceType": "None"
+        },
+        "13": {
+            "AutomationProtocol": "fileraw [A.1]",
+            "Name": "awaitWriteFinishPollInterval",
+            "Description": "(Type=Chokidar) File size polling interval.",
+            "DataType": "Integer",
+            "DefaultValue": "100",
+            "IsMandatory": "No",
+            "IsTemplate": "No",
+            "Label": "Await File Size Poll (ms)",
+            "ReferenceType": "None"
+        },
+        "14": {
+            "AutomationProtocol": "fileraw [A.1]",
+            "Name": "atomic",
+            "Description": "(Type=Chokidar) Automatically filters out artifacts that occur within the defined value (in milliseconds) when using editors that use 'atomic writes' instead of writing directly to the source file. If defined to 0, this function is disabled.",
+            "DataType": "Integer",
+            "DefaultValue": "100",
+            "IsMandatory": "No",
+            "IsTemplate": "No",
+            "Label": "Atomic Writes Threshold",
+            "ReferenceType": "None"
+        }
+    },
+    "<DM>AutomationDriverDefinition": {
+        "1": {
+            "Name": "fileRaw [A.1]",
+            "IsTemplate": "No",
+            "Type": "General",
+            "AutomationProtocol": "fileraw [A]",
+            "ObjectType": "Site"
+        }
+    },
+    "AutomationProperty": {
+        "1": {
+            "AutomationDriverDefinition": "fileRaw [A.1]",
+            "Name": "p1",
+            "IsReadable": "Yes",
+            "IsWritable": "Yes",
+            "DataType": "Boolean",
+            "AutomationProtocolDataType": "Boolean",
+            "ExtendedData": {
+                "propertyType": "IsFile"
+            },
+            "IsTemplate": "No"
+        }
+    },
+    "AutomationEvent": {
+        "1": {
+            "AutomationDriverDefinition": "fileRaw [A.1]",
+            "Name": "ev1",
+            "IsEnabled": "Yes",
+            "ExtendedData": {
+                "eventTrigger": "NewFile"
+            },
+            "IsTemplate": "No"
+        }
+    },
+    "AutomationEventProperties": {
+        "1": {
+            "AutomationDriverDefinition": "fileRaw [A.1]",
+            "AutomationEvent": "ev1",
+            "AutomationProperty": "p1",
+            "Order": "1",
+            "ExtendedData": {},
+            "IsTemplate": "No"
+        }
+    },
+    "AutomationCommand": {
+        "1": {
+            "AutomationDriverDefinition": "fileRaw [A.1]",
+            "Name": "c",
+            "ExtendedData": {
+                "commandType": "Exists"
+            },
+            "IsTemplate": "No"
+        }
+    },
+    "AutomationCommandParameter": {
+        "1": {
+            "AutomationDriverDefinition": "fileRaw [A.1]",
+            "AutomationCommand": "c",
+            "Name": "cp1",
+            "DataType": "Decimal",
+            "AutomationProtocolDataType": "Decimal",
+            "DefaultValue": "11",
+            "IsMandatory": "Yes",
+            "Order": "1",
+            "ExtendedData": {},
+            "IsTemplate": "No"
+        }
+    },
+    "<DM>AutomationController": {
+        "1": {
+            "Name": "ac [A.1]",
+            "IsTemplate": "No",
+            "Type": "General",
+            "ControllerPackageVersion": "11.3.5",
+            "ObjectType": "Site",
+            "TasksPackages": [],
+            "Scope": "ConnectIoT",
+            "LinkConnector": "Smooth",
+            "LinkRouter": "Normal",
+            "TasksLibraryPackages": ["@criticalmanufacturing/connect-iot-controller-engine-core-tasks@11.1.0"],
+            "DefaultWorkflowType": "DataFlow"
+        }
+    },
+    "AutomationControllerDriverDef": {
+        "1": {
+            "AutomationController": "ac [A.1]",
+            "Name": "f",
+            "DisplayName": "f",
+            "AutomationDriverDefinition": "fileRaw [A]",
+            "Color": "#c8e1f0",
+            "IsTemplate": "No",
+            "Order": "1"
+        }
+    },
+    "AutomationControllerWorkflow": {
+        "1": {
+            "AutomationController": "ac [A.1]",
+            "Name": "AutomationWorkflow_554dd4bb-de4f-44d2-8b58-93eae3e5bf8f",
+            "DisplayName": "Setup",
+            "Workflow": {
+                "tasks": [
+                    {
+                        "id": "task_1054",
+                        "reference": {
+                            "name": "driverEvent",
+                            "package": {
+                                "name": "@criticalmanufacturing/connect-iot-controller-engine-core-tasks",
+                                "version": "11.1.0"
+                            }
+                        },
+                        "driver": "f",
+                        "settings": {
+                            "autoEnable": true,
+                            "event": "OnInitialize",
+                            "autoSetup": true,
+                            "___cmf___description": "OnInitialize"
+                        }
+                    },
+                    {
+                        "id": "task_1055",
+                        "reference": {
+                            "name": "equipmentConfig",
+                            "package": {
+                                "name": "@criticalmanufacturing/connect-iot-controller-engine-core-tasks",
+                                "version": "11.1.0"
+                            }
+                        },
+                        "driver": "f",
+                        "settings": {
+                            "_inputs": [
+                                {
+                                    "name": "path",
+                                    "label": "Path",
+                                    "defaultValue": "",
+                                    "parameter": {
+                                        "$id": null,
+                                        "$type": "Cmf.Foundation.BusinessObjects.AutomationProtocolParameter, Cmf.Foundation.BusinessObjects",
+                                        "Name": "path"
+                                    },
+                                    "dataType": "String",
+                                    "automationDataType": 0,
+                                    "referenceType": 0,
+                                    "description": "Path of the location to monitor for changes on the files. If no value is provided, no watcher is created, so no events will be triggered."
+                                },
+                                {
+                                    "name": "fileMask",
+                                    "label": "FileMask",
+                                    "defaultValue": "**/*",
+                                    "parameter": {
+                                        "$id": null,
+                                        "$type": "Cmf.Foundation.BusinessObjects.AutomationProtocolParameter, Cmf.Foundation.BusinessObjects",
+                                        "Name": "fileMask"
+                                    },
+                                    "dataType": "String",
+                                    "automationDataType": 0,
+                                    "referenceType": 0,
+                                    "description": "Glob pattern to use for the watcher to identify the files to handle. Use a tool like https://globster.xyz/ to try a valid value to use."
+                                },
+                                {
+                                    "name": "archivePath",
+                                    "label": "Archive Path",
+                                    "defaultValue": "",
+                                    "parameter": {
+                                        "$id": null,
+                                        "$type": "Cmf.Foundation.BusinessObjects.AutomationProtocolParameter, Cmf.Foundation.BusinessObjects",
+                                        "Name": "archivePath"
+                                    },
+                                    "dataType": "String",
+                                    "automationDataType": 0,
+                                    "referenceType": 0,
+                                    "description": "Directory planned to use for archiving the files after processing. This value can later be used as a variable in the available operations to execute."
+                                },
+                                {
+                                    "name": "watcherType",
+                                    "label": "Watcher Type",
+                                    "defaultValue": "Chokidar",
+                                    "parameter": {
+                                        "$id": null,
+                                        "$type": "Cmf.Foundation.BusinessObjects.AutomationProtocolParameter, Cmf.Foundation.BusinessObjects",
+                                        "Name": "watcherType"
+                                    },
+                                    "dataType": "Enum",
+                                    "automationDataType": 0,
+                                    "referenceType": 1,
+                                    "description": "Type of watcher to use. Depending on the selection, different settings are necessary. Chokidar is the best overall option, but CPU and Memory heavy and slower to start when many files are present. NSFW is better other scenarios. Test both to determine the best option.",
+                                    "valueReferenceType": 6,
+                                    "settings": {
+                                        "enumValues": ["Chokidar", "NSFW"]
+                                    }
+                                },
+                                {
+                                    "name": "ignoreInitial",
+                                    "label": "Ignore Existing Files",
+                                    "defaultValue": "False",
+                                    "parameter": {
+                                        "$id": null,
+                                        "$type": "Cmf.Foundation.BusinessObjects.AutomationProtocolParameter, Cmf.Foundation.BusinessObjects",
+                                        "Name": "ignoreInitial"
+                                    },
+                                    "dataType": "Boolean",
+                                    "automationDataType": 8,
+                                    "referenceType": 0,
+                                    "description": "(Type=Chokidar|NSFW) Flag to define if, during startup/restart, the files that were created, changed, deleted should be processed or ignored"
+                                },
+                                {
+                                    "name": "watcherMode",
+                                    "label": "File Watcher Mode",
+                                    "defaultValue": "Polling",
+                                    "parameter": {
+                                        "$id": null,
+                                        "$type": "Cmf.Foundation.BusinessObjects.AutomationProtocolParameter, Cmf.Foundation.BusinessObjects",
+                                        "Name": "watcherMode"
+                                    },
+                                    "dataType": "Enum",
+                                    "automationDataType": 0,
+                                    "referenceType": 1,
+                                    "description": "(Type=Chokidar) To successfully watch files over a network (and in other non-standard situations), it is typically necessary to use Polling, however it could lead to high CPU utilization. FileSystemEvents is the most efficient method for monitoring local files.",
+                                    "valueReferenceType": 6,
+                                    "settings": {
+                                        "enumValues": ["FileSystemEvents", "Polling"]
+                                    }
+                                },
+                                {
+                                    "name": "pollingInterval",
+                                    "label": "Polling Interval (ms)",
+                                    "defaultValue": "100",
+                                    "parameter": {
+                                        "$id": null,
+                                        "$type": "Cmf.Foundation.BusinessObjects.AutomationProtocolParameter, Cmf.Foundation.BusinessObjects",
+                                        "Name": "pollingInterval"
+                                    },
+                                    "dataType": "Integer",
+                                    "automationDataType": 5,
+                                    "referenceType": 0,
+                                    "description": "(Type=Chokidar|NSFW) Interval of file system polling (in milliseconds)"
+                                },
+                                {
+                                    "name": "pollingBinaryInterval",
+                                    "label": "Binary Files Polling Interval (ms)",
+                                    "defaultValue": "300",
+                                    "parameter": {
+                                        "$id": null,
+                                        "$type": "Cmf.Foundation.BusinessObjects.AutomationProtocolParameter, Cmf.Foundation.BusinessObjects",
+                                        "Name": "pollingBinaryInterval"
+                                    },
+                                    "dataType": "Integer",
+                                    "automationDataType": 5,
+                                    "referenceType": 0,
+                                    "description": "(Type=Chokidar) Interval of file system polling for binary files (in milliseconds)"
+                                },
+                                {
+                                    "name": "alwaysStat",
+                                    "label": "Always Stat",
+                                    "defaultValue": "True",
+                                    "parameter": {
+                                        "$id": null,
+                                        "$type": "Cmf.Foundation.BusinessObjects.AutomationProtocolParameter, Cmf.Foundation.BusinessObjects",
+                                        "Name": "alwaysStat"
+                                    },
+                                    "dataType": "Boolean",
+                                    "automationDataType": 8,
+                                    "referenceType": 0,
+                                    "description": "(Type=Chokidar|NSFW) Always get additional attributes (size, timestamps, etc) of the file that was identified by the watcher. Will require additional operating system resources."
+                                },
+                                {
+                                    "name": "depth",
+                                    "label": "Subdirectory Depth",
+                                    "defaultValue": "0",
+                                    "parameter": {
+                                        "$id": null,
+                                        "$type": "Cmf.Foundation.BusinessObjects.AutomationProtocolParameter, Cmf.Foundation.BusinessObjects",
+                                        "Name": "depth"
+                                    },
+                                    "dataType": "Integer",
+                                    "automationDataType": 5,
+                                    "referenceType": 0,
+                                    "description": "(Type=Chokidar|NSFW) Number of sub directories to watch. The higher the number, more memory/cpu/time will be required for watchers."
+                                },
+                                {
+                                    "name": "awaitWriteFinish",
+                                    "label": "Await Write Finish",
+                                    "defaultValue": "True",
+                                    "parameter": {
+                                        "$id": null,
+                                        "$type": "Cmf.Foundation.BusinessObjects.AutomationProtocolParameter, Cmf.Foundation.BusinessObjects",
+                                        "Name": "awaitWriteFinish"
+                                    },
+                                    "dataType": "Boolean",
+                                    "automationDataType": 8,
+                                    "referenceType": 0,
+                                    "description": "(Type=Chokidar|NSFW) Trigger watcher events only when the file finishes writing."
+                                },
+                                {
+                                    "name": "awaitWriteFinishStabilityThreshold",
+                                    "label": "Await Write Finish Stability (ms)",
+                                    "defaultValue": "2000",
+                                    "parameter": {
+                                        "$id": null,
+                                        "$type": "Cmf.Foundation.BusinessObjects.AutomationProtocolParameter, Cmf.Foundation.BusinessObjects",
+                                        "Name": "awaitWriteFinishStabilityThreshold"
+                                    },
+                                    "dataType": "Integer",
+                                    "automationDataType": 5,
+                                    "referenceType": 0,
+                                    "description": "(Type=Chokidar|NSFW) Amount of time in milliseconds for a file size to remain constant before emitting its event."
+                                },
+                                {
+                                    "name": "awaitWriteFinishPollInterval",
+                                    "label": "Await File Size Poll (ms)",
+                                    "defaultValue": "100",
+                                    "parameter": {
+                                        "$id": null,
+                                        "$type": "Cmf.Foundation.BusinessObjects.AutomationProtocolParameter, Cmf.Foundation.BusinessObjects",
+                                        "Name": "awaitWriteFinishPollInterval"
+                                    },
+                                    "dataType": "Integer",
+                                    "automationDataType": 5,
+                                    "referenceType": 0,
+                                    "description": "(Type=Chokidar) File size polling interval."
+                                },
+                                {
+                                    "name": "atomic",
+                                    "label": "Atomic Writes Threshold",
+                                    "defaultValue": "100",
+                                    "parameter": {
+                                        "$id": null,
+                                        "$type": "Cmf.Foundation.BusinessObjects.AutomationProtocolParameter, Cmf.Foundation.BusinessObjects",
+                                        "Name": "atomic"
+                                    },
+                                    "dataType": "Integer",
+                                    "automationDataType": 5,
+                                    "referenceType": 0,
+                                    "description": "(Type=Chokidar) Automatically filters out artifacts that occur within the defined value (in milliseconds) when using editors that use 'atomic writes' instead of writing directly to the source file. If defined to 0, this function is disabled."
+                                }
+                            ],
+                            "connectingTimeout": 30000,
+                            "setupTimeout": 10000,
+                            "intervalBeforeReconnect": 5000,
+                            "heartbeatInterval": 60000
+                        }
+                    },
+                    {
+                        "id": "task_1056",
+                        "reference": {
+                            "name": "driverCommand",
+                            "package": {
+                                "name": "@criticalmanufacturing/connect-iot-controller-engine-core-tasks",
+                                "version": "11.1.0"
+                            }
+                        },
+                        "driver": "f",
+                        "settings": {
+                            "command": "Connect",
+                            "___cmf___description": "Connect"
+                        }
+                    }
+                ],
+                "converters": [
+                    {
+                        "id": "@criticalmanufacturing/connect-iot-controller-engine-core-tasks#anyToConstant",
+                        "reference": {
+                            "name": "anyToConstant",
+                            "package": {
+                                "name": "@criticalmanufacturing/connect-iot-controller-engine-core-tasks",
+                                "version": "10.0.0"
+                            }
+                        }
+                    }
+                ],
+                "links": [
+                    {
+                        "id": "task_1054_success-task_1055_activate",
+                        "sourceId": "task_1054",
+                        "targetId": "task_1055",
+                        "inputName": "activate",
+                        "outputName": "success",
+                        "converters": [
+                            {
+                                "id": "@criticalmanufacturing/connect-iot-controller-engine-core-tasks#anyToConstant",
+                                "params": {
+                                    "type": 5,
+                                    "value": "1"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "id": "task_1055_success-task_1056_activate",
+                        "sourceId": "task_1055",
+                        "targetId": "task_1056",
+                        "inputName": "activate",
+                        "outputName": "success"
+                    }
+                ],
+                "layout": {
+                    "general": {
+                        "color": null,
+                        "notes": []
+                    },
+                    "drawers": {
+                        "DIAGRAM": {
+                            "tasks": {
+                                "task_1054": {
+                                    "collapsed": false,
+                                    "position": {
+                                        "x": 100,
+                                        "y": 100
+                                    },
+                                    "outdated": false
+                                },
+                                "task_1055": {
+                                    "collapsed": false,
+                                    "position": {
+                                        "x": 600,
+                                        "y": 100
+                                    },
+                                    "outdated": false
+                                },
+                                "task_1056": {
+                                    "collapsed": false,
+                                    "position": {
+                                        "x": 1100,
+                                        "y": 100
+                                    },
+                                    "outdated": false
+                                }
+                            },
+                            "links": {
+                                "task_1054_success-task_1055_activate": {
+                                    "vertices": []
+                                },
+                                "task_1055_success-task_1056_activate": {
+                                    "vertices": []
+                                }
+                            },
+                            "notes": {},
+                            "pan": {
+                                "x": 0,
+                                "y": 0
+                            }
+                        }
+                    }
+                }
+            },
+            "Order": "1",
+            "IsTemplate": "No",
+            "IsShared": "No",
+            "Indentation": "0",
+            "WorkflowType": "DataFlow"
+        },
+        "2": {
+            "AutomationController": "ac [A.1]",
+            "Name": "AutomationWorkflow_2cf79e7a-a53b-4ca0-b5fb-6689b1e22d0f",
+            "DisplayName": "workflow_1119",
+            "Workflow": {
+                "tasks": [
+                    {
+                        "id": "task_1233",
+                        "reference": {
+                            "name": "apiPostEvent",
+                            "package": {
+                                "name": "@criticalmanufacturing/connect-iot-controller-engine-core-tasks",
+                                "version": "11.1.0"
+                            }
+                        },
+                        "settings": {
+                            "inputs": [],
+                            "applicationName": "MES",
+                            "retries": 30,
+                            "numberOfRetries": 30,
+                            "ignoreLastServiceId": false,
+                            "sleepBetweenRetries": 1000
+                        }
+                    },
+                    {
+                        "id": "task_1330",
+                        "reference": {
+                            "name": "equipmentCommand",
+                            "package": {
+                                "name": "@criticalmanufacturing/connect-iot-controller-engine-core-tasks",
+                                "version": "11.1.0"
+                            }
+                        },
+                        "settings": {
+                            "_inputs": [
+                                {
+                                    "name": "path",
+                                    "friendlyName": "path",
+                                    "propertyId": "Path",
+                                    "deviceType": {
+                                        "$type": "Cmf.Foundation.BusinessObjects.AutomationProtocolDataType, Cmf.Foundation.BusinessObjects",
+                                        "Name": "String"
+                                    },
+                                    "valueType": {
+                                        "collectionType": null,
+                                        "name": "String",
+                                        "type": 4
+                                    },
+                                    "defaultValue": ""
+                                },
+                                {
+                                    "name": "attempts",
+                                    "friendlyName": "attempts",
+                                    "propertyId": "Attempts",
+                                    "deviceType": {
+                                        "$type": "Cmf.Foundation.BusinessObjects.AutomationProtocolDataType, Cmf.Foundation.BusinessObjects",
+                                        "Name": "Integer"
+                                    },
+                                    "valueType": {
+                                        "collectionType": null,
+                                        "name": "Integer",
+                                        "type": 5
+                                    },
+                                    "defaultValue": 1
+                                },
+                                {
+                                    "name": "sleepBetweenAttempts",
+                                    "friendlyName": "sleepBetweenAttempts",
+                                    "propertyId": "SleepBetweenAttempts",
+                                    "deviceType": {
+                                        "$type": "Cmf.Foundation.BusinessObjects.AutomationProtocolDataType, Cmf.Foundation.BusinessObjects",
+                                        "Name": "Integer"
+                                    },
+                                    "valueType": {
+                                        "collectionType": null,
+                                        "name": "Integer",
+                                        "type": 5
+                                    },
+                                    "defaultValue": 1000
+                                }
+                            ],
+                            "_customCommands": true,
+                            "_clearInputs": false,
+                            "_command": {
+                                "Name": "CreateDirectory",
+                                "Parameters": [
+                                    {
+                                        "Name": "path",
+                                        "DefaultValue": "",
+                                        "IsMandatory": true,
+                                        "DataType": "String",
+                                        "AutomationProtocolDataType": {},
+                                        "ExtendedData": {}
+                                    },
+                                    {
+                                        "Name": "attempts",
+                                        "DefaultValue": 1,
+                                        "IsMandatory": true,
+                                        "DataType": "Integer",
+                                        "AutomationProtocolDataType": {},
+                                        "ExtendedData": {}
+                                    },
+                                    {
+                                        "Name": "sleepBetweenAttempts",
+                                        "DefaultValue": 1000,
+                                        "IsMandatory": true,
+                                        "DataType": "Integer",
+                                        "AutomationProtocolDataType": {},
+                                        "ExtendedData": {}
+                                    }
+                                ],
+                                "DeviceCommandId": "CreateDirectory",
+                                "ExtendedData": {
+                                    "commandType": "CreateDirectory"
+                                }
+                            },
+                            "_message": {
+                                "Name": "CreateDirectory"
+                            },
+                            "_messageFullName": "CreateDirectory",
+                            "_timeout": 10000,
+                            "___cmf___name": "Execute Equipment Command"
+                        },
+                        "driver": "f"
+                    }
+                ],
+                "converters": [],
+                "links": [
+                    {
+                        "id": "32f4a1d4-5a48-4bad-8168-7200d46e703c",
+                        "sourceId": "task_1233",
+                        "targetId": "task_1330",
+                        "inputName": "activate",
+                        "outputName": "success"
+                    }
+                ],
+                "layout": {
+                    "general": {
+                        "color": null,
+                        "notes": []
+                    },
+                    "drawers": {
+                        "DIAGRAM": {
+                            "tasks": {
+                                "task_1233": {
+                                    "collapsed": false,
+                                    "position": {
+                                        "x": 754,
+                                        "y": 221
+                                    },
+                                    "outdated": false
+                                },
+                                "task_1330": {
+                                    "collapsed": false,
+                                    "position": {
+                                        "x": 1659,
+                                        "y": 279
+                                    },
+                                    "outdated": false
+                                }
+                            },
+                            "links": {
+                                "32f4a1d4-5a48-4bad-8168-7200d46e703c": {
+                                    "vertices": []
+                                }
+                            },
+                            "notes": {},
+                            "pan": {
+                                "x": 0,
+                                "y": 0
+                            }
+                        }
+                    }
+                }
+            },
+            "Order": "2",
+            "IsTemplate": "No",
+            "IsShared": "No",
+            "Indentation": "0",
+            "WorkflowType": "DataFlow"
+        }
+    }
+}
