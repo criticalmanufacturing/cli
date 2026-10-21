@@ -125,7 +125,7 @@ namespace Cmf.CLI.Utilities
         {
             List<string> args = [];
             string workflowsFolder = null;
-            string mdFilePath = null;
+            List<string> masterdataFolders = [];
 
             foreach (ContentToPack contentToPack in cmfPackage.ContentToPack ?? [])
             {
@@ -136,20 +136,14 @@ namespace Cmf.CLI.Utilities
                     contentToPackSource = contentToPackSource.Replace(@"$(version)", cmfPackage.Version);
                 }
 
-                if (contentToPack.ContentType == ContentType.MasterData
-                    && string.IsNullOrWhiteSpace(mdFilePath))
+                if (contentToPack.ContentType == ContentType.MasterData)
                 {
-                    mdFilePath = fileSystem.Path.GetFullPath(fileSystem.Path.Combine(cmfPackage.GetFileInfo().DirectoryName, contentToPackSource)).Replace("*", "");
+                    masterdataFolders.Add(fileSystem.Path.GetFullPath(fileSystem.Path.Combine(cmfPackage.GetFileInfo().DirectoryName, contentToPackSource)).Replace("*", ""));
                 } else if (contentToPack.ContentType == ContentType.AutomationWorkFlows
                     && string.IsNullOrWhiteSpace(workflowsFolder))
                 {
                     workflowsFolder = fileSystem.Path.GetFullPath(fileSystem.Path.Combine(cmfPackage.GetFileInfo().DirectoryName, contentToPackSource)).Replace("*", "");
                 }
-            }
-
-            if (!string.IsNullOrEmpty(mdFilePath))
-            {
-                args.Add(mdFilePath);
             }
 
             if (!string.IsNullOrEmpty(workflowsFolder))
@@ -165,19 +159,25 @@ namespace Cmf.CLI.Utilities
             args.AddRange(["--registry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.ToString()]);
             args.AddRange(["--version", version]);
 
-            var npxCommand = new NPXCommand
-            {
-                Command = "@criticalmanufacturing/connect-iot-workflow-migration-tool",
-                Args = [.. args],
-                ForceColorOutput = true,
-                DisplayName = "Workflow Migration Tool",
-                WorkingDirectory = fileSystem.Directory.GetParent(cmfPackage.GetFileInfo().FullName)
-            };
-
             try
             {
-                npxCommand.Exec();
-                Log.Information("Migration complete.");
+                foreach(string masterdataFolder in masterdataFolders)
+                {
+                    Log.Information($"Migration for materdatas inside ${masterdataFolder} started...");
+
+                    var npxCommand = new NPXCommand
+                    {
+                        Command = "@criticalmanufacturing/connect-iot-workflow-migration-tool",
+                        Args = [masterdataFolder, ..args],
+                        ForceColorOutput = true,
+                        DisplayName = "Workflow Migration Tool",
+                        WorkingDirectory = fileSystem.Directory.GetParent(cmfPackage.GetFileInfo().FullName)
+                    };
+
+                    npxCommand.Exec();
+
+                    Log.Information("Migration complete.");
+                }
             }
             catch (Exception ex)
             {
