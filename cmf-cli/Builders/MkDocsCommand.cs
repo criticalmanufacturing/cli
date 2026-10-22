@@ -96,8 +96,13 @@ namespace Cmf.CLI.Builders
                 return isWindows ? "mkdocs.exe" : "mkdocs";
             }
 
+            var virtualEnvironmentPath = this.fileSystem.Path.IsPathRooted(this.VirtualEnvironment)
+                ? this.VirtualEnvironment
+                : this.fileSystem.Path.GetFullPath(
+                    this.fileSystem.Path.Combine(this.WorkingDirectory.FullName, this.VirtualEnvironment));
+
             return this.fileSystem.Path.Join(
-                this.VirtualEnvironment,
+                virtualEnvironmentPath,
                 isWindows ? "Scripts" : "bin",
                 isWindows ? "mkdocs.exe" : "mkdocs");
         }
