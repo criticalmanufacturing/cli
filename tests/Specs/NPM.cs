@@ -195,12 +195,7 @@ public class NPM
         var repo = OperatingSystem.IsWindows() ? "\\\\share\\dir" : "/repoDir";
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            { $"{repo}/{packageId}.{version}.tgz", new DFTGZPackageBuilder().CreateEntry("package.json",
-                $$"""
-                 {
-                    "dummy, will use manifest.xml first if available"
-                 }
-                 """).CreateEntry("manifest.xml", 
+            { $"{repo}/{packageId}.{version}.tgz", new DFTGZPackageBuilder().CreateEntry("manifest.xml",
                 $"""
                  <?xml version="1.0" encoding="utf-8"?>
                                      <deploymentPackage>
@@ -356,6 +351,179 @@ public class NPM
         await readDisposedContent.Should().ThrowAsync<ObjectDisposedException>();
         Func<Task> readDisposedResponse = () => handler.Response.Content.ReadAsStringAsync();
         await readDisposedResponse.Should().ThrowAsync<ObjectDisposedException>();
+    }
+
+    [Theory]
+    [InlineData(false, "", true)]
+    [InlineData(true, "", true)]
+    [InlineData(false, "package/", true)]
+    [InlineData(true, "package/", true)]
+    [InlineData(false, "", false)]
+    [InlineData(true, "", false)]
+    [InlineData(false, "package/", false)]
+    [InlineData(true, "package/", false)]
+    public async Task Upload_PreservesExistingPackageJson(bool streaming, string prefix, bool includeXml)
+    {
+        Setup(streaming);
+        var manifest = CreateDeploymentManifest(includeXml ? "ClickHouseRole" : "Generic");
+        using var builder = new DFTGZPackageBuilder();
+        // A nested dependency's package.json must never become the publication manifest.
+        builder.CreateEntry("package/node_modules/dependency/package.json", "{} ");
+        if (includeXml)
+        {
+            builder.CreateEntry(prefix + "manifest.xml", """
+                <deploymentPackage>
+                  <packageId>Cmf.Custom.Test</packageId><version>1.0.0</version>
+                  <steps><step type="ClickHouseRole" roleKey="ANALYTICS_READ" /></steps>
+                </deploymentPackage>
+                """);
+        }
+        builder.CreateEntry(prefix + "package.json", manifest.ToString());
+        var fs = new MockFileSystem();
+        fs.AddFile("/repo/test.tgz", builder.ToMockFileData());
+        var package = fs.FileInfo.New("/repo/test.tgz");
+        var bytes = fs.File.ReadAllBytes(package.FullName);
+        using var handler = new UploadHandler();
+        using var httpClient = new HttpClient(handler);
+        var client = new NPMClient("https://registry.example", httpClient);
+
+        await client.PublishPackage(package);
+
+        AssertPublishedManifest(handler, manifest, bytes);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Upload_ZipConversionPreservesExistingPackageJson(bool streaming)
+    {
+        Setup(streaming);
+        var manifest = CreateDeploymentManifest("ClickHouseRole");
+        using var builder = new DFPackageBuilder();
+        var data = builder.CreateManifest("Cmf.Custom.Test", "1.0.0")
+            .CreateEntry("package.json", manifest.ToString()).ToMockFileData();
+        var fs = new MockFileSystem();
+        fs.AddFile("/repo/test.zip", data);
+        var source = new ArchiveRepositoryClient("/repo/test.zip", fs);
+        var package = await source.Find("Cmf.Custom.Test", "1.0.0");
+        using var handler = new UploadHandler();
+        using var httpClient = new HttpClient(handler);
+        var repository = new NPMRepositoryClient("https://registry.example", fs,
+            new NPMClient("https://registry.example", httpClient));
+
+        await repository.Put(package);
+
+        var bytes = fs.File.ReadAllBytes("/repo/test.tgz");
+        AssertPublishedManifest(handler, manifest, bytes);
+        using var gzip = new GZipStream(new MemoryStream(bytes), CompressionMode.Decompress);
+        using var tar = new System.Formats.Tar.TarReader(gzip);
+        while (tar.GetNextEntry() is { } entry)
+        {
+            if (entry.Name == "package/package.json")
+            {
+                using var reader = new StreamReader(entry.DataStream);
+                JToken.DeepEquals(JObject.Parse(reader.ReadToEnd()), manifest).Should().BeTrue();
+                return;
+            }
+        }
+        Assert.Fail("The converted archive must retain package/package.json.");
+    }
+
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public async Task Upload_PreservesSelectedIdentityAndOriginalPackageId(bool streaming, bool hasOriginalId)
+    {
+        Setup(streaming);
+        var manifest = CreateDeploymentManifest("ClickHouseRole");
+        manifest["name"] = "Cmf.Json.Identity";
+        manifest["version"] = "2.0.0";
+        if (!hasOriginalId)
+        {
+            manifest.Remove("_originalPackageId");
+        }
+        using var builder = new DFTGZPackageBuilder();
+        var fs = new MockFileSystem();
+        fs.AddFile("/repo/test.tgz", builder.CreateManifest("Cmf.Custom.Test", "1.0.0")
+            .CreateEntry("package.json", manifest.ToString()).ToMockFileData());
+        var package = fs.FileInfo.New("/repo/test.tgz");
+        using var handler = new UploadHandler();
+        using var httpClient = new HttpClient(handler);
+        var client = new NPMClient("https://registry.example", httpClient);
+
+        await client.PublishPackage(package);
+
+        manifest["_originalPackageId"] ??= manifest["name"]?.DeepClone();
+        manifest["name"] = "cmf.custom.test";
+        manifest["version"] = "1.0.0";
+        AssertPublishedManifest(handler, manifest, fs.File.ReadAllBytes(package.FullName));
+        var body = JObject.Parse(handler.Payload);
+        body["dist-tags"]["latest"].Value<string>().Should().Be("1.0.0");
+        body["versions"]["1.0.0"]["_id"].Value<string>().Should().Be("cmf.custom.test@1.0.0");
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Upload_InvalidPackageJsonDoesNotFallBackToXml(bool streaming)
+    {
+        Setup(streaming);
+        using var builder = new DFTGZPackageBuilder();
+        var fs = new MockFileSystem();
+        fs.AddFile("/repo/test.tgz", builder.CreateManifest("Cmf.Custom.Test", "1.0.0")
+            .CreateEntry("package.json", "invalid json").ToMockFileData());
+        using var handler = new UploadHandler();
+        using var httpClient = new HttpClient(handler);
+        var client = new NPMClient("https://registry.example", httpClient);
+
+        Func<Task> publish = () => client.PublishPackage(fs.FileInfo.New("/repo/test.tgz"));
+
+        await publish.Should().ThrowAsync<Newtonsoft.Json.JsonReaderException>();
+        handler.RequestCount.Should().Be(0);
+    }
+
+    private static JObject CreateDeploymentManifest(string stepType) => JObject.Parse($$$"""
+        {
+          "name": "cmf.custom.test",
+          "version": "1.0.0",
+          "description": "Converted by EnvManager",
+          "keywords": ["cmf-deployment-package"],
+          "_originalPackageId": "Cmf.Custom.Test",
+          "customMetadata": {"preserve": true},
+          "dependencies": {"inner.package": "npm:other.package@2.0.0"},
+          "mandatoryDependencies": {"inner.package": "npm:other.package@2.0.0"},
+          "conditionalDependencies": {"inner.package": "npm:other.package@2.0.0"},
+          "deployment": {
+            "manifestVersion": 1,
+            "packageType": "ClickhouseDatabase",
+            "steps": [{
+              "type": "{{{stepType}}}",
+              "roleKey": "ANALYTICS_READ",
+              "replaceTokens": "true",
+              "elements": [{"clickHouseGrant": {"permissions": "SELECT"}}]
+            }]
+          }
+        }
+        """);
+
+    private static void AssertPublishedManifest(UploadHandler handler, JObject expected, byte[] archive)
+    {
+        var body = JObject.Parse(handler.Payload);
+        var published = (JObject)body["versions"]["1.0.0"];
+        published["_cliVersion"].Value<string>().Should().NotBeNullOrEmpty();
+        published["dist"]["integrity"].Value<string>()
+            .Should().Be("sha512-" + Convert.ToBase64String(SHA512.HashData(archive)));
+        published.Remove("_id");
+        published.Remove("_cliVersion");
+        published.Remove("_integrity");
+        published.Remove("dist");
+        JToken.DeepEquals(published, expected).Should().BeTrue(
+            "registry metadata must preserve the JSON manifest without typed step conversion");
+        Convert.FromBase64String(body["_attachments"]["cmf.custom.test-1.0.0.tgz"]["data"].Value<string>())
+            .Should().Equal(archive);
+        handler.RequestCount.Should().Be(1);
     }
 
     [Fact]
