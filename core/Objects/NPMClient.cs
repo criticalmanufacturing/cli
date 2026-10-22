@@ -314,14 +314,19 @@ namespace Cmf.CLI.Core.Objects
 
         public async Task PublishPackage(IFileInfo package)
         {
-            var toLowerCase = true; // TODO: complete implementation
-            var addManifestVersion = true; // TODO: complete implementation
-
             var ctrlr = new CmfPackageController(package, package.FileSystem);
 
-            var manifest = ctrlr.ToJson(toLowerCase, addManifestVersion);
+            var jsonManifest = CmfPackageController.ReadPackageJson(package);
+            var name = ctrlr.CmfPackage.PackageId.ToLowerInvariant();
+            if (jsonManifest != null)
+            {
+                jsonManifest["_originalPackageId"] ??= jsonManifest["name"]?.DeepClone();
+                jsonManifest["name"] = name;
+                jsonManifest["version"] = ctrlr.CmfPackage.Version;
+            }
+            // Preserve EnvManager's JSON instead of rebuilding deployment metadata through CLI models.
+            var manifest = jsonManifest?.ToString(Formatting.None) ?? ctrlr.ToJson(lowercase: true, addManifestVersion: true);
 
-            var name = toLowerCase ? ctrlr.CmfPackage.PackageId.ToLowerInvariant() : ctrlr.CmfPackage.PackageId;
             var tgz = $"{name}-{ctrlr.CmfPackage.Version}.tgz";
             Log.Debug($"Trying to publish {name} to {this.baseUrl}");
             HttpContent content;
