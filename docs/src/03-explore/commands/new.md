@@ -1,5 +1,7 @@
 # new
 
+Run package-scaffolding commands inside an initialized CMF project. Outside a project, they report an actionable error directing you to `cmf init` before creating files or starting interactive prompts. IoT generators additionally require the appropriate IoT package context.
+
 <!-- BEGIN USAGE -->
 
 Usage
