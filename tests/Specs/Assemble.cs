@@ -10,6 +10,7 @@ using Cmf.CLI.Constants;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 using FluentAssertions;
+using Newtonsoft.Json;
 using tests.Objects;
 using Xunit;
 
@@ -791,8 +792,10 @@ namespace tests.Specs
             parseResult.GetValue(outputDirOption)?.Name.Should().Be("output");
         }
 
-        [Fact]
-        public void Assemble_FromRepositoriesJson()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Assemble_FromRepositoriesJson(bool includeTestPackages)
         {
             string cirepo = MockUnixSupport.Path(@"y:\cirepo");
             string approvedrepo = MockUnixSupport.Path(@"y:\approvedrepo");
@@ -849,7 +852,7 @@ namespace tests.Specs
                 { assembleOutputDir.Key, assembleOutputDir.Value },
                 { @$"{cirepo}/{packageRoot.Key}.{packageRoot.Value}.zip", new DFPackageBuilder().CreateManifest(packageRoot.Key, packageRoot.Value, new() { { packageDep1.Key, packageDep1.Value}  }, new() { { packageTest.Key, packageTest.Value} }).ToMockFileData() },
                 { @$"{cirepo}/{packageDep1.Key}.{packageDep1.Value}.zip", new DFPackageBuilder().CreateManifest(packageDep1.Key, packageDep1.Value).ToMockFileData() },
-                { @$"{cirepo}/{packageDep2.Key}.{packageDep2.Value}.zip", new DFPackageBuilder().CreateManifest(packageDep2.Key, packageDep2.Value).ToMockFileData() },
+                { @$"{approvedrepo}/{packageDep2.Key}.{packageDep2.Value}.zip", new DFPackageBuilder().CreateManifest(packageDep2.Key, packageDep2.Value).ToMockFileData() },
                 { @$"{cirepo}/{packageTest.Key}.{packageTest.Value}.zip", new DFPackageBuilder().CreateManifest(packageTest.Key, packageTest.Value).ToMockFileData() },
                 { $"{approvedrepo}/.gitkeep", ""}
             });
@@ -858,7 +861,26 @@ namespace tests.Specs
             ExecutionContext.Initialize(fileSystem);
             
             var assembleCommand = new AssembleCommand(fileSystem);
-            assembleCommand.Execute(fileSystem.DirectoryInfo.New(root), fileSystem.DirectoryInfo.New(assembleOutputDir.Key), null, null, true);
+            assembleCommand.Execute(fileSystem.DirectoryInfo.New(root), fileSystem.DirectoryInfo.New(assembleOutputDir.Key), null, null, includeTestPackages);
+
+            var outputDirectory = fileSystem.DirectoryInfo.New(assembleOutputDir.Key);
+            outputDirectory.EnumerateFiles("*.zip").Select(f => f.Name).Should().BeEquivalentTo(
+                $"{packageRoot.Key}.{packageRoot.Value}.zip",
+                $"{packageDep1.Key}.{packageDep1.Value}.zip");
+
+            var testArchives = outputDirectory.EnumerateFiles("*.zip", SearchOption.AllDirectories)
+                .Where(f => f.Directory.Name == "Tests").Select(f => f.Name);
+            testArchives.Should().BeEquivalentTo(includeTestPackages
+                ? new[] { $"{packageTest.Key}.{packageTest.Value}.zip" }
+                : Array.Empty<string>());
+
+            var dependenciesFile = fileSystem.Path.Join(outputDirectory.FullName, CliConstants.FileDependencies);
+            fileSystem.File.Exists(dependenciesFile).Should().BeTrue();
+            var dependencies = JsonConvert.DeserializeObject<Dictionary<string, string>>(fileSystem.File.ReadAllText(dependenciesFile));
+            dependencies.Should().BeEquivalentTo(new Dictionary<string, string>
+            {
+                [$"{packageDep2.Key}@{packageDep2.Value}"] = fileSystem.Path.GetFullPath($"{approvedrepo}/{packageDep2.Key}.{packageDep2.Value}.zip")
+            });
         }
     }
 }
