@@ -9,7 +9,9 @@ HTML package transformations use [Microsoft JSON Document Transforms (JDT)](http
 The source file is injected into the generated `config.json`, so it must contain JSON properties without an additional outer object. For example, `my-transforms.json` can contain:
 
 ```json
-"advancedCustomization": true
+"debug": {
+    "advancedCustomization": true
+}
 ```
 
 Reference it from `cmfpackage.json` as follows:
@@ -33,7 +35,9 @@ For nested properties, use the same JSON structure as the target document. For e
         "timeout": 180000
     }
 },
-"advancedCustomization": true
+"debug": {
+    "advancedCustomization": true
+}
 ```
 
 During deployment, the transformation is applied to the existing product-managed `assets/config.json`. For example, given this relevant part of the original file:
@@ -56,21 +60,23 @@ the resulting file contains the transformed values while preserving properties t
 ```json
 {
     "debug": {
-        "isEnabled": false
+        "isEnabled": false,
+        "advancedCustomization": true
     },
     "host": {
         "rest": {
             "timeout": 180000
         }
-    },
-    "advancedCustomization": true
+    }
 }
 ```
 
 For a transform that only adds the custom property, the existing timeout remains `120000`:
 
 ```json
-"advancedCustomization": true
+"debug": {
+    "advancedCustomization": true
+}
 ```
 
 becomes:
@@ -78,14 +84,14 @@ becomes:
 ```json
 {
     "debug": {
-        "isEnabled": false
+        "isEnabled": false,
+        "advancedCustomization": true
     },
     "host": {
         "rest": {
             "timeout": 120000
         }
-    },
-    "advancedCustomization": true
+    }
 }
 ```
 
