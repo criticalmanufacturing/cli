@@ -161,10 +161,11 @@ namespace Cmf.CLI.Commands
         /// <param name="version">the package version</param>
         public void Execute(IDirectoryInfo workingDir, string version, List<string> args = null)
         {
+            CommandUtilities.ThrowIfNoProjectConfig(ExecutionContext.Instance);
             using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
             if (workingDir == null)
             {
-                throw new CliException("This command needs to run inside a project. Run `cmf init` to create a new project.");
+                throw new CliException(CliMessages.ProjectContextRequired);
             }
 
             var names = this.GeneratePackageName(workingDir);

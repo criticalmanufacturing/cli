@@ -7,10 +7,9 @@ public class CommandUtilities
 {
     public static void ThrowIfNoProjectConfig(ExecutionContext context)
     {
-        if (context.ProjectConfig == null)
+        if (context?.ProjectConfig == null)
         {
-            throw new CliException(@"No project config found. Please make sure you're executing this command inside a valid CMF repository.
-You can init a repository with 'cmf init'.");
+            throw new CliException(CliMessages.ProjectContextRequired);
         }
     }
 }
