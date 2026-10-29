@@ -22,6 +22,7 @@ The recommended setup is the dev container defined in [`.devcontainer/devcontain
 - the .NET SDKs needed to build and test the CLI
 - Node.js
 - GitHub CLI
+- Docker and act for local workflow validation
 - zsh
 - the recommended VS Code extensions
 
@@ -76,6 +77,23 @@ The `postCreateCommand` adds this alias to `~/.bashrc`, but the container's defa
 echo "alias cmf=/workspaces/cli/cmf-cli/bin/Debug/cmf" >> ~/.zshrc
 source ~/.zshrc
 ```
+
+### VS Code tasks
+
+Run **Tasks: Run Task** inside the devcontainer. Rebuild the container once to install act.
+
+| Task | What it does |
+| --- | --- |
+| `build` | Build the CLI. |
+| `publish` | Create local publish output. |
+| `watch` | Run the CLI with change watching. |
+| `integration-tests` | Select Node.js 18 or 20 and run the .NET tests. |
+| `scaffold-cli` | Create a temporary MES project for manual testing. |
+| `clean-all-scaffold-cli` | Delete temporary projects created by `scaffold-cli`. |
+| `scaffolding-validation-dev` | Run scaffolding validation locally against dev registries; requires corporate network/VPN. |
+| `scaffolding-validation-prod` | Run it against production registries; prompts for username and token. |
+
+The validation tasks use the local checkout and retain artifacts outside the repository.
 
 ## Debugging
 
@@ -232,6 +250,8 @@ On every pull request (except changes only under `features/`), the [PR tests wor
 - builds in Release and runs `dotnet test --filter "TestCategory!=Integration"`
 - runs the npm package tests
 - fails if line coverage drops below the threshold set in the workflow
+
+PRs targeting `main` also require approved scaffolding validation. Merges into `main` run it automatically.
 
 ## Documentation
 
