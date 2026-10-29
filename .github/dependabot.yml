@@ -7,15 +7,15 @@ version: 2
 updates:
   - package-ecosystem: npm
     directory: /npm
+    target-branch: development
     commit-message:
-      include: scope
-      prefix: chore
+      prefix: "chore(deps)"
     schedule:
       interval: weekly
   - package-ecosystem: nuget
     directory: /
+    target-branch: development
     commit-message:
-      include: scope
-      prefix: chore
+      prefix: "chore(deps)"
     schedule:
       interval: weekly

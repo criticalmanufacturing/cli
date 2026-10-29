@@ -1,7 +1,6 @@
 ﻿using Cmf.CLI.Utilities;
 using Cmf.Common.Cli.TestUtilities;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp;
+using SkiaSharp;
 using System.IO;
 using Xunit;
 
@@ -20,20 +19,29 @@ namespace tests.Specs
         {
             public static void CreatePngImage(string filePath, int width, int height)
             {
-                using Image<Rgba32> image = new(width, height);
-                image.SaveAsPng(filePath);
+                CreateImage(filePath, width, height, SKEncodedImageFormat.Png);
             }
 
             public static void CreateJpgImage(string filePath, int width, int height)
             {
-                using Image<Rgba32> image = new(width, height);
-                image.SaveAsJpeg(filePath);
+                CreateImage(filePath, width, height, SKEncodedImageFormat.Jpeg);
+            }
+
+            private static void CreateImage(string filePath, int width, int height, SKEncodedImageFormat format)
+            {
+                using SKBitmap bitmap = new(width, height);
+                bitmap.Erase(SKColors.Transparent);
+                using SKImage image = SKImage.FromBitmap(bitmap);
+                using SKData data = image.Encode(format, 100);
+                using FileStream output = File.Create(filePath);
+                data.SaveTo(output);
             }
         }
 
         [Theory]
         [InlineData(PNG_ICON_NO_EXTENSION_FILENAME)]
         [InlineData(PNG_ICON_FILENAME)]
+        [InlineData("valid_icon.jpg")]
         public void ValidPngIcon_ReturnsTrue(string filename)
         {
             var path = Path.Combine(TestFolder, filename);
@@ -75,15 +83,33 @@ namespace tests.Specs
             }
         }
 
-        [Fact]
-        public void NonPngIcon_ThrowsCliException()
+        [Theory]
+        [InlineData(NON_PNG_ICON_FILENAME)]
+        [InlineData("disguised_jpeg.png")]
+        public void NonPngIcon_ThrowsCliException(string filename)
         {
-            var path = Path.Combine(TestFolder, NON_PNG_ICON_FILENAME);
+            var path = Path.Combine(TestFolder, filename);
 
             try
             {
-                ImageCreator.CreateJpgImage(Path.Combine(TestFolder, NON_PNG_ICON_FILENAME), 100, 100);
+                ImageCreator.CreateJpgImage(path, 100, 100);
 
+                var exception = Assert.Throws<CliException>(() => Cmf.CLI.Core.Utilities.AppIconUtilities.IsIconValid(path));
+                Assert.Equal("The icon provided is not PNG", exception.Message);
+            }
+            finally
+            {
+                File.Delete(path);
+            }
+        }
+
+        [Fact]
+        public void InvalidImage_ThrowsCliException()
+        {
+            var path = Path.Combine(TestFolder, "invalid.png");
+            try
+            {
+                File.WriteAllText(path, "This is not an image.");
                 var exception = Assert.Throws<CliException>(() => Cmf.CLI.Core.Utilities.AppIconUtilities.IsIconValid(path));
                 Assert.Equal("The icon provided is not PNG", exception.Message);
             }
