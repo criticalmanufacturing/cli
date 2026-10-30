@@ -58,8 +58,50 @@ namespace Cmf.CLI.Core.Repository.Credentials
 
         public PropertyRequirement DomainPropertyRequirement => PropertyRequirement.Ignored;
 
+        /// <inheritdoc/>
         public void ValidateCredentials(IList<ICredential> credentials)
-        { }
+        {
+            foreach (var credential in credentials)
+            {
+                if (credential is not BearerCredential bearerCredential ||
+                    string.IsNullOrWhiteSpace(bearerCredential.Token))
+                {
+                    throw new CliException(CoreMessages.PortalPatMissing);
+                }
+
+                JWTPayload payload;
+                try
+                {
+                    if (bearerCredential.Token.Split('.').Any(string.IsNullOrWhiteSpace))
+                    {
+                        throw new CliException(CoreMessages.InvalidJwtPayload);
+                    }
+
+                    payload = ParseJwt(bearerCredential.Token);
+                }
+                catch (Exception ex) when (ex is CliException or ArgumentException)
+                {
+                    // Do not include parsing errors: they can contain sensitive claim values.
+                    throw new CliException(CoreMessages.PortalPatInvalid);
+                }
+
+                if (!payload.ExpirationTime.HasValue)
+                {
+                    throw new CliException(CoreMessages.PortalPatInvalid);
+                }
+
+                // The five-day renewal threshold must not reject an otherwise valid PAT.
+                if (payload.ExpirationTime.Value <= TimeProvider.GetUtcNow())
+                {
+                    throw new CliException(CoreMessages.PortalPatExpired);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the clock used to check PAT expiration.
+        /// </summary>
+        protected virtual TimeProvider TimeProvider => System.TimeProvider.System;
 
         public async Task SyncCredentials(IList<ICredential> credentials)
         {
@@ -279,7 +321,7 @@ namespace Cmf.CLI.Core.Repository.Credentials
             }
 
             // Add padding in case the string does not have the correct length (the padding equal signs are frequently ommitted in JWTs)
-            var payloadBase64 = parts[1];
+            var payloadBase64 = parts[1].Replace('-', '+').Replace('_', '/');
             while (payloadBase64.Length % 4 != 0) payloadBase64 += "=";
 
             try
@@ -290,7 +332,7 @@ namespace Cmf.CLI.Core.Repository.Credentials
                 return JsonConvert.DeserializeObject<JWTPayload>(payloadString)
                     ?? throw new CliException(CoreMessages.InvalidJwtPayload);
             }
-            catch (Exception ex) when (ex is FormatException or JsonException)
+            catch (Exception ex) when (ex is FormatException or JsonException or ArgumentOutOfRangeException)
             {
                 throw new CliException(CoreMessages.InvalidJwtPayload, ex);
             }
@@ -355,7 +397,7 @@ namespace Cmf.CLI.Core.Repository.Credentials
 
             [JsonProperty(PropertyName = "exp")]
             [JsonConverter(typeof(UnixDateTimeConverter))]
-            public DateTimeOffset ExpirationTime { get; set; }
+            public DateTimeOffset? ExpirationTime { get; set; }
 
             [JsonProperty(PropertyName = "aud")]
             public string Audience { get; set; }
