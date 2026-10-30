@@ -63,6 +63,25 @@
             }
         },
         {
+            "label": "scaffolding-validation-dev",
+            "type": "process",
+            "command": "bash",
+            "args": ["${workspaceFolder}/.vscode/validate-scaffolding.sh", "dev"],
+            "options": { "cwd": "${workspaceFolder}" },
+            "problemMatcher": []
+        },
+        {
+            "label": "scaffolding-validation-prod",
+            "type": "process",
+            "command": "bash",
+            "args": ["${workspaceFolder}/.vscode/validate-scaffolding.sh", "prod"],
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": { "CRITICALMANUFACTURING_IO_USER": "${input:ScaffoldingRegistryUser}" }
+            },
+            "problemMatcher": []
+        },
+        {
             "type": "shell",
             "label": "clean-all-scaffold-cli",
             "command": "find /tmp -maxdepth 1 -type d -name 'cli-project*' -exec rm -rf {} +",
@@ -75,6 +94,12 @@
         }
     ],
     "inputs": [
+        {
+            "id": "ScaffoldingRegistryUser",
+            "type": "promptString",
+            "description": "Production registry username (act will securely prompt for the token)",
+            "default": "tfsproductbuild"
+        },
         {
             "id": "NodeVersion",
             "type": "pickString",
