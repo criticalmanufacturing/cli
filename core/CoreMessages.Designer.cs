@@ -188,6 +188,33 @@ namespace Cmf.CLI.Core {
         /// <summary>
         ///   Looks up a localized credential validation message.
         /// </summary>
+        public static string PortalPatMissing {
+            get {
+                return ResourceManager.GetString("PortalPatMissing", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized PAT validation message.
+        /// </summary>
+        public static string PortalPatInvalid {
+            get {
+                return ResourceManager.GetString("PortalPatInvalid", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized PAT expiration message.
+        /// </summary>
+        public static string PortalPatExpired {
+            get {
+                return ResourceManager.GetString("PortalPatExpired", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized credential validation message.
+        /// </summary>
         public static string NuGetMissingUsername {
             get {
                 return ResourceManager.GetString("NuGetMissingUsername", resourceCulture);
