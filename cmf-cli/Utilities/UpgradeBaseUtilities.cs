@@ -176,7 +176,7 @@ namespace Cmf.CLI.Utilities
 
                     npxCommand.Exec();
 
-                    Log.Information("Migration complete.");
+                    Log.Information("Migration completed.");
                 }
             }
             catch (Exception ex)
