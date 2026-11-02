@@ -80,7 +80,7 @@ test('full flow uses the candidate, authenticates, packs all packages, and stops
       const args = process.argv.slice(2);
       fs.appendFileSync(process.env.FIXTURE_COMMANDS, JSON.stringify({args,cwd:process.cwd(),exe:process.argv[1]})+'\\n');
       const write = (file, value) => fs.writeFileSync(file, JSON.stringify(value));
-      if (args[0] === '--version') console.log('fixture-cli-1.0.0');
+      if (args[0] === '--version') console.log('1.0.0');
       else if (args[0] === 'portal' && args[1] === 'login') {
         fs.mkdirSync(path.join(process.env.XDG_CONFIG_HOME,'cmfportal'),{recursive:true});
         fs.writeFileSync(path.join(process.env.XDG_CONFIG_HOME,'cmfportal/cmfportaltoken'),'fixture-secret-token');
@@ -175,7 +175,7 @@ test('full flow uses the candidate, authenticates, packs all packages, and stops
     const commands = (await readFile(path.join(root,'success-commands.jsonl'),'utf8')).trim().split('\n').map(JSON.parse);
     const syncIndex = commands.findIndex(command => command.args[0] === 'login' && command.args[1] === 'sync');
     assert.ok(syncIndex >= 0 && syncIndex < commands.findIndex(command => command.args[0] === 'new'));
-    assert.ok(commands[syncIndex].exe.startsWith(path.join(success.workspace,'.e2e/cli')));
+    assert.ok(commands[syncIndex].exe.startsWith(path.join(success.workspace,'.e2e/node_modules/cli')));
     const commandLog = await readFile(path.join(success.workspace,'.e2e/commands.log'),'utf8');
     assert.match(commandLog, /\[devcontainer\] cwd: .*\n\$ .*cmf login sync/);
     assert.match(commandLog, /\$ .*cmf new business/);
@@ -201,7 +201,7 @@ test('full flow uses the candidate, authenticates, packs all packages, and stops
     const lbosIndex = commands.findIndex(command => command.args.includes('lbos'));
     assert.ok(lbosIndex >= 0 && lbosIndex < commands.findIndex(command => command.args[0] === 'build' && command.cwd.endsWith('Tests')));
     assert.equal(builds.length, 6);
-    assert.ok(builds.every(command => command.exe.startsWith(path.join(success.workspace,'.e2e/cli'))));
+    assert.ok(builds.every(command => command.exe.startsWith(path.join(success.workspace,'.e2e/node_modules/cli'))));
     assert.ok(builds.every(command => path.basename(command.cwd).startsWith('Cmf.Custom.')));
     assert.equal(success.report.steps.at(-1).name, 'stack-down');
     assert.deepEqual(commands.at(-1).args, ['dev', 'local', 'stack', 'down', '--remove-volumes']);

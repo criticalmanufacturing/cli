@@ -58,6 +58,17 @@ export async function loadConfig(options) {
   config.portalPat = process.env.CMF_E2E_PORTAL_PAT || config.portalPat;
   config.portalToken = process.env.CMF_E2E_PORTAL_TOKEN;
   config.licenseId = process.env.CMF_E2E_LICENSE_ID || config.licenseId;
+  if (config.testProjectHelp !== undefined && typeof config.testProjectHelp !== 'boolean')
+    throw new Error('testProjectHelp must be a boolean');
+  if (config.testProjectHelp && !config.stackLayers?.length)
+    throw new Error('testProjectHelp requires stackLayers');
+  if (config.stackLayers !== undefined && (!Array.isArray(config.stackLayers) ||
+      config.stackLayers.some(layer => !['extended', 'genai'].includes(layer)) ||
+      new Set(config.stackLayers).size !== config.stackLayers.length))
+    throw new Error('stackLayers must be an array of unique extended/genai layer names');
+  if (config.stackLayers?.includes('genai') &&
+      (!config.stackLayers.includes('extended') || config.stackLayers.indexOf('extended') > config.stackLayers.indexOf('genai')))
+    throw new Error('stackLayers must enable extended before genai');
   if (options.ci && !config.portalPat && !config.portalToken)
     throw new Error('CI requires CMF_E2E_PORTAL_PAT, portalPat, or CMF_E2E_PORTAL_TOKEN');
   if (options.ci && config.interactiveInit)
@@ -69,7 +80,7 @@ export async function loadConfig(options) {
   }
   if (!/^\d+$/.test(String(config.licenseId || '')))
     throw new Error(`Set licenseId or CMF_E2E_LICENSE_ID for MES ${config.mesVersion}`);
-  for (const [name, fallback] of [['commandTimeoutSeconds', 1800], ['installationTimeoutSeconds', 3600], ['uiTimeoutSeconds', 600]]) {
+  for (const [name, fallback] of [['commandTimeoutSeconds', 1800], ['installationTimeoutSeconds', 3600], ['uiTimeoutSeconds', 600], ['stackLayerTimeoutSeconds', 600]]) {
     config[name] ??= fallback;
     if (!Number.isFinite(config[name]) || config[name] <= 0) throw new Error(`${name} must be a positive number`);
   }

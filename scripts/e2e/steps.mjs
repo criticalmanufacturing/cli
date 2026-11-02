@@ -1,8 +1,9 @@
-import { access, mkdir, readFile, readdir } from 'node:fs/promises';
+import { access, mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
-import { packageDirectory, nonemptyFile, waitForHttp } from './checks.mjs';
+import { packageDirectory, nonemptyFile, waitForHttp, cliVersion } from './checks.mjs';
 import { checkBrowser, verifyHomepage } from './browser.mjs';
+import { layerServices, waitForLayerServices } from './layers.mjs';
 
 export function createSteps(runtime) {
   const { session, container, checkCancelled, setBrowser } = runtime;
@@ -14,8 +15,8 @@ export function createSteps(runtime) {
     await mkdir(session.dockerConfig, { recursive: true, mode: 0o700 });
     await commands.run('devcontainer', ['--version'], { label: 'devcontainer-version' });
     await commands.run('docker', ['info', '--format', '{{.ServerVersion}}'], { label: 'docker-info' });
-    const version = (await commands.run(path.join(bundle, 'cmf'), ['--version'], { label: 'cli-version' })).trim();
-    if (session.resume && version !== report.cliVersion) throw new Error('Resume requires the same candidate CLI version');
+    const version = cliVersion(await commands.run(path.join(bundle, 'cmf'), ['--version'], { label: 'cli-version' }));
+    if (session.resume && version !== cliVersion(report.cliVersion)) throw new Error('Resume requires the same candidate CLI version');
     report.cliVersion = version;
     await checkBrowser(setBrowser);
   }
@@ -48,13 +49,67 @@ export function createSteps(runtime) {
     await nonemptyFile(path.join(workspace, 'compose.local.yaml'));
   }
   const stackUp = commands => commands.cli(['dev', 'local', 'stack', 'up', '--licenseId', String(config.licenseId), '--nobackup']);
-  const installation = () => waitForHttp(config.deploymentUrl || 'http://localhost:80/deployment/status', {
+  const waitInstallation = (stepName = 'installation') => waitForHttp(config.deploymentUrl || 'http://localhost:80/deployment/status', {
     timeoutMs: config.installationTimeoutSeconds * 1000, deployment: true,
-    check: checkCancelled, onStatus: status => { console.log(status); session.dashboard?.log('installation', status); },
+    ...(config.deploymentStatusContainer ? { fetchImpl: async () => {
+      const output = await container.inside(stepName, 'docker', ['exec', config.deploymentStatusContainer,
+        'curl', '--silent', '--show-error', '--max-time', '10', '--write-out', '\n%{http_code}',
+        'http://127.0.0.1:8080/deployment/status'], session.containerWorkspace, 'deployment-status');
+      const separator = output.lastIndexOf('\n');
+      return new Response(output.slice(0, separator), { status: Number(output.slice(separator + 1).trim()) });
+    } } : {}),
+    check: checkCancelled, onStatus: status => { console.log(status); session.dashboard?.log(stepName, status); },
   });
+  const installation = () => waitInstallation();
+  const helpComponents = () => config.testProjectHelp ? ['.localenv/e2e-project-help'] : [];
+  const layerComponents = layer => [...config.stackLayers.slice(0, config.stackLayers.indexOf(layer) + 1)
+    .map(name => `.localenv/${name}`), ...helpComponents()];
+  async function prepareProjectHelp() {
+    await resolvePackage('help');
+    await nonemptyFile(path.join(session.directories.help, 'site/index.html'));
+    const directory = path.join(workspace, '.localenv/e2e-project-help');
+    await mkdir(directory, { recursive: true });
+    const site = `./${path.relative(workspace, session.directories.help).split(path.sep).join('/')}/site`;
+    await writeFile(path.join(directory, 'compose.local.yaml'),
+      `services:\n  project-help:\n    volumes:\n    - type: bind\n      source: ${JSON.stringify(site)}\n      target: /app\n      read_only: true\n`);
+  }
+  async function projectHelpReady() {
+    const output = await container.inside('project-help-ready', 'docker', ['exec', 'project-help', 'curl',
+      '--fail', '--silent', '--show-error', '--max-time', '15', '--output', '/dev/null', '--write-out', '%{http_code}',
+      'http://127.0.0.1:8080/'], session.containerWorkspace, 'project-help-http');
+    if (output.trim() !== '200') throw new Error(`Expected project-help HTTP 200, received ${output.trim()}`);
+  }
+  async function stackLayerUp(commands, layer) {
+    for (const component of layerComponents(layer))
+      await nonemptyFile(path.join(workspace, component, 'compose.local.yaml'));
+    await commands.cli(['dev', 'local', 'stack', 'up', '--licenseId', String(config.licenseId), '--nobackup',
+      ...layerComponents(layer).flatMap(component => ['--components', component])]);
+  }
+  async function stackLayerReady(_commands, layer) {
+    const stepName = `stack-${layer}-ready`;
+    await waitInstallation(stepName);
+    const services = new Set();
+    for (const component of layerComponents(layer))
+      for (const service of layerServices(await readFile(path.join(workspace, component, 'compose.local.yaml'), 'utf8')))
+        services.add(service);
+    const project = `${path.basename(workspace)}-local-${config.mesVersion.replaceAll('.', '_')}`.toLowerCase();
+    await waitForLayerServices([...services], () => container.inside(stepName, 'docker', ['ps', '--all',
+      '--filter', `label=com.docker.compose.project=${project}`, '--format',
+      '{{.Label "com.docker.compose.service"}}|{{.State}}|{{.Status}}'], session.containerWorkspace, `stack-${layer}-services`), {
+      timeoutMs: config.stackLayerTimeoutSeconds * 1000, check: checkCancelled,
+      onStatus: status => { console.log(status); session.dashboard?.log(stepName, status); },
+    });
+  }
   async function generateLbos(commands) {
     await commands.cli(['dev', 'local', 'lbos']);
-    await nonemptyFile(path.join(workspace, 'Libs/LBOs/NetStandard/Cmf.LightBusinessObjects.dll'));
+    if (Number(config.mesVersion.split('.')[0]) >= 12) {
+      const packages = path.join(workspace, 'Libs/LBOs/NetStandard/Packages');
+      const files = (await readdir(packages)).filter(file => /^Cmf\.LightBusinessObjects\.[\d].*\.nupkg$/i.test(file));
+      if (!files.length) throw new Error('Expected a generated Cmf.LightBusinessObjects NuGet package');
+      for (const file of files) await nonemptyFile(path.join(packages, file));
+    } else {
+      await nonemptyFile(path.join(workspace, 'Libs/LBOs/NetStandard/Cmf.LightBusinessObjects.dll'));
+    }
     await nonemptyFile(path.join(workspace, 'Libs/LBOs/TypeScript/package.json'));
   }
   const build = (commands, type) => commands.cli(['build'], remotePackage(type), `build-${type}`);
@@ -87,7 +142,9 @@ export function createSteps(runtime) {
     uiTimeout: config.uiTimeoutSeconds * 1000, setBrowser,
     onProgress: (message, details) => session.dashboard?.progress('ui-login', message, details) });
   async function stopServe(commands) { await commands.serve('stop'); session.serveStarted = false; }
-  const stackDown = commands => commands.cli(['dev', 'local', 'stack', 'down', '--remove-volumes']);
+  const stackDown = commands => commands.cli(['dev', 'local', 'stack', 'down', '--remove-volumes',
+    ...[...(config.stackLayers || []).map(layer => `.localenv/${layer}`), ...helpComponents()]
+      .flatMap(component => ['--components', component])]);
   return { preflight, login, init, scaffold, resolvePackage, stackInit, stackUp, installation,
-    generateLbos, build, pack, serve, uiLogin, stopServe, stackDown };
+    stackLayerUp, stackLayerReady, prepareProjectHelp, projectHelpReady, generateLbos, build, pack, serve, uiLogin, stopServe, stackDown };
 }

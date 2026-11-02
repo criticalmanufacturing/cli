@@ -3,7 +3,13 @@ import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { packageDirectory, waitForHttp } from './checks.mjs';
+import { packageDirectory, waitForHttp, cliVersion } from './checks.mjs';
+
+test('CLI version parsing ignores diagnostic lines but validates the version', () => {
+  assert.equal(cliVersion('Warning: development build\nCould not retrieve latest version\n6.0.1-0\n'), '6.0.1-0');
+  assert.equal(cliVersion('6.0.1+revision\n'), '6.0.1+revision');
+  assert.throws(() => cliVersion('Could not retrieve version'), /Could not read/);
+});
 
 test('installation waits through startup and in-progress before accepting success', async () => {
   const results = [new Error('Connection refused'), new Response('', { status: 503 }),

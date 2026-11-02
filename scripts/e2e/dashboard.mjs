@@ -26,6 +26,10 @@ for (const type of ['business', 'html', 'help', 'data', 'test', 'iot']) {
   labels[`build-${type}`] = `Build ${type} package`;
   labels[`pack-${type}`] = `Pack ${type} package`;
 }
+for (const layer of ['extended', 'genai']) {
+  labels[`stack-${layer}-up`] = `Start ${layer} layer`;
+  labels[`stack-${layer}-ready`] = `Check ${layer} services`;
+}
 
 const templatePath = path.join(path.dirname(fileURLToPath(import.meta.url)), 'dashboard-template.html');
 const jsonForScript = value => JSON.stringify(value).replaceAll('<', '\\u003c');
@@ -37,6 +41,9 @@ function latestSteps(report) {
 }
 
 export function createDashboard(session, { enabled = true, port = 8787 } = {}) {
+  const sessionFlow = flow.map(lane => lane.title === 'Installation' ? { ...lane,
+    steps: [...lane.steps, ...(session.config.stackLayers || []).flatMap(layer =>
+      [`stack-${layer}-up`, `stack-${layer}-ready`])] } : lane);
   let server;
   let address;
   const clients = new Set();
@@ -49,7 +56,7 @@ export function createDashboard(session, { enabled = true, port = 8787 } = {}) {
   const snapshot = () => {
     const report = session.report || { status: 'starting', steps: [], commands: [], cleanup: [] };
     const commands = report.commands.map(record => ({ ...record, dashboardId: commandIds.get(record) }));
-    return { report: { ...report, commands }, flow, labels, steps: latestSteps(report), outputs: Object.fromEntries(outputs),
+    return { report: { ...report, commands }, flow: sessionFlow, labels, steps: latestSteps(report), outputs: Object.fromEntries(outputs),
       notices: notices.slice(-100), updatedAt: new Date().toISOString() };
   };
   const broadcast = () => {

@@ -49,6 +49,13 @@ test('CI requires unattended credentials, a license, and noninteractive initiali
     const config = await loadConfig({ file, ci: true });
     assert.equal(config.licenseId, '123');
     assert.equal(config.uiTimeoutSeconds, 600);
+    assert.equal(config.stackLayerTimeoutSeconds, 600);
+    for (const stackLayers of [['unknown'], ['genai'], ['genai', 'extended'], ['extended', 'extended'], 'extended']) {
+      await writeFile(file, JSON.stringify({ mesVersion: '12.0.0', portalPat: 'pat', licenseId: '123', stackLayers }));
+      await assert.rejects(loadConfig({ file, ci: true }), /stackLayers/);
+    }
+    await writeFile(file, JSON.stringify({ mesVersion: '12.0.0', portalPat: 'pat', licenseId: '123', stackLayers: ['extended', 'genai'] }));
+    assert.deepEqual((await loadConfig({ file, ci: true })).stackLayers, ['extended', 'genai']);
   } finally {
     for (const [key, value] of Object.entries(saved)) {
       if (value === undefined) delete process.env[key]; else process.env[key] = value;

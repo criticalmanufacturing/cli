@@ -73,17 +73,25 @@ export async function verifyHomepage({ config, state, report, ci, uiTimeout, set
     } catch (error) {
       const location = new URL(page.url());
       const entry = new URL(config.uiUrl || 'http://localhost:80');
+      const loadingGraphics = await page.locator('img:visible, svg:visible, canvas:visible, [role="progressbar"]:visible').count();
       const blankResetPage = resetCompleted && error.name === 'TimeoutError' &&
         location.origin === entry.origin && location.pathname === '/' &&
-        !(await page.locator('body').innerText()).trim();
-      if (!blankResetPage) throw error;
-      if (ci) throw new Error('UI remained blank after initial password confirmation; recovery is disabled in CI');
-      console.log('UI: blank page after password confirmation; reopening the configured UI entry point once');
-      report.uiRecovery = { reason: 'Blank page after initial password confirmation',
-        action: 'Reopened the configured UI entry point once', automated: true };
-      const retry = await page.goto(entry.href, { timeout: uiTimeout });
-      if (!retry?.ok()) throw new Error(`UI retry returned HTTP ${retry?.status()}`);
-      await sidebar.or(username).first().waitFor({ state: 'visible' });
+        !(await page.locator('body').innerText()).trim() && !loadingGraphics;
+      if (!blankResetPage && resetCompleted && error.name === 'TimeoutError' && loadingGraphics) {
+        // An image/SVG-only splash screen is not an empty document. Allow the
+        // rest of the configured UI timeout without reloading or recovering.
+        await sidebar.or(username).first().waitFor({ state: 'visible',
+          timeout: Math.max(1, uiTimeout - Math.min(30000, uiTimeout)) });
+      } else {
+        if (!blankResetPage) throw error;
+        if (ci) throw new Error('UI remained blank after initial password confirmation; recovery is disabled in CI');
+        console.log('UI: blank page after password confirmation; reopening the configured UI entry point once');
+        report.uiRecovery = { reason: 'Blank page after initial password confirmation',
+          action: 'Reopened the configured UI entry point once', automated: true };
+        const retry = await page.goto(entry.href, { timeout: uiTimeout });
+        if (!retry?.ok()) throw new Error(`UI retry returned HTTP ${retry?.status()}`);
+        await sidebar.or(username).first().waitFor({ state: 'visible' });
+      }
     }
     if (await username.isVisible()) {
       const scopeError = "The user doesn't have all the required scopes.";

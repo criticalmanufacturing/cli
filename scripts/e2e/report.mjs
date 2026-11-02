@@ -3,7 +3,9 @@ import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 
 const repeatOnResume = new Set(['preflight', 'login', 'devcontainer', 'container-login-sync',
-  'stack-up', 'installation', 'serve', 'ui-login', 'stop-serve', 'stack-down']);
+  'stack-up', 'installation', 'serve', 'ui-login', 'stop-serve', 'stack-down',
+  'stack-extended-up', 'stack-extended-ready', 'stack-genai-up', 'stack-genai-ready',
+  'prepare-project-help', 'project-help-ready']);
 
 export async function createReporter(session) {
   const { workspace, state, config, resume } = session;

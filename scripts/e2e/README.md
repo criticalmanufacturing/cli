@@ -74,6 +74,8 @@ root page for 30 seconds (or the shorter configured UI timeout), CI fails and
 captures diagnostics. Locally, the helper reopens the configured UI URL once
 and records that recovery in `report.json`; the normal homepage checks still
 must pass. Other login failures do not use this retry.
+An image/SVG-only loading screen is not considered blank: it gets the remaining
+configured UI timeout, without a reload or recovery, and must still reach the sidebar.
 
 ## Authentication and configuration
 
@@ -137,9 +139,11 @@ host-visible path. Both paths must refer to the same directory.
    Requires root `cmfpackage.json`, `repositories.json`, and devcontainer configuration.
    The project is scaffolded into the working directory, matching `cmf init` behavior.
 2. Starts the generated devcontainer and checks the CLI and local stack plugin.
-   Copies the entire candidate `cliBundle` into `.e2e/cli` and uses it for every
+   Copies the entire candidate `cliBundle` into `.e2e/node_modules/cli` and uses it for every
    subsequent `cmf` command, including subprocesses via PATH. The generated
    container's preinstalled CLI is not the candidate under test.
+   The `node_modules` parent keeps bundled, unrendered project templates out of
+   the MES 12 plugin's recursive project-file scan during LBO configuration.
 3. Runs `cmf login sync` explicitly inside the generated devcontainer before
    scaffolding. VS Code's folder-open login task does not execute during a headless
    `devcontainer up`, so the helper synchronizes registry credentials itself.
@@ -151,7 +155,7 @@ host-visible path. Both paths must refer to the same directory.
 5. Polls `/deployment/status`: HTTP 202 means installation continues, HTTP 400
    fails immediately, and HTTP 200 with EnvManager's success message completes it.
    Startup connection errors are retried until the installation timeout.
-6. After both scaffolding and stack installation complete, runs `cmf dev local lbos` and checks the generated .NET and TypeScript libraries.
+6. After both scaffolding and stack installation complete, runs `cmf dev local lbos` and checks the generated .NET and TypeScript libraries (a .NET NuGet package for MES 12, a loose DLL for earlier versions).
    These libraries are required by the test package build. Other package builds
    and packs overlap stack installation; package commands remain sequential to
    preserve shared manifest updates and business/HTML scaffold dependencies.
@@ -165,7 +169,23 @@ host-visible path. Both paths must refer to the same directory.
    of the installation branch. The complete run still requires installation success.
 8. Stops the serve process and waits for all six builds and packs, requiring
    nonempty ZIP archives in `.e2e/packages/<type>`.
-9. Runs `cmf dev local stack down --remove-volumes` as the final test. A teardown
+9. When `stackLayers` is configured, starts each requested layer after the base
+   workflow completes. `"stackLayers": ["extended", "genai"]` runs
+   `cmf dev local stack up --nobackup --licenseId ... --components .localenv/extended`,
+   then repeats with `--components .localenv/extended --components .localenv/genai`
+   (repeat the option to avoid consuming the second path as the working directory). After each startup,
+   requires EnvManager deployment success and two consecutive service snapshots
+   with every cumulative layer service running (and healthy when it has a Docker
+   healthcheck). `stackLayerTimeoutSeconds` defaults to 600. GenAI requires
+   extended first. This is a startup check, not a model-inference test; it does
+   not send prompts or require provider API keys. Failed layers retain the stack.
+   With `testProjectHelp: true`, also mounts the built help package's `site`
+   directory read-only at `/app` using a test-only Compose component, includes
+   `project-help` in layer readiness, and requires HTTP 200 from its internal
+   port 8080. This needs `stackLayers` and uses the image's nginx configuration
+   unchanged, so a broken nginx configuration fails the check.
+10. Runs `cmf dev local stack down --remove-volumes` as the final test, including
+    all configured layers so their containers and volumes are also removed. A teardown
    failure fails the run; successful runs remove stack containers and volumes.
 
 The generated `serve` script listens on port **7000**; the local stack routes
@@ -178,6 +198,24 @@ reachable without VS Code's port-forwarding UI and preserves the generated
 configuration. An already responding development server is rejected.
 Each run labels its container with the run ID in `report.json`, so a stopped
 container from an earlier run is not silently reused.
+
+To test a candidate devcontainer image, set `devcontainerImage` in your local
+config. The helper replaces the generated image/build selection only in
+`.e2e/devcontainer.json`, preserving the generated project's configuration and
+setup hooks. For example:
+
+```json
+{
+  "devcontainerImage": "dev.criticalmanufacturing.io/criticalmanufacturing/devcontainer:12-ponces-genai"
+}
+```
+
+MES 12 stacks may expose `/deployment/status` only through HTTPS with client
+certificate authentication. Set `deploymentStatusContainer` to `envmanager` to
+poll the same endpoint directly inside that Docker container instead. This
+requires Docker and curl in the generated devcontainer/EnvManager respectively;
+the same HTTP status and deployment-success checks apply. It does not validate
+the external HTTPS route or change its authentication.
 
 The runner uses its own Docker credential directory at
 `~/.config/cmf-cli-e2e/docker`, avoiding VS Code's interactive credential helper.

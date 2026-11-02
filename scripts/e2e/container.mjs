@@ -1,6 +1,7 @@
 import { cp, writeFile } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 import path from 'node:path';
+import { cliVersion } from './checks.mjs';
 
 function parseLine(output, predicate) {
   for (const line of output.split(/\r?\n/)) {
@@ -17,19 +18,19 @@ export function createContainer(session, commands) {
   function inside(step, command, argv = [], cwd = session.containerWorkspace, label = command, options = {}) {
     return commands.run(step, 'devcontainer', ['exec', '--workspace-folder', folder, '--override-config', override,
       ...labels, 'node', remotePath('.e2e/exec.mjs'), cwd, String(session.config.commandTimeoutSeconds),
-      JSON.stringify([command, ...argv]), remotePath('.e2e/cli'), remotePath(`.e2e/command-${randomUUID()}.pid`)],
+      JSON.stringify([command, ...argv]), remotePath('.e2e/node_modules/cli'), remotePath(`.e2e/command-${randomUUID()}.pid`)],
       { label, timeout: session.config.commandTimeoutSeconds + 60,
         display: { command, argv, cwd, context: 'devcontainer' }, ...options });
   }
   const cli = (step, argv, directory = session.containerWorkspace, label = argv.join('-')) =>
-    inside(step, remotePath('.e2e/cli/cmf'), argv, directory, label);
+    inside(step, remotePath('.e2e/node_modules/cli/cmf'), argv, directory, label);
   const serve = (step, action, options = {}) => inside(step, 'node', [remotePath('.e2e/serve.mjs'), action,
     remotePath('.e2e'), remotePath(path.relative(session.workspace, session.directories.html))],
     session.containerWorkspace, `serve-${action}`, options);
 
   async function start(step) {
     // Copy the complete candidate and refresh helpers even when resuming.
-    await cp(session.bundle, path.join(session.state, 'cli'), { recursive: true });
+    await cp(session.bundle, path.join(session.state, 'node_modules', 'cli'), { recursive: true });
     for (const file of ['exec.mjs', 'serve.mjs'])
       await cp(path.join(session.scriptDirectory, file), path.join(session.state, file));
     const output = await commands.run(step, 'devcontainer', ['read-configuration', '--workspace-folder', folder],
@@ -38,6 +39,12 @@ export function createContainer(session, commands) {
     if (!parsed) throw new Error('Could not read generated devcontainer configuration');
     const config = { ...parsed.configuration, ...parsed.workspace };
     delete config.configFilePath;
+    if (session.config.devcontainerImage) {
+      config.image = session.config.devcontainerImage;
+      delete config.build;
+      delete config.dockerFile;
+      delete config.context;
+    }
     config.runArgs = [...(config.runArgs || [])];
     const published = new Set();
     for (const [url, port] of [[session.config.uiUrl || 'http://localhost:80', 80],
@@ -55,8 +62,8 @@ export function createContainer(session, commands) {
     if (!result) throw new Error('devcontainer up did not report a successful workspace');
     session.containerWorkspace = result.remoteWorkspaceFolder;
     session.report.containerId = result.containerId;
-    const version = (await cli(step, ['--version'], session.containerWorkspace, 'container-cli-version')).trim();
-    if (!version.endsWith(session.report.cliVersion)) throw new Error('Candidate CLI versions differ between containers');
+    const version = cliVersion(await cli(step, ['--version'], session.containerWorkspace, 'container-cli-version'));
+    if (version !== cliVersion(session.report.cliVersion)) throw new Error('Candidate CLI versions differ between containers');
     await cli(step, ['dev', 'local', 'stack', '--help'], session.containerWorkspace, 'plugin-check');
   }
 

@@ -30,7 +30,15 @@ function stepPrerequisites() {
   prerequisites[browser.steps[0]] = ['build-html'];
   for (let index = 1; index < browser.steps.length; index++)
     prerequisites[browser.steps[index]] = [browser.steps[index - 1]];
-  prerequisites['stack-down'] = [packageSteps.at(-1), 'generate-lbos', browser.steps.at(-1)];
+  const workflowDone = [packageSteps.at(-1), 'generate-lbos', browser.steps.at(-1)];
+  let layerPrerequisites = workflowDone;
+  for (const layer of ['extended', 'genai']) {
+    if (!installation.steps.includes(`stack-${layer}-up`)) continue;
+    prerequisites[`stack-${layer}-up`] = layerPrerequisites;
+    prerequisites[`stack-${layer}-ready`] = [`stack-${layer}-up`];
+    layerPrerequisites = [`stack-${layer}-ready`];
+  }
+  prerequisites['stack-down'] = layerPrerequisites;
   return prerequisites;
 }
 const visualStatus = step => state.report.status === 'failed' && step?.status === 'running' ? 'cancelled' : step?.status || 'waiting';

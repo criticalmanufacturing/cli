@@ -6,7 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { verifyHomepage } from './browser.mjs';
 
-async function scenario({ ci = false, reset = true, rejectScope = false, missingLabel = false }) {
+async function scenario({ ci = false, reset = true, rejectScope = false, missingLabel = false, loadingScreen = false }) {
   const state = await mkdtemp(path.join(os.tmpdir(), 'cmf-browser-'));
   let needsReset = reset, blank = false, logins = 0, resets = 0, rootRequests = 0;
   const server = createServer((req, res) => {
@@ -21,7 +21,7 @@ async function scenario({ ci = false, reset = true, rejectScope = false, missing
       '<div class="menu-sub-menu"><span>Administration</span>' + (missingLabel ? '' : '<span>Business Data</span>') + '</div>');
     else {
       if (req.url === '/') rootRequests++;
-      if (blank) { blank = false; res.end('<html><body></body></html>'); }
+      if (blank) { blank = false; res.end(loadingScreen ? '<html><body><svg width="50" height="50"><circle cx="25" cy="25" r="20" /></svg></body></html>' : '<html><body></body></html>'); }
       else res.end('<form method="POST"><input name="username"><input name="password"><button>Login</button></form>' +
         (req.url === '/scope-error' ? "<div>The user doesn't have all the required scopes.</div>" : ''));
     }
@@ -63,6 +63,15 @@ test('scope rejection fails without recovery', async () => {
   const result = await scenario({ reset: false, rejectScope: true });
   try { assert.match(result.error?.message, /MES rejected login:.*required scopes/); assert.equal(result.logins, 1); }
   finally { await rm(result.state, { recursive: true, force: true }); }
+});
+
+test('a graphical loading screen is not classified as a blank reset page or recovered', async () => {
+  const result = await scenario({ ci: true, loadingScreen: true });
+  try {
+    assert.equal(result.error?.name, 'TimeoutError');
+    assert.equal(result.report.uiRecovery, undefined);
+    assert.equal(result.rootRequests, 2);
+  } finally { await rm(result.state, { recursive: true, force: true }); }
 });
 
 test('a sidebar missing Business Data fails verification', async () => {

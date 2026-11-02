@@ -33,6 +33,12 @@ export async function executeWorkflow(runtime) {
       stopServe: () => step('stop-serve', actions.stopServe),
     });
 
+    if (session.config.testProjectHelp) await step('prepare-project-help', actions.prepareProjectHelp);
+    for (const layer of session.config.stackLayers || []) {
+      await step(`stack-${layer}-up`, commands => actions.stackLayerUp(commands, layer));
+      await step(`stack-${layer}-ready`, commands => actions.stackLayerReady(commands, layer));
+    }
+    if (session.config.testProjectHelp) await step('project-help-ready', actions.projectHelpReady);
     await step('stack-down', actions.stackDown);
     session.report.status = 'passed';
   } catch (error) {

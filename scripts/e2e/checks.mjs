@@ -1,6 +1,13 @@
 import { readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 
+export function cliVersion(output) {
+  const version = output.trim().split(/\r?\n/).at(-1).trim();
+  if (!/^\d+\.\d+\.\d+(?:-[\w.-]+)?(?:\+[\w.-]+)?$/.test(version))
+    throw new Error('Could not read candidate CLI version');
+  return version;
+}
+
 export async function packageDirectory(workspace, type) {
   // Resolve actual casing (Cmf.Custom.HTML versus Cmf.Custom.Html) from disk.
   const entries = await readdir(workspace, { withFileTypes: true });
