@@ -10,7 +10,7 @@ The @criticalmanufacturing/cli allows you to create three types of projects:
 1. A custom project for MES v9 or prior versions;
 1. A MES App project.
 
-MES v9 and earlier projects require CM CLI **5.8.0 or earlier**; current CLI versions target MES v10 onwards.
+MES v9 and earlier projects require CM CLI **v5.x or earlier**; current CLI versions target MES v10 onwards.
 
 The type of project is defined during the execution of the `cmf init`
 command, depending on the MES version selected and the value of
@@ -80,7 +80,7 @@ Per example, for MES version `10.2.5`:
 ## MES v9 or below
 
 For CM MES v9 or prior MES versions customization projects,
-use CM CLI **5.8.0 or earlier**. The following legacy examples and compatibility matrix apply to those CLI versions:
+use CM CLI **v5.x or earlier**. The following legacy examples and compatibility matrix apply to those CLI versions:
 
 * Customization Project Name;
 * Customization Project Version;

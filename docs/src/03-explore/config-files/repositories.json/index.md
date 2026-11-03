@@ -8,6 +8,10 @@ This document is all you need to know about what's required in your **repositori
 
 Path that points to a folder that contain packages that are treat as Continuous Integration packages.
 
+`cmf publish --ci` publishes to this repository, and `cmf assemble` uses it when `--cirepo` is not passed. `cmf assemble` copies only the dependencies found in this repository to its output.
+
+When the project is created with `cmf init --deploymentDir`, this entry points to the `development` branch folder, `<deploymentDir>/CIPackages/development`. To use another branch, edit this entry.
+
 ### Repositories
 
 Array of paths that point to folders that contain package that are treat as official (i.e. upstream dependencies or already releases packages).
@@ -24,6 +28,17 @@ Follows an example of `repositories.json` file.
     "Repositories": [
         "\\\\fileshare\\my-official\\packages\\repository",
         "\\\\fileshare\\my-released\\packages\\repository"
+    ]
+}
+```
+
+Example generated on Linux by `cmf init --deploymentDir /home/user/deployments`:
+
+```json
+{
+    "CIRepository": "/home/user/deployments/CIPackages/development",
+    "Repositories": [
+        "/home/user/deployments/Delivered"
     ]
 }
 ```

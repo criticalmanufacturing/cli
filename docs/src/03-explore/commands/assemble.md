@@ -6,7 +6,15 @@ cmf assemble is a command that will read all the dependencies of a given package
 
 If a [`repositories.json`](../config-files/repositories.json/index.md) file is available in the working directory, the repos will be also read from that file.
 
-The command will copy all defined dependencies from the repos, and paste it on the defined outputDir. If the package is not found, and error is thrown.
+The command copies the root package and the dependencies found in the CI repository to the output directory. Dependencies found in other repositories are not copied; their locations are written to `dependencies.json` in the output directory.
+
+The CI repository is `--cirepo` or, when omitted, the `CIRepository` entry of `repositories.json`. One of them is required.
+
+Missing dependencies are handled as follows:
+
+* A missing mandatory dependency stops the command with an error that lists the packages not found.
+* A missing optional dependency (`"mandatory": false` in [`cmfpackage.json`](../config-files/cmfpackage.json/index.md#dependencies)) is skipped with a warning.
+* Repository folders that do not exist are ignored.
 
 Run `cmf assemble -h` to get a list of available arguments and options.
 
