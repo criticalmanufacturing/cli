@@ -150,9 +150,17 @@ namespace Cmf.CLI.Commands
             List<string> missingPackages = new();
             foreach (Dependency dependency in cmfPackage.Dependencies.Where(x => x.IsMissing))
             {
-                if (!dependency.IsIgnorable)
+                if (dependency.IsIgnorable)
+                {
+                    continue;
+                }
+                if (dependency.Mandatory)
                 {
                     missingPackages.Add($"{dependency.Id}@{dependency.Version}");
+                }
+                else
+                {
+                    Log.Warning(string.Format(CliMessages.OptionalDependencyNotFound, dependency.Id, dependency.Version));
                 }
             }
 
@@ -181,7 +189,8 @@ namespace Cmf.CLI.Commands
 
             try
             {
-                IDirectoryInfo[] repoDirectories = ExecutionContext.Instance.RepositoriesConfig.Repositories?.Where(r => r.IsDirectory()).Select(r => r.GetDirectory()).ToArray();
+                // repository folders that do not exist yet (e.g. an empty Delivered folder) hold no packages, so they are skipped
+                IDirectoryInfo[] repoDirectories = ExecutionContext.Instance.RepositoriesConfig.Repositories?.Where(r => r.IsDirectory()).Select(r => r.GetDirectory()).Where(d => d.Exists).ToArray();
 
                 // Assemble current package
                 AssemblePackage(outputDir, repoDirectories, cmfPackage, includeTestPackages);
@@ -262,8 +271,15 @@ namespace Cmf.CLI.Commands
                         // Validate dependency Uri
                         if (dependency.CmfPackage == null)
                         {
-                            string errorMessage = string.Format(CoreMessages.MissingMandatoryDependency, dependency.Id, dependency.Version);
-                            throw new CliException(errorMessage);
+                            if (!dependency.Mandatory)
+                            {
+                                Log.Warning(string.Format(CliMessages.OptionalDependencyNotFound, dependency.Id, dependency.Version));
+                            }
+                            else
+                            {
+                                string errorMessage = string.Format(CoreMessages.MissingMandatoryDependency, dependency.Id, dependency.Version);
+                                throw new CliException(errorMessage);
+                            }
                         }
 
                         string dependencyPath = dependency.CmfPackage.Uri.GetFile().Directory.FullName;

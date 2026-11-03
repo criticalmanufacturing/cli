@@ -122,6 +122,15 @@ namespace Cmf.CLI {
                 return ResourceManager.GetString("IoTV10HTMLPackageMustBeProvided", resourceCulture);
             }
         }
+        /// <summary>
+        ///   Looks up a localized string similar to Optional dependency {0}@{1} was not found in any repository and was not assembled.
+        /// </summary>
+        internal static string OptionalDependencyNotFound {
+            get {
+                return ResourceManager.GetString("OptionalDependencyNotFound", resourceCulture);
+            }
+        }
+
         
         /// <summary>
         ///   Looks up a localized string similar to Mandatory Dependency {0}.{1} not found.

@@ -226,6 +226,66 @@ namespace tests.Specs
         }
         
         [Fact]
+        public void Assemble_OptionalMissingDependencyAndMissingRepositoryFolder_AreSkipped()
+        {
+            string cirepo = @"/cirepo";
+            KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.2.0");
+            KeyValuePair<string, string> packageDep1 = new("Cmf.Custom.Business", "1.2.0");
+            KeyValuePair<string, string> optionalDep = new("Cmf.Custom.IoT.Data", "1.2.0");
+            KeyValuePair<string, MockDirectoryData> assembleOutputDir = new("/test/assemble/", new());
+
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                {
+                    "/test/cmfpackage.json", new MockFileData(
+                @$"{{
+                  ""packageId"": ""{packageRoot.Key}"",
+                  ""version"": ""{packageRoot.Value}"",
+                  ""description"": ""This package deploys Critical Manufacturing Customization"",
+                  ""packageType"": ""Root"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": false,
+                  ""dependencies"": [
+                    {{
+                        ""id"": ""{packageDep1.Key}"",
+                        ""version"": ""{packageDep1.Value}""
+                    }},
+                    {{
+                        ""id"": ""{optionalDep.Key}"",
+                        ""version"": ""{optionalDep.Value}"",
+                        ""mandatory"": false
+                    }}
+                  ]
+                }}")
+                },
+                { assembleOutputDir.Key, assembleOutputDir.Value },
+                {
+                    @$"{cirepo}/{packageRoot.Key}.{packageRoot.Value}.zip",
+                    new DFPackageBuilder().CreateManifest(packageRoot.Key, packageRoot.Value,
+                        new Dictionary<string, string>() { { packageDep1.Key, packageDep1.Value } }).ToMockFileData()
+                },
+                {
+                    @$"{cirepo}/{packageDep1.Key}.{packageDep1.Value}.zip",
+                    new DFPackageBuilder().CreateManifest(packageDep1.Key, packageDep1.Value).ToMockFileData()
+                }
+            });
+
+            var assembleCommand = new AssembleCommand(fileSystem);
+            // a release repository folder that does not exist yet, as in a newly initialized project
+            var deliveredRepo = new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = "/deploymentDir/Delivered" }.Uri;
+            var act = () => assembleCommand.Execute(fileSystem.DirectoryInfo.New("test"),
+                fileSystem.DirectoryInfo.New(assembleOutputDir.Key),
+                new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = cirepo }.Uri, new[] { deliveredRepo }, false);
+
+            act.Should().NotThrow();
+            IEnumerable<string> assembledFiles = fileSystem.DirectoryInfo.New(assembleOutputDir.Key)
+                .EnumerateFiles("*.zip").Select(f => f.Name).ToList();
+            assembledFiles.Should().BeEquivalentTo(
+                $"{packageRoot.Key}.{packageRoot.Value}.zip",
+                $"{packageDep1.Key}.{packageDep1.Value}.zip");
+        }
+
+        [Fact]
         public void Assemble_MainPackageIsNotRoot()
             {
             string cirepo = @"/cirepo";
