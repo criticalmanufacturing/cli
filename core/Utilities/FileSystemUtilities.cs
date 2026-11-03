@@ -430,7 +430,7 @@ namespace Cmf.CLI.Utilities
                     }
                     else
                     {
-                        Log.Information($"Skipping {cmfPackage.ZipPackageName}. Already packed in Output Directory.");
+                        Log.Warning($"Skipping {cmfPackage.ZipPackageName}. Already packed in Output Directory. Use --force to replace it, or bump the package version.");
                         return null;
                     }
                 }
