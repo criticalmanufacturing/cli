@@ -106,6 +106,7 @@ namespace Cmf.CLI.Commands.New
 
             List<string> ngNewCmdOptions = [
                 "--routing", routing,
+                "--skip-git",
                 "--style", "less"
             ];
 
