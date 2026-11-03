@@ -496,12 +496,16 @@ namespace Cmf.CLI.Commands
                     isUncPath = false;
                 }
 
+                // A trailing separator (e.g. --deploymentDir ./deploymentDir/) would otherwise produce paths with a doubled separator
+                deploymentDirPath = TrimTrailingSeparators(deploymentDirPath);
+
                 // Determine the appropriate path separator
                 var pathSeparator = isUncPath ? "\\" : System.IO.Path.DirectorySeparatorChar.ToString();
 
                 args.AddRange(new[] { "--deploymentDir", deploymentDirPath });
                 args.AddRange(new[] { "--DeliveredRepo", $"{deploymentDirPath}{pathSeparator}Delivered" });
                 args.AddRange(new[] { "--CIRepo", $"{deploymentDirPath}{pathSeparator}CIPackages" });
+                args.AddRange(new[] { "--CIRepoMainBranch", $"{deploymentDirPath}{pathSeparator}CIPackages{pathSeparator}development" });
             }
             else
             {
@@ -722,6 +726,22 @@ namespace Cmf.CLI.Commands
                 { } stringType when stringType == typeof(string) => (T)(object)argValue,
                 _ => throw new ArgumentOutOfRangeException("This method only parses paths or strings")
             };
+        }
+            /// <summary>
+        /// Removes trailing directory separators from a path, keeping roots such as "/" or "C:\" intact.
+        /// </summary>
+        internal static string TrimTrailingSeparators(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                return path;
+            }
+            var trimmed = path.TrimEnd('/', '\\');
+            if (trimmed.Length == 0 || (trimmed.Length == 2 && trimmed[1] == ':'))
+            {
+                return path.Substring(0, trimmed.Length + 1);
+            }
+            return trimmed;
         }
     }
 }
