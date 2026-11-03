@@ -3,6 +3,7 @@ using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Commands;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
+using Cmf.CLI.Services;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
@@ -138,12 +139,16 @@ namespace Cmf.CLI.Commands.New.IoT
             string driverBasePackage)
         {
             var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            var iotDeps = IoTDependencyResolver.ResolveForProject(IoTDependencyResolver.DriverPackage);
             Log.Debug($"Creating IoT Driver at {packageLocation}");
 
             var args = new List<string>();
             args.AddRange(new[]
             {
                 "--targetSystemVersionProcessed", GenericUtilities.GetNpmDistTag(mesVersion),
+                "--momentVersion", iotDeps.Moment,
+                "--inversifyVersion", iotDeps.Inversify,
+                "--reflectMetadataVersion", iotDeps.ReflectMetadata,
                 "--directoryName", directoryName,
                 "--identifier", identifier,
                 "--identifierCamel", identifierCamel,

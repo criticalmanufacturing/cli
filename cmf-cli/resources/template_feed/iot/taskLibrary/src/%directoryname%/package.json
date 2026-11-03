@@ -42,11 +42,11 @@
   },
   "dependencies": {
     "@criticalmanufacturing/connect-iot-controller-engine": "<%= $CLI_PARAM_TargetSystemVersionProcessed %>",
-    "reflect-metadata": "0.1.13",
-    "inversify": "6.0.2",
-    "moment": "2.30.1",
+    "reflect-metadata": "<%= $CLI_PARAM_ReflectMetadataVersion %>",
+    "inversify": "<%= $CLI_PARAM_InversifyVersion %>",
+    "moment": "<%= $CLI_PARAM_MomentVersion %>",
     "cmf-lbos": "<%= $CLI_PARAM_TargetSystemVersionProcessed %>",
-    "zone.js": "0.14.7"
+    "zone.js": "<%= $CLI_PARAM_ZoneVersion %>"
   },
   "author": "Critical Manufacturing",
   "criticalManufacturing": {

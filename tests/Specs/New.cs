@@ -592,6 +592,12 @@ namespace tests.Specs
                 Directory.Exists(Path.GetFullPath("src/driver-sample")).Should().BeTrue();
                 File.Exists(Path.GetFullPath("src/driver-sample/src/index.ts")).Should().BeTrue();
 
+                var driverDeps = new DependencyVersionService().IoT(NuGetVersion.Parse(mesVersion));
+                var driverPackageJson = File.ReadAllText(Path.GetFullPath("src/driver-sample/package.json"));
+                driverPackageJson.Should().NotContain("$CLI_PARAM_");
+                driverPackageJson.Should().Contain($"\"moment\": \"{driverDeps.Moment}\"");
+                driverPackageJson.Should().Contain($"\"reflect-metadata\": \"{driverDeps.ReflectMetadata}\"");
+
                 if (isGreaterOrEqualThan1120)
                 {
                     File.ReadAllText(Path.GetFullPath("src/driver-sample/src/index.ts")).Should().Contain("const bootstrap = new DriverBootstrap(container);");
@@ -820,6 +826,13 @@ namespace tests.Specs
                 TestUtilities.GetParser(cmdLib).Invoke("");
 
                 Directory.Exists(Path.GetFullPath($"src/{taskLibraryDir}")).Should().BeTrue("Task library folder should be generated");
+
+                var libraryDeps = new DependencyVersionService().IoT(NuGetVersion.Parse(mesVersion));
+                var libraryPackageJson = File.ReadAllText(Path.GetFullPath($"src/{taskLibraryDir}/package.json"));
+                libraryPackageJson.Should().NotContain("$CLI_PARAM_");
+                libraryPackageJson.Should().Contain($"\"moment\": \"{libraryDeps.Moment}\"");
+                libraryPackageJson.Should().Contain($"\"reflect-metadata\": \"{libraryDeps.ReflectMetadata}\"");
+                libraryPackageJson.Should().Contain($"\"zone.js\": \"{libraryDeps.ZoneJs}\"");
 
                 // Step 2: Create the task inside the task library
                 Directory.SetCurrentDirectory(Path.GetFullPath($"src/{taskLibraryDir}"));
