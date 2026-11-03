@@ -11,7 +11,7 @@
     "lint:fix": "eslint ./**/*.ts --fix",
     "watchPackage": "tsc --preserveWatchOutput -w",
     "watchTests": "tsc -p test/unit --preserveWatchOutput -w",
-    "test": "npx mocha test/**/*.test.js --timeout 5000 --exit",
+    "test": "npx mocha \"test/**/*.test.js\" --timeout 5000 --exit",
     "test:cover": "npx nyc -r cobertura -r lcov -r text-summary mocha test/*.test.js test/**/*.test.js -- --timeout 10000 --exit -R mocha-multi-reporters --reporter-options configFile=mocha-multi-reporters-config.json",
     "pretest": "npm run build",
     "watch": "npm run build -- -w | npx mocha --timeout 10000 --exit --reporter min -w test/*.test.js test/**/*.test.js",
@@ -44,7 +44,7 @@
     "@criticalmanufacturing/connect-iot-controller-engine": "<%= $CLI_PARAM_TargetSystemVersionProcessed %>",
     "reflect-metadata": "0.1.13",
     "inversify": "6.0.2",
-    "moment": "2.29.4",
+    "moment": "2.30.1",
     "cmf-lbos": "<%= $CLI_PARAM_TargetSystemVersionProcessed %>",
     "zone.js": "0.14.7"
   },
