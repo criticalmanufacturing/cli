@@ -23,7 +23,7 @@ CLI v6 targets MES v10 or later. For earlier MES versions, see [MES versions pri
 * A config file remains useful for full environment setup. MES v10/v11 HTML scaffolding uses its domain and environment settings; test scaffolding uses its hostname and ports. Supplied files are copied unchanged into `EnvironmentConfigs`, including for MES v12.
 * New configs omit unused database server/replica backup paths, AlwaysOn, ReportServer, Installation, Temporary, and Gateway fields; model API properties remain for legacy compatibility.
 * With `--deploymentDir`, `repositories.json` points `Repositories` to `<deploymentDir>/Delivered` and `CIRepository` to `<deploymentDir>/CIPackages/development`. Paths use the separator of the operating system running `init`, and network shares always use backslashes. A trailing separator in `--deploymentDir` is removed.
-* The generated `.gitignore` excludes the `deploymentDir/` and `Assemble/` folders and the cached `.localenv/.env` file.
+* The generated `.gitignore` excludes the `deploymentDir/` and `Assemble/` folders.
 * `--DevTasksVersion`, `--HTMLStarterVersion`, and `--yoGeneratorVersion` are hidden legacy options but remain accepted.
 
 Use `cmf init --help` for the installed version's options.

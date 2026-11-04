@@ -271,9 +271,8 @@ Tests/packages/
 Package/
 Dependencies/
 .localenv/session.json
-.localenv/.env
+.localenv/envmanager/.env
 
 # Build and release outputs of cmf pack and cmf assemble
 deploymentDir/
 Assemble/
-.localenv/envmanager/.env
