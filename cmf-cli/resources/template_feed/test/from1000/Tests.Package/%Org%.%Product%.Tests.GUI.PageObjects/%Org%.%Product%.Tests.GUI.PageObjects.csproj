@@ -30,10 +30,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Libs\LBOs\NetStandard\Cmf.MessageBus.Client.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Libs\LBOs\NetStandard\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="System.Net.Http.Formatting">
       <HintPath>..\..\Libs\LBOs\NetStandard\System.Net.Http.Formatting.dll</HintPath>
     </Reference>
@@ -46,9 +42,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="..\..\Libs\LBOs\NetStandard\Libs\Cmf.MessageBus.Client.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\..\Libs\LBOs\NetStandard\Libs\Newtonsoft.Json.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="..\..\Libs\LBOs\NetStandard\Libs\System.Net.Http.Formatting.dll">
