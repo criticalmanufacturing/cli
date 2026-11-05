@@ -6,6 +6,58 @@ ZIP on GitHub, criticalmanufacturing.io and the China mirror before publishing n
 See [release artifact publication](.github/RELEASE-ARTIFACTS.md) for setup and
 mirror requirements.
 
+## Trusted publishing
+
+npm and NuGet packages are published with
+[trusted publishing](https://docs.npmjs.com/trusted-publishers/) using GitHub
+Actions OIDC, so no long-lived npm or NuGet tokens are stored in this repository.
+The `publish-npm` and `publish-core-nuget` jobs request short-lived credentials
+with `permissions: id-token: write`; there is no `NPM_TOKEN` or `NUGET_API_KEY`
+secret.
+
+### npm
+
+Configure a trusted publisher for `@criticalmanufacturing/cli` on npmjs.com
+(Package settings → Trusted publishing → GitHub Actions):
+
+- Organization or user: `criticalmanufacturing`
+- Repository: `cli`
+- Workflow filename: `npm-publish.yml`
+- Environment name: leave empty
+- Allowed actions: enable **npm publish** (direct publish, not only staged publishing)
+
+Create the configuration shortly before the next release: a new npm trusted
+publisher must complete its first successful publish within two days.
+
+The publish job uses Node 24 because trusted publishing requires npm CLI 11.5.1
+or later. After the first successful tokenless release, restrict token access on
+the package (Settings → Publishing access → **Require two-factor authentication
+and disallow tokens**), revoke the old `NPM_TOKEN` on npmjs.com, and delete the
+GitHub secret.
+
+### NuGet
+
+Configure a [trusted publishing policy](https://learn.microsoft.com/en-us/nuget/nuget-org/trusted-publishing)
+on nuget.org (Account menu → Trusted publishing) for the owner that owns
+`CriticalManufacturing.CLI.Core`:
+
+- Repository owner: `criticalmanufacturing`
+- Repository: `cli`
+- Workflow file: `npm-publish.yml`
+- Environment: leave empty
+
+Create a repository variable named `NUGET_USER` with the nuget.org profile or
+organization name that owns the policy (for example `CriticalManufacturing`).
+The policy applies to every package owned by that account, not only
+`CriticalManufacturing.CLI.Core`. The job exchanges the GitHub OIDC token for a
+one-hour NuGet API key immediately before `dotnet nuget push`. After the first
+successful tokenless release, revoke the old `NUGET_API_KEY` on nuget.org and
+delete the GitHub secret.
+
+Both trusted publisher configurations must match the workflow filename exactly
+(`npm-publish.yml`) and leave the environment empty. If the workflow file is
+renamed or an environment is added, update both registries first.
+
 ## Stable Releases
 
 1. Bump the version:
