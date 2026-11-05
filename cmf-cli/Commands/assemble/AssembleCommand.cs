@@ -274,6 +274,7 @@ namespace Cmf.CLI.Commands
                             if (!dependency.Mandatory)
                             {
                                 Log.Warning(string.Format(CliMessages.OptionalDependencyNotFound, dependency.Id, dependency.Version));
+                                continue;
                             }
                             else
                             {

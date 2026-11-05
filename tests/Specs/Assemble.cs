@@ -285,6 +285,74 @@ namespace tests.Specs
                 $"{packageDep1.Key}.{packageDep1.Value}.zip");
         }
 
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Assemble_MissingTransitiveDependency_UsesTheMandatoryFlagOfTheZipManifest(bool mandatory)
+        {
+            string cirepo = @"/cirepo";
+            KeyValuePair<string, string> packageRoot = new("Cmf.Custom.Package", "1.2.0");
+            KeyValuePair<string, string> packageDep1 = new("Cmf.Custom.Business", "1.2.0");
+            KeyValuePair<string, string> transitiveDep = new("Cmf.Custom.IoT.Data", "1.2.0");
+            KeyValuePair<string, MockDirectoryData> assembleOutputDir = new("/test/assemble/", new());
+
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                {
+                    "/test/cmfpackage.json", new MockFileData(
+                @$"{{
+                  ""packageId"": ""{packageRoot.Key}"",
+                  ""version"": ""{packageRoot.Value}"",
+                  ""description"": ""This package deploys Critical Manufacturing Customization"",
+                  ""packageType"": ""Root"",
+                  ""isInstallable"": true,
+                  ""isUniqueInstall"": false,
+                  ""dependencies"": [
+                    {{
+                        ""id"": ""{packageDep1.Key}"",
+                        ""version"": ""{packageDep1.Value}""
+                    }}
+                  ]
+                }}")
+                },
+                { assembleOutputDir.Key, assembleOutputDir.Value },
+                {
+                    @$"{cirepo}/{packageRoot.Key}.{packageRoot.Value}.zip",
+                    new DFPackageBuilder().CreateManifest(packageRoot.Key, packageRoot.Value,
+                        new Dictionary<string, string>() { { packageDep1.Key, packageDep1.Value } }).ToMockFileData()
+                },
+                {
+                    // the dependency's own manifest declares a dependency that is in no repository
+                    @$"{cirepo}/{packageDep1.Key}.{packageDep1.Value}.zip",
+                    new DFPackageBuilder().CreateEntry("manifest.xml",
+                        @$"<?xml version=""1.0"" encoding=""utf-8""?>
+                        <deploymentPackage>
+                          <packageId>{packageDep1.Key}</packageId>
+                          <version>{packageDep1.Value}</version>
+                          <dependencies>
+                            <dependency id=""{transitiveDep.Key}"" version=""{transitiveDep.Value}"" mandatory=""{mandatory.ToString().ToLowerInvariant()}"" />
+                          </dependencies>
+                        </deploymentPackage>").ToMockFileData()
+                }
+            });
+
+            var assembleCommand = new AssembleCommand(fileSystem);
+            var act = () => assembleCommand.Execute(fileSystem.DirectoryInfo.New("test"),
+                fileSystem.DirectoryInfo.New(assembleOutputDir.Key),
+                new UriBuilder() { Scheme = Uri.UriSchemeFile, Host = "", Path = cirepo }.Uri, null, false);
+
+            if (mandatory)
+            {
+                act.Should().Throw<CliException>().WithMessage($"*{transitiveDep.Key}*");
+                return;
+            }
+            act.Should().NotThrow();
+            fileSystem.DirectoryInfo.New(assembleOutputDir.Key).EnumerateFiles("*.zip").Select(f => f.Name)
+                .Should().BeEquivalentTo(
+                    $"{packageRoot.Key}.{packageRoot.Value}.zip",
+                    $"{packageDep1.Key}.{packageDep1.Value}.zip");
+        }
+
         [Fact]
         public void Assemble_MainPackageIsNotRoot()
             {
