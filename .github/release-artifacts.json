@@ -1,0 +1,7 @@
+{
+  "repository": "criticalmanufacturing/cli",
+  "files": [
+    { "local": "cmf-cli.win-x64.zip", "github": "cmf-cli.win-x64.zip", "mirror": "cmf-cli.win-x64-{version}.zip" },
+    { "local": "cmf-cli.linux-x64.zip", "github": "cmf-cli.linux-x64.zip", "mirror": "cmf-cli.linux-x64-{version}.zip" }
+  ]
+}
