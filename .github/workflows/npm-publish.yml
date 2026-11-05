@@ -1,29 +1,32 @@
-# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
+# Build release binaries, publish to the registry, verify all download sources, then publish npm/NuGet.
+# Publication setup: .github/RELEASE-ARTIFACTS.md
 # For more information see: https://help.github.com/actions/language-and-framework-guides/publishing-nodejs-packages
 
 name: cmf-cli
 
 on:
-  # workflow_dispatch:
-  #   inputs:
-  #     tag:
-  #       description: 'Main tag to publish'
   release:
     types: [published]
+concurrency:
+  group: release-artifacts-${{ github.event.release.tag_name }}
+  cancel-in-progress: false
 jobs:
-  build-and-publish:
+  build-binaries:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      RELEASE_TAG: ${{ github.event.release.tag_name }}
     steps:
-      - name: Add custom criticalmanufacturing.io entry
-        env:
-          TARGET_IP: ${{ secrets.CRITICALMANUFACTURING_IO_IP }}
-        run: |
-          echo "$TARGET_IP criticalmanufacturing.io" | sudo tee -a /etc/hosts > /dev/null
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22
           registry-url: https://registry.npmjs.org/
+      - name: Validate release version and artifact checks
+        run: |
+          test "$RELEASE_TAG" = "$(node -p "require('./npm/package.json').version")"
+          node --test .github/scripts/release-artifacts.test.mjs
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
@@ -38,24 +41,55 @@ jobs:
         run: zip -X -r ../cmf-cli.linux-x64.zip .
         working-directory: dist/linux-x64
       - name: Publish win-x64 to release
-        uses: JasonEtco/upload-to-release@master
-        with:
-          args: dist/cmf-cli.win-x64.zip application/zip
+        run: gh release upload "$RELEASE_TAG" dist/cmf-cli.win-x64.zip
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish linux-x64 to release
-        uses: JasonEtco/upload-to-release@master
-        with:
-          args: dist/cmf-cli.linux-x64.zip application/zip
+        run: gh release upload "$RELEASE_TAG" dist/cmf-cli.linux-x64.zip
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Get version from npm package
-        id: package-version
-        run: echo "version=$(node -p "require('./npm/package.json').version")" >> $GITHUB_OUTPUT
-      - name: Upload win-x64 to criticalmanufacturing.io
-        run: curl -v --user "${{secrets.CRITICALMANUFACTURING_IO_USER}}:${{secrets.CRITICALMANUFACTURING_IO_TOKEN}}" --upload-file dist/cmf-cli.win-x64.zip https://criticalmanufacturing.io/repository/tools/cmf-cli.win-x64-${{ steps.package-version.outputs.version }}.zip
-      - name: Upload linux-x64 to criticalmanufacturing.io
-        run: curl -v --user "${{secrets.CRITICALMANUFACTURING_IO_USER}}:${{secrets.CRITICALMANUFACTURING_IO_TOKEN}}" --upload-file dist/cmf-cli.linux-x64.zip https://criticalmanufacturing.io/repository/tools/cmf-cli.linux-x64-${{ steps.package-version.outputs.version }}.zip
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  publish-and-verify-binaries:
+    needs: build-binaries
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      RELEASE_TAG: ${{ github.event.release.tag_name }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org/
+      - name: Require registry publishing credentials
+        run: test -n "$CRITICALMANUFACTURING_IO_TOKEN"
+        env:
+          CRITICALMANUFACTURING_IO_TOKEN: ${{ secrets.CRITICALMANUFACTURING_IO_TOKEN }}
+      - name: Download original release binaries
+        run: |
+          mkdir -p dist
+          gh release download "$RELEASE_TAG" --pattern '*.zip' --dir dist
+          for archive in dist/*.zip; do unzip -tq "$archive"; done
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish binaries to the registry
+        run: node .github/scripts/release-artifacts.mjs publish "$RELEASE_TAG"
+        env:
+          CRITICALMANUFACTURING_IO_TOKEN: ${{ secrets.CRITICALMANUFACTURING_IO_TOKEN }}
+      - name: Verify every binary on GitHub, criticalmanufacturing.io and China
+        run: node .github/scripts/release-artifacts.mjs verify "$RELEASE_TAG"
+
+  publish-npm:
+    needs: publish-and-verify-binaries
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org/
       - run: npm run publish
         if: "github.event.release.prerelease"
         env:
@@ -64,6 +98,17 @@ jobs:
         if: "!github.event.release.prerelease"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  publish-core-nuget:
+    needs: publish-and-verify-binaries
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
       - name: Re-version Core Nuget for pre-release
         if: "github.event.release.prerelease"
         run: sed -i.orig -E 's/([0-9]+)\.([0-9]+)\.([0-9]+)-([0-9]+)/\1\.\2\.\3-pre.\4/' core.csproj
