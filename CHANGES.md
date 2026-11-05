@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [6.0.1](https://github.com/criticalmanufacturing/cli/compare/6.0.0...6.0.1) (2026-11-05)
+
+### Bug Fixes
+
+* **ci:** skip commitlint for Dependabot pull requests ([45dfc58](https://github.com/criticalmanufacturing/cli/commit/45dfc580f6bce77f45ef275b814ca72a68941db4))
+* **cli:** replace ImageSharp with SkiaSharp and pin Pkcs to 10.0.13 ([520082d](https://github.com/criticalmanufacturing/cli/commit/520082da183dfca8db3668b5fb25d03913f100c7))
+* **publish:** preserve package JSON metadata ([c8b5573](https://github.com/criticalmanufacturing/cli/commit/c8b5573bf6b28d0588e3df794dc42230beb4a46e))
+* repair CLI scaffolding validation and run PR code ([723365e](https://github.com/criticalmanufacturing/cli/commit/723365eaa9978fb9d9f02faa8550aec61ab91d0a))
+* resolve MkDocs virtual environment from package directory ([ba47f2c](https://github.com/criticalmanufacturing/cli/commit/ba47f2c6a612809ebec5328c5e65538794572081))
+
 ## [6.0.1-0](https://github.com/criticalmanufacturing/cli/compare/6.0.0...6.0.1-0) (2026-10-19)
 
 
