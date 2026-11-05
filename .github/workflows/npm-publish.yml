@@ -84,26 +84,25 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v4
+      # Trusted publishing (OIDC): no NPM_TOKEN. Node 24 ships npm >= 11.5.1.
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: '24'
           registry-url: https://registry.npmjs.org/
       - run: npm run publish
         if: "github.event.release.prerelease"
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - run: npm run publish:live
         if: "!github.event.release.prerelease"
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   publish-core-nuget:
     needs: publish-and-verify-binaries
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
@@ -113,10 +112,14 @@ jobs:
         if: "github.event.release.prerelease"
         run: sed -i.orig -E 's/([0-9]+)\.([0-9]+)\.([0-9]+)-([0-9]+)/\1\.\2\.\3-pre.\4/' core.csproj
         working-directory: ./core
-      - name: Publish Core NuGet
-        id: publish_nuget
-        uses: alirezanet/publish-nuget@v3.1.0
+      - name: Pack Core NuGet
+        run: dotnet pack core/core.csproj --configuration Release --output core/nupkg
+      # Trusted publishing (OIDC): no NUGET_API_KEY. The key below is short-lived,
+      # so log in immediately before pushing.
+      - name: NuGet login (OIDC → temporary API key)
+        id: nuget_login
+        uses: NuGet/login@v1
         with:
-          PROJECT_FILE_PATH: core/core.csproj
-          TAG_COMMIT: false
-          NUGET_KEY: ${{secrets.NUGET_API_KEY}}
+          user: ${{ vars.NUGET_USER }}
+      - name: Publish Core NuGet
+        run: dotnet nuget push "core/nupkg/*.nupkg" --source https://api.nuget.org/v3/index.json --api-key "${{ steps.nuget_login.outputs.NUGET_API_KEY }}" --skip-duplicate --no-symbols
