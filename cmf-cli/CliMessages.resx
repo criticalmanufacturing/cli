@@ -196,4 +196,8 @@
   <data name="InitMissingTenant" xml:space="preserve">
     <value>Tenant information is missing. Please provide it either in the config file or through the --tenant option.</value>
   </data>
+  <data name="InvalidPresentationConfig" xml:space="preserve">
+    <value>Cannot generate a valid HTML config.json from '{0}'. Transform sources must contain JSON properties without outer braces or a trailing comma. JSON error in the generated config.json: {1}</value>
+    <comment>0 - Transform source path or cmfpackage.json path; 1 - JSON parser error with line and position in the generated config.json</comment>
+  </data>
 </root>

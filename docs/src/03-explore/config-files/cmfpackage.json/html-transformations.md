@@ -12,6 +12,8 @@ The source file is injected into the generated `config.json`, so it must contain
 "advancedCustomization": true
 ```
 
+Do not add outer `{ ... }` braces or a trailing comma to the fragment. `cmf pack` validates each source in the generated `config.json` and checks the final JSON before creating the package. If the JSON is invalid, packing fails with the source file path and the parser's line and position in the generated `config.json`, so the error can be corrected before deployment. Deployment tokens inside JSON strings, such as `"$(CUSTOM_ENDPOINT)"`, are preserved.
+
 Reference it from `cmfpackage.json` as follows:
 
 ```json
