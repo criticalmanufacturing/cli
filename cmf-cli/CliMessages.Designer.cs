@@ -212,5 +212,14 @@ namespace Cmf.CLI {
                 return ResourceManager.GetString("IncompatibleNodeVersion", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string explaining an invalid generated HTML config.json and the required Transform source format.
+        /// </summary>
+        internal static string InvalidPresentationConfig {
+            get {
+                return ResourceManager.GetString("InvalidPresentationConfig", resourceCulture);
+            }
+        }
     }
 }
