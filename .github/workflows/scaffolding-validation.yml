@@ -1,19 +1,27 @@
 name: CLI Scaffolding Validation
 
+# Allowed actors are configured outside this file in Settings > Actions > Policies.
 on:
-  workflow_call: {}
-  workflow_dispatch: {}
-  pull_request_target:
+  workflow_dispatch:
+  pull_request:
     branches:
       - main
-    types: [opened, edited, synchronize]
-    paths-ignore:
-      - 'features/**'
+    types: [opened, synchronize]
+  push:
+    branches:
+      - main
+      - development
+
+permissions:
+  contents: read
+
+concurrency:
+  group: scaffolding-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   NG_CLI_ANALYTICS: false
   CRITICALMANUFACTURING_IO_USER: ${{ vars.CRITICALMANUFACTURING_IO_USER }}
-  CRITICALMANUFACTURING_IO_TOKEN: ${{ secrets.CRITICALMANUFACTURING_IO_TOKEN }}
   CRITICALMANUFACTURING_NPM_REGISTRY: ${{ vars.CRITICALMANUFACTURING_NPM_REGISTRY }}
   CRITICALMANUFACTURING_NUGET_REGISTRY: ${{ vars.CRITICALMANUFACTURING_NUGET_REGISTRY }}
   VALIDATION_DIR: scaffolding-validation
@@ -22,12 +30,19 @@ env:
 jobs:
   build-cli:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
     steps:
-      - name: Checkout repository
+      # act copies the working tree only for checkout without an explicit repository/ref.
+      - name: Use local checkout
+        if: env.ACT == 'true'
         uses: actions/checkout@v4
+
+      - name: Checkout repository
+        if: env.ACT != 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
 
       - name: Setup Node 20
         uses: actions/setup-node@v4
@@ -48,7 +63,7 @@ jobs:
       - name: Upload CLI package
         uses: actions/upload-artifact@v4
         with:
-          name: cli-linux-x64-${{ github.sha }}
+          name: cli-linux-x64-${{ github.event.pull_request.head.sha || github.sha }}
           path: npm/dist/linux-x64
           retention-days: 1
           overwrite: true
@@ -56,28 +71,28 @@ jobs:
 
   scaffolding-validation:
     needs: build-cli
+    name: Scaffolding MES ${{ matrix.mes-major }}
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: read
     strategy:
+      fail-fast: false
       matrix:
         include:
+          # MES 10/11 Tests need environment-generated LBOs; validate their scaffolding only.
           - mes-major: 10
             node-version: '18.x'
             dotnet-version: '6.0.x'
-            packages-to-build: "Cmf.Custom.Business Cmf.Custom.Data Cmf.Custom.HTML Cmf.Custom.Test"
-            packages-to-pack: "Cmf.Custom.Business Cmf.Custom.Data Cmf.Custom.HTML Cmf.Custom.Grafana Cmf.Custom.IoT Cmf.Custom.SecurityPortal Cmf.Custom.Database/Pre Cmf.Custom.Database/Post Cmf.Custom.Help Cmf.Custom.Reporting Cmf.Custom.IoT Cmf.Custom.Test"
+            packages-to-build: "Cmf.Custom.Business Cmf.Custom.Data Cmf.Custom.HTML Cmf.Custom.Help"
+            packages-to-pack: "Cmf.Custom.Business Cmf.Custom.Data Cmf.Custom.HTML Cmf.Custom.Grafana Cmf.Custom.IoT Cmf.Custom.SecurityPortal Cmf.Custom.Database/Pre Cmf.Custom.Database/Post Cmf.Custom.Help Cmf.Custom.Reporting Cmf.Custom.IoT"
           - mes-major: 11
             node-version: '20.x'
             dotnet-version: '8.0.x'
-            packages-to-build: "Cmf.Custom.Business Cmf.Custom.Data Cmf.Custom.HTML Cmf.Custom.Help Cmf.Custom.Test"
-            packages-to-pack: "Cmf.Custom.Business Cmf.Custom.Data Cmf.Custom.HTML Cmf.Custom.Help Cmf.Custom.Grafana Cmf.Custom.IoT Cmf.Custom.SecurityPortal Cmf.Custom.Database/Pre Cmf.Custom.Database/Post Cmf.Custom.Help Cmf.Custom.Reporting Cmf.Custom.IoT Cmf.Custom.Test"
+            packages-to-build: "Cmf.Custom.Business Cmf.Custom.Data Cmf.Custom.HTML Cmf.Custom.Help"
+            packages-to-pack: "Cmf.Custom.Business Cmf.Custom.Data Cmf.Custom.HTML Cmf.Custom.Help Cmf.Custom.Grafana Cmf.Custom.IoT Cmf.Custom.SecurityPortal Cmf.Custom.Database/Pre Cmf.Custom.Database/Post Cmf.Custom.Help Cmf.Custom.Reporting Cmf.Custom.IoT"
           - mes-major: 12
             node-version: '24.x'
             dotnet-version: '10.0.x'
-            packages-to-build: "Cmf.Custom.Business Cmf.Custom.Data Cmf.Custom.HTML Cmf.Custom.Help Cmf.Custom.Test"
-            packages-to-pack: "Cmf.Custom.Business Cmf.Custom.Data Cmf.Custom.HTML Cmf.Custom.Help Cmf.Custom.Grafana Cmf.Custom.IoT Cmf.Custom.SecurityPortal Cmf.Custom.Database/Pre Cmf.Custom.Database/Post Cmf.Custom.Help Cmf.Custom.Reporting Cmf.Custom.IoT Cmf.Custom.Test"
+            packages-to-build: "Cmf.Custom.Business Cmf.Custom.Data Cmf.Custom.HTML Cmf.Custom.Help Cmf.Custom.Tests"
+            packages-to-pack: "Cmf.Custom.Business Cmf.Custom.Data Cmf.Custom.HTML Cmf.Custom.Help Cmf.Custom.Grafana Cmf.Custom.IoT Cmf.Custom.SecurityPortal Cmf.Custom.Database/Pre Cmf.Custom.Database/Post Cmf.Custom.Help Cmf.Custom.Reporting Cmf.Custom.IoT Cmf.Custom.Tests"
 
     steps:
       - name: Setup Node ${{ matrix.node-version }}
@@ -93,7 +108,7 @@ jobs:
       - name: Download CLI package
         uses: actions/download-artifact@v4
         with:
-          name: cli-linux-x64-${{ github.sha }}
+          name: cli-linux-x64-${{ github.event.pull_request.head.sha || github.sha }}
           path: npm/dist/linux-x64
 
       - name: Set CLI_PATH env var and execute permission
@@ -103,40 +118,44 @@ jobs:
           echo "CLI_PATH=$GITHUB_WORKSPACE/npm/dist/linux-x64" >> $GITHUB_ENV
 
       - name: Login to NPM registry
+        env:
+          CRITICALMANUFACTURING_IO_TOKEN: ${{ secrets.CRITICALMANUFACTURING_IO_TOKEN }}
         run: |
-          $CLI_PATH/cmf -l debug login NPM $CRITICALMANUFACTURING_NPM_REGISTRY --auth-type Basic --username $CRITICALMANUFACTURING_IO_USER --password $CRITICALMANUFACTURING_IO_TOKEN
+          if [ -n "$CRITICALMANUFACTURING_IO_TOKEN" ]; then
+            "$CLI_PATH/cmf" -l debug login NPM "$CRITICALMANUFACTURING_NPM_REGISTRY" --auth-type Basic --username "$CRITICALMANUFACTURING_IO_USER" --password "$CRITICALMANUFACTURING_IO_TOKEN"
+          fi
 
       - name: Login to NuGet registry
+        env:
+          CRITICALMANUFACTURING_IO_TOKEN: ${{ secrets.CRITICALMANUFACTURING_IO_TOKEN }}
         run: |
-          $CLI_PATH/cmf -l debug login NuGet $CRITICALMANUFACTURING_NUGET_REGISTRY --auth-type Basic --username $CRITICALMANUFACTURING_IO_USER --password $CRITICALMANUFACTURING_IO_TOKEN --key CMF
+          if [ -n "$CRITICALMANUFACTURING_IO_TOKEN" ]; then
+            "$CLI_PATH/cmf" -l debug login NuGet "$CRITICALMANUFACTURING_NUGET_REGISTRY" --auth-type Basic --username "$CRITICALMANUFACTURING_IO_USER" --password "$CRITICALMANUFACTURING_IO_TOKEN" --key CMF
+          fi
 
       - name: Resolve full MES version for major ${{ matrix.mes-major }}
         id: mes-version
         run: |
-          MES_VERSION=$(node - <<'NODE'
+          node - <<'NODE'
           const major = "${{ matrix.mes-major }}";
           const registry = process.env.CRITICALMANUFACTURING_NPM_REGISTRY;
           const pkg = 'cmf-mes-ui';
-          const versionsJson = require('child_process').execSync(`npm view ${pkg} versions --json --registry ${registry}`, { encoding: 'utf8' });
-          const versions = JSON.parse(versionsJson || '[]');
-          const filtered = versions.filter(v => v.startsWith(`${major}.`) && !v.includes("-alpha") && !v.includes("-beta"));
-          if (filtered.length === 0) { console.error(`No versions found for ${major}.x`); process.exit(1); }
-          filtered.sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
-          const withoutPreRelease = filtered.map((v) => v.split("-")[0]);
-          process.stdout.write(withoutPreRelease[withoutPreRelease.length - 1]);
+          const tagsJson = require('child_process').execFileSync('npm', ['view', pkg, 'dist-tags', '--json', '--registry', registry], { encoding: 'utf8' });
+          const releases = Object.entries(JSON.parse(tagsJson || '{}'))
+            .filter(([tag]) => new RegExp(`^release-${major}[0-9]{2,}$`).test(tag));
+          if (releases.length === 0) { console.error(`No release tags found for MES ${major}.x`); process.exit(1); }
+          releases.sort(([a], [b]) => a.localeCompare(b, 'en', { numeric: true }));
+          const [tag, version] = releases[releases.length - 1];
+          console.log(`MES ${major}: ${tag} -> ${version}`);
+          require('fs').appendFileSync(process.env.GITHUB_OUTPUT, `tag=${tag}\nversion=${version}\n`);
           NODE
-          )
-          echo "MES_VERSION=$MES_VERSION"
-          echo "version=$MES_VERSION" >> $GITHUB_OUTPUT
 
-      - name: Resolve ngx-schematics version for MES ${{ steps.mes-version.outputs.version }}
+      - name: Resolve ngx-schematics version for tag ${{ steps.mes-version.outputs.tag }}
         id: ngx-schematics-version
+        env:
+          MES_DIST_TAG: ${{ steps.mes-version.outputs.tag }}
         run: |
-          MES_VERSION=${{ steps.mes-version.outputs.version }}
-          MES_DIST_TAG="release-${MES_VERSION//./}"
-          echo "mes-dist-tag=$MES_DIST_TAG" >> $GITHUB_OUTPUT
-          NGX_VERSION=$(npm view @criticalmanufacturing/ngx-schematics@$MES_DIST_TAG version --registry $CRITICALMANUFACTURING_NPM_REGISTRY 2>/dev/null)
-          if [ -z "$NGX_VERSION" ]; then
+          if ! NGX_VERSION=$(npm view @criticalmanufacturing/ngx-schematics@$MES_DIST_TAG version --registry "$CRITICALMANUFACTURING_NPM_REGISTRY") || [ -z "$NGX_VERSION" ]; then
             echo "::error::Failed to resolve ngx-schematics version for tag $MES_DIST_TAG"
             exit 1
           fi
@@ -161,17 +180,22 @@ jobs:
 
       - name: Run 'cmf init' (MES ${{ steps.mes-version.outputs.version }})
         working-directory: ${{ env.VALIDATION_DIR }}
+        env:
+          MES_VERSION: ${{ steps.mes-version.outputs.version }}
+          NGX_VERSION: ${{ steps.ngx-schematics-version.outputs.version }}
         run: |
+          # MES compatibility uses major.minor.patch; package versions retain their suffixes.
+          MES_BASE_VERSION=${MES_VERSION%%[-+]*}
           $CLI_PATH/cmf -l debug init ValidationProject \
             --version 1.0.0 \
             --config ./parameters.json \
-            --MESVersion ${{ steps.mes-version.outputs.version }} \
-            --nugetVersion ${{ steps.mes-version.outputs.version }} \
-            --testScenariosNugetVersion ${{ steps.mes-version.outputs.version }} \
+            --MESVersion "$MES_BASE_VERSION" \
+            --nugetVersion "$MES_BASE_VERSION" \
+            --testScenariosNugetVersion "$MES_BASE_VERSION" \
             --npmRegistry $CRITICALMANUFACTURING_NPM_REGISTRY \
             --nugetRegistry $CRITICALMANUFACTURING_NUGET_REGISTRY \
             --deploymentDir ./deployments \
-            --ngxSchematicsVersion ${{ steps.ngx-schematics-version.outputs.version }}
+            --ngxSchematicsVersion "$NGX_VERSION"
 
       - name: Run 'cmf new' for each package type
         working-directory: ${{ env.VALIDATION_DIR }}
@@ -180,7 +204,7 @@ jobs:
             if [ "$pkg" = "data" ]; then
               cmd="$CLI_PATH/cmf -l debug new $pkg --businessPackage ./Cmf.Custom.Business/"
             elif [ "$pkg" = "iot" ]; then
-              cmd="$CLI_PATH/cmf -l debug new $pkg --htmlPackageLocation ./Cmf.Custom.Html/"
+              cmd="$CLI_PATH/cmf -l debug new $pkg --htmlPackageLocation ./Cmf.Custom.HTML/"
             else
               cmd="$CLI_PATH/cmf -l debug new $pkg"
             fi
@@ -197,6 +221,14 @@ jobs:
             $cmd
           done
 
+      - name: Add validation package content
+        working-directory: ${{ env.VALIDATION_DIR }}
+        run: |
+          mkdir -p Cmf.Custom.Database/Pre/ONLINE/UpgradeScripts/1.0.0
+          printf 'SELECT 1;\n' > Cmf.Custom.Database/Pre/ONLINE/UpgradeScripts/1.0.0/000-validation.sql
+          mkdir -p Cmf.Custom.Reporting/1.0.0
+          printf '<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2016/01/reportdefinition" />\n' > Cmf.Custom.Reporting/1.0.0/validation.rdl
+
       - name: Run 'cmf pack' for each package
         working-directory: ${{ env.VALIDATION_DIR }}
         run: |
@@ -205,3 +237,19 @@ jobs:
             echo -e "\nRunning: $cmd"
             $cmd
           done
+
+  # Branch protection requires named checks, not the workflow's overall result.
+  # A failed build skips the matrix jobs, and skipped checks can allow merging.
+  # Always run this single required check and fail unless the CLI build
+  # and every MES matrix job succeeded.
+  required:
+    name: CLI scaffolding required
+    needs: [build-cli, scaffolding-validation]
+    if: always()
+    runs-on: ubuntu-latest
+    env:
+      RESULTS: ${{ toJSON(needs.*.result) }}
+    steps:
+      - name: Require every validation job to succeed
+        run: |
+          node -e 'if (!JSON.parse(process.env.RESULTS).every(result => result === "success")) process.exit(1)'

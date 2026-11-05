@@ -13,6 +13,7 @@
       "additionalVersions": ["20"]
     },
     "ghcr.io/devcontainers/features/github-cli": {},
+    "ghcr.io/devcontainers-extra/features/act:1": {},
     "ghcr.io/nils-geistmann/devcontainers-features/zsh": {
       "plugins": "git dotnet node npm dotenv"
     },

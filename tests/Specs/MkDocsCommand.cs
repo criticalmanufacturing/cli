@@ -28,22 +28,46 @@ public class MkDocsCommand
         step.Args.Should().Equal("build");
     }
 
-    [Fact]
-    public void WithVirtualEnvironment_UsesEnvironmentMkDocs()
+    [Theory]
+    [InlineData(".venv")]
+    [InlineData("../shared venv")]
+    public void WithRelativeVirtualEnvironment_ResolvesFromWorkingDirectory(string virtualEnvironment)
     {
+        var fileSystem = new MockFileSystem();
+        var workingDirectory = fileSystem.DirectoryInfo.New("help package");
         var command = new Cmf.CLI.Builders.MkDocsCommand
         {
             DisplayName = "MkDocs build",
             Command = "build",
-            VirtualEnvironment = ".venv",
-            WorkingDirectory = new MockFileSystem().DirectoryInfo.New(".")
+            VirtualEnvironment = virtualEnvironment,
+            WorkingDirectory = workingDirectory
         };
 
         var step = command.GetSteps().Should().ContainSingle().Subject;
 
-        step.Command.Should().Be(IsWindows
-            ? ".venv\\Scripts\\mkdocs.exe"
-            : ".venv/bin/mkdocs", "the virtual environment MkDocs should be used");
+        step.Command.Should().Be(fileSystem.Path.GetFullPath(fileSystem.Path.Combine(
+            workingDirectory.FullName, virtualEnvironment,
+            IsWindows ? "Scripts" : "bin", IsWindows ? "mkdocs.exe" : "mkdocs")));
         step.Args.Should().Equal("build");
+    }
+
+    [Fact]
+    public void WithAbsoluteVirtualEnvironment_PreservesEnvironmentPath()
+    {
+        var fileSystem = new MockFileSystem();
+        var virtualEnvironment = fileSystem.Path.GetFullPath("shared venv");
+        var command = new Cmf.CLI.Builders.MkDocsCommand
+        {
+            Command = "build",
+            Args = ["--strict"],
+            VirtualEnvironment = virtualEnvironment,
+            WorkingDirectory = fileSystem.DirectoryInfo.New("help package")
+        };
+
+        var step = command.GetSteps().Should().ContainSingle().Subject;
+
+        step.Command.Should().Be(fileSystem.Path.Combine(
+            virtualEnvironment, IsWindows ? "Scripts" : "bin", IsWindows ? "mkdocs.exe" : "mkdocs"));
+        step.Args.Should().Equal("build", "--strict");
     }
 }

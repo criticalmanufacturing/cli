@@ -1293,6 +1293,42 @@ public class CmfPackageController
         }
     #endregion
     
+    /// <summary>
+    /// Reads an archive's existing package.json without converting it through CLI package models.
+    /// </summary>
+    /// <param name="package">The ZIP or gzipped TAR package to read.</param>
+    /// <returns>The JSON manifest, or null when the archive has no package.json.</returns>
+    internal static JObject ReadPackageJson(IFileInfo package)
+    {
+        using var stream = package.OpenRead();
+        if (package.Extension == ".zip")
+        {
+            using var archive = new ZipArchive(stream, ZipArchiveMode.Read);
+            var entry = archive.GetEntry(CoreConstants.PackageJson);
+            if (entry == null)
+            {
+                return null;
+            }
+            using var reader = new StreamReader(entry.Open());
+            return JObject.Parse(reader.ReadToEnd());
+        }
+        if (package.Extension is ".tgz" or ".gz")
+        {
+            using var gzip = new GZipStream(stream, CompressionMode.Decompress);
+            using var archive = new TarReader(gzip);
+            while (archive.GetNextEntry() is { } entry)
+            {
+                if (entry.EntryType != TarEntryType.Directory &&
+                    (entry.Name == CoreConstants.PackageJson || entry.Name == $"package/{CoreConstants.PackageJson}"))
+                {
+                    using var reader = new StreamReader(entry.DataStream);
+                    return JObject.Parse(reader.ReadToEnd());
+                }
+            }
+        }
+        return null;
+    }
+
     public static CmfPackageV1 FromSourceManifest(IFileInfo cmfPackageFile)
     {
         string fileContent = cmfPackageFile.ReadToString();
