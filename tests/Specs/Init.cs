@@ -115,6 +115,7 @@ namespace tests.Specs
                         .Should().Contain(@$"""image"": ""criticalmanufacturing.io/criticalmanufacturing/devcontainer:{baseVersion.Major}""", "Devcontainer image is not correct");
                     devContainerFile
                         .Should().Contain(@$"""version"": ""5.x.x""", "Devcontainer image is not correct");
+                    JObject.Parse(devContainerFile)["forwardPorts"].Values<int>().Should().Equal(80, 1433);
                 }
                 else 
                 {
@@ -595,6 +596,7 @@ namespace tests.Specs
         [Theory]
         [InlineData("10.2.0", DependencyVersionService.NET6SDK)]
         [InlineData("11.0.0", DependencyVersionService.NET8SDK)]
+        [InlineData("12.0.0", DependencyVersionService.NET10SDK)]
         [InlineData("12.0.0-beta.2", DependencyVersionService.NET10SDK)]
         public void Init_WithoutJsonFiles_ScaffoldsSupportedVersions(string mesVersion, string expectedSdk)
         {
@@ -622,6 +624,8 @@ namespace tests.Specs
                 File.ReadAllText("global.json").Should().Contain(expectedSdk);
                 File.ReadAllText("NuGet.Config").Should().Contain(project["NuGetRegistry"].Value<string>());
                 File.ReadAllText(".devcontainer/devcontainer.json").Should().Contain($"devcontainer:{NuGetVersion.Parse(mesVersion).Major}");
+                JObject.Parse(File.ReadAllText(".devcontainer/devcontainer.json"))["forwardPorts"]
+                    .Values<int>().Should().Equal(80, 1433);
                 var repositories = JsonConvert.DeserializeObject<RepositoriesConfig>(File.ReadAllText("repositories.json"));
                 repositories.CIRepository.AbsoluteUri.Should().Be("https://dev.criticalmanufacturing.io/");
                 repositories.Repositories.Should().ContainSingle().Which.AbsoluteUri.Should().Be("https://dev.criticalmanufacturing.io/");
@@ -839,6 +843,9 @@ namespace tests.Specs
                 Assert.True(File.Exists("global.json"), "global .NET versioning is missing");
                 Assert.True(File.Exists("NuGet.Config"), "global NuGet feeds config is missing");
                 Assert.True(File.Exists(Path.Combine(tmp, "assets", "default_app_icon.png")), "App Icon is missing");
+
+                JObject.Parse(File.ReadAllText(".devcontainer/devcontainer.json"))["forwardPorts"]
+                    .Values<int>().Should().Equal(80, 1433);
 
                 File.ReadAllText(Path.Join(tmp, ".project-config.json"))
                     .Should().Contain(@"""RepositoryType"": ""App""", "Applied repository type was not App");
