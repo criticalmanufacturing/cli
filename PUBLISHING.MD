@@ -1,7 +1,8 @@
 
 # cmf-cli Release & Publishing Guide
 
-Binary publication requires the `CRITICALMANUFACTURING_IO_TOKEN` Actions secret and verifies every
+Binary publication uses the existing `CRITICALMANUFACTURING_IO_USER`,
+`CRITICALMANUFACTURING_IO_TOKEN` and `CRITICALMANUFACTURING_IO_IP` settings, and verifies every
 ZIP on GitHub, criticalmanufacturing.io and the China mirror before publishing npm.
 See [release artifact publication](.github/RELEASE-ARTIFACTS.md) for setup and
 mirror requirements.
