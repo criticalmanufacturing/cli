@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [6.0.2-0](https://github.com/criticalmanufacturing/cli/compare/6.0.1...6.0.2-0) (2026-11-06)
+
+### Bug Fixes
+
+* **build:** default generic build steps to the package directory ([d5aedc8](https://github.com/criticalmanufacturing/cli/commit/d5aedc89735cd924635bb3305dac75d5b93ac1f2))
+* **ci:** simplify scaffolding validation with current init defaults ([9a234b6](https://github.com/criticalmanufacturing/cli/commit/9a234b6d013048f6583baa4b269c9cc32a8e09fe))
+* **iot:** match scaffolded Node typings to the MES runtime ([b309b1f](https://github.com/criticalmanufacturing/cli/commit/b309b1fe0ba9a0d3a7579a38fb7f9c78758d8ad6))
+* **login:** validate Portal PAT expiration before saving credentials ([f52a9b1](https://github.com/criticalmanufacturing/cli/commit/f52a9b1f6736b4ade7458c23c2cb8d34ea26679e))
+* **new:** validate project context before scaffolding ([29452ab](https://github.com/criticalmanufacturing/cli/commit/29452abf32afb14b7e8cd171c3ce58ef2db7cc95))
+* **pack:** reject invalid HTML config transforms ([c2104a9](https://github.com/criticalmanufacturing/cli/commit/c2104a94b8a72fb2a34bb95251bd9afa5c78855b))
+* **scaffolding:** forward SQL in generated devcontainers ([98545b2](https://github.com/criticalmanufacturing/cli/commit/98545b217768e0f908b4022e4be4c1c9e48cdb0e))
+
 ## [6.0.1](https://github.com/criticalmanufacturing/cli/compare/6.0.0...6.0.1) (2026-11-05)
 
 ### Bug Fixes
