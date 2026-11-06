@@ -58,6 +58,11 @@ export async function verify(files, {
         console.log(`Verified ${url}`);
         return;
       } catch (error) {
+        // Temporarily allow publication while China mirror distribution is restored.
+        if (new URL(url).hostname === 'repository.criticalmanufacturing.com.cn') {
+          console.warn(`::warning::China mirror verification failed: ${url}: ${error.message}`);
+          return;
+        }
         if (attempt === attempts) throw new Error(`${url}: ${error.message}`);
         await delay(30_000);
       }
