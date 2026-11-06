@@ -14,6 +14,13 @@ Configure a GitHub Actions secret named `CRITICALMANUFACTURING_IO_TOKEN` in this
 containing a registry token with read/deploy access to workspace `repository`,
 repository `tools`. Enter the value directly in GitHub's secret settings.
 
+Also configure `CRITICALMANUFACTURING_IO_IP` with the registry origin IP.
+During registry publication only, the workflow maps `admin.criticalmanufacturing.io`
+to this IP in `/etc/hosts`, bypassing Cloudflare's upload timeout while preserving
+the HTTPS hostname and certificate validation. The entry is removed when the
+publishing step exits, including on failure. Public mirror verification uses normal
+DNS routing.
+
 Uploads use the registry's multipart API:
 
 `POST https://admin.criticalmanufacturing.io/api/1/workspaces/repository/repositories/tools/packages/single`
