@@ -69,21 +69,50 @@ test('verifies every artifact at all three sources anonymously', async t => {
   }
 });
 
-test('fails even if GitHub works but a mirror returns 404 or HTML with 200', async t => {
+test('required sources still fail on missing or mismatched downloads', async t => {
   const files = await fixture(t);
-  for (const status of [200, 404]) {
-    await assert.rejects(verify(files, { attempts: 1, fetcher: async url =>
-      url.includes('com.cn') ? new Response('<html>error</html>', { status }) : new Response(bytes),
-    }), /com.cn/);
+  for (const host of ['github.com', 'criticalmanufacturing.io']) {
+    for (const status of [200, 404]) {
+      await assert.rejects(verify(files, { attempts: 1, fetcher: async url =>
+        new URL(url).hostname === host ? new Response('<html>error</html>', { status }) : new Response(bytes),
+      }), error => error.message.includes(host));
+    }
   }
 });
 
-test('reports all failed sources instead of stopping at the first failure', async t => {
+test('China failures warn and allow publication without waiting for retries', async t => {
+  const files = await fixture(t);
+  const warnings = [];
+  t.mock.method(console, 'warn', message => warnings.push(message));
+  for (const failure of [
+    () => new Response('', { status: 404 }),
+    () => new Response('<html>error</html>'),
+    () => { throw new Error('connection failed'); },
+  ]) {
+    let chinaRequests = 0;
+    await verify(files, { attempts: 2, delay: () => assert.fail('China must not delay publication'), fetcher: async url => {
+      if (new URL(url).hostname === 'repository.criticalmanufacturing.com.cn') {
+        chinaRequests++;
+        return failure();
+      }
+      return new Response(bytes);
+    } });
+    assert.equal(chinaRequests, 1);
+  }
+  assert.equal(warnings.length, 3);
+  for (const warning of warnings) {
+    assert.match(warning, /^::warning::China mirror verification failed:/);
+    assert.ok(warning.includes(files[0].name));
+    assert.match(warning, /repository\.criticalmanufacturing\.com\.cn/);
+  }
+});
+
+test('reports all failed required sources instead of stopping at the first failure', async t => {
   const files = await fixture(t);
   await assert.rejects(verify(files, { attempts: 1, fetcher: async () => new Response('', { status: 404 }) }), error => {
     assert.match(error.message, /github.com/);
     assert.match(error.message, /criticalmanufacturing.io/);
-    assert.match(error.message, /com.cn/);
+    assert.doesNotMatch(error.message, /com.cn/);
     return true;
   });
 });

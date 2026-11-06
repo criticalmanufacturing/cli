@@ -3,7 +3,8 @@
 
 Binary publication uses the existing `CRITICALMANUFACTURING_IO_USER`,
 `CRITICALMANUFACTURING_IO_TOKEN` and `CRITICALMANUFACTURING_IO_IP` settings, and verifies every
-ZIP on GitHub, criticalmanufacturing.io and the China mirror before publishing npm.
+ZIP on GitHub and criticalmanufacturing.io before publishing npm. China mirror failures
+are temporarily logged as warnings and do not block publication.
 See [release artifact publication](.github/RELEASE-ARTIFACTS.md) for setup and
 mirror requirements.
 
