@@ -73,8 +73,14 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish binaries to the registry
-        run: node .github/scripts/release-artifacts.mjs publish "$RELEASE_TAG"
+        shell: bash
+        run: |
+          : "${TARGET_IP:?Set the CRITICALMANUFACTURING_IO_IP secret to the registry origin IP.}"
+          trap 'sudo sed -i "/ # cmf-cli-registry-origin$/d" /etc/hosts' EXIT
+          printf '%s admin.criticalmanufacturing.io # cmf-cli-registry-origin\n' "$TARGET_IP" | sudo tee -a /etc/hosts > /dev/null
+          node .github/scripts/release-artifacts.mjs publish "$RELEASE_TAG"
         env:
+          TARGET_IP: ${{ secrets.CRITICALMANUFACTURING_IO_IP }}
           CRITICALMANUFACTURING_IO_TOKEN: ${{ secrets.CRITICALMANUFACTURING_IO_TOKEN }}
       - name: Verify every binary on GitHub, criticalmanufacturing.io and China
         run: node .github/scripts/release-artifacts.mjs verify "$RELEASE_TAG"
