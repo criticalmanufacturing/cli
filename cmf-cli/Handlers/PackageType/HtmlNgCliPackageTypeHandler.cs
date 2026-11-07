@@ -180,13 +180,10 @@ namespace Cmf.CLI.Handlers
             }
         }
 
-        /// <summary>
-        /// Bumps the Base version of the package
-        /// </summary>
-        /// <param name="version">The new Base version.</param>
-        public override void UpgradeBase(string version, string iotVersion, List<string> iotPackagesToIgnore)
+        /// <inheritdoc/>
+        public override void Upgrade(string version, string manifest = null)
         {
-            base.UpgradeBase(version, iotVersion, iotPackagesToIgnore);
+            base.Upgrade(version, manifest);
             UpgradeBaseUtilities.UpdateNPMProject(this.fileSystem, this.CmfPackage, version);
 
             IFileInfo projectConfig = this.fileSystem.FileInfo.New(Path.Join(this.CmfPackage.GetFileInfo().DirectoryName, "src", "assets", "config.json"));
