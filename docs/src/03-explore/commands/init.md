@@ -1,10 +1,17 @@
 # init
 
-Initialize a MES customization or App project without requiring JSON files:
+Initialize a MES customization or App project.
+
+From CLI v6 onwards, the default `cmf init` command does not require JSON files:
+
+* **Environment configuration file** (`--config`): not required. Provide the MES tenant name with `--tenant`.
+* **Infrastructure file** (`--infrastructure`): not required. When omitted, the CLI uses the Critical Manufacturing public repositories for npm and NuGet packages.
 
 ```powershell
-cmf init test --tenant test --baseVersion 12.0.0-beta.2 --ciRepo https://dev.criticalmanufacturing.io --releaseRepos https://dev.criticalmanufacturing.io
+cmf init test --tenant test --baseVersion 12.0.0 --ciRepo https://dev.criticalmanufacturing.io --releaseRepos https://dev.criticalmanufacturing.io
 ```
+
+CLI v6 targets MES v10 or later. For earlier MES versions, see [MES versions prior to v10](#mes-versions-prior-to-v10).
 
 ## Current initialization behavior
 
@@ -15,7 +22,9 @@ cmf init test --tenant test --baseVersion 12.0.0-beta.2 --ciRepo https://dev.cri
 * Each registry resolves independently: command-line option, infrastructure file, then default. `--npmRegistry` defaults to `https://criticalmanufacturing.io/repository/npm/`; `--nugetRegistry` defaults to `https://criticalmanufacturing.io/repository/nuget/index.json`. Existing credential options remain supported.
 * A config file remains useful for full environment setup. MES v10/v11 HTML scaffolding uses its domain and environment settings; test scaffolding uses its hostname and ports. Supplied files are copied unchanged into `EnvironmentConfigs`, including for MES v12.
 * New configs omit unused database server/replica backup paths, AlwaysOn, ReportServer, Installation, Temporary, and Gateway fields; model API properties remain for legacy compatibility.
-* `--DevTasksVersion`, `--HTMLStarterVersion`, and `--yoGeneratorVersion` are hidden legacy options but remain accepted. MES v9 and earlier require CM CLI **5.8.0 or earlier**.
+* With `--deploymentDir`, `repositories.json` points `Repositories` to `<deploymentDir>/Delivered` and `CIRepository` to `<deploymentDir>/CIPackages/development`. Paths use the separator of the operating system running `init`, and network shares always use backslashes. A trailing separator in `--deploymentDir` is removed.
+* The generated `.gitignore` excludes the `deploymentDir/` and `Assemble/` folders.
+* `--DevTasksVersion`, `--HTMLStarterVersion`, and `--yoGeneratorVersion` are hidden legacy options but remain accepted.
 
 Use `cmf init --help` for the installed version's options.
 
@@ -68,3 +77,25 @@ Name | Description
 
 
 <!-- END USAGE -->
+
+## MES versions prior to v10
+
+To scaffold a project for MES v9 or earlier, use CLI **v5.x or earlier** and the old `init` command. That command requires the environment configuration file (`--config`), `--nugetVersion` and `--testScenariosNugetVersion`:
+
+```powershell
+npm install -g @criticalmanufacturing/cli@5
+cmf init ExampleProject `
+    --version 1.0.0 `
+    --infra ..\config\infra.json `
+    --config ..\config\ExampleEnvironment.json `
+    --MESVersion 9.0.11 `
+    --nugetVersion 9.0.11 `
+    --testScenariosNugetVersion 9.0.11 `
+    --deploymentDir \\vm-project\Deployments `
+    --ISOLocation \\setups\CriticalManufacturing.iso `
+    --DevTasksVersion 8.1.3 `
+    --HTMLStarterVersion 8.1.1 `
+    --yoGeneratorVersion 3.1.0
+```
+
+Run `cmf init --help` with the installed v5 CLI for its options.

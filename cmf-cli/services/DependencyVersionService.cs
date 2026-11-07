@@ -13,6 +13,14 @@ public record AngularDeps
     public string TSESLint { get; init; }
 }
 
+public record IoTDeps
+{
+    public string Moment { get; init; }
+    public string Inversify { get; init; }
+    public string ReflectMetadata { get; init; }
+    public string ZoneJs { get; init; }
+}
+
 /// <summary>
 /// this service returns expected dependency versions as a function of the CM framework/MES version 
 /// </summary>
@@ -52,6 +60,13 @@ public interface IDependencyVersionService
     /// <param name="productVersion">The product version to use</param>
     /// <returns>AngularDeps representing the Angular dependencies</returns>
     AngularDeps Angular(SemanticVersion productVersion);
+
+    /// <summary>
+    /// Returns the third-party libraries supplied by the Connect IoT runtime for the given product version
+    /// </summary>
+    /// <param name="productVersion">The product version to use</param>
+    /// <returns>IoTDeps representing the Connect IoT runtime libraries</returns>
+    IoTDeps IoT(SemanticVersion productVersion);
 }
 
 /// <summary>
@@ -88,6 +103,14 @@ public class DependencyVersionService : IDependencyVersionService
     public const string NG17_TS = "5.3.3";
     public const string NG21_TS = "5.9.3";
     public const string NG22_TS = "6.0.3";
+    public const string IOT11_MOMENT = "2.29.4";
+    public const string IOT12_MOMENT = "2.30.1";
+    public const string IOT_INVERSIFY = "6.0.2";
+    public const string IOT110_REFLECT_METADATA = "0.1.13";
+    public const string IOT_REFLECT_METADATA = "0.2.2";
+    public const string IOT110_ZONE = "0.14.4";
+    public const string IOT11_ZONE = "0.14.7";
+    public const string IOT12_ZONE = "0.16.2";
 
     public string DotNetSdk(NuGetVersion productVersion) => 
         productVersion.Major >= 12 
@@ -141,4 +164,31 @@ public class DependencyVersionService : IDependencyVersionService
         };
 
     public string AngularCLI(SemanticVersion productVersion) => this.Angular(productVersion).CLI.Major.ToString();
+
+    public IoTDeps IoT(SemanticVersion productVersion) =>
+        productVersion switch
+        {
+            { Major: 11, Minor: 0 } => new IoTDeps()
+            {
+                Moment = IOT11_MOMENT,
+                Inversify = IOT_INVERSIFY,
+                ReflectMetadata = IOT110_REFLECT_METADATA,
+                ZoneJs = IOT110_ZONE
+            },
+            { Major: 11 } => new IoTDeps()
+            {
+                Moment = IOT11_MOMENT,
+                Inversify = IOT_INVERSIFY,
+                ReflectMetadata = IOT_REFLECT_METADATA,
+                ZoneJs = IOT11_ZONE
+            },
+            { Major: >= 12 } => new IoTDeps()
+            {
+                Moment = IOT12_MOMENT,
+                Inversify = IOT_INVERSIFY,
+                ReflectMetadata = IOT_REFLECT_METADATA,
+                ZoneJs = IOT12_ZONE
+            },
+            _ => throw new CliException($"No Connect IoT dependencies defined for MES version {productVersion}")
+        };
 }

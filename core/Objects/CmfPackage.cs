@@ -1003,6 +1003,21 @@ namespace Cmf.CLI.Core.Objects
         }
 
         /// <summary>
+        /// Reads a dependency of a DF package manifest, keeping its mandatory flag when the manifest declares one
+        /// </summary>
+        /// <param name="dependencyElement">the dependency element</param>
+        /// <returns>the dependency</returns>
+        private static Dependency ManifestDependency(XElement dependencyElement)
+        {
+            var dependency = new Dependency(dependencyElement.Attribute("id").Value, dependencyElement.Attribute("version").Value);
+            if (bool.TryParse(dependencyElement.Attribute("mandatory")?.Value, out var mandatory))
+            {
+                dependency.Mandatory = mandatory;
+            }
+            return dependency;
+        }
+
+        /// <summary>
         /// Create a CmfPackage object from a DF package manifest
         /// </summary>
         /// <param name="manifest">the manifest content</param>
@@ -1030,13 +1045,13 @@ namespace Cmf.CLI.Core.Objects
 
                 if (element.Name.LocalName == "dependencies")
                 {
-                    var deplist = element.Elements().Select(depEl => new Dependency(depEl.Attribute("id").Value, depEl.Attribute("version").Value));
+                    var deplist = element.Elements().Select(ManifestDependency);
                     deps.AddRange(deplist);
                 }
 
                 if (element.Name.LocalName == "testPackages")
                 {
-                    var testPackagesList = element.Elements().Select(depEl => new Dependency(depEl.Attribute("id").Value, depEl.Attribute("version").Value));
+                    var testPackagesList = element.Elements().Select(ManifestDependency);
                     testPackages.AddRange(testPackagesList);
                 }
 
