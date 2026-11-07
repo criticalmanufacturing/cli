@@ -41,3 +41,4 @@ Host machines usually have no SDKs/tooling (dotnet, node, npm, gh); they live in
 
 - Conventional Commits enforced by commitlint (`header-max-length: 200`); PR CI lints every commit.
 - Version lives in `cmf-cli/cmf.csproj` (`<Version>`). Bump via root `npm run bump:*` scripts only. Release flow (`PUBLISHING.MD`): `development` → PR `Release X.Y.Z` (merge, don't rebase) → `main` → GitHub Release (`@latest` from `main`, `@next` pre-release from `development`).
+- Everything that did not change cli functionality (usually changes on `cmf-cli` and `core` folders) doesn't worth to mention on the changelog.

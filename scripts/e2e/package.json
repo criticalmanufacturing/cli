@@ -1,0 +1,20 @@
+{
+  "name": "cmf-cli-user-flow",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node run.mjs",
+    "test": "node --test *.test.mjs",
+    "test:smoke": "node --test smoke.mjs",
+    "browser:install": "playwright install --with-deps --no-shell chromium",
+    "postinstall": "playwright install --with-deps --no-shell chromium"
+  },
+  "dependencies": {
+    "@devcontainers/cli": "0.89.0",
+    "playwright": "1.58.2",
+    "@criticalmanufacturing/portal": "1.20.1"
+  }
+}
