@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "<%= $CLI_PARAM_Organization
 		{6C3D698D-7F9E-4E39-A571-DEB63582CA52} = {6C3D698D-7F9E-4E39-A571-DEB63582CA52}
 	EndProjectSection
 EndProject
-#if (app)
+#if (app && addApplicationVersionAssembly)
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Version", "ApplicationVersion\Version.csproj", "{7A42A73B-81C3-442C-880B-090B85FC8635}"
 EndProject
 #endif
@@ -37,7 +37,7 @@ Global
 		{4F4342A5-3D64-4D54-B83B-368F768E2A95}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4F4342A5-3D64-4D54-B83B-368F768E2A95}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4F4342A5-3D64-4D54-B83B-368F768E2A95}.Release|Any CPU.Build.0 = Release|Any CPU
-		#if (app)
+		#if (app && addApplicationVersionAssembly)
 		{7A42A73B-81C3-442C-880B-090B85FC8635}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7A42A73B-81C3-442C-880B-090B85FC8635}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7A42A73B-81C3-442C-880B-090B85FC8635}.Release|Any CPU.ActiveCfg = Release|Any CPU
