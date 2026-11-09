@@ -4,6 +4,13 @@ This directory contains unit tests for the CMF CLI npm package installation scri
 
 ## Test Files
 
+### `postinstall.install.test.js`
+Runs the actual installer against temporary package directories and real files.
+Checks that upgrades and reinstalls remove obsolete templates and libraries on
+Linux, macOS, and Windows code paths, preserve neighboring tools, and retain the
+previous installation when copying, validation, or replacement fails. Windows and
+macOS paths are simulated; native filesystem behavior still requires those hosts.
+
 ### `postinstall.test.js`
 Tests for the postinstall script that handles downloading and installing the CLI binary.
 

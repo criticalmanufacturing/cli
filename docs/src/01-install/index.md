@@ -97,6 +97,10 @@ The development of IoT drivers on Critical Manufacturing MES has a dependency fo
     npm install -g @criticalmanufacturing/cli
     ```
 
+Upgrades replace the CLI binaries and bundled templates, removing files left over
+from previous versions. The installer prepares and validates the new files before
+replacing the existing installation. Project files are unaffected.
+
 ## 3. Validate
 
 1. Open a command prompt.
