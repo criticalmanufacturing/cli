@@ -10,6 +10,9 @@ Checks that upgrades and reinstalls remove obsolete templates and libraries on
 Linux, macOS, and Windows code paths, preserve neighboring tools, and retain the
 previous installation when copying, validation, or replacement fails. Windows and
 macOS paths are simulated; native filesystem behavior still requires those hosts.
+Also covers unsupported Node versions, cleanup failures, and uninstall behavior.
+The real template source is used intentionally to cover the legacy
+`.project-config.json` to V1/V2 rename that caused the upgrade regression.
 
 ### `postinstall.test.js`
 Tests for the postinstall script that handles downloading and installing the CLI binary.

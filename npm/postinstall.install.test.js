@@ -5,6 +5,7 @@ const path = require('path');
 const { spawnSync } = require('child_process');
 const axios = require('axios');
 const AdmZip = require('adm-zip');
+const rimraf = require('rimraf');
 
 jest.mock('axios');
 
@@ -14,6 +15,7 @@ describe('CLI installation on disk', () => {
     let sourcePath;
     let installPath;
     let install;
+    let uninstall;
     let platformDescriptor;
     let archDescriptor;
 
@@ -48,6 +50,7 @@ describe('CLI installation on disk', () => {
         writeFile(path.join(installPath, 'obsolete.dll'), 'obsolete library');
         writeFile(path.join(path.dirname(installPath), 'unrelated-tool'), 'unrelated');
         writeFile(path.join(sourcePath, 'cmf'), 'new binary');
+        // Intentionally exercise the shipped templates to reproduce the V1/V2 rename regression.
         fs.cpSync(path.join(__dirname, '../cmf-cli/resources/template_feed/init'),
             path.join(sourcePath, 'resources/template_feed/init'), { recursive: true });
 
@@ -68,7 +71,7 @@ describe('CLI installation on disk', () => {
     function loadInstaller(platform = 'linux') {
         Object.defineProperty(process, 'platform', { value: platform });
         jest.spyOn(console, 'info').mockImplementation(() => {});
-        ({ install } = require(path.join(packagePath, 'postinstall.js')));
+        ({ install, uninstall } = require(path.join(packagePath, 'postinstall.js')));
     }
 
     test.each([
@@ -118,11 +121,66 @@ describe('CLI installation on disk', () => {
         expectNoStagingDirectories();
     });
 
+    test('rejects unsupported Node versions before modifying the installation', async () => {
+        loadInstaller();
+        const descriptor = Object.getOwnPropertyDescriptor(process.versions, 'node');
+        const callback = jest.fn();
+        try {
+            Object.defineProperty(process.versions, 'node', { value: '16.20.2' });
+
+            await install(callback);
+
+            expect(callback).toHaveBeenCalledTimes(1);
+            expect(callback).toHaveBeenCalledWith(expect.objectContaining({
+                message: expect.stringContaining('requires Node.js 18 or later')
+            }));
+            expectPreviousInstallation();
+            expectNoStagingDirectories();
+            expect(axios).not.toHaveBeenCalled();
+        } finally {
+            Object.defineProperty(process.versions, 'node', descriptor);
+        }
+    });
+
+    test('succeeds with a warning if the previous installation cannot be cleaned up', async () => {
+        loadInstaller();
+        const warning = jest.spyOn(console, 'warn').mockImplementation(() => {});
+        jest.spyOn(rimraf, 'sync').mockImplementation(() => { throw new Error('backup is locked'); });
+        const callback = jest.fn();
+
+        await install(callback);
+
+        expect(callback).toHaveBeenCalledTimes(1);
+        expect(callback).toHaveBeenCalledWith(null);
+        expect(fs.readFileSync(path.join(installPath, 'cmf'), 'utf8')).toBe('new binary');
+        const stagingDirectory = fs.readdirSync(path.dirname(installPath)).find(name => name.startsWith('.cmf-cli-'));
+        const stagingPath = path.join(path.dirname(installPath), stagingDirectory);
+        expect(fs.readFileSync(path.join(stagingPath, 'previous/cmf'), 'utf8')).toBe('previous binary');
+        expect(warning).toHaveBeenCalledWith(expect.stringContaining(stagingPath));
+        expect(warning).toHaveBeenCalledWith(expect.stringContaining('backup is locked'));
+    });
+
+    test('preserves the original copy error if staging cleanup also fails', async () => {
+        loadInstaller();
+        jest.spyOn(console, 'warn').mockImplementation(() => {});
+        const failure = new Error('disk full');
+        jest.spyOn(fs, 'cpSync').mockImplementation(() => { throw failure; });
+        jest.spyOn(rimraf, 'sync').mockImplementation(() => { throw new Error('cleanup failed'); });
+        const callback = jest.fn();
+
+        await install(callback);
+
+        expect(callback).toHaveBeenCalledTimes(1);
+        expect(callback).toHaveBeenCalledWith(failure);
+        expectPreviousInstallation();
+    });
+
     test('installs into an empty location through the npm script entry point', () => {
         fs.rmSync(installPath, { recursive: true });
 
         const result = spawnSync(process.execPath, [path.join(packagePath, 'postinstall.js'), 'install'], {
             cwd: workspace,
+            env: { ...process.env, DEBUG: '' },
             encoding: 'utf8',
             timeout: 10000
         });
@@ -184,5 +242,20 @@ describe('CLI installation on disk', () => {
         }));
         expectPreviousInstallation();
         expectNoStagingDirectories();
+    });
+
+    test('uninstalls the CLI while preserving neighboring tools and recovery backups', async () => {
+        loadInstaller();
+        const backupPath = path.join(path.dirname(installPath), '.cmf-cli-recovery/previous/cmf');
+        writeFile(backupPath, 'recovery binary');
+        const callback = jest.fn();
+
+        await uninstall(callback);
+
+        expect(callback).toHaveBeenCalledTimes(1);
+        expect(callback).toHaveBeenCalledWith(null);
+        expect(fs.existsSync(installPath)).toBe(false);
+        expect(fs.readFileSync(backupPath, 'utf8')).toBe('recovery binary');
+        expect(fs.readFileSync(path.join(path.dirname(installPath), 'unrelated-tool'), 'utf8')).toBe('unrelated');
     });
 });
