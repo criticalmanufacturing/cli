@@ -33,11 +33,6 @@ async function getInstallationPath() {
     return dir;
 }
 
-async function verifyAndPlaceBinary(binName, binPath, callback) {
-    if (!fs.existsSync(path.join(binPath, binName))) return callback('Downloaded binary does not contain the binary specified in configuration - ' + binName);
-    return callback(null);
-}
-
 /**
  * Downloads and extracts a zip file from the given URL to the destination path
  * @param {string} pkgUrl - The URL to download from
@@ -83,6 +78,9 @@ async function downloadAndExtract(pkgUrl, dest) {
  */
 var INVALID_INPUT = "Invalid inputs";
 async function install(callback) {
+    if (Number(process.versions.node.split(".")[0]) < 18) {
+        return callback(new Error("CM CLI 6 requires Node.js 18 or later. For MES 8/9, use CM CLI 5.8.0 or earlier with Node.js 12."));
+    }
     var opts = parsePackageJson(__dirname);
     if (!opts) return callback(INVALID_INPUT);
     console.info(`Copying the relevant binary for your platform ${process.platform}`);
@@ -132,7 +130,7 @@ async function install(callback) {
     } catch (err) {
         return callback(err);
     }
-    await verifyAndPlaceBinary(opts.binName, installPath, callback);
+    return callback(null);
 }
 
 function replaceInstallation(src, installPath, binName) {
@@ -165,7 +163,13 @@ function replaceInstallation(src, installPath, binName) {
             throw err;
         }
     } finally {
-        if (!preserveBackup) rimraf.sync(stagingPath);
+        if (!preserveBackup) {
+            try {
+                rimraf.sync(stagingPath);
+            } catch (cleanupError) {
+                console.warn(`Could not remove installer staging directory ${stagingPath}: ${cleanupError.message}`);
+            }
+        }
     }
 }
 
@@ -189,7 +193,7 @@ var actions = {
     "uninstall": uninstall
 };
 
-module.exports = { install };
+module.exports = { install, uninstall };
 
 var argv = process.argv;
 if (require.main === module && argv && argv.length > 2) {

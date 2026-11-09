@@ -14,6 +14,9 @@
     "test:integration": "node integration-test.js",
     "prepublishOnly": "npm shrinkwrap"
   },
+  "engines": {
+    "node": ">=18"
+  },
   "author": "Critical Manufacturing, SA",
   "license": "BSD-3-Clause",
   "goBinary": {
