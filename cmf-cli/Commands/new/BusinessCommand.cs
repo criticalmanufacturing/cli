@@ -45,7 +45,7 @@ namespace Cmf.CLI.Commands.New
             var addApplicationVersionAssemblyOption = new Option<bool>("--addApplicationVersionAssembly", "-av")
             {
                 Description = "Will add application version project to the final solution if project is an app",
-                DefaultValueFactory = _ => ExecutionContext.Instance.ProjectConfig.RepositoryType == RepositoryType.App
+                DefaultValueFactory = _ => ExecutionContext.Instance?.ProjectConfig?.RepositoryType == RepositoryType.App
             };
             cmd.Add(addApplicationVersionAssemblyOption);
 
