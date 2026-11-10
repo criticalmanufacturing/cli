@@ -74,4 +74,13 @@
   <data name="NuGetMissingPassword" xml:space="preserve">
     <value>Missing mandatory "password" value for {0} repository "{1}" (key="{2}")</value>
   </data>
+  <data name="PortalPatMissing" xml:space="preserve">
+    <value>Customer Portal PAT is missing or blank. Supply a token with --token; in a pipeline, set CustomerPortalPAT.</value>
+  </data>
+  <data name="PortalPatInvalid" xml:space="preserve">
+    <value>Customer Portal PAT is malformed or has a missing or invalid expiration claim ('exp'). Generate a replacement PAT and supply it with --token; in a pipeline, update CustomerPortalPAT.</value>
+  </data>
+  <data name="PortalPatExpired" xml:space="preserve">
+    <value>Customer Portal PAT has expired. Generate a replacement PAT and supply it with --token; in a pipeline, update CustomerPortalPAT.</value>
+  </data>
 </root>

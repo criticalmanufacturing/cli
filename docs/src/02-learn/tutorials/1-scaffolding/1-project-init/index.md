@@ -91,6 +91,8 @@ You can initialize a MES Customization or App project workspace using the `cmf i
         --repositoryType "App"
     ```
 
+Generated devcontainers forward ports 80 (HTTP) and 1433 (SQL Server) for both MES Customization and App projects.
+
 ## 5. Review the created project structure
 
 The `cmf init` command should have terminated with success and created a basic project structure similar to:
