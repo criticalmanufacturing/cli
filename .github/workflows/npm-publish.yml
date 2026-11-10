@@ -61,10 +61,6 @@ jobs:
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org/
-      - name: Require registry publishing credentials
-        run: test -n "$CRITICALMANUFACTURING_IO_TOKEN"
-        env:
-          CRITICALMANUFACTURING_IO_TOKEN: ${{ secrets.CRITICALMANUFACTURING_IO_TOKEN }}
       - name: Download original release binaries
         run: |
           mkdir -p dist
@@ -73,9 +69,24 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish binaries to the registry
-        run: node .github/scripts/release-artifacts.mjs publish "$RELEASE_TAG"
+        shell: bash
         env:
+          TARGET_IP: ${{ secrets.CRITICALMANUFACTURING_IO_IP }}
+          CRITICALMANUFACTURING_IO_USER: ${{ secrets.CRITICALMANUFACTURING_IO_USER || vars.CRITICALMANUFACTURING_IO_USER }}
           CRITICALMANUFACTURING_IO_TOKEN: ${{ secrets.CRITICALMANUFACTURING_IO_TOKEN }}
+        run: |
+          : "${TARGET_IP:?Set CRITICALMANUFACTURING_IO_IP.}"
+          : "${CRITICALMANUFACTURING_IO_USER:?Set CRITICALMANUFACTURING_IO_USER.}"
+          : "${CRITICALMANUFACTURING_IO_TOKEN:?Set CRITICALMANUFACTURING_IO_TOKEN.}"
+          for platform in win-x64 linux-x64; do
+            name="cmf-cli.$platform-$RELEASE_TAG.zip"
+            curl --fail --silent --show-error --resolve "admin.criticalmanufacturing.io:443:$TARGET_IP" \
+              --user "$CRITICALMANUFACTURING_IO_USER:$CRITICALMANUFACTURING_IO_TOKEN" \
+              --form "packageName=$name" --form 'packageVersion=latest' \
+              --form "packageFiles=@dist/cmf-cli.$platform.zip;filename=$name" \
+              'https://admin.criticalmanufacturing.io/api/1/workspaces/repository/repositories/tools/packages/single' \
+              | jq --exit-status 'length == 1 and .[0].isSucceeded == true' > /dev/null
+          done
       - name: Verify every binary on GitHub, criticalmanufacturing.io and China
         run: node .github/scripts/release-artifacts.mjs verify "$RELEASE_TAG"
 
