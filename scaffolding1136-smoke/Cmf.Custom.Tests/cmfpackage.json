@@ -1,0 +1,22 @@
+{
+  "packageId": "Cmf.Custom.Tests",
+  "version": "1.0.0",
+  "description": "This package tests Critical Manufacturing MES cmf Customization",
+  "packageType": "Tests",
+  "isInstallable": false,
+  "isUniqueInstall": false,
+  "contentToPack": [
+    {
+      "source": "Cmf.Custom.Tests.Performance/**",
+      "target": "Cmf.Custom.Tests.Performance"
+    },
+    {
+      "source": "../Libs/LBOs/K6/cmf_k6/**",
+      "target": "Cmf.Custom.Tests.Performance/node_modules/cmf-k6"
+    },
+    {
+      "source": "Release/**",
+      "target": ""
+    }
+  ]
+}

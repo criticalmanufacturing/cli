@@ -1,0 +1,20 @@
+﻿{
+  "packageId": "Cmf.Custom.Tests.MasterData",
+  "version": "1.0.0",
+  "description": "Cmf cmf Test MasterData Package",
+  "packageType": "Data",
+  "isInstallable": false,
+  "isUniqueInstall": true,
+  "contentToPack": [
+    {
+      "source": "Files/*",
+      "target": "MasterData",
+      "contentType": "MasterData"
+    },
+    {
+      "source": "Files/ExportedObjects/*",
+      "target": "ExportedObjects",
+      "contentType": "ExportedObjects"
+    }
+  ]
+}

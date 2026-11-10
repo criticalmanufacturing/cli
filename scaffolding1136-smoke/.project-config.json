@@ -1,0 +1,20 @@
+{
+  "ProjectName": "NightlySmoke",
+  "RepositoryType": "Customization",
+  "BaseLayer": "MES",
+  "NPMRegistry": "https://dev.criticalmanufacturing.io/repository/npm-public/",
+  "NuGetRegistry": "https://dev.criticalmanufacturing.io/repository/nuget-hosted/index.json",
+  "EnvironmentName": "MES",
+  "DefaultDomain": "",
+  "RESTPort": "443",
+  "Tenant": "cmf",
+  "MESVersion": "11.3.6",
+  "NGXSchematicsVersion": "release-1136",
+  "NugetVersion": "11.3.6",
+  "TestScenariosNugetVersion": "11.3.6",
+  "IsSslEnabled": "False",
+  "vmHostname": "test.teqweqew",
+  "HTMLPort": "443",
+  "ReleaseEnvironmentConfig": "env.json",
+  "CIRepo": "https://dev.criticalmanufacturing.io/"
+}

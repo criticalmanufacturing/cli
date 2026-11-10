@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "@types/k6": "^2.0.0"
+  },
+  "scripts": {
+    "start": ". ./k6.env && k6 run",
+    "otel": ". ./k6.env && k6 run -o opentelemetry",
+    "all": "find Tests/*.ts -maxdepth 1 -type f -exec npm start {} \\;"
+  }
+}

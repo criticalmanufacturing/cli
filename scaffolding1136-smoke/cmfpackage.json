@@ -1,0 +1,19 @@
+{
+  "packageId": "Cmf.Custom.Package",
+  "version": "1.0.0",
+  "description": "This package deploys Critical Manufacturing cmf Customization",
+  "packageType": "Root",
+  "isInstallable": true,
+  "isUniqueInstall": false,
+  "dependencies": [],
+  "testPackages": [
+    {
+      "id": "Cmf.Custom.Tests",
+      "version": "1.0.0"
+    },
+    {
+      "id": "Cmf.Custom.Tests.MasterData",
+      "version": "1.0.0"
+    }
+  ]
+}
