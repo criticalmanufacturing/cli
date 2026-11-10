@@ -247,13 +247,33 @@ namespace Cmf.CLI.Handlers
             if (transformInjections.HasAny())
             {
                 // Trailing commas are required because the injection token is not the last property.
-                var injections = transformInjections.Select(injection => this.fileSystem.File.ReadAllText($"{cmfPackageDirectory}/{injection}") + ",");
+                var injections = new List<string>();
+                foreach (string source in transformInjections)
+                {
+                    string sourcePath = this.fileSystem.Path.Join(cmfPackageDirectory.FullName, source);
+                    string fragment = this.fileSystem.File.ReadAllText(sourcePath) + ",";
+                    ValidatePresentationConfig(fileContent.Replace(CliConstants.TokenJDTInjection, fragment), sourcePath);
+                    injections.Add(fragment);
+                }
                 injection = string.Join(System.Environment.NewLine, injections);
             }
 
             fileContent = fileContent.Replace(CliConstants.TokenJDTInjection, injection);
+            ValidatePresentationConfig(fileContent, CmfPackage.GetFileInfo().FullName);
 
             this.fileSystem.File.WriteAllText(path, fileContent);
+        }
+
+        private static void ValidatePresentationConfig(string fileContent, string source)
+        {
+            try
+            {
+                JObject.Parse(fileContent);
+            }
+            catch (JsonReaderException exception)
+            {
+                throw new CliException(string.Format(CliMessages.InvalidPresentationConfig, source, exception.Message), exception);
+            }
         }
     }
 }

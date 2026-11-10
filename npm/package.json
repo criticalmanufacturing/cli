@@ -1,6 +1,6 @@
 {
   "name": "@criticalmanufacturing/cli",
-  "version": "6.0.1-0",
+  "version": "6.0.2-0",
   "description": "Critical Manufacturing command line client",
   "bin": {
     "cmf": "run.js"
@@ -13,6 +13,9 @@
     "test:coverage": "jest --coverage",
     "test:integration": "node integration-test.js",
     "prepublishOnly": "npm shrinkwrap"
+  },
+  "engines": {
+    "node": ">=18"
   },
   "author": "Critical Manufacturing, SA",
   "license": "BSD-3-Clause",

@@ -2,15 +2,10 @@ name: CLI Scaffolding Validation
 
 # Allowed actors are configured outside this file in Settings > Actions > Policies.
 on:
-  workflow_dispatch:
   pull_request:
     branches:
       - main
     types: [opened, synchronize]
-  push:
-    branches:
-      - main
-      - development
 
 permissions:
   contents: read

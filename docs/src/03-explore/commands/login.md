@@ -89,6 +89,14 @@ cmf login portal --auth-type Bearer -t <token>
 
 Portal tokens used to derive NuGet, NPM and Docker credentials must be JWTs with a non-empty `sub` claim (username). Invalid JWTs or missing subjects produce a specific token validation error. NuGet credentials require a non-empty username and a non-null password; validation errors are reported before accessing `NuGet.Config`.
 
+### PAT expiration validation
+
+`cmf login --token <pat>` validates the Customer Portal PAT before saving credentials or updating tool configuration, including with `--store-only`. Blank or malformed tokens, missing or invalid `exp` claims, and expired tokens cause the command to fail. In pipelines, replace the `CustomerPortalPAT` secret with a newly generated PAT.
+
+Tokens with a future expiration are accepted, even if they expire tomorrow. This is a local expiration check, not signature verification or a server-side revocation check. It applies only to Portal credentials, not arbitrary registry tokens or passwords.
+
+An explicitly supplied token is never renewed through the browser. Interactive `cmf login` and the existing `cmf login sync` renewal policy are unchanged.
+
 ### Environment Variables
 
 It is also possible to override some credentials when running commands through the use of environment variables. The format of the environment variables is as follows:

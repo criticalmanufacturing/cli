@@ -112,6 +112,7 @@ namespace Cmf.CLI.Commands.New
         /// <param name="htmlPackageLocation">location of html package</param>
         public void Execute(IDirectoryInfo workingDir, string version, string htmlPackageLocation, bool isAngularPackage)
         {
+            CommandUtilities.ThrowIfNoProjectConfig(ExecutionContext.Instance);
             var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
             // (ATL) Automation Task Library Package
             // only introduced in v10.2.7
@@ -171,6 +172,7 @@ namespace Cmf.CLI.Commands.New
 
         public void ExecuteV10AngularPackage(IDirectoryInfo workingDir, string version, string htmlPackageLocation)
         {
+            CommandUtilities.ThrowIfNoProjectConfig(ExecutionContext.Instance);
             if (string.IsNullOrEmpty(htmlPackageLocation))
             {
                 throw new CliException(CliMessages.IoTV10HTMLPackageMustBeProvided);
