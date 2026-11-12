@@ -1,11 +1,14 @@
+using NuGet.Versioning;
 using System.CommandLine;
 using System.IO.Abstractions;
+using System.Linq;
 using Cmf.CLI.Constants;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
 
 namespace Cmf.CLI.Commands
@@ -17,6 +20,13 @@ namespace Cmf.CLI.Commands
     [CmfCommand(name: "customization", ParentId = "bump_iot")]
     public class BumpIoTCustomizationCommand : BaseCommand
     {
+        /// <summary>Creates the command.</summary>
+        public BumpIoTCustomizationCommand() { }
+
+        /// <summary>Creates the command with a filesystem.</summary>
+        /// <param name="fileSystem">The project filesystem.</param>
+        public BumpIoTCustomizationCommand(IFileSystem fileSystem) : base(fileSystem) { }
+
         /// <summary>
         /// Configure command
         /// </summary>
@@ -31,23 +41,26 @@ namespace Cmf.CLI.Commands
             };
             cmd.Add(pathArgument);
 
-            var versionOption = new Option<string>("--version", "-v")
+            var versionOption = new Option<SemanticVersion>("--version", "-v")
             {
-                Description = "Will bump all versions to the version specified"
+                Description = "Will bump all versions to the version specified",
+                CustomParser = result => VersionUtilities.ParseVersion(result, text => VersionUtilities.ParseNpmVersion(text, "--version"))
             };
-            cmd.Add(versionOption);
-
             var buildNrVersionOption = new Option<string>("--buildNrVersion", "-b")
             {
-                Description = "Will add this version next to the version (v-b)"
+                Description = "Will add this version next to the version (v-b)",
+                CustomParser = result => VersionUtilities.ParseSuffix(result, "--buildNrVersion")
             };
-            cmd.Add(buildNrVersionOption);
-            
             var preReleaseVersionOption = new Option<string>("--preReleaseVersion", "-p")
             {
-                Description = "Will add this version as pre-release version (v-p)"
+                Description = "Will add this version as pre-release version (v-p)",
+                CustomParser = result => VersionUtilities.ParseSuffix(result, "--preReleaseVersion")
             };
+            cmd.Add(versionOption);
+            cmd.Add(buildNrVersionOption);
             cmd.Add(preReleaseVersionOption);
+            BumpCommand.ValidateVersionOptions(cmd, versionOption, buildNrVersionOption, preReleaseVersionOption,
+                iot: true, requireVersion: true, npm: true);
 
             var packageNamesOption = new Option<string>("--packageNames", "-pckNames")
             {
@@ -87,20 +100,10 @@ namespace Cmf.CLI.Commands
         /// <param name="isToTag">if set to <c>true</c> [is to tag].</param>
         /// <exception cref="CliException"></exception>
         /// <exception cref="CliException"></exception>
-        public void Execute(IDirectoryInfo packagePath, string version, string buildNrVersion, string preReleaseVersion, string packageNames, bool isToTag)
+        public void Execute(IDirectoryInfo packagePath, SemanticVersion version, string buildNrVersion, string preReleaseVersion, string packageNames, bool isToTag)
         {
             using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
             IFileInfo cmfpackageFile = this.fileSystem.FileInfo.New($"{packagePath}/{CliConstants.CmfPackageFileName}");
-
-            if (string.IsNullOrEmpty(version))
-            {
-                throw new CliException(string.Format(CliMessages.MissingMandatoryProperty, "version"));
-            }
-
-            if (!string.IsNullOrEmpty(buildNrVersion) && !string.IsNullOrEmpty(preReleaseVersion))
-            {
-                throw new CliException(string.Format(CliMessages.MutuallyExclusiveProperties, "buildNrVersion, preReleaseVersion"));
-            }
 
             // Reading cmfPackage
             CmfPackage cmfPackage = CmfPackage.Load(cmfpackageFile);
@@ -118,22 +121,38 @@ namespace Cmf.CLI.Commands
         /// <param name="packageNames">The package names.</param>
         /// <param name="isToTag">if set to <c>true</c> [is to tag].</param>
         /// <exception cref="CliException"></exception>
-        public void Execute(CmfPackage cmfPackage, string version, string buildNrVersion, string preReleaseVersion, string packageNames, bool isToTag)
+        public void Execute(CmfPackage cmfPackage, SemanticVersion version, string buildNrVersion, string preReleaseVersion, string packageNames, bool isToTag)
         {
-            string versionSuffix = !string.IsNullOrEmpty(buildNrVersion) ? buildNrVersion : preReleaseVersion;
-            if (cmfPackage.PackageType != PackageType.IoT)
+            var suffix = !string.IsNullOrEmpty(buildNrVersion) ? buildNrVersion : preReleaseVersion;
+            var finalVersion = version == null ? null : GenericUtilities.RetrieveNewVersion(null, VersionUtilities.GetVersionText(version), suffix);
+            var iotPackages = cmfPackage.PackageType == PackageType.IoT
+                ? new[] { cmfPackage }
+                : cmfPackage.GetFileInfo().Directory.LoadCmfPackagesFromSubDirectories(packageType: PackageType.IoT).ToArray();
+
+            // The public package overload historically permits suffix-only updates.
+            // Validate every selected npm version before the first package is changed.
+            if (version == null)
             {
-                IDirectoryInfo packageDirectory = cmfPackage.GetFileInfo().Directory;
-                CmfPackageCollection iotPackages = packageDirectory.LoadCmfPackagesFromSubDirectories(packageType: PackageType.IoT);
-                foreach (var iotPackage in iotPackages)
+                foreach (var package in iotPackages)
                 {
-                    // IoT -> src -> Package XPTO
-                    IoTUtilities.BumpIoTCustomPackages(iotPackage.GetFileInfo().DirectoryName, version, versionSuffix, packageNames, this.fileSystem);
+                    foreach (var directory in fileSystem.Directory.GetDirectories(package.GetFileInfo().DirectoryName + "/src/", "*"))
+                    {
+                        var name = directory.Split('/').Last();
+                        var packageJson = fileSystem.Path.Combine(directory, "package.json");
+                        if ((string.IsNullOrEmpty(packageNames) || packageNames.Contains(name)) && fileSystem.File.Exists(packageJson))
+                        {
+                            var current = JObject.Parse(fileSystem.File.ReadAllText(packageJson))["version"]?.Value<string>();
+                            VersionUtilities.ParseNpmVersion(
+                                GenericUtilities.RetrieveNewVersion(current, null, suffix), "--version");
+                        }
+                    }
                 }
             }
-            else
+
+            foreach (var package in iotPackages)
             {
-                IoTUtilities.BumpIoTCustomPackages(cmfPackage.GetFileInfo().DirectoryName, version, versionSuffix, packageNames, this.fileSystem);
+                IoTUtilities.BumpIoTCustomPackages(package.GetFileInfo().DirectoryName,
+                    finalVersion, finalVersion == null ? suffix : null, packageNames, this.fileSystem);
             }
         }
     }

@@ -643,7 +643,7 @@ namespace tests.Specs
                     .AddSingleton<IDependencyVersionService, DependencyVersionService>()
                     .AddSingleton<IProjectConfigService, ProjectConfigService>()
                     .BuildServiceProvider();
-                new Cmf.CLI.Commands.New.TestCommand().Execute("1.0.0");
+                new Cmf.CLI.Commands.New.TestCommand().Execute(NuGetVersion.Parse("1.0.0"));
                 File.Exists("Cmf.Custom.Tests/cmfpackage.json").Should().BeTrue();
                 File.ReadAllText("Cmf.Custom.Tests/integration.runsettings").Should().NotContain("<%=");
             });

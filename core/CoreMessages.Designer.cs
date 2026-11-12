@@ -23,9 +23,9 @@ namespace Cmf.CLI.Core {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class CoreMessages {
-        
+
         private static global::System.Resources.ResourceManager resourceMan;
-        
+
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
@@ -229,6 +229,33 @@ namespace Cmf.CLI.Core {
                 return ResourceManager.GetString("NuGetMissingPassword", resourceCulture);
             }
         }
+
+        /// <summary>Looks up the invalid version input error.</summary>
+        public static string InvalidVersionInput => ResourceManager.GetString("InvalidVersionInput", resourceCulture);
+
+        /// <summary>Looks up the missing required version error.</summary>
+        public static string MissingVersionInput => ResourceManager.GetString("MissingVersionInput", resourceCulture);
+
+        /// <summary>Looks up the optional version input source description.</summary>
+        public static string VersionInputSource => ResourceManager.GetString("VersionInputSource", resourceCulture);
+
+        /// <summary>Looks up the missing version value placeholder.</summary>
+        public static string MissingVersionValue => ResourceManager.GetString("MissingVersionValue", resourceCulture);
+
+        /// <summary>Looks up the expected NuGet version format.</summary>
+        public static string NuGetVersionExpectedFormat => ResourceManager.GetString("NuGetVersionExpectedFormat", resourceCulture);
+
+        /// <summary>Looks up the expected semantic version format.</summary>
+        public static string SemanticVersionExpectedFormat => ResourceManager.GetString("SemanticVersionExpectedFormat", resourceCulture);
+
+        /// <summary>Looks up the project configuration error with its source file.</summary>
+        public static string InvalidProjectConfiguration => ResourceManager.GetString("InvalidProjectConfiguration", resourceCulture);
+
+        /// <summary>Looks up the expected version suffix format.</summary>
+        public static string VersionSuffixExpectedFormat => ResourceManager.GetString("VersionSuffixExpectedFormat", resourceCulture);
+
+        /// <summary>Looks up the existing unsupported MES version error.</summary>
+        public static string UnsupportedMesVersion => ResourceManager.GetString("UnsupportedMesVersion", resourceCulture);
 
     }
 }
