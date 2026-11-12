@@ -1,3 +1,4 @@
+using NuGet.Versioning;
 using System;
 using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;
@@ -53,7 +54,7 @@ public class UpgradeBase
         });
 
         UpgradeBaseCommand cmd = new UpgradeBaseCommand(fileSystem);
-        cmd.Execute(fileSystem.FileInfo.New(projectConfigPath).Directory, "11.1.6", "11.1.6", []);
+        cmd.Execute(fileSystem.FileInfo.New(projectConfigPath).Directory, NuGetVersion.Parse("11.1.6"), NuGetVersion.Parse("11.1.6"), []);
 
         string projectConfigContents = fileSystem.File.ReadAllText(projectConfigPath);
 
@@ -179,7 +180,7 @@ public class UpgradeBase
 
 
         UpgradeBaseCommand cmd = new UpgradeBaseCommand(fileSystem);
-        cmd.Execute(fileSystem.DirectoryInfo.New("/"), version, version, []);
+        cmd.Execute(fileSystem.DirectoryInfo.New("/"), NuGetVersion.Parse(version), NuGetVersion.Parse(version), []);
 
         string rootCmfpackageContents = fileSystem.File.ReadAllText("/cmfpackage.json");
 
@@ -509,7 +510,7 @@ public class UpgradeBase
         });
 
         UpgradeBaseCommand cmd = new UpgradeBaseCommand(fileSystem);
-        cmd.Execute(fileSystem.DirectoryInfo.New(@"/"), version, iotShouldBeUpdated ? iotVersion : null, ["ignore-this-package"]);
+        cmd.Execute(fileSystem.DirectoryInfo.New(@"/"), NuGetVersion.Parse(version), iotShouldBeUpdated ? NuGetVersion.Parse(iotVersion) : null, ["ignore-this-package"]);
 
         string csprojContents = fileSystem.File.ReadAllText(@"/DEEs/a.b.c.csproj");
         csprojContents.Should().Contain(
@@ -781,7 +782,7 @@ public class UpgradeBase
 
 
         UpgradeBaseCommand cmd = new UpgradeBaseCommand(fileSystem);
-        cmd.Execute(fileSystem.DirectoryInfo.New("/"), version, null, []);
+        cmd.Execute(fileSystem.DirectoryInfo.New("/"), NuGetVersion.Parse(version), null, []);
 
         string csprojContents = fileSystem.File.ReadAllText("/Common/a.b.c.csproj");
         csprojContents.Should().Contain(

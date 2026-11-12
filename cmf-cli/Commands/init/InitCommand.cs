@@ -31,19 +31,19 @@ namespace Cmf.CLI.Commands
         public IDirectoryInfo workingDir { get; set; }
         public string projectName { get; set; }
         public string rootPackageName { get; set; }
-        public string version { get; set; }
+        public NuGetVersion version { get; set; }
         public IFileInfo config { get; set; }
         public IFileInfo appConfig { get; set; }
         public Uri deploymentDir { get; set; }
         public Uri ciRepo { get; set; }
         public List<Uri> releaseRepos { get; set; }
-        public string BaseVersion { get; set; }
-        public string DevTasksVersion { get; set; }
-        public string HTMLStarterVersion { get; set; }
-        public string yoGeneratorVersion { get; set; }
+        public NuGetVersion BaseVersion { get; set; }
+        public SemanticVersion DevTasksVersion { get; set; }
+        public SemanticVersion HTMLStarterVersion { get; set; }
+        public SemanticVersion yoGeneratorVersion { get; set; }
         public string ngxSchematicsVersion { get; set; }
-        public string nugetVersion { get; set; }
-        public string testScenariosNugetVersion { get; set; }
+        public NuGetVersion nugetVersion { get; set; }
+        public NuGetVersion testScenariosNugetVersion { get; set; }
         public IFileInfo infrastructure { get; set; }
         public Uri nugetRegistry { get; set; }
         public Uri npmRegistry { get; set; }
@@ -132,10 +132,11 @@ namespace Cmf.CLI.Commands
             };
             cmd.Add(workingDirArgument);
 
-            var versionOption = new Option<string>("--version")
+            var versionOption = new Option<NuGetVersion>("--version")
             {
+                CustomParser = result => VersionUtilities.ParseVersion(result, text => VersionUtilities.ParseNuGetVersion(text, "--version")),
                 Description = "Package Version",
-                DefaultValueFactory = _ => "1.0.0"
+                DefaultValueFactory = _ => NuGetVersion.Parse("1.0.0")
             };
             cmd.Add(versionOption);
 
@@ -162,31 +163,35 @@ namespace Cmf.CLI.Commands
             cmd.Add(repositoryTypeOption);
 
             // Template-time options
-            var baseVersionOption = new Option<string>("--baseVersion", "--MESVersion")
+            var baseVersionOption = new Option<NuGetVersion>("--baseVersion", "--MESVersion")
             {
+                CustomParser = result => VersionUtilities.ParseVersion(result, text => VersionUtilities.ParseMesVersion(text, "--baseVersion/--MESVersion")),
                 Description = "Target CM framework/MES version",
                 Required = true
             };
             cmd.Add(baseVersionOption);
 
-            var devTasksVersionOption = new Option<string>("--DevTasksVersion")
+            var devTasksVersionOption = new Option<SemanticVersion>("--DevTasksVersion")
             {
+                CustomParser = result => VersionUtilities.ParseVersion(result, text => string.IsNullOrEmpty(text) ? null : VersionUtilities.ParseSemanticVersion(text, "--DevTasksVersion")),
                 Description = CliMessages.InitLegacyDevTasksDescription,
                 Hidden = true,
                 Required = false
             };
             cmd.Add(devTasksVersionOption);
 
-            var htmlStarterVersionOption = new Option<string>("--HTMLStarterVersion")
+            var htmlStarterVersionOption = new Option<SemanticVersion>("--HTMLStarterVersion")
             {
+                CustomParser = result => VersionUtilities.ParseVersion(result, text => string.IsNullOrEmpty(text) ? null : VersionUtilities.ParseSemanticVersion(text, "--HTMLStarterVersion")),
                 Description = CliMessages.InitLegacyHtmlStarterDescription,
                 Hidden = true,
                 Required = false
             };
             cmd.Add(htmlStarterVersionOption);
 
-            var yoGeneratorVersionOption = new Option<string>("--yoGeneratorVersion")
+            var yoGeneratorVersionOption = new Option<SemanticVersion>("--yoGeneratorVersion")
             {
+                CustomParser = result => VersionUtilities.ParseVersion(result, text => string.IsNullOrEmpty(text) ? null : VersionUtilities.ParseSemanticVersion(text, "--yoGeneratorVersion")),
                 Description = CliMessages.InitLegacyYoGeneratorDescription,
                 Hidden = true,
                 Required = false
@@ -200,16 +205,18 @@ namespace Cmf.CLI.Commands
             };
             cmd.Add(ngxSchematicsVersionOption);
 
-            var nugetVersionOption = new Option<string>("--nugetVersion")
+            var nugetVersionOption = new Option<NuGetVersion>("--nugetVersion")
             {
+                CustomParser = result => VersionUtilities.ParseVersion(result, text => VersionUtilities.ParseNuGetVersion(text, "--nugetVersion")),
                 Description = "NuGet versions to target. Defaults to --MESVersion when not specified.",
                 Required = false,
                 DefaultValueFactory = argResult => { try { return argResult.GetValue(baseVersionOption); } catch { return null; } }
             };
             cmd.Add(nugetVersionOption);
 
-            var testScenariosNugetVersionOption = new Option<string>("--testScenariosNugetVersion")
+            var testScenariosNugetVersionOption = new Option<NuGetVersion>("--testScenariosNugetVersion")
             {
+                CustomParser = result => VersionUtilities.ParseVersion(result, text => VersionUtilities.ParseNuGetVersion(text, "--testScenariosNugetVersion")),
                 Description = "Test Scenarios NuGet version. Defaults to --MESVersion when not specified.",
                 Required = false,
                 DefaultValueFactory = argResult => { try { return argResult.GetValue(baseVersionOption); } catch { return null; } }
@@ -347,10 +354,11 @@ namespace Cmf.CLI.Commands
                     config = parseResult.GetValue(configOption),
                     appConfig = parseResult.GetValue(appConfigOption),
                     repositoryType = parseResult.GetValue(repositoryTypeOption),
+                    // Forward the validated input verbatim; native version parsing trims whitespace.
                     BaseVersion = parseResult.GetValue(baseVersionOption),
-                    DevTasksVersion = parseResult.GetValue(devTasksVersionOption),
-                    HTMLStarterVersion = parseResult.GetValue(htmlStarterVersionOption),
-                    yoGeneratorVersion = parseResult.GetValue(yoGeneratorVersionOption),
+                    DevTasksVersion = VersionUtilities.GetOptionalVersion(parseResult.CommandResult, devTasksVersionOption),
+                    HTMLStarterVersion = VersionUtilities.GetOptionalVersion(parseResult.CommandResult, htmlStarterVersionOption),
+                    yoGeneratorVersion = VersionUtilities.GetOptionalVersion(parseResult.CommandResult, yoGeneratorVersionOption),
                     ngxSchematicsVersion = parseResult.GetValue(ngxSchematicsVersionOption),
                     nugetVersion = parseResult.GetValue(nugetVersionOption),
                     testScenariosNugetVersion = parseResult.GetValue(testScenariosNugetVersionOption),
@@ -382,9 +390,10 @@ namespace Cmf.CLI.Commands
         /// </summary>
         internal void Execute(InitArguments x)
         {
+            var mesVersion = x.BaseVersion;
             using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
 
-            Log.Information($"Starting scaffolding for MES Version: {x.BaseVersion}");
+            Log.Information($"Starting scaffolding for MES Version: {VersionUtilities.GetVersionText(x.BaseVersion)}");
 
             var args = new List<string>()
             {
@@ -438,7 +447,7 @@ namespace Cmf.CLI.Commands
                     "--appId", x.appId,
                     "--appIcon", appIconPath,
                     "--appDescription", x.appDescription,
-                    "--appTargetFramework", x.BaseVersion,
+                    "--appTargetFramework", VersionUtilities.GetVersionText(x.BaseVersion),
                     "--appAuthor", x.appAuthor,
                     "--appLicensedApplication", x.appLicensedApplication
                 });
@@ -446,7 +455,7 @@ namespace Cmf.CLI.Commands
 
             if (x.version != null)
             {
-                args.AddRange(new [] {"--packageVersion", x.version});
+                args.AddRange(new [] {"--packageVersion", VersionUtilities.GetVersionText(x.version)});
             }
 
             if (x.deploymentDir != null)
@@ -518,19 +527,16 @@ namespace Cmf.CLI.Commands
                 args.AddRange(new[] { "--CIRepo", x.ciRepo.AbsoluteUri });
             }
 
-            if (x.BaseVersion != null)
-            {
-                args.AddRange(new[] { "--MESVersion", x.BaseVersion });
-                args.AddRange(new[] { "--projectConfigV2", (NuGetVersion.Parse(x.BaseVersion).Major >= 12).ToString() });
-            }
+            args.AddRange(new[] { "--MESVersion", VersionUtilities.GetVersionText(x.BaseVersion) });
+            args.AddRange(new[] { "--projectConfigV2", (mesVersion.Major >= 12).ToString() });
 
-            args.AddRange(new [] {"--DevTasksVersion", x.DevTasksVersion ?? ""});
-            args.AddRange(new [] {"--HTMLStarterVersion", x.HTMLStarterVersion ?? ""});
-            args.AddRange(new [] {"--yoGeneratorVersion", x.yoGeneratorVersion ?? ""});
+            args.AddRange(new [] {"--DevTasksVersion", VersionUtilities.GetVersionText(x.DevTasksVersion) ?? ""});
+            args.AddRange(new [] {"--HTMLStarterVersion", VersionUtilities.GetVersionText(x.HTMLStarterVersion) ?? ""});
+            args.AddRange(new [] {"--yoGeneratorVersion", VersionUtilities.GetVersionText(x.yoGeneratorVersion) ?? ""});
 
-            args.AddRange(new [] {"--nugetVersion", x.nugetVersion});
+            args.AddRange(new [] {"--nugetVersion", VersionUtilities.GetVersionText(x.nugetVersion)});
             
-            args.AddRange(new [] {"--testScenariosNugetVersion", x.testScenariosNugetVersion});
+            args.AddRange(new [] {"--testScenariosNugetVersion", VersionUtilities.GetVersionText(x.testScenariosNugetVersion)});
 
             #region infrastructure
 
@@ -584,20 +590,13 @@ namespace Cmf.CLI.Commands
 
             if (string.IsNullOrWhiteSpace(x.ngxSchematicsVersion))
             {
-                var mesVer = NuGetVersion.Parse(x.BaseVersion);
-                x.ngxSchematicsVersion = GenericUtilities.GetNgxSchematicsVersion(mesVer, x.npmRegistry.AbsoluteUri, this.npmDistTagResolver);
+                x.ngxSchematicsVersion = GenericUtilities.GetNgxSchematicsVersion(mesVersion, x.npmRegistry.AbsoluteUri, this.npmDistTagResolver);
             }
 
             Log.Information($"Using ngx-schematics version: {x.ngxSchematicsVersion}");
             args.AddRange(new [] {"--ngxSchematicsVersion", x.ngxSchematicsVersion});
 
-            var version = new NuGetVersion(x.BaseVersion);
-            args.AddRange(new []{ "--dotnetSDKVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().DotNetSdk(version) });
-
-            if(version < new NuGetVersion(10, 0, 0))
-            {
-                throw new CliException("MES Versions under 10 are no longer supported with the newest version of the CLI. Please use cmf-cli 5.8.0 or lower.");
-            }
+            args.AddRange(new []{ "--dotnetSDKVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().DotNetSdk(mesVersion) });
 
             #endregion
 

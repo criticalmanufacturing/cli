@@ -1,3 +1,4 @@
+using NuGet.Versioning;
 using System;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
@@ -71,7 +72,7 @@ public class ScaffoldingProjectContext
             case "html": new HTMLCommand(fileSystem).Execute(directory, "1.0.0"); break;
             case "help": new HelpCommand(fileSystem).Execute(directory, "1.0.0"); break;
             case "iot": new IoTCommand(fileSystem).Execute(directory, "1.0.0", null, false); break;
-            case "test": new TestCommand(fileSystem).Execute("1.0.0"); break;
+            case "test": new TestCommand(fileSystem).Execute(NuGetVersion.Parse("1.0.0")); break;
             case "feature": new FeatureCommand(fileSystem).Execute(directory, "Feature", "1.0.0"); break;
             case "data": new DataCommand(fileSystem).Execute(directory, "1.0.0", null); break;
             case "database": new DatabaseCommand(fileSystem).Execute(directory, "1.0.0"); break;

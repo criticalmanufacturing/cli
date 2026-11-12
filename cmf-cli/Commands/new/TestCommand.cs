@@ -1,9 +1,12 @@
 using Cmf.CLI.Constants;
+using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
+using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Enums;
 using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Utilities;
 using System.Collections.Generic;
+using System.Linq;
 using System.CommandLine;
 using System.IO.Abstractions;
 using System.Threading.Tasks;
@@ -32,10 +35,11 @@ namespace Cmf.CLI.Commands.New
         /// <inheritdoc />
         public override void Configure(Command cmd)
         {
-            var versionOption = new Option<string>("--version")
+            var versionOption = new Option<NuGetVersion>("--version")
             {
                 Description = "Package Version",
-                DefaultValueFactory = _ => "1.0.0"
+                CustomParser = result => VersionUtilities.ParseVersion(result, text => VersionUtilities.ParseNuGetVersion(text, "--version")),
+                DefaultValueFactory = _ => NuGetVersion.Parse("1.0.0")
             };
             cmd.Add(versionOption);
 
@@ -57,16 +61,20 @@ namespace Cmf.CLI.Commands.New
         /// Execute the command
         /// </summary>
         /// <param name="version">the package version</param>
-        public void Execute(string version)
+        public void Execute(NuGetVersion version)
         {
             CommandUtilities.ThrowIfNoProjectConfig(ExecutionContext.Instance);
+            var projectConfig = ExecutionContext.Instance.ProjectConfig;
+            var mesVersion = projectConfig.MESVersion ?? throw VersionUtilities.InvalidVersion(null,
+                nameof(ProjectConfig.MESVersion), CoreMessages.NuGetVersionExpectedFormat, CoreConstants.ProjectConfigFileName);
+            var testScenariosNugetVersion = projectConfig.TestScenariosNugetVersion ?? throw VersionUtilities.InvalidVersion(null,
+                nameof(ProjectConfig.TestScenariosNugetVersion), CoreMessages.NuGetVersionExpectedFormat, CoreConstants.ProjectConfigFileName);
             var (organization, product) = GetOrganizationAndProductFromProjectConfig();
 
             var packageName = $"{organization}.{product}.Tests";
 
             var projectRoot = FileSystemUtilities.GetProjectRoot(this.fileSystem);
             var repoType = ExecutionContext.Instance.ProjectConfig.RepositoryType ?? CliConstants.DefaultRepositoryType;
-            var projectConfig = ExecutionContext.Instance.ProjectConfig;
             var tenant = projectConfig.Tenant;
             var args = new List<string>()
             {
@@ -75,14 +83,12 @@ namespace Cmf.CLI.Commands.New
 
                 // template symbols
                 "--name", packageName,
-                "--packageVersion", version,
+                "--packageVersion", VersionUtilities.GetVersionText(version),
                 "--idSegment", tenant,
                 "--Tenant", tenant
             };
 
             var projectName = projectConfig.ProjectName;
-            var mesVersion = projectConfig.MESVersion;
-            var testScenariosNugetVersion = projectConfig.TestScenariosNugetVersion;
             var legacyProjectConfig = projectConfig as ProjectConfigV1;
             var restPort = legacyProjectConfig?.RESTPort;
             var htmlPort = legacyProjectConfig?.HTMLPort;
@@ -138,9 +144,9 @@ namespace Cmf.CLI.Commands.New
             }
 
             this.executedArgs = args.ToArray();
-            base.RunCommand(args);
-            base.RegisterAsDependencyInParent(packageName, version, projectRoot.FullName, isTestPackage: true);
-            base.RegisterAsDependencyInParent("Cmf.Custom.Tests.MasterData", version, projectRoot.FullName, isTestPackage: true);
+            RunCommand(args);
+            base.RegisterAsDependencyInParent(packageName, VersionUtilities.GetVersionText(version), projectRoot.FullName, isTestPackage: true);
+            base.RegisterAsDependencyInParent("Cmf.Custom.Tests.MasterData", VersionUtilities.GetVersionText(version), projectRoot.FullName, isTestPackage: true);
         }
     }
 }

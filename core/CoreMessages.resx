@@ -83,4 +83,33 @@
   <data name="PortalPatExpired" xml:space="preserve">
     <value>Customer Portal PAT has expired. Generate a replacement PAT and supply it with --token; in a pipeline, update CustomerPortalPAT.</value>
   </data>
+  <data name="InvalidVersionInput" xml:space="preserve">
+    <value>Invalid version for '{0}'{1}: '{2}'. Expected {3}.</value>
+    <comment>0 - Field; 1 - Optional source; 2 - Invalid value; 3 - Format or range</comment>
+  </data>
+  <data name="MissingVersionInput" xml:space="preserve">
+    <value>Required version '{0}'{1} is missing or empty (value: '{2}'). Expected {3}.</value>
+  </data>
+  <data name="VersionInputSource" xml:space="preserve">
+    <value> in '{0}'</value>
+  </data>
+  <data name="MissingVersionValue" xml:space="preserve">
+    <value>&lt;missing&gt;</value>
+  </data>
+  <data name="NuGetVersionExpectedFormat" xml:space="preserve">
+    <value>a NuGet version such as '11.2.0' or '12.0.0-beta.1'</value>
+  </data>
+  <data name="SemanticVersionExpectedFormat" xml:space="preserve">
+    <value>a semantic version in major.minor.patch form, optionally followed by a prerelease label or build metadata, such as '1.2.3-beta.1+build.4'</value>
+  </data>
+  <data name="InvalidProjectConfiguration" xml:space="preserve">
+    <value>Invalid project configuration '{0}': {1}</value>
+    <comment>0 - Configuration file path; 1 - Validation or JSON error</comment>
+  </data>
+  <data name="VersionSuffixExpectedFormat" xml:space="preserve">
+    <value>a version suffix such as '1234', 'beta.1' or 'beta.1+build.4'</value>
+  </data>
+  <data name="UnsupportedMesVersion" xml:space="preserve">
+    <value>MES Versions under 10 are no longer supported with the newest version of the CLI. Please use cmf-cli 5.8.0 or lower.</value>
+  </data>
 </root>
