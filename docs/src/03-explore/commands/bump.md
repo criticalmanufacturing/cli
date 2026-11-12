@@ -1,5 +1,7 @@
 # bump
 
+Versions and suffixes are checked before package updates. Empty suffixes are ignored; invalid values report the option and expected format. Package versions below 10 remain supported.
+
 <!-- BEGIN USAGE -->
 
 Usage

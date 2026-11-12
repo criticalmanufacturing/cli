@@ -17,6 +17,8 @@ cmf init test --tenant test --baseVersion 12.0.0-beta.2 --ciRepo https://dev.cri
 * New configs omit unused database server/replica backup paths, AlwaysOn, ReportServer, Installation, Temporary, and Gateway fields; model API properties remain for legacy compatibility.
 * `--DevTasksVersion`, `--HTMLStarterVersion`, and `--yoGeneratorVersion` are hidden legacy options but remain accepted. MES v9 and earlier require CM CLI **5.8.0 or earlier**.
 
+Versions are checked before registry lookups or scaffolding; invalid values leave files unchanged. `--baseVersion` / `--MESVersion` requires a NuGet MES version with major version 10 or higher, including prereleases. Package and NuGet overrides use NuGet syntax; nonempty legacy tool overrides use semantic version syntax. Empty legacy overrides are ignored. These overrides have no MES minimum, and explicit `--ngxSchematicsVersion` npm dist-tags remain supported. Errors identify the option, rejected value, and expected format.
+
 Use `cmf init --help` for the installed version's options.
 
 <!-- BEGIN USAGE -->
