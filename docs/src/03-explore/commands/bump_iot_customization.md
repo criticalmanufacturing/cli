@@ -1,5 +1,7 @@
 # bump iot customization
 
+The final version, including any suffix, must be an exact npm SemVer such as `1.2.3` or `1.2.3-beta.1+build.4`. Short (`1.2`) and four-part (`1.2.3.4`) versions are rejected before files change. Empty suffixes are ignored; package versions below 10 remain supported.
+
 <!-- BEGIN USAGE -->
 
 Usage

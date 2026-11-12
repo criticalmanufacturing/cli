@@ -1,5 +1,7 @@
 # bump iot configuration
 
+Versions and suffixes are checked before configuration updates. Empty suffixes are ignored; omitting `--version` or passing an empty value preserves suffix-only updates. Invalid values report the option and expected format.
+
 <!-- BEGIN USAGE -->
 
 Usage

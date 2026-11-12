@@ -1,4 +1,5 @@
 nav:
+    - project-config.json
     - infrastructure.json
     - repositories.json
     - cmfpackage.json
