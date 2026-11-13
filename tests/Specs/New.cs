@@ -126,24 +126,31 @@ namespace tests.Specs
         [InlineData(BaseLayer.Core)]
         [InlineData(BaseLayer.MES)]
         [InlineData(BaseLayer.Core, RepositoryType.App)]
-        public void Business(BaseLayer layer, RepositoryType repositoryType = RepositoryType.Customization)
+        [InlineData(BaseLayer.MES, RepositoryType.App)]
+        [InlineData(BaseLayer.Core, RepositoryType.App, true)]
+        [InlineData(BaseLayer.Core, RepositoryType.App, false)]
+        [InlineData(BaseLayer.Core, RepositoryType.Customization, false)]
+        public void Business(BaseLayer layer, RepositoryType repositoryType = RepositoryType.Customization, bool? addApplicationVersionAssembly = null)
         {
-            var appContext = repositoryType == RepositoryType.App;
+            var includeVersionAssembly = addApplicationVersionAssembly ?? repositoryType == RepositoryType.App;
 
             RunNew(new BusinessCommand(), 
                 "Cmf.Custom.Business", 
                 repositoryType: repositoryType, 
                 mesVersion: "10.2.5", 
                 baseLayer: layer,  
-                extraArguments: appContext ? new[] { "--addApplicationVersionAssembly" } : null,
+                extraArguments: addApplicationVersionAssembly.HasValue ? new[] { "--addApplicationVersionAssembly", addApplicationVersionAssembly.Value.ToString() } : null,
                 extraAsserts: args =>
                 {
                     Assert.True(File.Exists($"Cmf.Custom.Business/Cmf.Custom.Common/tenantConstants.cs"), "Constants file is missing or has wrong name");
                     Assert.True(File.Exists($"Cmf.Custom.Business/Cmf.Custom.Common/Cmf.Custom.tenant.Common.csproj"), "Common project file is missing or has wrong name");
                 
-                    if (appContext)
+                    var solution = File.ReadAllText("Cmf.Custom.Business/Business.sln");
+                    if (includeVersionAssembly)
                     {
                         Assert.True(File.Exists("Cmf.Custom.Business/ApplicationVersion/Version.csproj"), "Version file is missing or has wrong name");
+                        solution.Should().Contain("ApplicationVersion\\Version.csproj");
+                        solution.Should().Contain("{7A42A73B-81C3-442C-880B-090B85FC8635}.Debug|Any CPU.ActiveCfg");
                         
                         var versionCsproj = File.ReadAllText("Cmf.Custom.Business/ApplicationVersion/Version.csproj");
                         versionCsproj.Should().Contain("<Product>LICENSED_APP_NAME</Product>");
@@ -151,6 +158,8 @@ namespace tests.Specs
                     else
                     {
                         Assert.False(File.Exists($"Cmf.Custom.Business/ApplicationVersion/Version.csproj"), "Version file shouldn't exist");
+                        solution.Should().NotContain("ApplicationVersion\\Version.csproj");
+                        solution.Should().NotContain("{7A42A73B-81C3-442C-880B-090B85FC8635}");
                     }
                
                     // namespace checks
