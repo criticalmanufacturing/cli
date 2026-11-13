@@ -205,7 +205,7 @@ namespace Cmf.CLI.Commands.New
                 indexHtmlStr = Regex.Replace(indexHtmlStr, "<title>(.*?)</title>", $"<title>{appName}</title>");
 
                 // Replaces the base href to support running the app in a sub path
-                indexHtmlStr = Regex.Replace(indexHtmlStr, "<base\\s+href=\"([^\"]*)\">", $"<base href=\"/apps/{appName}/\">");
+                indexHtmlStr = Regex.Replace(indexHtmlStr, "<base\\s+href=\"([^\"]*)\"\\s*/?>", $"<base href=\"/apps/{appName}/\">");
 
                 this.fileSystem.File.WriteAllText(indexHtmlPath, indexHtmlStr);
 
