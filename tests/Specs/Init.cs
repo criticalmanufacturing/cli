@@ -1389,6 +1389,64 @@ namespace tests.Specs
             }
         }
 
+        [Theory]
+        [InlineData("/workspaces/project/deploymentDir/", "/workspaces/project/deploymentDir")]
+        [InlineData("/workspaces/project/deploymentDir//", "/workspaces/project/deploymentDir")]
+        [InlineData("C:\\deployment\\", "C:\\deployment")]
+        [InlineData("\\\\server\\share\\deployment\\", "\\\\server\\share\\deployment")]
+        [InlineData("/", "/")]
+        [InlineData("C:\\", "C:\\")]
+        public void Init_TrimTrailingSeparators(string path, string expected)
+        {
+            InitCommand.TrimTrailingSeparators(path).Should().Be(expected);
+        }
+
+        [Fact]
+        public void Init_DeploymentDir_TrailingSeparator_WritesCleanRepositoryPaths()
+        {
+            var rnd = new Random();
+            var tmp = TestUtilities.GetTmpDirectory();
+            var projectName = Convert.ToHexString(Guid.NewGuid().ToByteArray()).Substring(0, 8);
+            var pkgVersion = $"{rnd.Next(10)}.{rnd.Next(10)}.{rnd.Next(10)}";
+            var cur = Directory.GetCurrentDirectory();
+            try
+            {
+                var console = new TestConsole();
+                Directory.SetCurrentDirectory(tmp);
+                var initCommand = new InitCommand();
+                var cmd = new Command("x");
+                initCommand.Configure(cmd);
+                var deploymentDir = Path.Join(tmp, "deploymentDir") + Path.DirectorySeparatorChar;
+                var args = new[]
+                {
+                    projectName,
+                    "--infra", TestUtilities.GetFixturePath("init", "infrastructure.json"),
+                    "-c", TestUtilities.GetFixturePath("init", "config.json"),
+                    "--MESVersion", "11.0.0",
+                    "--ngxSchematicsVersion", "8.8.8",
+                    "--nugetVersion", "11.0.0",
+                    "--testScenariosNugetVersion", "11.0.0",
+                    "--deploymentDir", deploymentDir,
+                    "--version", pkgVersion,
+                    "Cmf.Custom.Package",
+                    tmp
+                };
+                TestUtilities.GetParser(cmd).Invoke(args, console);
+                console.Error.ToString().Should().BeEmpty("No errors should occur during initialization");
+
+                var repositories = JObject.Parse(File.ReadAllText(Path.Join(tmp, "repositories.json")));
+                var sep = Path.DirectorySeparatorChar;
+                var root = Path.Join(tmp, "deploymentDir");
+                repositories["CIRepository"]!.ToString().Should().Be($"{root}{sep}CIPackages{sep}development");
+                repositories["Repositories"]!.Select(r => r.ToString()).Should().Equal($"{root}{sep}Delivered");
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory(cur);
+                Directory.Delete(tmp, true);
+            }
+        }
+
         [Fact]
         public void Init_DeploymentDir_UncVsLocalPathDetection()
         {

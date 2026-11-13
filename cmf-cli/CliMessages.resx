@@ -134,6 +134,9 @@
   <data name="IoTV10HTMLPackageMustBeProvided" xml:space="preserve">
     <value>Please provide and scaffold an HTML package</value>
   </data>
+  <data name="OptionalDependencyNotFound" xml:space="preserve">
+    <value>Optional dependency {0}@{1} was not found in any repository and was not assembled</value>
+  </data>
   <data name="MissingMandatoryDependency" xml:space="preserve">
     <value>Mandatory Dependency {0}.{1} not found</value>
     <comment>0 - Dependency Name; 1 - Dependency Version</comment>

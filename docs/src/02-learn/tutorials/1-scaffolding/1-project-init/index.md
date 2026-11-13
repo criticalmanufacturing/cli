@@ -58,7 +58,7 @@ You can initialize a MES Customization or App project workspace using the `cmf i
 
 === "MES v9 or below"
 
-    These legacy projects require CM CLI **5.8.0 or earlier**.
+    These legacy projects require CM CLI **v5.x or earlier** and the old `init` command, which requires the environment configuration file.
 
     ```powershell
     cmf init ExampleProject `

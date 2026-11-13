@@ -58,6 +58,18 @@ namespace Cmf.CLI.Core.Objects
         Task<string> ResolveDistTag(string packageName, string distTag);
     }
 
+    /// <summary>
+    /// Fetches the manifest of a package version from an npm registry.
+    /// </summary>
+    public interface INPMPackageInfoResolver
+    {
+        /// <summary>Gets the manifest of a package version.</summary>
+        /// <param name="packageName">The npm package name.</param>
+        /// <param name="version">The exact version or a distribution tag.</param>
+        /// <returns>The package version manifest, or null if it does not exist.</returns>
+        Task<NpmPackageVersion> FetchPackageInfo(string packageName, string version);
+    }
+
     public interface INPMClientEx : INPMClient
     {
         Task<List<string>> SearchPackages(string query);
@@ -88,7 +100,7 @@ namespace Cmf.CLI.Core.Objects
     /// <summary>
     /// A live implementation of the NPM Registry client
     /// </summary>
-    public class NPMClient : INPMClientEx, INPMDistTagResolver
+    public class NPMClient : INPMClientEx, INPMDistTagResolver, INPMPackageInfoResolver
     {
         private readonly HttpClient client;
         private readonly string baseUrl;
@@ -114,7 +126,7 @@ namespace Cmf.CLI.Core.Objects
             public List<PackageResult> Objects { get; set; }
         }
 
-        public NPMClient(string baseUrl = CoreConstants.NpmJsUrl, HttpClient client = null)
+        public NPMClient(string baseUrl = CoreConstants.NpmJsUrl, HttpClient client = null, TimeSpan? timeout = null)
         {
             this.baseUrl = baseUrl.TrimEnd('/');
             this.client = client ?? new HttpClient();
@@ -122,7 +134,7 @@ namespace Cmf.CLI.Core.Objects
             var authStore = ExecutionContext.ServiceProvider.GetService<IRepositoryAuthStore>();
             var credentials = authStore.GetCredentialsFor<NPMRepositoryCredentials>(authStore.GetOrLoad().GetAwaiter().GetResult(), baseUrl);
 
-            ApplyAuthenticationHeaders(this.client, baseUrl, credentials);
+            ApplyAuthenticationHeaders(this.client, baseUrl, credentials, timeout);
         }
 
         public NPMClient(object client) : this(client: client as HttpClient)
@@ -235,12 +247,17 @@ namespace Cmf.CLI.Core.Objects
             Log.Debug($"Got response HTTP code {res.StatusCode}");
             if (res.StatusCode != HttpStatusCode.OK)
             {
-                Log.Error($"Could not get package {packageName}@{version} from {this.baseUrl}: {res.StatusCode}");
+                Log.Debug($"Could not get package {packageName}@{version} from {this.baseUrl}: {res.StatusCode}");
                 return null;
             }
             var body = await res.Content.ReadAsStringAsync();
             
             var packageVersion = JsonConvert.DeserializeObject<NpmPackageInfo>(body);
+
+            if (!packageVersion.Versions.ContainsKey(version) && packageVersion.DistTags?.TryGetValue(version, out var taggedVersion) == true)
+            {
+                version = taggedVersion;
+            }
 
             return !packageVersion.Versions.ContainsKey(version) ? null : packageVersion.Versions[version];
         }
@@ -509,7 +526,7 @@ namespace Cmf.CLI.Core.Objects
             return root.ToString(Formatting.None);
         }
 
-        private static HttpClient ApplyAuthenticationHeaders(HttpClient client, string baseUrl, ICredential credentials)
+        private static HttpClient ApplyAuthenticationHeaders(HttpClient client, string baseUrl, ICredential credentials, TimeSpan? timeout = null)
         {
             // handle authentication
             client.DefaultRequestHeaders.Authorization = credentials switch
@@ -528,7 +545,7 @@ namespace Cmf.CLI.Core.Objects
                     $"{ExecutionContext.PackageId.Replace("@", "")} v{ExecutionContext.CurrentVersion}");
             }
 
-            client.Timeout = TimeSpan.FromSeconds(5);
+            client.Timeout = timeout ?? TimeSpan.FromSeconds(5);
 
             return client;
         }
@@ -538,6 +555,7 @@ namespace Cmf.CLI.Core.Objects
     {
         public string Name { get; set; }
         public string Description { get; set; }
+        [JsonProperty("dist-tags")]
         public Dictionary<string, string> DistTags { get; set; }
         public Dictionary<string, NpmPackageVersion> Versions { get; set; }
     }
@@ -547,6 +565,8 @@ namespace Cmf.CLI.Core.Objects
         public string Name { get; set; }
         public string Version { get; set; }
         public NpmPackageDist Dist { get; set; }
+        public Dictionary<string, string> Dependencies { get; set; }
+        public Dictionary<string, string> PeerDependencies { get; set; }
     }
 
     public class NpmPackageDist

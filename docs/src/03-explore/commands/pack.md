@@ -35,6 +35,10 @@ Both generated dependencies have `mandatory: false`. Existing dependencies are m
 
 These dependencies do not need to be declared in root templates or source `cmfpackage.json` files. Packing (including a dry run) updates the in-memory package without rewriting the source file. Without a configured MES version, dependencies are left unchanged.
 
+### Existing packages
+
+If the output directory already contains a package with the same name and version, `cmf pack` skips it with a warning. Use `--force` to replace it, or bump the package version.
+
 <!-- BEGIN USAGE -->
 
 Usage
