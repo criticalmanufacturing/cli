@@ -3,6 +3,7 @@
   "version": "<%= $CLI_PARAM_CustomPackageVersion %>",
   "description": "This package deploys <%= $CLI_PARAM_CustomPackageName %> in Critical Manufacturing MES",
   "packageType": "SecurityPortal",
+  "handlerVersion": 3,
   "isInstallable": true,
   "isUniqueInstall": false,
   "dependencies": [
