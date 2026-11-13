@@ -43,7 +43,9 @@
     "bump:dotnet:feature": "cd cmf-cli && dotnet-bump minor --force --no-commit && cd .. && cd core && dotnet-bump minor --force --no-commit && cd ..",
     "bump:dotnet:breaking": "cd cmf-cli && dotnet-bump major --force --no-commit && cd .. && cd core && dotnet-bump major --force --no-commit && cd ..",
     "gen:changelog": "cd npm && commit-and-tag-version && cd ..",
-    "commit": "git-cz"
+    "commit": "git-cz",
+    "e2e:prepare": ". \"${NVM_DIR:-$HOME/.nvm}/nvm.sh\" && nvm use 20 && npm run build:bundle:linux && npm --prefix scripts/e2e ci",
+    "e2e:12": ". \"${NVM_DIR:-$HOME/.nvm}/nvm.sh\" && nvm use 20 && npm run e2e:prepare && node scripts/e2e/run.mjs --config scripts/e2e/config.local.12.json"
   },
   "author": "Marco Silva",
   "license": "BSD-3-Clause",
