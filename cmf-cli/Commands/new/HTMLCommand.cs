@@ -15,6 +15,7 @@ using Cmf.CLI.Services;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Cmf.CLI.Commands.New
 {
@@ -179,8 +180,23 @@ namespace Cmf.CLI.Commands.New
                     throw new CliException("Could not retrieve repository AppData.");
                 var appName = appData.id;
 
-                var servePathArgument = $" --allowed-hosts host.docker.internal --serve-path /apps/{appName}/";
+                var servePathArgument = mesVersion.Major >= 12
+                    ? $" --serve-path /apps/{appName}/"
+                    : $" --allowed-hosts host.docker.internal --serve-path /apps/{appName}/";
                 rootPkgJson.scripts["serve"] += servePathArgument;
+
+                if (mesVersion.Major >= 12)
+                {
+                    var angularJsonPath = this.fileSystem.Path.Join(packageDir.FullName, "angular.json");
+                    var angularJson = JObject.Parse(this.fileSystem.File.ReadAllText(angularJsonPath));
+                    var serve = angularJson["projects"]?[packageName]?["architect"]?["serve"] as JObject
+                        ?? throw new CliException("Could not retrieve Angular serve configuration.");
+                    var options = serve["options"] as JObject ?? new JObject();
+                    options["allowedHosts"] = new JArray("host.docker.internal");
+                    serve["options"] = options;
+                    this.fileSystem.File.WriteAllText(angularJsonPath, angularJson.ToString(Formatting.Indented));
+                    Log.Verbose("Updated angular.json");
+                }
 
                 var indexHtmlPath = this.fileSystem.Path.Join(packageDir.FullName, "src", "index.html");
                 var indexHtmlStr = fileSystem.File.ReadAllText(indexHtmlPath);
@@ -189,7 +205,7 @@ namespace Cmf.CLI.Commands.New
                 indexHtmlStr = Regex.Replace(indexHtmlStr, "<title>(.*?)</title>", $"<title>{appName}</title>");
 
                 // Replaces the base href to support running the app in a sub path
-                indexHtmlStr = Regex.Replace(indexHtmlStr, "<base\\s+href=\"([^\"]*)\">", $"<base href=\"/apps/{appName}/\">");
+                indexHtmlStr = Regex.Replace(indexHtmlStr, "<base\\s+href=\"([^\"]*)\"\\s*/?>", $"<base href=\"/apps/{appName}/\">");
 
                 this.fileSystem.File.WriteAllText(indexHtmlPath, indexHtmlStr);
 
