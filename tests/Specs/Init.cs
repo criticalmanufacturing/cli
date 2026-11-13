@@ -115,7 +115,7 @@ namespace tests.Specs
                         .Should().Contain(@$"""image"": ""criticalmanufacturing.io/criticalmanufacturing/devcontainer:{baseVersion.Major}""", "Devcontainer image is not correct");
                     devContainerFile
                         .Should().Contain(@$"""version"": ""5.x.x""", "Devcontainer image is not correct");
-                    JObject.Parse(devContainerFile)["forwardPorts"].Values<int>().Should().Equal(80, 1433);
+                    JObject.Parse(devContainerFile)["forwardPorts"].Values<int>().Should().Equal(80, 443, 1433);
                 }
                 else 
                 {
@@ -625,7 +625,7 @@ namespace tests.Specs
                 File.ReadAllText("NuGet.Config").Should().Contain(project["NuGetRegistry"].Value<string>());
                 File.ReadAllText(".devcontainer/devcontainer.json").Should().Contain($"devcontainer:{NuGetVersion.Parse(mesVersion).Major}");
                 JObject.Parse(File.ReadAllText(".devcontainer/devcontainer.json"))["forwardPorts"]
-                    .Values<int>().Should().Equal(80, 1433);
+                    .Values<int>().Should().Equal(80, 443, 1433);
                 var repositories = JsonConvert.DeserializeObject<RepositoriesConfig>(File.ReadAllText("repositories.json"));
                 repositories.CIRepository.AbsoluteUri.Should().Be("https://dev.criticalmanufacturing.io/");
                 repositories.Repositories.Should().ContainSingle().Which.AbsoluteUri.Should().Be("https://dev.criticalmanufacturing.io/");
@@ -845,7 +845,7 @@ namespace tests.Specs
                 Assert.True(File.Exists(Path.Combine(tmp, "assets", "default_app_icon.png")), "App Icon is missing");
 
                 JObject.Parse(File.ReadAllText(".devcontainer/devcontainer.json"))["forwardPorts"]
-                    .Values<int>().Should().Equal(80, 1433);
+                    .Values<int>().Should().Equal(80, 443, 1433);
 
                 File.ReadAllText(Path.Join(tmp, ".project-config.json"))
                     .Should().Contain(@"""RepositoryType"": ""App""", "Applied repository type was not App");
