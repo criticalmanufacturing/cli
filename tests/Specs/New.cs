@@ -1485,7 +1485,7 @@ namespace tests.Specs
             TestConsole console = RunNew(new Cmf.Common.Cli.Commands.New.SecurityPortalCommand(), packageId, scaffoldingDir: dir);
 
             Assert.True(File.Exists($"{dir}/Cmf.Custom.SecurityPortal/cmfpackage.json"), "Package cmfpackage.json is missing");
-            Assert.True(File.Exists($"{dir}/Cmf.Custom.SecurityPortal/config.json"), "Package config.json is missing");
+            Assert.False(File.Exists($"{dir}/Cmf.Custom.SecurityPortal/config.json"), "Package config.json should be supplied by the user");
         }
 
         private TestConsole RunNew<T>(T newCommand, string packageId, string scaffoldingDir = null,

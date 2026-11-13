@@ -399,7 +399,7 @@ cmf new securityportal
 
 #### Package Structure
 
-This is a simple package. Use the `config.json` file to define the additional security settings/strategies for the CM MES Security Portal component.
+The template creates `cmfpackage.json`. Supply your own `config.json` to define the additional security settings/strategies for the CM MES Security Portal component.
 
 ``` log
  📦Project
@@ -409,6 +409,8 @@ This is a simple package. Use the `config.json` file to define the additional se
  ┃ ┗ 📜config.json
  ┣ ...
 ```
+
+The default V3 handler preserves the supplied configuration and its deployment tokens during packing. To use the V2 handler, which generates the configuration from the strategy fields, set `"handlerVersion": 2` in `cmfpackage.json`. Both handlers target `./dist/` for MES 11.2.5 and later, and `./src/` for earlier versions.
 
 ## Deprecated layer packages
 

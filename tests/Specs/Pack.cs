@@ -448,7 +448,7 @@ namespace tests.Specs
 
             string configJsonContent = FileSystemUtilities.GetFileContentFromPackage($"{dir}/Package/Cmf.Custom.SecurityPortal.1.0.0.zip", "config.json");
 
-            Assert.True(configJsonContent.Contains("$.tenants.config.tenant.strategies"), "Config file does not have correct tenant");
+            Assert.Equal(new FileSystem().File.ReadAllText($"{dir}/config.json"), configJsonContent);
         }
 
         [Fact]
@@ -595,10 +595,16 @@ namespace tests.Specs
         }
 
         [Theory]
-        [InlineData("10.2.0", "./src/")]
-        [InlineData("11.2.5", "./dist/")]
-        [InlineData("12.0.0", "./dist/")]
-        public void Pack_SecurityPortalV2(string mesVersion, string configDirectory)
+        [InlineData("10.2.0", "./src/", 0)]
+        [InlineData("11.2.5", "./dist/", 0)]
+        [InlineData("12.0.0", "./dist/", 0)]
+        [InlineData("10.2.0", "./src/", 2)]
+        [InlineData("11.2.5", "./dist/", 2)]
+        [InlineData("12.0.0", "./dist/", 2)]
+        [InlineData("10.2.0", "./src/", 3)]
+        [InlineData("11.2.5", "./dist/", 3)]
+        [InlineData("12.0.0", "./dist/", 3)]
+        public void Pack_SecurityPortalHandlers(string mesVersion, string configDirectory, int handlerVersion)
         {
             string dir = $"{TestUtilities.GetTmpDirectory()}/securityPortal";
             TestUtilities.CopyFixture("pack/securityPortalV2", new DirectoryInfo(dir));
@@ -614,6 +620,16 @@ namespace tests.Specs
                 );
             }
 
+            var fixtureFileSystem = new FileSystem();
+            var packagePath = fixtureFileSystem.Path.Join(dir, "cmfpackage.json");
+            var packageJson = JObject.Parse(fixtureFileSystem.File.ReadAllText(packagePath));
+            if (handlerVersion != 0)
+            {
+                packageJson["handlerVersion"] = handlerVersion;
+            }
+            fixtureFileSystem.File.WriteAllText(packagePath, packageJson.ToString());
+            var originalConfig = fixtureFileSystem.File.ReadAllText(fixtureFileSystem.Path.Join(dir, "config.json"));
+
             Directory.SetCurrentDirectory(dir);
 
             string _workingDir = dir;
@@ -625,7 +641,7 @@ namespace tests.Specs
             TestConsole console = new TestConsole();
 
             var parseResult = cmd.Parse([]);
-            parseResult.Invoke(console);
+            Assert.True(parseResult.Invoke(console) == 0, console.Error.ToString() + console.Out.ToString());
 
             DirectoryInfo curDir = new DirectoryInfo(Directory.GetCurrentDirectory());
 
@@ -639,7 +655,14 @@ namespace tests.Specs
 
             string configJsonContent = FileSystemUtilities.GetFileContentFromPackage($"{dir}/Package/Cmf.Custom.SecurityPortal.1.0.0.zip", "config.json");
 
-            Assert.True(configJsonContent.Contains("$.tenants.config.tenant.strategies"), "Config file does not have correct tenant");
+            if (handlerVersion != 2)
+            {
+                Assert.Equal(originalConfig, configJsonContent);
+            }
+            else
+            {
+                Assert.True(configJsonContent.Contains("$.tenants.config.tenant.strategies"), "Config file does not have correct tenant");
+            }
 
             // validate transform file
             string manifestXMLContent = FileSystemUtilities.GetFileContentFromPackage($"{dir}/Package/Cmf.Custom.SecurityPortal.1.0.0.zip", "manifest.xml");
