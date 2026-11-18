@@ -399,16 +399,51 @@ cmf new securityportal
 
 #### Package Structure
 
-This is a simple package. Use the `config.json` file to define the additional security settings/strategies for the CM MES Security Portal component.
+The template creates `cmfpackage.json` with `"handlerVersion": 3`. Supply your own `config.json` before packing; the scaffold does not create this file.
 
 ``` log
  📦Project
  ┣ ...
  ┣ 📂Cmf.Custom.SecurityPortal
  ┃ ┣ 📜cmfpackage.json
- ┃ ┗ 📜config.json
+ ┃ ┗ 📜config.json (supplied by you)
  ┣ ...
 ```
+
+#### Configuration formats
+
+Existing packages without `handlerVersion` continue to use the V2 handler. V2 reads strategy settings (`id`, `type`, and `config` containing `metadataUrl`, `redirectUrl`, and `clientId`) and generates the deployment transformation using the project's tenant. Explicitly setting `"handlerVersion": 2` selects the same behavior.
+
+The V3 handler accepts a complete JSON deployment transformation and copies it into the archive unchanged, preserving deployment tokens and custom properties. New packages select V3 explicitly; the default for existing manifests remains V2.
+
+For example, supply the following `config.json` for V3. Replace `SMT` in the transformation path and redirect URL with your tenant, and replace the strategy ID with your package's ID. The `{{...}}` tokens are preserved during packing for deployment-time substitution.
+
+```json
+{
+  "@jdt.merge": [
+    {
+      "@jdt.path": "$.tenants.config.SMT.strategies",
+      "@jdt.value": [
+        {
+          "id": "Cmf.Custom.SecurityPortal",
+          "type": "open-id-connect",
+          "config": {
+            "metadataUrl": "https://{{SSOApplicationServerURL}}/.well-known/openid-configuration",
+            "redirectUrl": "https://{{SecurityPortalBaseURL}}/tenant/SMT/login/callback",
+            "clientId": "{{SSOApplicationGeneratedClientId}}",
+            "scope": "openid profile email",
+            "customOption": "{{CustomToken}}"
+          }
+        }
+      ]
+    }
+  ]
+}
+```
+
+To opt an existing package into V3, replace its strategy-settings `config.json` with a complete transformation like this example and set `"handlerVersion": 3` in `cmfpackage.json`. Ensure its `contentToPack` includes `{ "source": "config.json" }`. Adding the version setting alone does not convert the V2 configuration format.
+
+Both handlers use a tagged `TransformFile` deployment step, targeting `./dist/` for MES 11.2.5 and later and `./src/` for earlier versions. V3 dry runs list the files without creating an archive.
 
 ## Deprecated layer packages
 

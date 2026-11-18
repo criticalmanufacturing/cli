@@ -1485,7 +1485,25 @@ namespace tests.Specs
             TestConsole console = RunNew(new Cmf.Common.Cli.Commands.New.SecurityPortalCommand(), packageId, scaffoldingDir: dir);
 
             Assert.True(File.Exists($"{dir}/Cmf.Custom.SecurityPortal/cmfpackage.json"), "Package cmfpackage.json is missing");
-            Assert.True(File.Exists($"{dir}/Cmf.Custom.SecurityPortal/config.json"), "Package config.json is missing");
+            Assert.False(File.Exists($"{dir}/Cmf.Custom.SecurityPortal/config.json"), "Package config.json should be supplied by the user");
+
+            var fileSystem = new FileSystem();
+            var packageDirectory = fileSystem.Path.Join(dir, packageId);
+            var package = CmfPackage.Load(fileSystem.FileInfo.New(fileSystem.Path.Join(packageDirectory, "cmfpackage.json")), setDefaultValues: true);
+            package.HandlerVersion.Should().Be(3);
+            fileSystem.File.WriteAllText(fileSystem.Path.Join(packageDirectory, "config.json"), SecurityPortalPacking.Configuration);
+            var handler = Cmf.CLI.Factories.PackageTypeFactory.GetPackageTypeHandler(package);
+            handler.Should().BeOfType<Cmf.CLI.Handlers.SecurityPortalPackageTypeHandlerV3>();
+            var packed = fileSystem.DirectoryInfo.New(fileSystem.Path.Join(packageDirectory, "packed"));
+            var output = fileSystem.DirectoryInfo.New(fileSystem.Path.Join(dir, "output"));
+            packed.Create();
+            output.Create();
+
+            handler.Pack(packed, output);
+
+            using var archive = new System.IO.Compression.ZipArchive(fileSystem.File.OpenRead(fileSystem.Path.Join(output.FullName, package.ZipPackageName)));
+            using var reader = new StreamReader(archive.GetEntry("config.json").Open());
+            reader.ReadToEnd().Should().Be(SecurityPortalPacking.Configuration);
         }
 
         private TestConsole RunNew<T>(T newCommand, string packageId, string scaffoldingDir = null,
