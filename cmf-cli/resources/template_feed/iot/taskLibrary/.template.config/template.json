@@ -69,6 +69,26 @@
       "datatype": "string",
       "replaces": "<%= $CLI_PARAM_TargetSystemVersionProcessed %>"
     },
+    "momentVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_MomentVersion %>"
+    },
+    "inversifyVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_InversifyVersion %>"
+    },
+    "reflectMetadataVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_ReflectMetadataVersion %>"
+    },
+    "zoneVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "replaces": "<%= $CLI_PARAM_ZoneVersion %>"
+    },
     "dependsOnScope": {
       "type": "parameter",
       "datatype": "string",
