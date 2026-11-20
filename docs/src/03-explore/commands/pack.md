@@ -60,3 +60,20 @@ Name | Description
 
 
 <!-- END USAGE -->
+
+## MES v12 MkDocs Help packages
+
+`cmf build` keeps MkDocs output in `site/`. When packing a v12 Help package,
+`cmf pack` places the selected contents of `site/` at the archive root, preserving
+all relative paths between HTML pages, assets and search files. Documentation
+sources remain under `docs/<project>/` for dependency restoration.
+
+This also applies to existing packages whose `contentToPack` maps `site/**` to
+`site`; no project-specific name or source configuration change is required.
+New Help templates map `site/**` to an empty target explicitly.
+
+The default `DeployFiles` step uses `contentPath: "**"`, so extraction into
+`/app` produces `/app/index.html`, matching the Product Help nginx configuration.
+This step also includes the packaged documentation sources. If you override the
+default steps, update any `site/**` filters to match the new archive layout.
+Help packages for MES versions before v12 retain their existing behavior.

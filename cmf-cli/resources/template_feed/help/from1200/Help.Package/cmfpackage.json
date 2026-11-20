@@ -9,7 +9,7 @@
   "contentToPack": [
     {
       "source": "site/**",
-      "target": "site"
+      "target": ""
     },
     {
       "source": "docs/<%= $CLI_PARAM_ProjectName %>/**",
