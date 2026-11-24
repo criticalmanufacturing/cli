@@ -77,6 +77,7 @@ validation:
     absolute_links: warn
     unrecognized_links: warn
 plugins:
+  - privacy
   - search:
       lang:
         - en

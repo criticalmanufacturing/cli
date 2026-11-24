@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;
 using Cmf.CLI.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
 using tests.Objects;
 using Xunit;
 using Assert = tests.AssertWithMessage;
@@ -201,8 +202,23 @@ namespace tests.Specs
             logWriter.ToString().Should().Contain("No present remote dependencies to restore. Exiting...");
         }
 
-        [Fact]
-        public void RestoreDependencies_HelpMkDocs()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void RestoreDependencies_HelpMkDocs(bool useRepositoryClients)
+        {
+            var previousServiceProvider = ExecutionContext.ServiceProvider;
+            try
+            {
+                RestoreDependencies_HelpMkDocsInternal(useRepositoryClients);
+            }
+            finally
+            {
+                ExecutionContext.ServiceProvider = previousServiceProvider;
+            }
+        }
+
+        private void RestoreDependencies_HelpMkDocsInternal(bool useRepositoryClients)
         {
             var gitRepo = MockUnixSupport.Path(@"c:\test");
             var ciRepo = MockUnixSupport.Path(@"c:\cirepo");
@@ -234,13 +250,19 @@ namespace tests.Specs
                 }") },
                 { $"{gitRepo}/requirements.txt", new MockFileData("mkdocs") },
                 { $"{gitRepo}/docs/other.txt", new MockFileData("original other") },
+                { $"{gitRepo}/docs/LocalProject/index.md", new MockFileData("# Local project documentation") },
                 { $"{gitRepo}/docs/MyProject/old-file.txt", new MockFileData("old content") },
                 { $"{gitRepo}/docs/MyProject/index.html", new MockFileData("<html>old index</html>") },
                 { $"{ciRepo}/Cmf.Custom.Help.1.0.0.zip", new MockFileData(new DFPackageBuilder()
                     .CreateEntry("manifest.xml", @"<?xml version=""1.0"" encoding=""utf-8""?><deploymentPackage><packageId>Cmf.Custom.Help</packageId><version>1.0.0</version></deploymentPackage>")
+                    .CreateEntry("index.html", "<html>generated website</html>")
+                    .CreateEntry("assets/theme.css", "body {}")
+                    .CreateEntry("search/search_index.json", "{}")
                     .CreateEntry("docs/MyProject/index.html", "<html>index</html>")
                     .CreateEntry("docs/MyProject/getting-started.html", "<html>getting started</html>")
                     .CreateEntry("docs/MyProject/reference.md", "# Reference")
+                    .CreateEntry("docs/Features/OtherFeature/index.md", "# Feature documentation")
+                    .CreateEntry("docs/Features/OtherFeature/assets/diagram.svg", "<svg/>")
                     .CreateEntry("docs/other.txt", "restored other")
                     .CreateEntry("docs/assets/icon.png", "icon data")
                     .ToByteArray()) }
@@ -248,6 +270,7 @@ namespace tests.Specs
 
             ExecutionContext.ServiceProvider = new ServiceCollection()
                 .AddSingleton<IProjectConfigService>(new ProjectConfigService())
+                .AddSingleton(Mock.Of<IFeaturesService>(features => features.UseRepositoryClients == useRepositoryClients))
                 .AddSingleton<IRepositoryLocator, RepositoryLocator>()
                 .BuildServiceProvider();
 
@@ -258,7 +281,13 @@ namespace tests.Specs
             var handler = PackageTypeFactory.GetPackageTypeHandler(package, false);
             handler.Should().BeOfType<HelpMkDocsPackageTypeHandler>();
 
-            var repo = new UriBuilder { Scheme = Uri.UriSchemeFile, Host = "", Path = ciRepo }.Uri;
+            var repositoryPath = useRepositoryClients ? $"{ciRepo}/Cmf.Custom.Help.1.0.0.zip" : ciRepo;
+            var repo = new UriBuilder { Scheme = Uri.UriSchemeFile, Host = "", Path = repositoryPath }.Uri;
+            if (useRepositoryClients)
+            {
+                ExecutionContext.ServiceProvider.GetRequiredService<IRepositoryLocator>()
+                    .InitializeClientsForRepositories(fileSystem, new[] { repo });
+            }
 
             handler.RestoreDependencies(new[] { repo });
 
@@ -272,10 +301,25 @@ namespace tests.Specs
             Assert.Equal("<html>getting started</html>", fileSystem.FileInfo.New($"{docs}/getting-started.html").OpenText().ReadToEnd());
             Assert.Equal("# Reference", fileSystem.FileInfo.New($"{docs}/reference.md").OpenText().ReadToEnd());
 
+            Assert.Equal("# Feature documentation", fileSystem.File.ReadAllText($"{gitRepo}/docs/Features/OtherFeature/index.md"));
+            Assert.Equal("<svg/>", fileSystem.File.ReadAllText($"{gitRepo}/docs/Features/OtherFeature/assets/diagram.svg"));
+            Assert.Equal("# Local project documentation", fileSystem.File.ReadAllText($"{gitRepo}/docs/LocalProject/index.md"));
+
+            // Repeated restores refresh the dependency tree while preserving local project sources.
+            fileSystem.File.WriteAllText($"{docs}/obsolete.md", "stale dependency page");
+            handler.RestoreDependencies(new[] { repo });
+            Assert.False(fileSystem.File.Exists($"{docs}/obsolete.md"), "Stale dependency pages should be removed");
+            Assert.Equal("# Reference", fileSystem.File.ReadAllText($"{docs}/reference.md"));
+            Assert.Equal("# Local project documentation", fileSystem.File.ReadAllText($"{gitRepo}/docs/LocalProject/index.md"));
+            Assert.Equal("# Feature documentation", fileSystem.File.ReadAllText($"{gitRepo}/docs/Features/OtherFeature/index.md"));
+
             // Verify files outside docs/tenant were not touched or restored
             Assert.True(fileSystem.FileInfo.New(MockUnixSupport.Path($@"{gitRepo}\docs\other.txt")).Exists, "File outside docs/tenant was removed");
             Assert.Equal("original other", fileSystem.FileInfo.New(MockUnixSupport.Path($@"{gitRepo}\docs\other.txt")).OpenText().ReadToEnd());
             Assert.False(fileSystem.FileInfo.New(MockUnixSupport.Path($@"{gitRepo}\docs\assets\icon.png")).Exists, "Assets folder should not be restored");
+            Assert.False(fileSystem.File.Exists($"{gitRepo}/docs/index.html"), "Generated home page should not be restored as a source");
+            Assert.False(fileSystem.Directory.Exists($"{gitRepo}/docs/search"), "Generated search files should not be restored");
+            Assert.False(fileSystem.File.Exists($"{gitRepo}/docs/assets/theme.css"), "Generated assets should not be restored");
         }
     }
 }

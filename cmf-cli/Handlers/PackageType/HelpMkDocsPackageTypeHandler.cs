@@ -27,13 +27,13 @@ namespace Cmf.CLI.Handlers
                 targetDirectory:
                     "UI/Reference",
                 targetLayer:
-                    "reference",
+                    "project-help",
                 steps:
                     new List<Step>
                     {
                         new Step(StepType.DeployFiles)
                         {
-                            ContentPath = "site/**",
+                            ContentPath = "**",
                             TargetDirectory = "/"
                         }
                     }
@@ -105,6 +105,30 @@ namespace Cmf.CLI.Handlers
             ];
         }
 
+        /// <inheritdoc />
+        internal override List<FileToPack> GetContentToPack(IDirectoryInfo packageOutputDir)
+        {
+            var files = base.GetContentToPack(packageOutputDir);
+            var siteDirectory = fileSystem.Path.Join(CmfPackage.GetFileInfo().Directory.FullName, "site");
+
+            foreach (var file in files)
+            {
+                var relativePath = fileSystem.Path.GetRelativePath(siteDirectory, file.Source.FullName);
+                if (fileSystem.Path.IsPathRooted(relativePath)
+                    || relativePath == ".."
+                    || relativePath.StartsWith(".." + fileSystem.Path.DirectorySeparatorChar, StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                // DeployFiles preserves archive paths. Remove only the build output wrapper,
+                // keeping links between pages, assets and search files unchanged.
+                file.Target = fileSystem.FileInfo.New(fileSystem.Path.Join(packageOutputDir.FullName, relativePath));
+            }
+
+            return files;
+        }
+
         /// <summary>
         /// Packs the generated MkDocs site.
         /// </summary>
@@ -151,7 +175,7 @@ namespace Cmf.CLI.Handlers
 
                 if (temporaryFolderForUnziping.Exists)
                 {
-                    // Each restored mkdocs zip unpacks site, docs and manifest.
+                    // Each restored MkDocs zip contains the website, docs and manifest.
                     // We only care about the docs folder
                     var dependencyDocsFolders = fileSystem.Directory.GetDirectories(temporaryFolderForUnziping.FullName, "docs", SearchOption.AllDirectories);
 

@@ -3,13 +3,13 @@
   "version": "<%= $CLI_PARAM_CustomPackageVersion %>",
   "description": "Cmf Custom <%= $CLI_PARAM_ProjectName %> <%= $CLI_PARAM_CustomPackageName %> Package",
   "packageType": "Help",
-  "targetLayer": "reference",
+  "targetLayer": "project-help",
   "isInstallable": true,
   "isUniqueInstall": false,
   "contentToPack": [
     {
       "source": "site/**",
-      "target": "site"
+      "target": ""
     },
     {
       "source": "docs/<%= $CLI_PARAM_ProjectName %>/**",
