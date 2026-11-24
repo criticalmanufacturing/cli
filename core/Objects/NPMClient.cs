@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
@@ -11,6 +12,7 @@ using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Core.Interfaces;
@@ -90,8 +92,10 @@ namespace Cmf.CLI.Core.Objects
     /// </summary>
     public class NPMClient : INPMClientEx, INPMDistTagResolver
     {
+        private static readonly TimeSpan MaxRequestTimeout = TimeSpan.FromMinutes(15);
         private readonly HttpClient client;
         private readonly string baseUrl;
+        private readonly int timeoutSeconds;
 
         private record SearchResults
         {
@@ -118,10 +122,21 @@ namespace Cmf.CLI.Core.Objects
         {
             this.baseUrl = baseUrl.TrimEnd('/');
             this.client = client ?? new HttpClient();
+            var configuredTimeout = Environment.GetEnvironmentVariable("CMF_PACKAGE_DOWNLOAD_TIMEOUT_SECONDS");
+            if (string.IsNullOrEmpty(configuredTimeout))
+            {
+                timeoutSeconds = 30;
+            }
+            else if (!int.TryParse(configuredTimeout, NumberStyles.None, CultureInfo.InvariantCulture, out timeoutSeconds) || timeoutSeconds <= 0 || timeoutSeconds > MaxRequestTimeout.TotalSeconds)
+            {
+                throw new CliException(string.Format(CoreMessages.InvalidPackageDownloadTimeout, configuredTimeout));
+            }
 
             var authStore = ExecutionContext.ServiceProvider.GetService<IRepositoryAuthStore>();
             var credentials = authStore.GetCredentialsFor<NPMRepositoryCredentials>(authStore.GetOrLoad().GetAwaiter().GetResult(), baseUrl);
 
+            // Each request has its own timeout, this is a maximum for the shared client.
+            this.client.Timeout = MaxRequestTimeout;
             ApplyAuthenticationHeaders(this.client, baseUrl, credentials);
         }
 
@@ -139,12 +154,12 @@ namespace Cmf.CLI.Core.Objects
         public async Task<string> GetLatestVersion(bool preRelease = false)
         {
             var client = this.client;
-            client.Timeout = TimeSpan.FromSeconds(10);
+            using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(10));
             try
             {
-                var res = await client.GetAsync($"{this.baseUrl}/{ExecutionContext.PackageId}");
-                var body = await res.Content.ReadFromJsonAsync<JsonElement>();
-                return (body).GetProperty("dist-tags").GetProperty(preRelease ? "next" : "latest").GetString();
+                using var res = await client.GetAsync($"{this.baseUrl}/{ExecutionContext.PackageId}", timeout.Token);
+                var body = await res.Content.ReadFromJsonAsync<JsonElement>(cancellationToken: timeout.Token);
+                return body.GetProperty("dist-tags").GetProperty(preRelease ? "next" : "latest").GetString();
             }
             catch (Exception e)
             {
@@ -162,18 +177,18 @@ namespace Cmf.CLI.Core.Objects
             {
                 IEnumerable<IPackage>[] results = (registries ?? new[] { new Uri(this.baseUrl) }).Select(async registry =>
                 {
+                    using var timeout = CreateDefaultTimeout();
                     var queryUri = $"{registry.AbsoluteUri.TrimEnd('/')}/-/v1/search?text=+keywords:cmf-cli-plugin";
                     Log.Debug($"Querying {queryUri} for packages with keyword 'cmf-cli-plugin'...");
 
-                    var res = await client.GetAsync(
-                        queryUri);
+                    using var res = await client.GetAsync(queryUri, timeout.Token);
                     Log.Debug($"Got response HTTP code {res.StatusCode}");
                     if (res.StatusCode != HttpStatusCode.OK)
                     {
                         Log.Error($"Search request to {registry.AbsoluteUri} failed: {res.StatusCode}");
                         return Array.Empty<IPackage>();
                     }
-                    var body = await res.Content.ReadFromJsonAsync<SearchResults>();
+                    var body = await res.Content.ReadFromJsonAsync<SearchResults>(cancellationToken: timeout.Token);
                     return body.Objects.Select(obj => new Package()
                     {
                         Name = obj.Package.Name,
@@ -197,15 +212,16 @@ namespace Cmf.CLI.Core.Objects
         public async Task<List<string>> SearchPackages(string query)
         {
             var client = this.client;
+            using var timeout = CreateDefaultTimeout();
             var url = $"{this.baseUrl}/-/v1/search?text={query}";
-            var res = await client.GetAsync(url);
+            using var res = await client.GetAsync(url, timeout.Token);
             Log.Debug($"Got response HTTP code {res.StatusCode}");
             if (res.StatusCode != HttpStatusCode.OK)
             {
                 Log.Error($"Search request to {CoreConstants.NpmJsUrl} failed: {res.StatusCode}");
                 return [];
             }
-            var searchResult = await res.Content.ReadFromJsonAsync<SearchResults>();
+            var searchResult = await res.Content.ReadFromJsonAsync<SearchResults>(cancellationToken: timeout.Token);
 
             return searchResult.Objects.Select(package => package.Package.Name).ToList();
         }
@@ -213,9 +229,10 @@ namespace Cmf.CLI.Core.Objects
         /// <inheritdoc />
         public async Task<string> ResolveDistTag(string packageName, string distTag)
         {
-            using var response = await this.client.GetAsync($"{this.baseUrl}/{packageName}").ConfigureAwait(false);
+            using var timeout = CreateDefaultTimeout();
+            using var response = await this.client.GetAsync($"{this.baseUrl}/{packageName}", timeout.Token).ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
-            var body = await response.Content.ReadFromJsonAsync<JsonElement>().ConfigureAwait(false);
+            var body = await response.Content.ReadFromJsonAsync<JsonElement>(cancellationToken: timeout.Token).ConfigureAwait(false);
             if (!body.TryGetProperty("dist-tags", out var tags) ||
                 !tags.TryGetProperty(distTag, out var version) ||
                 version.ValueKind != JsonValueKind.String ||
@@ -229,16 +246,17 @@ namespace Cmf.CLI.Core.Objects
 
         public async Task<NpmPackageVersion> FetchPackageInfo(string packageName, string version)
         {
+            using var timeout = CreateDefaultTimeout();
             var client = this.client;
             var url = $"{this.baseUrl}/{packageName}";
-            var res = await client.GetAsync(url);
+            using var res = await client.GetAsync(url, timeout.Token);
             Log.Debug($"Got response HTTP code {res.StatusCode}");
             if (res.StatusCode != HttpStatusCode.OK)
             {
                 Log.Error($"Could not get package {packageName}@{version} from {this.baseUrl}: {res.StatusCode}");
                 return null;
             }
-            var body = await res.Content.ReadAsStringAsync();
+            var body = await res.Content.ReadAsStringAsync(timeout.Token);
             
             var packageVersion = JsonConvert.DeserializeObject<NpmPackageInfo>(body);
 
@@ -248,15 +266,16 @@ namespace Cmf.CLI.Core.Objects
         public async Task<CmfPackageV1> FetchPackageVersion(string packageName, string version)
         {
             var client = this.client;
+            using var timeout = CreateDefaultTimeout();
             var url = $"{this.baseUrl}/{packageName}";
-            var res = await client.GetAsync(url);
+            using var res = await client.GetAsync(url, timeout.Token);
             Log.Debug($"Got response HTTP code {res.StatusCode}");
             if (res.StatusCode != HttpStatusCode.OK)
             {
                 Log.Debug($"Could not get package {packageName}@{version} from {this.baseUrl}: {res.StatusCode}");
                 return null;
             }
-            var body = await res.Content.ReadAsStringAsync();
+            var body = await res.Content.ReadAsStringAsync(timeout.Token);
             
             // Parse the JSON string into a JObject
             var bodyJson = JObject.Parse(body);
@@ -282,34 +301,41 @@ namespace Cmf.CLI.Core.Objects
         public async Task<IFileInfo> DownloadPackage(string packageName, string version, IFileInfo output)
         {
             var client = this.client;
-            
-            var pkg = await this.FetchPackageInfo(packageName, version);
-            if (pkg == null)
+
+            try
             {
-                return null;
+                var pkg = await FetchPackageInfo(packageName, version);
+                if (pkg == null)
+                {
+                    return null;
+                }
+
+                // Open a FileStream for writing the downloaded file
+                if (!output.Exists)
+                {
+                    await using var stream = output.Create();
+                }
+                await using var fileStream = output.OpenWrite();
+                Log.Warning($"Downloading package {pkg.Dist.Tarball}");
+                using var timeout = CreateDefaultTimeout();
+                // Get the HTTP response as a stream
+                using var response = await client.GetAsync(pkg.Dist.Tarball, HttpCompletionOption.ResponseHeadersRead, timeout.Token);
+                response.EnsureSuccessStatusCode(); // Throw if not successful
+                Log.Debug("Download got a successful code, saving to temp file");
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
+                // Open the content stream from the HTTP response
+                await using var contentStream = await response.Content.ReadAsStreamAsync(timeout.Token);
+                Log.Debug("Got response");
+                // Stream the content directly into the file
+                await contentStream.CopyToAsync(fileStream, timeout.Token);
+                Log.Debug($"Saving to file {output.FullName} finished, took {stopwatch.ElapsedMilliseconds}ms");
+                return output;
             }
-            
-            // Get the HTTP response as a stream
-            // Open a FileStream for writing the downloaded file
-            if (!output.Exists)
+            catch (OperationCanceledException exception)
             {
-                await using var stream = output.Create();
+                throw new CliException(string.Format(CoreMessages.PackageDownloadTimedOut, packageName, version, timeoutSeconds), exception);
             }
-            await using var fileStream = output.OpenWrite();
-            Log.Warning($"Downloading package {pkg.Dist.Tarball}");
-            // Get the HTTP response as a stream
-            using var response = await client.GetAsync(pkg.Dist.Tarball, HttpCompletionOption.ResponseHeadersRead);
-            response.EnsureSuccessStatusCode(); // Throw if not successful
-            Log.Debug("Download got a successful code, saving to temp file");
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
-            // Open the content stream from the HTTP response
-            await using var contentStream = await response.Content.ReadAsStreamAsync();
-            Log.Debug("Got response");
-            // Stream the content directly into the file
-            await contentStream.CopyToAsync(fileStream);
-            Log.Debug($"Saving to file {output.FullName} finished, took {stopwatch.ElapsedMilliseconds}ms");
-            return output;
         }
 
         public async Task PublishPackage(IFileInfo package)
@@ -352,19 +378,12 @@ namespace Cmf.CLI.Core.Objects
             try
             {
                 var httpClient = this.client;
-
-                // Fix for publishng multiple packages using the same NPMClient instance
-                // HTTPClient throws exception if you attempt to change its settings after the first request, hence this check
-                int timeoutMinutes = 5;
-                if (httpClient.Timeout != TimeSpan.FromMinutes(timeoutMinutes))
-                {
-                    httpClient.Timeout = TimeSpan.FromMinutes(timeoutMinutes);
-                }
-                using var response = await httpClient.PutAsync($"{this.baseUrl}/{name}", content);
+                using var timeout = new CancellationTokenSource(TimeSpan.FromMinutes(5));
+                using var response = await httpClient.PutAsync($"{this.baseUrl}/{name}", content, timeout.Token);
                 if (!response.IsSuccessStatusCode)
                 {
                     Log.Debug($"Failed to publish the package: {(int)response.StatusCode} {response.ReasonPhrase}");
-                    Log.Warning(await response.Content.ReadAsStringAsync());
+                    Log.Warning(await response.Content.ReadAsStringAsync(timeout.Token));
                     throw new CliException(
                         $"{(int)response.StatusCode} {response.ReasonPhrase}");
                 }
@@ -509,6 +528,8 @@ namespace Cmf.CLI.Core.Objects
             return root.ToString(Formatting.None);
         }
 
+        private CancellationTokenSource CreateDefaultTimeout() => new(TimeSpan.FromSeconds(timeoutSeconds));
+
         private static HttpClient ApplyAuthenticationHeaders(HttpClient client, string baseUrl, ICredential credentials)
         {
             // handle authentication
@@ -527,8 +548,6 @@ namespace Cmf.CLI.Core.Objects
                 client.DefaultRequestHeaders.Add("User-Agent",
                     $"{ExecutionContext.PackageId.Replace("@", "")} v{ExecutionContext.CurrentVersion}");
             }
-
-            client.Timeout = TimeSpan.FromSeconds(5);
 
             return client;
         }

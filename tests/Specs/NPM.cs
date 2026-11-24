@@ -32,6 +32,203 @@ namespace tests.Specs;
 public class NPM
 {
     [Fact]
+    public async Task GetLatestVersion_AllowsResponseAfterConfiguredOneSecondLimit()
+    {
+        Setup();
+        var previousTimeout = Environment.GetEnvironmentVariable("CMF_PACKAGE_DOWNLOAD_TIMEOUT_SECONDS");
+        Environment.SetEnvironmentVariable("CMF_PACKAGE_DOWNLOAD_TIMEOUT_SECONDS", "1");
+        try
+        {
+            var handler = new Mock<HttpMessageHandler>();
+            handler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .Returns(async (HttpRequestMessage _, CancellationToken token) =>
+                {
+                    await Task.Delay(TimeSpan.FromMilliseconds(1200), token);
+                    return new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent("{\"dist-tags\":{\"latest\":\"6.0.1\"}}")
+                    };
+                });
+            using var httpClient = new HttpClient(handler.Object);
+            var npmClient = new NPMClient("https://registry.example", httpClient);
+
+            var version = await npmClient.GetLatestVersion();
+
+            version.Should().Be("6.0.1");
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("CMF_PACKAGE_DOWNLOAD_TIMEOUT_SECONDS", previousTimeout);
+        }
+    }
+
+    [Fact]
+    public async Task SearchPackages_UsesConfiguredTimeoutAfterVersionCheck()
+    {
+        Setup();
+        var previousTimeout = Environment.GetEnvironmentVariable("CMF_PACKAGE_DOWNLOAD_TIMEOUT_SECONDS");
+        Environment.SetEnvironmentVariable("CMF_PACKAGE_DOWNLOAD_TIMEOUT_SECONDS", "1");
+        try
+        {
+            var handler = new Mock<HttpMessageHandler>();
+            handler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .Returns(async (HttpRequestMessage request, CancellationToken token) =>
+                {
+                    if (request.RequestUri!.AbsolutePath.Contains("/search"))
+                    {
+                        await Task.Delay(TimeSpan.FromSeconds(2), token);
+                    }
+
+                    return new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent("{\"dist-tags\":{\"latest\":\"6.0.1\"}}")
+                    };
+                });
+            using var httpClient = new HttpClient(handler.Object);
+            var npmClient = new NPMClient("https://registry.example", httpClient);
+
+            await npmClient.GetLatestVersion();
+            Func<Task> search = () => npmClient.SearchPackages("Cmf.ConnectIoT");
+
+            await search.Should().ThrowAsync<OperationCanceledException>();
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("CMF_PACKAGE_DOWNLOAD_TIMEOUT_SECONDS", previousTimeout);
+        }
+    }
+
+    [Fact]
+    public async Task DownloadPackage_DefaultTimeout_AllowsResponseAfterFiveSeconds()
+    {
+        Setup();
+        var previousTimeout = Environment.GetEnvironmentVariable("CMF_PACKAGE_DOWNLOAD_TIMEOUT_SECONDS");
+        Environment.SetEnvironmentVariable("CMF_PACKAGE_DOWNLOAD_TIMEOUT_SECONDS", null);
+        try
+        {
+            using var httpClient = new HttpClient(new PackageDownloadHandler(async cancellationToken =>
+            {
+                await Task.Delay(TimeSpan.FromSeconds(6), cancellationToken);
+                return new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new ByteArrayContent([1, 2, 3])
+                };
+            }));
+            var npmClient = new NPMClient("https://registry.example", httpClient);
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                ["/tmp/.gitkeep"] = new MockFileData("")
+            });
+
+            var output = await npmClient.DownloadPackage("Cmf.ConnectIoT.Repository", "10.2.9",
+                fileSystem.FileInfo.New("/tmp/package.tgz"));
+
+            output.Should().NotBeNull();
+            output.Length.Should().Be(3);
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("CMF_PACKAGE_DOWNLOAD_TIMEOUT_SECONDS", previousTimeout);
+        }
+    }
+
+    [Fact]
+    public async Task DownloadPackage_ConfiguredTimeout_ReportsPackageAndEffectiveLimit()
+    {
+        Setup();
+        var previousTimeout = Environment.GetEnvironmentVariable("CMF_PACKAGE_DOWNLOAD_TIMEOUT_SECONDS");
+        Environment.SetEnvironmentVariable("CMF_PACKAGE_DOWNLOAD_TIMEOUT_SECONDS", "1");
+        try
+        {
+            using var httpClient = new HttpClient(new PackageDownloadHandler(async cancellationToken =>
+            {
+                await Task.Delay(TimeSpan.FromSeconds(6), cancellationToken);
+                return new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new ByteArrayContent([1, 2, 3])
+                };
+            }));
+            var npmClient = new NPMClient("https://registry.example", httpClient);
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                ["/tmp/.gitkeep"] = new MockFileData("")
+            });
+
+            Func<Task> download = () => npmClient.DownloadPackage("Cmf.ConnectIoT.Repository", "10.2.9",
+                fileSystem.FileInfo.New("/tmp/package.tgz"));
+
+            var exception = await download.Should().ThrowAsync<CliException>();
+            exception.Which.Message.Should().Contain("Cmf.ConnectIoT.Repository").And.Contain("10.2.9")
+                .And.Contain("1 second");
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("CMF_PACKAGE_DOWNLOAD_TIMEOUT_SECONDS", previousTimeout);
+        }
+    }
+
+    [Fact]
+    public async Task DownloadPackage_MetadataTimeout_ReportsPackageAndEffectiveLimit()
+    {
+        Setup();
+        var previousTimeout = Environment.GetEnvironmentVariable("CMF_PACKAGE_DOWNLOAD_TIMEOUT_SECONDS");
+        Environment.SetEnvironmentVariable("CMF_PACKAGE_DOWNLOAD_TIMEOUT_SECONDS", "1");
+        try
+        {
+            var handler = new Mock<HttpMessageHandler>();
+            handler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .Returns(async (HttpRequestMessage _, CancellationToken token) =>
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(2), token);
+                    return new HttpResponseMessage(HttpStatusCode.OK);
+                });
+            using var httpClient = new HttpClient(handler.Object);
+            var npmClient = new NPMClient("https://registry.example", httpClient);
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                ["/tmp/.gitkeep"] = new MockFileData("")
+            });
+
+            Func<Task> download = () => npmClient.DownloadPackage("Cmf.ConnectIoT.Repository", "10.2.9",
+                fileSystem.FileInfo.New("/tmp/package.tgz"));
+
+            var exception = await download.Should().ThrowAsync<CliException>();
+            exception.Which.Message.Should().Contain("Cmf.ConnectIoT.Repository").And.Contain("10.2.9")
+                .And.Contain("1 second");
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("CMF_PACKAGE_DOWNLOAD_TIMEOUT_SECONDS", previousTimeout);
+        }
+    }
+
+    private sealed class PackageDownloadHandler(Func<CancellationToken, Task<HttpResponseMessage>> tarballResponse)
+        : HttpMessageHandler
+    {
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+            CancellationToken cancellationToken)
+        {
+            if (request.RequestUri!.AbsolutePath == "/tarball")
+            {
+                return tarballResponse(cancellationToken);
+            }
+
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("""
+                    {"versions":{"10.2.9":{"name":"Cmf.ConnectIoT.Repository","version":"10.2.9","dist":{"tarball":"https://registry.example/tarball"}}}}
+                    """, Encoding.UTF8, "application/json")
+            });
+        }
+    }
+
+    [Fact]
     public async Task ResolveDistTag_ReturnsExactVersionFromConfiguredRegistry()
     {
         Setup();
@@ -351,6 +548,43 @@ public class NPM
         await readDisposedContent.Should().ThrowAsync<ObjectDisposedException>();
         Func<Task> readDisposedResponse = () => handler.Response.Content.ReadAsStringAsync();
         await readDisposedResponse.Should().ThrowAsync<ObjectDisposedException>();
+    }
+
+    [Fact]
+    public async Task PublishPackage_AfterVersionCheck_AllowsResponseAfterConfiguredLimit()
+    {
+        Setup();
+        var previousTimeout = Environment.GetEnvironmentVariable("CMF_PACKAGE_DOWNLOAD_TIMEOUT_SECONDS");
+        Environment.SetEnvironmentVariable("CMF_PACKAGE_DOWNLOAD_TIMEOUT_SECONDS", "1");
+        try
+        {
+            var handler = new Mock<HttpMessageHandler>();
+            handler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .Returns(async (HttpRequestMessage request, CancellationToken token) =>
+                {
+                    if (request.Method == HttpMethod.Put)
+                    {
+                        await Task.Delay(TimeSpan.FromMilliseconds(1200), token);
+                        return new HttpResponseMessage(HttpStatusCode.OK);
+                    }
+
+                    return new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent("{\"dist-tags\":{\"latest\":\"6.0.1\"}}")
+                    };
+                });
+            using var httpClient = new HttpClient(handler.Object);
+            var npmClient = new NPMClient("https://registry.example", httpClient);
+
+            await npmClient.GetLatestVersion();
+            await npmClient.PublishPackage(CreatePublishPackage());
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("CMF_PACKAGE_DOWNLOAD_TIMEOUT_SECONDS", previousTimeout);
+        }
     }
 
     [Theory]

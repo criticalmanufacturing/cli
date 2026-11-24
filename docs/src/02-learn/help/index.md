@@ -50,3 +50,7 @@ cmf -l Debug build
 The CLI checks for a newer version at startup. This can be skipped via an environment variable:
 
 `cmf_cli_skip_version_check` - skip the version check at startup. Useful in CI/CD pipelines to avoid network calls. Set to `true` to skip, do not set or set to `false` to keep the default behavior.
+
+## NPM Registry Request Timeout
+
+Package metadata lookups, archive downloads, package searches, and plugin searches have a 30-second timeout per request by default. Set `CMF_PACKAGE_DOWNLOAD_TIMEOUT_SECONDS` to a whole number of seconds from 1 to 900 to change this limit.

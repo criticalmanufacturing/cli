@@ -124,6 +124,24 @@ namespace Cmf.CLI.Core {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Download of package {0}@{1} timed out after {2} seconds.
+        /// </summary>
+        public static string PackageDownloadTimedOut {
+            get {
+                return ResourceManager.GetString("PackageDownloadTimedOut", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to CMF_PACKAGE_DOWNLOAD_TIMEOUT_SECONDS must be a whole number of seconds between 1 and 900; received '{0}'.
+        /// </summary>
+        public static string InvalidPackageDownloadTimeout {
+            get {
+                return ResourceManager.GetString("InvalidPackageDownloadTimeout", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Invalid format JWT token, payload is missing or invalid.
         /// </summary>
         public static string InvalidJwtPayload {
