@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [6.0.2](https://github.com/criticalmanufacturing/cli/compare/6.0.1...6.0.2) (2026-11-24)
+
+### Features
+
+* **validation:** validate command and project configuration versions ([590aa72](https://github.com/criticalmanufacturing/cli/commit/590aa723a53e968c8cfeaf4158542e16070427bd))
+
+### Bug Fixes
+
+* **build:** default generic build steps to the package directory ([d5aedc8](https://github.com/criticalmanufacturing/cli/commit/d5aedc89735cd924635bb3305dac75d5b93ac1f2))
+* **ci:** simplify scaffolding validation with current init defaults ([9a234b6](https://github.com/criticalmanufacturing/cli/commit/9a234b6d013048f6583baa4b269c9cc32a8e09fe))
+* **help:** correct v12 Help deployment and bundle fonts ([ad7e760](https://github.com/criticalmanufacturing/cli/commit/ad7e760ce1bb996bf5167ce39c2c3da8bbb6b8c7))
+* **init:** forward HTTPS in generated devcontainers ([71cbbc1](https://github.com/criticalmanufacturing/cli/commit/71cbbc1bbfc1c6afb1b8a9ec551efaaaa69e9cd6))
+* **iot:** match scaffolded Node typings to the MES runtime ([b309b1f](https://github.com/criticalmanufacturing/cli/commit/b309b1fe0ba9a0d3a7579a38fb7f9c78758d8ad6))
+* **login:** validate Portal PAT expiration before saving credentials ([f52a9b1](https://github.com/criticalmanufacturing/cli/commit/f52a9b1f6736b4ade7458c23c2cb8d34ea26679e))
+* **new:** validate project context before scaffolding ([29452ab](https://github.com/criticalmanufacturing/cli/commit/29452abf32afb14b7e8cd171c3ce58ef2db7cc95))
+* **npm:** harden installer cleanup and declare Node support ([cbba8a3](https://github.com/criticalmanufacturing/cli/commit/cbba8a3c1e5eeeddcbfa8b80d821b4c840f534d7))
+* **npm:** replace obsolete CLI files during upgrades ([4329bc9](https://github.com/criticalmanufacturing/cli/commit/4329bc98a5ca818289b9af699eb3470503f2c7ed))
+* **pack:** reject invalid HTML config transforms ([c2104a9](https://github.com/criticalmanufacturing/cli/commit/c2104a94b8a72fb2a34bb95251bd9afa5c78855b))
+* **release:** restore registry origin IP routing ([983f232](https://github.com/criticalmanufacturing/cli/commit/983f232f1ac40e3010b94ee0ba8f7d2f298b9bc3))
+* **release:** use Basic credentials for binary uploads ([6bfe316](https://github.com/criticalmanufacturing/cli/commit/6bfe31616631b5ead3373c1361b488fa80da6729))
+* **release:** warn on China mirror verification failures ([c281374](https://github.com/criticalmanufacturing/cli/commit/c281374526d62c846b151e5adb8b3ba1f81a3a72))
+* **scaffolding:** forward SQL in generated devcontainers ([98545b2](https://github.com/criticalmanufacturing/cli/commit/98545b217768e0f908b4022e4be4c1c9e48cdb0e))
+
 ## [6.0.2-0](https://github.com/criticalmanufacturing/cli/compare/6.0.1...6.0.2-0) (2026-11-06)
 
 ### Bug Fixes
