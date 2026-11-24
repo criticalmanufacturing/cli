@@ -1374,8 +1374,11 @@ namespace tests.Specs
             exception.Message.Should().Contain("Could not find MkDocs site");
         }
 
-        [Fact]
-        public void Help_v12_MkDocsPack_SucceedsWhenSiteAndDocsExist()
+        [Theory]
+        [InlineData("site")]
+        [InlineData("")]
+        [InlineData("site/features/custom-feature")]
+        public void Help_v12_MkDocsPack_SucceedsWhenSiteAndDocsExist(string siteTarget)
         {
             var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
             {
@@ -1387,21 +1390,25 @@ namespace tests.Specs
               ""version"": ""1.0.0"",
               ""packageType"": ""Help"",
               ""contentToPack"": [
-                { ""source"": ""site/**"", ""target"": ""site"" },
+                { ""source"": ""site/**"", ""target"": """ + siteTarget + @""" },
                                 { ""source"": ""docs/cmf/**"", ""target"": ""docs/cmf"" }
               ]
             }") },
                 { "/repo/Cmf.Custom.Help/docs/requirements.txt", new MockFileData("mkdocs-material") },
                                 { "/repo/Cmf.Custom.Help/docs/cmf/index.md", new MockFileData("# Help") },
-                { "/repo/Cmf.Custom.Help/site/index.html", new MockFileData("<html>Help</html>") },
-                { "/repo/Cmf.Custom.Help/site/search/search_index.json", new MockFileData("{}") },
+                { "/repo/Cmf.Custom.Help/site/index.html", new MockFileData("<link href=\"assets/theme.css\" rel=\"stylesheet\"><a href=\"guide/\">Guide</a><script src=\"assets/search.js\"></script>") },
+                { "/repo/Cmf.Custom.Help/site/search/search_index.json", new MockFileData("{\"docs\":[{\"location\":\"guide/\",\"title\":\"Guide\"}]}") },
+                { "/repo/Cmf.Custom.Help/site/guide/index.html", new MockFileData("<a href=\"../\">Home</a><link href=\"../assets/theme.css\" rel=\"stylesheet\">") },
+                { "/repo/Cmf.Custom.Help/site/assets/theme.css", new MockFileData("body { background: url(images/icon.svg); }") },
+                { "/repo/Cmf.Custom.Help/site/assets/images/icon.svg", new MockFileData("<svg/>") },
+                { "/repo/Cmf.Custom.Help/site/assets/search.js", new MockFileData("fetch('search/search_index.json')") },
                 { "/repo/output", new MockDirectoryData() }
             });
 
             ExecutionContext.Initialize(fileSystem);
 
             var packageTypeHandler = PackageTypeFactory.GetPackageTypeHandler(
-                fileSystem.FileInfo.New("/repo/Cmf.Custom.Help/cmfpackage.json")) as HelpMkDocsPackageTypeHandler;
+                fileSystem.FileInfo.New("/repo/Cmf.Custom.Help/cmfpackage.json"), setDefaultValues: true) as HelpMkDocsPackageTypeHandler;
 
             packageTypeHandler.Pack(
                 fileSystem.DirectoryInfo.New("/repo/package"),
@@ -1411,9 +1418,29 @@ namespace tests.Specs
             packageZip.Exists.Should().BeTrue("Package zip file should be created");
 
             using var zip = new ZipArchive(packageZip.OpenRead(), ZipArchiveMode.Read);
-            zip.GetEntry("site/index.html").Should().NotBeNull();
+            zip.GetEntry("index.html").Should().NotBeNull();
+            zip.GetEntry("site/index.html").Should().BeNull();
             zip.GetEntry("docs/cmf/index.md").Should().NotBeNull();
-            zip.GetEntry("site/search/search_index.json").Should().NotBeNull();
+            zip.GetEntry("search/search_index.json").Should().NotBeNull();
+
+            // Keep every generated file byte-for-byte, preserving relative links and search locations.
+            foreach (var source in fileSystem.Directory.GetFiles("/repo/Cmf.Custom.Help/site", "*", SearchOption.AllDirectories))
+            {
+                var relativePath = fileSystem.Path.GetRelativePath("/repo/Cmf.Custom.Help/site", source).Replace('\\', '/');
+                var entry = zip.GetEntry(relativePath);
+                entry.Should().NotBeNull();
+                using var reader = new StreamReader(entry.Open());
+                reader.ReadToEnd().Should().Be(fileSystem.File.ReadAllText(source));
+            }
+
+            using var manifestReader = new StreamReader(zip.GetEntry("manifest.xml").Open());
+            var manifest = XDocument.Parse(manifestReader.ReadToEnd());
+            manifest.Root.Element("targetLayer").Value.Should().Be("project-help");
+            var step = manifest.Descendants("step").Single(e => (string)e.Attribute("type") == "DeployFiles");
+            ((string)step.Attribute("contentPath")).Should().Be("**");
+            ((string)step.Attribute("targetDirectory")).Should().Be("/");
+            fileSystem.File.ReadAllText("/repo/Cmf.Custom.Help/cmfpackage.json").Should().Contain("\"target\": \"" + siteTarget + "\"");
+
         }
 
 

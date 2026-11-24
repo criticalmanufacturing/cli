@@ -430,7 +430,10 @@ namespace tests.Specs
             Assert.False(fileSystem.File.Exists(fileSystem.Path.Join(helpDir, "angular.json")), "Angular workspace should not be created for MES 12 Help packages");
 
             // Content
-            Assert.True(fileSystem.File.ReadAllText(fileSystem.Path.Join(helpDir, "mkdocs.yml")).Contains("dev_addr: 0.0.0.0:7001"), "MkDocs development address is not configured");
+            var mkdocsConfig = fileSystem.File.ReadAllText(fileSystem.Path.Join(helpDir, "mkdocs.yml")).Replace("\r\n", "\n");
+            Assert.True(mkdocsConfig.Contains("dev_addr: 0.0.0.0:7001"), "MkDocs development address is not configured");
+            Assert.True(mkdocsConfig.Contains("\n  - privacy\n"), "MkDocs privacy plugin must bundle external fonts for self-hosted Help");
+            Assert.True(mkdocsConfig.Contains("\n  - search:"), "MkDocs search plugin must remain enabled alongside privacy");
             Assert.True(fileSystem.File.ReadAllText(fileSystem.Path.Join(helpDir, "docs", "localtest", "index.md")).Contains("localtest"), "ProjectName is not rendered into the landing page");
             Assert.True(fileSystem.File.ReadAllText(fileSystem.Path.Join(helpDir, "cmfpackage.json")).Contains("\"source\": \"docs/localtest/**\""), "ProjectName content mapping is not rendered into the package metadata");
         }

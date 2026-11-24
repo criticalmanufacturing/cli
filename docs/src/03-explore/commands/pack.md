@@ -60,3 +60,20 @@ Name | Description
 
 
 <!-- END USAGE -->
+
+## MES v12 MkDocs Help packages
+
+`cmf pack` puts the generated `site/` contents at the archive root, preserving
+relative links, assets and search. Markdown stays under `docs/` for dependency
+merging. Existing v12 `site/**` mappings are supported; build output stays in `site/`.
+
+V12 Help uses the `project-help` layer and `DeployFiles` pattern `**`.
+Migrating v11 Angular Help requires adopting the v12 MkDocs structure, rebuilding
+with `cmf build`, repacking with `cmf pack`, then republishing and redeploying the
+package. Changing `targetLayer` alone does not migrate an existing package.
+Earlier Angular Help packages retain their existing behavior.
+
+The v12 scaffold enables `privacy` to bundle external fonts during build.
+For existing v12 MkDocs projects, add `privacy` alongside `search` in `mkdocs.yml`, then
+rebuild, pack, publish and redeploy. The first build needs network access;
+subsequent builds can reuse `.cache/`, which should be ignored in Git.
