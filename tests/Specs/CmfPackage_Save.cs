@@ -395,7 +395,7 @@ namespace tests.Specs
             var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
             // project config file
-            { ".project-config.json", new MockFileData("")},
+            { ".project-config.json", new MockFileData("{}")},
 
             // root cmfpackage file
             { $"cmfpackage.json", new MockFileData(

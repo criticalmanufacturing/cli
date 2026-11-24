@@ -1,3 +1,4 @@
+using NuGet.Versioning;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
@@ -20,6 +21,13 @@ namespace Cmf.CLI.Commands
     [CmfCommand(name: "configuration", ParentId = "bump_iot")]
     public class BumpIoTConfigurationCommand : BumpCommand
     {
+        /// <summary>Creates the command.</summary>
+        public BumpIoTConfigurationCommand() { }
+
+        /// <summary>Creates the command with a filesystem.</summary>
+        /// <param name="fileSystem">The project filesystem.</param>
+        public BumpIoTConfigurationCommand(IFileSystem fileSystem) : base(fileSystem) { }
+
         /// <summary>
         /// Configure command
         /// </summary>
@@ -34,23 +42,26 @@ namespace Cmf.CLI.Commands
             };
             cmd.Add(pathArgument);
 
-            var versionOption = new Option<string>("--version", "-v")
+            var versionOption = new Option<NuGetVersion>("--version", "-v")
             {
-                Description = "Will bump all versions to the version specified"
+                Description = "Will bump all versions to the version specified",
+                CustomParser = result => VersionUtilities.ParseVersion(result, text => string.IsNullOrEmpty(text) ? null : VersionUtilities.ParseNuGetVersion(text, "--version"))
+            };
+            var buildOption = new Option<string>("--buildNrVersion", "-b")
+            {
+                Description = "Will add this version next to the version (v-b)",
+                CustomParser = result => VersionUtilities.ParseSuffix(result, "--buildNrVersion")
+            };
+            var prereleaseOption = new Option<string>("--preReleaseVersion", "-p")
+            {
+                Description = "Will add this version as pre-release version (v-p)",
+                CustomParser = result => VersionUtilities.ParseSuffix(result, "--preReleaseVersion")
             };
             cmd.Add(versionOption);
-
-            var buildNrVersionOption = new Option<string>("--buildNrVersion", "-b")
-            {
-                Description = "Will add this version next to the version (v-b)"
-            };
-            cmd.Add(buildNrVersionOption);
-
-            var preReleaseVersionOption = new Option<string>("--preReleaseVersion", "-p")
-            {
-                Description = "Will add this version as pre-release version (v-p)"
-            };
-            cmd.Add(preReleaseVersionOption);
+            cmd.Add(buildOption);
+            cmd.Add(prereleaseOption);
+            BumpCommand.ValidateVersionOptions(cmd, versionOption, buildOption, prereleaseOption,
+                iot: true, requireVersion: false, npm: false);
 
             var masterDataOption = new Option<bool>("--masterData", "-md")
             {
@@ -108,9 +119,6 @@ namespace Cmf.CLI.Commands
             cmd.SetAction((parseResult, cancellationToken) =>
             {
                 var path = parseResult.GetValue(pathArgument);
-                var version = parseResult.GetValue(versionOption);
-                var buildNr = parseResult.GetValue(buildNrVersionOption);
-                var preReleaseVersion = parseResult.GetValue(preReleaseVersionOption);
                 var isToBumpMasterdata = parseResult.GetValue(masterDataOption);
                 var isToBumpIoT = parseResult.GetValue(iotOption);
                 var packageNames = parseResult.GetValue(packageNamesOption);
@@ -120,7 +128,8 @@ namespace Cmf.CLI.Commands
                 var isToTag = parseResult.GetValue(isToTagOption);
                 var onlyMdCustomization = parseResult.GetValue(mdCustomizationOption);
 
-                Execute(path, version, buildNr, preReleaseVersion, isToBumpMasterdata, isToBumpIoT, packageNames, root, group, workflowName, isToTag, onlyMdCustomization);
+                Execute(path, VersionUtilities.GetOptionalVersion(parseResult.CommandResult, versionOption),
+                    parseResult.GetValue(buildOption), parseResult.GetValue(prereleaseOption), isToBumpMasterdata, isToBumpIoT, packageNames, root, group, workflowName, isToTag, onlyMdCustomization);
                 return Task.FromResult(0);
             });
         }
@@ -142,8 +151,9 @@ namespace Cmf.CLI.Commands
         /// <param name="onlyMdCustomization">if set to <c>true</c> [only md customization].</param>
         /// <exception cref="CliException"></exception>
         /// <returns></returns>
-        public void Execute(IDirectoryInfo path, string version, string buildNrVersion, string preReleaseVersion, bool isToBumpMasterdata, bool isToBumpIoT, string packageNames, string root, string group, string workflowName, bool isToTag, bool onlyMdCustomization)
+        public void Execute(IDirectoryInfo path, NuGetVersion version, string buildNrVersion, string preReleaseVersion, bool isToBumpMasterdata, bool isToBumpIoT, string packageNames, string root, string group, string workflowName, bool isToTag, bool onlyMdCustomization)
         {
+            var suffix = !string.IsNullOrEmpty(buildNrVersion) ? buildNrVersion : preReleaseVersion;
             using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
             
             // Get All AutomationWorkflowFiles Folders
@@ -159,13 +169,6 @@ namespace Cmf.CLI.Commands
                 automationWorkflowDirectories = automationWorkflowDirectories.Where(awf => awf.Contains(root))?.ToList();
             }
 
-            if (!string.IsNullOrEmpty(buildNrVersion) && !string.IsNullOrEmpty(preReleaseVersion))
-            {
-                throw new CliException(string.Format(CliMessages.MutuallyExclusiveProperties, "buildNrVersion, preReleaseVersion"));
-            }
-
-            string versionSuffix = !string.IsNullOrEmpty(buildNrVersion) ? buildNrVersion : preReleaseVersion;
-
             foreach (string automationWorkflowDirectory in automationWorkflowDirectories)
             {
                 #region Bump AutomationWorkflow
@@ -180,7 +183,7 @@ namespace Cmf.CLI.Commands
                         groups = groups.Where(gr => gr.Contains(group)).ToList();
                     }
 
-                    groups.ForEach(group => IoTUtilities.BumpWorkflowFiles(group, version, versionSuffix, workflowName, packageNames, this.fileSystem));
+                    groups.ForEach(group => IoTUtilities.BumpWorkflowFiles(group, VersionUtilities.GetVersionText(version), suffix, workflowName, packageNames, this.fileSystem));
                 }
 
                 #endregion Bump AutomationWorkflow
@@ -189,7 +192,7 @@ namespace Cmf.CLI.Commands
 
                 if (isToBumpMasterdata)
                 {
-                    IoTUtilities.BumpIoTMasterData(automationWorkflowDirectory, version, versionSuffix, this.fileSystem, onlyCustomization: onlyMdCustomization);
+                    IoTUtilities.BumpIoTMasterData(automationWorkflowDirectory, VersionUtilities.GetVersionText(version), suffix, this.fileSystem, onlyCustomization: onlyMdCustomization);
                 }
 
                 #endregion Bump IoT Masterdata

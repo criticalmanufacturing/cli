@@ -2,15 +2,10 @@ name: CLI Scaffolding Validation
 
 # Allowed actors are configured outside this file in Settings > Actions > Policies.
 on:
-  workflow_dispatch:
   pull_request:
     branches:
       - main
     types: [opened, synchronize]
-  push:
-    branches:
-      - main
-      - development
 
 permissions:
   contents: read
@@ -82,17 +77,17 @@ jobs:
             node-version: '18.x'
             dotnet-version: '6.0.x'
             packages-to-build: "Cmf.Custom.Business Cmf.Custom.Data Cmf.Custom.HTML Cmf.Custom.Help"
-            packages-to-pack: "Cmf.Custom.Business Cmf.Custom.Data Cmf.Custom.HTML Cmf.Custom.Grafana Cmf.Custom.IoT Cmf.Custom.SecurityPortal Cmf.Custom.Database/Pre Cmf.Custom.Database/Post Cmf.Custom.Help Cmf.Custom.Reporting Cmf.Custom.IoT"
+            packages-to-pack: "Cmf.Custom.Business Cmf.Custom.Data Cmf.Custom.HTML Cmf.Custom.Grafana Cmf.Custom.IoT Cmf.Custom.SecurityPortal Cmf.Custom.Database/Pre Cmf.Custom.Database/Post Cmf.Custom.Help Cmf.Custom.Reporting"
           - mes-major: 11
             node-version: '20.x'
             dotnet-version: '8.0.x'
             packages-to-build: "Cmf.Custom.Business Cmf.Custom.Data Cmf.Custom.HTML Cmf.Custom.Help"
-            packages-to-pack: "Cmf.Custom.Business Cmf.Custom.Data Cmf.Custom.HTML Cmf.Custom.Help Cmf.Custom.Grafana Cmf.Custom.IoT Cmf.Custom.SecurityPortal Cmf.Custom.Database/Pre Cmf.Custom.Database/Post Cmf.Custom.Help Cmf.Custom.Reporting Cmf.Custom.IoT"
+            packages-to-pack: "Cmf.Custom.Business Cmf.Custom.Data Cmf.Custom.HTML Cmf.Custom.Help Cmf.Custom.Grafana Cmf.Custom.IoT Cmf.Custom.SecurityPortal Cmf.Custom.Database/Pre Cmf.Custom.Database/Post Cmf.Custom.Reporting"
           - mes-major: 12
             node-version: '24.x'
             dotnet-version: '10.0.x'
             packages-to-build: "Cmf.Custom.Business Cmf.Custom.Data Cmf.Custom.HTML Cmf.Custom.Help Cmf.Custom.Tests"
-            packages-to-pack: "Cmf.Custom.Business Cmf.Custom.Data Cmf.Custom.HTML Cmf.Custom.Help Cmf.Custom.Grafana Cmf.Custom.IoT Cmf.Custom.SecurityPortal Cmf.Custom.Database/Pre Cmf.Custom.Database/Post Cmf.Custom.Help Cmf.Custom.Reporting Cmf.Custom.IoT Cmf.Custom.Tests"
+            packages-to-pack: "Cmf.Custom.Business Cmf.Custom.Data Cmf.Custom.HTML Cmf.Custom.Help Cmf.Custom.Grafana Cmf.Custom.IoT Cmf.Custom.SecurityPortal Cmf.Custom.Database/Pre Cmf.Custom.Database/Post Cmf.Custom.Reporting Cmf.Custom.Tests"
 
     steps:
       - name: Setup Node ${{ matrix.node-version }}
@@ -150,75 +145,40 @@ jobs:
           require('fs').appendFileSync(process.env.GITHUB_OUTPUT, `tag=${tag}\nversion=${version}\n`);
           NODE
 
-      - name: Resolve ngx-schematics version for tag ${{ steps.mes-version.outputs.tag }}
-        id: ngx-schematics-version
-        env:
-          MES_DIST_TAG: ${{ steps.mes-version.outputs.tag }}
-        run: |
-          if ! NGX_VERSION=$(npm view @criticalmanufacturing/ngx-schematics@$MES_DIST_TAG version --registry "$CRITICALMANUFACTURING_NPM_REGISTRY") || [ -z "$NGX_VERSION" ]; then
-            echo "::error::Failed to resolve ngx-schematics version for tag $MES_DIST_TAG"
-            exit 1
-          fi
-          echo "version=$NGX_VERSION" >> $GITHUB_OUTPUT
-
-      - name: Create parameters.json file
-        run: |
-          mkdir -p $VALIDATION_DIR
-          cat <<EOF > $VALIDATION_DIR/parameters.json
-          {
-            "SYSTEM_NAME": "cmftraining",
-            "TENANT_NAME": "cmftraining",
-            "APPLICATION_PUBLIC_HTTP_ADDRESS": "cmftraining.local",
-            "APPLICATION_PUBLIC_HTTP_PORT": "80",
-            "APPLICATION_PUBLIC_HTTP_TLS_ENABLED": "false",
-            "DATABASE_ONLINE_MSSQL_ADDRESS": "db",
-            "DATABASE_ONLINE_MSSQL_ADDRESS": "db",
-            "SECURITY_PORTAL_STRATEGY_LOCAL_AD_DEFAULT_DOMAIN": "",
-            "DATABASE_MSSQL_ALWAYS_ON_ENABLED": "false"
-          }
-          EOF
+      - name: Create validation directory
+        run: mkdir -p "$VALIDATION_DIR"
 
       - name: Run 'cmf init' (MES ${{ steps.mes-version.outputs.version }})
         working-directory: ${{ env.VALIDATION_DIR }}
         env:
           MES_VERSION: ${{ steps.mes-version.outputs.version }}
-          NGX_VERSION: ${{ steps.ngx-schematics-version.outputs.version }}
         run: |
-          # MES compatibility uses major.minor.patch; package versions retain their suffixes.
-          MES_BASE_VERSION=${MES_VERSION%%[-+]*}
-          $CLI_PATH/cmf -l debug init ValidationProject \
-            --version 1.0.0 \
-            --config ./parameters.json \
-            --MESVersion "$MES_BASE_VERSION" \
-            --nugetVersion "$MES_BASE_VERSION" \
-            --testScenariosNugetVersion "$MES_BASE_VERSION" \
-            --npmRegistry $CRITICALMANUFACTURING_NPM_REGISTRY \
-            --nugetRegistry $CRITICALMANUFACTURING_NUGET_REGISTRY \
-            --deploymentDir ./deployments \
-            --ngxSchematicsVersion "$NGX_VERSION"
+          "$CLI_PATH/cmf" -l debug init ValidationProject \
+            --tenant cmftraining \
+            --MESVersion "${MES_VERSION%%[-+]*}" \
+            --npmRegistry "$CRITICALMANUFACTURING_NPM_REGISTRY" \
+            --nugetRegistry "$CRITICALMANUFACTURING_NUGET_REGISTRY" \
+            --ciRepo "file://$GITHUB_WORKSPACE/$VALIDATION_DIR/deployments/CIPackages" \
+            --releaseRepos "file://$GITHUB_WORKSPACE/$VALIDATION_DIR/deployments/Delivered"
 
       - name: Run 'cmf new' for each package type
         working-directory: ${{ env.VALIDATION_DIR }}
         run: |
           for pkg in $PACKAGES_TO_CREATE; do
+            args=()
             if [ "$pkg" = "data" ]; then
-              cmd="$CLI_PATH/cmf -l debug new $pkg --businessPackage ./Cmf.Custom.Business/"
-            elif [ "$pkg" = "iot" ]; then
-              cmd="$CLI_PATH/cmf -l debug new $pkg --htmlPackageLocation ./Cmf.Custom.HTML/"
-            else
-              cmd="$CLI_PATH/cmf -l debug new $pkg"
+              args=(--businessPackage ./Cmf.Custom.Business/)
             fi
-            echo -e "\nRunning: $cmd"
-            $cmd
+            echo "Creating $pkg package"
+            "$CLI_PATH/cmf" -l debug new "$pkg" "${args[@]}"
           done
 
       - name: Run 'cmf build' for each package
         working-directory: ${{ env.VALIDATION_DIR }}
         run: |
           for pkg in ${{ matrix.packages-to-build }}; do
-            cmd="$CLI_PATH/cmf -l debug build $pkg"
-            echo -e "\nRunning: $cmd"
-            $cmd
+            echo "Building $pkg"
+            "$CLI_PATH/cmf" -l debug build "$pkg"
           done
 
       - name: Add validation package content
@@ -233,9 +193,8 @@ jobs:
         working-directory: ${{ env.VALIDATION_DIR }}
         run: |
           for pkg in ${{ matrix.packages-to-pack }}; do
-            cmd="$CLI_PATH/cmf -l debug pack $pkg"
-            echo -e "\nRunning: $cmd"
-            $cmd
+            echo "Packing $pkg"
+            "$CLI_PATH/cmf" -l debug pack "$pkg"
           done
 
   # Branch protection requires named checks, not the workflow's overall result.

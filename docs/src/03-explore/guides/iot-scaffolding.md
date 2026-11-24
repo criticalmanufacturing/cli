@@ -2,6 +2,8 @@
 
 This guide explains how to scaffold your IoT customization project for Critical Manufacturing MES. It covers both the modern **Automation Task Libraries (ATLs)** and the deprecated **Tasks Packages Libraries**.
 
+New IoT task libraries, drivers, and business scenario libraries include `@types/node` matching the Node.js major supported by the project's MES version. The generated dependency range stays within that major; existing packages are not modified.
+
 ## Key Concepts
 
 Before diving into the scaffolding procedures, let's define some key concepts:

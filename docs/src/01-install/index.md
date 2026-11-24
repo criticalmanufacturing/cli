@@ -18,13 +18,19 @@ Before you begin, ensure you have the following software installed:
 
 #### Node.js Version Compatibility
 
-`@criticalmanufacturing/cli` works with the latest Node.js version. However, specific scaffolding commands require compatibility with your target CM MES version:
+CM CLI 6 requires **Node.js 18 or later**. The npm package declares this minimum
+in `engines.node`, and the installer reports an error on older versions before
+modifying the installed CLI. Specific scaffolding commands also require
+compatibility with your target CM MES version:
 
 | CM MES Version | Required Node.js Version | Required NPM Version |
 |---|---|---|
 | v8.x or v9.x | v12.x (Erbium) | v6.x |
 | v10.x | v18.x (Hydrogen) | v9.x |
 | v11.x or later | v20.x (Iron) or later | v10.x or later |
+
+For MES v8/v9, use **CM CLI 5.8.0 or earlier** with Node.js 12 and npm 6.
+CM CLI 6 supports MES v10 and later.
 
 #### Installing Node.js and NPM
 
@@ -97,6 +103,10 @@ The development of IoT drivers on Critical Manufacturing MES has a dependency fo
     npm install -g @criticalmanufacturing/cli
     ```
 
+Upgrades replace the CLI binaries and bundled templates, removing files left over
+from previous versions. The installer prepares and validates the new files before
+replacing the existing installation. Project files are unaffected.
+
 ## 3. Validate
 
 1. Open a command prompt.
@@ -107,5 +117,25 @@ The development of IoT drivers on Critical Manufacturing MES has a dependency fo
     ```
 
 This command should output the installed version of `@criticalmanufacturing/cli` if successful.
+
+## Recover an interrupted upgrade
+
+If an upgrade is interrupted or its backup cannot be removed, the installer may
+leave a `.cmf-cli-*` directory beside `cmf-cli` under `node_modules/.bin`.
+Warnings and restoration errors report the specific directory. For a global
+installation, use `npm root -g` to locate `node_modules` for the active Node.js
+version.
+
+Retry the installation after resolving the original error. If `cmf` is missing,
+and no installer is running, you can restore the old version by moving the
+`previous` directory from the reported staging directory to its sibling
+`node_modules/.bin/cmf-cli` location. Preserve an existing `cmf-cli` directory separately first;
+do not merge the two trees. The `next` directory may contain an incomplete copy.
+
+Installation and uninstallation preserve orphaned staging directories because
+they may contain the only recovery copy or belong to another running installer.
+After verifying `cmf --version` and initialization in a new empty project, remove
+only the specific staging directories you have inspected and no longer need.
+Existing generated project files are not repaired by reinstalling the CLI.
 
 [Node-Gyp]: https://github.com/nodejs/node-gyp

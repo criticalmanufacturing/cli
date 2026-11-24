@@ -1,4 +1,5 @@
 using System.Linq;
+using System.IO.Abstractions;
 using Cmf.CLI.Core.Objects;
 
 namespace Cmf.CLI.Builders;
@@ -9,6 +10,15 @@ namespace Cmf.CLI.Builders;
 /// </summary>
 internal class SingleStepCommand : ProcessCommand, IBuildCommand
 {
+    /// <summary>
+    /// Creates a build command using the owning package's filesystem.
+    /// </summary>
+    /// <param name="fileSystem">The package filesystem.</param>
+    public SingleStepCommand(IFileSystem fileSystem = null)
+    {
+        this.fileSystem = fileSystem ?? new FileSystem();
+    }
+
     /// <summary>
     /// The build step executed by this command
     /// </summary>

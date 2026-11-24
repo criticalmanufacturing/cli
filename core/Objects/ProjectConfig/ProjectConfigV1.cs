@@ -2,6 +2,7 @@ using System;
 using System.Text.Json.Serialization;
 using Cmf.CLI.Core.Enums;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NuGet.Versioning;
 
 namespace Cmf.CLI.Core.Objects;
@@ -69,25 +70,37 @@ public class VersionStringConverter<T> : Newtonsoft.Json.JsonConverter<T>
 {
     public override T ReadJson(JsonReader reader, Type objectType, T existingValue, bool hasExistingValue, JsonSerializer serializer)
     {
-        if (reader.TokenType == JsonToken.Null || reader.Value is null)
+        if (reader.TokenType == JsonToken.Null)
         {
             return null;
         }
 
-        var value = reader.Value?.ToString();
+        var field = reader.Path;
+        var token = JToken.Load(reader);
+        var value = token.Type == JTokenType.String ? token.Value<string>() : token.ToString(Formatting.None);
         if (string.IsNullOrWhiteSpace(value))
         {
             return null;
         }
 
-        if (typeof(T) == typeof(NuGetVersion))
+        try
         {
-            return (T)(object)NuGetVersion.Parse(value);
-        }
+            if (typeof(T) == typeof(NuGetVersion))
+            {
+                return (T)(object)NuGetVersion.Parse(value);
+            }
 
-        if (typeof(T) == typeof(SemanticVersion))
+            if (typeof(T) == typeof(SemanticVersion))
+            {
+                return (T)(object)SemanticVersion.Parse(value);
+            }
+        }
+        catch (ArgumentException exception)
         {
-            return (T)(object)SemanticVersion.Parse(value);
+            var expected = typeof(T) == typeof(NuGetVersion)
+                ? CoreMessages.NuGetVersionExpectedFormat : CoreMessages.SemanticVersionExpectedFormat;
+            throw new JsonSerializationException(
+                string.Format(CoreMessages.InvalidVersionInput, field, string.Empty, value, expected), exception);
         }
 
         throw new NotSupportedException($"Unsupported version type: {typeof(T).FullName}");

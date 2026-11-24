@@ -1,9 +1,10 @@
+using System;
 using System.IO.Abstractions;
 using Cmf.CLI.Core.Constants;
 using Cmf.CLI.Utilities;
+using NuGet.Versioning;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using NuGet.Versioning;
 
 namespace Cmf.CLI.Core.Objects;
 
@@ -32,19 +33,50 @@ public class ProjectConfigService : IProjectConfigService
                     return null;
                 }
                 Log.Debug($"Loading .project-config.json");
-                var json = fileSystem.File.ReadAllText(projectCfg);
-                var jsonObject = JObject.Parse(json);
-                var mesVersion = NuGetVersion.TryParse(jsonObject.Value<string>("MESVersion"), out var parsedVersion)
-                    ? parsedVersion
-                    : null;
-                var projectConfigType = mesVersion != null && mesVersion.Major >= 12
-                    ? typeof(ProjectConfigV2)
-                    : typeof(ProjectConfigV1);
-                this.ProjectConfig = (ProjectConfig)JsonConvert.DeserializeObject(json, projectConfigType);
+                this.ProjectConfig = Load(fileSystem.FileInfo.New(projectCfg));
                 Log.Debug($"Loaded .project-config.json");
                 isInsideProject = true;
             }
         }
         return this.ProjectConfig;
+    }
+
+    /// <summary>Loads and validates a configuration file without using the current project cache.</summary>
+    /// <param name="projectConfigFile">The configuration file to load.</param>
+    /// <returns>The validated project configuration.</returns>
+    public ProjectConfig Load(IFileInfo projectConfigFile)
+    {
+        using var reader = projectConfigFile.OpenText();
+        var json = reader.ReadToEnd();
+        ProjectConfig projectConfig;
+        string mesVersionText = null;
+        try
+        {
+            var jsonObject = JObject.Parse(json);
+            var mesVersionProperty = jsonObject.Property(nameof(ProjectConfig.MESVersion), StringComparison.OrdinalIgnoreCase);
+            mesVersionText = mesVersionProperty?.Value.ToString();
+            var mesVersion = string.IsNullOrWhiteSpace(mesVersionText)
+                ? null
+                : NuGetVersion.Parse(mesVersionText);
+            var projectConfigType = mesVersion?.Major >= 12
+                ? typeof(ProjectConfigV2)
+                : typeof(ProjectConfigV1);
+
+            // Reuse the version parsed for model selection instead of parsing it again during deserialization.
+            mesVersionProperty?.Remove();
+            projectConfig = (ProjectConfig)jsonObject.ToObject(projectConfigType);
+            projectConfig.MESVersion = mesVersion;
+        }
+        catch (ArgumentException exception)
+        {
+            var message = string.Format(CoreMessages.InvalidVersionInput, nameof(ProjectConfig.MESVersion),
+                string.Empty, mesVersionText, CoreMessages.NuGetVersionExpectedFormat);
+            throw new CliException(string.Format(CoreMessages.InvalidProjectConfiguration, projectConfigFile.FullName, message), exception);
+        }
+        catch (JsonException exception)
+        {
+            throw new CliException(string.Format(CoreMessages.InvalidProjectConfiguration, projectConfigFile.FullName, exception.Message), exception);
+        }
+        return projectConfig;
     }
 }

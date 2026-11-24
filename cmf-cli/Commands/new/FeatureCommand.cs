@@ -79,9 +79,10 @@ namespace Cmf.CLI.Commands.New
         /// <param name="version"></param>
         public void Execute(IDirectoryInfo workingDir, string packageName, string version)
         {
+            CommandUtilities.ThrowIfNoProjectConfig(ExecutionContext.Instance);
             if (workingDir == null)
             {
-                throw new CliException("This command needs to run inside a project. Run `cmf init` to create a new project.");
+                throw new CliException(CliMessages.ProjectContextRequired);
             }
             var featurePath = this.fileSystem.Path.Join(workingDir.FullName, "Features");
             var args = new List<string>()

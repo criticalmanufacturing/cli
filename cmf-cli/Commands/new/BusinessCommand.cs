@@ -70,6 +70,7 @@ namespace Cmf.CLI.Commands.New
         /// <exception cref="CliException"></exception>
         public void Execute(IDirectoryInfo workingDir, string version, bool addApplicationVersionAssembly)
         {
+            CommandUtilities.ThrowIfNoProjectConfig(ExecutionContext.Instance);
             if (ExecutionContext.Instance.ProjectConfig.RepositoryType != RepositoryType.App && addApplicationVersionAssembly)
             {
                 throw new CliException("Application version assembly should only be included in app projects.");

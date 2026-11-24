@@ -196,6 +196,8 @@ This type doesn't have any predefined BuildStep, Step or ContentToPack, so it wi
 
 Array of terminal commands *(similar to [package.json scripts](https://docs.npmjs.com/cli/v10/configuring-npm/package-json#scripts))* that will be used to build the package during the `cmf build` command execution.
 
+When a build step omits `workingDirectory`, it runs in the directory containing the package's `cmfpackage.json`, even when the CLI is invoked from another directory. Explicit `workingDirectory` values retain their existing behavior.
+
 Example:
 
 ```json

@@ -1,3 +1,4 @@
+using Cmf.CLI.Services;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Commands;
@@ -66,6 +67,7 @@ namespace Cmf.CLI.Commands.New.IoT
         /// <param name="htmlPackageLocation">location of html package</param>
         public void Execute(IDirectoryInfo workingDir)
         {
+            CommandUtilities.ThrowIfNoProjectConfig(ExecutionContext.Instance);
             if (workingDir == null)
             {
                 throw new CliException("This command needs to run inside an iot project. Run `cmf new iot` to create a new project.");
@@ -135,6 +137,7 @@ namespace Cmf.CLI.Commands.New.IoT
                 "--packageName", packageName,
                 "--packageVersion", packageVersion,
                 "--npmRegistry", ExecutionContext.Instance.ProjectConfig.NPMRegistry.ToString(),
+                "--nodeVersion", ExecutionContext.ServiceProvider.GetService<IDependencyVersionService>().Node(ExecutionContext.Instance.ProjectConfig.MESVersion),
                 "--hasCommands", hasCommands.ToString(),
                 "--hasTemplates", hasTemplates.ToString()
             });

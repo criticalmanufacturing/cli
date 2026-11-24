@@ -33,11 +33,6 @@ async function getInstallationPath() {
     return dir;
 }
 
-async function verifyAndPlaceBinary(binName, binPath, callback) {
-    if (!fs.existsSync(path.join(binPath, binName))) return callback('Downloaded binary does not contain the binary specified in configuration - ' + binName);
-    return callback(null);
-}
-
 /**
  * Downloads and extracts a zip file from the given URL to the destination path
  * @param {string} pkgUrl - The URL to download from
@@ -83,10 +78,13 @@ async function downloadAndExtract(pkgUrl, dest) {
  */
 var INVALID_INPUT = "Invalid inputs";
 async function install(callback) {
-    var opts = parsePackageJson(".");
+    if (Number(process.versions.node.split(".")[0]) < 18) {
+        return callback(new Error("CM CLI 6 requires Node.js 18 or later. For MES 8/9, use CM CLI 5.8.0 or earlier with Node.js 12."));
+    }
+    var opts = parsePackageJson(__dirname);
     if (!opts) return callback(INVALID_INPUT);
     console.info(`Copying the relevant binary for your platform ${process.platform}`);
-    const src = `./dist/${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}`;
+    const src = path.join(__dirname, "dist", `${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}`);
     const sourceBinaryPath = path.join(src, opts.binName);
 
     // If dist exists but does not contain the expected binary for this platform,
@@ -127,15 +125,52 @@ async function install(callback) {
     }
 
     const installPath = await getInstallationPath();
-    if (process.platform === "win32") {
-        debug("Installing for windows");
-        await execShellCommand(`robocopy ${src.replace(/\//g, "\\")} "${installPath}" /e /is /it`, [1]);
-    } else {
-        debug("Installing for *NIX: " + process.platform);
-        await execShellCommand(`cp -r ${src}/. "${installPath}"`);
-        await execShellCommand(`chmod +x "${installPath}/cmf"`);
+    try {
+        replaceInstallation(src, installPath, opts.binName);
+    } catch (err) {
+        return callback(err);
     }
-    await verifyAndPlaceBinary(opts.binName, installPath, callback);
+    return callback(null);
+}
+
+function replaceInstallation(src, installPath, binName) {
+    // Stage a complete package before touching the installed version. Merging
+    // directories leaves deleted/renamed templates behind after an upgrade.
+    const stagingPath = fs.mkdtempSync(path.join(path.dirname(installPath), ".cmf-cli-"));
+    const nextPath = path.join(stagingPath, "next");
+    const previousPath = path.join(stagingPath, "previous");
+    let preserveBackup = false;
+    try {
+        fs.cpSync(src, nextPath, { recursive: true });
+        const binaryPath = path.join(nextPath, binName);
+        if (!fs.existsSync(binaryPath)) {
+            throw new Error('Downloaded binary does not contain the binary specified in configuration - ' + binName);
+        }
+        if (process.platform !== "win32") {
+            fs.chmodSync(binaryPath, fs.statSync(binaryPath).mode | 0o111);
+        }
+
+        fs.renameSync(installPath, previousPath);
+        try {
+            fs.renameSync(nextPath, installPath);
+        } catch (err) {
+            try {
+                fs.renameSync(previousPath, installPath);
+            } catch (restoreError) {
+                preserveBackup = true;
+                err.message += ` Previous installation preserved at ${previousPath}: ${restoreError.message}`;
+            }
+            throw err;
+        }
+    } finally {
+        if (!preserveBackup) {
+            try {
+                rimraf.sync(stagingPath);
+            } catch (cleanupError) {
+                console.warn(`Could not remove installer staging directory ${stagingPath}: ${cleanupError.message}`);
+            }
+        }
+    }
 }
 
 async function uninstall(callback) {
@@ -158,29 +193,10 @@ var actions = {
     "uninstall": uninstall
 };
 
-/**
- * Executes a shell command and return it as a Promise.
- * @param cmd {string}
- * @return {Promise<string>}
- */
-function execShellCommand(cmd, valid_error_codes = null) {
-    const exec = require('child_process').exec;
-    return new Promise((resolve, reject) => {
-        exec(cmd, (error, stdout, stderr) => {
-            if (error) {
-                let shouldPrint = true;
-                if (valid_error_codes != null) {
-                    shouldPrint = valid_error_codes.indexOf(error.code) < 0;
-                }
-                shouldPrint && console.warn(error);
-            }
-            resolve(stdout? stdout : stderr);
-        });
-    });
-}
+module.exports = { install, uninstall };
 
 var argv = process.argv;
-if (argv && argv.length > 2) {
+if (require.main === module && argv && argv.length > 2) {
     var cmd = process.argv[2];
     if (!actions[cmd]) {
         console.log("Invalid command. `install` and `uninstall` are the only supported commands");
