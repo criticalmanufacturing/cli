@@ -8,6 +8,10 @@ on:
     paths-ignore:
       - 'features/**'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   NG_CLI_ANALYTICS: false
   CRITICALMANUFACTURING_IO_USER: ${{ vars.CRITICALMANUFACTURING_IO_USER }}
