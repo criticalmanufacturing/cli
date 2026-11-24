@@ -59,6 +59,14 @@
     <value>Failed to publish package {0}: {1}</value>
     <comment>0 - Package reference; 1 - Underlying error</comment>
   </data>
+  <data name="PackageDownloadTimedOut" xml:space="preserve">
+    <value>Download of package {0}@{1} timed out after {2} seconds.</value>
+    <comment>0 - Package name; 1 - Package version; 2 - Effective timeout in seconds</comment>
+  </data>
+  <data name="InvalidPackageDownloadTimeout" xml:space="preserve">
+    <value>CMF_PACKAGE_DOWNLOAD_TIMEOUT_SECONDS must be a whole number of seconds between 1 and 900 and received '{0}'.</value>
+    <comment>0 - Configured timeout value</comment>
+  </data>
   <data name="InvalidJwtPayload" xml:space="preserve">
     <value>Invalid format JWT token, payload is missing or invalid.</value>
   </data>
