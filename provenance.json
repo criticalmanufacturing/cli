@@ -11,25 +11,25 @@
     {
       "name": "01-install/index.html",
       "digest": {
-        "sha256": "41e5fcc5c6d845cf1f38675afef6e342710bef2617fe78bc2c50af9a241a185c"
+        "sha256": "9b199b57534b5d0accbdcdf037f2e941738cc840a8fedc16e985e0dc4b2bbc3b"
       }
     },
     {
       "name": "02-learn/concepts/index.html",
       "digest": {
-        "sha256": "64959a1b4fe31fbfae992f9bf42ba5e9a644670256c77f8efab8ee0050bb8a22"
+        "sha256": "a480825d70cfb01d2e4b3873c1d517a68cba2f180a889b3ec424a46326167c7c"
       }
     },
     {
       "name": "02-learn/concepts/layers-packages/index.html",
       "digest": {
-        "sha256": "69c0c6a392cb253bc494318e84aba84df52957f11b592e9732c3dfbfd0f6fc26"
+        "sha256": "b34d3b49e347a7d5a1ab7f473ab4274d293e13c944d4ae57acb04d1ee195ab48"
       }
     },
     {
       "name": "02-learn/concepts/project-scaffold/index.html",
       "digest": {
-        "sha256": "ea8bf3a1184043d41008bbb1ffb9925cc45377ae18b6c0ba75cbf4b21566bb18"
+        "sha256": "455220bfad2281167171f0a843118d44c5ec7a5ad7a35bf5a90600e41e65a698"
       }
     },
     {
@@ -41,301 +41,313 @@
     {
       "name": "02-learn/concepts/project-types/index.html",
       "digest": {
-        "sha256": "b05a96246b70edfb7b2defc025f029a434c0111dca758749ed6cb7c6ae162b5e"
+        "sha256": "2d9a508ceef8092ad9b88b6b3373f83bf974298861816b3173d454d2e6fdebfa"
       }
     },
     {
       "name": "02-learn/concepts/release-process/index.html",
       "digest": {
-        "sha256": "1d3f1050378c98b6e5c64c74a6da13f73b71151b8872e6c51b9f12606e85fffc"
+        "sha256": "a3431c76699c37a3debc9f788bf20a5d30f69cf5a9db30907a0eb5317adc89a8"
       }
     },
     {
       "name": "02-learn/help/index.html",
       "digest": {
-        "sha256": "c3888a343fddc5801aa0c267d3ebf0133bbf52a13415bc36c07dfca54d013597"
+        "sha256": "58c1ff22f7146c78a33d796d4872804506442b4ab6d50e9aef08fc999b43b239"
       }
     },
     {
       "name": "02-learn/index.html",
       "digest": {
-        "sha256": "b9cd43468144dab7345db53607e0eeab205f4417e70735dce4e842cc03ca6f55"
+        "sha256": "c433a63944461cc5620a9467d1f9097bfbcf222ab33a0c1d4df2587aad98337a"
       }
     },
     {
       "name": "02-learn/migration/index.html",
       "digest": {
-        "sha256": "53c80d3eee4c831b58dd6829d98941379c3ad9e75e0a4933f4959a0a9aa0e958"
+        "sha256": "a671015c7b476c8d5411fca805d7b8a35a32f75f710a3a60fc1bf802ca79604d"
       }
     },
     {
       "name": "02-learn/migration/migration-v3/index.html",
       "digest": {
-        "sha256": "399d9a29fc2fdcc91e998ea030752bd29845101f247ce9014304159812219171"
+        "sha256": "3c824067bf8f51ba73eaddabbf664c734624973112adb2c2a0532d52444f6283"
       }
     },
     {
       "name": "02-learn/tutorials/1-scaffolding/1-project-init/index.html",
       "digest": {
-        "sha256": "e22d886dea23868cdbfe9397019e9fe4c57e97c5e8cd8a3a0e8f0463055703a0"
+        "sha256": "3c85d30be3c8f1d2cf09b4dab3e6e72653491e638d8bd77d0cfed0cba12c10cc"
       }
     },
     {
       "name": "02-learn/tutorials/1-scaffolding/2-project-scaffold/index.html",
       "digest": {
-        "sha256": "1ea20de675826d0ef2c1d2c94c0e3fbeb132f6ab14920b761a08c0e6ede3c1b4"
+        "sha256": "31fd6be3015342ed52bc42d1aba966c164b2f6433f6932683f653121b8581e34"
       }
     },
     {
       "name": "02-learn/tutorials/1-scaffolding/3-post-scaffolding/index.html",
       "digest": {
-        "sha256": "2daba39ed633717fabd88ba5e563a0f5773e40c5474e8478626ed3ef2a5872fb"
+        "sha256": "73b7dbd1c2c9ca23b3fddd2e0071a8c30dfc212b5c75ef92b4aaa2a137ac3383"
       }
     },
     {
       "name": "02-learn/tutorials/1-scaffolding/index.html",
       "digest": {
-        "sha256": "29172e60858d77906c48875e7e8c880019150959d829a735a8671755e11a5ba2"
+        "sha256": "e838c7b22f4e00bf555f3d9a3ab8c90b7dad70964a645c163e25a554ed512980"
       }
     },
     {
       "name": "02-learn/tutorials/2-building-and-release/index.html",
       "digest": {
-        "sha256": "f0889789d0db0b5fcebf1d16b8b2e0de728b55335b41a21a4cf8f9a38d425207"
+        "sha256": "9fefa565b9c2270f48d00a38f77f52eca2b886f1784c000c24451897193a9d56"
       }
     },
     {
       "name": "02-learn/tutorials/index.html",
       "digest": {
-        "sha256": "038975d4953f9e39a0fbd3311c51e65b8e017e2907a8c06cb4994cccf94f1628"
+        "sha256": "e110f20f64b3f355001fc2b32b39b2845bd97f29644d6bbaf8147a3569aee2d1"
       }
     },
     {
       "name": "03-explore/commands/assemble/index.html",
       "digest": {
-        "sha256": "b8063c3786ec4ba31b5fae71d280769b243e9e71438fdd8075b5620aad24e792"
+        "sha256": "a0799a9e64516d40709b4c09465bd26cda09236a37c855f8bd16eef395b4fde3"
       }
     },
     {
       "name": "03-explore/commands/build/index.html",
       "digest": {
-        "sha256": "85a9a27ef0a94e721ae9becc2b37a8344151be1fa9dd5f05b17ab2495f577ffc"
+        "sha256": "db0fc22dfe9e38f319456b20fe743548422527725e0f5b0ab7ea59c0901ab4d3"
       }
     },
     {
       "name": "03-explore/commands/build_help/index.html",
       "digest": {
-        "sha256": "665f3051f0cf8ef9fbd717a645ac610d3c34b9dc1eed13ed2f546bd138dbc5c9"
+        "sha256": "1b0c2dbfd02e5521bd241037ea36fe93bc4c39ff52e0ec8ccfedf8057aa5d7cb"
       }
     },
     {
       "name": "03-explore/commands/build_help_generateBasedOnTemplates/index.html",
       "digest": {
-        "sha256": "1d79d471265e7f7bc614c45ce43b1a0ad757790958d54dc7c862ef0aaaa3637c"
+        "sha256": "f78b6bc126a8c41de975f604a920d6d58e8562fc4f6e038745f52a2d3c616f0d"
       }
     },
     {
       "name": "03-explore/commands/build_help_generateMenuItems/index.html",
       "digest": {
-        "sha256": "c6f2695d6e16f719b48a9eacf76d717ce40509bdbbb795d490e99de497041b1a"
+        "sha256": "5deee64b5acd84624a5422b6054b08d051398f68f08b787afde2882fc71108cc"
       }
     },
     {
       "name": "03-explore/commands/bump/index.html",
       "digest": {
-        "sha256": "2a5d40c61650831868ad0a90bea71251512e202bdf02c2aa47bcf192debeb796"
+        "sha256": "7763cd39aeee119023545378116fd04e8e2db3d2ffee45045febf24903682a4f"
       }
     },
     {
       "name": "03-explore/commands/bump_iot/index.html",
       "digest": {
-        "sha256": "3bd3dfea0d6c703728286342a5d98f7860f54863973f5b1cac3695f37e2709dd"
+        "sha256": "dc70cf6e0224546b3a0e807d8c69e739f456ad69df7012e240b7dcf881d1b6e6"
       }
     },
     {
       "name": "03-explore/commands/bump_iot_configuration/index.html",
       "digest": {
-        "sha256": "48369bb49cb8a942f335e68090ba247af82db4316fd21c9bd7a72cd2cbafc8b3"
+        "sha256": "d8509d7b4244680d8ef9efdccd2350fbc228b3134c7979d7fd9b90d45dcea789"
       }
     },
     {
       "name": "03-explore/commands/bump_iot_customization/index.html",
       "digest": {
-        "sha256": "e1a711b9088782a6e4d45022496846ff1607fec4f4ba4066ae694b74929ad102"
+        "sha256": "3ea362645f1c5292a02ccf92f72485993c1b48bea75378fb998185b3a7251bd5"
       }
     },
     {
       "name": "03-explore/commands/init/index.html",
       "digest": {
-        "sha256": "ed0b517b75b4bc2cf98cbdf7091d477b83ed367db2d4e43de87019c022256bf5"
+        "sha256": "f20f0fa1ff481ccf93c5892a3c10977e5d89ef97910d7db986c4affdf275e402"
       }
     },
     {
       "name": "03-explore/commands/login/index.html",
       "digest": {
-        "sha256": "b3de6c5a7d28c12d8598c20bcab93531e52a6af9979451f7d5c6e8458a4b7e0c"
+        "sha256": "bf7997a895088be797f665cffa535fea660eef2fbd6c40ab45014d7834390f3f"
       }
     },
     {
       "name": "03-explore/commands/login_sync/index.html",
       "digest": {
-        "sha256": "59642f7521dc8950e4ff92e5860ce05896e0731de1e4f5dbdff3a8c0e8e7f684"
+        "sha256": "2274695f843c4d6d8f3bd82e49bca9fb23b60c94b789060952eeecb990c9d9dc"
       }
     },
     {
       "name": "03-explore/commands/ls/index.html",
       "digest": {
-        "sha256": "68a05aa3ff40e6d2d979d786e2376f10f793820e265c1a84211c0e4276722769"
+        "sha256": "8e60b0fec32c6adacb02e101ef3fe7b33be7ddfc007e1b1660220a13b590dbaf"
       }
     },
     {
       "name": "03-explore/commands/new/index.html",
       "digest": {
-        "sha256": "6ca3fa1f2cd6718b326bc7a951f8963a5cd305e4080093254e432271c25f1164"
+        "sha256": "b474d98da803bbbe9c418fd9285bbfb0a68cb07a7401c1c4249d2ec7b6a316ca"
       }
     },
     {
       "name": "03-explore/commands/new_business/index.html",
       "digest": {
-        "sha256": "afab860da4a7fc182afff5c5712a54990ccdecac11a704170b21cd996715317c"
+        "sha256": "2479be470c811de092e90f6828c3e31977e90c7d4e9e4ba35d7bb887b9135936"
       }
     },
     {
       "name": "03-explore/commands/new_data/index.html",
       "digest": {
-        "sha256": "54435523ac97864219d82a20f17d62514d9b55394becfd8852a482b77e915844"
+        "sha256": "1062c490ce37bc9375672b237a0325777c4d7be6976e021a7439c517ef1ae8fa"
       }
     },
     {
       "name": "03-explore/commands/new_database/index.html",
       "digest": {
-        "sha256": "163a86f33230b149792fa72a6451f1a2d7f142a8c86e313dfa4057a1b0033906"
+        "sha256": "969abc036c30793c5bf8bec2c2974f180fd01b42f27637373971e393e6da918d"
       }
     },
     {
       "name": "03-explore/commands/new_feature/index.html",
       "digest": {
-        "sha256": "5daff54f1f608d496247af64f2cab1ee6a42a345757dfa960c82b045ccc4e423"
+        "sha256": "69de14c9ab8698fd16216dafc267c7718a90fe0bfec098aa7a4e07fe8e3a085b"
       }
     },
     {
       "name": "03-explore/commands/new_help/index.html",
       "digest": {
-        "sha256": "b273e1ac5850c248a34f3b746daa07873c8b3e02b8b0036b2cd34ccd9d09693a"
+        "sha256": "c50f9cbe76ebdd0534bd003c4e88b06ca23af1ccf9a6c347a984b955550efd4e"
       }
     },
     {
       "name": "03-explore/commands/new_html/index.html",
       "digest": {
-        "sha256": "ea77de53dd9966bed019d270c0bbf29b22a91e607b8deb1807f347beffd8f55d"
+        "sha256": "e7290c089d89c21e9b0c90f70fd543e63e5dc14f4022dcef66fce2dcbfe89a1a"
       }
     },
     {
       "name": "03-explore/commands/new_iot/index.html",
       "digest": {
-        "sha256": "23028173936ce491a5540986fb7daf2859949bbec8974bc89848fdfdbbe72703"
+        "sha256": "05619c68b2baadda5c996cdebd76b99f57cbaba0a542b806e680d1d3639a81f1"
       }
     },
     {
       "name": "03-explore/commands/new_iot_businessScenario/index.html",
       "digest": {
-        "sha256": "4446b0ad668313550dbc9ff5b7063395c53658fbd255fedc7fff62dadb9fae17"
+        "sha256": "038521f7ac448463fadbd19302132988ac26cc920f209396a079f7f181367261"
       }
     },
     {
       "name": "03-explore/commands/new_iot_converter/index.html",
       "digest": {
-        "sha256": "41f99ec720d36a95b5288286319d6890789da85ff238e536f25a3b0a56abf9f6"
+        "sha256": "0ed0d1351a213ca9d5fd7088ac6b00b5883f2105c6268fdcd0e4c8443b9ea7d8"
       }
     },
     {
       "name": "03-explore/commands/new_iot_driver/index.html",
       "digest": {
-        "sha256": "103cc5cddb8c6f089e50ae44a1b12c897053fc671038fc2efb73e657c97331c0"
+        "sha256": "2c52fa2d458d87d6cb3345be14737a6b057797c9824cc71cf7d9a0eb65b2add4"
       }
     },
     {
       "name": "03-explore/commands/new_iot_task/index.html",
       "digest": {
-        "sha256": "83692ff01006fbf0a8fa9e542fcc635608a419f173ccab82515b26f0598ed4dc"
+        "sha256": "a6219f60692012078e6e3a5026dc74efe8049830f31268fbb63ab696d4d30b47"
       }
     },
     {
       "name": "03-explore/commands/new_iot_taskLibrary/index.html",
       "digest": {
-        "sha256": "e84b9d969c6d2f7edfaff7d567666bf1bf084274b2a1fe54bca990a0dcc98148"
+        "sha256": "8407edb8a2c60b92c7cd6742feabb0639aa08ff46d546e8ddf219c194dc0aa5b"
       }
     },
     {
       "name": "03-explore/commands/new_test/index.html",
       "digest": {
-        "sha256": "de8406498953079bb2644fc0638bd6a03bf44f3008ef57d89e08b2f4a9e4783e"
+        "sha256": "d884a948c0f0fc7e1ceb105728df455b949b5306257a3e2634abdf25a3044a6e"
       }
     },
     {
       "name": "03-explore/commands/pack/index.html",
       "digest": {
-        "sha256": "f9bb52859a86d12f99f1ae61c73220e422e815d9d1e8479b8e2d20f0624cf82a"
+        "sha256": "eb0bc230f4b959cb5ae9d5a550a9d0ab497f85ba48d80a1d8ba2082e38847284"
       }
     },
     {
       "name": "03-explore/commands/restore/index.html",
       "digest": {
-        "sha256": "2ddd35c50489087997c936e84a9dd926657f918fcb122029b26f5f6b9bf1092f"
+        "sha256": "9271ba37025e1522ffd92b01f91acccc4c84da184c6d071a40036a4403c901b2"
+      }
+    },
+    {
+      "name": "03-explore/commands/upgrade_base/index.html",
+      "digest": {
+        "sha256": "b5d68e124cc670b7c5da8d2773b31ba26a59d0c6e08fe7b171caa8e9b19859c1"
       }
     },
     {
       "name": "03-explore/config-files/cmfpackage.json/contenttype/index.html",
       "digest": {
-        "sha256": "64b4a2ffdb994a15e4e0ff9d35c66f3ac12881828ec1b2f7292ba3310b35b56e"
+        "sha256": "7e34cbd3cd76239126d2194ba37f2fb30b4a91891b2e7b7003c92dbfd75e6cbb"
       }
     },
     {
       "name": "03-explore/config-files/cmfpackage.json/defaultcontenttoignore/index.html",
       "digest": {
-        "sha256": "780ed6117c2a35742df48b03d471cd623622288eaaf5d68d20b33938b5f3c74a"
+        "sha256": "f5c872df69da9afbfbacab9d8333040cc6c1e26f223b233971ce485ef0e32af3"
       }
     },
     {
       "name": "03-explore/config-files/cmfpackage.json/grafana-plugins/index.html",
       "digest": {
-        "sha256": "a7c94db6e744640a850cdfa6205d128a6d20d1a889dc3bd04969062730af830d"
+        "sha256": "fd79284d4b318b98e07b1464f5836d5bf9c82f2404df6c63a59e0ae5383714b6"
       }
     },
     {
       "name": "03-explore/config-files/cmfpackage.json/html-transformations/index.html",
       "digest": {
-        "sha256": "82eebb103dfabe852196582efb5bb40e6a9317f6e5057a55e9b13e711e25a773"
+        "sha256": "3a4eed3900cf1198da5ca59f1ffda1e6d727b0e4993eff927640c28207bd257d"
       }
     },
     {
       "name": "03-explore/config-files/cmfpackage.json/index.html",
       "digest": {
-        "sha256": "0090dd3fae690dba57a1d9326b2921d39c0dad63e3f7c9a2d57c4c779b1dccce"
+        "sha256": "07fab846e798caeb77cb17ef6031528ce412231180102b7ed5d27c2d333e612e"
       }
     },
     {
       "name": "03-explore/config-files/cmfpackage.json/packaction/index.html",
       "digest": {
-        "sha256": "0c7704cd3ab3d10177db871195c10c519e15f9e03e4854e0c8d0342bb66906bf"
+        "sha256": "64dd153201eeab03d083da1d997fe6dede90f9aa1e6173dc6e7f7f5236f2014e"
       }
     },
     {
       "name": "03-explore/config-files/cmfpackage.json/packagetype/index.html",
       "digest": {
-        "sha256": "bd0eaaf35224c05ff747111120614188752117ee22c256d6da7e442e7f4a588d"
+        "sha256": "c66537e0331a467f887b7ca1351b7a980896c3edc05c1abea7b08799b5b06491"
       }
     },
     {
       "name": "03-explore/config-files/infrastructure.json/index.html",
       "digest": {
-        "sha256": "1fbd61eaa69de40e2e3e8204ced8b74f97634632d55f54bd880c47651198d884"
+        "sha256": "11da0b29ea1411c7480f67b5b621fd3fbb5846e2c94ab1bd7ec4b740d7cd003b"
+      }
+    },
+    {
+      "name": "03-explore/config-files/project-config.json/index.html",
+      "digest": {
+        "sha256": "4e3efb329b131ad8d0914d724d6b8e7398674ba26bfe9fc02f0922bad839d48c"
       }
     },
     {
       "name": "03-explore/config-files/repositories.json/index.html",
       "digest": {
-        "sha256": "544b6a27803cc02ef3172effa33687b75a90cc8c28d45c202cb06178a40ff1a9"
+        "sha256": "bf78d3f7e5f051826342ccfa43a40c01c828c54820f9dbe39ed5470c4b94a0e0"
       }
     },
     {
@@ -389,31 +401,31 @@
     {
       "name": "03-explore/guides/iot-scaffolding/index.html",
       "digest": {
-        "sha256": "26a4d3cfe112a4efdec1fb01f1215f88557b48c4212f74c4a08487d99c85bc18"
+        "sha256": "0f03ae65f343bc4ac26836bd05fa5ddc5c0a417c2789b947ac877c9b59a6000e"
       }
     },
     {
       "name": "03-explore/index.html",
       "digest": {
-        "sha256": "9461dce8514a30b8535185725c6d538a9b71e71b29bb397f99d2071b74193575"
+        "sha256": "e9537a295f4feb6d9ab2bee77fde7d01cfbcb9878702de7184d607d103fb163e"
       }
     },
     {
       "name": "03-explore/plugins/index.html",
       "digest": {
-        "sha256": "bed4ff910bd4fbfb15c218a67aeb10045bf68bc14ff4396bb8e6808300e01f8a"
+        "sha256": "060f5602263d7e1e79e0202e2f4db3e34ab3d97c519700344a47e6dd173d6812"
       }
     },
     {
       "name": "03-explore/telemetry/index.html",
       "digest": {
-        "sha256": "abc0dac9c5e0f512f6670f05377e0e747619d222c64c4772a87d8ac07b44dfd5"
+        "sha256": "aa36cc08858fddc6c823cc9cfd1b1c7eaf9c702f3637f6feb846fe38ba2e3122"
       }
     },
     {
       "name": "404.html",
       "digest": {
-        "sha256": "082ce64f568966a2bfaaf5f990fcc02a37fbbc8030966d7726437cc547b9dd84"
+        "sha256": "d3a715bbfd99a6d58a899a9e0bce77d312d5192ea8f3b300b0ed03af060e09a0"
       }
     },
     {
@@ -755,25 +767,25 @@
     {
       "name": "index.html",
       "digest": {
-        "sha256": "2ac52c7cd141093eef4b558b927c3a1eaa5516bcb01f89c4382c908e331a45c6"
+        "sha256": "16f7f3587d72c035545ff3f20ef0e30db3fb5ef1aae18a5064c56daf63ce42bc"
       }
     },
     {
       "name": "search/search_index.json",
       "digest": {
-        "sha256": "615e507483a169f75216cb82fe2eeba3c48d2549331024eff7bddc7d795969e4"
+        "sha256": "522193682b2db772d83427377cca8fb35598445fd4adc23afc7aef40af269ded"
       }
     },
     {
       "name": "sitemap.xml",
       "digest": {
-        "sha256": "3db317ae2a9f32b44567f50741deeb25f33fdb6480f132aa1be6d38db5b3aace"
+        "sha256": "fb0cee7bc03df59205763ef8558b456c0240ca1e2ebd95b8aa7788973b888cba"
       }
     },
     {
       "name": "sitemap.xml.gz",
       "digest": {
-        "sha256": "3fc24907a0907b47ceaffb318349846b1db2982263d7fd780a8de2fa7b05dd6a"
+        "sha256": "b896ba82a09d22b0dc71fc9f157cd02f54f2e1066a5b98b5912d91a2cdbe5026"
       }
     },
     {
@@ -790,13 +802,13 @@
         {
           "uri": "pkg:docker/docker/dockerfile@1",
           "digest": {
-            "sha256": "4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e"
+            "sha256": "572cebbc2b15e6f84c077742952674889cb63cd5e9b80abdffcbe587b6f19183"
           }
         },
         {
           "uri": "pkg:docker/python@3.13-slim-trixie?platform=linux%2Famd64",
           "digest": {
-            "sha256": "09a17cad02668ae61ece136b4fd36ac3849e14f670ebedb637ea3e15580525bc"
+            "sha256": "7249d5587b78209a006dc4a3b5340678f84ea729239193aa559962cd8c1fce50"
           }
         }
       ],
@@ -828,7 +840,7 @@
                 "target": "export",
                 "vcs:localdir:context": "docs",
                 "vcs:localdir:dockerfile": "docs",
-                "vcs:revision": "e5c401893e6618ea09114a6e23b3838a3910a036",
+                "vcs:revision": "386f315bd76b277e2b59cb196a0597519e181732",
                 "vcs:source": "https://github.com/criticalmanufacturing/cli"
               }
             }
@@ -839,16 +851,16 @@
       "internalParameters": {
         "buildConfig": {
           "digestMapping": {
-            "sha256:1deabe680a8032a4fab639c1b95e3cdf7026c28eac06974836855763d02911b3": "step3",
-            "sha256:4367ed0aa90d9f79fa0c6c5c4f2934951ffe9e13dd24623300380650d45e9951": "step7",
-            "sha256:91844d41712ede778e99ed17c60211e4da192a79cdf9be043e5234cf5cdea24f": "step4",
-            "sha256:9c71cf0cda2c0ea5e60e29105058e92a9c5111d60f84806d06307b44853aa8aa": "step6",
-            "sha256:bfe4ab42d2138fe4906d898085282c04f02b0fa8216586f7b7ad4f087471374d": "step2",
-            "sha256:c2c3cdff937b0400a2188afaf3120ad886b1719931e0127ae9823d679fac3ece": "step8",
-            "sha256:d80e08bc830c203fc63982b0b9e26b0f506188f10d4cbf062ac6b870db54276e": "step0",
-            "sha256:dd88ee120df7d62b0d41bd0b78f11e6fec1aa0d273390d51baea32aaa7cd8ce3": "step9",
-            "sha256:e65b44a0fcee949a89d4e92b85aa5c85357a6246720d5d4930b0b9cdb4e2cf71": "step1",
-            "sha256:f2f1ef3f8bbc5f251427711243a0c135f950b4be0ed1bc563f634cc9693f122d": "step5"
+            "sha256:1a4f6093a2c165015c07cad747803e919c288be732001fff13dedee81acbb6b3": "step3",
+            "sha256:2da8a2a6ccdaac851aeaaa70a7a0d5058fb2436e2c424c8f41cf2d74908fa3f9": "step1",
+            "sha256:5668a287e725aaf42713ba38e615f2e603d69f7a63c8a401393ffd155161f7bc": "step2",
+            "sha256:858aaa8690dab55d9374d7684e74b98c7bf7a5e135dfb3fde763db23f0bb5054": "step9",
+            "sha256:9b2f77095e173fd2f03a8b9c5b73e7cda504dcb67a642e4a37381a844213cc84": "step7",
+            "sha256:b98eeb4c617af6ec423f620931cbca92f431b6a609f11390d8c493d13ee64c12": "step6",
+            "sha256:be96d2766c693775a9a8e5cef489ca5450f6f148ebe6b8146414fe8a56804138": "step8",
+            "sha256:cb7821b4610f40ac5b4b69c08806b151674be82f8ab0a9fdec0363885a15a8d3": "step0",
+            "sha256:cdaa63d9e0134e59351d0772c99fd129a6aff89ec7bb05eb66133bd255fdb1cf": "step5",
+            "sha256:d6e88c806e84e221a036c05a227221421240476a75a91ec8299bb5627a92eb02": "step4"
           },
           "llbDefinition": [
             {
@@ -856,7 +868,7 @@
               "op": {
                 "Op": {
                   "source": {
-                    "identifier": "docker-image://docker.io/library/python:3.13-slim-trixie@sha256:09a17cad02668ae61ece136b4fd36ac3849e14f670ebedb637ea3e15580525bc"
+                    "identifier": "docker-image://docker.io/library/python:3.13-slim-trixie@sha256:7249d5587b78209a006dc4a3b5340678f84ea729239193aa559962cd8c1fce50"
                   }
                 },
                 "constraints": {},
@@ -1137,33 +1149,15 @@
         "github_actor_id": "3718704",
         "github_event_name": "push",
         "github_event_payload": {
-          "after": "e5c401893e6618ea09114a6e23b3838a3910a036",
+          "after": "386f315bd76b277e2b59cb196a0597519e181732",
           "base_ref": null,
-          "before": "83804331fb3fbeb7b12001e2712226ae626fe1ec",
+          "before": "e5c401893e6618ea09114a6e23b3838a3910a036",
           "commits": [
             {
               "author": {
-                "email": "JoaoMagalhaes@criticalmanufacturing.com",
-                "name": "João Magalhães",
-                "username": "JoaoMagalhaesCrit"
-              },
-              "committer": {
-                "email": "pedro.apap@gmail.com",
-                "name": "pedroapap",
-                "username": "pedroapap"
-              },
-              "distinct": false,
-              "id": "520082da183dfca8db3668b5fb25d03913f100c7",
-              "message": "fix(cli): replace ImageSharp with SkiaSharp and pin Pkcs to 10.0.13",
-              "timestamp": "2026-10-19T16:57:50+01:00",
-              "tree_id": "3a19d710f06b6cd7a5b83602e8587cae50bb965e",
-              "url": "https://github.com/criticalmanufacturing/cli/commit/520082da183dfca8db3668b5fb25d03913f100c7"
-            },
-            {
-              "author": {
-                "email": "JoaoMagalhaes@criticalmanufacturing.com",
-                "name": "João Magalhães",
-                "username": "JoaoMagalhaesCrit"
+                "email": "joaomoreira@criticalmanufacturing.com",
+                "name": "jpsmoreira",
+                "username": "cmf-moreira"
               },
               "committer": {
                 "email": "3718704+joaoopereira@users.noreply.github.com",
@@ -1171,11 +1165,29 @@
                 "username": "joaoopereira"
               },
               "distinct": false,
-              "id": "0c2c0a2b9ab9aeba78f892e26ddaa208b7d81098",
-              "message": "chore: bump to 6.0.1-0",
-              "timestamp": "2026-10-19T23:45:04+01:00",
-              "tree_id": "75d18b8dc07350af6629aa6d7850f695d54e9dfa",
-              "url": "https://github.com/criticalmanufacturing/cli/commit/0c2c0a2b9ab9aeba78f892e26ddaa208b7d81098"
+              "id": "381bac1054d8f22bc5fa2cb8a99b836716e65495",
+              "message": "docs: fix HTML config transform example to set advancedCustomization under debug\n\nThe example set advancedCustomization at the root of config.json, a path the UI\ndoes not read. Move it under debug, restructure the page into two examples,\nand document that the source path resolves relative to the layer's\ncmfpackage.json, that multiple Transform entries are concatenated, and that\nthe generated file always carries customizationVersion.\n\nCloses #882",
+              "timestamp": "2026-11-06T15:23:52Z",
+              "tree_id": "8540d8b45072ed80e03f73dc2019a16d035f946f",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/381bac1054d8f22bc5fa2cb8a99b836716e65495"
+            },
+            {
+              "author": {
+                "email": "49699333+dependabot[bot]@users.noreply.github.com",
+                "name": "dependabot[bot]",
+                "username": "dependabot[bot]"
+              },
+              "committer": {
+                "email": "pedro1998pinho@gmail.com",
+                "name": "Pedro Xavier Pinho",
+                "username": "Rockdell"
+              },
+              "distinct": false,
+              "id": "30f69dbd84c78b8c7157b854af35a82609db44cc",
+              "message": "chore(deps): Bump DefaultDocumentation from 1.2.4 to 1.2.6\n\n---\nupdated-dependencies:\n- dependency-name: DefaultDocumentation\n  dependency-version: 1.2.6\n  dependency-type: direct:production\n  update-type: version-update:semver-patch\n...\n\nSigned-off-by: dependabot[bot] \u003csupport@github.com\u003e",
+              "timestamp": "2026-11-06T15:32:18Z",
+              "tree_id": "014ab9afd6b8b3b48d3f570c6e14acd8f8624603",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/30f69dbd84c78b8c7157b854af35a82609db44cc"
             },
             {
               "author": {
@@ -1183,33 +1195,16 @@
                 "name": "Pedro Pinho"
               },
               "committer": {
-                "email": "pedro1998pinho@gmail.com",
-                "name": "Pedro Xavier Pinho",
-                "username": "Rockdell"
+                "email": "3718704+joaoopereira@users.noreply.github.com",
+                "name": "João Octávio Pereira",
+                "username": "joaoopereira"
               },
               "distinct": false,
-              "id": "ba47f2c6a612809ebec5328c5e65538794572081",
-              "message": "fix: resolve MkDocs virtual environment from package directory",
-              "timestamp": "2026-10-22T15:17:08+01:00",
-              "tree_id": "96b6a51e157099a2080b1611aac640bd5bfb27ea",
-              "url": "https://github.com/criticalmanufacturing/cli/commit/ba47f2c6a612809ebec5328c5e65538794572081"
-            },
-            {
-              "author": {
-                "email": "PedroPinho@criticalmanufacturing.com",
-                "name": "Pedro Pinho"
-              },
-              "committer": {
-                "email": "pedro1998pinho@gmail.com",
-                "name": "Pedro Xavier Pinho",
-                "username": "Rockdell"
-              },
-              "distinct": false,
-              "id": "c8b5573bf6b28d0588e3df794dc42230beb4a46e",
-              "message": "fix(publish): preserve package JSON metadata",
-              "timestamp": "2026-10-23T15:19:55+01:00",
-              "tree_id": "bffe13cbd4cc0a4f078e89668298e23faf63c9cf",
-              "url": "https://github.com/criticalmanufacturing/cli/commit/c8b5573bf6b28d0588e3df794dc42230beb4a46e"
+              "id": "d9554d76bebded85ce3ea93be9412bcef25c0cdb",
+              "message": "chore: bump to 6.0.2-0",
+              "timestamp": "2026-11-06T16:15:45Z",
+              "tree_id": "ff2c7c4f5ab1323f79dea20e13ae56ef1805569e",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/d9554d76bebded85ce3ea93be9412bcef25c0cdb"
             },
             {
               "author": {
@@ -1223,47 +1218,11 @@
                 "username": "Rockdell"
               },
               "distinct": false,
-              "id": "361214800174a5ec9674519e0b7576ee03881389",
-              "message": "chore(dependabot): target development branch",
-              "timestamp": "2026-10-27T15:27:52Z",
-              "tree_id": "1e662102276fd487adf679b027d1f8287e53b556",
-              "url": "https://github.com/criticalmanufacturing/cli/commit/361214800174a5ec9674519e0b7576ee03881389"
-            },
-            {
-              "author": {
-                "email": "joaopereira@criticalmanufacturing.com",
-                "name": "João Octávio Pereira",
-                "username": "joaoopereira"
-              },
-              "committer": {
-                "email": "pedro1998pinho@gmail.com",
-                "name": "Pedro Xavier Pinho",
-                "username": "Rockdell"
-              },
-              "distinct": false,
-              "id": "45dfc580f6bce77f45ef275b814ca72a68941db4",
-              "message": "fix(ci): skip commitlint for Dependabot pull requests",
-              "timestamp": "2026-10-27T15:27:52Z",
-              "tree_id": "cfacbf47618e91ddc4ac9ac83c52d8058d6ff487",
-              "url": "https://github.com/criticalmanufacturing/cli/commit/45dfc580f6bce77f45ef275b814ca72a68941db4"
-            },
-            {
-              "author": {
-                "email": "joaopereira@criticalmanufacturing.com",
-                "name": "João Octávio Pereira",
-                "username": "joaoopereira"
-              },
-              "committer": {
-                "email": "pedro1998pinho@gmail.com",
-                "name": "Pedro Xavier Pinho",
-                "username": "Rockdell"
-              },
-              "distinct": false,
-              "id": "da860433af671930e99687e7569f29cbb88766fe",
-              "message": "chore(dependabot): use chore(deps) commit prefix",
-              "timestamp": "2026-10-27T15:27:52Z",
-              "tree_id": "86c47f1723c3bac9f1bcfa88c30539e78fc1138b",
-              "url": "https://github.com/criticalmanufacturing/cli/commit/da860433af671930e99687e7569f29cbb88766fe"
+              "id": "983f232f1ac40e3010b94ee0ba8f7d2f298b9bc3",
+              "message": "fix(release): restore registry origin IP routing",
+              "timestamp": "2026-11-06T17:17:32Z",
+              "tree_id": "c23159de83321bcf76b7f743f616c2d7325f0c95",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/983f232f1ac40e3010b94ee0ba8f7d2f298b9bc3"
             },
             {
               "author": {
@@ -1277,11 +1236,29 @@
                 "username": "joaoopereira"
               },
               "distinct": false,
-              "id": "de85b6d7a4a2d59f6284de44250ef7c78acfb7b1",
-              "message": "docs(iot): fix task and converter scaffolding instructions",
-              "timestamp": "2026-10-28T23:47:06Z",
-              "tree_id": "d29d84768ad1b20b785c997235c0079631b67bf0",
-              "url": "https://github.com/criticalmanufacturing/cli/commit/de85b6d7a4a2d59f6284de44250ef7c78acfb7b1"
+              "id": "6bfe31616631b5ead3373c1361b488fa80da6729",
+              "message": "fix(release): use Basic credentials for binary uploads",
+              "timestamp": "2026-11-06T17:49:23Z",
+              "tree_id": "3f72b5b4d48b2f869f7f22d9f2590834843b8699",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/6bfe31616631b5ead3373c1361b488fa80da6729"
+            },
+            {
+              "author": {
+                "email": "joaopereira@criticalmanufacturing.com",
+                "name": "João Octávio Pereira",
+                "username": "joaoopereira"
+              },
+              "committer": {
+                "email": "3718704+joaoopereira@users.noreply.github.com",
+                "name": "João Octávio Pereira",
+                "username": "joaoopereira"
+              },
+              "distinct": false,
+              "id": "c281374526d62c846b151e5adb8b3ba1f81a3a72",
+              "message": "fix(release): warn on China mirror verification failures",
+              "timestamp": "2026-11-06T17:49:23Z",
+              "tree_id": "476d135e793cdfb1ebd04512fd9844f136c7b806",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/c281374526d62c846b151e5adb8b3ba1f81a3a72"
             },
             {
               "author": {
@@ -1289,48 +1266,227 @@
                 "name": "Pedro Pinho"
               },
               "committer": {
-                "email": "pedro.apap@gmail.com",
-                "name": "pedroapap",
-                "username": "pedroapap"
+                "email": "3718704+joaoopereira@users.noreply.github.com",
+                "name": "João Octávio Pereira",
+                "username": "joaoopereira"
               },
               "distinct": false,
-              "id": "723365eaa9978fb9d9f02faa8550aec61ab91d0a",
-              "message": "fix: repair CLI scaffolding validation and run PR code",
-              "timestamp": "2026-11-03T15:23:02Z",
-              "tree_id": "d563ae2deb8d116aae463e20e02b6a468b973bd1",
-              "url": "https://github.com/criticalmanufacturing/cli/commit/723365eaa9978fb9d9f02faa8550aec61ab91d0a"
+              "id": "493de136f7ae488f7b2e957eb62d9d1b8f4378d7",
+              "message": "docs(skills): add CLI release and prerelease workflow",
+              "timestamp": "2026-11-07T12:19:35Z",
+              "tree_id": "020fbed18d86909fc5c488d885e975a281dc981e",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/493de136f7ae488f7b2e957eb62d9d1b8f4378d7"
             },
             {
               "author": {
-                "email": "PedroPinho@criticalmanufacturing.com",
-                "name": "Pedro Pinho"
+                "email": "joaopereira@criticalmanufacturing.com",
+                "name": "João Octávio Pereira",
+                "username": "joaoopereira"
               },
               "committer": {
-                "email": "PedroPinho@criticalmanufacturing.com",
-                "name": "Pedro Pinho"
+                "email": "3718704+joaoopereira@users.noreply.github.com",
+                "name": "João Octávio Pereira",
+                "username": "joaoopereira"
               },
               "distinct": false,
-              "id": "0b29dfbcdca3593c8c0531455e13a4edf094193b",
-              "message": "chore(release): reconcile main history for 6.0.1",
-              "timestamp": "2026-11-05T12:12:52Z",
-              "tree_id": "d563ae2deb8d116aae463e20e02b6a468b973bd1",
-              "url": "https://github.com/criticalmanufacturing/cli/commit/0b29dfbcdca3593c8c0531455e13a4edf094193b"
+              "id": "4329bc98a5ca818289b9af699eb3470503f2c7ed",
+              "message": "fix(npm): replace obsolete CLI files during upgrades",
+              "timestamp": "2026-11-10T13:17:13Z",
+              "tree_id": "228aa903eb8d3b0623306141d24d9f136f55cb8b",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/4329bc98a5ca818289b9af699eb3470503f2c7ed"
             },
             {
               "author": {
-                "email": "PedroPinho@criticalmanufacturing.com",
-                "name": "Pedro Pinho"
+                "email": "joaopereira@criticalmanufacturing.com",
+                "name": "João Octávio Pereira",
+                "username": "joaoopereira"
               },
               "committer": {
-                "email": "PedroPinho@criticalmanufacturing.com",
-                "name": "Pedro Pinho"
+                "email": "3718704+joaoopereira@users.noreply.github.com",
+                "name": "João Octávio Pereira",
+                "username": "joaoopereira"
               },
               "distinct": false,
-              "id": "c6e448dd76c2ec519adb28bc9652e827a936f6db",
-              "message": "chore: release 6.0.1",
-              "timestamp": "2026-11-05T12:17:44Z",
-              "tree_id": "fcb13a8b37516efb840f5113fa7fd1d8f4249327",
-              "url": "https://github.com/criticalmanufacturing/cli/commit/c6e448dd76c2ec519adb28bc9652e827a936f6db"
+              "id": "cbba8a3c1e5eeeddcbfa8b80d821b4c840f534d7",
+              "message": "fix(npm): harden installer cleanup and declare Node support",
+              "timestamp": "2026-11-10T13:17:13Z",
+              "tree_id": "aecef65694c857440516b552404c90e8aff54036",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/cbba8a3c1e5eeeddcbfa8b80d821b4c840f534d7"
+            },
+            {
+              "author": {
+                "email": "ManuelMartins@criticalmanufacturing.com",
+                "name": "Manuel Martins"
+              },
+              "committer": {
+                "email": "37194324+manel27@users.noreply.github.com",
+                "name": "Manuel Martins",
+                "username": "manel27"
+              },
+              "distinct": false,
+              "id": "4b475e8d4cd81e8247a273e04eb5a94041e48a94",
+              "message": "chore: redundant selenium packages removed from test templates",
+              "timestamp": "2026-11-13T12:55:13Z",
+              "tree_id": "fae651796656a4198e8e9d997fc8004b9053b3c4",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/4b475e8d4cd81e8247a273e04eb5a94041e48a94"
+            },
+            {
+              "author": {
+                "email": "ManuelMartins@criticalmanufacturing.com",
+                "name": "Manuel Martins"
+              },
+              "committer": {
+                "email": "37194324+manel27@users.noreply.github.com",
+                "name": "Manuel Martins",
+                "username": "manel27"
+              },
+              "distinct": false,
+              "id": "01889573660fdfe8e88e905abf7debf694dac8a4",
+              "message": "chore: sharpZipLib removed from test template",
+              "timestamp": "2026-11-13T12:55:13Z",
+              "tree_id": "23712874a531766c97fd7a2252e671803d9eee20",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/01889573660fdfe8e88e905abf7debf694dac8a4"
+            },
+            {
+              "author": {
+                "email": "ManuelMartins@criticalmanufacturing.com",
+                "name": "Manuel Martins"
+              },
+              "committer": {
+                "email": "37194324+manel27@users.noreply.github.com",
+                "name": "Manuel Martins",
+                "username": "manel27"
+              },
+              "distinct": false,
+              "id": "d56822a7b2864d92386167a50dacdeb3029458fa",
+              "message": "chore: redundant cmf packages removed from test templates",
+              "timestamp": "2026-11-13T12:55:13Z",
+              "tree_id": "d1c44f92bc99d941e66207d30f0eddecaa30e9aa",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/d56822a7b2864d92386167a50dacdeb3029458fa"
+            },
+            {
+              "author": {
+                "email": "ManuelMartins@criticalmanufacturing.com",
+                "name": "Manuel Martins"
+              },
+              "committer": {
+                "email": "37194324+manel27@users.noreply.github.com",
+                "name": "Manuel Martins",
+                "username": "manel27"
+              },
+              "distinct": false,
+              "id": "07637e8fc696afc1642f20d5537c100551767c7f",
+              "message": "chore: redundant dlls removed from test templates",
+              "timestamp": "2026-11-13T12:55:13Z",
+              "tree_id": "39996067386d0b51bbea8af6a635d6b6a7c6ab6d",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/07637e8fc696afc1642f20d5537c100551767c7f"
+            },
+            {
+              "author": {
+                "email": "JoaoMagalhaes@criticalmanufacturing.com",
+                "name": "João Magalhães",
+                "username": "JoaoMagalhaesCrit"
+              },
+              "committer": {
+                "email": "pedro1998pinho@gmail.com",
+                "name": "Pedro Xavier Pinho",
+                "username": "Rockdell"
+              },
+              "distinct": false,
+              "id": "590aa723a53e968c8cfeaf4158542e16070427bd",
+              "message": "feat(validation): validate command and project configuration versions",
+              "timestamp": "2026-11-13T14:23:02Z",
+              "tree_id": "ff37d760de2fa2927cce4f6ab184a10478e8db88",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/590aa723a53e968c8cfeaf4158542e16070427bd"
+            },
+            {
+              "author": {
+                "email": "JoaoMagalhaes@criticalmanufacturing.com",
+                "name": "João Magalhães",
+                "username": "JoaoMagalhaesCrit"
+              },
+              "committer": {
+                "email": "pedro1998pinho@gmail.com",
+                "name": "Pedro Xavier Pinho",
+                "username": "Rockdell"
+              },
+              "distinct": false,
+              "id": "ece29fead8b5b4d1766dc1ea0ae1d656c7cb0bfd",
+              "message": "docs(validation): document version input requirements",
+              "timestamp": "2026-11-13T14:23:02Z",
+              "tree_id": "6b581147f0035210a2a1a171acf24f3c6720e435",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/ece29fead8b5b4d1766dc1ea0ae1d656c7cb0bfd"
+            },
+            {
+              "author": {
+                "email": "albertoponces@criticalmanufacturing.com",
+                "name": "Alberto Ponces",
+                "username": "ponces"
+              },
+              "committer": {
+                "email": "4687488+ponces@users.noreply.github.com",
+                "name": "Alberto Ponces",
+                "username": "ponces"
+              },
+              "distinct": false,
+              "id": "71cbbc1bbfc1c6afb1b8a9ec551efaaaa69e9cd6",
+              "message": "fix(init): forward HTTPS in generated devcontainers",
+              "timestamp": "2026-11-17T10:08:01Z",
+              "tree_id": "9aeaa2bfbc78133ad21a6c4b08cae5134ece3e11",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/71cbbc1bbfc1c6afb1b8a9ec551efaaaa69e9cd6"
+            },
+            {
+              "author": {
+                "email": "ruijorge@criticalmanufacturing.com",
+                "name": "Rui Jorge"
+              },
+              "committer": {
+                "email": "3718704+joaoopereira@users.noreply.github.com",
+                "name": "João Octávio Pereira",
+                "username": "joaoopereira"
+              },
+              "distinct": false,
+              "id": "ad7e760ce1bb996bf5167ce39c2c3da8bbb6b8c7",
+              "message": "fix(help): correct v12 Help deployment and bundle fonts",
+              "timestamp": "2026-11-24T16:09:24Z",
+              "tree_id": "a8828c9bcd3778b56217b744b441f031f18be0a6",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/ad7e760ce1bb996bf5167ce39c2c3da8bbb6b8c7"
+            },
+            {
+              "author": {
+                "email": "joaopereira@criticalmanufacturing.com",
+                "name": "João Octávio Pereira",
+                "username": "joaoopereira"
+              },
+              "committer": {
+                "email": "joaopereira@criticalmanufacturing.com",
+                "name": "João Octávio Pereira",
+                "username": "joaoopereira"
+              },
+              "distinct": false,
+              "id": "be1c37e1479aed7ed421a122fc90691ded432299",
+              "message": "chore: release 6.0.2",
+              "timestamp": "2026-11-24T16:26:13Z",
+              "tree_id": "d0b630ab6d0452fe46ee1a242d91196b51c3ea24",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/be1c37e1479aed7ed421a122fc90691ded432299"
+            },
+            {
+              "author": {
+                "email": "joaopereira@criticalmanufacturing.com",
+                "name": "João Octávio Pereira",
+                "username": "joaoopereira"
+              },
+              "committer": {
+                "email": "joaopereira@criticalmanufacturing.com",
+                "name": "João Octávio Pereira",
+                "username": "joaoopereira"
+              },
+              "distinct": false,
+              "id": "cc6c380033f4d0e7e26ef8fd72861845c10d8b69",
+              "message": "fix(ci): accept generated Dependabot bump commits",
+              "timestamp": "2026-11-24T16:30:55Z",
+              "tree_id": "df1f792a99d6f64f11611b1ad560ec04bb736121",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/cc6c380033f4d0e7e26ef8fd72861845c10d8b69"
             },
             {
               "author": {
@@ -1344,14 +1500,14 @@
                 "username": "web-flow"
               },
               "distinct": true,
-              "id": "e5c401893e6618ea09114a6e23b3838a3910a036",
-              "message": "Release 6.0.1\n\nRelease 6.0.1",
-              "timestamp": "2026-11-05T14:34:58Z",
-              "tree_id": "fcb13a8b37516efb840f5113fa7fd1d8f4249327",
-              "url": "https://github.com/criticalmanufacturing/cli/commit/e5c401893e6618ea09114a6e23b3838a3910a036"
+              "id": "386f315bd76b277e2b59cb196a0597519e181732",
+              "message": "Merge pull request #920 from criticalmanufacturing/main-release-6.0.2\n\nchore: release 6.0.2",
+              "timestamp": "2026-11-24T18:17:50Z",
+              "tree_id": "df1f792a99d6f64f11611b1ad560ec04bb736121",
+              "url": "https://github.com/criticalmanufacturing/cli/commit/386f315bd76b277e2b59cb196a0597519e181732"
             }
           ],
-          "compare": "https://github.com/criticalmanufacturing/cli/compare/83804331fb3f...e5c401893e66",
+          "compare": "https://github.com/criticalmanufacturing/cli/compare/e5c401893e66...386f315bd76b",
           "created": false,
           "deleted": false,
           "forced": false,
@@ -1367,11 +1523,11 @@
               "username": "web-flow"
             },
             "distinct": true,
-            "id": "e5c401893e6618ea09114a6e23b3838a3910a036",
-            "message": "Release 6.0.1\n\nRelease 6.0.1",
-            "timestamp": "2026-11-05T14:34:58Z",
-            "tree_id": "fcb13a8b37516efb840f5113fa7fd1d8f4249327",
-            "url": "https://github.com/criticalmanufacturing/cli/commit/e5c401893e6618ea09114a6e23b3838a3910a036"
+            "id": "386f315bd76b277e2b59cb196a0597519e181732",
+            "message": "Merge pull request #920 from criticalmanufacturing/main-release-6.0.2\n\nchore: release 6.0.2",
+            "timestamp": "2026-11-24T18:17:50Z",
+            "tree_id": "df1f792a99d6f64f11611b1ad560ec04bb736121",
+            "url": "https://github.com/criticalmanufacturing/cli/commit/386f315bd76b277e2b59cb196a0597519e181732"
           },
           "organization": {
             "avatar_url": "https://avatars.githubusercontent.com/u/24794861?v=4",
@@ -1415,8 +1571,8 @@
             "downloads_url": "https://api.github.com/repos/criticalmanufacturing/cli/downloads",
             "events_url": "https://api.github.com/repos/criticalmanufacturing/cli/events",
             "fork": false,
-            "forks": 54,
-            "forks_count": 54,
+            "forks": 55,
+            "forks_count": 55,
             "forks_url": "https://api.github.com/repos/criticalmanufacturing/cli/forks",
             "full_name": "criticalmanufacturing/cli",
             "git_commits_url": "https://api.github.com/repos/criticalmanufacturing/cli/git/commits{/sha}",
@@ -1456,8 +1612,8 @@
             "name": "cli",
             "node_id": "MDEwOlJlcG9zaXRvcnkzNjAyNDgzMTc=",
             "notifications_url": "https://api.github.com/repos/criticalmanufacturing/cli/notifications{?since,all,participating}",
-            "open_issues": 69,
-            "open_issues_count": 69,
+            "open_issues": 64,
+            "open_issues_count": 64,
             "organization": "criticalmanufacturing",
             "owner": {
               "avatar_url": "https://avatars.githubusercontent.com/u/24794861?v=4",
@@ -1485,12 +1641,12 @@
             "private": false,
             "pull_request_creation_policy": "all",
             "pulls_url": "https://api.github.com/repos/criticalmanufacturing/cli/pulls{/number}",
-            "pushed_at": 1793889298,
+            "pushed_at": 1795544271,
             "releases_url": "https://api.github.com/repos/criticalmanufacturing/cli/releases{/id}",
-            "size": 59517,
+            "size": 59934,
             "ssh_url": "git@github.com:criticalmanufacturing/cli.git",
-            "stargazers": 11,
-            "stargazers_count": 11,
+            "stargazers": 12,
+            "stargazers_count": 12,
             "stargazers_url": "https://api.github.com/repos/criticalmanufacturing/cli/stargazers",
             "statuses_url": "https://api.github.com/repos/criticalmanufacturing/cli/statuses/{sha}",
             "subscribers_url": "https://api.github.com/repos/criticalmanufacturing/cli/subscribers",
@@ -1502,11 +1658,11 @@
               "cli"
             ],
             "trees_url": "https://api.github.com/repos/criticalmanufacturing/cli/git/trees{/sha}",
-            "updated_at": "2026-10-20T19:48:01Z",
+            "updated_at": "2026-11-11T08:48:34Z",
             "url": "https://api.github.com/repos/criticalmanufacturing/cli",
             "visibility": "public",
-            "watchers": 11,
-            "watchers_count": 11,
+            "watchers": 12,
+            "watchers_count": 12,
             "web_commit_signoff_required": false
           },
           "sender": {
@@ -1541,36 +1697,36 @@
         "github_repository_owner": "criticalmanufacturing",
         "github_repository_owner_id": "24794861",
         "github_run_attempt": "1",
-        "github_run_id": "42046402126",
-        "github_run_number": "307",
+        "github_run_id": "45457986671",
+        "github_run_number": "356",
         "github_runner_arch": "X64",
         "github_runner_environment": "github-hosted",
         "github_runner_image_os": "ubuntu26",
-        "github_runner_image_version": "20261026.180.1",
-        "github_runner_name": "GitHub Actions 1000013167",
+        "github_runner_image_version": "20261116.202.1",
+        "github_runner_name": "GitHub Actions 1000014333",
         "github_runner_os": "Linux",
-        "github_runner_tracking_id": "github_865cc75c-2fa1-4359-9ef4-036bbb204ab0",
+        "github_runner_tracking_id": "github_52675d92-345f-4138-9bb2-16d0f1c2c10e",
         "github_server_url": "https://github.com",
         "github_triggering_actor": "joaoopereira",
         "github_workflow": "GitHub Pages",
         "github_workflow_ref": "criticalmanufacturing/cli/.github/workflows/gh-pages.yml@refs/heads/main",
-        "github_workflow_sha": "e5c401893e6618ea09114a6e23b3838a3910a036",
+        "github_workflow_sha": "386f315bd76b277e2b59cb196a0597519e181732",
         "targetPlatform": "linux/amd64"
       }
     },
     "runDetails": {
       "builder": {
-        "id": "https://github.com/criticalmanufacturing/cli/actions/runs/42046402126/attempts/1"
+        "id": "https://github.com/criticalmanufacturing/cli/actions/runs/45457986671/attempts/1"
       },
       "metadata": {
-        "invocationId": "ajmfb2v4eb3cffirxrb3927vg",
-        "startedOn": "2026-11-05T14:35:17.135296258Z",
-        "finishedOn": "2026-11-05T14:35:34.101031147Z",
+        "invocationId": "bh2ienhxtmne0vlcukbxvdmaz",
+        "startedOn": "2026-11-24T18:18:10.864071096Z",
+        "finishedOn": "2026-11-24T18:18:25.047101854Z",
         "buildkit_metadata": {
           "vcs": {
             "localdir:context": "docs",
             "localdir:dockerfile": "docs",
-            "revision": "e5c401893e6618ea09114a6e23b3838a3910a036",
+            "revision": "386f315bd76b277e2b59cb196a0597519e181732",
             "source": "https://github.com/criticalmanufacturing/cli"
           },
           "source": {
@@ -1738,8 +1894,8 @@
                   }
                 ],
                 "digestMapping": {
-                  "sha256:1bfe3ff4bd6572d4b291a905c0e2d526a74458552e22bca45628134480bba93d": "step0",
-                  "sha256:294a5211e262cfcf457a879d5a5ede6b317f3f7d38b1d85ec65f9b40004529a7": "step1"
+                  "sha256:76ad0fa1bb664070419ab003c27d20cc422b009a3bebd288f6febd0625249d81": "step0",
+                  "sha256:c45890dd1fc030554d8847cd0b0b878515aeac831d1955ef83b67750012e73f8": "step1"
                 }
               }
             ]
@@ -1749,22 +1905,22 @@
               [
                 {
                   "mediaType": "application/vnd.oci.image.layer.v1.tar+gzip",
-                  "digest": "sha256:37fb86c2a767b88d500c6872195f88078f64765fe0d2f9cc375cc2efbd4c0a41",
-                  "size": 29856132
+                  "digest": "sha256:40748add9f4f6f944f334cbfc286590d6e93f60fb06f6ee7ffa1b894080ad861",
+                  "size": 29842182
                 },
                 {
                   "mediaType": "application/vnd.oci.image.layer.v1.tar+gzip",
-                  "digest": "sha256:0069ea31add00b9f63dbb3f0bcee44990654c5e2c17ccfeaeae47e74edf44498",
-                  "size": 1289780
+                  "digest": "sha256:0a69011ed158588d2bf9488e89d3d989cc15d52fd68278803ba5dc62d6497a9a",
+                  "size": 1290241
                 },
                 {
                   "mediaType": "application/vnd.oci.image.layer.v1.tar+gzip",
-                  "digest": "sha256:faa890a31e98e11bc3138d9549c86441024fdb24bd555bb0bca17dc9a6c5b565",
-                  "size": 11924001
+                  "digest": "sha256:3b257888febeb496f2539820ae69d5eb2e09f90322d9aba63200a05876f73593",
+                  "size": 11924013
                 },
                 {
                   "mediaType": "application/vnd.oci.image.layer.v1.tar+gzip",
-                  "digest": "sha256:f7a79299dedd5c817d47e3f61cf6eecae73b92cb193a1ef52180a46b0161c50a",
+                  "digest": "sha256:c088b11f575c53e71a48f8de0cfa600db1494dca79ea344a688fef8f5db5adde",
                   "size": 248
                 }
               ]

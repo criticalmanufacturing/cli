@@ -1656,6 +1656,8 @@
       
         
       
+        
+      
     
     
     
@@ -1854,6 +1856,17 @@
   
     <nav class="md-nav" aria-label="Overview">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pat-expiration-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PAT expiration validation
+      
+    </span>
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#environment-variables" class="md-nav__link">
@@ -2647,6 +2660,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../upgrade_base/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    upgrade base
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2663,6 +2704,8 @@
   
     
     
+      
+        
       
         
       
@@ -2741,14 +2784,14 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../config-files/infrastructure.json/" class="md-nav__link ">
+            <a href="../../config-files/project-config.json/" class="md-nav__link ">
               
   
   
   <span class="md-ellipsis">
     
   
-    Infrastructure.json
+    Project config.json
   
 
     
@@ -2765,7 +2808,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Infrastructure.json
+    Project config.json
   
 
           </label>
@@ -2809,6 +2852,74 @@
         
           
           <div class="md-nav__link md-nav__container">
+            <a href="../../config-files/infrastructure.json/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Infrastructure.json
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Infrastructure.json
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
             <a href="../../config-files/repositories.json/" class="md-nav__link ">
               
   
@@ -2828,8 +2939,8 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_3_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_3_2">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3_3">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -2885,7 +2996,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3_4" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -2907,14 +3018,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_4_3_3" id="__nav_4_3_3_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_4_3_4" id="__nav_4_3_4_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_3_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_3_3">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3_4">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -3432,6 +3543,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#pat-expiration-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PAT expiration validation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#environment-variables" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3640,6 +3762,10 @@ cmf<span class="w"> </span>login<span class="w"> </span>portal<span class="w"> <
 be prompted interactively on the console.</p>
 </div>
 <p>Portal tokens used to derive NuGet, NPM and Docker credentials must be JWTs with a non-empty <code>sub</code> claim (username). Invalid JWTs or missing subjects produce a specific token validation error. NuGet credentials require a non-empty username and a non-null password; validation errors are reported before accessing <code>NuGet.Config</code>.</p>
+<h3 id="pat-expiration-validation">PAT expiration validation</h3>
+<p><code>cmf login --token &lt;pat&gt;</code> validates the Customer Portal PAT before saving credentials or updating tool configuration, including with <code>--store-only</code>. Blank or malformed tokens, missing or invalid <code>exp</code> claims, and expired tokens cause the command to fail. In pipelines, replace the <code>CustomerPortalPAT</code> secret with a newly generated PAT.</p>
+<p>Tokens with a future expiration are accepted, even if they expire tomorrow. This is a local expiration check, not signature verification or a server-side revocation check. It applies only to Portal credentials, not arbitrary registry tokens or passwords.</p>
+<p>An explicitly supplied token is never renewed through the browser. Interactive <code>cmf login</code> and the existing <code>cmf login sync</code> renewal policy are unchanged.</p>
 <h3 id="environment-variables">Environment Variables</h3>
 <p>It is also possible to override some credentials when running commands through the use of environment variables. The format of the environment variables is as follows:</p>
 <div class="highlight"><pre><span></span><code>&lt;repoType&gt;__&lt;repoUrl&gt;__&lt;property&gt;

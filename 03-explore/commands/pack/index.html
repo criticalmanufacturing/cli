@@ -1656,6 +1656,8 @@
       
         
       
+        
+      
     
     
     
@@ -2447,6 +2449,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#mes-v12-mkdocs-help-packages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MES v12 MkDocs Help packages
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2652,6 +2665,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../upgrade_base/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    upgrade base
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2668,6 +2709,8 @@
   
     
     
+      
+        
       
         
       
@@ -2746,14 +2789,14 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../config-files/infrastructure.json/" class="md-nav__link ">
+            <a href="../../config-files/project-config.json/" class="md-nav__link ">
               
   
   
   <span class="md-ellipsis">
     
   
-    Infrastructure.json
+    Project config.json
   
 
     
@@ -2770,7 +2813,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Infrastructure.json
+    Project config.json
   
 
           </label>
@@ -2814,6 +2857,74 @@
         
           
           <div class="md-nav__link md-nav__container">
+            <a href="../../config-files/infrastructure.json/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Infrastructure.json
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Infrastructure.json
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
             <a href="../../config-files/repositories.json/" class="md-nav__link ">
               
   
@@ -2833,8 +2944,8 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_3_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_3_2">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3_3">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -2890,7 +3001,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3_4" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -2912,14 +3023,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_4_3_3" id="__nav_4_3_3_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_4_3_4" id="__nav_4_3_4_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_3_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_3_3">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3_4">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -3468,6 +3579,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#mes-v12-mkdocs-help-packages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MES v12 MkDocs Help packages
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3553,6 +3675,20 @@
 </tbody>
 </table>
 <!-- END USAGE -->
+
+<h2 id="mes-v12-mkdocs-help-packages">MES v12 MkDocs Help packages</h2>
+<p><code>cmf pack</code> puts the generated <code>site/</code> contents at the archive root, preserving
+relative links, assets and search. Markdown stays under <code>docs/</code> for dependency
+merging. Existing v12 <code>site/**</code> mappings are supported; build output stays in <code>site/</code>.</p>
+<p>V12 Help uses the <code>project-help</code> layer and <code>DeployFiles</code> pattern <code>**</code>.
+Migrating v11 Angular Help requires adopting the v12 MkDocs structure, rebuilding
+with <code>cmf build</code>, repacking with <code>cmf pack</code>, then republishing and redeploying the
+package. Changing <code>targetLayer</code> alone does not migrate an existing package.
+Earlier Angular Help packages retain their existing behavior.</p>
+<p>The v12 scaffold enables <code>privacy</code> to bundle external fonts during build.
+For existing v12 MkDocs projects, add <code>privacy</code> alongside <code>search</code> in <code>mkdocs.yml</code>, then
+rebuild, pack, publish and redeploy. The first build needs network access;
+subsequent builds can reuse <code>.cache/</code>, which should be ignored in Git.</p>
 
 
 

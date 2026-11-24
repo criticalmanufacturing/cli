@@ -1656,6 +1656,8 @@
       
         
       
+        
+      
     
     
     
@@ -2586,6 +2588,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../upgrade_base/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    upgrade base
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2602,6 +2632,8 @@
   
     
     
+      
+        
       
         
       
@@ -2680,14 +2712,14 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../config-files/infrastructure.json/" class="md-nav__link ">
+            <a href="../../config-files/project-config.json/" class="md-nav__link ">
               
   
   
   <span class="md-ellipsis">
     
   
-    Infrastructure.json
+    Project config.json
   
 
     
@@ -2704,7 +2736,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Infrastructure.json
+    Project config.json
   
 
           </label>
@@ -2748,6 +2780,74 @@
         
           
           <div class="md-nav__link md-nav__container">
+            <a href="../../config-files/infrastructure.json/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Infrastructure.json
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Infrastructure.json
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
             <a href="../../config-files/repositories.json/" class="md-nav__link ">
               
   
@@ -2767,8 +2867,8 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_3_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_3_2">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3_3">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -2824,7 +2924,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3_4" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -2846,14 +2946,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_4_3_3" id="__nav_4_3_3_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_4_3_4" id="__nav_4_3_4_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_3_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_3_3">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3_4">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -3357,6 +3457,8 @@
 
 
 <h1 id="new-test">new test</h1>
+<p>The project configuration must provide <code>MESVersion</code> and <code>TestScenariosNugetVersion</code> as NuGet versions. The CLI requires MES 10 or later; the minimum does not apply to test-scenario or package versions.</p>
+<p><code>--version</code> defaults to <code>1.0.0</code> and accepts NuGet release, prerelease, metadata, and four-part versions. Invalid or missing required versions report the option or configuration field before scaffolding or dependency resolution; files remain unchanged.</p>
 <!-- BEGIN USAGE -->
 
 <h2 id="usage">Usage</h2>
