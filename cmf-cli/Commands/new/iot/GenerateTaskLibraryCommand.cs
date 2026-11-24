@@ -119,6 +119,7 @@ namespace Cmf.CLI.Commands.New.IoT
             List<string> dependsOnScope, List<string> mandatoryForScope, List<string> dependsOnProtocol, List<string> mandatoryForProtocol)
         {
             var mesVersion = ExecutionContext.Instance.ProjectConfig.MESVersion;
+            var iotDeps = IoTDependencyResolver.ResolveForProject(IoTDependencyResolver.EnginePackage);
             Log.Debug($"Creating IoT Task Library Package at {workingDir}");
 
             var args = new List<string>();
@@ -132,6 +133,10 @@ namespace Cmf.CLI.Commands.New.IoT
                 "--packageName", fullPackageName,
                 "--packageVersion", packageVersion,
                 "--targetSystemVersionProcessed", GenericUtilities.GetNpmDistTag(mesVersion),
+                "--momentVersion", iotDeps.Moment,
+                "--inversifyVersion", iotDeps.Inversify,
+                "--reflectMetadataVersion", iotDeps.ReflectMetadata,
+                "--zoneVersion", iotDeps.ZoneJs,
                 "--dependsOnScope", JsonConvert.SerializeObject(dependsOnScope),
                 "--mandatoryForScope", JsonConvert.SerializeObject(mandatoryForScope),
                 "--dependsOnProtocol", JsonConvert.SerializeObject(dependsOnProtocol),

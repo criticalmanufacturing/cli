@@ -98,22 +98,10 @@
       "valueSource": "CIRepo",
       "valueTransform": "jsonEncode"
     },
-    "CIRepo_MainBranch": {
-      "type": "generated",
-      "generator": "join",
-      "parameters": {
-        "symbols": [
-          {
-            "type": "ref",
-            "value": "CIRepo"
-          },
-          {
-            "type": "const",
-            "value": "development"
-          }
-        ],
-        "separator": "\\"
-      }
+    "CIRepoMainBranch": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "CI repository folder of the main branch, built by the CLI with the separator of the deployment folder"
     },
     // seems like we can't get derived symbols from generated symbols, so we do a simple backslash escape via regex replace
     "CIRepo_MainBranch-JSON": {
@@ -122,7 +110,7 @@
       "dataType": "string",
       "replaces": "<%= $CLI_PARAM_CIRepo_MainBranch %>",
       "parameters": {
-        "source": "CIRepo_MainBranch",
+        "source": "CIRepoMainBranch",
         "steps": [
           {
             "regex": "\\\\",

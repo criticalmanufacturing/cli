@@ -138,6 +138,23 @@ Example:
 }
 ```
 
+Each dependency also accepts these optional flags:
+
+| Property | Default | Description |
+| -------- | ------- | ----------- |
+| `mandatory` | `true` | Set to `false` to make the dependency optional. `cmf assemble` skips a missing optional dependency with a warning instead of failing. The flag is written to the package manifest. |
+| `conditional` | `false` | Written to the package manifest. The CLI does not use it otherwise. |
+
+The CLI writes `mandatory` only when it is `false`, and `conditional` only when it is `true`. For example, an optional dependency:
+
+```json
+{
+  "id": "Cmf.Custom.IoT.Data",
+  "version": "1.0.0",
+  "mandatory": false
+}
+```
+
 ### grafanaPlugins
 
 For Grafana distributions embedded as files, use [`grafanaPlugins`](grafana-plugins.md)

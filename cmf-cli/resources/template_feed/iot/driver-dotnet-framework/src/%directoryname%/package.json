@@ -48,9 +48,9 @@
     "@criticalmanufacturing/connect-iot-common": "<%= $CLI_PARAM_TargetSystemVersionProcessed %>",
     "@criticalmanufacturing/connect-iot-driver": "<%= $CLI_PARAM_TargetSystemVersionProcessed %>",
     "edge-js": "22.1.2",
-    "inversify": "6.0.2",
-    "moment": "2.29.4",
-    "reflect-metadata": "0.1.13",
+    "inversify": "<%= $CLI_PARAM_InversifyVersion %>",
+    "moment": "<%= $CLI_PARAM_MomentVersion %>",
+    "reflect-metadata": "<%= $CLI_PARAM_ReflectMetadataVersion %>",
     "yargs": "17.7.1",
     "uuid": "9.0.0",
     "fs-extra": "11.1.0"
