@@ -3,7 +3,7 @@
 "use strict";
 
 const path = require('path'),
-    mkdirp = require('mkdirp'),
+    { mkdirp } = require('mkdirp'),
     rimraf = require('rimraf'),
     fs = require('fs'),
     axios = require('axios'),
