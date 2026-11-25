@@ -23,14 +23,14 @@ const error = dbg("cmf:debug:error");
 
 async function getInstallationPath() {
     debug("Getting installation path...");
-    debug("Targeting node_modules/.bin/cmf-cli. Making sure path exists...");
+    debug("Targeting node_modules/.bin/cmf-cli. Making sure parent path exists...");
     // __dirname is always <node_modules>/@criticalmanufacturing/cli, so two
     // levels up is always the node_modules/ dir that owns .bin/ — whether this
     // is a local install (with or without shrinkwrap) or a global install.
-    const dir = path.join(path.resolve(__dirname, '..', '..'), ".bin", "cmf-cli");
-    await mkdirp(dir);
+    const binDirectory = path.join(path.resolve(__dirname, '..', '..'), ".bin");
+    await mkdirp(binDirectory);
     debug(`Install path exists!`);
-    return dir;
+    return path.join(binDirectory, "cmf-cli");
 }
 
 /**
@@ -150,15 +150,23 @@ function replaceInstallation(src, installPath, binName) {
             fs.chmodSync(binaryPath, fs.statSync(binaryPath).mode | 0o111);
         }
 
-        fs.renameSync(installPath, previousPath);
+        let hasPrevious = false;
+        try {
+            fs.renameSync(installPath, previousPath);
+            hasPrevious = true;
+        } catch (err) {
+            if (err.code !== 'ENOENT') throw err;
+        }
         try {
             fs.renameSync(nextPath, installPath);
         } catch (err) {
-            try {
-                fs.renameSync(previousPath, installPath);
-            } catch (restoreError) {
-                preserveBackup = true;
-                err.message += ` Previous installation preserved at ${previousPath}: ${restoreError.message}`;
+            if (hasPrevious) {
+                try {
+                    fs.renameSync(previousPath, installPath);
+                } catch (restoreError) {
+                    preserveBackup = true;
+                    err.message += ` Previous installation preserved at ${previousPath}: ${restoreError.message}`;
+                }
             }
             throw err;
         }

@@ -121,6 +121,36 @@ describe('CLI installation on disk', () => {
         expectNoStagingDirectories();
     });
 
+    test('replaces a stale non-directory install entry', async () => {
+        fs.rmSync(installPath, { recursive: true });
+        writeFile(installPath, 'stale launcher');
+        loadInstaller();
+        const callback = jest.fn();
+
+        await install(callback);
+
+        expect(callback).toHaveBeenCalledWith(null);
+        expect(fs.readFileSync(path.join(installPath, 'cmf'), 'utf8')).toBe('new binary');
+        expectNoStagingDirectories();
+    });
+
+    test('backs up an install entry created while staging', async () => {
+        fs.rmSync(installPath, { recursive: true });
+        loadInstaller();
+        const rename = fs.renameSync;
+        jest.spyOn(fs, 'renameSync').mockImplementation((from, to) => {
+            if (from === installPath) writeFile(installPath, 'raced binary');
+            return rename(from, to);
+        });
+        const callback = jest.fn();
+
+        await install(callback);
+
+        expect(callback).toHaveBeenCalledWith(null);
+        expect(fs.readFileSync(path.join(installPath, 'cmf'), 'utf8')).toBe('new binary');
+        expectNoStagingDirectories();
+    });
+
     test('rejects unsupported Node versions before modifying the installation', async () => {
         loadInstaller();
         const descriptor = Object.getOwnPropertyDescriptor(process.versions, 'node');
