@@ -19,7 +19,7 @@ jest.mock('http-proxy-agent');
 jest.mock('https-proxy-agent');
 jest.mock('fs');
 
-const mockMkdirp = require('mkdirp');
+const { mkdirp: mockMkdirp } = require('mkdirp');
 const mockRimraf = require('rimraf');
 const mockProxyFromEnv = require('proxy-from-env');
 
