@@ -1,5 +1,3 @@
-using NuGet.Versioning;
-using System;
 using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
@@ -11,6 +9,7 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NuGet.Versioning;
 using Xunit;
 
 namespace tests.Specs;
@@ -54,7 +53,7 @@ public class UpgradeBase
         });
 
         UpgradeBaseCommand cmd = new UpgradeBaseCommand(fileSystem);
-        cmd.Execute(fileSystem.FileInfo.New(projectConfigPath).Directory, NuGetVersion.Parse("11.1.6"), NuGetVersion.Parse("11.1.6"), []);
+        cmd.Execute(fileSystem.FileInfo.New(projectConfigPath).Directory, NuGetVersion.Parse("11.1.6"));
 
         string projectConfigContents = fileSystem.File.ReadAllText(projectConfigPath);
 
@@ -163,7 +162,7 @@ public class UpgradeBase
 		                    <PackageReference Include=""Cmf.MessageBus.Client"" Version=""11.1.5"" />
 		                    <PackageReference Include=""Cmf.Common.CustomActionUtilities"" Version=""10.1.0"" GeneratePathProperty=""true"" />
 		                    <PackageReference Include=""cmf.common.customactionutilities"" Version=""10.2.6.1"" GeneratePathProperty=""true"" />
-            
+
 
 		                    <PackageReference Include=""Cmf.LoadBalancing"" Version=""11.1.5"" />
 
@@ -177,10 +176,8 @@ public class UpgradeBase
                 )
             }
         });
-
-
         UpgradeBaseCommand cmd = new UpgradeBaseCommand(fileSystem);
-        cmd.Execute(fileSystem.DirectoryInfo.New("/"), NuGetVersion.Parse(version), NuGetVersion.Parse(version), []);
+        cmd.Execute(fileSystem.DirectoryInfo.New("/"), NuGetVersion.Parse(version));
 
         string rootCmfpackageContents = fileSystem.File.ReadAllText("/cmfpackage.json");
 
@@ -208,13 +205,10 @@ public class UpgradeBase
     }
 
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
-    public void DataPackage(bool iotShouldBeUpdated)
+    [Fact]
+    public void DataPackage()
     {
         string version = "11.1.6";
-        string iotVersion = "11.1.6-123";
 
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
@@ -509,50 +503,15 @@ public class UpgradeBase
             }
         });
 
-        UpgradeBaseCommand cmd = new UpgradeBaseCommand(fileSystem);
-        cmd.Execute(fileSystem.DirectoryInfo.New(@"/"), NuGetVersion.Parse(version), iotShouldBeUpdated ? NuGetVersion.Parse(iotVersion) : null, ["ignore-this-package"]);
+        ExecutionContext.Initialize(fileSystem);
+
+        UpgradeBaseUtilities.UpdateCSharpProject(fileSystem, new CmfPackage(fileSystem.FileInfo.New("/cmfpackage.json")), version, true);
 
         string csprojContents = fileSystem.File.ReadAllText(@"/DEEs/a.b.c.csproj");
         csprojContents.Should().Contain(
             $@"<PackageReference Include=""Cmf.MessageBus.Client"" Version=""{version}"" />"
         );
 
-        if (iotShouldBeUpdated)
-        {
-            #region Masterdata validations
-            string mdlContents = fileSystem.File.ReadAllText(@"/MasterData/a.json");
-            mdlContents.Should().ContainAll([
-                $@"""PackageVersion"": ""{iotVersion}""",
-                $@"""MonitorPackageVersion"": ""{iotVersion}""",
-                $@"""ManagerPackageVersion"": ""{iotVersion}""",
-                $@"""ControllerPackageVersion"": ""{iotVersion}""",
-                $@"@criticalmanufacturing/connect-iot-controller-engine-core-tasks@{iotVersion}",
-                $@"@criticalmanufacturing/connect-iot-random@{iotVersion}",
-                $@"@criticalmanufacturing/connect-iot-controller-engine-custom-utilities-tasks@5.4.3", // The industry templates iot packages should remain unchanged
-                $@"@criticalmanufacturing/connect-iot-controller-engine-custom-smt-utilities-tasks@5.4.3",
-                $@"@criticalmanufacturing/connect-iot-utilities-semi-tasks@5.4.3",
-            ]);
-            Assert.Equal(7, Regex.Matches(mdlContents, iotVersion.Replace(".", "\\.")).Count);
-            #endregion IoT Masterdata validations
-
-            #region Workflow validations
-            string wflContents = fileSystem.File.ReadAllText(@"/AutomationWorkFlows/workflow.json");
-            JObject workflowJsonObject = (JObject)JsonConvert.DeserializeObject(wflContents);
-
-            // Tasks
-            workflowJsonObject["tasks"][0]["reference"]["package"]["version"].ToString().Should().Be(iotVersion);
-            workflowJsonObject["tasks"][1]["reference"]["package"]["version"].ToString().Should().Be("11.1.5");
-            workflowJsonObject["tasks"][2]["reference"]["package"]["version"].ToString().Should().Be(iotVersion);
-
-            // Converters
-            workflowJsonObject["converters"][0]["reference"]["package"]["version"].ToString().Should().Be(iotVersion);
-            workflowJsonObject["converters"][1]["reference"]["package"]["version"].ToString().Should().Be("1.2.3");
-
-            Assert.Equal(3, Regex.Matches(wflContents, iotVersion.Replace(".", "\\.")).Count);
-            Assert.Single(Regex.Matches(wflContents, "11.1.5".Replace(".", "\\."))); // Ignored task
-            Assert.Single(Regex.Matches(wflContents, "1.2.3".Replace(".", "\\."))); // Ignored converter
-            #endregion IoT Workflow validations
-        }
     }
 
     [Theory]
@@ -779,10 +738,8 @@ public class UpgradeBase
                 )
             }
         });
-
-
         UpgradeBaseCommand cmd = new UpgradeBaseCommand(fileSystem);
-        cmd.Execute(fileSystem.DirectoryInfo.New("/"), NuGetVersion.Parse(version), null, []);
+        cmd.Execute(fileSystem.DirectoryInfo.New("/"), NuGetVersion.Parse(version));
 
         string csprojContents = fileSystem.File.ReadAllText("/Common/a.b.c.csproj");
         csprojContents.Should().Contain(

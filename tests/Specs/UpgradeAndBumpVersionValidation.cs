@@ -157,26 +157,6 @@ public class UpgradeAndBumpVersionValidation : IDisposable
     }
 
     [Theory]
-    [InlineData("invalid")]
-    [InlineData("9.9.9")]
-    public void Upgrade_RejectsInvalidIoTVersionBeforeWrites(string value)
-    {
-        var before = Snapshot();
-
-        var console = Invoke("upgrade", root, "12.0.0-beta.1", "--iotVersion", value);
-
-        if (NuGet.Versioning.NuGetVersion.TryParse(value, out var parsed) && parsed.Major < 10)
-        {
-            console.Error.ToString().Should().Contain("MES Versions under 10 are no longer supported with the newest version of the CLI. Please use cmf-cli 5.8.0 or lower.");
-        }
-        else
-        {
-            console.Error.ToString().Should().Contain("--iotVersion").And.Contain(value).And.Contain("Expected ");
-        }
-        Snapshot().Should().BeEquivalentTo(before);
-    }
-
-    [Theory]
     [InlineData("10.0.0-alpha.1")]
     [InlineData("12.0.0-beta.1")]
     [InlineData("12.0.0-beta.1+build.4")]
@@ -208,11 +188,11 @@ public class UpgradeAndBumpVersionValidation : IDisposable
             return new ProjectConfigService().Load(config);
         });
 
-        command.Execute(fileSystem.DirectoryInfo.New(root), NuGetVersion.Parse("12.0.0"), null, []);
+        command.Execute(fileSystem.DirectoryInfo.New(root), NuGetVersion.Parse("12.0.0"));
 
         loaded.Should().BeEquivalentTo(new[] { Path(".project-config.json"), Path("nested", ".project-config.json") });
         before = Snapshot();
-        command.Execute(fileSystem.DirectoryInfo.New(root), NuGetVersion.Parse("12.0.1"), null, []);
+        command.Execute(fileSystem.DirectoryInfo.New(root), NuGetVersion.Parse("12.0.1"));
         loaded.Count(path => path == Path(".project-config.json")).Should().Be(2);
         loaded.Count(path => path == Path("nested", ".project-config.json")).Should().Be(2);
     }
@@ -251,6 +231,15 @@ public class UpgradeAndBumpVersionValidation : IDisposable
     }
 
     [Fact]
+    public void Upgrade_ManifestOptionIsRegisteredAndParsed()
+    {
+        var command = CreateCommand("upgrade");
+
+        command.Options.Should().Contain(o => o.Name == "--manifest" || o.Aliases.Any(a => a == "--manifest"));
+        command.Parse(new[] { root, "12.0.0", "--manifest", "manifest.json" }).Errors.Should().BeEmpty();
+    }
+
+    [Fact]
     public void Upgrade_ValidatesTargetConfigurationOutsideCurrentProjectBeforeWrites()
     {
         var target = Path("other-project");
@@ -259,7 +248,7 @@ public class UpgradeAndBumpVersionValidation : IDisposable
         var command = new UpgradeBaseCommand(fileSystem);
         var before = Snapshot();
 
-        Action execute = () => command.Execute(fileSystem.DirectoryInfo.New(target), NuGetVersion.Parse("12.0.0"), null, []);
+        Action execute = () => command.Execute(fileSystem.DirectoryInfo.New(target), NuGetVersion.Parse("12.0.0"));
 
         execute.Should().Throw<CliException>().WithMessage("*other-project*.project-config.json*MESVersion*invalid*");
         Snapshot().Should().BeEquivalentTo(before);
@@ -276,7 +265,7 @@ public class UpgradeAndBumpVersionValidation : IDisposable
         var command = new UpgradeBaseCommand(fileSystem);
         var before = Snapshot();
 
-        Action execute = () => command.Execute(fileSystem.DirectoryInfo.New(root), NuGetVersion.Parse("12.0.0"), null, []);
+        Action execute = () => command.Execute(fileSystem.DirectoryInfo.New(root), NuGetVersion.Parse("12.0.0"));
 
         execute.Should().Throw<CliException>().WithMessage("*nested-project*.project-config.json*NugetVersion*invalid*");
         Snapshot().Should().BeEquivalentTo(before);
