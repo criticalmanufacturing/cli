@@ -3,6 +3,7 @@ using Cmf.CLI.Core.Objects;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.CommandLine;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
@@ -34,6 +35,7 @@ namespace Cmf.CLI.Core
             }
 
             RootCommand rootCommand = new(description);
+            rootCommand.Options.OfType<VersionOption>().Single().Aliases.Add("-v");
 
             ExecutionContext.EnvVarPrefix = envVarPrefix;
 
