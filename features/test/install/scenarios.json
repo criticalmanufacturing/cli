@@ -1,12 +1,14 @@
 {
     "install-latest": {
-        "image": "node",
+        "build": {
+            "dockerfile": "Dockerfile"
+        },
         "features": {
             "install": {}
         }
     },
     "install-specific-version": {
-        "image": "node",
+        "image": "node:22",
         "features": {
             "install": {
                 "version": "5.2.0"
