@@ -116,7 +116,7 @@ replacing the existing installation. Project files are unaffected.
     cmf -v
     ```
 
-This command should output the installed version of `@criticalmanufacturing/cli` if successful.
+Both `cmf -v` and `cmf --version` print the installed version of `@criticalmanufacturing/cli`.
 
 ## Recover an interrupted upgrade
 
