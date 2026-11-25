@@ -4,6 +4,7 @@ using System.IO;
 using System.IO.Abstractions;
 using System.IO.Compression;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Core.Objects;
@@ -28,7 +29,7 @@ public class NPMRepositoryClient : IRepositoryClient
     {
         try
         {
-            var pkg = await client.FetchPackageVersion(packageId.ToLowerInvariant(), version);
+            var pkg = await client.FetchPackageVersion(packageId, version);
 
             if (pkg != null)
             {
@@ -36,6 +37,10 @@ public class NPMRepositoryClient : IRepositoryClient
             }
 
             return pkg;
+        }
+        catch (CliException ex) when (ex.InnerException is OperationCanceledException)
+        {
+            throw;
         }
         catch (Exception ex)
         {

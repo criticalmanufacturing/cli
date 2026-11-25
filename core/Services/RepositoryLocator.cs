@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Cmf.CLI.Core.Interfaces;
 using Cmf.CLI.Core.Objects;
@@ -14,6 +15,17 @@ namespace Cmf.CLI.Core.Services;
 public class RepositoryLocator : IRepositoryLocator
 {
     private Dictionary<string, IRepositoryClient> clients = new();
+
+    public RepositoryLocator() { }
+
+    internal RepositoryLocator(IEnumerable<IRepositoryClient> clients)
+    {
+        foreach (var client in clients)
+        {
+            this.clients.Add(client.RepositoryRoot, client);
+        }
+    }
+
     public IRepositoryClient GetRepositoryClient(Uri uri, IFileSystem fileSystem)
     {
         IRepositoryClient client = null;
@@ -88,6 +100,7 @@ public class RepositoryLocator : IRepositoryLocator
 
     public async Task<CmfPackageV1> FindPackage(string packageId, string packageVersion)
     {
+        CliException timeoutException = null;
         var x = this.clients.Where(pair => !pair.Value.Unreacheable).Select((pair) =>
         {
             var client = pair.Value;
@@ -110,13 +123,26 @@ public class RepositoryLocator : IRepositoryLocator
                         return pkg;
                     }
                 } 
+                catch (CliException e) when (e.InnerException is OperationCanceledException)
+                {
+                    timeoutException ??= e;
+                }
                 catch (Exception e)
                 {
                     Log.Debug(e.Message);
                 }
             }
-            
+
+            if (timeoutException != null)
+            {
+                throw timeoutException;
+            }
+
             return null;
+        }
+        catch (CliException e) when (e.InnerException is OperationCanceledException)
+        {
+            throw;
         }
         catch (Exception)
         {

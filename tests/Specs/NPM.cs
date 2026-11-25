@@ -208,6 +208,40 @@ public class NPM
         }
     }
 
+    [Fact]
+    public async Task FindPackage_MetadataTimeout_ReportsPackageInsteadOfMissingIt()
+    {
+        Setup();
+        var previousTimeout = Environment.GetEnvironmentVariable("CMF_PACKAGE_DOWNLOAD_TIMEOUT_SECONDS");
+        Environment.SetEnvironmentVariable("CMF_PACKAGE_DOWNLOAD_TIMEOUT_SECONDS", "1");
+        try
+        {
+            var handler = new Mock<HttpMessageHandler>();
+            handler.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .Returns(async (HttpRequestMessage _, CancellationToken token) =>
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(2), token);
+                    return new HttpResponseMessage(HttpStatusCode.OK);
+                });
+            using var httpClient = new HttpClient(handler.Object);
+            var npmClient = new NPMClient("https://registry.example", httpClient);
+            var repository = new NPMRepositoryClient("https://registry.example", new MockFileSystem(), npmClient);
+            var locator = new RepositoryLocator([repository]);
+
+            Func<Task> find = () => locator.FindPackage("Cmf.ConnectIoT.Repository", "10.2.9");
+
+            var exception = await find.Should().ThrowAsync<CliException>();
+            exception.Which.Message.Should().Contain("Cmf.ConnectIoT.Repository").And.Contain("10.2.9")
+                .And.Contain("1 second");
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("CMF_PACKAGE_DOWNLOAD_TIMEOUT_SECONDS", previousTimeout);
+        }
+    }
+
     private sealed class PackageDownloadHandler(Func<CancellationToken, Task<HttpResponseMessage>> tarballResponse)
         : HttpMessageHandler
     {
