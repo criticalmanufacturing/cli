@@ -1,3 +1,6 @@
+using NuGet.Versioning;
+using System.Linq;
+using System;
 using Cmf.CLI.Core;
 using Cmf.CLI.Core.Attributes;
 using Cmf.CLI.Core.Constants;
@@ -6,7 +9,6 @@ using Cmf.CLI.Core.Objects;
 using Cmf.CLI.Factories;
 using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-using NuGet.Versioning;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.IO;
@@ -22,7 +24,14 @@ namespace Cmf.CLI.Commands
     [CmfCommand(name: "base", Id = "upgrade_base", ParentId = "upgrade", Description = "Upgrade the baseline version of the MES.")]
     public class UpgradeBaseCommand : BaseCommand
     {
-        
+        private readonly Func<IFileInfo, ProjectConfig> loadProjectConfig = new ProjectConfigService().Load;
+
+        internal UpgradeBaseCommand(IFileSystem fileSystem, Func<IFileInfo, ProjectConfig> loadProjectConfig) : base(fileSystem)
+        {
+            this.loadProjectConfig = loadProjectConfig;
+        }
+
+
         /// <summary>
         /// constructor for System.IO filesystem
         /// </summary>
@@ -51,9 +60,10 @@ namespace Cmf.CLI.Commands
             };
             cmd.Add(packagePathArgument);
 
-            var baseVersionArgument = new Argument<string>("BaseVersion")
+            var baseVersionArgument = new Argument<NuGetVersion>("BaseVersion")
             {
-                Description = "New framework/MES Version"
+                Description = "New framework/MES Version",
+                CustomParser = result => VersionUtilities.ParseVersion(result, text => VersionUtilities.ParseMesVersion(text, "BaseVersion"))
             };
             cmd.Add(baseVersionArgument);
 
@@ -81,16 +91,23 @@ namespace Cmf.CLI.Commands
         /// <param name="packagePath">The package path.</param>
         /// <param name="baseVersion">The new Base version.</param>
         /// <param name="manifest">The manifest file to use for the upgrade.</param>
-        public void Execute(IDirectoryInfo packagePath, string baseVersion, string manifest = null)
+        public void Execute(IDirectoryInfo packagePath, NuGetVersion baseVersion, string manifest = null)
         {
+            var configurations = new HashSet<string>(OperatingSystem.IsWindows() ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
+            ValidateProjectConfig(packagePath, configurations);
             using var activity = ExecutionContext.ServiceProvider?.GetService<ITelemetryService>()?.StartExtendedActivity(this.GetType().Name);
 
             var cmfPackagePaths = packagePath.GetFiles("cmfpackage.json", SearchOption.AllDirectories);
 
+            foreach (var path in cmfPackagePaths)
+            {
+                ValidateProjectConfig(path.Directory, configurations);
+            }
+
             foreach (IFileInfo path in cmfPackagePaths)
             {
                 Log.Debug($"Processing {path.FullName}");
-                new UpgradeCommand(this.fileSystem).Execute(path.Directory, baseVersion, manifest);
+                new UpgradeCommand(this.fileSystem).Execute(path.Directory, VersionUtilities.GetVersionText(baseVersion), manifest);
             }
 
             UpdateProjectConfig(packagePath, baseVersion);
@@ -99,12 +116,29 @@ namespace Cmf.CLI.Commands
 
         #region Utilities
 
+        private void ValidateProjectConfig(IDirectoryInfo directory, HashSet<string> configurations)
+        {
+            while (directory != null)
+            {
+                var config = fileSystem.FileInfo.New(fileSystem.Path.Combine(directory.FullName, CoreConstants.ProjectConfigFileName));
+                if (config.Exists)
+                {
+                    if (configurations.Add(config.FullName))
+                    {
+                        loadProjectConfig(config);
+                    }
+                    return;
+                }
+                directory = directory.Parent;
+            }
+        }
+
         /// <summary>
         /// Updates the `ProjectConfig.json` file if found.
         /// </summary>
         /// <param name="packagePath">The package path.</param>
         /// <param name="baseVersion">The new Base version.</param>
-        private void UpdateProjectConfig(IDirectoryInfo packagePath, string baseVersion)
+        private void UpdateProjectConfig(IDirectoryInfo packagePath, NuGetVersion baseVersion)
         {
             IFileInfo projectConfig = this.fileSystem.FileInfo.New(Path.Combine(packagePath.FullName, CoreConstants.ProjectConfigFileName));
 
@@ -115,10 +149,10 @@ namespace Cmf.CLI.Commands
                 string text = fileSystem.File.ReadAllText(projectConfig.FullName);
                 foreach (string key in new string[] { "MESVersion", "NugetVersion", "TestScenariosNugetVersion" })
                 {
-                    text = UpgradeBaseUtilities.UpdateJsonValue(text, key, baseVersion);
+                    text = UpgradeBaseUtilities.UpdateJsonValue(text, key, VersionUtilities.GetVersionText(baseVersion));
                 }
 
-                if (NuGetVersion.Parse(baseVersion).Major >= 11)
+                if (baseVersion.Major >= 11)
                 {
                     // TODO: find a more elegant way to apply these changes to files/packages when this command is executed.
                     // For the moment, sneaking this if-statement in will do the job but long-term we'll need an approach that

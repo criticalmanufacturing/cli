@@ -9,6 +9,7 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NuGet.Versioning;
 using Xunit;
 
 namespace tests.Specs;
@@ -52,7 +53,7 @@ public class UpgradeBase
         });
 
         UpgradeBaseCommand cmd = new UpgradeBaseCommand(fileSystem);
-        cmd.Execute(fileSystem.FileInfo.New(projectConfigPath).Directory, "11.1.6", "11.1.6");
+        cmd.Execute(fileSystem.FileInfo.New(projectConfigPath).Directory, NuGetVersion.Parse("11.1.6"));
 
         string projectConfigContents = fileSystem.File.ReadAllText(projectConfigPath);
 
@@ -161,7 +162,7 @@ public class UpgradeBase
 		                    <PackageReference Include=""Cmf.MessageBus.Client"" Version=""11.1.5"" />
 		                    <PackageReference Include=""Cmf.Common.CustomActionUtilities"" Version=""10.1.0"" GeneratePathProperty=""true"" />
 		                    <PackageReference Include=""cmf.common.customactionutilities"" Version=""10.2.6.1"" GeneratePathProperty=""true"" />
-            
+
 
 		                    <PackageReference Include=""Cmf.LoadBalancing"" Version=""11.1.5"" />
 
@@ -176,7 +177,7 @@ public class UpgradeBase
             }
         });
         UpgradeBaseCommand cmd = new UpgradeBaseCommand(fileSystem);
-        cmd.Execute(fileSystem.DirectoryInfo.New("/"), version);
+        cmd.Execute(fileSystem.DirectoryInfo.New("/"), NuGetVersion.Parse(version));
 
         string rootCmfpackageContents = fileSystem.File.ReadAllText("/cmfpackage.json");
 
@@ -738,7 +739,7 @@ public class UpgradeBase
             }
         });
         UpgradeBaseCommand cmd = new UpgradeBaseCommand(fileSystem);
-        cmd.Execute(fileSystem.DirectoryInfo.New("/"), version);
+        cmd.Execute(fileSystem.DirectoryInfo.New("/"), NuGetVersion.Parse(version));
 
         string csprojContents = fileSystem.File.ReadAllText("/Common/a.b.c.csproj");
         csprojContents.Should().Contain(
