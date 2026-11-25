@@ -5,7 +5,10 @@ using FluentAssertions;
 using System;
 using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;
+using System.Linq;
+using System.Threading.Tasks;
 using Cmf.CLI.Core.Services;
+using Cmf.CLI.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using tests.Objects;
@@ -17,6 +20,50 @@ namespace tests.Specs
 {
     public class Restore
     {
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task LoadDependencies_RegistryTimeout_TriesLocalSourceBeforeReportingError(bool localFound)
+        {
+            var dependencyId = $"Cmf.TimeoutFallback.{Guid.NewGuid():N}";
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                ["/source/cmfpackage.json"] = new MockFileData($$"""
+                    {"packageId":"Cmf.TimeoutFallback.Root","version":"1.0.0","dependencies":[{"id":"{{dependencyId}}","version":"1.0.0"}]}
+                    """),
+                ["/source/dependency/cmfpackage.json"] = new MockFileData($$"""
+                    {"packageId":"{{dependencyId}}","version":"1.0.0"}
+                    """)
+            });
+            var root = CmfPackageController.FromSourceManifest(fileSystem.FileInfo.New("/source/cmfpackage.json"));
+            var localPackage = CmfPackageController.FromSourceManifest(fileSystem.FileInfo.New("/source/dependency/cmfpackage.json"));
+            var timeout = new CliException($"Download of package {dependencyId}@1.0.0 timed out after 1 seconds.",
+                new OperationCanceledException());
+            var localClient = new Mock<IRepositoryClient>();
+            localClient.Setup(client => client.Find(dependencyId, "1.0.0"))
+                .ReturnsAsync(localFound ? localPackage : null);
+            var locator = new Mock<IRepositoryLocator>();
+            locator.Setup(client => client.FindPackage(dependencyId, "1.0.0")).ThrowsAsync(timeout);
+            locator.Setup(client => client.GetSourceClient(fileSystem)).Returns(localClient.Object);
+            Cmf.CLI.Core.Objects.ExecutionContext.ServiceProvider = new ServiceCollection()
+                .AddSingleton(locator.Object)
+                .BuildServiceProvider();
+
+            Func<Task> load = () => new CmfPackageController(root, fileSystem).LoadDependencies(null, null);
+
+            if (localFound)
+            {
+                await load.Should().NotThrowAsync();
+                root.Dependencies.Single().CmfPackageV1.Should().BeSameAs(localPackage);
+            }
+            else
+            {
+                var exception = await load.Should().ThrowAsync<CliException>();
+                exception.Which.Should().BeSameAs(timeout);
+            }
+            localClient.Verify(client => client.Find(dependencyId, "1.0.0"), Times.Once);
+        }
+
         [Fact]
         public void RestoreDependencies()
         {

@@ -265,37 +265,44 @@ namespace Cmf.CLI.Core.Objects
         
         public async Task<CmfPackageV1> FetchPackageVersion(string packageName, string version)
         {
-            var client = this.client;
-            using var timeout = CreateDefaultTimeout();
-            var url = $"{this.baseUrl}/{packageName}";
-            using var res = await client.GetAsync(url, timeout.Token);
-            Log.Debug($"Got response HTTP code {res.StatusCode}");
-            if (res.StatusCode != HttpStatusCode.OK)
+            try
             {
-                Log.Debug($"Could not get package {packageName}@{version} from {this.baseUrl}: {res.StatusCode}");
-                return null;
-            }
-            var body = await res.Content.ReadAsStringAsync(timeout.Token);
+                var client = this.client;
+                using var timeout = CreateDefaultTimeout();
+                var url = $"{this.baseUrl}/{packageName.ToLowerInvariant()}";
+                using var res = await client.GetAsync(url, timeout.Token);
+                Log.Debug($"Got response HTTP code {res.StatusCode}");
+                if (res.StatusCode != HttpStatusCode.OK)
+                {
+                    Log.Debug($"Could not get package {packageName}@{version} from {this.baseUrl}: {res.StatusCode}");
+                    return null;
+                }
+                var body = await res.Content.ReadAsStringAsync(timeout.Token);
             
-            // Parse the JSON string into a JObject
-            var bodyJson = JObject.Parse(body);
+                // Parse the JSON string into a JObject
+                var bodyJson = JObject.Parse(body);
 
-            // Extract the 'address' property as a JObject
-            var versions = (JObject)bodyJson["versions"];
+                // Extract the 'address' property as a JObject
+                var versions = (JObject)bodyJson["versions"];
 
-            if (!versions.ContainsKey(version))
+                if (!versions.ContainsKey(version))
+                {
+                    Log.Debug($"Could not get package {packageName}@{version} from {this.baseUrl}: no matching version found.");
+
+                    return null;
+                }
+            
+                // Convert the address JObject back into a string
+                string versionManifest = versions[version].ToString();
+
+                var ctrlr = new CmfPackageController(CmfPackageController.FromJson(versionManifest), null);
+
+                return ctrlr.CmfPackage;
+            }
+            catch (OperationCanceledException exception)
             {
-                Log.Debug($"Could not get package {packageName}@{version} from {this.baseUrl}: no matching version found.");
-
-                return null;
+                throw new CliException(string.Format(CoreMessages.PackageDownloadTimedOut, packageName, version, timeoutSeconds), exception);
             }
-            
-            // Convert the address JObject back into a string
-            string versionManifest = versions[version].ToString();
-
-            var ctrlr = new CmfPackageController(CmfPackageController.FromJson(versionManifest), null);
-
-            return ctrlr.CmfPackage;
         }
 
         public async Task<IFileInfo> DownloadPackage(string packageName, string version, IFileInfo output)

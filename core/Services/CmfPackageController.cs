@@ -234,13 +234,21 @@ public class CmfPackageController
 
                 // 1) check if we have found this package before
                 var dependencyPackage = loadedPackages.FirstOrDefault(x => x.PackageId.IgnoreCaseEquals(dependency.Id) && x.Version.IgnoreCaseEquals(dependency.Version));
+                CliException repositoryTimeout = null;
 
                 // 2) check if package is in repository
                 if (dependencyPackage == null)
                 {
                     // dependencyPackage = LoadFromRepo(repoDirectories, dependency.Id, dependency.Version);
-                    dependencyPackage = await ExecutionContext.ServiceProvider.GetService<IRepositoryLocator>()
-                        .FindPackage(dependency.Id, dependency.Version);
+                    try
+                    {
+                        dependencyPackage = await ExecutionContext.ServiceProvider.GetService<IRepositoryLocator>()
+                            .FindPackage(dependency.Id, dependency.Version);
+                    }
+                    catch (CliException exception) when (exception.InnerException is OperationCanceledException)
+                    {
+                        repositoryTimeout = exception;
+                    }
                 }
 
                 // 3) search in the source code repository (only if this is a local package)
@@ -253,6 +261,11 @@ public class CmfPackageController
                     // }
                     dependencyPackage = await ExecutionContext.ServiceProvider.GetService<IRepositoryLocator>().GetSourceClient(this.fileSystem)
                         .Find(dependency.Id, dependency.Version);
+                }
+
+                if (dependencyPackage == null && repositoryTimeout != null)
+                {
+                    throw repositoryTimeout;
                 }
 
                 if (dependencyPackage != null)
