@@ -1,7 +1,7 @@
 {
     "name": "install @criticalmanufacturing/cli",
     "id": "install",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Installs @criticalmanufacturing/cli package globally inside the devcontainer",
     "options": {
         "version": {
