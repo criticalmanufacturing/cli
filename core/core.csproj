@@ -20,7 +20,7 @@
     <ItemGroup>
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.7" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-      <PackageReference Include="NuGet.Versioning" Version="7.3.1" />
+      <PackageReference Include="NuGet.Versioning" Version="8.0.0" />
       <PackageReference Include="OpenTelemetry" Version="1.15.3" />
       <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.15.3" />
       <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.15.3" />
@@ -32,12 +32,12 @@
       <PackageReference Include="Spectre.Console" Version="0.55.2" />
       <PackageReference Include="System.IO.Abstractions" Version="22.1.1" />
       <PackageReference Include="System.CommandLine" Version="2.0.7" />
-      <PackageReference Include="Microsoft.TemplateEngine.Edge" Version="10.0.203" />
+      <PackageReference Include="Microsoft.TemplateEngine.Edge" Version="11.0.100" />
       <PackageReference Include="Microsoft.TemplateEngine.IDE" Version="10.0.203" />
       <PackageReference Include="Microsoft.TemplateEngine.Orchestrator.RunnableProjects" Version="10.0.203" />
-      <PackageReference Include="NuGet.Packaging" Version="7.3.1" />
+      <PackageReference Include="NuGet.Packaging" Version="8.0.0" />
       <!-- NuGet.Packaging and the template engine otherwise resolve a vulnerable Pkcs version. -->
-      <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
+      <PackageReference Include="System.Security.Cryptography.Pkcs" Version="11.0.0" />
     </ItemGroup>
 
     <ItemGroup>
